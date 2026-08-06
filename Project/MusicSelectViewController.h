@@ -31,6 +31,40 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)stopStoreInfo;
 /**
+ * @brief Restarts the menu music if it stopped. DECLARED ONLY.
+ */
+- (void)checkAndRetryBgm;
+/**
+ * @brief Asks the servers for fresh store and notification data. DECLARED ONLY.
+ */
+- (void)requestNewInfo;
+/**
+ * @brief Starts a chart download.
+ *
+ * The capital J and L are the binary's own spelling of the selector. DECLARED ONLY.
+ *
+ * @param downloadID The identifier the delegate parked in @c jcfDownloadID.
+ */
+- (void)JcfDownLoad:(id)downloadID;
+/**
+ * @brief Jumps to the store entry a pending deep link names.
+ *
+ * Sent when any of @c storePackID, @c storeCampaignID, or @c storeGenreID is set. DECLARED ONLY.
+ */
+- (void)schemeMoveStore;
+/**
+ * @brief Shows a queued notification banner.
+ *
+ * The fallback when no store deep link and no download are pending. DECLARED ONLY.
+ */
+- (void)notificationDisp;
+/**
+ * @brief Opens the song detail panel.
+ *
+ * Sent on returning from the editor, and only when nothing else is pending. DECLARED ONLY.
+ */
+- (void)startOpenDetailPanel;
+/**
  * @brief Rebuilds the marker list. DECLARED ONLY.
  */
 - (void)reloadMarkerSelectView;

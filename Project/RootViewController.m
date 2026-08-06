@@ -9,6 +9,8 @@
 #import "LogoViewController.h"
 #import "MusicSelectViewController.h"
 #import "ScratchUtil.h"
+#import "TitleViewControllerKnt.h"
+#import "TitleViewControllerNte.h"
 #import "TitleViewControllerOrg.h"
 #import "TitleViewControllerRpl.h"
 
@@ -30,8 +32,18 @@
 }
 @end
 
-// The transition names the dispatcher branches on, from the CFStrings at 0x2e0020 through 0x2e0180.
+// The five scene identifiers, from the CFStrings at 0x2e0000, 0x2e0080, and 0x2e01a0 to 0x2e01e0.
+// "SceneStore" sits beside them in the pool and is not reached by anything recovered so far.
+static NSString *const kLogoSceneID = @"SceneLogo";
+static NSString *const kSelectSceneID = @"SceneSelect";
+static NSString *const kTitleSceneID = @"SceneTitle";
+static NSString *const kGameSceneID = @"SceneGame";
+static NSString *const kEditSceneID = @"SceneEdit";
+
+// The transition names the two dispatchers branch on, from the CFStrings at 0x2e0020 to 0x2e0180.
 static NSString *const kTitleAnimationName = @"AnimTitle";
+static NSString *const kChangeThemeAnimationName = @"AnimChangeTheme";
+static NSString *const kTitleSwitchAnimationName = @"AnimTitleSwitch";
 static NSString *const kSelectAnimationName = @"AnimSelect";
 static NSString *const kStartGameAnimationName = @"AnimStartGame";
 static NSString *const kGameRestartAnimationName = @"AnimGameRestart";
@@ -39,16 +51,6 @@ static NSString *const kGameReplayAnimationName = @"AnimGameReplay";
 static NSString *const kReturnMusicSelectAnimationName = @"AnimReturnMusicSelect";
 static NSString *const kStartEditAnimationName = @"AnimStartEdit";
 static NSString *const kEndEditAnimationName = @"AnimEndEdit";
-
-// The animation names, from the CFStrings at 0x2e00a0 and 0x2e00c0.
-static NSString *const kChangeThemeAnimationName = @"AnimChangeTheme";
-static NSString *const kTitleSwitchAnimationName = @"AnimTitleSwitch";
-
-// The two scene identifiers reached so far, from the CFStrings at 0x2e0000 and 0x2e0080. The string
-// pool around them also holds "SceneStore", "AnimTitle", and "AnimSelect", so the scene vocabulary
-// is wider than the two names this file needs.
-static NSString *const kLogoSceneID = @"SceneLogo";
-static NSString *const kSelectSceneID = @"SceneSelect";
 
 // The three keys of the push-receipt body, from the CFStrings at 0x2d4cc0, 0x2d5c20, and 0x2d5000.
 static NSString *const kPushResponseUserIDKey = @"user_id";
@@ -78,6 +80,8 @@ static const double kTitleSwitchFadeDuration = 1.5;
 @interface UIViewController (JubeatScene)
 - (void)start;
 - (void)stopAnimation;
+- (void)showLogo;
+- (void)startGame;
 - (void)startAnimation;
 - (void)loadResources;
 - (void)releaseResources;
@@ -133,6 +137,17 @@ static const double kTitleSwitchFadeDuration = 1.5;
     fadeView.alpha = 0.0;
     [UIView commitAnimations];
 }
+
+// The class-method calls to UIView below are the pre-iOS-4 begin/commit animation API, deprecated
+// in 2010 and never removed. They are not a reconstruction artefact: the receiver resolves to
+// _OBJC_CLASS_$_UIView at 0x348210, the imported UIKit class symbol with 449 cross-references, and
+// all six selectors were read from their pointer slots at 0x345dd8, 0x345de0, 0x3424e0, 0x345de8,
+// 0x345df8, and 0x345e00.
+//
+// Do not rewrite them as +animateWithDuration:animations:completion:. The whole two-phase
+// transition is driven by setAnimationDelegate: plus setAnimationDidStopSelector:, which is what
+// hands control from -fade: to -fadeoutAnimStop: and on to -fadeinAnimStop:. A block-based
+// rewrite would restructure the control flow this file exists to document.
 
 #pragma mark - Transitions
 
@@ -276,6 +291,100 @@ static const double kTitleSwitchFadeDuration = 1.5;
     }
     // Every arm, and an animation name matching none of them, converges here.
     [self beginFadeInForAnimation:animationID];
+}
+
+/** @ghidraAddress 0x1a9fec */
+- (void)fadeinAnimStop:(NSString *)animationID
+              finished:(NSNumber *)finished
+               context:(void *)context {
+    // As with -fadeoutAnimStop:, neither finished nor context is read.
+    JubeatAppDelegate *delegate = JubeatAppDelegate.appDelegate;
+
+    // Each arm records which scene is now up, then wakes the screen that has just been revealed.
+    if ([animationID isEqualToString:kTitleAnimationName] ||
+        [animationID isEqualToString:kChangeThemeAnimationName] ||
+        [animationID isEqualToString:kTitleSwitchAnimationName]) {
+        currentSceneID = kTitleSceneID;
+        [titleViewCtrl showLogo];
+    } else if ([animationID isEqualToString:kSelectAnimationName] ||
+               [animationID isEqualToString:kReturnMusicSelectAnimationName]) {
+        currentSceneID = kSelectSceneID;
+        [musicSelectViewCtrl checkAndRetryBgm];
+        [musicSelectViewCtrl requestNewInfo];
+    } else if ([animationID isEqualToString:kStartGameAnimationName]) {
+        currentSceneID = kGameSceneID;
+        [gameViewCtrl startGame];
+    } else if ([animationID isEqualToString:kStartEditAnimationName]) {
+        // The editor is started with the same -startGame selector the game screen uses.
+        currentSceneID = kEditSceneID;
+        [editViewCtrl startGame];
+    } else if ([animationID isEqualToString:kEndEditAnimationName]) {
+        currentSceneID = kSelectSceneID;
+        [musicSelectViewCtrl checkAndRetryBgm];
+        [musicSelectViewCtrl requestNewInfo];
+        // Only opens the detail panel when the player has nothing else queued up.
+        if (delegate.jcfDownloadID == nil && delegate.notificationURL == nil &&
+            delegate.storePackID == nil && delegate.storeCampaignID == nil &&
+            delegate.storeGenreID == nil) {
+            [musicSelectViewCtrl startOpenDetailPanel];
+        }
+    }
+
+    // The black cover is torn down here rather than merely hidden, so every transition allocates a
+    // fresh one in -fade:durationIn:durationOut:.
+    [fadeView removeFromSuperview];
+    fadeView = nil;
+
+    // Deferred work the delegate parked while another screen was up. This runs on arrival at music
+    // select whichever route got there, including the two arms above that set the scene themselves.
+    if ([currentSceneID isEqualToString:kSelectSceneID]) {
+        BOOL startedDownload = NO;
+        if (delegate.jcfDownloadID != nil) {
+            [musicSelectViewCtrl JcfDownLoad:delegate.jcfDownloadID];
+            startedDownload = YES;
+        }
+        if (delegate.storePackID != nil || delegate.storeCampaignID != nil ||
+            delegate.storeGenreID != nil) {
+            [musicSelectViewCtrl schemeMoveStore];
+        } else if (!startedDownload) {
+            [musicSelectViewCtrl notificationDisp];
+        }
+    }
+
+    // The other end of the block -fade:durationIn:durationOut: put in place. Reached on every path,
+    // including an unrecognised animation name, so input cannot be left disabled.
+    [UIApplication.sharedApplication endIgnoringInteractionEvents];
+}
+
+/** @ghidraAddress 0x1a743c */
+- (void)createKnitTitleViewController {
+    // The hinabita collaboration wins when both flags are set: its test comes first and short
+    // circuits to the knit screen without ever reading isNagaCoraMode.
+    if (!JubeatAppDelegate.appDelegate.isHinabitaMode &&
+        JubeatAppDelegate.appDelegate.isNagaCoraMode) {
+        titleViewCtrl = [[TitleViewControllerNte alloc] init];
+        return;
+    }
+    titleViewCtrl = [[TitleViewControllerKnt alloc] init];
+}
+
+/** @ghidraAddress 0x1a8bd0 */
+- (void)titleSwitch {
+    // Only the NagaCora screen is stopped before teardown. The knit screen it is replaced with is
+    // not, so this is a class test rather than a nil guard.
+    if ([titleViewCtrl isKindOfClass:TitleViewControllerNte.class]) {
+        [titleViewCtrl stopAnimation];
+    }
+    [self detachChildViewController:titleViewCtrl];
+    titleViewCtrl = nil;
+
+    // Always the knit screen, whatever was there before: this transition only ever switches towards
+    // it, never away.
+    titleViewCtrl = [[TitleViewControllerKnt alloc] init];
+    [self addChildViewController:titleViewCtrl];
+    [titleViewCtrl didMoveToParentViewController:self];
+    [self.view insertSubview:titleViewCtrl.view belowSubview:fadeView];
+    [titleViewCtrl start];
 }
 
 /** @ghidraAddress 0x1a8a68 */

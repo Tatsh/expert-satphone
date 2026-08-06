@@ -29,7 +29,7 @@ What the other subcommands do and do not cover here:
 
 | Subcommand | Coverage in this tree |
 | --- | --- |
-| `addresses` | Real. 77 method annotations checked against the runtime metadata. |
+| `addresses` | Real. 80 method annotations checked against the runtime metadata. |
 | `literals` | Nearly vacuous. It skips any literal with no character above U+0x2000, so it checks the two Japanese strings in `ChallengeStatus.m` and nothing else. Selector checking covers `@selector()` only; the tree now has two, both verified present. |
 | `globals` | Vacuous. No annotated global initialisers here yet. |
 | `unwritten-members` | Vacuous. It looks for C++ `m_` members, and this tree has none yet. |
@@ -101,9 +101,6 @@ would be indistinguishable from a reconstructed one.
 | `+[EditorIDManager deleteKeychain]`      | `+isExistEditorID` sends it           | not located yet |
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
 | `-[LogoViewController start]`            | `-[RootViewController startLogo]` sends it | not located yet |
-| `-[RootViewController fadeinAnimStop:finished:context:]` | the dispatcher installs it as the animation-stop selector | not located yet |
-| `-[RootViewController createKnitTitleViewController]` | the theme switch sends it for theme 2 | not located yet |
-| `-[RootViewController titleSwitch]`      | the dispatcher sends it for "AnimTitleSwitch" | not located yet |
 | `-[AudioManager stopAllSe]`              | the dispatcher sends it                | not located yet |
 | `-[AudioManager releaseBgm:]`            | the dispatcher sends it                | not located yet |
 | `+[AudioManager sharedManager]`          | the dispatcher sends it                | not located yet |
@@ -113,6 +110,10 @@ would be indistinguishable from a reconstructed one.
 | `-[MusicSelectViewController stopStoreInfo]` | the dispatcher sends it            | not located yet |
 | `-[MusicSelectViewController reloadMarkerSelectView]` | `-reloadMarkers` sends it | not located yet |
 | `-[MusicSelectViewController pushNotificate]` | `-pushNotificate` forwards to it | not located yet |
+| `-[MusicSelectViewController checkAndRetryBgm]`, `-requestNewInfo`, `-JcfDownLoad:`, `-schemeMoveStore`, `-notificationDisp`, `-startOpenDetailPanel` | `-fadeinAnimStop:finished:context:` sends them | not located yet |
+| `TitleViewControllerKnt`, `TitleViewControllerNte` | `-createKnitTitleViewController` and `-titleSwitch` build them | not located yet |
+| `-showLogo` on the title screens | `-fadeinAnimStop:finished:context:` sends it | not located yet |
+| `-startGame` on the game and edit screens | `-fadeinAnimStop:finished:context:` sends it | not located yet |
 | `TitleViewControllerOrg`, `TitleViewControllerRpl` | the theme switch builds them | not located yet |
 | `+[CJSONSerializer serializer]`           | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
 | `-[CJSONSerializer serializeDictionary:error:]` | `-responseRemoteNotification:pushInfo:` sends it | not located yet |

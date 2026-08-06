@@ -62,9 +62,15 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Finishes a transition once the screen has faded back in.
  *
- * RECONSTRUCTION STATE: declared because @c -fadeoutAnimStop:finished:context: installs it as the
- * animation-stop selector; the body is not reconstructed yet. It is where the input block that
- * @c -fade:durationIn:durationOut: put in place must eventually be lifted.
+ * Records which scene is now up, wakes the screen just revealed, tears the black cover down, runs
+ * whatever the delegate parked while another screen was in front, and finally lifts the input block
+ * that @c -fade:durationIn:durationOut: put in place. That last step is reached on every path,
+ * including an unrecognised animation name, so input cannot be left disabled.
+ *
+ * @param animationID The transition that has just finished fading back in.
+ * @param finished Never read.
+ * @param context Never read.
+ * @ghidraAddress 0x1a9fec
  */
 - (void)fadeinAnimStop:(NSString *)animationID
               finished:(NSNumber *)finished
@@ -72,16 +78,22 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds the knit-theme title screen into @c titleViewCtrl.
  *
- * RECONSTRUCTION STATE: declared because the theme switch sends it for @c JubeatThemeKnit; the body
- * is not reconstructed yet. Unlike the other two themes, which allocate their controller inline,
- * this one is delegated to a factory that assigns the ivar itself.
+ * Unlike the other two themes, which allocate their controller inline, the knit theme is delegated
+ * to this factory because it picks between two classes: @c TitleViewControllerNte when the delegate
+ * reports @c isNagaCoraMode, and @c TitleViewControllerKnt otherwise. @c isHinabitaMode is tested
+ * first and short circuits to the knit screen, so the hinabita collaboration wins when both flags
+ * are set.
+ * @ghidraAddress 0x1a743c
  */
 - (void)createKnitTitleViewController;
 /**
  * @brief Re-runs the title screen's own switch animation.
  *
- * RECONSTRUCTION STATE: declared because the dispatcher sends it for "AnimTitleSwitch"; the body is
- * not reconstructed yet. It is the only transition that builds and tears down nothing.
+ * Replaces whatever title screen is up with a @c TitleViewControllerKnt. The outgoing screen is
+ * sent @c -stopAnimation only when it is a @c TitleViewControllerNte, which makes this a class test
+ * rather than a nil guard, and the incoming one is always the knit screen — this transition only
+ * ever switches towards it, never away.
+ * @ghidraAddress 0x1a8bd0
  */
 - (void)titleSwitch;
 
