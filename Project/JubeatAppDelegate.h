@@ -22,6 +22,27 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ * @brief The three skins the game ships.
+ *
+ * The binary names none of these either, but the classes the transition dispatcher picks between at
+ * 0x1a9604 do: theme 1 builds @c TitleViewControllerRpl and anything else builds
+ * @c TitleViewControllerOrg, while theme 2 is routed through
+ * @c -[RootViewController createKnitTitleViewController] before either test is reached. That fixes
+ * all three names without guessing.
+ *
+ * @c -[KnitColorManager setColorWithType:] indexes its palette table with a value from the same
+ * range, which is what ties the colour scheme to the skin.
+ */
+typedef NS_ENUM(unsigned int, JubeatTheme) {
+    /** The game's own livery. Also the value written back when the stored one is missing. */
+    JubeatThemeOriginal = 0,
+    /** The REFLEC BEAT plus livery. */
+    JubeatThemeReflecBeatPlus = 1,
+    /** The knit livery, built by a dedicated factory rather than allocated inline. */
+    JubeatThemeKnit = 2,
+};
+
+/**
  * @brief The device classes this build distinguishes.
  *
  * The binary names none of these; the names below come from the classifier at 0x9748-0x97d0 and
@@ -270,7 +291,7 @@ typedef NS_ENUM(NSInteger, JubeatDeviceType) {
  * 0x85e4 before writing it to the defaults.
  * @ghidraAddress 0xb888 (getter)
  */
-@property(nonatomic, readonly) unsigned int currentTheme;
+@property(nonatomic, readonly) JubeatTheme currentTheme;
 /**
  * @brief The installed marker set, as loaded from disk.
  * @ghidraAddress 0xb9a8 (getter)
@@ -490,7 +511,7 @@ typedef NS_ENUM(NSInteger, JubeatDeviceType) {
  * @c NSNumber, synchronises, and then sends @c -changeThemeAndGoTitle to @c rootViewCtrl.
  * @ghidraAddress 0x8584
  */
-- (void)changeTheme:(unsigned int)theme;
+- (void)changeTheme:(JubeatTheme)theme;
 /**
  * @brief Hands a colour array to the knit-colour manager.
  * @ghidraAddress 0x8f38

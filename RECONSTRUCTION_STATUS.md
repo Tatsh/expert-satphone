@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **75 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **77 annotated, 0
 mismatched, 0 selectors absent.**
 
 ## Method
@@ -53,7 +53,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/Md5Utilities.m` | Complete; a free function. |
 | `Project/LabUtilities.m` | Complete; a free function. Reaches `BFCodec`. |
 | `Project/ScratchUtil.m` | One of two known members. The API host is `agx11.s.konaminet.jp`. |
-| `Project/RootViewController.m` | Five methods. `-fade:durationIn:durationOut:` is the last one declared without a body. |
+| `Project/RootViewController.m` | Seven methods including the transition dispatcher. Reaches most of the game's screens. |
 
 ## Next, in order
 
@@ -63,8 +63,12 @@ rough order of how much each unlocks:
 | Target | Address | Notes |
 | --- | --- | --- |
 | `-[LogoViewController start]` | not located yet | The launch sequence continues here; class at 0x348a58. |
+| `-[RootViewController fadeinAnimStop:finished:context:]` | not located yet | Closes every transition and must be where the input block is lifted. |
+| `-[RootViewController createKnitTitleViewController]`, `-titleSwitch` | not located yet | The two RootViewController members the dispatcher still needs. |
+| `AudioManager` | class at 0x348038 | 357 xrefs, the most of any class reached. Every sound goes through it. |
+| `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds. |
+| `ImageCache` | class at 0x348468 | 132 xrefs. |
 | `Downloader` | class at 0x348250 | `-startDownloading` has 98 xrefs, so essentially every server call routes through it. |
-| `-[RootViewController fade:durationIn:durationOut:]` | not located yet | The last RootViewController member still declared without a body. |
 | `PurchaseManager` | class at 0x348100 | Four launch-time entry points plus `-end`. 81 xrefs, so this is the largest unstarted class. |
 | `MarkerManager`, `TweetResourceManager`, `StoreMusicListManager` | 0x3480d0, 0x3480d8, 0x348108 | Declared-only stubs; each has two or three known members. |
 
@@ -79,13 +83,23 @@ Each was created because a reconstructed caller sends to it. Members declared so
 
 | Class | Class object | Xrefs | Members declared |
 | --- | --- | --- | --- |
-| `RootViewController` | 0x348 (via 0x340430) | — | 3 |
+| `RootViewController` | via 0x340430 | — | **7 implemented**, 3 declared |
 | `ChallengeStatus` | 0x348150 | 116 | 1 |
 | `PurchaseManager` | 0x348100 | 81 | 1 |
 | `ScoreRecordManager` | 0x3480e0 | 12 | 1 |
 | `KnitColorManager` | 0x3480a0 | 7 | 2 |
 | `EditorIDManager` | 0x348060 | 126 | 3 |
-| `Md5Utilities` (free function) | — | — | 1 |
+| `Md5Utilities` (free function) | — | — | **implemented** |
+| `AudioManager` | 0x348038 | 357 | 3 |
+| `Downloader` | 0x348250 | — | 2 |
+| `ImageCache` | 0x348468 | 132 | 2 |
+| `BFCodec` | 0x3481d8 | 189 (`-cipherInit:`) | 2 |
+| `MusicSelectViewController` | 0x348a68 | — | 4 |
+| `TitleViewControllerOrg` / `Rpl` | 0x348a78 / 0x348a70 | — | 2 each |
+| `LogoViewController` | 0x348a58 | — | 1 |
+| `MarkerManager` / `TweetResourceManager` / `StoreMusicListManager` | 0x3480d0 / 0x3480d8 / 0x348108 | — | 2 / 3 / 2 |
+| `ScratchUtil` | 0x3482a0 | — | **implemented** |
+| `CJSONSerializer` (3rdparty) | 0x348248 | — | 2 |
 
 `ScoreRecordManager` is the cheapest to finish at 12 cross-references; `EditorIDManager` and
 `ChallengeStatus` are the largest at 126 and 116.

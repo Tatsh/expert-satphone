@@ -1,26 +1,44 @@
 #import "RootViewController.h"
 
+#import "AudioManager.h"
 #import "CJSONSerializer.h"
 #import "Downloader.h"
 #import "EditorIDManager.h"
+#import "ImageCache.h"
 #import "JubeatAppDelegate.h"
 #import "LogoViewController.h"
+#import "MusicSelectViewController.h"
 #import "ScratchUtil.h"
+#import "TitleViewControllerOrg.h"
+#import "TitleViewControllerRpl.h"
 
 // The ivars reached so far. None has an accessor pair anywhere in the binary, so none is a
 // property. Offset globals in declaration order: 0x34b770, 0x34b778, 0x34b77c, 0x34b780, 0x34b784,
 // 0x34b788, 0x34b78c, 0x34b794.
 @interface RootViewController () {
+    UIViewController *titleViewCtrl;
+    UIViewController *gameViewCtrl;
+    UIViewController *editViewCtrl;
     NSString *suspendedAnimID;
     double durationIn;
     double durationOut;
     UIView *fadeView;
     LogoViewController *logoViewCtrl;
     NSString *currentSceneID;
-    UIViewController *musicSelectViewCtrl;
+    MusicSelectViewController *musicSelectViewCtrl;
     BOOL _isActive;
 }
 @end
+
+// The transition names the dispatcher branches on, from the CFStrings at 0x2e0020 through 0x2e0180.
+static NSString *const kTitleAnimationName = @"AnimTitle";
+static NSString *const kSelectAnimationName = @"AnimSelect";
+static NSString *const kStartGameAnimationName = @"AnimStartGame";
+static NSString *const kGameRestartAnimationName = @"AnimGameRestart";
+static NSString *const kGameReplayAnimationName = @"AnimGameReplay";
+static NSString *const kReturnMusicSelectAnimationName = @"AnimReturnMusicSelect";
+static NSString *const kStartEditAnimationName = @"AnimStartEdit";
+static NSString *const kEndEditAnimationName = @"AnimEndEdit";
 
 // The animation names, from the CFStrings at 0x2e00a0 and 0x2e00c0.
 static NSString *const kChangeThemeAnimationName = @"AnimChangeTheme";
@@ -54,16 +72,69 @@ static const double kChangeThemeFadeOutDuration = 1.0;
 // Both title-switch durations are the same immediate, an fmov of 0x3FF8000000000000.
 static const double kTitleSwitchFadeDuration = 1.5;
 
-// The two selectors this class forwards to the music-select controller. Its concrete class is not
-// established, so they are declared on UIViewController; see TYPES_PENDING.md.
-@interface UIViewController (JubeatMusicSelect)
-// Deliberately unannotated: 0x1aaaa4 is -[RootViewController pushNotificate], not this. The
-// music-select controller's own implementation has not been located.
-- (void)reloadMarkerSelectView;
-- (void)pushNotificate;
+// The selectors the dispatcher sends to controllers whose concrete class is not established. The
+// title screens have two implementations, and the game and edit screens have not been located at
+// all, so these are declared on UIViewController; see TYPES_PENDING.md.
+@interface UIViewController (JubeatScene)
+- (void)start;
+- (void)stopAnimation;
+- (void)startAnimation;
+- (void)loadResources;
+- (void)releaseResources;
+- (void)terminate;
+- (void)restartGame;
+- (void)replayGame;
 @end
 
 @implementation RootViewController
+
+#pragma mark - Transition helpers
+
+// De-inlined. The binary emits this same three-message teardown five times, at 0x1a95a0, 0x1a965c,
+// 0x1a970c, 0x1a990c, and 0x1a9c68. Nilling the ivar stays at the call site because each copy
+// clears a different one.
+- (void)detachChildViewController:(UIViewController *)controller {
+    [controller willMoveToParentViewController:nil];
+    [controller.view removeFromSuperview];
+    [controller removeFromParentViewController];
+}
+
+// De-inlined. Emitted twice, at 0x1a9604 and 0x1a96c0, with identical bodies. Theme 2 delegates to
+// -createKnitTitleViewController, which assigns titleViewCtrl itself; the other two allocate here.
+// Note the fallback is the original skin, so an out-of-range theme lands there rather than failing.
+- (void)createTitleViewControllerForTheme:(JubeatTheme)theme {
+    if (theme == JubeatThemeKnit) {
+        [self createKnitTitleViewController];
+        return;
+    }
+    if (theme == JubeatThemeReflecBeatPlus) {
+        titleViewCtrl = [[TitleViewControllerRpl alloc] init];
+        return;
+    }
+    titleViewCtrl = [[TitleViewControllerOrg alloc] init];
+}
+
+// De-inlined from the two title routes: install the freshly built title screen and start it.
+- (void)installTitleViewController {
+    [self addChildViewController:titleViewCtrl];
+    [titleViewCtrl didMoveToParentViewController:self];
+    [self.view insertSubview:titleViewCtrl.view belowSubview:fadeView];
+    [titleViewCtrl start];
+}
+
+// De-inlined from the tail at 0x1a9a94: fade the black cover back out over durationOut, and hand
+// off to -fadeinAnimStop:finished:context:, which is what re-enables input.
+- (void)beginFadeInForAnimation:(NSString *)animationID {
+    [UIView beginAnimations:animationID context:NULL];
+    [UIView setAnimationCurve:UIViewAnimationCurveLinear];
+    [UIView setAnimationDuration:durationOut];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(fadeinAnimStop:finished:context:)];
+    fadeView.alpha = 0.0;
+    [UIView commitAnimations];
+}
+
+#pragma mark - Transitions
 
 /** @ghidraAddress 0x1a7770 */
 - (void)fade:(NSString *)animationName
@@ -98,6 +169,113 @@ static const double kTitleSwitchFadeDuration = 1.5;
     // callback which transition this was.
     fadeView.alpha = 1.0;
     [UIView commitAnimations];
+}
+
+/** @ghidraAddress 0x1a9420 */
+- (void)fadeoutAnimStop:(NSString *)animationID
+               finished:(NSNumber *)finished
+                context:(void *)context {
+    // Neither finished nor context is read anywhere in the method.
+    //
+    // A restart or a replay keeps its audio and its textures, which is what makes those two
+    // transitions cheap. Every other transition drops both.
+    if (![animationID isEqualToString:kGameRestartAnimationName] &&
+        ![animationID isEqualToString:kGameReplayAnimationName]) {
+        [AudioManager.sharedManager stopAllSe];
+        [AudioManager.sharedManager releaseBgm:YES];
+        [ImageCache.sharedCache clear];
+    }
+
+    // Read before the active test, so it is fetched even on the path that does nothing with it.
+    JubeatTheme theme = JubeatAppDelegate.appDelegate.currentTheme;
+
+    if (!_isActive) {
+        // Off-screen: park the transition rather than run it. Something else replays it later.
+        suspendedAnimID = animationID;
+        return;
+    }
+    suspendedAnimID = nil;
+
+    if ([animationID isEqualToString:kTitleAnimationName]) {
+        // Logo to title. The logo screen gets no stop message before teardown, unlike the title and
+        // music-select screens below.
+        [self detachChildViewController:logoViewCtrl];
+        logoViewCtrl = nil;
+        [self createTitleViewControllerForTheme:theme];
+        [self installTitleViewController];
+    } else if ([animationID isEqualToString:kChangeThemeAnimationName]) {
+        // Music select back to title under a new skin.
+        [musicSelectViewCtrl stopStoreInfo];
+        [self detachChildViewController:musicSelectViewCtrl];
+        musicSelectViewCtrl = nil;
+        [self createTitleViewControllerForTheme:theme];
+        [self installTitleViewController];
+    } else if ([animationID isEqualToString:kSelectAnimationName]) {
+        // Title to music select.
+        [titleViewCtrl stopAnimation];
+        [self detachChildViewController:titleViewCtrl];
+        titleViewCtrl = nil;
+        musicSelectViewCtrl = [[MusicSelectViewController alloc] init];
+        [self addChildViewController:musicSelectViewCtrl];
+        [musicSelectViewCtrl didMoveToParentViewController:self];
+        [self.view insertSubview:musicSelectViewCtrl.view belowSubview:fadeView];
+        [musicSelectViewCtrl startMainBgm];
+    } else if ([animationID isEqualToString:kStartGameAnimationName]) {
+        // Music select into gameplay. gameViewCtrl is built elsewhere; this only reveals it.
+        [self detachChildViewController:musicSelectViewCtrl];
+        musicSelectViewCtrl = nil;
+        [self.view insertSubview:gameViewCtrl.view belowSubview:fadeView];
+        [gameViewCtrl loadResources];
+        // Tested a second time, having already been tested above. Reproduced as compiled: a callee
+        // between the two could in principle have cleared it.
+        if (_isActive) {
+            [gameViewCtrl startAnimation];
+        }
+    } else if ([animationID isEqualToString:kReturnMusicSelectAnimationName]) {
+        // Gameplay back to music select. Note the game screen is torn down only partly: its view
+        // goes, but it is never sent -willMoveToParentViewController: or
+        // -removeFromParentViewController, and gameViewCtrl is not nilled.
+        [gameViewCtrl terminate];
+        [gameViewCtrl releaseResources];
+        [gameViewCtrl.view removeFromSuperview];
+        if (musicSelectViewCtrl == nil) {
+            musicSelectViewCtrl = [[MusicSelectViewController alloc] init];
+            [self addChildViewController:musicSelectViewCtrl];
+            [self.view insertSubview:musicSelectViewCtrl.view belowSubview:fadeView];
+            [musicSelectViewCtrl didMoveToParentViewController:self];
+            [musicSelectViewCtrl startMainBgm];
+        }
+    } else if ([animationID isEqualToString:kStartEditAnimationName]) {
+        // Music select into the note editor.
+        [self detachChildViewController:musicSelectViewCtrl];
+        musicSelectViewCtrl = nil;
+        [self.view insertSubview:editViewCtrl.view belowSubview:fadeView];
+        [editViewCtrl loadResources];
+        if (_isActive) {
+            [editViewCtrl startAnimation];
+        }
+    } else if ([animationID isEqualToString:kEndEditAnimationName]) {
+        // Editor back to music select. Same partial teardown as the gameplay route, and here the
+        // music-select screen is rebuilt unconditionally rather than only when nil.
+        [editViewCtrl terminate];
+        [editViewCtrl releaseResources];
+        [editViewCtrl.view removeFromSuperview];
+        musicSelectViewCtrl = [[MusicSelectViewController alloc] init];
+        [self addChildViewController:musicSelectViewCtrl];
+        [self.view insertSubview:musicSelectViewCtrl.view belowSubview:fadeView];
+        [musicSelectViewCtrl didMoveToParentViewController:self];
+        [musicSelectViewCtrl startMainBgm];
+    } else if ([animationID isEqualToString:kGameRestartAnimationName]) {
+        [self.view insertSubview:gameViewCtrl.view belowSubview:fadeView];
+        [gameViewCtrl restartGame];
+    } else if ([animationID isEqualToString:kGameReplayAnimationName]) {
+        [self.view insertSubview:gameViewCtrl.view belowSubview:fadeView];
+        [gameViewCtrl replayGame];
+    } else if ([animationID isEqualToString:kTitleSwitchAnimationName]) {
+        [self titleSwitch];
+    }
+    // Every arm, and an animation name matching none of them, converges here.
+    [self beginFadeInForAnimation:animationID];
 }
 
 /** @ghidraAddress 0x1a8a68 */

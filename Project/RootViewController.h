@@ -41,18 +41,49 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Swaps the screens for the transition just faded out, then fades back in.
  *
- * RECONSTRUCTION STATE: declared because @c -fade:durationIn:durationOut: installs it as the
- * animation-stop selector; the body is not reconstructed yet.
- *
  * The transition dispatcher, and the largest method in the class at roughly 1.5 KB. It branches on
- * the animation name across nine transitions, tears down the outgoing controller, builds the
- * incoming one, and then starts the fade back in with @c durationOut. When @c _isActive is clear it
- * does none of that and parks the name in @c suspendedAnimID instead.
+ * the animation name across nine transitions, tears down the outgoing screen, builds the incoming
+ * one, and then starts the fade back in over @c durationOut. When @c _isActive is clear it does
+ * none of that and parks the name in @c suspendedAnimID instead.
+ *
+ * Two things about it are worth knowing before reading the body. A game restart or replay keeps its
+ * audio and textures where every other transition drops both, which is what makes those two cheap.
+ * And an animation name matching none of the nine still runs the fade back in, so an unknown
+ * transition leaves the screen unchanged rather than stuck black.
+ *
+ * @param animationID The transition name @c -fade:durationIn:durationOut: was given.
+ * @param finished Never read.
+ * @param context Never read.
  * @ghidraAddress 0x1a9420
  */
 - (void)fadeoutAnimStop:(NSString *)animationID
                finished:(NSNumber *)finished
                 context:(void *)context;
+/**
+ * @brief Finishes a transition once the screen has faded back in.
+ *
+ * RECONSTRUCTION STATE: declared because @c -fadeoutAnimStop:finished:context: installs it as the
+ * animation-stop selector; the body is not reconstructed yet. It is where the input block that
+ * @c -fade:durationIn:durationOut: put in place must eventually be lifted.
+ */
+- (void)fadeinAnimStop:(NSString *)animationID
+              finished:(NSNumber *)finished
+               context:(void *)context;
+/**
+ * @brief Builds the knit-theme title screen into @c titleViewCtrl.
+ *
+ * RECONSTRUCTION STATE: declared because the theme switch sends it for @c JubeatThemeKnit; the body
+ * is not reconstructed yet. Unlike the other two themes, which allocate their controller inline,
+ * this one is delegated to a factory that assigns the ivar itself.
+ */
+- (void)createKnitTitleViewController;
+/**
+ * @brief Re-runs the title screen's own switch animation.
+ *
+ * RECONSTRUCTION STATE: declared because the dispatcher sends it for "AnimTitleSwitch"; the body is
+ * not reconstructed yet. It is the only transition that builds and tears down nothing.
+ */
+- (void)titleSwitch;
 
 /**
  * @brief Dismisses the music-select screen and returns to the title under the new theme.

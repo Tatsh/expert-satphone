@@ -298,7 +298,7 @@ static const int kDefaultTheme = 0;
 #pragma mark - Presentation mutators
 
 /** @ghidraAddress 0x8584 */
-- (void)changeTheme:(unsigned int)theme {
+- (void)changeTheme:(JubeatTheme)theme {
     _currentTheme = theme;
     // The value is boxed with +numberWithUnsignedInt:, which is what fixes the ivar's signedness.
     [NSUserDefaults.standardUserDefaults setObject:@(theme) forKey:kThemePreferenceKey];

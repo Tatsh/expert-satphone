@@ -29,8 +29,8 @@ What the other subcommands do and do not cover here:
 
 | Subcommand | Coverage in this tree |
 | --- | --- |
-| `addresses` | Real. 75 method annotations checked against the runtime metadata. |
-| `literals` | Nearly vacuous. It skips any literal with no character above U+0x2000, so it checks the two Japanese strings in `ChallengeStatus.m` and nothing else. Selector checking covers `@selector()` only, and this tree uses none. |
+| `addresses` | Real. 77 method annotations checked against the runtime metadata. |
+| `literals` | Nearly vacuous. It skips any literal with no character above U+0x2000, so it checks the two Japanese strings in `ChallengeStatus.m` and nothing else. Selector checking covers `@selector()` only; the tree now has two, both verified present. |
 | `globals` | Vacuous. No annotated global initialisers here yet. |
 | `unwritten-members` | Vacuous. It looks for C++ `m_` members, and this tree has none yet. |
 
@@ -76,8 +76,10 @@ These are not `id`, but are less specific than the binary may allow and should b
 
 | Declaration                             | Weakened to        | Settled by                                        |
 | --------------------------------------- | ------------------ | ------------------------------------------------- |
-| `RootViewController.musicSelectViewCtrl` | `UIViewController` | whatever constructs it; it responds to `-reloadMarkerSelectView` and `-pushNotificate`, neither of which `UIViewController` declares |
-| `RootViewController.currentSceneID`     | `NSString`         | proven by `-isEqualToString:`, but the set of scene identifiers is not; "SceneStore", "AnimTitle", and "AnimSelect" sit beside the two known ones in the string pool |
+| `RootViewController.currentSceneID`     | `NSString`         | proven by `-isEqualToString:`, but the set of scene identifiers is not; "SceneStore" sits beside the two known ones in the string pool |
+| `RootViewController.titleViewCtrl`      | `UIViewController` | it holds either a `TitleViewControllerOrg` or a `TitleViewControllerRpl` depending on the theme, so a common base or protocol is likely; both respond to `-start` and `-stopAnimation` |
+| `RootViewController.gameViewCtrl`       | `UIViewController` | never built in any reconstructed routine, only revealed; whatever assigns it will name the class |
+| `RootViewController.editViewCtrl`       | `UIViewController` | as above. It responds to the same `-loadResources`/`-startAnimation`/`-terminate`/`-releaseResources` set as `gameViewCtrl`, so the two share an interface |
 | `KnitColorManager.setColorWithArray:`   | `NSArray`          | the manager's own body; the delegate passes its argument straight through |
 
 ## Declared without a body
@@ -88,8 +90,6 @@ would be indistinguishable from a reconstructed one.
 
 | Declaration                              | Why it is declared                    | Body at   |
 | ---------------------------------------- | ------------------------------------- | --------- |
-| `-[RootViewController fade:durationIn:durationOut:]` | all three reconstructed methods send it | not located yet |
-| `-[UIViewController reloadMarkerSelectView]` | `-reloadMarkers` sends it        | not located yet |
 | `-[KnitColorManager setColorWithArray:]` | `-setKnitColor:` sends it             | not located yet |
 | `+[ChallengeStatus sharedStatus]`        | `-applicationDidEnterBackground:` sends it | not located yet |
 | `-[ChallengeStatus restCoinNum]`         | `-createCoinNotification` sends it    | not located yet |
@@ -100,8 +100,20 @@ would be indistinguishable from a reconstructed one.
 | `+[EditorIDManager getKeyQuery:]`        | `+isExistEditorID` sends it           | not located yet |
 | `+[EditorIDManager deleteKeychain]`      | `+isExistEditorID` sends it           | not located yet |
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
-| `-[UIViewController pushNotificate]` (on `musicSelectViewCtrl`) | `-[RootViewController pushNotificate]` forwards to it | not located yet |
 | `-[LogoViewController start]`            | `-[RootViewController startLogo]` sends it | not located yet |
+| `-[RootViewController fadeinAnimStop:finished:context:]` | the dispatcher installs it as the animation-stop selector | not located yet |
+| `-[RootViewController createKnitTitleViewController]` | the theme switch sends it for theme 2 | not located yet |
+| `-[RootViewController titleSwitch]`      | the dispatcher sends it for "AnimTitleSwitch" | not located yet |
+| `-[AudioManager stopAllSe]`              | the dispatcher sends it                | not located yet |
+| `-[AudioManager releaseBgm:]`            | the dispatcher sends it                | not located yet |
+| `+[AudioManager sharedManager]`          | the dispatcher sends it                | not located yet |
+| `+[ImageCache sharedCache]`              | the dispatcher sends it                | not located yet |
+| `-[ImageCache clear]`                    | the dispatcher sends it                | not located yet |
+| `-[MusicSelectViewController startMainBgm]` | the dispatcher sends it             | not located yet |
+| `-[MusicSelectViewController stopStoreInfo]` | the dispatcher sends it            | not located yet |
+| `-[MusicSelectViewController reloadMarkerSelectView]` | `-reloadMarkers` sends it | not located yet |
+| `-[MusicSelectViewController pushNotificate]` | `-pushNotificate` forwards to it | not located yet |
+| `TitleViewControllerOrg`, `TitleViewControllerRpl` | the theme switch builds them | not located yet |
 | `+[CJSONSerializer serializer]`           | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
 | `-[CJSONSerializer serializeDictionary:error:]` | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
 | `-[Downloader initWithURL:postJsonData:delegate:]` | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
