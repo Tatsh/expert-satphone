@@ -811,6 +811,31 @@ method names suggest.
 `userInteractionEnabled` to **NO**, so the sheet stops dimming and stops swallowing touches. The
 name reads as enabling something and what it does is disable this view's own handling.
 
+### `-[NotificationPageNavController init:]` (0x182b8c) — an object passed where a `BOOL` is wanted
+
+Two iOS 7 properties are set through `-performSelector:withObject:` behind `-respondsToSelector:`
+guards, which is the ordinary way to touch a newer API from an older SDK. The two calls do not pass
+the same kind of thing:
+
+```text
+100182ca4: mov x3,#0x0    ; setExtendedLayoutIncludesOpaqueBars: withObject:nil
+…
+100182cd8: mov x3,x20     ; setAutomaticallyAdjustsScrollViewInsets: withObject:self
+```
+
+`-setAutomaticallyAdjustsScrollViewInsets:` takes a `BOOL`. Under `-performSelector:withObject:` the
+object pointer lands in `x2` and the setter reads its low byte, so the flag ends up as
+`(char)(uintptr_t)self` — the *address* of the controller, truncated.
+
+Objects are sixteen-byte aligned, so that byte is one of `0x00, 0x10, …, 0xF0`. Fifteen times in
+sixteen it is non-zero and the property comes out YES, which is presumably what was meant. One time
+in sixteen the allocation lands on a 256-byte boundary and it comes out NO, and the page's scroll
+view is laid out differently for no reason the code expresses.
+
+The nil in the first call is the same idiom used correctly: nil is a reliable NO. There is no
+literal that gives a reliable YES this way, which is the trap — `-performSelector:withObject:` cannot
+pass a scalar, and the author appears to have reached for the nearest non-nil object.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.

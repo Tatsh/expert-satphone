@@ -6,9 +6,6 @@
  *
  * The superclass is @c UINavigationController, from the dyld bind at the class object's superclass
  * slot (0x34ffb0).
- *
- * RECONSTRUCTION STATE: five of six members written. @c -init: is declared but not reconstructed;
- * see RECONSTRUCTION_STATUS.md.
  */
 
 #import <UIKit/UIKit.h>
@@ -39,9 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds the controller around a notification page.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Two iOS 7 properties are set through @c -performSelector:withObject: behind
+ * @c -respondsToSelector: guards, which is how the class stays buildable against an older SDK. One
+ * of the two passes an object where a @c BOOL is wanted — see TYPES_PENDING.md.
  *
- * @param arg The page to present.
+ * @param arg The page to present, and the object kept as the weak delegate.
  * @return The initialised controller.
  * @ghidraAddress 0x182b8c
  */
