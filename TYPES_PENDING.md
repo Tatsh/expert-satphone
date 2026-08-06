@@ -189,6 +189,19 @@ would be indistinguishable from a reconstructed one.
 
 ## Defects found in the binary
 
+### `-[ApplilinkParameters setRequestWithAdModel:adLocation:verticalAlign:requestCode:]` (0x26895c) — the alignment is discarded
+
+The four-argument setter never reads its `verticalAlign` argument. `x4` is untouched from entry to
+return, and the ivar at 0x34c684 receives `x5`, the request code. The body is otherwise identical
+instruction for instruction to the three-argument setter at 0x2688d0, so the only reason to call
+the longer one is the thing it throws away.
+
+`verticalAlign` is a real ivar with a real synthesised accessor pair, so a caller can still set it
+through the property. Nothing inside the class ever writes it.
+
+The sibling `../rbplus-src` reaches the same conclusion from the other binary independently, which
+makes this a property of the SDK rather than of this build.
+
 ### `-[CubePurchaseListViewCell setBgImage:info:cache:aDelegate:]` (0x64328) — a sixth digit
 
 The row owns exactly five digit image views (`numImg` is `[5@"UIImageView"]`), but the loop that
