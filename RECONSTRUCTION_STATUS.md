@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **179 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **181 annotated, 0
 mismatched, 0 selectors absent; 35 constants checked against their bytes.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 174 of 5036 methods, 3.5%. 55 of 317 classes complete.**
+**As of the last run: 176 of 5036 methods, 3.5%. 55 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -130,6 +130,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/frameTableCell.m` | **Complete.** Two methods. Third sibling; ticks the row matching `PrefTwitterBgFrame`. |
 | `Project/StoreTableCell.m` | **Complete.** Two methods, including the tree's first `-dealloc`. |
 | `Project/EditorInfoCell.m` | **Complete.** Two methods; badge selected from a three-entry table. |
+| `Project/EffectBgKnit.m` | Two of three methods. `-renderEffect` is declared only — see Next. |
 | `Project/AnalysisNetwork.m` | **Complete.** Three methods; only one of three guards on SDK availability. |
 | `Project/GradationView.m` | **Complete.** Three methods; the tree's first hand-written -dealloc. |
 | `Project/FrameLockView.m` | **Complete.** Three methods; one block captures weakly and its sibling strongly. |
@@ -162,6 +163,7 @@ rough order of how much each unlocks:
 
 | Target | Address | Notes |
 | --- | --- | --- |
+| `-[EffectBgKnit renderEffect]` | 0x1950c0 | Two of three members written; this one is left. Already known: it calls `-expand:totalFrame:max:` with a max of 1.5f, clamps the result to 1.0f, scales it by 0.15f into `s8`, then dispatches six ways on `type_` through the table at 0x195598 — cases at 0x195148, 0x1951ec, 0x1952b8, 0x1953a8, 0x195410 and 0x1954b8. The tail increments `frame_` and returns `frame_ >= totalFrame_`. A `type_` above 5 skips straight to that tail, so an out-of-range type animates and draws nothing but still ages. |
 | `-[LogoViewController start]` | not located yet | The launch sequence continues here; class at 0x348a58. |
 | `AudioManager` | class at 0x348038 | 357 xrefs, the most of any class reached. Every sound goes through it. |
 | `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds. |
