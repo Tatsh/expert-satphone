@@ -703,6 +703,26 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)application:(UIApplication *)application
     didReceiveLocalNotification:(UILocalNotification *)notification;
+/**
+ * @brief The remote twin of @c -application:didReceiveLocalNotification:, plus a report back.
+ *
+ * Clears the badge, then runs the same two arms on the same @c applicationState test and with the
+ * same scheme routing. Three differences from the local variant, all verified rather than assumed:
+ *
+ * - There is no @c userInfo nil test at all. The remote payload is the argument itself, so the
+ *   three sends the local variant makes to fetch it are absent.
+ * - The routing arms fall through rather than returning, converging on the report at 0xb4e4. Even
+ *   a URL matching no scheme is reported.
+ * - @c -apsDictionary: is called before the split, so on the routing path the dictionary is built
+ *   and released without ever being read.
+ *
+ * The report is @c -responseRemoteNotification:pushInfo: with @c NO, meaning the notification
+ * arrived at a running app. @c -application:didFinishLaunchingWithOptions: passes @c YES for the
+ * cold-launch case at 0x9dfc.
+ * @ghidraAddress 0xb0c8
+ */
+- (void)application:(UIApplication *)application
+    didReceiveRemoteNotification:(NSDictionary *)userInfo;
 
 #pragma mark - Application lifecycle
 

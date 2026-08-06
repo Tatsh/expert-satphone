@@ -671,6 +671,50 @@ enum {
     }
 }
 
+- (void)application:(UIApplication *)application
+    didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    // Sent to the shared application rather than to the argument, which is the same object.
+    UIApplication.sharedApplication.applicationIconBadgeNumber = 0;
+
+    // Computed before the split even though only the foreground arm reads it. On the routing path
+    // below the dictionary is built and released without ever being used.
+    NSMutableDictionary *payload = [self apsDictionary:userInfo];
+
+    if (application.applicationState == UIApplicationStateActive) {
+        // Identical to the foreground arm of -application:didReceiveLocalNotification:, down to the
+        // discarded -timeIntervalSince1970 result. Note this arm alone skips the response report at
+        // the end of the method.
+        [_pushNotificationList addObject:payload];
+        [NSDate.date timeIntervalSince1970];
+        [self saveNotification];
+        [_rootViewCtrl pushNotificate];
+        return;
+    }
+
+    // Unlike the local variant there is no userInfo nil test anywhere in this method, and the
+    // routing arms fall through to the report below instead of returning.
+    NSURL *url = [NSURL URLWithString:userInfo[kNotificationURLKey]];
+    if ([url.scheme isEqualToString:kStoreURLScheme]) {
+        if (url.pathComponents.count == kHandledURLPathComponentCount) {
+            if ([url.pathComponents[1] isEqualToString:kStorePackPathComponent]) {
+                _storePackID = url.pathComponents[2];
+            }
+            if ([url.pathComponents[1] isEqualToString:kStoreGenrePathComponent]) {
+                _storeGenreID = url.pathComponents[2];
+            }
+        }
+    } else if ([url.scheme isEqualToString:kChallengeURLScheme]) {
+        _bChallengeOpen = YES;
+    } else if ([url.scheme isEqualToString:kGiftURLScheme]) {
+        _storeCampaignID = url.pathComponents[2];
+    }
+
+    // Reached from every path above, including a URL that matched no scheme and a jbtstore URL with
+    // the wrong component count. NO here means the notification reached an already-running app;
+    // -application:didFinishLaunchingWithOptions: passes YES at 0x9dfc for the launch case.
+    [_rootViewCtrl responseRemoteNotification:NO pushInfo:userInfo];
+}
+
 #pragma mark - Application lifecycle
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {

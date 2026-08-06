@@ -72,6 +72,23 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x1aaaa4
  */
 - (void)pushNotificate;
+/**
+ * @brief Reports a remote notification back to the server.
+ *
+ * RECONSTRUCTION STATE: declared because both remote-notification entry points send it; the body is
+ * not reconstructed yet.
+ *
+ * The body at 0x1ab0d4 POSTs a three-entry JSON dictionary — @c "user_id" from
+ * @c +[EditorIDManager getEditorIDKey], @c "push_id" from the payload's @c "id" entry, and
+ * @c "status" — to @c +[ScratchUtil pushNotificationResponseURL] through @c Downloader.
+ *
+ * @param launchedFromNotification Whether the notification started the application rather than
+ *        arriving at a running one. The @c tbz at 0x1ab1e8 tests bit 0 and turns it into the
+ *        @c "status" value: 1 when set, 2 when clear.
+ * @param pushInfo The notification payload, used only for its @c "id" entry.
+ * @ghidraAddress 0x1ab0d4
+ */
+- (void)responseRemoteNotification:(BOOL)launchedFromNotification pushInfo:(NSDictionary *)pushInfo;
 
 @end
 

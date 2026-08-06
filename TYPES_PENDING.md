@@ -63,6 +63,7 @@ would be indistinguishable from a reconstructed one.
 | `+[EditorIDManager deleteKeychain]`      | `+isExistEditorID` sends it           | not located yet |
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
 | `-[RootViewController pushNotificate]`   | `-application:didReceiveLocalNotification:` sends it | 0x1aaaa4 |
+| `-[RootViewController responseRemoteNotification:pushInfo:]` | `-application:didReceiveRemoteNotification:` sends it | 0x1ab0d4 |
 | `+[ScoreRecordManager sharedManager]`    | `-applicationWillTerminate:` sends it | not located yet |
 
 ## Defects found in the binary
@@ -123,6 +124,16 @@ Two missing guards, both faithful:
 - The `jbtstore` arm checks `pathComponents.count == 3` at 0xadf0. The `jbtgift` arm at 0xb034 goes
   directly to `objectAtIndex:2` with no count check, so a short `jbtgift://` URL raises
   `NSRangeException`.
+
+### `-application:didReceiveRemoteNotification:` (0xb0c8) — inherits all three, plus one
+
+The remote twin repeats the discarded `timeIntervalSince1970` at 0xb3dc and the unguarded
+`objectAtIndex:2` at 0xb4b4, and drops even the `userInfo` nil test.
+
+It adds one of its own: `-apsDictionary:` is called at 0xb150, *before* the `applicationState`
+split at 0xb17c. Only the foreground arm reads the result, at 0xb3ac. On the routing path the
+dictionary is built and then released at 0xb50c without ever being used — every URL-routed remote
+notification allocates and discards an `NSMutableDictionary`.
 
 ## Settled
 
