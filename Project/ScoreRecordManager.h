@@ -33,6 +33,26 @@ NS_ASSUME_NONNULL_BEGIN
  * @c -saveRecords guards against it being nil rather than assuming it exists.
  */
 @property(nonatomic, readonly, nullable) NSManagedObjectContext *managedObjectContext;
+/**
+ * @brief The compiled Core Data model, loaded from the bundle on first use.
+ *
+ * Built lazily by a hand-written getter, not synthesised. Nil when the model resource is missing,
+ * which is the only route by which @c managedObjectContext can end up nil.
+ * @ghidraAddress 0x171850
+ */
+@property(nonatomic, readonly, nullable) NSManagedObjectModel *managedObjectModel;
+/**
+ * @brief The store coordinator, opened on first use.
+ *
+ * Also hand-written and lazy. It opens a SQLite store in the Documents directory with automatic
+ * migration and automatic mapping-model inference both enabled, which is what allows
+ * @c ScoreMigrationPolicy to run without a shipped mapping model.
+ *
+ * It does not fail softly: a store that will not open calls @c abort(), so the declared nullability
+ * is never actually exercised on that path.
+ * @ghidraAddress 0x171940
+ */
+@property(nonatomic, readonly, nullable) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 
 /**
  * @brief Flushes pending score-record changes to the store.

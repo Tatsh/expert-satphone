@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **122 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **125 annotated, 0
 mismatched, 0 selectors absent.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 117 of 5036 methods, 2.3%. 32 of 317 classes complete.**
+**As of the last run: 120 of 5036 methods, 2.4%. 33 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -97,7 +97,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/Md5Utilities.m` | Complete; a free function. |
 | `Project/LabUtilities.m` | Complete; a free function. Reaches `BFCodec`. |
 | `Project/ScratchUtil.m` | One of two known members. The API host is `agx11.s.konaminet.jp`. |
-| `Project/ScoreRecordManager.m` | Singleton plus the Core Data save. **Not complete**: three hand-written accessors remain at 0x1717a8, 0x171850, 0x171940. |
+| `Project/ScoreRecordManager.m` | **Complete**, and this time verified with `objc property-accessors` too. The whole Core Data stack. |
 | `Project/DetailTextView.m` | **Complete.** One method. |
 | `Project/UnselectableTextView.m` | **Complete.** One method. |
 | `Project/PagingScrollView.m` | **Complete.** One method. |
