@@ -57,6 +57,21 @@ NS_ASSUME_NONNULL_BEGIN
          transform:(char)transform
              alpha:(float)alpha;
 
+/**
+ * @brief Draws one sprite at a point, at its own size.
+ *
+ * DECLARED ONLY. Encoding @c v48\@0:8Q16{CGPoint=dd}24c40f44 .
+ *
+ * @param sprite The sprite index.
+ * @param point Where to draw it.
+ * @param transform A transform selector, not a matrix.
+ * @param alpha The opacity.
+ */
+- (void)drawSprite:(NSUInteger)sprite
+           atPoint:(CGPoint)point
+         transform:(char)transform
+             alpha:(float)alpha;
+
 @end
 
 NS_ASSUME_NONNULL_END

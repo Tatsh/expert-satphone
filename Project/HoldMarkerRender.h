@@ -7,8 +7,9 @@
  * The superclass is @c NSObject, from the dyld bind at the class object's superclass slot
  * (0x34e8e0).
  *
- * RECONSTRUCTION STATE: three of four members written. @c -renderHoldMarker:end: is declared but
- * not reconstructed; see RECONSTRUCTION_STATUS.md.
+ * The @c HoldMarkerInfo fields do double duty: field zero is the marker's state, field one packs
+ * the tail's direction and length into two two-bit fields, and fields two and three are the
+ * elapsed and total frame counts whose ratio drives every fade.
  */
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -56,8 +57,10 @@ typedef struct {
  * built differently in each of the four arms. **An out-of-range @c vector draws with uninitialised
  * geometry** rather than drawing nothing; see TYPES_PENDING.md.
  *
- * @param endPoint The far end of the tail.
- * @param startPoint The near end.
+ * @param endPoint The tail's leading point. The selector leaves this argument unnamed; the caller
+ * passes the marker's own panel here and the *far* end as @c start: , which is the reverse of what
+ * the keyword suggests.
+ * @param startPoint The other end.
  * @param vector Which of the four directions the tail runs in. Only 0 to 3 are handled.
  * @param trans The texture transform.
  * @param alpha The opacity.
@@ -84,7 +87,7 @@ typedef struct {
 /**
  * @brief Draws one panel's hold marker.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Three states draw: pressed, retracting and released. A zero state draws nothing at all.
  *
  * @param marker The panel's state, passed by value.
  * @param end The panel's index, 0 to 15.
