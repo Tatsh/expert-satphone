@@ -632,6 +632,23 @@ date, to seed the candidate:
 The `isEqualToString:` at 0x1e2c78 is inside the loop, so the owner in slot zero is never compared
 against the incoming one.
 
+### `+[EditFileListViewController layerClass]` (0x208318) — a `UIView` hook on a view controller
+
+The method returns `CAGradientLayer` and is never called. `+layerClass` is a `UIView` class method;
+UIKit asks a *view* for the class of the layer to back it with, and never asks a view controller.
+This class derives from `UITableViewController` — confirmed from the dyld bind at its superclass
+slot 0x351770 — so nothing consults it.
+
+Worth recording for two reasons. The pattern is widespread in this binary: `CAGradientLayer`'s
+classref at 0x348488 has twenty-six cross-references, split between `+layerClass` and `-loadView`
+implementations, and most of those belong to real `UIView` subclasses where the override does work.
+This one is the odd member of that set.
+
+And the obvious guess is wrong. An OpenGL application overriding `+layerClass` almost always returns
+`CAEAGLLayer` — which is exactly what the sibling tree's `neGLView` does — so reading the idiom
+rather than the classref would have produced a plausible, checkable-looking, incorrect line. The
+class object at 0x38a500 is `CAGradientLayer`.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.
