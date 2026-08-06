@@ -50,7 +50,6 @@ would be indistinguishable from a reconstructed one.
 
 | Declaration                              | Why it is declared                    | Body at   |
 | ---------------------------------------- | ------------------------------------- | --------- |
-| `CreateMd5HexStringFromCString`          | `+clientInfo` calls it                | 0x7f168   |
 | `-[RootViewController fade:durationIn:durationOut:]` | all three reconstructed methods send it | not located yet |
 | `-[UIViewController reloadMarkerSelectView]` | `-reloadMarkers` sends it        | not located yet |
 | `-[KnitColorManager setColorWithArray:]` | `-setKnitColor:` sends it             | not located yet |

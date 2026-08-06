@@ -4,8 +4,6 @@
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: only the declaration is recovered; the body is not reconstructed yet.
- *
  * This is one of the few genuine free functions in this tree. It takes no receiver argument and
  * belongs to no class, so the reconstruction rules' search for an owning class is exhausted and it
  * stays a free function.
@@ -22,8 +20,11 @@ extern "C" {
 /**
  * @brief Hashes a NUL-terminated C string and returns the digest as a hexadecimal string.
  *
+ * Plain CommonCrypto MD5 over @c strlen bytes, rendered as 32 lower-case hexadecimal characters.
+ * The binary unrolls the sixteen per-byte appends rather than looping.
+ *
  * @param lpcszInput The string to hash, as UTF-8 bytes.
- * @return The digest rendered in hexadecimal.
+ * @return The digest rendered in hexadecimal, 32 characters long.
  * @ghidraAddress 0x7f168
  */
 NSString *CreateMd5HexStringFromCString(const char *lpcszInput);
