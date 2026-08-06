@@ -30,6 +30,7 @@ static const KnitColorPalette kKnitColorPalettes[] = {
 
 @implementation KnitColorManager
 
+/** @ghidraAddress 0x166098 */
 - (UIColor *)makeColor:(const KnitColorComponents *)components {
     // The receiver is unused: the binary overwrites x0 with the UIColor class straight away.
     // Alpha is not scaled, only the three colour channels are.
@@ -39,6 +40,7 @@ static const KnitColorPalette kKnitColorPalettes[] = {
                            alpha:components->alpha];
 }
 
+/** @ghidraAddress 0x1660d8 */
 - (void)setColorWithType:(int)type {
     // Computed with two csel pairs rather than a branch: the flag is set for every type except
     // 0 and 5.

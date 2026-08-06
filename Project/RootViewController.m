@@ -51,12 +51,15 @@ static const double kTitleSwitchFadeDuration = 1.5;
 // The two selectors this class forwards to the music-select controller. Its concrete class is not
 // established, so they are declared on UIViewController; see TYPES_PENDING.md.
 @interface UIViewController (JubeatMusicSelect)
+// Deliberately unannotated: 0x1aaaa4 is -[RootViewController pushNotificate], not this. The
+// music-select controller's own implementation has not been located.
 - (void)reloadMarkerSelectView;
 - (void)pushNotificate;
 @end
 
 @implementation RootViewController
 
+/** @ghidraAddress 0x1a8a68 */
 - (void)changeThemeAndGoTitle {
     if (JubeatAppDelegate.appDelegate.isPad) {
         // Dismisses with no completion, then fades straight away.
@@ -77,17 +80,20 @@ static const double kTitleSwitchFadeDuration = 1.5;
                                             }];
 }
 
+/** @ghidraAddress 0x1a8bb4 */
 - (void)changeTitleTheme {
     [self fade:kTitleSwitchAnimationName
          durationIn:kTitleSwitchFadeDuration
         durationOut:kTitleSwitchFadeDuration];
 }
 
+/** @ghidraAddress 0x1a8d64 */
 - (void)reloadMarkers {
     // No nil guard; a nil controller makes this a no-op.
     [musicSelectViewCtrl reloadMarkerSelectView];
 }
 
+/** @ghidraAddress 0x1aaaa4 */
 - (void)pushNotificate {
     // Two guards, unlike -reloadMarkers above, which has none. The scene test comes first, so a
     // notification arriving anywhere but the select screen is dropped here rather than shown.
@@ -100,6 +106,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
     [musicSelectViewCtrl pushNotificate];
 }
 
+/** @ghidraAddress 0x1a79d4 */
 - (void)startLogo {
     logoViewCtrl = [[LogoViewController alloc] init];
     [self addChildViewController:logoViewCtrl];
@@ -111,6 +118,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
     currentSceneID = kLogoSceneID;
 }
 
+/** @ghidraAddress 0x1ab0d4 */
 - (void)responseRemoteNotification:(BOOL)launchedFromNotification
                           pushInfo:(NSDictionary *)pushInfo {
     NSMutableDictionary *body = [[NSMutableDictionary alloc] init];

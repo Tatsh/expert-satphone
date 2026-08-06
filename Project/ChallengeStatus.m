@@ -23,6 +23,7 @@ static NSString *const kNotificationExpireKey = @"expire";
 
 @implementation ChallengeStatus
 
+/** @ghidraAddress 0x1cd874 */
 - (void)createCoinNotification {
     if (!self.bInitialized) {
         return;

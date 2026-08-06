@@ -4,6 +4,7 @@
 
 @implementation EditorIDManager
 
+/** @ghidraAddress 0x1d308c */
 + (BOOL)isExistEditorID {
     NSDictionary *idQuery = [self getKeyQuery:self.getEditorIDKey];
     NSDictionary *passQuery = [self getKeyQuery:self.getEditorPassKey];
@@ -26,6 +27,7 @@
     return NO;
 }
 
+/** @ghidraAddress 0x1d33c4 */
 + (NSString *)getKeyString:(id)key {
     NSDictionary *query = [self getKeyQuery:key];
 

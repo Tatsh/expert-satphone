@@ -157,16 +157,19 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Identification
 
+/** @ghidraAddress 0x7cf4 */
 + (JubeatAppDelegate *)appDelegate {
     // The binary forwards -delegate with no class check of its own.
     return (JubeatAppDelegate *)UIApplication.sharedApplication.delegate;
 }
 
+/** @ghidraAddress 0x7e58 */
 + (NSString *)appVersion {
     return [[NSString alloc] initWithCString:kApplicationVersionString
                                     encoding:NSUTF8StringEncoding];
 }
 
+/** @ghidraAddress 0x805c */
 + (NSDictionary *)clientInfo {
     // Despite the "uuid" key this is not a device identifier: it is the music-list key with a
     // fixed salt appended, hashed.
@@ -196,20 +199,24 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Standard directories
 
+/** @ghidraAddress 0x7d50 */
 + (NSString *)appLibraryDirectory {
     return NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES)
         .lastObject;
 }
 
+/** @ghidraAddress 0x7da8 */
 + (NSString *)appDocumentsDirectory {
     return NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)
         .lastObject;
 }
 
+/** @ghidraAddress 0x7e00 */
 + (NSString *)appCachesDirectory {
     return NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).lastObject;
 }
 
+/** @ghidraAddress 0x7f78 */
 + (NSString *)deviceName {
     size_t length = 0;
     sysctlbyname(kHardwareMachineSysctlName, NULL, &length, NULL, 0);
@@ -223,6 +230,7 @@ static const int kDefaultTheme = 0;
     return name;
 }
 
+/** @ghidraAddress 0x7e94 */
 + (NSString *)primDeviceName {
     // Yes, this duplicates +deviceName exactly. The binary emits two complete copies of the
     // routine at 0x7e94 and 0x7f78 rather than one calling the other, so both are kept.
@@ -240,6 +248,7 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Game Center
 
+/** @ghidraAddress 0x832c */
 - (NSString *)gameCenterName {
     if (!_gameCenterAvailable) {
         return nil;
@@ -251,10 +260,12 @@ static const int kDefaultTheme = 0;
     return localPlayer.alias;
 }
 
+/** @ghidraAddress 0x83bc */
 - (void)disableGameCenter {
     _gameCenterAvailable = NO;
 }
 
+/** @ghidraAddress 0x83cc */
 - (void)loginGameCenter {
     if (!_gameCenterAvailable) {
         return;
@@ -278,6 +289,7 @@ static const int kDefaultTheme = 0;
     }];
 }
 
+/** @ghidraAddress 0x8550 */
 - (NSString *)totalScoreLeaderboardCategory {
     // A csel, not a branch: both literals are materialised and one is selected.
     return self.isPad ? kTotalScoreLeaderboardCategoryPad : kTotalScoreLeaderboardCategoryPhone;
@@ -285,6 +297,7 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Presentation mutators
 
+/** @ghidraAddress 0x8584 */
 - (void)changeTheme:(unsigned int)theme {
     _currentTheme = theme;
     // The value is boxed with +numberWithUnsignedInt:, which is what fixes the ivar's signedness.
@@ -293,10 +306,12 @@ static const int kDefaultTheme = 0;
     [self.rootViewCtrl changeThemeAndGoTitle];
 }
 
+/** @ghidraAddress 0x8f38 */
 - (void)setKnitColor:(NSArray *)knitColor {
     [KnitColorManager.sharedManager setColorWithArray:knitColor];
 }
 
+/** @ghidraAddress 0x868c */
 - (void)switchTitleEvent {
     if (_isHinabitaMode) {
         // A bare immediate in the binary; there is no named constant for the palette type.
@@ -306,6 +321,7 @@ static const int kDefaultTheme = 0;
     [self.rootViewCtrl changeTitleTheme];
 }
 
+/** @ghidraAddress 0x871c */
 - (void)enableCopiousMarkers {
     // Unconditional: the current value is never read before being overwritten.
     [NSUserDefaults.standardUserDefaults setObject:@YES forKey:kCopiousUnlockedPreferenceKey];
@@ -313,6 +329,7 @@ static const int kDefaultTheme = 0;
     [self.rootViewCtrl reloadMarkers];
 }
 
+/** @ghidraAddress 0x8f24 */
 - (void)rewardEnable {
     // Latched on only, like -markerDownloadComplete.
     _bEnableReward = YES;
@@ -320,6 +337,7 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Install identifier
 
+/** @ghidraAddress 0x8814 */
 - (NSString *)musicListKey {
     NSString *service = NSBundle.mainBundle.bundleIdentifier;
 
@@ -404,6 +422,7 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Validation
 
+/** @ghidraAddress 0x8fa8 */
 - (BOOL)digitStringCheck:(NSString *)string {
     if (string.length == 0) {
         return NO;
@@ -420,10 +439,12 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Licence
 
+/** @ghidraAddress 0x8dd4 */
 - (NSString *)getCurrentLicenseDate {
     return kCurrentLicenseDate;
 }
 
+/** @ghidraAddress 0x8e00 */
 - (NSString *)getCurrentLicenseMessage {
     NSString *message = [NSBundle.mainBundle localizedStringForKey:kUsePolicyMessageKey
                                                              value:@""
@@ -438,10 +459,12 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Challenge mutators
 
+/** @ghidraAddress 0x8ea0 */
 - (void)dropChallengeOpenFlag {
     _bChallengeOpen = NO;
 }
 
+/** @ghidraAddress 0x8eb0 */
 - (void)moveChallengeOpenFlag {
     if (_bChallengeOpen) {
         _bChallengeMode = YES;
@@ -450,10 +473,12 @@ static const int kDefaultTheme = 0;
     _bChallengeOpen = NO;
 }
 
+/** @ghidraAddress 0x8ed8 */
 - (void)setChallengeMode:(BOOL)challengeMode {
     _bChallengeMode = challengeMode;
 }
 
+/** @ghidraAddress 0x8ee8 */
 - (void)setChallengeMusic:(int)musicID diff:(int)difficulty {
     // Engaging challenge mode is a side effect the selector name does not advertise.
     _bChallengeMode = YES;
@@ -461,12 +486,14 @@ static const int kDefaultTheme = 0;
     _challengeMusicID = musicID;
 }
 
+/** @ghidraAddress 0x8f14 */
 - (void)setTotalAmount:(int)amount {
     _totalPurchaseAmount = amount;
 }
 
 #pragma mark - Notification persistence
 
+/** @ghidraAddress 0xa530 */
 - (NSString *)getNotificationFilePath {
     NSFileManager *fileManager = NSFileManager.defaultManager;
     NSString *directory = [JubeatAppDelegate.appCachesDirectory
@@ -483,6 +510,7 @@ static const int kDefaultTheme = 0;
     return path;
 }
 
+/** @ghidraAddress 0xa7a4 */
 - (void)loadNotification {
     NSData *data = [[NSData alloc] initWithContentsOfFile:self.getNotificationFilePath];
     // A missing or unreadable file leaves the queue as it was; nothing is cleared on this path.
@@ -492,6 +520,7 @@ static const int kDefaultTheme = 0;
     _pushNotificationList = [[NSKeyedUnarchiver unarchiveObjectWithData:data] mutableCopy];
 }
 
+/** @ghidraAddress 0xa66c */
 - (void)saveNotification {
     NSFileManager *fileManager = NSFileManager.defaultManager;
     NSString *path = self.getNotificationFilePath;
@@ -505,6 +534,7 @@ static const int kDefaultTheme = 0;
     }
 }
 
+/** @ghidraAddress 0xb534 */
 - (BOOL)pushActiveCheck:(NSInteger)fireTime {
     // fcvtzs truncates toward zero rather than rounding.
     NSInteger now = (NSInteger)NSDate.date.timeIntervalSince1970;
@@ -512,6 +542,7 @@ static const int kDefaultTheme = 0;
     return now <= fireTime;
 }
 
+/** @ghidraAddress 0xb594 */
 - (NSDictionary *)popNotification {
     // An already-empty queue returns without persisting; only the two loop exits below save.
     if (self.pushNotificationList.count == 0) {
@@ -535,6 +566,7 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Client identification
 
+/** @ghidraAddress 0xa260 */
 - (void)refreshUserAgent {
     NSString *systemVersion = UIDevice.currentDevice.systemVersion;
     NSString *appVersion = JubeatAppDelegate.appVersion;
@@ -570,6 +602,7 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Launch
 
+/** @ghidraAddress 0x933c */
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Result discarded. arc4random seeds itself on first use, so this buys nothing.
@@ -760,6 +793,7 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - URL scheme
 
+/** @ghidraAddress 0x9090 */
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
     if (![url.scheme isEqualToString:kJubeatURLScheme]) {
         return YES;
@@ -798,6 +832,7 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Push payload
 
+/** @ghidraAddress 0xa990 */
 - (NSMutableDictionary *)apsDictionary:(NSDictionary *)userInfo {
     NSDictionary *aps = [userInfo objectForKey:kApsPayloadKey];
     if (aps == nil) {
@@ -829,12 +864,14 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Notification registration
 
+/** @ghidraAddress 0xa868 */
 - (void)application:(UIApplication *)application
     didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
     // The granted types are never inspected; registration proceeds either way.
     [application registerForRemoteNotifications];
 }
 
+/** @ghidraAddress 0xa8a4 */
 - (void)application:(UIApplication *)application
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     // Depends on NSData.description's "<xxxx xxxx>" format, stripped literal by literal.
@@ -845,6 +882,7 @@ static const int kDefaultTheme = 0;
                                                                             withString:@""];
 }
 
+/** @ghidraAddress 0xa98c */
 - (void)application:(UIApplication *)application
     didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
     // Yes, the compiled method at 0xa98c is a bare ret. The failure is neither recorded nor
@@ -853,6 +891,7 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Notification delivery
 
+/** @ghidraAddress 0xac48 */
 - (void)application:(UIApplication *)application
     didReceiveLocalNotification:(UILocalNotification *)notification {
     if (notification.userInfo == nil) {
@@ -904,6 +943,7 @@ static const int kDefaultTheme = 0;
     }
 }
 
+/** @ghidraAddress 0xb0c8 */
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo {
     // Sent to the shared application rather than to the argument, which is the same object.
@@ -950,25 +990,30 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Application lifecycle
 
+/** @ghidraAddress 0xb6f8 */
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     [ChallengeStatus.sharedStatus createCoinNotification];
 }
 
+/** @ghidraAddress 0xb740 */
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Yes, the compiled method at 0xb740 is a bare ret.
 }
 
+/** @ghidraAddress 0xb744 */
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     // The binary re-reads the shared application twice rather than using the argument.
     [UIApplication.sharedApplication setApplicationIconBadgeNumber:0];
     [UIApplication.sharedApplication cancelAllLocalNotifications];
 }
 
+/** @ghidraAddress 0xb7c8 */
 - (void)applicationWillTerminate:(UIApplication *)application {
     [PurchaseManager.sharedManager end];
     [ScoreRecordManager.sharedManager saveRecords];
 }
 
+/** @ghidraAddress 0xb844 */
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
     // Yes, the compiled method at 0xb844 is a bare ret. Nothing is freed on a memory warning.
 }
@@ -978,16 +1023,19 @@ static const int kDefaultTheme = 0;
 // Each predicate below is a set-membership test on _deviceType, written the way the binary computes
 // it rather than as an equivalent range check, so the compiled form stays recognisable.
 
+/** @ghidraAddress 0x82c0 */
 - (BOOL)isPad {
     // orr x8, x8, #1 then cmp #7: folds the two pad classes into one comparison.
     return (_deviceType | 1) == JubeatDeviceTypePadRetina;
 }
 
+/** @ghidraAddress 0x82dc */
 - (BOOL)isPhoneRetina {
     // sub #1 then unsigned cmp #5: every retina phone class, 1 through 5.
     return (NSUInteger)(_deviceType - JubeatDeviceTypePhoneRetina) < kPhoneRetinaDeviceTypeCount;
 }
 
+/** @ghidraAddress 0x82f8 */
 - (BOOL)is4inchAspect {
     // sub #2 then unsigned cmp #4: classes 2 through 5, which the launch classifier shows are
     // exactly the 16:9 screens. The name is the binary's own idea, not a claim that all four are
@@ -996,42 +1044,51 @@ static const int kDefaultTheme = 0;
            k4inchAspectDeviceTypeCount;
 }
 
+/** @ghidraAddress 0x8314 */
 - (BOOL)isPadRetina {
     return _deviceType == JubeatDeviceTypePadRetina;
 }
 
 #pragma mark - Download selection mutators
 
+/** @ghidraAddress 0x8c38 */
 - (void)resetDownLoadIndex {
     _jcfDownloadID = nil;
 }
 
+/** @ghidraAddress 0x8c50 */
 - (void)resetDownloadGenreID {
     _storeGenreID = nil;
 }
 
+/** @ghidraAddress 0x8c68 */
 - (void)setDownloadGenreID:(id)genreID {
     _storeGenreID = genreID;
 }
 
+/** @ghidraAddress 0x8c7c */
 - (void)resetDownloadPackID {
     _storePackID = nil;
 }
 
+/** @ghidraAddress 0x8c94 */
 - (void)setDownloadPackID:(id)packID {
     _storePackID = packID;
 }
 
+/** @ghidraAddress 0x8ca8 */
 - (void)resetCampaignID {
     _storeCampaignID = nil;
 }
 
+/** @ghidraAddress 0x8cc0 */
 - (void)setCampaignID:(id)campaignID {
     _storeCampaignID = campaignID;
 }
 
 #pragma mark - Notification page mutators
 
+/** @ghidraAddress 0x8cd4 */
 - (void)setNotificationPageURL:(NSString *)pageURL updateTime:(id)updateTime {
     // A nil page URL clears the stored URL rather than building one from nil: the binary branches
     // on the argument at 0x8d04 and only reaches +[NSURL URLWithString:] on the non-nil arm.
@@ -1045,22 +1102,27 @@ static const int kDefaultTheme = 0;
 
 #pragma mark - Option flag mutators
 
+/** @ghidraAddress 0x8d7c */
 - (void)setRandomFlag:(BOOL)flag {
     _isRandom = flag;
 }
 
+/** @ghidraAddress 0x8d8c */
 - (void)setExtendFlag:(BOOL)flag {
     _isExtend = flag;
 }
 
+/** @ghidraAddress 0x8d9c */
 - (void)setHoldFlag:(BOOL)flag {
     _isHold = flag;
 }
 
+/** @ghidraAddress 0x8dac */
 - (void)setSearchString:(id)searchString {
     _searchString = searchString;
 }
 
+/** @ghidraAddress 0x8dc0 */
 - (void)markerDownloadComplete {
     // Latched on only. No compiled setter ever clears this flag.
     _isMarkerLegal = YES;

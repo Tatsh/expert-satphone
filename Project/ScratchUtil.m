@@ -15,6 +15,7 @@ static NSString *const kSecureURLFormat = @"https://%@%@";
 
 @implementation ScratchUtil
 
+/** @ghidraAddress 0x180524 */
 + (NSURL *)pushNotificationResponseURL {
     NSString *path = [NSString stringWithFormat:kPushNotificationReactionPathFormat, kAPIRootPath];
     NSString *urlString = [NSString stringWithFormat:kSecureURLFormat, kAPIHost, path];

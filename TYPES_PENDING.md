@@ -10,6 +10,33 @@ typed `id` on the strength of its getter loading a 64-bit word, and turned out t
 A wrong type that compiles is exactly the kind of defect the reconstruction rules warn about, so
 each entry below names the routine whose reconstruction will settle it.
 
+## Verification
+
+`rctool audit addresses <binary>` is the tree's external check and must be run after touching
+annotations. Run it from the `recon-tools` checkout:
+
+```sh
+uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
+```
+
+**The annotation must be on the method definition in the `.m`, not only on the header
+declaration.** `audit_methods` walks `.m`/`.mm` only, pairing `@implementation` → method →
+the `/** @ghidraAddress 0x... */` line directly above it. A tag that lives solely in the header is
+invisible to it, and the audit then reports `0 annotated`, which reads like a pass and is not one.
+Keep the header tag as well — it is what the reader sees — but the `.m` tag is what gets checked.
+
+What the other subcommands do and do not cover here:
+
+| Subcommand | Coverage in this tree |
+| --- | --- |
+| `addresses` | Real. 75 method annotations checked against the runtime metadata. |
+| `literals` | Nearly vacuous. It skips any literal with no character above U+0x2000, so it checks the two Japanese strings in `ChallengeStatus.m` and nothing else. Selector checking covers `@selector()` only, and this tree uses none. |
+| `globals` | Vacuous. No annotated global initialisers here yet. |
+| `unwritten-members` | Vacuous. It looks for C++ `m_` members, and this tree has none yet. |
+
+So a clean run is necessary and nowhere near sufficient, and only the `addresses` number means
+anything today.
+
 ## Rules
 
 - Add a row the moment a declaration is written as `id`.
