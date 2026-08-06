@@ -196,6 +196,11 @@ would be indistinguishable from a reconstructed one.
 | `-[StorePromotion getSampleURL]`           | ditto                                  | 0x1bd954 |
 | `-[StorePromotion getSampleName]`          | ditto                                  | 0x1bd9d8 |
 | `MyGetOpenALAudioData`                     | `-[SePlayer initWithPath:]` calls it    | 0x153cd4 |
+| `+[ApplilinkConsts canUseApplilinkSdk]`    | `AnalysisNetwork` guards on it         | 0x22ec4c |
+| `+[AnalysisNetworkCore postAnalysisDataWithResultId:callback:]` | `AnalysisNetwork` forwards to it | 0x2395bc |
+| `+[AnalysisNetworkCore openExternalWebBrowserCore:env:callback:]` | ditto              | 0x23a2fc |
+| `+[AnalysisNetworkCore openWebBrowserWithAppliIdCore:env:callback:]` | ditto           | 0x23b04c |
+| `AnalysisNetworkCore`'s other ten class methods | reached only through the SDK       | 0x238d98 onwards |
 
 ## Defects found in the binary
 
