@@ -174,7 +174,6 @@ would be indistinguishable from a reconstructed one.
 | `-[PurchaseManager loadPendingConsumeList]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
 | `+[ScoreRecordManager sharedManager]`    | `-applicationWillTerminate:` sends it | not located yet |
 | `-[AudioManager playSeResFile:inDirectory:]` | `-[ChallengeLoginMessageView closeMessage:]` sends it | 0x77f50 |
-| `LoadScaledPngImage`                      | `-[ChallengeLoginMessageView initWithFrame:scratchNum:]` calls it | 0x7ebe8 |
 | `GetScaledResourcePath`                   | `LoadScaledPngImage` calls it          | not located yet |
 
 ## Defects found in the binary

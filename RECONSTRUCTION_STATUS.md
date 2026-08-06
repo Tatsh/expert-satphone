@@ -130,6 +130,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/frameTableCell.m` | **Complete.** Two methods. Third sibling; ticks the row matching `PrefTwitterBgFrame`. |
 | `Project/StoreTableCell.m` | **Complete.** Two methods, including the tree's first `-dealloc`. |
 | `Project/EditorInfoCell.m` | **Complete.** Two methods; badge selected from a three-entry table. |
+| `Project/ImageLoading.m` | **Complete.** `LoadScaledPngImage`, the app's own +imageNamed: with 479 call sites. |
 | `Project/ChallengeLoginMessageView.m` | **Complete.** Two methods; the daily-login sheet. Carries a backspace in a shipped label. |
 | `Project/BalloonView.m` | **Complete.** Three methods; the speech-balloon path with a four-way arrow. |
 | `Project/RootViewController.m` | Twelve methods: both fade dispatchers, both store callbacks, the theme factory. |

@@ -27,13 +27,33 @@ extern "C" {
  * than Apple's @c \@2x convention — so @c -initWithContentsOfFile: cannot infer the scale and the
  * image has to be re-wrapped through @c +imageWithCGImage:scale:orientation: to carry it.
  *
- * DECLARED ONLY — the body has not been reconstructed yet. See TYPES_PENDING.md.
- *
  * @param pszBaseName The resource name, with no scale suffix and no @c .png extension.
  * @return The image at its correct scale, or nil when the file is missing.
  * @ghidraAddress 0x7ebe8
  */
 UIImage *_Nullable LoadScaledPngImage(NSString *pszBaseName);
+
+/**
+ * @brief Resolves a resource name to the bundle path of the variant this device should use.
+ *
+ * Chooses between the plain, @c _pn2 and @c _pn3 variants from the interface idiom and the main
+ * screen's scale, and reports back both whether a scaled variant was chosen and what scale it
+ * carries — neither of which the returned path conveys on its own.
+ *
+ * DECLARED ONLY — the body has not been reconstructed yet, though the signature is proven from the
+ * call in @c LoadScaledPngImage. See TYPES_PENDING.md.
+ *
+ * @param pszBaseName The resource name, with no scale suffix and no extension.
+ * @param pfScaled Set to YES when a scaled variant was chosen. Seeded NO by the caller.
+ * @param pflScale Set to the chosen variant's scale. Seeded 2.0 by the caller.
+ * @param pszExtension The file extension to look for, without the dot.
+ * @return The full path, or nil when no variant exists.
+ * @ghidraAddress 0x7e37c
+ */
+NSString *_Nullable GetScaledResourcePath(NSString *pszBaseName,
+                                          BOOL *pfScaled,
+                                          float *pflScale,
+                                          NSString *pszExtension);
 
 #ifdef __cplusplus
 }
