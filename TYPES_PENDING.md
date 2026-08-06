@@ -54,6 +54,10 @@ reports `constants: 0 annotated`, which is the same shape of vacuous pass as the
 method case above. The correct form makes the tool read the eight bytes at that address and compare
 them, so it is the difference between a documented constant and a checked one.
 
+The check covers **numeric** constants only. A `static NSString *const` or an `NSErrorDomain`
+annotated the same way is not read back and not compared — the annotation there is documentation,
+not verification, and must not be counted as evidence.
+
 Run **every** member of the `objc` group, not a habitual subset. Each of the last three rounds has
 turned up a real error in already-committed code from a subcommand that had not been run before:
 `property-accessors` found three unwritten `ScoreRecordManager` accessors, and `property-types`
