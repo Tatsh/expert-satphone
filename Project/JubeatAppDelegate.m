@@ -4,6 +4,8 @@
 
 #include <sys/sysctl.h>
 
+#import <GameKit/GameKit.h>
+
 #import "ChallengeStatus.h"
 #import "PurchaseManager.h"
 #import "ScoreRecordManager.h"
@@ -14,6 +16,12 @@ static const char *const kHardwareMachineSysctlName = "hw.machine";
 // The version string the binary embeds at 0x27dc66. It is a C string literal compiled into the
 // text, not a value read from the bundle.
 static const char *const kApplicationVersionString = "3.9.11";
+
+// The licence date the binary hardcodes at 0x2d4300. It is a string literal, not a computed date.
+static NSString *const kCurrentLicenseDate = @"2015-04-14 17:00:02";
+
+// The localization key the use-policy message is looked up under, from the CFString at 0x2d4320.
+static NSString *const kUsePolicyMessageKey = @"Use policy Message";
 
 // The device-type values the four idiom predicates at 0x82c0-0x8328 compare against. The binary
 // names none of them, so each is named here after what its predicate proves rather than after a
@@ -81,6 +89,70 @@ enum {
     NSString *name = [[NSString alloc] initWithCString:machine encoding:NSUTF8StringEncoding];
     free(machine);
     return name;
+}
+
+#pragma mark - Game Center
+
+- (NSString *)gameCenterName {
+    if (!_gameCenterAvailable) {
+        return nil;
+    }
+    GKLocalPlayer *localPlayer = GKLocalPlayer.localPlayer;
+    if (!localPlayer.isAuthenticated) {
+        return nil;
+    }
+    return localPlayer.alias;
+}
+
+- (void)disableGameCenter {
+    _gameCenterAvailable = NO;
+}
+
+#pragma mark - Licence
+
+- (NSString *)getCurrentLicenseDate {
+    return kCurrentLicenseDate;
+}
+
+- (NSString *)getCurrentLicenseMessage {
+    NSString *message = [NSBundle.mainBundle localizedStringForKey:kUsePolicyMessageKey
+                                                             value:@""
+                                                             table:nil];
+    // An untranslated key comes back as the empty default, which is reported as nil rather than as
+    // an empty string.
+    if ([message isEqualToString:@""]) {
+        return nil;
+    }
+    return message;
+}
+
+#pragma mark - Challenge mutators
+
+- (void)dropChallengeOpenFlag {
+    _bChallengeOpen = NO;
+}
+
+- (void)moveChallengeOpenFlag {
+    if (_bChallengeOpen) {
+        _bChallengeMode = YES;
+    }
+    // Cleared on both arms: the flag is consumed whether or not it fired.
+    _bChallengeOpen = NO;
+}
+
+- (void)setChallengeMode:(BOOL)challengeMode {
+    _bChallengeMode = challengeMode;
+}
+
+- (void)setChallengeMusic:(int)musicID diff:(int)difficulty {
+    // Engaging challenge mode is a side effect the selector name does not advertise.
+    _bChallengeMode = YES;
+    _challengeDifficulty = difficulty;
+    _challengeMusicID = musicID;
+}
+
+- (void)setTotalAmount:(int)amount {
+    _totalPurchaseAmount = amount;
 }
 
 #pragma mark - Application lifecycle

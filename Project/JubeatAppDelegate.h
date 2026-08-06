@@ -175,6 +175,22 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xb868 (getter)
  */
 @property(nonatomic, readonly) BOOL gameCenterAvailable;
+/**
+ * @brief The local player's Game Center alias, or nil when it cannot be had.
+ *
+ * Computed rather than stored. It returns nil on two separate paths: when @c gameCenterAvailable is
+ * NO, and when @c GKLocalPlayer.localPlayer is not authenticated.
+ * @ghidraAddress 0x832c
+ */
+@property(nonatomic, readonly, nullable) NSString *gameCenterName;
+
+/**
+ * @brief Marks Game Center unusable for the rest of the session.
+ *
+ * The whole body is a single store of zero into @c _gameCenterAvailable; nothing is torn down.
+ * @ghidraAddress 0x83bc
+ */
+- (void)disableGameCenter;
 
 #pragma mark - Presentation
 
@@ -382,6 +398,52 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xba70 (setter)
  */
 @property(nonatomic) int hasNewRecommendNum;
+
+#pragma mark - Licence
+
+/**
+ * @brief The build's licence date.
+ *
+ * Surprising but faithful: this is a hardcoded string literal, not a computed or stored date. The
+ * CFString at 0x2d4300 points at 19 bytes reading "2015-04-14 17:00:02", and the method returns it
+ * through @c objc_retainAutorelease with no formatting of any kind.
+ * @ghidraAddress 0x8dd4
+ */
+- (NSString *)getCurrentLicenseDate;
+/**
+ * @brief The localized use-policy message, or nil when the bundle has no translation for it.
+ *
+ * Looks up the key "Use policy Message" with @c -localizedStringForKey:value:table:, passing an
+ * empty default and a nil table. When the lookup comes back equal to that empty default the method
+ * returns nil rather than the empty string, so callers can test for absence.
+ * @ghidraAddress 0x8e00
+ */
+- (nullable NSString *)getCurrentLicenseMessage;
+
+#pragma mark - Challenge mutators
+
+/** @brief Clears @c bChallengeOpen. @ghidraAddress 0x8ea0 */
+- (void)dropChallengeOpenFlag;
+/**
+ * @brief Promotes a pending challenge into challenge mode.
+ *
+ * When @c bChallengeOpen is set this sets @c bChallengeMode; either way it then clears
+ * @c bChallengeOpen, so the flag is consumed whether or not it fired.
+ * @ghidraAddress 0x8eb0
+ */
+- (void)moveChallengeOpenFlag;
+/** @brief Sets @c bChallengeMode. @ghidraAddress 0x8ed8 */
+- (void)setChallengeMode:(BOOL)challengeMode;
+/**
+ * @brief Selects the challenge's music and difficulty, and engages challenge mode.
+ *
+ * Note that it also sets @c bChallengeMode to YES as a side effect, which the selector name does
+ * not suggest.
+ * @ghidraAddress 0x8ee8
+ */
+- (void)setChallengeMusic:(int)musicID diff:(int)difficulty;
+/** @brief Sets @c totalPurchaseAmount. @ghidraAddress 0x8f14 */
+- (void)setTotalAmount:(int)amount;
 
 #pragma mark - Application lifecycle
 
