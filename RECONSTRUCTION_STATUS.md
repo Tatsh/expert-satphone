@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **250 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **254 annotated, 0
 mismatched, 0 selectors absent; 107 constants checked against their bytes.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 243 of 5036 methods, 4.8%. 75 of 317 classes complete.**
+**As of the last run: 247 of 5036 methods, 4.9%. 76 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -150,6 +150,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/StorePackCell.m` | **Complete.** Six methods, including the 652-instruction `-initWithStyle:reuseIdentifier:`. |
 | `Project/StoreLeafletCell.m` | **Complete.** Four methods. Unfinished scaffolding that shipped — see TYPES_PENDING.md. |
 | `Project/StoreLoadingView.m` | **Complete.** Four methods. Subview membership of the hierarchy is the state, not `hidden`. |
+| `Project/StorePromotion.m` | **Complete.** Four methods. A pack promotion or a genre one; the two initialisers clear each other's fields. |
 | `Project/DestinationCore.m` | **Complete.** Four methods. Three of them are inert and the fourth discards its delegate. |
 | `Project/ImageCache.m` | **Complete.** Four methods; the caching layer over LoadScaledPngImage. |
 | `Project/ChallengeMenuViewCell.m` | **Complete.** Four methods; the button targets the delegate, not self. |

@@ -537,6 +537,33 @@ ARC.
 The class is reconstructed faithfully, placeholder and all. It is recorded here so a later reader
 does not take the hardcoded pack identifier for a reconstruction error.
 
+### `-[StorePromotion getSampleName]` (0x1bd9d8) — the guard its sibling has
+
+`-getSampleURL` (0x1bd954) tests the sample list before indexing it:
+
+```text
+1001bd96c: ldr x0,[x8, x9, LSL #0x0]   ; _sampleList
+1001bd970: cbz x0,0x1001bd9c4          ; nil -> return nil
+```
+
+`-getSampleName` has no equivalent branch. It loads `_sampleList`, loads `playSlot`, and sends
+`objectAtIndexedSubscript:` straight away. Messaging nil returns nil twice over, so a genre
+promotion — which sets `_sampleList` to nil in its initialiser — gets nil rather than a crash, and
+the difference never shows. It is recorded because the two getters are otherwise line-for-line
+identical and the asymmetry looks like a reconstruction slip.
+
+Both are exposed to the same real hazard, which the nil guard does not cover: `playSlot` is only
+constrained when the list is non-empty, since `-initWithPackInfo:imageURL:sampleURL:` sets it to
+zero for an empty list and then both getters index element zero of an empty array. Nothing in the
+class prevents that; whether a caller can supply an empty list is not established here.
+
+A near miss worth recording so it is not re-derived: the slot is picked with `rand()` at 0x27cfbc,
+**not** `arc4random`, and the modulo is a 32-bit *signed* `sdiv`/`msub` pair. Had the source been
+`arc4random`, whose full 32-bit range makes the signed interpretation negative half the time, the
+remainder would have been negative and the sign-extending `ldrsw` in both getters would have turned
+it into an enormous `NSUInteger` index. `rand()` returns a non-negative `int`, so the signed modulo
+is safe. The instruction selection alone does not tell you that — the imported symbol does.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.
