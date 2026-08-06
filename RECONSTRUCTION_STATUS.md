@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **116 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **118 annotated, 0
 mismatched, 0 selectors absent.**
 
 ## Measured progress
@@ -30,7 +30,7 @@ cd ../recon-tools && uv run python ../jubeat-src/tools/progress.py \
 Excluded as never-hand-written: `.cxx_destruct`, which ARC emits to release strong ivars, and
 property accessors, which a `@property` declaration synthesises. Both are correctly *not* work.
 
-**As of the last run: 111 of 5012 methods, 2.2%. 30 of 317 classes complete.**
+**As of the last run: 113 of 5012 methods, 2.3%. 31 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -118,6 +118,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/ShadowView.m` | **Complete.** Two methods; the inner-shadow renderer. |
 | `Project/accessoryTableCell.m` | **Complete.** Two methods. |
 | `Project/degreeTableCell.m` | **Complete.** Two methods. Sibling of the above, but the bodies differ. |
+| `Project/frameTableCell.m` | **Complete.** Two methods. Third sibling; ticks the row matching `PrefTwitterBgFrame`. |
 | `Project/RootViewController.m` | Twelve methods: both fade dispatchers, both store callbacks, the theme factory. |
 
 ## Next, in order
@@ -134,7 +135,6 @@ rough order of how much each unlocks:
 | `Downloader` | class at 0x348250 | `-startDownloading` has 98 xrefs, so essentially every server call routes through it. |
 | `PurchaseManager` | class at 0x348100 | Four launch-time entry points plus `-end`. 81 xrefs, so this is the largest unstarted class. |
 | `MarkerManager`, `TweetResourceManager`, `StoreMusicListManager` | 0x3480d0, 0x3480d8, 0x348108 | Declared-only stubs; each has two or three known members. |
-| `frameTableCell` | 0xfda00, 0xfddf8 | The third lower-case cell. `-setInfo:` is already read: it checkmarks the row matching the `PrefTwitterBgFrame` default. Only `-initWithWidth:` is left. |
 
 The pattern that has held for every method so far still applies: read the whole routine's
 disassembly before writing any of it, and resolve every constant from memory rather than from the
