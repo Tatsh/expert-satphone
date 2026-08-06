@@ -33,13 +33,20 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 346 of 5036 methods, 6.9%. 96 of 317 classes complete.**
+**As of the last run: 351 of 5036 methods, 7.0%. 96 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
 class reached so far, `ChallengeStatus`, has 101 of them on its own. Pass a class name to the tool
 to get that class's outstanding selectors with addresses, which is the fastest way to pick the next
 unit of work.
+
+`rctool objc property-accessors` doubles as a worklist rather than only a checker. Its 19 current
+entries are all in classes not yet started, and each names an accessor the binary writes by hand —
+`SVSegmentedThumb` alone accounts for nine. When those classes are written, a bare `@property` will
+satisfy the compiler and silently drop real code, so consult this list before declaring any of them.
+A hand-written pair also suppresses auto-synthesis, so such a class needs an explicit `@synthesize`
+to keep the ivar the binary has; `StoreButton` is the worked example.
 
 **Read a jump table's bytes; do not infer cases from the branch structure.** `-[BalloonView
 contentRect]`'s four arms looked like two, because cases 1 and 3 enter the *middle* of the blocks
@@ -171,6 +178,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/ApplilinkIndicator.m` | **Complete.** Six methods. A blocking activity sheet; `-close` is one-way — see TYPES_PENDING.md. |
 | `Project/CJSONDeserializer.m` | **Complete.** Ten methods. Bundled TouchJSON; a facade whose two forwarding properties have no storage. |
 | `Project/NotificationPageNavController.m` | **Complete.** Six methods. Closing the page is what marks it read — see TYPES_PENDING.md. |
+| `Project/StoreButton.m` | Nine of ten. Only `-drawRect:` is left; its notes are under "Next, in order". |
 | `Project/DestinationCore.m` | **Complete.** Four methods. Three of them are inert and the fourth discards its delegate. |
 | `Project/ImageCache.m` | **Complete.** Four methods; the caching layer over LoadScaledPngImage. |
 | `Project/ChallengeMenuViewCell.m` | **Complete.** Four methods; the button targets the delegate, not self. |
@@ -209,6 +217,7 @@ rough order of how much each unlocks:
 
 | Target | Address | Notes |
 | --- | --- | --- |
+| `-[StoreButton drawRect:]` | 0x170f34 | The one member of `StoreButton` left; see below. |
 | `-[LogoViewController start]` | not located yet | The launch sequence continues here; class at 0x348a58. |
 | `AudioManager` | class at 0x348038 | 357 xrefs, the most of any class reached. Every sound goes through it. |
 | `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds. |
@@ -219,6 +228,41 @@ rough order of how much each unlocks:
 The pattern that has held for every method so far still applies: read the whole routine's
 disassembly before writing any of it, and resolve every constant from memory rather than from the
 decompile's rendering of it.
+
+#### `-[StoreButton drawRect:]`, 0x170f34, 1776 bytes
+
+The decompile is not usable for this one: every `CGRect` in it arrives as the soft-float shuffle
+rendered into `CONCAT11`/`SUB81` debris, and the routine passes rectangles to five different
+CoreGraphics calls. Work it from the disassembly. The shape recovered so far, to start from rather
+than to trust:
+
+Fill first. Clear the rect, build a rounded path from `self.cornerRadius`, then branch on
+`self.state`. Disabled (2) fills flat with `self.disabledColor`. Otherwise a four-stop vertical
+gradient is built by calling `-highlightColor:factor:` four times over one scaled copy of
+`self.buttonColor`'s components, and `CGContextDrawLinearGradient` paints it inside the path.
+
+The component fetch has two arms, chosen by
+`[UIColor instancesRespondToSelector:@selector(getRed:green:blue:alpha:)]` — an iOS 5 availability
+check. The fallback reads `CGColorGetComponents` and, when
+`CGColorGetNumberOfComponents` is not 4, treats the colour as greyscale and splays component 0
+across red, green, and blue with component 1 as alpha.
+
+Then an inner shadow: union and inset of `path.bounds` produce an outer rect, an even-odd path is
+built from it minus the rounded path, and it is filled grey under `CGContextSetShadowWithColor`
+while clipped to the rounded path. The translate is by the negation of a value that has been through
+a `(double)(long)` truncation.
+
+Constants still to decode from memory, none of them yet read:
+
+| Address | Use |
+| --- | --- |
+| 0x2933e0 | Two-double table, indexed by `state == 1`; the component scale factor. |
+| 0x2933c0, 0x2933c8, 0x2933d0 | The three non-zero gradient factors; the first stop uses a literal 0.0. |
+| 0x2933f0, 0x293400 | The four gradient locations, as two 16-byte loads. |
+| 0x28f290 | Masked with the sign bit twice in the shadow offset arithmetic, so read it before naming it. |
+
+The `local_170` in the decompile is 2.0 when the state is highlighted and 1.0 otherwise, and it
+reaches only the shadow's offset, not the fill.
 
 ### Classes reached, no bodies yet
 
