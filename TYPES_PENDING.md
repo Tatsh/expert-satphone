@@ -29,7 +29,11 @@ What the other subcommands do and do not cover here:
 
 | Subcommand | Coverage in this tree |
 | --- | --- |
-| `addresses` | Real. 82 method annotations checked against the runtime metadata. |
+| `addresses` | Real. 91 method annotations checked against the runtime metadata. |
+| `objc properties` | Real, and tree-wide: 1379 properties across 222 classes. It caught `ChallengeStatus.coinRestDate` declared `readonly` when the class ships a setter. |
+| `objc ivars` | Real, and tree-wide: 3142 ivars across 276 classes. |
+| `objc return-widths` | Real. It caught two parameters declared `int` that encode `I`. |
+| `objc methods` | Real. Confirms no coined helper name collides with a selector the binary uses. |
 | `literals` | Nearly vacuous. It skips any literal with no character above U+0x2000, so it checks the two Japanese strings in `ChallengeStatus.m` and nothing else. Selector checking covers `@selector()` only; the tree now has two, both verified present. |
 | `globals` | Vacuous. No annotated global initialisers here yet. |
 | `unwritten-members` | Vacuous. It looks for C++ `m_` members, and this tree has none yet. |
@@ -49,6 +53,10 @@ anything today.
   responseRemoteNotification:pushInfo:]` the one place that uses `setValue:forKey:` instead.
   Array subscripting is the opposite case: `objectAtIndexedSubscript:` is genuinely used by
   `-popNotification`, while every other indexed read sends `objectAtIndex:`.
+- Run the whole `rctool objc` group, not just `audit addresses`. Unlike the `audit` group, these
+  compare against metadata that covers all 317 classes, so they check declarations the tree has not
+  reached yet. Three of them have each caught a real error in already-committed code: a `readonly`
+  property that ships a setter, and two `int` parameters that encode `I`.
 - Declare an **instance** property only when the binary has the accessor pair. An ivar-offset global
   proves an ivar exists and gives its runtime name; it says nothing about a property wrapping it.
   `RootViewController.musicSelectViewCtrl` was declared as a property on that evidence and had to be

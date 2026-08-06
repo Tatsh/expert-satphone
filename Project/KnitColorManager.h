@@ -77,7 +77,7 @@ typedef struct {
  * out-of-range type reads past the table.
  * @ghidraAddress 0x1660d8
  */
-- (void)setColorWithType:(int)type;
+- (void)setColorWithType:(unsigned int)type;
 /**
  * @brief Builds a colour from one component group.
  *

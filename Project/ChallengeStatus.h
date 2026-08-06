@@ -48,9 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The moment the current coin's regeneration started.
  *
- * DECLARED ONLY — the body has not been located yet.
+ * Read-write and @c strong, per the property metadata (@c T@"NSDate",&,N,V_coinRestDate). It was
+ * declared @c readonly here on the strength of the one call site that reads it, which
+ * @c rctool @c objc @c properties then contradicted — the class ships a setter.
  */
-@property(nonatomic, readonly, nullable) NSDate *coinRestDate;
+@property(nonatomic, strong, nullable) NSDate *coinRestDate;
 
 /**
  * @brief Recomputes the coin count from elapsed time. DECLARED ONLY.

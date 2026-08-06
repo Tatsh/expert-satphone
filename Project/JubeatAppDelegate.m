@@ -526,7 +526,7 @@ static const int kDefaultTheme = 0;
 }
 
 /** @ghidraAddress 0x8ee8 */
-- (void)setChallengeMusic:(int)musicID diff:(int)difficulty {
+- (void)setChallengeMusic:(unsigned int)musicID diff:(int)difficulty {
     // Engaging challenge mode is a side effect the selector name does not advertise.
     _bChallengeMode = YES;
     _challengeDifficulty = difficulty;

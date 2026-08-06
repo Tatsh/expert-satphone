@@ -41,7 +41,7 @@ static const KnitColorPalette kKnitColorPalettes[] = {
 }
 
 /** @ghidraAddress 0x1660d8 */
-- (void)setColorWithType:(int)type {
+- (void)setColorWithType:(unsigned int)type {
     // Computed with two csel pairs rather than a branch: the flag is set for every type except
     // 0 and 5.
     _isKnitColorDiffer = (type != kKnitColorTypeDefault && type != kKnitColorTypeAlsoDefault);

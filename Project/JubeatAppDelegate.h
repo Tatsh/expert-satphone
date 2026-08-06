@@ -619,7 +619,7 @@ typedef NS_ENUM(NSInteger, JubeatDeviceType) {
  * not suggest.
  * @ghidraAddress 0x8ee8
  */
-- (void)setChallengeMusic:(int)musicID diff:(int)difficulty;
+- (void)setChallengeMusic:(unsigned int)musicID diff:(int)difficulty;
 /** @brief Sets @c totalPurchaseAmount. @ghidraAddress 0x8f14 */
 - (void)setTotalAmount:(int)amount;
 
