@@ -4,40 +4,88 @@
  * Reconstructed from Ghidra program Jubeat (class StoreRecommendPackView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: a stub grown outwards from its callers. Only the members
- * @c StoreRecommendTableCell reaches are declared; the class also carries @c -initWithFrame:,
- * @c -setBgImage:, @c -handleTap: and @c -loadPackInfo:index:, listed in TYPES_PENDING.md.
+ * RECONSTRUCTION STATE: three of four members written. @c -initWithFrame: is declared but not
+ * reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
 #import <UIKit/UIKit.h>
 
+#import "StorePackInfo.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A tappable tile showing one pack's artwork.
+ * @brief What a @c StoreRecommendPackView tells its owner.
+ */
+@protocol StoreRecommendPackViewDelegate <NSObject>
+@optional
+/**
+ * @brief Sent when the tile is tapped.
+ * @param packView The tile that was tapped.
+ */
+- (void)storePackViewSelected:(id)packView;
+@end
+
+/**
+ * @brief A tappable tile showing one pack's artwork, name, price and status markers.
  */
 @interface StoreRecommendPackView : UIView
 
 /**
  * @brief The object told when the tile is tapped.
  *
- * Weak and untyped in the metadata. @c StoreRecommendTableCell nils this in its @c -dealloc, which
- * is the only reason that method exists.
+ * Weak and untyped in the metadata, so the dispatch goes through @c -respondsToSelector: rather
+ * than a declared conformance. @c StoreRecommendTableCell nils this in its @c -dealloc.
  * @ghidraAddress 0x145964 (getter)
  */
 @property(nonatomic, weak) id delegate;
 
 /**
- * @brief The tile's artwork. DECLARED ONLY.
+ * @brief The tile's artwork view.
  * @ghidraAddress 0x145940 (getter)
  */
 @property(nonatomic, strong, nullable) UIImageView *artworkView;
 
 /**
- * @brief The tile's position in the recommendation list. DECLARED ONLY.
+ * @brief The tile's position in the recommendation list, as last given to
+ * @c -loadPackInfo:index: .
  * @ghidraAddress 0x145930 (getter)
  */
 @property(nonatomic, readonly) NSUInteger index;
+
+/**
+ * @brief Builds the tile's seven subviews.
+ *
+ * DECLARED ONLY — the body has not been reconstructed yet.
+ * @ghidraAddress 0x1449fc
+ */
+- (instancetype)initWithFrame:(CGRect)frame;
+
+/**
+ * @brief Sets the tile's background artwork.
+ * @param bgImg The artwork.
+ * @ghidraAddress 0x145638
+ */
+- (void)setBgImage:(nullable UIImage *)bgImg;
+
+/**
+ * @brief Fills the tile in from a pack and records its position.
+ *
+ * A pack whose purchase is merely pending shows as owned, since the purchased marker is driven by
+ * @c -isPurchased: **or** @c -isPending: .
+ *
+ * @param packInfo The pack to show.
+ * @param index The tile's position, stored for the delegate to read back.
+ * @ghidraAddress 0x145704
+ */
+- (void)loadPackInfo:(nullable StorePackInfo *)packInfo index:(NSUInteger)index;
+
+/**
+ * @brief The tile's tap handler.
+ * @param sender The gesture recogniser. Unused — the delegate is handed the tile.
+ * @ghidraAddress 0x145650
+ */
+- (void)handleTap:(id)sender;
 
 @end
 

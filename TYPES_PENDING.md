@@ -200,9 +200,10 @@ would be indistinguishable from a reconstructed one.
 | `+[AnalysisNetworkCore openWebBrowserWithAppliIdCore:env:callback:]` | ditto           | 0x23b04c |
 | `AnalysisNetworkCore`'s other ten class methods | reached only through the SDK       | 0x238d98 onwards |
 | `-[StoreRecommendPackView initWithFrame:]`  | `StoreRecommendTableCell` builds two | 0x1449fc |
-| `-[StoreRecommendPackView setBgImage:]`     | ditto                                | 0x145638 |
-| `-[StoreRecommendPackView handleTap:]`      | ditto                                | 0x145650 |
-| `-[StoreRecommendPackView loadPackInfo:index:]` | ditto                            | 0x145704 |
+| `-[StorePackInfo packID]` and four siblings | `-[StoreRecommendPackView loadPackInfo:index:]` reads them | 0xbe3d0, 0xbe410, 0xbe3e0, 0xbe3f0, 0xbd6b4 |
+| `+[StoreUtil productIDForPackID:]`          | ditto                                | 0xbab70 |
+| `-[PurchaseManager isPurchased:]`           | ditto                                | 0xb61d8 |
+| `-[PurchaseManager isPending:]`             | ditto                                | 0xb61f0 |
 
 ## Defects found in the binary
 

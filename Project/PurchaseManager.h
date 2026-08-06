@@ -30,6 +30,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)start;
 /**
+ * @brief Whether the product has already been bought. DECLARED ONLY.
+ * @ghidraAddress 0xb61d8
+ */
+- (BOOL)isPurchased:(nullable NSString *)productID;
+/**
+ * @brief Whether a purchase of the product is in flight. DECLARED ONLY.
+ *
+ * Callers treat this as equivalent to purchased for display purposes, so a pending pack already
+ * shows as owned.
+ * @ghidraAddress 0xb61f0
+ */
+- (BOOL)isPending:(nullable NSString *)productID;
+/**
  * @brief Loads the product catalogue. DECLARED ONLY.
  */
 - (void)loadProductList;

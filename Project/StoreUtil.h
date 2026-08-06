@@ -27,6 +27,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (BOOL)isValidURL:(nullable NSString *)url;
 
+/**
+ * @brief Maps a pack identifier to its App Store product identifier.
+ *
+ * DECLARED ONLY.
+ *
+ * @param packID The pack's identifier, as @c StorePackInfo carries it.
+ * @return The product identifier, or nil for a pack with no product.
+ * @ghidraAddress 0xbab70
+ */
++ (nullable NSString *)productIDForPackID:(int)packID;
+
 @end
 
 NS_ASSUME_NONNULL_END

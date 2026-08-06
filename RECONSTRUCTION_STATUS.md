@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **196 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **199 annotated, 0
 mismatched, 0 selectors absent; 50 constants checked against their bytes.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 191 of 5036 methods, 3.8%. 60 of 317 classes complete.**
+**As of the last run: 194 of 5036 methods, 3.9%. 60 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -130,6 +130,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/frameTableCell.m` | **Complete.** Two methods. Third sibling; ticks the row matching `PrefTwitterBgFrame`. |
 | `Project/StoreTableCell.m` | **Complete.** Two methods, including the tree's first `-dealloc`. |
 | `Project/EditorInfoCell.m` | **Complete.** Two methods; badge selected from a three-entry table. |
+| `Project/StoreRecommendPackView.m` | Three of four methods. `-initWithFrame:` is declared only — see Next. |
 | `Project/ImageCache.m` | **Complete.** Four methods; the caching layer over LoadScaledPngImage. |
 | `Project/ChallengeMenuViewCell.m` | **Complete.** Four methods; the button targets the delegate, not self. |
 | `Project/StoreRecommendTableCell.m` | **Complete.** Three methods; two initialisers and a delegate-breaking -dealloc. |
@@ -167,6 +168,7 @@ rough order of how much each unlocks:
 
 | Target | Address | Notes |
 | --- | --- | --- |
+| `-[StoreRecommendPackView initWithFrame:]` | 0x1449fc | Three of four members written; this one is left. About 783 instructions, and the only member that builds anything — it must produce all seven subviews: `bgView`, `labelName`, `labelPurchased`, `labelComment`, `labelPrice`, `newMarker` and `extendMarker`. Note `labelComment` is written by nothing else in the class, so whatever text it carries is set there. |
 | `-[LogoViewController start]` | not located yet | The launch sequence continues here; class at 0x348a58. |
 | `AudioManager` | class at 0x348038 | 357 xrefs, the most of any class reached. Every sound goes through it. |
 | `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds. |
