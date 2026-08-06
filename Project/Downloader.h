@@ -16,7 +16,42 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Performs a single HTTP request.
  */
+@protocol DownloaderDelegate <NSObject>
+@optional
+/**
+ * @brief Sent when the request completes. The body is read back with @c -getData .
+ * @param downloader The finished request.
+ */
+- (void)downloaderFinished:(id)downloader;
+/**
+ * @brief Sent when the request fails.
+ * @param downloader The failed request.
+ */
+- (void)downloaderError:(id)downloader;
+@end
+
 @interface Downloader : NSObject
+
+/**
+ * @brief Builds a plain GET.
+ *
+ * DECLARED ONLY.
+ *
+ * @param url The endpoint.
+ * @param delegate The object to report completion to, or nil.
+ */
+- (instancetype)initWithURL:(NSURL *)url delegate:(nullable id<DownloaderDelegate>)delegate;
+
+/**
+ * @brief The body the request returned. DECLARED ONLY.
+ * @return The downloaded bytes.
+ */
+- (nullable NSData *)getData;
+
+/**
+ * @brief Abandons the request. DECLARED ONLY.
+ */
+- (void)cancel;
 
 /**
  * @brief Builds a JSON POST.
