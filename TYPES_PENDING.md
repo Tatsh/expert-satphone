@@ -195,6 +195,7 @@ would be indistinguishable from a reconstructed one.
 | `-[StorePromotion initWithGenreIndex:imageURL:]` | ditto                          | 0x1bd88c |
 | `-[StorePromotion getSampleURL]`           | ditto                                  | 0x1bd954 |
 | `-[StorePromotion getSampleName]`          | ditto                                  | 0x1bd9d8 |
+| `MyGetOpenALAudioData`                     | `-[SePlayer initWithPath:]` calls it    | 0x153cd4 |
 
 ## Defects found in the binary
 
