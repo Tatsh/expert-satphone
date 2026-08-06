@@ -683,6 +683,27 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)application:(UIApplication *)application
     didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
 
+#pragma mark - Notification delivery
+
+/**
+ * @brief Queues a local notification for in-app display, or routes it if the user tapped it.
+ *
+ * A notification with no @c userInfo is dropped. Otherwise the payload is flattened through
+ * @c -apsDictionary: and the application state decides which of two unrelated things happens.
+ *
+ * In @c UIApplicationStateActive the system shows no banner, so the payload is appended to
+ * @c pushNotificationList, persisted, and handed to the root controller to present. Otherwise the
+ * notification was tapped, and the @c "url" entry is routed by scheme: @c jbtstore:// fills in
+ * @c storePackID or @c storeGenreID, @c jbtchallenge:// raises @c bChallengeOpen, and
+ * @c jbtgift:// fills in @c storeCampaignID.
+ *
+ * This is the working twin of @c -application:handleOpenURL:. Both route the same three tokens, but
+ * this one reads them off @c NSURL.scheme, where they are, rather than off a path component.
+ * @ghidraAddress 0xac48
+ */
+- (void)application:(UIApplication *)application
+    didReceiveLocalNotification:(UILocalNotification *)notification;
+
 #pragma mark - Application lifecycle
 
 /**

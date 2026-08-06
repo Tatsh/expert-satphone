@@ -29,6 +29,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `-musicListKey` | keychain-backed; `cbz` on an `OSStatus` inverts the arms |
 | `-application:handleOpenURL:` | two of four routes are dead code |
 | `-refreshUserAgent` | decompile transposed two format arguments and dropped one |
+| `-application:didReceiveLocalNotification:` | a discarded `timeIntervalSince1970`, and the scheme reads that prove `handleOpenURL:`'s bug |
 
 ## Done
 
@@ -36,16 +37,16 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | --- | --- |
 | `Project/main.m` | Complete. |
 | `Project/JubeatAppDelegate.h` | 36 properties, all accessors from both blocks. |
-| `Project/JubeatAppDelegate.m` | 59 methods. |
+| `Project/JubeatAppDelegate.m` | 60 methods. |
+| `Project/Md5Utilities.m` | Complete; the one free function in the tree. |
 
 ## Next, in order
 
-### `JubeatAppDelegate` — three methods left
+### `JubeatAppDelegate` — two methods left
 
 | Method | Address | Size | Notes |
 | --- | --- | --- | --- |
-| `-application:didReceiveLocalNotification:` | 0xac48 | ~1.1 KB | Consumes what `-apsDictionary:` produces. |
-| `-application:didReceiveRemoteNotification:` | 0xb0c8 | ~1.1 KB | Pairs with the above; expect shared shape. |
+| `-application:didReceiveRemoteNotification:` | 0xb0c8 | ~1.1 KB | Pairs with `-application:didReceiveLocalNotification:`; expect the same two-arm shape and probably the same scheme routing. |
 | `-application:didFinishLaunchingWithOptions:` | 0x933c | ~3.8 KB | Largest in the class; will reach many new classes. |
 
 `-application:didFinishLaunchingWithOptions:` should be read in two or three passes and written only

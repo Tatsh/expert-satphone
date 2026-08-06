@@ -62,6 +62,7 @@ would be indistinguishable from a reconstructed one.
 | `+[EditorIDManager getKeyQuery:]`        | `+isExistEditorID` sends it           | not located yet |
 | `+[EditorIDManager deleteKeychain]`      | `+isExistEditorID` sends it           | not located yet |
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
+| `-[RootViewController pushNotificate]`   | `-application:didReceiveLocalNotification:` sends it | 0x1aaaa4 |
 | `+[ScoreRecordManager sharedManager]`    | `-applicationWillTerminate:` sends it | not located yet |
 
 ## Defects found in the binary
@@ -98,6 +99,30 @@ value.
 The instructions are not ambiguous: `w2 = #0x1` at 0x91e0 with the same `objectAtIndex:` selector
 as the enclosing test. The `"jbtgift"` route at 0x9280 and the `digitStringCheck:` route at 0x92cc
 are both reachable, so only two of the four routes work.
+
+`-application:didReceiveLocalNotification:` (0xac48) settles what was meant. It routes the same
+three tokens — `"jbtstore"`, `"jbtgift"`, `"jbtchallenge"` — and reads each off `[url scheme]` at
+0xad80, 0xafb8, and 0xb004. `handleOpenURL:` reads `components[1]` instead. The two methods share
+their CFStrings, so this is one routing idea written twice, correctly once.
+
+### `-application:didReceiveLocalNotification:` (0xac48) — `timeIntervalSince1970` result discarded
+
+At 0xaf84 the foreground arm sends `-timeIntervalSince1970` to a fresh `[NSDate date]` and never
+reads `d0`. No store follows, and the next call is `-saveNotification`, whose selector at 0x340738
+takes no argument, so the value cannot be reaching it. The date object is still released at 0xb08c,
+so it is dead computation rather than a leak. Most likely a stamping step that was gutted, leaving
+each queued notification without its own fire time — `expire` comes from the payload instead.
+
+### `-application:didReceiveLocalNotification:` (0xac48) — unguarded arms
+
+Two missing guards, both faithful:
+
+- `-apsDictionary:` returns nil for a `userInfo` with no `"aps"` entry, and the result is passed
+  straight to `-addObject:` at 0xaf58 with no nil test. A local notification carrying `userInfo`
+  but no `aps` therefore raises `NSInvalidArgumentException`.
+- The `jbtstore` arm checks `pathComponents.count == 3` at 0xadf0. The `jbtgift` arm at 0xb034 goes
+  directly to `objectAtIndex:2` with no count check, so a short `jbtgift://` URL raises
+  `NSRangeException`.
 
 ## Settled
 

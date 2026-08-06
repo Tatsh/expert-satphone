@@ -61,6 +61,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x1a8d64
  */
 - (void)reloadMarkers;
+/**
+ * @brief Presents the notification the delegate has just queued.
+ *
+ * RECONSTRUCTION STATE: declared because @c -[JubeatAppDelegate application:didReceiveLocalNotification:]
+ * sends it on the foreground path; the body is not reconstructed yet.
+ * @ghidraAddress 0x1aaaa4
+ */
+- (void)pushNotificate;
 
 @end
 

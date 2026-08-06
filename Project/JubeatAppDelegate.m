@@ -49,8 +49,12 @@ static NSString *const kUserAgentVersionSeparator = @"_";
 // The custom URL scheme and the path vocabulary -application:handleOpenURL: routes on, from the
 // CFStrings at 0x2d40e0, 0x2d4380, 0x2d43a0, 0x2d43c0, and 0x2d43e0.
 static NSString *const kJubeatURLScheme = @"jubeatplus";
-static NSString *const kStoreURLHost = @"jbtstore";
-static NSString *const kGiftURLHost = @"jbtgift";
+// Each of these appears in two roles. In a notification URL it is the scheme, which is how
+// -application:didReceiveLocalNotification: reads it. In a jubeatplus:// URL it is meant to be the
+// host, which is what -application:handleOpenURL: fails to read. Same CFStrings in both places.
+static NSString *const kStoreURLScheme = @"jbtstore";
+static NSString *const kGiftURLScheme = @"jbtgift";
+static NSString *const kChallengeURLScheme = @"jbtchallenge";
 static NSString *const kStorePackPathComponent = @"pack";
 static NSString *const kStoreGenrePathComponent = @"genre";
 
@@ -536,7 +540,7 @@ enum {
     NSArray *components = url.pathComponents;
 
     if (components.count == kHandledURLPathComponentCount) {
-        if ([components[1] isEqualToString:kStoreURLHost]) {
+        if ([components[1] isEqualToString:kStoreURLScheme]) {
             id value = components[2];
             // Yes, index 1 again, not 2. The enclosing test has just proven this element equals
             // "jbtstore", so neither comparison below can ever be true and both stores are dead
@@ -550,7 +554,7 @@ enum {
                 _storeGenreID = value;
             }
         }
-        if ([components[1] isEqualToString:kGiftURLHost]) {
+        if ([components[1] isEqualToString:kGiftURLScheme]) {
             _storeCampaignID = components[2];
         }
     }
@@ -610,6 +614,59 @@ enum {
     didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
     // Yes, the compiled method at 0xa98c is a bare ret. The failure is neither recorded nor
     // reported, so deviceToken stays nil.
+}
+
+#pragma mark - Notification delivery
+
+- (void)application:(UIApplication *)application
+    didReceiveLocalNotification:(UILocalNotification *)notification {
+    if (notification.userInfo == nil) {
+        return;
+    }
+    // userInfo is sent again rather than the value just tested being reused, here and once more in
+    // the routing arm below. Three sends in total.
+    NSMutableDictionary *payload = [self apsDictionary:notification.userInfo];
+
+    if (application.applicationState == UIApplicationStateActive) {
+        // In the foreground iOS presents nothing, so the notification is queued and the root
+        // controller is asked to show it. Note payload is not nil-checked before -addObject:, even
+        // though -apsDictionary: returns nil for a userInfo with no "aps" entry.
+        [_pushNotificationList addObject:payload];
+        // The result is loaded into d0 and never read: no store, and -saveNotification takes no
+        // argument. Kept because removing it would not be the same program.
+        [NSDate.date timeIntervalSince1970];
+        [self saveNotification];
+        [_rootViewCtrl pushNotificate];
+        return;
+    }
+
+    // Otherwise the user tapped the notification, and its "url" entry decides where to go. This is
+    // the routing -application:handleOpenURL: was meant to perform: the token is read off the
+    // scheme here, which is where it actually lives.
+    NSURL *url = [NSURL URLWithString:notification.userInfo[kNotificationURLKey]];
+    if ([url.scheme isEqualToString:kStoreURLScheme]) {
+        if (url.pathComponents.count != kHandledURLPathComponentCount) {
+            return;
+        }
+        // pathComponents is re-sent for every one of these five subscripts, as compiled.
+        if ([url.pathComponents[1] isEqualToString:kStorePackPathComponent]) {
+            _storePackID = url.pathComponents[2];
+        }
+        if ([url.pathComponents[1] isEqualToString:kStoreGenrePathComponent]) {
+            _storeGenreID = url.pathComponents[2];
+        }
+        return;
+    }
+    if ([url.scheme isEqualToString:kChallengeURLScheme]) {
+        // Only a flag; the challenge screen is opened later by whoever reads it.
+        _bChallengeOpen = YES;
+        return;
+    }
+    if ([url.scheme isEqualToString:kGiftURLScheme]) {
+        // No count guard on this arm, unlike the store arm above, so a jbtgift URL with fewer than
+        // three path components raises NSRangeException.
+        _storeCampaignID = url.pathComponents[2];
+    }
 }
 
 #pragma mark - Application lifecycle
