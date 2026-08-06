@@ -15,11 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief One colour in a knit palette, as the table at 0x353d78 stores it.
  *
- * The components are four floats. The scale is PROVISIONAL: red, green, and blue look like 0 to 255
- * and alpha like 0 to 1, which fits the type 0 entry (255, 255, 255, 1 base; 252, 200, 0, 1 wave)
- * and most others — but the type 2 wave slot decodes to 2290, 0, 18, 1, which fits no colour scale.
- * The field names below are therefore the shape, not a confirmed interpretation. See
- * TYPES_PENDING.md.
+ * The components are four floats. The scale is confirmed by @c -makeColor:, which divides the first
+ * three by the constant 255.0 at 0x28dff4 and passes the fourth through untouched: red, green, and
+ * blue are on 0 to 255, alpha on 0 to 1.
  */
 typedef struct {
     float red;   /*!< Red, 0 to 255. */
@@ -80,6 +78,15 @@ typedef struct {
  * @ghidraAddress 0x1660d8
  */
 - (void)setColorWithType:(int)type;
+/**
+ * @brief Builds a colour from one component group.
+ *
+ * Divides red, green, and blue by 255 and uses alpha as given. The receiver is ignored — the method
+ * overwrites @c x0 with the @c UIColor class before doing anything — so it is effectively a free
+ * function that happens to be a method.
+ * @ghidraAddress 0x166098
+ */
+- (UIColor *)makeColor:(const KnitColorComponents *)components;
 /**
  * @brief Replaces the palette from an array of colour components.
  *

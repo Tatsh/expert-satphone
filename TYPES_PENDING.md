@@ -54,29 +54,29 @@ would be indistinguishable from a reconstructed one.
 | `-[RootViewController changeTitleTheme]` | `-switchTitleEvent` sends it          | not located yet |
 | `-[RootViewController reloadMarkers]`    | `-enableCopiousMarkers` sends it      | not located yet |
 | `-[KnitColorManager setColorWithArray:]` | `-setKnitColor:` sends it             | not located yet |
-| `-[KnitColorManager setColorWithType:]`  | `-switchTitleEvent` sends it          | not located yet |
 | `-[ChallengeStatus createCoinNotification]` | `-applicationDidEnterBackground:` sends it | not located yet |
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
 | `+[ScoreRecordManager sharedManager]`    | `-applicationWillTerminate:` sends it | not located yet |
 
-## Data not transcribed
-
-### `kKnitColorPalettes` (0x353d78)
-
-`-[KnitColorManager setColorWithType:]` indexes a table of 0x30-byte rows here, three 16-byte groups
-of four floats each. The method itself is reconstructed; the table's contents are **not**, and it is
-declared `extern` rather than filled in.
-
-Most rows read as colours with red, green, and blue on a 0 to 255 scale and alpha on 0 to 1 — row 0
-is `255,255,255,1` base, `0,0,0,1` line, `252,200,0,1` wave. But row 2's wave group decodes to
-`2290, 0, 18, 1`, and 2290 fits no colour scale. Either the row layout is not uniform, the group is
-not a colour, or the decode is wrong.
-
-Transcribing a table on an interpretation that already fails on one row would bake the error into
-the source, so the values stay in the binary until `-makeColor:` is reconstructed and shows how the
-components are actually consumed. `-makeColor:` is the thing to read next for this class.
-
 ## Defects found in the binary
+
+### `-[KnitColorManager setColorWithType:]` (0x1660d8) — type 5 reads past the table
+
+The palette table at 0x353d78 has five rows; the bytes immediately after row 4 are `__DATA` pointers,
+not floats. The method indexes it as `type * 0x30` with no range check, so type 5 reads one row past
+the end and interprets pointers as colour components.
+
+Type 5 is not an arbitrary out-of-range value either: the flag computation two instructions earlier
+singles it out alongside type 0 as a type that does not "differ" from the default. So the binary has
+a named type it cannot actually look up. Only type 4 is known to reach this method in practice, from
+`-[JubeatAppDelegate switchTitleEvent]`.
+
+### Row 2's wave colour is out of range
+
+Row 2's wave group reads `2290, 0, 18, 1`. `-makeColor:` divides the first three components by 255,
+giving 8.98 for red, which `UIColor` clamps to 1.0 — so it renders as pure red rather than the
+intended shade. Transcribed as-is; it is the binary's value, not a transcription error.
+
 
 Behaviour that is faithfully reproduced but is a bug in the shipped application. Recorded here so a
 later reader does not "fix" the reconstruction into disagreeing with the binary.
