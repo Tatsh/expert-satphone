@@ -15,6 +15,13 @@ each entry below names the routine whose reconstruction will settle it.
 - Add a row the moment a declaration is written as `id`.
 - Remove the row in the same commit that replaces `id` with the real type.
 - A row whose evidence column says "proven" but is still `id` is a bug, not a pending item.
+- Write the message form the binary sends, never a syntactic sugar that compiles to a different
+  selector. `dict[key]` is `objectForKeyedSubscript:`, which appears **nowhere** in this binary
+  — searching the whole image for "forKeyedSubscript" returns zero hits. Every dictionary access
+  here is `objectForKey:` or `setObject:forKey:`, with `-[RootViewController
+  responseRemoteNotification:pushInfo:]` the one place that uses `setValue:forKey:` instead.
+  Array subscripting is the opposite case: `objectAtIndexedSubscript:` is genuinely used by
+  `-popNotification`, while every other indexed read sends `objectAtIndex:`.
 
 ## `JubeatAppDelegate`
 
@@ -63,7 +70,11 @@ would be indistinguishable from a reconstructed one.
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
 | `-[UIViewController pushNotificate]` (on `musicSelectViewCtrl`) | `-[RootViewController pushNotificate]` forwards to it | not located yet |
 | `-[LogoViewController start]`            | `-[RootViewController startLogo]` sends it | not located yet |
-| `-[RootViewController responseRemoteNotification:pushInfo:]` | `-application:didReceiveRemoteNotification:` sends it | 0x1ab0d4 |
+| `+[CJSONSerializer serializer]`           | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
+| `-[CJSONSerializer serializeDictionary:error:]` | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
+| `-[Downloader initWithURL:postJsonData:delegate:]` | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
+| `-[Downloader startDownloading]`          | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
+| `+[ScratchUtil pushNotificationResponseURL]` | `-responseRemoteNotification:pushInfo:` sends it | 0x180524 |
 | `-[BFCodec cipherInit:]`                 | `CreateLabEncryptedData` sends it      | 0x94a58   |
 | `-[BFCodec encipher:]`                   | `CreateLabEncryptedData` sends it      | 0x94aec   |
 | `+[MarkerManager moveMarkerDataInDoc]`    | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |

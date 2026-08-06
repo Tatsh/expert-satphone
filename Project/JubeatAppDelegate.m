@@ -288,7 +288,7 @@ static const int kDefaultTheme = 0;
 - (void)changeTheme:(unsigned int)theme {
     _currentTheme = theme;
     // The value is boxed with +numberWithUnsignedInt:, which is what fixes the ivar's signedness.
-    NSUserDefaults.standardUserDefaults[kThemePreferenceKey] = @(theme);
+    [NSUserDefaults.standardUserDefaults setObject:@(theme) forKey:kThemePreferenceKey];
     [NSUserDefaults.standardUserDefaults synchronize];
     [self.rootViewCtrl changeThemeAndGoTitle];
 }
@@ -308,7 +308,7 @@ static const int kDefaultTheme = 0;
 
 - (void)enableCopiousMarkers {
     // Unconditional: the current value is never read before being overwritten.
-    NSUserDefaults.standardUserDefaults[kCopiousUnlockedPreferenceKey] = @YES;
+    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:kCopiousUnlockedPreferenceKey];
     [NSUserDefaults.standardUserDefaults synchronize];
     [self.rootViewCtrl reloadMarkers];
 }
@@ -521,7 +521,7 @@ static const int kDefaultTheme = 0;
         // Every entry inspected is removed, so expired ones are discarded on the way past.
         NSDictionary *entry = self.pushNotificationList[0];
         [self.pushNotificationList removeObjectAtIndex:0];
-        NSInteger expire = [entry[kNotificationExpireKey] longValue];
+        NSInteger expire = [[entry objectForKey:kNotificationExpireKey] longValue];
         if ([self pushActiveCheck:expire]) {
             [self saveNotification];
             return entry;
@@ -544,7 +544,8 @@ static const int kDefaultTheme = 0;
         NSString *stored =
             [NSUserDefaults.standardUserDefaults stringForKey:kInternalVersionDefaultsKey];
         if (![stored isEqualToString:appVersion]) {
-            NSUserDefaults.standardUserDefaults[kInternalVersionDefaultsKey] = appVersion;
+            [NSUserDefaults.standardUserDefaults setObject:appVersion
+                                                    forKey:kInternalVersionDefaultsKey];
         }
     }
 
@@ -576,25 +577,28 @@ static const int kDefaultTheme = 0;
 
     if (launchOptions != nil) {
         NSDictionary *remoteNotification =
-            launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
+            [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
         if (remoteNotification != nil) {
             // The third copy of the scheme routing, identical to the one in
             // -application:didReceiveRemoteNotification: down to the missing guards. All arms fall
             // through to the copy below.
-            NSURL *url = [NSURL URLWithString:remoteNotification[kNotificationURLKey]];
+            NSURL *url =
+                [NSURL URLWithString:[remoteNotification objectForKey:kNotificationURLKey]];
             if ([url.scheme isEqualToString:kStoreURLScheme]) {
                 if (url.pathComponents.count == kHandledURLPathComponentCount) {
-                    if ([url.pathComponents[1] isEqualToString:kStorePackPathComponent]) {
-                        _storePackID = url.pathComponents[2];
+                    if ([[url.pathComponents objectAtIndex:1]
+                            isEqualToString:kStorePackPathComponent]) {
+                        _storePackID = [url.pathComponents objectAtIndex:2];
                     }
-                    if ([url.pathComponents[1] isEqualToString:kStoreGenrePathComponent]) {
-                        _storeGenreID = url.pathComponents[2];
+                    if ([[url.pathComponents objectAtIndex:1]
+                            isEqualToString:kStoreGenrePathComponent]) {
+                        _storeGenreID = [url.pathComponents objectAtIndex:2];
                     }
                 }
             } else if ([url.scheme isEqualToString:kChallengeURLScheme]) {
                 _bChallengeOpen = YES;
             } else if ([url.scheme isEqualToString:kGiftURLScheme]) {
-                _storeCampaignID = url.pathComponents[2];
+                _storeCampaignID = [url.pathComponents objectAtIndex:2];
             }
             _remotePushInfo = [remoteNotification copy];
         }
@@ -767,13 +771,13 @@ static const int kDefaultTheme = 0;
     NSArray *components = url.pathComponents;
 
     if (components.count == kHandledURLPathComponentCount) {
-        if ([components[1] isEqualToString:kStoreURLScheme]) {
-            id value = components[2];
+        if ([[components objectAtIndex:1] isEqualToString:kStoreURLScheme]) {
+            id value = [components objectAtIndex:2];
             // Yes, index 1 again, not 2. The enclosing test has just proven this element equals
             // "jbtstore", so neither comparison below can ever be true and both stores are dead
             // code. Reproduced as compiled: no URL shape satisfies both tests, since one element
             // cannot equal two different strings.
-            id key = components[1];
+            id key = [components objectAtIndex:1];
             if ([key isEqualToString:kStorePackPathComponent]) {
                 _storePackID = value;
             }
@@ -781,8 +785,8 @@ static const int kDefaultTheme = 0;
                 _storeGenreID = value;
             }
         }
-        if ([components[1] isEqualToString:kGiftURLScheme]) {
-            _storeCampaignID = components[2];
+        if ([[components objectAtIndex:1] isEqualToString:kGiftURLScheme]) {
+            _storeCampaignID = [components objectAtIndex:2];
         }
     }
 
@@ -795,27 +799,30 @@ static const int kDefaultTheme = 0;
 #pragma mark - Push payload
 
 - (NSMutableDictionary *)apsDictionary:(NSDictionary *)userInfo {
-    NSDictionary *aps = userInfo[kApsPayloadKey];
+    NSDictionary *aps = [userInfo objectForKey:kApsPayloadKey];
     if (aps == nil) {
         return nil;
     }
     NSMutableDictionary *flattened = [[NSMutableDictionary alloc] init];
     // Every entry below is looked up twice, once to test and once to fetch, as compiled.
-    if (aps[kApsAlertKey] != nil) {
+    if ([aps objectForKey:kApsAlertKey] != nil) {
         // The only key that is renamed on the way across: "alert" in, "body" out.
-        flattened[kNotificationBodyKey] = aps[kApsAlertKey];
+        [flattened setObject:[aps objectForKey:kApsAlertKey] forKey:kNotificationBodyKey];
     }
-    if (aps[kNotificationSoundKey] != nil) {
-        flattened[kNotificationSoundKey] = aps[kNotificationSoundKey];
+    if ([aps objectForKey:kNotificationSoundKey] != nil) {
+        [flattened setObject:[aps objectForKey:kNotificationSoundKey] forKey:kNotificationSoundKey];
     }
-    if (userInfo[kNotificationURLKey] != nil) {
-        flattened[kNotificationURLKey] = userInfo[kNotificationURLKey];
+    if ([userInfo objectForKey:kNotificationURLKey] != nil) {
+        [flattened setObject:[userInfo objectForKey:kNotificationURLKey]
+                      forKey:kNotificationURLKey];
     }
-    if (userInfo[kNotificationExpireKey] != nil) {
-        flattened[kNotificationExpireKey] = userInfo[kNotificationExpireKey];
+    if ([userInfo objectForKey:kNotificationExpireKey] != nil) {
+        [flattened setObject:[userInfo objectForKey:kNotificationExpireKey]
+                      forKey:kNotificationExpireKey];
     }
-    if (userInfo[kNotificationIdentifierKey] != nil) {
-        flattened[kNotificationIdentifierKey] = userInfo[kNotificationIdentifierKey];
+    if ([userInfo objectForKey:kNotificationIdentifierKey] != nil) {
+        [flattened setObject:[userInfo objectForKey:kNotificationIdentifierKey]
+                      forKey:kNotificationIdentifierKey];
     }
     return flattened;
 }
@@ -871,17 +878,17 @@ static const int kDefaultTheme = 0;
     // Otherwise the user tapped the notification, and its "url" entry decides where to go. This is
     // the routing -application:handleOpenURL: was meant to perform: the token is read off the
     // scheme here, which is where it actually lives.
-    NSURL *url = [NSURL URLWithString:notification.userInfo[kNotificationURLKey]];
+    NSURL *url = [NSURL URLWithString:[notification.userInfo objectForKey:kNotificationURLKey]];
     if ([url.scheme isEqualToString:kStoreURLScheme]) {
         if (url.pathComponents.count != kHandledURLPathComponentCount) {
             return;
         }
         // pathComponents is re-sent for every one of these five subscripts, as compiled.
-        if ([url.pathComponents[1] isEqualToString:kStorePackPathComponent]) {
-            _storePackID = url.pathComponents[2];
+        if ([[url.pathComponents objectAtIndex:1] isEqualToString:kStorePackPathComponent]) {
+            _storePackID = [url.pathComponents objectAtIndex:2];
         }
-        if ([url.pathComponents[1] isEqualToString:kStoreGenrePathComponent]) {
-            _storeGenreID = url.pathComponents[2];
+        if ([[url.pathComponents objectAtIndex:1] isEqualToString:kStoreGenrePathComponent]) {
+            _storeGenreID = [url.pathComponents objectAtIndex:2];
         }
         return;
     }
@@ -893,7 +900,7 @@ static const int kDefaultTheme = 0;
     if ([url.scheme isEqualToString:kGiftURLScheme]) {
         // No count guard on this arm, unlike the store arm above, so a jbtgift URL with fewer than
         // three path components raises NSRangeException.
-        _storeCampaignID = url.pathComponents[2];
+        _storeCampaignID = [url.pathComponents objectAtIndex:2];
     }
 }
 
@@ -919,20 +926,20 @@ static const int kDefaultTheme = 0;
 
     // Unlike the local variant there is no userInfo nil test anywhere in this method, and the
     // routing arms fall through to the report below instead of returning.
-    NSURL *url = [NSURL URLWithString:userInfo[kNotificationURLKey]];
+    NSURL *url = [NSURL URLWithString:[userInfo objectForKey:kNotificationURLKey]];
     if ([url.scheme isEqualToString:kStoreURLScheme]) {
         if (url.pathComponents.count == kHandledURLPathComponentCount) {
-            if ([url.pathComponents[1] isEqualToString:kStorePackPathComponent]) {
-                _storePackID = url.pathComponents[2];
+            if ([[url.pathComponents objectAtIndex:1] isEqualToString:kStorePackPathComponent]) {
+                _storePackID = [url.pathComponents objectAtIndex:2];
             }
-            if ([url.pathComponents[1] isEqualToString:kStoreGenrePathComponent]) {
-                _storeGenreID = url.pathComponents[2];
+            if ([[url.pathComponents objectAtIndex:1] isEqualToString:kStoreGenrePathComponent]) {
+                _storeGenreID = [url.pathComponents objectAtIndex:2];
             }
         }
     } else if ([url.scheme isEqualToString:kChallengeURLScheme]) {
         _bChallengeOpen = YES;
     } else if ([url.scheme isEqualToString:kGiftURLScheme]) {
-        _storeCampaignID = url.pathComponents[2];
+        _storeCampaignID = [url.pathComponents objectAtIndex:2];
     }
 
     // Reached from every path above, including a URL that matched no scheme and a jbtstore URL with
