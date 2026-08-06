@@ -30,7 +30,6 @@ each entry below names the routine whose reconstruction will settle it.
 | `storeMissionText`  | `-setStoreMissionText:` callers                                   | Retained via `objc_storeStrong`, so an object.          |
 | `searchString`      | `-setSearchString:` callers                                       | Retained via `objc_storeStrong`, so an object.          |
 | `notificationTime`  | `-downloaderFinished:` @0x1f078 or `-pushClose:` @0x183090        | Retained as handed in; both callers are in unreconstructed classes. |
-| `remotePushInfo`    | `-application:didReceiveRemoteNotification:` @0xb0c8              | Object by load width only.                              |
 
 ## Types weakened rather than `id`
 
@@ -38,7 +37,6 @@ These are not `id`, but are less specific than the binary may allow and should b
 
 | Declaration                             | Weakened to        | Settled by                                        |
 | --------------------------------------- | ------------------ | ------------------------------------------------- |
-| `JubeatAppDelegate.deviceType`          | `NSInteger`        | the writer, which will give the enumeration its case names |
 | `RootViewController.musicSelectViewCtrl` | `UIViewController` | whatever constructs it; it responds to `-reloadMarkerSelectView`, which `UIViewController` does not declare |
 | `KnitColorManager.setColorWithArray:`   | `NSArray`          | the manager's own body; the delegate passes its argument straight through |
 
@@ -64,6 +62,19 @@ would be indistinguishable from a reconstructed one.
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
 | `-[RootViewController pushNotificate]`   | `-application:didReceiveLocalNotification:` sends it | 0x1aaaa4 |
 | `-[RootViewController responseRemoteNotification:pushInfo:]` | `-application:didReceiveRemoteNotification:` sends it | 0x1ab0d4 |
+| `-[RootViewController startLogo]`         | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
+| `CreateLabEncryptedData`                 | `-application:didFinishLaunchingWithOptions:` calls it | 0x8011c |
+| `+[MarkerManager moveMarkerDataInDoc]`    | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
+| `+[MarkerManager checkRegularMarkerData]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
+| `+[TweetResourceManager checkResourceData]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
+| `+[TweetResourceManager moveResourceDataInDoc]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
+| `+[TweetResourceManager checkEnableSelecteFrame:]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
+| `+[StoreMusicListManager sharedManager]`  | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
+| `-[StoreMusicListManager loadMusicList]`  | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
+| `-[PurchaseManager start]`                | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
+| `-[PurchaseManager loadProductList]`      | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
+| `-[PurchaseManager loadPendingList]`      | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
+| `-[PurchaseManager loadPendingConsumeList]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
 | `+[ScoreRecordManager sharedManager]`    | `-applicationWillTerminate:` sends it | not located yet |
 
 ## Defects found in the binary
@@ -125,6 +136,24 @@ Two missing guards, both faithful:
   directly to `objectAtIndex:2` with no count check, so a short `jbtgift://` URL raises
   `NSRangeException`.
 
+### `-application:didFinishLaunchingWithOptions:` (0x933c) — four discarded computations
+
+None of these is a guess about intent; each is a value the instructions produce and then never read.
+
+- `arc4random()` at 0x9370. The result is not stored and `x0` is dead at the next instruction.
+  `arc4random` seeds itself, so calling it to "prime" the generator does nothing.
+- `[UIDevice.currentDevice systemVersion]` at 0x995c. It is retained into the stack slot at
+  `sp+0x20` and released at 0xa138, and nothing between those two points reads the slot. Only the
+  `NSClassFromString(@"GKLocalPlayer")` probe that follows decides `gameCenterAvailable`, so the
+  version check this fed has been removed.
+- All four `AVAudioSession` calls are given a separate `NSError *` out-parameter — at `sp+0x58`,
+  `sp+0x50`, `sp+0x48`, and `sp+0x40` — and each is retained and released without being examined.
+  A failure to set the category, sample rate, buffer duration, or active state is silent.
+
+A fifth oddity is an ordering rather than a discard: `registerForRemoteNotifications` is sent at
+0xa0d4 and `registerUserNotificationSettings:` only at 0xa104. Apple's order is the reverse, since
+the settings are what determine the permission prompt.
+
 ### `-application:didReceiveRemoteNotification:` (0xb0c8) — inherits all three, plus one
 
 The remote twin repeats the discarded `timeIntervalSince1970` at 0xb3dc and the unguarded
@@ -146,3 +175,29 @@ Kept as a record of what the evidence was, so a later reader does not have to re
 | `JubeatAppDelegate.rootViewCtrl` | `UIViewController` | `RootViewController` | `-changeTheme:` sends `-changeThemeAndGoTitle`, whose only implementation is `-[RootViewController changeThemeAndGoTitle]` @0x1a8a68. |
 | `JubeatAppDelegate.pushNotificationList` | `NSArray` | `NSMutableArray` | `-loadNotification` stores `-mutableCopy` of the unarchived object at 0xa828. |
 | `JubeatAppDelegate.deviceToken` | `id` | `NSString` | `-application:didRegisterForRemoteNotificationsWithDeviceToken:` stores the token's `-description` with `<`, `>`, and spaces stripped. |
+| `JubeatAppDelegate.remotePushInfo` | `id` | `NSDictionary` | `-application:didFinishLaunchingWithOptions:` stores a `-copy` of `launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]` at 0x96b0; it is the only writer. |
+| `JubeatAppDelegate.deviceType` | `NSInteger` | `JubeatDeviceType` | the classifier at 0x9748-0x97d0 and 0xa180-0xa25c assigns all eight values; see below. |
+
+### The `deviceType` enumeration
+
+Settled by disassembling the classifier, which the decompile rendered wrongly — it presented the
+scale as re-read per comparison and lost that `d8` holds the scale for the first test and then
+`bounds.size.height` (register `v3`) for the second. The real decision is:
+
+| Value | Idiom | Scale | `bounds.size.height` |
+| --- | --- | --- | --- |
+| 0 | Phone | neither 2 nor 3 | not consulted |
+| 1 | Phone | 2 | neither 667 nor 568 |
+| 2 | Phone | 2 | 568 |
+| 3 | Phone | 2 | 667 |
+| 4 | Phone | 3 | 667 |
+| 5 | Phone | 3 | not 667 |
+| 6 | not Phone | not 2 | not consulted |
+| 7 | not Phone | 2 | not consulted |
+
+The two heights are the pooled doubles at 0x28dfd0 and 0x28dfd8, decoded from memory as 667.0 and
+568.0 rather than guessed.
+
+This also explains `is4inchAspect`, which was the odd one of the four predicates: it accepts 2
+through 5, and the table shows those are exactly the 16:9 screens. The predicate's name is the
+binary's own idea, not a claim that all four devices are four inches.

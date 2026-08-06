@@ -3,16 +3,29 @@
 #include <stdlib.h>
 #include <sys/sysctl.h>
 
+#import <AVFoundation/AVFoundation.h>
 #import <GameKit/GameKit.h>
 #import <Security/Security.h>
 
 #import "ChallengeStatus.h"
 #import "EditorIDManager.h"
 #import "KnitColorManager.h"
+#import "LabUtilities.h"
+#import "MarkerManager.h"
 #import "Md5Utilities.h"
 #import "PurchaseManager.h"
 #import "RootViewController.h"
 #import "ScoreRecordManager.h"
+#import "StoreMusicListManager.h"
+#import "TweetResourceManager.h"
+
+// The window the delegate builds at launch. It has no accessor pair in either accessor block, and
+// its ivar offset global at 0x349660 is named without the leading underscore the synthesised ones
+// carry, so it was declared directly rather than as a property.
+@interface JubeatAppDelegate () {
+    UIWindow *mainWindow;
+}
+@end
 
 // The sysctl name the binary passes to sysctlbyname, embedded at 0x27dc6d.
 static const char *const kHardwareMachineSysctlName = "hw.machine";
@@ -103,16 +116,42 @@ static NSString *const kNotificationFileName = @"noti.txt";
 // 16 at 0x84f0. That is GKErrorNotSupported; the binary spells it as a bare number.
 static const NSInteger kGameCenterNotSupportedErrorCode = 16;
 
-// The device-type values the four idiom predicates at 0x82c0-0x8328 compare against. The binary
-// names none of them, so each is named here after what its predicate proves rather than after a
-// device the naming is not evidence for.
-enum {
-    kFirstPhoneRetinaDeviceType = 1,
-    kFirst4inchDeviceType = 2,
-    kPhoneRetinaDeviceTypeCount = 5,
-    k4inchDeviceTypeCount = 4,
-    kDeviceTypePadRetina = 7,
-};
+// The two span widths the idiom predicates at 0x82dc and 0x82f8 use. Both predicates subtract a
+// JubeatDeviceType and then do an unsigned compare, so these are counts rather than device types
+// and have no enumerator of their own.
+static const NSUInteger kPhoneRetinaDeviceTypeCount = 5;
+static const NSUInteger k4inchAspectDeviceTypeCount = 4;
+
+// The two screen heights the launch handler classifies on, the pooled doubles at 0x28dfd0 and
+// 0x28dfd8. Compared with fcmp against UIScreen.bounds.size.height, which arrives in d3.
+static const CGFloat kScreenHeight47Inch = 667.0;
+static const CGFloat kScreenHeight4Inch = 568.0;
+
+// The two screen scales the launch handler classifies on, both fmov immediates.
+static const CGFloat kRetinaScreenScale = 2.0;
+static const CGFloat kRetinaHDScreenScale = 3.0;
+
+// The class the Game Center probe looks up by name, from the CFString at 0x2d4440. Its absence is
+// the only thing that clears gameCenterAvailable.
+static NSString *const kGameCenterLocalPlayerClassName = @"GKLocalPlayer";
+
+// The three further user-defaults keys the launch handler touches, from the CFStrings at 0x2d4460,
+// 0x2d4480, and 0x2d44a0. The lower-case "j" in the last one is the binary's spelling.
+static NSString *const kAdjustSectorPreferenceKey = @"PrefAdjustSector";
+static NSString *const kTwitterBackgroundFramePreferenceKey = @"PrefTwitterBgFrame";
+static NSString *const kLabURLPreferenceKey = @"PrefjubeatLabURL";
+
+// The plaintext CreateLabEncryptedData is given on first launch, from the CFString at 0x2d44c0
+// whose 62 bytes live at 0x27ddc3. The encrypted form is what gets persisted.
+static NSString *const kLabURL = @"https://jubeat-lab.s.game.konami.jp/aqq/contents/ios/index.jsp";
+
+// The audio session parameters, the pooled doubles at 0x28dfe0 and 0x28dfe8.
+static const double kPreferredSampleRate = 44100.0;
+static const NSTimeInterval kPreferredIOBufferDuration = 0.01;
+
+// The theme written back to user defaults when the stored one is missing or out of range, boxed
+// with +numberWithInt: at 0x9884 and 0x98f4.
+static const int kDefaultTheme = 0;
 
 @implementation JubeatAppDelegate
 
@@ -528,6 +567,193 @@ enum {
                          editorKey];
 }
 
+#pragma mark - Launch
+
+- (BOOL)application:(UIApplication *)application
+    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // Result discarded. arc4random seeds itself on first use, so this buys nothing.
+    arc4random();
+
+    if (launchOptions != nil) {
+        NSDictionary *remoteNotification =
+            launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
+        if (remoteNotification != nil) {
+            // The third copy of the scheme routing, identical to the one in
+            // -application:didReceiveRemoteNotification: down to the missing guards. All arms fall
+            // through to the copy below.
+            NSURL *url = [NSURL URLWithString:remoteNotification[kNotificationURLKey]];
+            if ([url.scheme isEqualToString:kStoreURLScheme]) {
+                if (url.pathComponents.count == kHandledURLPathComponentCount) {
+                    if ([url.pathComponents[1] isEqualToString:kStorePackPathComponent]) {
+                        _storePackID = url.pathComponents[2];
+                    }
+                    if ([url.pathComponents[1] isEqualToString:kStoreGenrePathComponent]) {
+                        _storeGenreID = url.pathComponents[2];
+                    }
+                }
+            } else if ([url.scheme isEqualToString:kChallengeURLScheme]) {
+                _bChallengeOpen = YES;
+            } else if ([url.scheme isEqualToString:kGiftURLScheme]) {
+                _storeCampaignID = url.pathComponents[2];
+            }
+            _remotePushInfo = [remoteNotification copy];
+        }
+    }
+
+    // Device classification. Nothing here reads the model name; the whole decision is idiom, scale,
+    // and height. The scale read is shared between the two idiom arms, and the phone arm reads both
+    // scale and height again rather than holding on to them.
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
+        if (UIScreen.mainScreen.scale == kRetinaScreenScale) {
+            if (UIScreen.mainScreen.bounds.size.height == kScreenHeight47Inch) {
+                _deviceType = JubeatDeviceTypePhoneRetina47Inch;
+            } else if (UIScreen.mainScreen.bounds.size.height == kScreenHeight4Inch) {
+                _deviceType = JubeatDeviceTypePhoneRetina4Inch;
+            } else {
+                _deviceType = JubeatDeviceTypePhoneRetina;
+            }
+        } else if (UIScreen.mainScreen.scale == kRetinaHDScreenScale) {
+            if (UIScreen.mainScreen.bounds.size.height == kScreenHeight47Inch) {
+                _deviceType = JubeatDeviceTypePhoneRetinaHD47Inch;
+            } else {
+                _deviceType = JubeatDeviceTypePhoneRetinaHD;
+            }
+        } else {
+            _deviceType = JubeatDeviceTypePhone;
+        }
+    } else {
+        _deviceType = UIScreen.mainScreen.scale == kRetinaScreenScale ? JubeatDeviceTypePadRetina :
+                                                                        JubeatDeviceTypePad;
+    }
+    _bEnableAutoPlay = NO;
+
+    NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+    NSNumber *storedTheme = [defaults objectForKey:kThemePreferenceKey];
+    if (storedTheme == nil) {
+        _currentTheme = kDefaultTheme;
+        [defaults setObject:@(kDefaultTheme) forKey:kThemePreferenceKey];
+    } else {
+        // Tested in the order 2, 1, 0, which is the order the compares appear in.
+        switch (storedTheme.unsignedIntegerValue) {
+        case 2:
+            _currentTheme = 2;
+            break;
+        case 1:
+            _currentTheme = 1;
+            break;
+        case 0:
+            // Already the stored value, so unlike the other two exits this one writes nothing
+            // back.
+            _currentTheme = 0;
+            break;
+        default:
+            _currentTheme = kDefaultTheme;
+            [defaults setObject:@(kDefaultTheme) forKey:kThemePreferenceKey];
+            break;
+        }
+    }
+
+    _gameCenterAvailable = YES;
+    // Retained into a local and released at the very end of the method without ever being read.
+    // Whatever version test this fed has been removed; only the class probe below survives.
+    NSString *systemVersion __unused = UIDevice.currentDevice.systemVersion;
+    if (NSClassFromString(kGameCenterLocalPlayerClassName) == nil) {
+        _gameCenterAvailable = NO;
+    }
+
+    // Called for its side effect only: the getter mints and stores the keychain identifier on first
+    // launch. The result is claimed and dropped at 0x999c.
+    (void)self.musicListKey;
+    [self refreshUserAgent];
+    _bEnableReward = NO;
+
+    if ([NSUserDefaults.standardUserDefaults objectForKey:kAdjustSectorPreferenceKey] == nil) {
+        // The 0.0f is a movi of the whole vector register, so the default offset is zero.
+        [NSUserDefaults.standardUserDefaults setFloat:0.0f forKey:kAdjustSectorPreferenceKey];
+    }
+
+    [KnitColorManager.sharedManager setColorWithType:0];
+    _isMarkerLegal = YES;
+
+    [MarkerManager moveMarkerDataInDoc];
+    [MarkerManager checkRegularMarkerData];
+    if (![TweetResourceManager checkResourceData]) {
+        [TweetResourceManager moveResourceDataInDoc];
+    }
+
+    id twitterBackgroundFrame = [defaults objectForKey:kTwitterBackgroundFramePreferenceKey];
+    if (twitterBackgroundFrame != nil &&
+        ![TweetResourceManager checkEnableSelecteFrame:twitterBackgroundFrame]) {
+        [defaults removeObjectForKey:kTwitterBackgroundFramePreferenceKey];
+    }
+
+    if ([NSUserDefaults.standardUserDefaults objectForKey:kLabURLPreferenceKey] == nil) {
+        // Ciphertext, not a URL string: what is persisted is an NSMutableData blob.
+        NSMutableData *encryptedLabURL = CreateLabEncryptedData(kLabURL);
+        if (encryptedLabURL != nil) {
+            [NSUserDefaults.standardUserDefaults setObject:encryptedLabURL
+                                                    forKey:kLabURLPreferenceKey];
+        }
+    }
+
+    // Discards the whole in-memory object graph before anything has used it.
+    [ScoreRecordManager.sharedManager.managedObjectContext reset];
+    UIApplication.sharedApplication.idleTimerDisabled = YES;
+
+    mainWindow = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    mainWindow.autoresizesSubviews = NO;
+    mainWindow.opaque = YES;
+    mainWindow.backgroundColor = UIColor.blackColor;
+    _rootViewCtrl = [[RootViewController alloc] init];
+    // Assigns through the getter rather than reusing the ivar just written.
+    mainWindow.rootViewController = self.rootViewCtrl;
+    [mainWindow makeKeyAndVisible];
+
+    if (self.remotePushInfo != nil) {
+        // YES for the cold-launch case, against the NO that
+        // -application:didReceiveRemoteNotification: passes.
+        [_rootViewCtrl responseRemoteNotification:YES pushInfo:self.remotePushInfo];
+    }
+
+    // Four separate +sharedManager sends, one per call.
+    [PurchaseManager.sharedManager start];
+    [PurchaseManager.sharedManager loadProductList];
+    [PurchaseManager.sharedManager loadPendingList];
+    [PurchaseManager.sharedManager loadPendingConsumeList];
+    [StoreMusicListManager.sharedManager loadMusicList];
+
+    AVAudioSession *audioSession = AVAudioSession.sharedInstance;
+    // Each of the four calls gets its own error variable and not one of them is examined.
+    NSError *categoryError = nil;
+    [audioSession setCategory:AVAudioSessionCategorySoloAmbient error:&categoryError];
+    NSError *sampleRateError = nil;
+    [audioSession setPreferredSampleRate:kPreferredSampleRate error:&sampleRateError];
+    NSError *bufferDurationError = nil;
+    [audioSession setPreferredIOBufferDuration:kPreferredIOBufferDuration
+                                         error:&bufferDurationError];
+    NSError *activationError = nil;
+    [audioSession setActive:YES error:&activationError];
+
+    [self.rootViewCtrl startLogo];
+    _bSendPushID = NO;
+    UIApplication.sharedApplication.applicationIconBadgeNumber = 0;
+    [self loadNotification];
+    if (_pushNotificationList == nil) {
+        // -loadNotification leaves it nil when there is no saved queue.
+        _pushNotificationList = [[NSMutableArray alloc] init];
+    }
+
+    UIUserNotificationSettings *notificationSettings = [UIUserNotificationSettings
+        settingsForTypes:UIUserNotificationTypeBadge | UIUserNotificationTypeSound |
+                         UIUserNotificationTypeAlert
+              categories:nil];
+    // This order is backwards from Apple's: the settings that decide what the user is asked for are
+    // registered after remote registration has already been requested. Reproduced as compiled.
+    [UIApplication.sharedApplication registerForRemoteNotifications];
+    [UIApplication.sharedApplication registerUserNotificationSettings:notificationSettings];
+    return YES;
+}
+
 #pragma mark - URL scheme
 
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
@@ -746,22 +972,25 @@ enum {
 // it rather than as an equivalent range check, so the compiled form stays recognisable.
 
 - (BOOL)isPad {
-    // orr x8, x8, #1 then cmp #7: true for device types 6 and 7.
-    return (_deviceType | 1) == kDeviceTypePadRetina;
+    // orr x8, x8, #1 then cmp #7: folds the two pad classes into one comparison.
+    return (_deviceType | 1) == JubeatDeviceTypePadRetina;
 }
 
 - (BOOL)isPhoneRetina {
-    // sub #1 then unsigned cmp #5: true for device types 1 to 5.
-    return (NSUInteger)(_deviceType - kFirstPhoneRetinaDeviceType) < kPhoneRetinaDeviceTypeCount;
+    // sub #1 then unsigned cmp #5: every retina phone class, 1 through 5.
+    return (NSUInteger)(_deviceType - JubeatDeviceTypePhoneRetina) < kPhoneRetinaDeviceTypeCount;
 }
 
 - (BOOL)is4inchAspect {
-    // sub #2 then unsigned cmp #4: true for device types 2 to 5.
-    return (NSUInteger)(_deviceType - kFirst4inchDeviceType) < k4inchDeviceTypeCount;
+    // sub #2 then unsigned cmp #4: classes 2 through 5, which the launch classifier shows are
+    // exactly the 16:9 screens. The name is the binary's own idea, not a claim that all four are
+    // four inches.
+    return (NSUInteger)(_deviceType - JubeatDeviceTypePhoneRetina4Inch) <
+           k4inchAspectDeviceTypeCount;
 }
 
 - (BOOL)isPadRetina {
-    return _deviceType == kDeviceTypePadRetina;
+    return _deviceType == JubeatDeviceTypePadRetina;
 }
 
 #pragma mark - Download selection mutators

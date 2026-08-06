@@ -30,6 +30,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `-application:handleOpenURL:` | two of four routes are dead code |
 | `-refreshUserAgent` | decompile transposed two format arguments and dropped one |
 | `-application:didReceiveLocalNotification:` | a discarded `timeIntervalSince1970`, and the scheme reads that prove `handleOpenURL:`'s bug |
+| `-application:didFinishLaunchingWithOptions:` | the decompile mis-rendered the whole device classifier; `d8` holds the scale, then the height |
 
 ## Done
 
@@ -37,20 +38,26 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | --- | --- |
 | `Project/main.m` | Complete. |
 | `Project/JubeatAppDelegate.h` | 36 properties, all accessors from both blocks. |
-| `Project/JubeatAppDelegate.m` | 60 methods. |
+| `Project/JubeatAppDelegate.m` | **Complete.** 62 methods, every one reached. |
 | `Project/Md5Utilities.m` | Complete; the one free function in the tree. |
 
 ## Next, in order
 
-### `JubeatAppDelegate` — two methods left
+`JubeatAppDelegate` is finished, so the chase now runs outwards from what its bodies reach. In
+rough order of how much each unlocks:
 
-| Method | Address | Size | Notes |
-| --- | --- | --- | --- |
-| `-application:didReceiveRemoteNotification:` | 0xb0c8 | ~1.1 KB | Pairs with `-application:didReceiveLocalNotification:`; expect the same two-arm shape and probably the same scheme routing. |
-| `-application:didFinishLaunchingWithOptions:` | 0x933c | ~3.8 KB | Largest in the class; will reach many new classes. |
+| Target | Address | Notes |
+| --- | --- | --- |
+| `CreateLabEncryptedData` | 0x8011c | Fully analysed already; needs only a `BFCodec` declaration before it can be written. |
+| `-[RootViewController startLogo]` | not located yet | The launch handler's last call into the UI; likely the entry to the whole title sequence. |
+| `-[RootViewController pushNotificate]` | 0x1aaaa4 | Small, and completes the notification path. |
+| `-[RootViewController responseRemoteNotification:pushInfo:]` | 0x1ab0d4 | Reaches `CJSONSerializer`, `Downloader`, and `ScratchUtil`, three unstarted classes. |
+| `PurchaseManager` | class at 0x348100 | Four launch-time entry points plus `-end`. 81 xrefs, so this is the largest unstarted class. |
+| `MarkerManager`, `TweetResourceManager`, `StoreMusicListManager` | 0x3480d0, 0x3480d8, 0x348108 | Declared-only stubs; each has two or three known members. |
 
-`-application:didFinishLaunchingWithOptions:` should be read in two or three passes and written only
-once the whole routine is in hand, per the method above.
+The pattern that has held for every method so far still applies: read the whole routine's
+disassembly before writing any of it, and resolve every constant from memory rather than from the
+decompile's rendering of it.
 
 ### Classes reached, no bodies yet
 

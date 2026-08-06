@@ -23,6 +23,25 @@ NS_ASSUME_NONNULL_BEGIN
 @property(class, nonatomic, readonly) PurchaseManager *sharedManager;
 
 /**
+ * @brief Brings the purchase manager up.
+ *
+ * First of the four calls @c -[JubeatAppDelegate application:didFinishLaunchingWithOptions:] makes
+ * at 0x9e14-0x9ec4, each on a separately fetched @c sharedManager. DECLARED ONLY.
+ */
+- (void)start;
+/**
+ * @brief Loads the product catalogue. DECLARED ONLY.
+ */
+- (void)loadProductList;
+/**
+ * @brief Loads purchases that were started but not finished. DECLARED ONLY.
+ */
+- (void)loadPendingList;
+/**
+ * @brief Loads consumable purchases awaiting consumption. DECLARED ONLY.
+ */
+- (void)loadPendingConsumeList;
+/**
  * @brief Tears the purchase manager down.
  *
  * Called from @c -[JubeatAppDelegate applicationWillTerminate:] at 0xb800. The name is the

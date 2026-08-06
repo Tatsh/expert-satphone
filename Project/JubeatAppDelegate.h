@@ -6,13 +6,10 @@
  * Reconstructed from Ghidra program Jubeat (class JubeatAppDelegate, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: the property list below is complete — it is every accessor in the two
- * blocks at 0x8c38-0x8dd4 and 0xb848-0xbb34, all of which were disassembled rather than read from
- * the decompile. The ivar names come from the ObjC ivar offset globals at 0x349600-0x349690, which
- * is runtime metadata and therefore authoritative. The declared methods are those whose bodies have
- * been recovered; the class's remaining methods (notably
- * -application:didFinishLaunchingWithOptions: at 0x933c and the notification handlers) are not
- * declared yet.
+ * RECONSTRUCTION STATE: complete. The property list is every accessor in the two blocks at
+ * 0x8c38-0x8dd4 and 0xb848-0xbb34, all of which were disassembled rather than read from the
+ * decompile. The ivar names come from the ObjC ivar offset globals at 0x349600-0x349690, which is
+ * runtime metadata and therefore authoritative.
  *
  * Where a property's concrete class has not been proven from the code, the doc comment says so
  * rather than guessing. Those types are tightened as each writer is reconstructed.
@@ -23,6 +20,36 @@
 @class RootViewController;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * @brief The device classes this build distinguishes.
+ *
+ * The binary names none of these; the names below come from the classifier at 0x9748-0x97d0 and
+ * 0xa180-0xa25c, which decides purely on @c UIDevice.userInterfaceIdiom, @c UIScreen.scale, and
+ * @c UIScreen.bounds.size.height. The two heights it compares against are the pooled doubles at
+ * 0x28dfd0 and 0x28dfd8, which decode to 667.0 and 568.0.
+ *
+ * The ordering is not arbitrary: the four idiom predicates test contiguous ranges of it, which is
+ * why the phone classes run 0 to 5 and the pad classes are the top pair.
+ */
+typedef NS_ENUM(NSInteger, JubeatDeviceType) {
+    /** Non-retina phone: idiom Phone, scale neither 2 nor 3. */
+    JubeatDeviceTypePhone = 0,
+    /** Retina phone, 480-point screen: scale 2, height neither 667 nor 568. */
+    JubeatDeviceTypePhoneRetina = 1,
+    /** Four-inch retina phone: scale 2, height 568. */
+    JubeatDeviceTypePhoneRetina4Inch = 2,
+    /** 4.7-inch retina phone: scale 2, height 667. */
+    JubeatDeviceTypePhoneRetina47Inch = 3,
+    /** Scale-3 phone showing a 667-point screen, which is display zoom on a 5.5-inch device. */
+    JubeatDeviceTypePhoneRetinaHD47Inch = 4,
+    /** Scale-3 phone at its native height. */
+    JubeatDeviceTypePhoneRetinaHD = 5,
+    /** Non-retina pad: idiom not Phone, scale not 2. */
+    JubeatDeviceTypePad = 6,
+    /** Retina pad: idiom not Phone, scale 2. */
+    JubeatDeviceTypePadRetina = 7,
+};
 
 /**
  * @brief The application delegate for jubeat plus.
@@ -149,17 +176,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The device idiom and screen class this build has classified the device as.
  *
- * Backed by @c _deviceType (0x349600). This is an INTEGER, not an object, despite the getter
- * loading a full 64-bit word: the four predicates below load the same ivar and compare it against
- * the small constants 1 to 7, which only makes sense for a scalar. It is 8 bytes wide, so it is
- * spelled @c NSInteger.
- *
- * The individual values are not named here because the binary never names them; what is proven is
- * the set membership each predicate tests. The writer has not been reconstructed yet, so the
- * enumeration's spelling is deliberately left open.
+ * Backed by @c _deviceType (0x349600), an 8-byte integer rather than an object despite the getter
+ * loading a full word.
  * @ghidraAddress 0xb878 (getter)
  */
-@property(nonatomic, readonly) NSInteger deviceType;
+@property(nonatomic, readonly) JubeatDeviceType deviceType;
 /**
  * @brief The APNs device token, retained as received.
  *
@@ -426,10 +447,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly) NSMutableArray *pushNotificationList;
 /**
- * @brief The payload of the remote push that launched or resumed the application.
+ * @brief The payload of the remote push that launched the application.
+ *
+ * Written in exactly one place: @c -application:didFinishLaunchingWithOptions: stores a @c -copy of
+ * @c launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey] at 0x96b0, which is why the
+ * type is @c NSDictionary. It stays nil on an ordinary launch, and the launch handler uses its
+ * being non-nil as the signal to report the notification back to the servers.
  * @ghidraAddress 0xbb24 (getter)
  */
-@property(nonatomic, readonly) id remotePushInfo;
+@property(nonatomic, readonly, nullable) NSDictionary *remotePushInfo;
 /**
  * @brief Whether the device token still needs to be sent to the servers.
  * @ghidraAddress 0xbad0 (getter)
@@ -623,6 +649,27 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xb594
  */
 - (nullable NSDictionary *)popNotification;
+
+#pragma mark - Launch
+
+/**
+ * @brief Classifies the device, restores preferences, builds the window, and starts every manager.
+ *
+ * The largest method in the class at 0xF24 bytes, and the one that reaches most of the application.
+ * It runs, in order: a discarded @c arc4random; the launch-options remote-notification route, which
+ * is a third copy of the scheme routing and ends by stashing the payload in @c remotePushInfo; the
+ * device classifier that fills in @c deviceType; the theme restore; the Game Center probe; the
+ * keychain identifier and User-Agent; three user-defaults repairs; the Core Data reset; the window
+ * and root controller; the purchase and store managers; the audio session; and finally notification
+ * registration. It always returns YES.
+ *
+ * Several small oddities are reproduced rather than corrected and are listed in TYPES_PENDING.md:
+ * the discarded @c arc4random and @c systemVersion, the four unread @c NSError out-parameters, and
+ * the notification registration calls being made in the opposite order to Apple's.
+ * @ghidraAddress 0x933c
+ */
+- (BOOL)application:(UIApplication *)application
+    didFinishLaunchingWithOptions:(nullable NSDictionary *)launchOptions;
 
 #pragma mark - URL scheme
 
