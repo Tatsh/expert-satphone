@@ -760,6 +760,34 @@ The class's reason to exist is the other three members: `-shouldAutorotate` and
 `SKStoreProductViewController` purely to unlock its rotation is the whole point; the other three
 appear to be template leftovers.
 
+### `-[BFCodec cipherInit:length:]` (0x949e0) — the chaining vector is a literal
+
+Every call to this method writes the same eight bytes into `_iv`, immediate by immediate:
+
+```text
+100094a18: mov  w9,#0xe3
+100094a1c: strb w9,[x8]              ; _iv[0]
+100094a20: mov  w9,#0x2cda0000
+100094a24: movk w9,#0x3166
+100094a28: stur w9,[x8, #0x1]        ; _iv[1..4] = DA 2C 66 31
+100094a2c: mov  w9,#0xa085
+100094a30: sturh w9,[x8, #0x5]       ; _iv[5..6] = 85 A0
+100094a34: mov  w9,#0x64
+100094a38: strb w9,[x8, #0x7]        ; _iv[7]
+```
+
+So the CBC initialisation vector is `E3 DA 2C 66 31 85 A0 64`, fixed in the code and reset on every
+key change. It does not depend on the key, on the buffer, or on anything the caller supplies, and it
+is not stored alongside the ciphertext because it does not need to be — it is the same every time.
+
+Two buffers encrypted under the same key therefore chain from the same place, so identical
+plaintext prefixes produce identical ciphertext prefixes. `-cipherInit:` has 189 cross-references,
+so this applies to essentially every encrypted asset and request in the application.
+
+This is recorded as a property of the shipped binary, not as something to change. It is exactly the
+kind of detail a reconstruction is for: invisible in the class's interface, and only findable by
+reading what the initialiser stores.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.

@@ -4,13 +4,20 @@
  * Reconstructed from Ghidra program Jubeat (class BFCodec, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: a stub grown outwards from its callers. Only the two members
- * @c CreateLabEncryptedData sends are declared. The class object is at 0x3481d8, and
- * @c -cipherInit: alone has 189 cross-references, so this is one of the most widely used classes in
- * the binary and its own implementation is a substantial separate job.
+ * The superclass is @c NSObject, from the dyld bind at the class object's superclass slot
+ * (0x34d760).
+ *
+ * The class is a thin Objective-C shell over a C Blowfish implementation, adding CBC chaining and a
+ * length trailer of its own. @c -cipherInit: alone has 189 cross-references, so essentially every
+ * encrypted asset and request in the application passes through here.
+ *
+ * RECONSTRUCTION STATE: five of six members written. @c -decipher: is declared but not
+ * reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
 #import <Foundation/Foundation.h>
+
+#import "BFCodecContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,36 +27,64 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BFCodec : NSObject
 
 /**
+ * @brief Builds a codec with a zeroed chaining vector and a fresh key schedule.
+ * @return The initialised codec.
+ * @ghidraAddress 0x94978
+ */
+- (instancetype)init;
+
+/**
+ * @brief Sets the key from a raw buffer, and resets the chaining vector to its fixed value.
+ *
+ * The vector is **not** derived from the key or from anything else — it is eight bytes written
+ * literally into the ivar. See TYPES_PENDING.md.
+ *
+ * @param key The key material.
+ * @param length The key's length in bytes.
+ * @ghidraAddress 0x949e0
+ */
+- (void)cipherInit:(const char *)key length:(int)length;
+
+/**
  * @brief Sets the key from a data buffer.
  *
- * Callers pass a 16-byte MD5 digest. There is a sibling @c -cipherInit:length: at 0x949e0 that
- * takes an explicit length; this one does not, so the buffer's own length is the key length.
- * DECLARED ONLY.
+ * Callers pass a 16-byte MD5 digest. A nil key returns without touching anything, so the codec
+ * keeps whatever key it had.
  *
  * @param key The key material.
  * @ghidraAddress 0x94a58
  */
-- (void)cipherInit:(NSData *)key;
+- (void)cipherInit:(nullable NSData *)key;
+
 /**
- * @brief Encrypts a buffer in place.
+ * @brief Encrypts a buffer in place, growing it to hold the padding and a length trailer.
  *
- * In place is not an inference: @c CreateLabEncryptedData makes a mutable copy purely so this can
- * modify it, and then returns that same object rather than any result of this call. DECLARED ONLY.
+ * The buffer is resized to @c (length @c + @c 15) @c & @c ~7 : the plaintext rounded up to a block
+ * boundary, plus one more block holding the original length. Chaining is CBC from the fixed vector.
  *
  * @param data The buffer to encrypt, modified in place.
+ * @return The buffer's new length.
  * @ghidraAddress 0x94aec
  */
-- (void)encipher:(NSMutableData *)data;
+- (unsigned int)encipher:(nullable NSMutableData *)data;
+
 /**
  * @brief Decrypts a buffer in place.
  *
- * The counterpart to @c -encipher: , and in place for the same reason: @c -[ArtworkLoader
- * loadArtwork] passes the unzipped bytes here and then reads the *same* object back into
- * @c -[UIImage initWithData:] , never a return value. DECLARED ONLY.
+ * DECLARED ONLY — the body has not been reconstructed yet. The return type is @c BOOL rather than
+ * the @c void this header previously claimed, from the metadata encoding @c B24\@0:8\@16 .
  *
  * @param data The buffer to decrypt, modified in place.
+ * @return Whether the buffer decrypted successfully.
+ * @ghidraAddress 0x94e20
  */
-- (void)decipher:(NSMutableData *)data;
+- (BOOL)decipher:(nullable NSMutableData *)data;
+
+/**
+ * @brief Wipes the chaining vector and releases the key schedule.
+ * @ghidraAddress 0x9510c
+ */
+- (void)dealloc;
 
 @end
 
