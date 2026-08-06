@@ -40,6 +40,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x94aec
  */
 - (void)encipher:(NSMutableData *)data;
+/**
+ * @brief Decrypts a buffer in place.
+ *
+ * The counterpart to @c -encipher: , and in place for the same reason: @c -[ArtworkLoader
+ * loadArtwork] passes the unzipped bytes here and then reads the *same* object back into
+ * @c -[UIImage initWithData:] , never a return value. DECLARED ONLY.
+ *
+ * @param data The buffer to decrypt, modified in place.
+ */
+- (void)decipher:(NSMutableData *)data;
 
 @end
 

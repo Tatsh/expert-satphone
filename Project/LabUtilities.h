@@ -37,6 +37,18 @@ extern "C" {
  */
 NSMutableData *_Nullable CreateLabEncryptedData(NSString *_Nullable pszString);
 
+/**
+ * @brief The Blowfish key the packed asset archives are enciphered with.
+ *
+ * DECLARED ONLY. Despite the name it is not limited to audio: @c -[ArtworkLoader loadArtwork] uses
+ * it to decipher artwork out of the same archives. The name is Ghidra's, already applied to the
+ * function in the program database.
+ *
+ * @return The key material, to be handed to @c -[BFCodec cipherInit:] .
+ * @ghidraAddress 0x7f7a0
+ */
+NSData *_Nullable GetBgmCipherKey(void);
+
 #ifdef __cplusplus
 }
 #endif
