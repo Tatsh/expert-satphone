@@ -25,6 +25,16 @@ the `/** @ghidraAddress 0x... */` line directly above it. A tag that lives solel
 invisible to it, and the audit then reports `0 annotated`, which reads like a pass and is not one.
 Keep the header tag as well — it is what the reader sees — but the `.m` tag is what gets checked.
 
+**`tools/progress.py` under-counts hand-written accessors, so a class reported at `0 outstanding`
+may still owe work.** It excludes accessors by body size, and a short accessor that is nonetheless
+hand-written falls under the threshold. `-[StorePackCell isPurchased]` (0xf1878) and
+`-setIsPurchased:` (0xf18a4) are the found example: the property carries no `V_` backing in its
+attributes because it is stored in `labelPurchased`'s own `hidden` flag, and both accessors invert
+it. Neither is synthesised and neither was listed as outstanding. When a property's metadata
+attributes lack a `V_` backing ivar, read its accessors rather than trusting the count. The tool is
+deliberately left alone — it is the measurement, and adjusting it to flatter the number is not a
+fix.
+
 What the other subcommands do and do not cover here:
 
 | Subcommand | Coverage in this tree |
