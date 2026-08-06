@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds the controller.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Does nothing but call @c super . The ivars are set up in @c -loadView instead.
  *
  * @return The initialised controller.
  * @ghidraAddress 0x82414
@@ -37,7 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds the view hierarchy by hand rather than from a nib.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Creates the three logo images centred on the view and starting invisible, then starts the two
+ * downloads that run behind the animation.
  *
  * @ghidraAddress 0x8244c
  */
@@ -72,9 +73,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)end:(nullable id)sender;
 
 /**
- * @brief Skips the remainder of the splash when the screen is tapped.
+ * @brief Skips ahead when the screen is tapped.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * A tap during either BEMANI logo step cuts that step short and jumps to the age-rating notice; a
+ * tap while the notice is up ends the splash immediately instead of waiting out its hold. Taps at
+ * any other point do nothing, and the recogniser is only installed once the BEMANI logo starts, so
+ * the Konami logo cannot be skipped at all.
  *
  * @param sender The recognising gesture.
  * @ghidraAddress 0x8314c

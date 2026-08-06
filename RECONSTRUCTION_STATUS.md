@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **379 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **382 annotated, 0
 mismatched, 0 selectors absent; 137 constants checked against their bytes.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 364 of 5036 methods, 7.2%. 97 of 317 classes complete.**
+**As of the last run: 367 of 5036 methods, 7.3%. 97 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -188,7 +188,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/CJSONDeserializer.m` | **Complete.** Ten methods. Bundled TouchJSON; a facade whose two forwarding properties have no storage. |
 | `Project/NotificationPageNavController.m` | **Complete.** Six methods. Closing the page is what marks it read — see TYPES_PENDING.md. |
 | `Project/StoreButton.m` | **Complete.** Ten methods. `-drawRect:` draws its inner shadow by throwing it a button-width sideways. |
-| `Project/LogoViewController.m` | Twelve of twenty-one. `endTimer` is a weak ivar; `-fireAnimation` has two arms that cannot run. |
+| `Project/LogoViewController.m` | Fifteen of twenty-one. `endTimer` is a weak ivar; `-fireAnimation` has one arm that cannot run. |
 | `Project/DestinationCore.m` | **Complete.** Four methods. Three of them are inert and the fourth discards its delegate. |
 | `Project/ImageCache.m` | **Complete.** Four methods; the caching layer over LoadScaledPngImage. |
 | `Project/ChallengeMenuViewCell.m` | **Complete.** Four methods; the button targets the delegate, not self. |
@@ -227,7 +227,7 @@ rough order of how much each unlocks:
 
 | Target | Address | Notes |
 | --- | --- | --- |
-| `LogoViewController` | class at 0x34d3e8 | Twelve of twenty-one written. `-loadView` (0x8244c, 1184 B) builds the hierarchy the animation drives; then `-init`, `-handleTap:`, the two `Downloader` callbacks, and four campaign-image helpers. |
+| `LogoViewController` | class at 0x34d3e8 | Fifteen of twenty-one written. What is left is one group: `-downloaderFinished:` (0x83598, 1784 B), `-downloaderError:` (0x83c90), and the four campaign-image helpers from 0x83cfc to 0x8400c. |
 | `AudioManager` | class at 0x348038 | 357 xrefs, the most of any class reached. Every sound goes through it. |
 | `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds. |
 | `Downloader` | class at 0x348250 | `-startDownloading` has 98 xrefs, so essentially every server call routes through it. |

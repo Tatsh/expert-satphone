@@ -839,28 +839,38 @@ pass a scalar, and the author appears to have reached for the nearest non-nil ob
 ### `-[LogoViewController fireAnimation]` (0x828ec) — the age notice never fades out
 
 The splash is a state machine that runs one animation per call and passes itself as that
-animation's completion. Two of its eight arms cannot run, and the fade-out of the age-rating notice
-is one of them.
+animation's completion. One of its eight arms cannot run, and it is the fade-out of the age-rating
+notice.
 
 The method opens with `cmp w8, #0x7` / `b.cc` at 0x82918, so anything from 7 upwards skips the
 switch entirely and goes to the branch that arms the end timer. The switch is therefore only ever
 entered with a value of 0 through 6. Its own bound is `cmp w8, #0x7` / `b.hi` at 0x82a2c and the
 jump table at 0x82df8 has eight entries, so the compiler emitted an arm for 7 that no path reaches.
-That arm — at 0x82d04, block at 0x82f90 — sets the notice's alpha back to 0 and steps to 8.
-
-The arm for 6 is dead for a different reason: nothing writes 6. Step 5 sets 7 directly
-(`orr w8, wzr, #0x7` at 0x82c9c), skipping it, and the only other writer is `-start`, which sets 0.
-Its table entry points at 0x82dd4, which is the epilogue, so the compiled arm does nothing but
-release the block and return.
+That arm — at 0x82d04, block at 0x82f90 — sets the notice's alpha back to 0 and steps to 8. The
+only writer of 7 is step 5 (`orr w8, wzr, #0x7` at 0x82c9c), and the guard catches it on the way
+back in.
 
 The visible consequence is that the age-rating notice fades in over half a second and then stays at
 full opacity until `-end:` tears the whole controller down three seconds later. Whether that is the
 intent or a missed step is not decidable from the binary; what is decidable is that the code to fade
 it out was written, compiled, and cannot execute.
 
-Both facts were read from the jump table's bytes rather than inferred from the branch structure.
-The decompile presents a `case 7` alongside a guard that excludes it and gives no hint that the two
+This was read from the jump table's bytes rather than inferred from the branch structure. The
+decompile presents a `case 7` alongside a guard that excludes it and gives no hint that the two
 disagree.
+
+**Correction.** This entry first claimed the arm for step 6 was dead too, on the reasoning that
+nothing writes 6. That was wrong, and reading `-handleTap:` (0x8314c) is what disproved it:
+`orr w8, wzr, #0x6` at 0x831c4 writes exactly that value. The arm is not dead but load-bearing.
+When a tap interrupts either BEMANI logo step, `-handleTap:` strips the layer's animations and
+parks the sequence on 6 before running its own fade; the interrupted animation's completion still
+fires and calls `-fireAnimation`, which lands on the step-6 arm and does nothing. Its table entry
+points at 0x82dd4 — the epilogue — because doing nothing is the whole job. The tap's own completion
+then sets 5 and rejoins the sequence at the age notice's fade in.
+
+The lesson is narrower than "verify more". Reachability is not a property of one routine: a value
+absent from every write in the method that switches on it can still arrive from a sibling. The
+first reading had examined every writer inside `-fireAnimation` and `-start` and stopped there.
 
 ## Settled
 

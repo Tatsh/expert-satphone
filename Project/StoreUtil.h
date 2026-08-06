@@ -49,6 +49,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (nullable NSString *)filePathForMusicID:(int)musicID;
 
+/**
+ * @brief The endpoint the store's knit background colour is fetched from.
+ *
+ * DECLARED ONLY — the body has not been reconstructed yet. Fetched during
+ * @c -[LogoViewController loadView] , alongside the event type.
+ *
+ * @return The knit-colour URL.
+ * @ghidraAddress 0xba7f4
+ */
++ (nullable NSURL *)knitColorURL;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -32,6 +32,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(class, nonatomic, readonly) NSURL *pushNotificationResponseURL;
 
+/**
+ * @brief The endpoint the current event type is fetched from.
+ *
+ * DECLARED ONLY — the body has not been reconstructed yet. Fetched during
+ * @c -[LogoViewController loadView] , so the answer is in hand by the time the splash ends.
+ *
+ * @return The event-type URL.
+ * @ghidraAddress 0x1829e4
+ */
++ (nullable NSURL *)getEventTypeURL;
+
 @end
 
 NS_ASSUME_NONNULL_END

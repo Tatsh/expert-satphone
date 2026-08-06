@@ -1,14 +1,23 @@
 #import "LogoViewController.h"
 
 #import "Downloader.h"
+#import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
+#import "ScratchUtil.h"
+#import "StoreUtil.h"
+
+// The three splash images, in the order they are shown.
+static NSString *const kKonamiLogoImageName = @"k_logo";
+static NSString *const kBemaniLogoImageName = @"b_logo";
+static NSString *const kNonageCautionImageName = @"n_logo";
 
 // The splash's animation steps. -fireAnimation runs one per call and schedules itself again as the
 // animation's completion, so the sequence advances one step per finished animation.
 //
-// Two of these are unreachable in the shipped binary. Nothing ever writes
-// kLogoAnimationStateFadeOutNonageCaution's predecessor value 6, and step 7 is intercepted by the
-// guard at the top of -fireAnimation before the switch is reached. See TYPES_PENDING.md.
+// Step 7's arm in -fireAnimation is unreachable: the guard at the top of that method intercepts 7
+// and above before the switch is reached, so the age notice is never faded out. See
+// TYPES_PENDING.md. Step 6 is reachable, but only from -handleTap:, which parks the sequence there
+// while it takes over.
 enum {
     kLogoAnimationStateWhitenBackground = 0,
     kLogoAnimationStateFadeInKonamiLogo = 1,
@@ -51,6 +60,47 @@ static const CGFloat kLogoVisible = 1.0;
     Downloader *knitBgDownloader; // offset global 0x349ff8
     Downloader *imageDownloader;  // offset global 0x34a00c
     Downloader *eventDownloader;  // offset global 0x349ffc
+}
+
+/** @ghidraAddress 0x82414 */
+- (instancetype)init {
+    // Nothing but the super call: no ivar setup and no nil check on the result.
+    return [super init];
+}
+
+/** @ghidraAddress 0x8244c */
+- (void)loadView {
+    [super loadView];
+
+    // Single-touch only, and opaque because the splash covers the whole screen.
+    self.view.userInteractionEnabled = YES;
+    self.view.multipleTouchEnabled = NO;
+    self.view.opaque = YES;
+
+    // The three images are built identically: centred on the view and starting invisible.
+    konamiLogoView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kKonamiLogoImageName)];
+    konamiLogoView.center = self.view.center;
+    konamiLogoView.alpha = kLogoHidden;
+    [self.view addSubview:konamiLogoView];
+
+    bemaniLogoView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kBemaniLogoImageName)];
+    bemaniLogoView.center = self.view.center;
+    bemaniLogoView.alpha = kLogoHidden;
+    [self.view addSubview:bemaniLogoView];
+
+    nonageCautionView =
+        [[UIImageView alloc] initWithImage:LoadScaledPngImage(kNonageCautionImageName)];
+    nonageCautionView.center = self.view.center;
+    nonageCautionView.alpha = kLogoHidden;
+    [self.view addSubview:nonageCautionView];
+
+    // Two fetches start behind the animation, so the wait for the network is hidden by the logos.
+    knitBgDownloader = [[Downloader alloc] initWithURL:[StoreUtil knitColorURL] delegate:self];
+    [knitBgDownloader startDownloading];
+
+    eventDownloader = [[Downloader alloc] initWithURL:[ScratchUtil getEventTypeURL] delegate:self];
+    [eventDownloader startDownloading];
+    // imageDownloader is not started here; only these two are.
 }
 
 /** @ghidraAddress 0x82fe0 */
@@ -161,7 +211,8 @@ static const CGFloat kLogoVisible = 1.0;
         break;
 
     case kLogoAnimationStateIdle:
-        // Unreachable: nothing writes 6. The compiled arm does nothing but return.
+        // Reached only when -handleTap: has taken over and parked the sequence here. Doing nothing
+        // is the point: it swallows the completion of the animation the tap interrupted.
         return;
 
     case kLogoAnimationStateFadeOutNonageCaution:
@@ -197,6 +248,48 @@ static const CGFloat kLogoVisible = 1.0;
     endTimer = nil;
     closing = YES;
     [JubeatAppDelegate.appDelegate.rootViewCtrl endLogo];
+}
+
+/** @ghidraAddress 0x8314c */
+- (void)handleTap:(id)sender {
+    unsigned int current = state;
+
+    // Masking the low bit makes this "either BEMANI logo step", so a tap during the fade in and a
+    // tap during the fade out are handled the same way.
+    if ((current & ~1u) == kLogoAnimationStateFadeOutBemaniLogo) {
+        [bemaniLogoView.layer removeAllAnimations];
+
+        // Parked on the idle step first. The interrupted animation's completion still fires, and
+        // this is what it lands on so that it advances nothing.
+        state = kLogoAnimationStateIdle;
+
+        [UIView animateWithDuration:kFadeInDuration
+            delay:0.0
+            options:UIViewAnimationOptionBeginFromCurrentState |
+                    UIViewAnimationOptionAllowUserInteraction
+            animations:^{
+              /** @ghidraAddress 0x832f8 */
+              self->bemaniLogoView.alpha = kLogoHidden;
+            }
+            completion:^(BOOL finished) {
+              /** @ghidraAddress 0x83328 */
+              // Rejoins the sequence one step back, so the next -fireAnimation runs the age
+              // notice's fade in.
+              self->state = kLogoAnimationStateFadeInNonageCaution;
+              [self fireAnimation];
+            }];
+
+        // Re-read, but the completion above has not run yet, so this still sees the idle step.
+        current = state;
+    }
+
+    // A tap while the age notice is up skips the three-second hold instead.
+    if (current == kLogoAnimationStateFadeOutNonageCaution && !closing) {
+        if (endTimer) {
+            [endTimer invalidate];
+        }
+        [self end:nil];
+    }
 }
 
 /** @ghidraAddress 0x8335c */
