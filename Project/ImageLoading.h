@@ -34,6 +34,21 @@ extern "C" {
 UIImage *_Nullable LoadScaledPngImage(NSString *pszBaseName);
 
 /**
+ * @brief The same job as @c LoadScaledPngImage, for the encrypted @c .tex assets.
+ *
+ * Resolves the variant through the same @c GetScaledResourcePath, reads the file, decrypts it
+ * through @c BFCodec with a key derived by MD5, and re-wraps the result at the right scale for the
+ * same reason its PNG companion does.
+ *
+ * DECLARED ONLY — the body has not been reconstructed yet. See TYPES_PENDING.md.
+ *
+ * @param pszBaseName The resource name, with no scale suffix and no extension.
+ * @return The decrypted image at its correct scale, or nil when the file is missing.
+ * @ghidraAddress 0x7e9dc
+ */
+UIImage *_Nullable LoadScaledEncryptedTexImage(NSString *pszBaseName);
+
+/**
  * @brief Resolves a resource name to the bundle path of the variant this device should use.
  *
  * Chooses between the plain, @c _pn2 and @c _pn3 variants from the interface idiom and the main
