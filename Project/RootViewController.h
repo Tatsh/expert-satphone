@@ -30,7 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Runs a named cross-fade. DECLARED ONLY.
  */
-- (void)fade:(NSString *)animationName durationIn:(double)durationIn durationOut:(double)durationOut;
+- (void)fade:(NSString *)animationName
+     durationIn:(double)durationIn
+    durationOut:(double)durationOut;
 
 /**
  * @brief Dismisses the music-select screen and returns to the title under the new theme.
@@ -64,8 +66,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Presents the notification the delegate has just queued.
  *
- * RECONSTRUCTION STATE: declared because @c -[JubeatAppDelegate application:didReceiveLocalNotification:]
- * sends it on the foreground path; the body is not reconstructed yet.
+ * RECONSTRUCTION STATE: declared because @c -[JubeatAppDelegate
+ * application:didReceiveLocalNotification:] sends it on the foreground path; the body is not
+ * reconstructed yet.
  * @ghidraAddress 0x1aaaa4
  */
 - (void)pushNotificate;

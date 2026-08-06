@@ -1,19 +1,17 @@
 #import "JubeatAppDelegate.h"
 
 #include <stdlib.h>
-
 #include <sys/sysctl.h>
 
-#import <Security/Security.h>
-
 #import <GameKit/GameKit.h>
+#import <Security/Security.h>
 
 #import "ChallengeStatus.h"
 #import "EditorIDManager.h"
 #import "KnitColorManager.h"
 #import "Md5Utilities.h"
-#import "RootViewController.h"
 #import "PurchaseManager.h"
+#import "RootViewController.h"
 #import "ScoreRecordManager.h"
 
 // The sysctl name the binary passes to sysctlbyname, embedded at 0x27dc6d.
@@ -160,7 +158,8 @@ enum {
 #pragma mark - Standard directories
 
 + (NSString *)appLibraryDirectory {
-    return NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).lastObject;
+    return NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES)
+        .lastObject;
 }
 
 + (NSString *)appDocumentsDirectory {
@@ -227,16 +226,16 @@ enum {
         return;
     }
     [localPlayer setAuthenticateHandler:^(UIViewController *viewController, NSError *error) {
-        /** @ghidraAddress 0x848c */
-        if (viewController != nil) {
-            [self.rootViewCtrl presentViewController:viewController animated:YES completion:nil];
-            return;
-        }
-        // The binary reaches the delegate through +appDelegate here rather than through the self it
-        // captured at +0x20, which the presentation arm above does use.
-        if (error.code == kGameCenterNotSupportedErrorCode) {
-            [JubeatAppDelegate.appDelegate disableGameCenter];
-        }
+      /** @ghidraAddress 0x848c */
+      if (viewController != nil) {
+          [self.rootViewCtrl presentViewController:viewController animated:YES completion:nil];
+          return;
+      }
+      // The binary reaches the delegate through +appDelegate here rather than through the self it
+      // captured at +0x20, which the presentation arm above does use.
+      if (error.code == kGameCenterNotSupportedErrorCode) {
+          [JubeatAppDelegate.appDelegate disableGameCenter];
+      }
     }];
 }
 
@@ -299,10 +298,10 @@ enum {
         (__bridge id)kSecMatchLimitOne,
         (__bridge id)kCFBooleanTrue,
     };
-    NSDictionary *query = [NSDictionary dictionaryWithObjects:queryValues
-                                                      forKeys:queryKeys
-                                                        count:sizeof(queryKeys) /
-                                                              sizeof(queryKeys[0])];
+    NSDictionary *query =
+        [NSDictionary dictionaryWithObjects:queryValues
+                                    forKeys:queryKeys
+                                      count:sizeof(queryKeys) / sizeof(queryKeys[0])];
 
     // The branch at 0x8970 is cbz on an OSStatus, so zero is errSecSuccess and this is the
     // item-found arm.
@@ -356,10 +355,10 @@ enum {
     };
     // The result of SecItemAdd is discarded: a failure to persist is not reported and the freshly
     // minted key is returned regardless.
-    SecItemAdd((__bridge CFDictionaryRef)[NSDictionary dictionaryWithObjects:addValues
-                                                                    forKeys:addKeys
-                                                                      count:sizeof(addKeys) /
-                                                                            sizeof(addKeys[0])],
+    SecItemAdd((__bridge CFDictionaryRef)
+                   [NSDictionary dictionaryWithObjects:addValues
+                                               forKeys:addKeys
+                                                 count:sizeof(addKeys) / sizeof(addKeys[0])],
                NULL);
     return key;
 }
@@ -431,9 +430,8 @@ enum {
 
 - (NSString *)getNotificationFilePath {
     NSFileManager *fileManager = NSFileManager.defaultManager;
-    NSString *directory =
-        [JubeatAppDelegate.appCachesDirectory stringByAppendingPathComponent:
-            kNotificationDirectoryName];
+    NSString *directory = [JubeatAppDelegate.appCachesDirectory
+        stringByAppendingPathComponent:kNotificationDirectoryName];
     if (![fileManager fileExistsAtPath:directory]) {
         NSError *error = nil;
         [fileManager createDirectoryAtPath:directory
@@ -519,12 +517,15 @@ enum {
     // The first argument is the literal URL scheme string reused as the product name; it is the
     // same CFString at 0x2d40e0 that -application:handleOpenURL: matches against.
     _userAgent = [NSString
-        stringWithFormat:kUserAgentFormat, kJubeatURLScheme, appVersion,
+        stringWithFormat:kUserAgentFormat,
+                         kJubeatURLScheme,
+                         appVersion,
                          JubeatAppDelegate.deviceName,
-                         [systemVersion stringByReplacingOccurrencesOfString:kSystemVersionSeparator
-                                                                  withString:
-                                                                      kUserAgentVersionSeparator],
-                         NSLocale.currentLocale.localeIdentifier, editorKey];
+                         [systemVersion
+                             stringByReplacingOccurrencesOfString:kSystemVersionSeparator
+                                                       withString:kUserAgentVersionSeparator],
+                         NSLocale.currentLocale.localeIdentifier,
+                         editorKey];
 }
 
 #pragma mark - URL scheme
@@ -604,10 +605,11 @@ enum {
 - (void)application:(UIApplication *)application
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     // Depends on NSData.description's "<xxxx xxxx>" format, stripped literal by literal.
-    _deviceToken = [[[deviceToken.description
-        stringByReplacingOccurrencesOfString:@"<" withString:@""]
-        stringByReplacingOccurrencesOfString:@">" withString:@""]
-        stringByReplacingOccurrencesOfString:@" " withString:@""];
+    _deviceToken = [[[deviceToken.description stringByReplacingOccurrencesOfString:@"<"
+                                                                        withString:@""]
+        stringByReplacingOccurrencesOfString:@">"
+                                  withString:@""] stringByReplacingOccurrencesOfString:@" "
+                                                                            withString:@""];
 }
 
 - (void)application:(UIApplication *)application

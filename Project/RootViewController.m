@@ -26,8 +26,8 @@ static const double kTitleSwitchFadeDuration = 1.5;
         // Dismisses with no completion, then fades straight away.
         [self.musicSelectViewCtrl dismissViewControllerAnimated:YES completion:nil];
         [self fade:kChangeThemeAnimationName
-              durationIn:kChangeThemeFadeInDuration
-             durationOut:kChangeThemeFadeOutDuration];
+             durationIn:kChangeThemeFadeInDuration
+            durationOut:kChangeThemeFadeOutDuration];
         return;
     }
     [self.musicSelectViewCtrl dismissViewControllerAnimated:YES
@@ -36,15 +36,15 @@ static const double kTitleSwitchFadeDuration = 1.5;
                                                    // The same fade as the iPad arm above, deferred
                                                    // until the dismissal finishes.
                                                    [self fade:kChangeThemeAnimationName
-                                                         durationIn:kChangeThemeFadeInDuration
-                                                        durationOut:kChangeThemeFadeOutDuration];
+                                                        durationIn:kChangeThemeFadeInDuration
+                                                       durationOut:kChangeThemeFadeOutDuration];
                                                  }];
 }
 
 - (void)changeTitleTheme {
     [self fade:kTitleSwitchAnimationName
-          durationIn:kTitleSwitchFadeDuration
-         durationOut:kTitleSwitchFadeDuration];
+         durationIn:kTitleSwitchFadeDuration
+        durationOut:kTitleSwitchFadeDuration];
 }
 
 - (void)reloadMarkers {
