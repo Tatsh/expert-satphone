@@ -23,6 +23,10 @@ static NSString *const kCurrentLicenseDate = @"2015-04-14 17:00:02";
 // The localization key the use-policy message is looked up under, from the CFString at 0x2d4320.
 static NSString *const kUsePolicyMessageKey = @"Use policy Message";
 
+// The Game Center error code the authentication handler treats as fatal, compared as the immediate
+// 16 at 0x84f0. That is GKErrorNotSupported; the binary spells it as a bare number.
+static const NSInteger kGameCenterNotSupportedErrorCode = 16;
+
 // The device-type values the four idiom predicates at 0x82c0-0x8328 compare against. The binary
 // names none of them, so each is named here after what its predicate proves rather than after a
 // device the naming is not evidence for.
@@ -106,6 +110,29 @@ enum {
 
 - (void)disableGameCenter {
     _gameCenterAvailable = NO;
+}
+
+- (void)loginGameCenter {
+    if (!_gameCenterAvailable) {
+        return;
+    }
+    GKLocalPlayer *localPlayer = GKLocalPlayer.localPlayer;
+    // Already-authenticated players are left alone; the handler is installed only on the other arm.
+    if (localPlayer.isAuthenticated) {
+        return;
+    }
+    [localPlayer setAuthenticateHandler:^(UIViewController *viewController, NSError *error) {
+        /** @ghidraAddress 0x848c */
+        if (viewController != nil) {
+            [self.rootViewCtrl presentViewController:viewController animated:YES completion:nil];
+            return;
+        }
+        // The binary reaches the delegate through +appDelegate here rather than through the self it
+        // captured at +0x20, which the presentation arm above does use.
+        if (error.code == kGameCenterNotSupportedErrorCode) {
+            [JubeatAppDelegate.appDelegate disableGameCenter];
+        }
+    }];
 }
 
 #pragma mark - Licence

@@ -191,6 +191,15 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x83bc
  */
 - (void)disableGameCenter;
+/**
+ * @brief Starts Game Center authentication, if it is available and not already done.
+ *
+ * Returns immediately when @c gameCenterAvailable is NO, and also when
+ * @c GKLocalPlayer.localPlayer is already authenticated — the handler is only installed on the
+ * not-yet-authenticated path.
+ * @ghidraAddress 0x83cc
+ */
+- (void)loginGameCenter;
 
 #pragma mark - Presentation
 
