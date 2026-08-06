@@ -10,9 +10,6 @@
  * This is third-party code bundled into the application, so the names are TouchJSON's rather than
  * Konami's. The class is a facade: two of its four properties have no storage of their own and read
  * and write the scanner's instead.
- *
- * RECONSTRUCTION STATE: seven of ten members written. The three @c -deserialize… methods are
- * declared but not reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
 #import <Foundation/Foundation.h>
@@ -73,7 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Deserialises to whatever the JSON describes.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Nil and empty input are the same case, and both are reported as error -11 rather than as an
+ * empty result.
  *
  * @param data The JSON text.
  * @param outError Where to report a parse failure.
@@ -85,8 +83,6 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Deserialises, requiring a dictionary at the top level.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
- *
  * @param data The JSON text.
  * @param outError Where to report a parse failure.
  * @return The parsed dictionary, or nil.
@@ -97,8 +93,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Deserialises, requiring an array at the top level.
- *
- * DECLARED ONLY — the body has not been reconstructed yet.
  *
  * @param data The JSON text.
  * @param outError Where to report a parse failure.
