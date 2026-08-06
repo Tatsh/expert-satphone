@@ -10,10 +10,16 @@ delegate class `JubeatAppDelegate`, and every routine reachable from there is re
 
 ## Layout
 
-| Path         | Contents                                                        |
-| ------------ | --------------------------------------------------------------- |
-| `Project/`   | Reconstructed sources, one class per header and implementation.  |
-| `.claude/`   | Rules governing reconstruction fidelity and coding style.        |
+| Path                       | Contents                                                       |
+| -------------------------- | -------------------------------------------------------------- |
+| `Project/`                 | Reconstructed sources, one class per header and implementation. |
+| `.claude/`                 | Rules governing reconstruction fidelity and coding style.       |
+| `RECONSTRUCTION_STATUS.md` | What is done, what is next with addresses, and the method used. |
+| `TYPES_PENDING.md`         | Placeholder types, declarations without bodies, and binary defects found. |
+
+This is a long-running task. Start a session by reading
+[RECONSTRUCTION_STATUS.md](RECONSTRUCTION_STATUS.md); it names the next routines with their
+addresses and sizes so no time goes into re-deriving where the work stopped.
 
 ## Provenance
 
