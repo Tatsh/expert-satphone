@@ -6,6 +6,17 @@ re-deriving where it left off.
 
 Addresses are relative to the image base `0x100000000`, matching the `@ghidraAddress` tags.
 
+**Run the external check before believing any of this.** From the `recon-tools` checkout:
+
+```sh
+uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
+```
+
+It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
+see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
+which of the four subcommands actually cover anything here. Last run: **75 annotated, 0
+mismatched, 0 selectors absent.**
+
 ## Method
 
 Applied to every routine, in this order, without exception:
