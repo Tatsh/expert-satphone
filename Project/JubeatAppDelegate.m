@@ -9,6 +9,7 @@
 #import <GameKit/GameKit.h>
 
 #import "ChallengeStatus.h"
+#import "EditorIDManager.h"
 #import "KnitColorManager.h"
 #import "Md5Utilities.h"
 #import "RootViewController.h"
@@ -37,6 +38,13 @@ static NSString *const kThemePreferenceKey = @"PrefTheme";
 
 // The user-defaults key the copious marker unlock is recorded under, from the CFString at 0x2d42a0.
 static NSString *const kCopiousUnlockedPreferenceKey = @"PrefCopiousUnlocked";
+
+// The User-Agent format and the pieces that go into it, from the CFStrings at 0x2d4500, 0x2d44e0,
+// 0x2d4520, and 0x2d4540. Six specifiers, matching the six stack slots at 0xa498-0xa4a8.
+static NSString *const kUserAgentFormat = @"%@/%@ (%@; iOS %@; %@) [%@]";
+static NSString *const kInternalVersionDefaultsKey = @"internal_version";
+static NSString *const kSystemVersionSeparator = @".";
+static NSString *const kUserAgentVersionSeparator = @"_";
 
 // The custom URL scheme and the path vocabulary -application:handleOpenURL: routes on, from the
 // CFStrings at 0x2d40e0, 0x2d4380, 0x2d43a0, 0x2d43c0, and 0x2d43e0.
@@ -473,6 +481,37 @@ enum {
             return nil;
         }
     }
+}
+
+#pragma mark - Client identification
+
+- (void)refreshUserAgent {
+    NSString *systemVersion = UIDevice.currentDevice.systemVersion;
+    NSString *appVersion = JubeatAppDelegate.appVersion;
+
+    // Mirrors the version into the defaults, but only when it has actually changed.
+    if (appVersion != nil) {
+        NSString *stored =
+            [NSUserDefaults.standardUserDefaults stringForKey:kInternalVersionDefaultsKey];
+        if (![stored isEqualToString:appVersion]) {
+            NSUserDefaults.standardUserDefaults[kInternalVersionDefaultsKey] = appVersion;
+        }
+    }
+
+    NSString *editorKey = @"";
+    if (EditorIDManager.isExistEditorID) {
+        editorKey = [EditorIDManager getKeyString:EditorIDManager.getEditorIDKey];
+    }
+
+    // The first argument is the literal URL scheme string reused as the product name; it is the
+    // same CFString at 0x2d40e0 that -application:handleOpenURL: matches against.
+    _userAgent = [NSString
+        stringWithFormat:kUserAgentFormat, kJubeatURLScheme, appVersion,
+                         JubeatAppDelegate.deviceName,
+                         [systemVersion stringByReplacingOccurrencesOfString:kSystemVersionSeparator
+                                                                  withString:
+                                                                      kUserAgentVersionSeparator],
+                         NSLocale.currentLocale.localeIdentifier, editorKey];
 }
 
 #pragma mark - URL scheme

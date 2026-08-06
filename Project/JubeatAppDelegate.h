@@ -134,6 +134,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly) NSString *userAgent;
 /**
+ * @brief Rebuilds @c userAgent, and mirrors the app version into the user defaults on the way.
+ *
+ * The User-Agent format is "%\@/%\@ (%\@; iOS %\@; %\@) [%\@]" with six arguments, in order: the
+ * literal "jubeatplus", @c +appVersion, @c +deviceName, the system version with every "." replaced
+ * by "_", the current locale identifier, and the editor identifier key (empty when none is
+ * provisioned).
+ *
+ * The argument list was read from the stack stores at 0xa498-0xa4a8 rather than from the decompile,
+ * which shows a variadic call with only its first argument. Six specifiers against six slots.
+ * @ghidraAddress 0xa260
+ */
+- (void)refreshUserAgent;
+/**
  * @brief The device idiom and screen class this build has classified the device as.
  *
  * Backed by @c _deviceType (0x349600). This is an INTEGER, not an object, despite the getter
