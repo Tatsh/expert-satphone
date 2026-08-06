@@ -32,6 +32,9 @@ static NSString *const kTotalScoreLeaderboardCategoryPhone = @"jubeat.totalscore
 // The user-defaults key the selected theme is persisted under, from the CFString at 0x2d4280.
 static NSString *const kThemePreferenceKey = @"PrefTheme";
 
+// The key each queued notification stores its fire time under, from the CFString at 0x2d4680.
+static NSString *const kNotificationExpireKey = @"expire";
+
 // The two path components of the persisted notification queue, at 0x2d4560 and 0x2d4580.
 static NSString *const kNotificationDirectoryName = @"notification";
 static NSString *const kNotificationFileName = @"noti.txt";
@@ -265,6 +268,27 @@ enum {
     NSInteger now = (NSInteger)NSDate.date.timeIntervalSince1970;
     // cset le: inclusive, so a notification due this very second is still active.
     return now <= fireTime;
+}
+
+- (NSDictionary *)popNotification {
+    // An already-empty queue returns without persisting; only the two loop exits below save.
+    if (self.pushNotificationList.count == 0) {
+        return nil;
+    }
+    while (true) {
+        // Every entry inspected is removed, so expired ones are discarded on the way past.
+        NSDictionary *entry = self.pushNotificationList[0];
+        [self.pushNotificationList removeObjectAtIndex:0];
+        NSInteger expire = [entry[kNotificationExpireKey] longValue];
+        if ([self pushActiveCheck:expire]) {
+            [self saveNotification];
+            return entry;
+        }
+        if (self.pushNotificationList.count == 0) {
+            [self saveNotification];
+            return nil;
+        }
+    }
 }
 
 #pragma mark - Application lifecycle

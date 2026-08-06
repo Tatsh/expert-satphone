@@ -525,6 +525,18 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xb534
  */
 - (BOOL)pushActiveCheck:(NSInteger)fireTime;
+/**
+ * @brief Removes queued notifications from the front until one has not expired, and returns it.
+ *
+ * Every entry it inspects is removed from the queue whether or not it is returned, so expired
+ * entries are discarded as a side effect of looking for a live one. Each entry's fire time is read
+ * from its "expire" key.
+ *
+ * The queue is only persisted when the loop actually ran: an already-empty queue returns nil
+ * without calling @c -saveNotification, whereas both loop exits do call it.
+ * @ghidraAddress 0xb594
+ */
+- (nullable NSDictionary *)popNotification;
 
 #pragma mark - Application lifecycle
 
