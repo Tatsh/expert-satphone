@@ -4,8 +4,6 @@
  * Reconstructed from Ghidra program Jubeat (class StoreRecommendPackView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: three of four members written. @c -initWithFrame: is declared but not
- * reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
 #import <UIKit/UIKit.h>
@@ -56,7 +54,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds the tile's seven subviews.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * The tap recogniser goes on the background rather than on the tile itself. The comment and price
+ * labels are sized from the "Purchased" badge's fitted frame, so both move with it.
+ *
+ * @param frame The tile's frame.
+ * @return The initialised tile.
  * @ghidraAddress 0x1449fc
  */
 - (instancetype)initWithFrame:(CGRect)frame;
