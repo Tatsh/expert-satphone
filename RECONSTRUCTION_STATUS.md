@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **110 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **112 annotated, 0
 mismatched, 0 selectors absent.**
 
 ## Measured progress
@@ -30,13 +30,18 @@ cd ../recon-tools && uv run python ../jubeat-src/tools/progress.py \
 Excluded as never-hand-written: `.cxx_destruct`, which ARC emits to release strong ivars, and
 property accessors, which a `@property` declaration synthesises. Both are correctly *not* work.
 
-**As of the last run: 105 of 5012 methods, 2.1%. 27 of 317 classes complete.**
+**As of the last run: 107 of 5012 methods, 2.1%. 28 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
 class reached so far, `ChallengeStatus`, has 101 of them on its own. Pass a class name to the tool
 to get that class's outstanding selectors with addresses, which is the fastest way to pick the next
 unit of work.
+
+**Ghidra prints a negative `fmov` immediate wrongly.** It shows neither the value nor its bit
+pattern — `-0x3fd8000000000000` for -12.0, `-0x4010000000000000` for -1.0. Decode `imm8` from the
+instruction encoding instead: bits 20:13, expanded as sign, `NOT(bit6)`, `bit6`×8, bits 5:4, then
+bits 3:0 as the mantissa's top nibble. This has already produced two wrong constants when trusted.
 
 A superclass is **not** in the file. The class object's superclass slot is a dyld bind target and
 reads as zero on disk, so it has to come from the binding. `get_xrefs_from` on the slot address in
@@ -110,6 +115,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/ChallengeMissionTerms.m` | **Complete.** Two methods; documents the mission wire format. |
 | `Project/StoreMusicInfo.m` | **Complete.** Two methods; documents the store's track wire format. |
 | `Project/ScoreMigrationPolicy.m` | **Complete.** Two methods; the Core Data score-store migration. |
+| `Project/ShadowView.m` | **Complete.** Two methods; the inner-shadow renderer. |
 | `Project/RootViewController.m` | Twelve methods: both fade dispatchers, both store callbacks, the theme factory. |
 
 ## Next, in order
