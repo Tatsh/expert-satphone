@@ -1,0 +1,13 @@
+/.claude/auto-continue.md
+/.claude/quota-blocked.json
+/.claude/settings.local.json
+/.claude/stop-failure-events.jsonl
+/.wiswa-ci/
+/.claude/hooks/inject-standing-instructions.sh
+/.claude/hooks/log-stop-failure.sh
+/.claude/hooks/remind-on-prompt.sh
+/.claude/session-recover.js
+/.claude/standing-instructions.md
+/.claude/statusline-quota-cache.sh
+/HANDOFF.md
+/session-recover.yaml
