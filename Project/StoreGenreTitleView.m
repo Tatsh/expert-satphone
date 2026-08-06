@@ -33,6 +33,12 @@ enum {
 // The banner fades in over this long, linearly.
 static const NSTimeInterval kBannerFadeDuration = 0.2;
 
+// The phone's comment is given this much room before -sizeToFit shrinks it back.
+static const CGFloat kCommentInitialHeightPhone = 200.0; // @ghidraAddress 0x28f400
+
+// The heading reports its own height with this much added below.
+enum { kHeadingBottomPadding = 12 };
+
 @implementation StoreGenreTitleView {
     BOOL isPad;
     UIImageView *bgImageView;
@@ -98,6 +104,78 @@ static const NSTimeInterval kBannerFadeDuration = 0.2;
         bgImageCache = [[NSCache alloc] init];
     }
     return self;
+}
+
+/** @ghidraAddress 0x1b3b3c */
+- (int)setGenreTitleInfo:(StorePackListGenre *)info {
+    // Each field is fetched once to test and again to use, throughout this method.
+    if (info.genreName) {
+        title.text = info.genreName;
+    }
+
+    UIColor *background = info.genreBGColor;
+    if (!background) {
+        background = [UIColor colorWithWhite:kBackgroundWhite alpha:kBackgroundAlpha];
+    }
+    self.backgroundColor = background;
+
+    if (isPad) {
+        // Cleared first, so a genre with no banner does not keep the previous one.
+        bgImageView.image = nil;
+        imgURL = info.genreBgImageURL;
+        // An empty string is rejected as well as nil.
+        if (imgURL && ![imgURL isEqualToString:@""]) {
+            if ([bgImageCache objectForKey:imgURL]) {
+                [self setBannerImage:[bgImageCache objectForKey:imgURL]];
+            } else {
+                // Any fetch still running is abandoned before a new one starts, which is what
+                // makes -downloaderFinished:'s identity guard meaningful.
+                if (imgDownloader) {
+                    [imgDownloader cancel];
+                    imgDownloader = nil;
+                }
+                imgDownloader = [[Downloader alloc] initWithURL:[NSURL URLWithString:imgURL]
+                                                       delegate:self];
+                [imgDownloader startDownloading];
+            }
+        }
+    }
+
+    if (!isPad) {
+        // Given a deliberately generous height for -sizeToFit to shrink below; the origin is kept.
+        CGRect current = comment.frame;
+        comment.frame = CGRectMake(current.origin.x,
+                                   current.origin.y,
+                                   self.frame.size.width + kLabelWidthInset,
+                                   kCommentInitialHeightPhone);
+    }
+
+    if (info.genreComment) {
+        comment.text = info.genreComment;
+    } else {
+        comment.text = @"";
+    }
+
+    CGFloat titleHeight = 0;
+    if (!isPad) {
+        [comment sizeToFit];
+        // The only early return, and it reports no height rather than the padding.
+        if (!info.genreComment) {
+            return 0;
+        }
+        // Centred horizontally against the heading, keeping the fitted size.
+        CGRect fitted = comment.frame;
+        comment.frame = CGRectMake((self.frame.size.width - fitted.size.width) * 0.5,
+                                   fitted.origin.y,
+                                   fitted.size.width,
+                                   fitted.size.height);
+    } else {
+        // Truncated to a whole point. The binary adds a literal zero first, which changes nothing.
+        titleHeight = (int)(title.frame.size.height + 0.0);
+    }
+
+    // The heading's required height, for the caller to lay the list out with.
+    return (int)(titleHeight + comment.frame.size.height) + kHeadingBottomPadding;
 }
 
 /** @ghidraAddress 0x1b3ff0 */

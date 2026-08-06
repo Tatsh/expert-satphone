@@ -10,14 +10,12 @@
  * The pad and the phone get different views, not just different metrics: the pad has a background
  * image and a separate title label, and the phone has neither — its comment label carries
  * everything, over a plain translucent background.
- *
- * RECONSTRUCTION STATE: three of four members written. @c -setGenreTitleInfo: is declared but not
- * reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
 #import <UIKit/UIKit.h>
 
 #import "Downloader.h"
+#import "StorePackListGenre.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,15 +48,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Fills the heading in from a genre record.
+ * @brief Fills the heading in from a genre record, and reports how tall it needs to be.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * On the pad this also starts a banner fetch, unless the cache already holds one. On the phone the
+ * comment is re-fitted and centred instead.
  *
  * @param info The genre record.
- * @return An integer whose meaning is not yet established.
+ * @return The heading's required height, or zero when the genre has no description on the phone.
  * @ghidraAddress 0x1b3b3c
  */
-- (int)setGenreTitleInfo:(nullable id)info;
+- (int)setGenreTitleInfo:(nullable StorePackListGenre *)info;
 
 /**
  * @brief Puts a banner up and fades it in.
