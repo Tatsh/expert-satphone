@@ -43,6 +43,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)isPending:(nullable NSString *)productID;
 /**
+ * @brief The packs the player has bought. DECLARED ONLY.
+ */
+@property(nonatomic, readonly, nullable) NSArray *purchasedPackIDs;
+
+/**
+ * @brief The packs whose purchase has not settled yet. DECLARED ONLY.
+ */
+@property(nonatomic, readonly, nullable) NSArray *pendingPackIDs;
+
+/**
  * @brief Loads the product catalogue. DECLARED ONLY.
  */
 - (void)loadProductList;

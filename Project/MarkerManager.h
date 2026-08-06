@@ -34,6 +34,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)checkRegularMarkerData;
 
+/**
+ * @brief Whether a marker's data is present on disc.
+ *
+ * DECLARED ONLY. The one reconstructed caller builds the name as @c mk%04d from a marker
+ * identifier.
+ *
+ * @param name The marker's data name.
+ * @return YES when the marker is installed.
+ */
++ (BOOL)checkMarkerData:(nullable NSString *)name;
+
 @end
 
 NS_ASSUME_NONNULL_END

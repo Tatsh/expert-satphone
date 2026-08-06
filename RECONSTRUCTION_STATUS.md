@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **307 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **312 annotated, 0
 mismatched, 0 selectors absent; 115 constants checked against their bytes.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 300 of 5036 methods, 6.0%. 88 of 317 classes complete.**
+**As of the last run: 305 of 5036 methods, 6.1%. 88 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -163,6 +163,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/ChallengeMissionMessageView.m` | **Complete.** Three methods. Sized from its own artwork, not from its frame; the first Japanese UTF-16 literal in the tree. |
 | `Project/HoldMarkerRender.m` | **Complete.** Four methods. Hold-marker and tail drawing over the 4×4 grid; `drawTex` is a weak ivar. |
 | `Project/TuneInfo.m` | **Complete.** Five methods. The tune catalogue entry and its two sort orders. |
+| `Project/CampaignItemInfo.m` | Five of six methods. `-initWithDictionary:` is declared only — see Next. |
 | `Project/DestinationCore.m` | **Complete.** Four methods. Three of them are inert and the fourth discards its delegate. |
 | `Project/ImageCache.m` | **Complete.** Four methods; the caching layer over LoadScaledPngImage. |
 | `Project/ChallengeMenuViewCell.m` | **Complete.** Four methods; the button targets the delegate, not self. |
@@ -201,6 +202,7 @@ rough order of how much each unlocks:
 
 | Target | Address | Notes |
 | --- | --- | --- |
+| `-[CampaignItemInfo initWithDictionary:]` | 0xbca0 | The one open partial. About 307 instructions unpacking a campaign entry into eighteen ivars. The other five members are reconstructed and establish what the fields mean: `unlockType` selects among five unlock rules, `termsTable` holds either URL schemes or pack identifiers depending on which, and both are private ivars with no property. The eighteen ivar offsets run 0x349694 to 0x3496d8 and are **not** in the metadata's listing order — map them with `ivar_offset_variables()` before writing anything. |
 | `-[LogoViewController start]` | not located yet | The launch sequence continues here; class at 0x348a58. |
 | `AudioManager` | class at 0x348038 | 357 xrefs, the most of any class reached. Every sound goes through it. |
 | `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds. |

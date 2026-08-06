@@ -38,6 +38,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (nullable NSString *)productIDForPackID:(int)packID;
 
+/**
+ * @brief Where a downloaded tune's data would live.
+ *
+ * DECLARED ONLY. Returns the path whether or not anything is there; the caller tests it with
+ * @c -[NSFileManager fileExistsAtPath:] .
+ *
+ * @param musicID The tune.
+ * @return The path.
+ */
++ (nullable NSString *)filePathForMusicID:(int)musicID;
+
 @end
 
 NS_ASSUME_NONNULL_END

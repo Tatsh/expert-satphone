@@ -45,6 +45,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSDictionary *)extendInfoForID:(unsigned int)tuneID;
 
 /**
+ * @brief Whether a tune is in the catalogue at all. DECLARED ONLY.
+ * @param musicID The tune.
+ * @return YES when the catalogue lists it.
+ */
+- (BOOL)hasMusic:(int)musicID;
+
+/**
  * @brief Loads the store's music list.
  *
  * Sent at 0x9eec, immediately after the four PurchaseManager calls and before the audio session is
