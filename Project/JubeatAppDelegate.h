@@ -20,6 +20,8 @@
 
 #import <UIKit/UIKit.h>
 
+@class RootViewController;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -92,12 +94,13 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The root view controller of the application.
  *
- * Backed by @c _rootViewCtrl (ivar offset global 0x349608). The getter is @c ldr @c x0, so this is
- * an object; the concrete controller class has not been proven yet and is stated here as the
- * framework base class.
+ * Backed by @c _rootViewCtrl (ivar offset global 0x349608). The class is proven rather than
+ * assumed: @c -changeTheme: sends @c -changeThemeAndGoTitle to this object, and the only
+ * implementation of that selector in the binary is @c -[RootViewController changeThemeAndGoTitle]
+ * at 0x1a8a68.
  * @ghidraAddress 0xb848 (getter)
  */
-@property(nonatomic, readonly) UIViewController *rootViewCtrl;
+@property(nonatomic, readonly) RootViewController *rootViewCtrl;
 
 #pragma mark - Client identification
 
@@ -207,10 +210,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief The currently-selected interface theme.
  *
  * Backed by @c _currentTheme (0x34960c). The getter is @c ldr @c w0 — a 4-byte load — so the ivar
- * is a 32-bit integer and is spelled @c int rather than @c NSInteger.
+ * is a 32-bit integer and is spelled @c unsigned @c int rather than @c NSInteger. The signedness is
+ * not a guess: @c -changeTheme: boxes the same value with @c +[NSNumber numberWithUnsignedInt:] at
+ * 0x85e4 before writing it to the defaults.
  * @ghidraAddress 0xb888 (getter)
  */
-@property(nonatomic, readonly) int currentTheme;
+@property(nonatomic, readonly) unsigned int currentTheme;
 /**
  * @brief The installed marker set, as loaded from disk.
  * @ghidraAddress 0xb9a8 (getter)
@@ -407,6 +412,38 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xba70 (setter)
  */
 @property(nonatomic) int hasNewRecommendNum;
+
+/**
+ * @brief The Game Center leaderboard identifier for the total-score board.
+ *
+ * Two literals selected by @c isPad: "jubeat.totalscore" on iPad and "jubeat.totalscorephone"
+ * elsewhere. The binary picks between them with a @c csel rather than a branch.
+ * @ghidraAddress 0x8550
+ */
+@property(nonatomic, readonly) NSString *totalScoreLeaderboardCategory;
+
+#pragma mark - Presentation mutators
+
+/**
+ * @brief Selects the interface theme, persists it, and returns to the title screen.
+ *
+ * Writes @c _currentTheme, mirrors it into @c NSUserDefaults under the key "PrefTheme" as an
+ * @c NSNumber, synchronises, and then sends @c -changeThemeAndGoTitle to @c rootViewCtrl.
+ * @ghidraAddress 0x8584
+ */
+- (void)changeTheme:(unsigned int)theme;
+/**
+ * @brief Hands a colour array to the knit-colour manager.
+ * @ghidraAddress 0x8f38
+ */
+- (void)setKnitColor:(NSArray *)knitColor;
+/**
+ * @brief Latches @c bEnableReward on.
+ *
+ * As with @c -markerDownloadComplete, this only ever sets the flag; nothing clears it.
+ * @ghidraAddress 0x8f24
+ */
+- (void)rewardEnable;
 
 #pragma mark - Licence
 

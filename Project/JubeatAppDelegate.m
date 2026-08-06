@@ -7,6 +7,8 @@
 #import <GameKit/GameKit.h>
 
 #import "ChallengeStatus.h"
+#import "KnitColorManager.h"
+#import "RootViewController.h"
 #import "PurchaseManager.h"
 #import "ScoreRecordManager.h"
 
@@ -22,6 +24,13 @@ static NSString *const kCurrentLicenseDate = @"2015-04-14 17:00:02";
 
 // The localization key the use-policy message is looked up under, from the CFString at 0x2d4320.
 static NSString *const kUsePolicyMessageKey = @"Use policy Message";
+
+// The two total-score leaderboard identifiers, at 0x2d4240 and 0x2d4260.
+static NSString *const kTotalScoreLeaderboardCategoryPad = @"jubeat.totalscore";
+static NSString *const kTotalScoreLeaderboardCategoryPhone = @"jubeat.totalscorephone";
+
+// The user-defaults key the selected theme is persisted under, from the CFString at 0x2d4280.
+static NSString *const kThemePreferenceKey = @"PrefTheme";
 
 // The Game Center error code the authentication handler treats as fatal, compared as the immediate
 // 16 at 0x84f0. That is GKErrorNotSupported; the binary spells it as a bare number.
@@ -133,6 +142,30 @@ enum {
             [JubeatAppDelegate.appDelegate disableGameCenter];
         }
     }];
+}
+
+- (NSString *)totalScoreLeaderboardCategory {
+    // A csel, not a branch: both literals are materialised and one is selected.
+    return self.isPad ? kTotalScoreLeaderboardCategoryPad : kTotalScoreLeaderboardCategoryPhone;
+}
+
+#pragma mark - Presentation mutators
+
+- (void)changeTheme:(unsigned int)theme {
+    _currentTheme = theme;
+    // The value is boxed with +numberWithUnsignedInt:, which is what fixes the ivar's signedness.
+    NSUserDefaults.standardUserDefaults[kThemePreferenceKey] = @(theme);
+    [NSUserDefaults.standardUserDefaults synchronize];
+    [self.rootViewCtrl changeThemeAndGoTitle];
+}
+
+- (void)setKnitColor:(NSArray *)knitColor {
+    [KnitColorManager.sharedManager setColorWithArray:knitColor];
+}
+
+- (void)rewardEnable {
+    // Latched on only, like -markerDownloadComplete.
+    _bEnableReward = YES;
 }
 
 #pragma mark - Licence
