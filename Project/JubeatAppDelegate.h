@@ -447,6 +447,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)switchTitleEvent;
 /**
+ * @brief Unlocks the copious marker set and reloads the markers.
+ *
+ * Writes @c YES to @c NSUserDefaults under "PrefCopiousUnlocked", synchronises, and then sends
+ * @c -reloadMarkers to @c rootViewCtrl. Unconditional: there is no check of the current value, so
+ * calling it again rewrites the same flag and reloads again.
+ * @ghidraAddress 0x871c
+ */
+- (void)enableCopiousMarkers;
+/**
  * @brief Latches @c bEnableReward on.
  *
  * As with @c -markerDownloadComplete, this only ever sets the flag; nothing clears it.

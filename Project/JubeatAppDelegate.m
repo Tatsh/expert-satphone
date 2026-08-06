@@ -32,6 +32,9 @@ static NSString *const kTotalScoreLeaderboardCategoryPhone = @"jubeat.totalscore
 // The user-defaults key the selected theme is persisted under, from the CFString at 0x2d4280.
 static NSString *const kThemePreferenceKey = @"PrefTheme";
 
+// The user-defaults key the copious marker unlock is recorded under, from the CFString at 0x2d42a0.
+static NSString *const kCopiousUnlockedPreferenceKey = @"PrefCopiousUnlocked";
+
 // The knit-colour palette type the hinabita collaboration selects, a bare immediate at 0x86d4.
 static const int kHinabitaKnitColorType = 4;
 
@@ -180,6 +183,13 @@ enum {
     }
     // Sent on both arms, not only the hinabita one.
     [self.rootViewCtrl changeTitleTheme];
+}
+
+- (void)enableCopiousMarkers {
+    // Unconditional: the current value is never read before being overwritten.
+    NSUserDefaults.standardUserDefaults[kCopiousUnlockedPreferenceKey] = @YES;
+    [NSUserDefaults.standardUserDefaults synchronize];
+    [self.rootViewCtrl reloadMarkers];
 }
 
 - (void)rewardEnable {

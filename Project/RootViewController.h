@@ -34,6 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)changeTitleTheme;
 
+/**
+ * @brief Rebuilds the marker list from what is currently unlocked on disk.
+ *
+ * Called from @c -[JubeatAppDelegate enableCopiousMarkers] at 0x87f8.
+ */
+- (void)reloadMarkers;
+
 @end
 
 NS_ASSUME_NONNULL_END
