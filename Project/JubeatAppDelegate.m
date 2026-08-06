@@ -38,6 +38,20 @@ static NSString *const kThemePreferenceKey = @"PrefTheme";
 // The user-defaults key the copious marker unlock is recorded under, from the CFString at 0x2d42a0.
 static NSString *const kCopiousUnlockedPreferenceKey = @"PrefCopiousUnlocked";
 
+// The custom URL scheme and the path vocabulary -application:handleOpenURL: routes on, from the
+// CFStrings at 0x2d40e0, 0x2d4380, 0x2d43a0, 0x2d43c0, and 0x2d43e0.
+static NSString *const kJubeatURLScheme = @"jubeatplus";
+static NSString *const kStoreURLHost = @"jbtstore";
+static NSString *const kGiftURLHost = @"jbtgift";
+static NSString *const kStorePackPathComponent = @"pack";
+static NSString *const kStoreGenrePathComponent = @"genre";
+
+// The length of "jubeatplus://", an immediate at 0x9134.
+static const NSUInteger kJubeatURLSchemePrefixLength = 13;
+
+// The handler only routes a URL with exactly this many path components, tested at 0x9174.
+static const NSUInteger kHandledURLPathComponentCount = 3;
+
 // The keychain account the per-install identifier is stored under, from the CFString at 0x2d42c0.
 // Its name says what the value really is, unlike the -musicListKey selector that returns it.
 static NSString *const kKeychainAccountName = @"ApplicationUniqueID";
@@ -459,6 +473,44 @@ enum {
             return nil;
         }
     }
+}
+
+#pragma mark - URL scheme
+
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+    if (![url.scheme isEqualToString:kJubeatURLScheme]) {
+        return YES;
+    }
+
+    // The 13 is an immediate at 0x9134 and is the length of "jubeatplus://".
+    NSString *tail =
+        [[NSString stringWithFormat:@"%@", url] substringFromIndex:kJubeatURLSchemePrefixLength];
+    NSArray *components = url.pathComponents;
+
+    if (components.count == kHandledURLPathComponentCount) {
+        if ([components[1] isEqualToString:kStoreURLHost]) {
+            id value = components[2];
+            // Yes, index 1 again, not 2. The enclosing test has just proven this element equals
+            // "jbtstore", so neither comparison below can ever be true and both stores are dead
+            // code. Reproduced as compiled: no URL shape satisfies both tests, since one element
+            // cannot equal two different strings.
+            id key = components[1];
+            if ([key isEqualToString:kStorePackPathComponent]) {
+                _storePackID = value;
+            }
+            if ([key isEqualToString:kStoreGenrePathComponent]) {
+                _storeGenreID = value;
+            }
+        }
+        if ([components[1] isEqualToString:kGiftURLHost]) {
+            _storeCampaignID = components[2];
+        }
+    }
+
+    if ([self digitStringCheck:tail]) {
+        _jcfDownloadID = tail;
+    }
+    return YES;
 }
 
 #pragma mark - Notification registration

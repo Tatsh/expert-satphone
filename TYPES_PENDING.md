@@ -59,38 +59,22 @@ would be indistinguishable from a reconstructed one.
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
 | `-[ScoreRecordManager saveRecords]`      | `-applicationWillTerminate:` sends it | not located yet |
 
-## Fully disassembled, body withheld
+## Defects found in the binary
 
-### `-application:handleOpenURL:` (0x9090)
+Behaviour that is faithfully reproduced but is a bug in the shipped application. Recorded here so a
+later reader does not "fix" the reconstruction into disagreeing with the binary.
 
-Read in full — all 171 instructions — and every selector and literal resolved. The body is **not**
-written because the control flow contains something that reads as a defect in the binary, and
-writing it either way would be asserting an answer this pass has not earned.
+### `-application:handleOpenURL:` (0x9090) — dead pack and genre routes
 
-The recovered flow:
+Inside the arm guarded by `components[1] == "jbtstore"`, the code fetches `components[1]` *again* at
+0x91e0 and compares it against `"pack"` and `"genre"`. One array element cannot equal two different
+strings, so neither comparison can succeed and the `_storePackID` and `_storeGenreID` stores are
+unreachable under every URL shape. Index 2 is fetched separately at 0x91c0 and used only as the
+value.
 
-1. Return `YES` immediately unless `url.scheme` equals `"jubeatplus"` (0x2d40e0). Every path
-   returns `YES`; the method never reports a URL as unhandled.
-2. `tail = [[NSString stringWithFormat:@"%@", url] substringFromIndex:13]`. The 13 is an immediate
-   at 0x9134 and matches the length of `"jubeatplus://"`.
-3. `components = url.pathComponents`; the rest runs only when `components.count == 3`.
-4. `components[1]` is compared against `"jbtstore"` (0x2d4380) at 0x91ac.
-5. **Inside that arm**, `components[1]` is fetched *again* at 0x91e0 and compared against `"pack"`
-   (0x2d43c0) and `"genre"` (0x2d43e0), storing `components[2]` into `_storePackID` or
-   `_storeGenreID` respectively.
-6. Independently, `components[1]` is compared against `"jbtgift"` (0x2d43a0); on a match
-   `components[2]` is stored into `_storeCampaignID`.
-7. Finally, `if ([self digitStringCheck:tail])` stores `tail` into `_jcfDownloadID`.
-
-**The open question is step 5.** It re-reads index 1, which step 4 has just proven equals
-`"jbtstore"`, so both inner comparisons look permanently false and the pack and genre stores look
-unreachable. That is either a real bug in the shipped binary or a misreading of the index register.
-The register is `w2 = #0x1` at 0x91e0 with `x1 = objectAtIndex:`, the same pair as step 4, so the
-instructions are not in doubt — what is in doubt is whether the conclusion is right.
-
-Resolving it needs the callers: what URL shapes actually reach this method. Until then no body is
-written, because a reconstruction that silently "fixed" the index to 2 would be a different program,
-and one that copied it without comment would hide a defect.
+The instructions are not ambiguous: `w2 = #0x1` at 0x91e0 with the same `objectAtIndex:` selector
+as the enclosing test. The `"jbtgift"` route at 0x9280 and the `digitStringCheck:` route at 0x92cc
+are both reachable, so only two of the four routes work.
 
 ## Settled
 

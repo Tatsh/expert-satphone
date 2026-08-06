@@ -611,6 +611,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable NSDictionary *)popNotification;
 
+#pragma mark - URL scheme
+
+/**
+ * @brief Handles a @c jubeatplus:// URL, routing it to the store or to a content download.
+ *
+ * Always returns YES, on every path including the one where the scheme does not match, so the
+ * application never reports a URL as unhandled.
+ *
+ * Two of its four routes are unreachable as compiled — see the implementation comment at the
+ * "jbtstore" arm.
+ * @ghidraAddress 0x9090
+ */
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url;
+
 #pragma mark - Notification registration
 
 /**
