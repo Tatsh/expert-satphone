@@ -7,12 +7,18 @@
 #import "LogoViewController.h"
 #import "ScratchUtil.h"
 
-// The three ivars, at offset globals 0x34b784, 0x34b788, and 0x34b78c. None of them has an accessor
-// pair anywhere in the binary, so none is a property.
+// The ivars reached so far. None has an accessor pair anywhere in the binary, so none is a
+// property. Offset globals in declaration order: 0x34b770, 0x34b778, 0x34b77c, 0x34b780, 0x34b784,
+// 0x34b788, 0x34b78c, 0x34b794.
 @interface RootViewController () {
+    NSString *suspendedAnimID;
+    double durationIn;
+    double durationOut;
+    UIView *fadeView;
     LogoViewController *logoViewCtrl;
     NSString *currentSceneID;
     UIViewController *musicSelectViewCtrl;
+    BOOL _isActive;
 }
 @end
 
@@ -58,6 +64,41 @@ static const double kTitleSwitchFadeDuration = 1.5;
 @end
 
 @implementation RootViewController
+
+/** @ghidraAddress 0x1a7770 */
+- (void)fade:(NSString *)animationName
+     durationIn:(double)durationIn
+    durationOut:(double)durationOut {
+    // Input is blocked for the whole transition. Nothing here re-enables it; that is
+    // -fadeinAnimStop:finished:context:'s job, at the far end of the two animations.
+    [UIApplication.sharedApplication beginIgnoringInteractionEvents];
+
+    // Both durations are parked in ivars so the second half of the transition can read durationOut
+    // long after this call has returned.
+    self->durationIn = durationIn;
+    self->durationOut = durationOut;
+
+    [fadeView removeFromSuperview];
+    fadeView = nil;
+
+    // A full-screen black cover, built fresh each time rather than reused.
+    fadeView = [[UIView alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    fadeView.opaque = NO;
+    fadeView.backgroundColor = UIColor.blackColor;
+    fadeView.alpha = 0.0;
+    [self.view addSubview:fadeView];
+
+    [UIView beginAnimations:animationName context:NULL];
+    [UIView setAnimationCurve:UIViewAnimationCurveLinear];
+    // Read back out of the ivar just written, not from the parameter register.
+    [UIView setAnimationDuration:self->durationIn];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(fadeoutAnimStop:finished:context:)];
+    // Fading the cover in, so the screen goes to black. The animation name is what tells the stop
+    // callback which transition this was.
+    fadeView.alpha = 1.0;
+    [UIView commitAnimations];
+}
 
 /** @ghidraAddress 0x1a8a68 */
 - (void)changeThemeAndGoTitle {

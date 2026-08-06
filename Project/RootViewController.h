@@ -15,18 +15,44 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Hosts the game's screens and owns the music-select controller it presents.
  *
- * The three ivars this class is known to have — @c logoViewCtrl, @c currentSceneID, and
- * @c musicSelectViewCtrl, at offset globals 0x34b784, 0x34b788, and 0x34b78c — have no accessors
- * anywhere in the binary, so they are declared in a class extension rather than exposed here.
+ * The eight ivars reached so far sit at offset globals 0x34b770 to 0x34b794. Not one of them has an
+ * accessor pair anywhere in the binary, so they are all declared in a class extension rather than
+ * exposed here.
  */
 @interface RootViewController : UIViewController
 
 /**
- * @brief Runs a named cross-fade. DECLARED ONLY.
+ * @brief Runs a named cross-fade and hands the name to the transition dispatcher.
+ *
+ * Blocks input, parks both durations in ivars, builds a fresh full-screen black cover, and fades it
+ * in over @p durationIn. The name is passed to @c +[UIView beginAnimations:context:] and comes back
+ * to @c -fadeoutAnimStop:finished:context:, which is what decides which screens to tear down and
+ * build; this method is only the visual half.
+ *
+ * @param animationName The transition to run once the screen is black.
+ * @param durationIn How long the fade to black takes.
+ * @param durationOut How long the fade back takes. Not used here — it is stored for the second
+ * half.
+ * @ghidraAddress 0x1a7770
  */
 - (void)fade:(NSString *)animationName
      durationIn:(double)durationIn
     durationOut:(double)durationOut;
+/**
+ * @brief Swaps the screens for the transition just faded out, then fades back in.
+ *
+ * RECONSTRUCTION STATE: declared because @c -fade:durationIn:durationOut: installs it as the
+ * animation-stop selector; the body is not reconstructed yet.
+ *
+ * The transition dispatcher, and the largest method in the class at roughly 1.5 KB. It branches on
+ * the animation name across nine transitions, tears down the outgoing controller, builds the
+ * incoming one, and then starts the fade back in with @c durationOut. When @c _isActive is clear it
+ * does none of that and parks the name in @c suspendedAnimID instead.
+ * @ghidraAddress 0x1a9420
+ */
+- (void)fadeoutAnimStop:(NSString *)animationID
+               finished:(NSNumber *)finished
+                context:(void *)context;
 
 /**
  * @brief Dismisses the music-select screen and returns to the title under the new theme.
@@ -78,10 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Reports a remote notification back to the server.
  *
- * RECONSTRUCTION STATE: declared because both remote-notification entry points send it; the body is
- * not reconstructed yet.
- *
- * The body at 0x1ab0d4 POSTs a three-entry JSON dictionary — @c "user_id" from
+ * POSTs a three-entry JSON dictionary — @c "user_id" from
  * @c +[EditorIDManager getEditorIDKey], @c "push_id" from the payload's @c "id" entry, and
  * @c "status" — to @c +[ScratchUtil pushNotificationResponseURL] through @c Downloader.
  *
