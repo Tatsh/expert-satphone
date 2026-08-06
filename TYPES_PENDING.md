@@ -152,8 +152,6 @@ would be indistinguishable from a reconstructed one.
 | `-[AudioManager stopAllSe]`              | the dispatcher sends it                | not located yet |
 | `-[AudioManager releaseBgm:]`            | the dispatcher sends it                | not located yet |
 | `+[AudioManager sharedManager]`          | the dispatcher sends it                | not located yet |
-| `+[ImageCache sharedCache]`              | the dispatcher sends it                | not located yet |
-| `-[ImageCache clear]`                    | the dispatcher sends it                | not located yet |
 | `-[MusicSelectViewController startMainBgm]` | the dispatcher sends it             | not located yet |
 | `-[MusicSelectViewController stopStoreInfo]` | the dispatcher sends it            | not located yet |
 | `-[MusicSelectViewController reloadMarkerSelectView]` | `-reloadMarkers` sends it | not located yet |
