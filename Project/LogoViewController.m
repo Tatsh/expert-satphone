@@ -1,8 +1,10 @@
 #import "LogoViewController.h"
 
+#import "BFCodec.h"
 #import "Downloader.h"
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
+#import "KnitColorManager.h"
 #import "ScratchUtil.h"
 #import "StoreUtil.h"
 
@@ -10,6 +12,29 @@
 static NSString *const kKonamiLogoImageName = @"k_logo";
 static NSString *const kBemaniLogoImageName = @"b_logo";
 static NSString *const kNonageCautionImageName = @"n_logo";
+
+// Campaign artwork is cached in this directory under the documents directory.
+static NSString *const kCampaignImageDirectoryName = @"camimg";
+
+// Keys in the knit-colour response.
+static NSString *const kKnitColorArrayKey = @"Array";
+static NSString *const kCampaignImageNameKey = @"imageName";
+static NSString *const kCampaignImageURLKey = @"imageURL";
+
+// Keys in the event-type response.
+static NSString *const kEventStatusKey = @"status";
+static NSString *const kEventCampaignListKey = @"camp_list";
+static NSString *const kEventCampaignIDKey = @"id";
+
+enum {
+    // The only status the event response is acted on for.
+    kEventStatusOK = 0,
+    // The two campaigns the splash knows how to switch the app into.
+    kEventCampaignHinabita = 1,
+    kEventCampaignNagaCora = 2,
+    // The knit colour hinabita mode selects.
+    kKnitColorTypeHinabita = 4,
+};
 
 // The splash's animation steps. -fireAnimation runs one per call and schedules itself again as the
 // animation's completion, so the sequence advances one step per finished animation.
@@ -345,6 +370,129 @@ static const CGFloat kLogoVisible = 1.0;
 /** @ghidraAddress 0x83524 */
 - (BOOL)shouldAutorotate {
     return YES;
+}
+
+/** @ghidraAddress 0x83598 */
+- (void)downloaderFinished:(Downloader *)downloader {
+    if (knitBgDownloader == downloader) {
+        NSDictionary *json = [downloader getDataInJSON];
+        if (json) {
+            JubeatAppDelegate.appDelegate.knitColor = json[kKnitColorArrayKey];
+            // Cleared here and again after the block, so the second clear is redundant.
+            knitBgDownloader = nil;
+
+            NSString *imageName = json[kCampaignImageNameKey];
+            if (!imageName) {
+                // No campaign this time, so the cache goes.
+                [self removeCampaignImage];
+            } else {
+                JubeatAppDelegate.appDelegate.campaignImageName = imageName;
+                NSString *imageURL = json[kCampaignImageURLKey];
+                if ([self checkCampaignImage:imageName]) {
+                    JubeatAppDelegate.appDelegate.campaignImagePath =
+                        [self getCampaignImagePath:imageName];
+                } else {
+                    // Not cached, so fetch it. This is the only place imageDownloader is created.
+                    imageDownloader = [[Downloader alloc] initWithURL:[NSURL URLWithString:imageURL]
+                                                             delegate:self];
+                    [imageDownloader startDownloading];
+                    // Cleared until the image lands, so nothing draws a stale path meanwhile.
+                    JubeatAppDelegate.appDelegate.campaignImagePath = nil;
+                }
+            }
+        }
+        knitBgDownloader = nil;
+    }
+
+    if (imageDownloader == downloader) {
+        NSData *data = [downloader getData];
+        NSString *path =
+            [self getCampaignImagePath:JubeatAppDelegate.appDelegate.campaignImageName];
+        JubeatAppDelegate.appDelegate.campaignImagePath = path;
+
+        // The cached copy is enciphered, so the file on disk is not a usable PNG on its own.
+        NSMutableData *enciphered = [data mutableCopy];
+        BFCodec *codec = [[BFCodec alloc] init];
+        [codec cipherInit:CreateResourceDataCipherKey()];
+        [codec encipher:enciphered];
+        [enciphered writeToFile:path atomically:YES];
+
+        imageDownloader = nil;
+    }
+
+    if (eventDownloader == downloader) {
+        NSDictionary *json = [downloader getDataInJSON];
+        if ([json[kEventStatusKey] intValue] == kEventStatusOK) {
+            for (NSDictionary *campaign in json[kEventCampaignListKey]) {
+                switch ([campaign[kEventCampaignIDKey] intValue]) {
+                case kEventCampaignHinabita:
+                    [KnitColorManager.sharedManager setColorWithType:kKnitColorTypeHinabita];
+                    JubeatAppDelegate.appDelegate.isHinabitaMode = YES;
+                    break;
+                case kEventCampaignNagaCora:
+                    JubeatAppDelegate.appDelegate.isNagaCoraMode = YES;
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+        // Not cleared, unlike the other two.
+    }
+}
+
+/** @ghidraAddress 0x83c90 */
+- (void)downloaderError:(Downloader *)downloader {
+    // Only the two that -viewDidUnload also cancels. A failed eventDownloader is left in place.
+    if (knitBgDownloader == downloader) {
+        knitBgDownloader = nil;
+    }
+    if (imageDownloader == downloader) {
+        imageDownloader = nil;
+    }
+}
+
+/** @ghidraAddress 0x83cfc */
+- (void)removeCampaignImage {
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSString *directory = [self getCampaignImageDirPath];
+    // The directory itself is left in place; only its contents go. Each removal's error is
+    // discarded, so a file that will not delete is simply skipped.
+    for (NSString *name in [fileManager contentsOfDirectoryAtPath:directory error:nil]) {
+        [fileManager removeItemAtPath:[directory stringByAppendingPathComponent:name] error:nil];
+    }
+}
+
+/** @ghidraAddress 0x83eb4 */
+- (NSString *)getCampaignImageDirPath {
+    NSString *directory = [JubeatAppDelegate.appDocumentsDirectory
+        stringByAppendingPathComponent:kCampaignImageDirectoryName];
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    if (![fileManager fileExistsAtPath:directory]) {
+        // The error is asked for and then dropped, so a failure to create is not noticed here.
+        NSError *error = nil;
+        [fileManager createDirectoryAtPath:directory
+               withIntermediateDirectories:YES
+                                attributes:nil
+                                     error:&error];
+    }
+    return directory;
+}
+
+/** @ghidraAddress 0x83f88 */
+- (NSString *)getCampaignImagePath:(NSString *)name {
+    return [[self getCampaignImageDirPath] stringByAppendingPathComponent:name];
+}
+
+/** @ghidraAddress 0x8400c */
+- (BOOL)checkCampaignImage:(NSString *)name {
+    BOOL exists = [NSFileManager.defaultManager fileExistsAtPath:[self getCampaignImagePath:name]];
+    if (!exists) {
+        // One missing file empties the whole directory, so the cache is all-or-nothing rather than
+        // per-image.
+        [self removeCampaignImage];
+    }
+    return exists;
 }
 
 /** @ghidraAddress 0x8352c */

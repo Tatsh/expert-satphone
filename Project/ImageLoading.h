@@ -70,6 +70,18 @@ NSString *_Nullable GetScaledResourcePath(NSString *pszBaseName,
                                           float *pflScale,
                                           NSString *pszExtension);
 
+/**
+ * @brief The Blowfish key downloaded resource data is enciphered with.
+ *
+ * DECLARED ONLY — the body has not been reconstructed yet. Handed to
+ * @c -[BFCodec cipherInit:] before a downloaded campaign image is written to disk, so the cached
+ * copy on disk is enciphered rather than a plain PNG.
+ *
+ * @return The key material.
+ * @ghidraAddress 0x7fa54
+ */
+NSData *_Nullable CreateResourceDataCipherKey(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -10,12 +10,12 @@
  * The controller doubles as the delegate for three @c Downloader objects, which fetch campaign
  * artwork while the logos play, so the wait for the network is hidden behind the animation.
  *
- * RECONSTRUCTION STATE: eleven of twenty-one members written. The animation driver, the
- * initialiser, and the campaign-image handling are declared but not reconstructed; see
- * RECONSTRUCTION_STATUS.md.
+ * The class is complete: all twenty-one hand-written members are recovered.
  */
 
 #import <UIKit/UIKit.h>
+
+#import "Downloader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -116,36 +116,36 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Called when a download finishes.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Handles all three downloaders. The knit-colour response also names the campaign banner, which is
+ * either already cached or fetched by a fourth request; the banner is written to disk enciphered.
+ * The event response can switch the app into hinabita or NagaCora mode.
  *
  * @param downloader The downloader that finished.
  * @ghidraAddress 0x83598
  */
-- (void)downloaderFinished:(nullable id)downloader;
+- (void)downloaderFinished:(nullable Downloader *)downloader;
 
 /**
  * @brief Called when a download fails.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Forgets the downloader, but only for two of the three; a failed event request is left in place.
  *
  * @param downloader The downloader that failed.
  * @ghidraAddress 0x83c90
  */
-- (void)downloaderError:(nullable id)downloader;
+- (void)downloaderError:(nullable Downloader *)downloader;
 
 /**
- * @brief Deletes the cached campaign image.
+ * @brief Empties the campaign image cache.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Removes every file in the cache directory, not just one, and leaves the directory itself.
  *
  * @ghidraAddress 0x83cfc
  */
 - (void)removeCampaignImage;
 
 /**
- * @brief The directory the campaign image is cached in.
- *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * @brief The directory the campaign image is cached in, creating it if absent.
  *
  * @return The directory path.
  * @ghidraAddress 0x83eb4
@@ -154,8 +154,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The on-disk path for one campaign image.
- *
- * DECLARED ONLY — the body has not been reconstructed yet.
  *
  * @param name The image's name.
  * @return The full path.
@@ -166,7 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Whether a campaign image is already cached.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * A miss empties the whole cache directory as a side effect, so the cache is all-or-nothing.
  *
  * @param name The image's name.
  * @return @c YES when the file is present.

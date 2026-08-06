@@ -49,6 +49,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSData *)getData;
 
 /**
+ * @brief The body the request returned, parsed as JSON. DECLARED ONLY.
+ *
+ * Returns nil rather than raising when the body is missing or will not parse, which is what
+ * @c -[LogoViewController downloaderFinished:] tests before reading any key out of it.
+ *
+ * @return The parsed body.
+ */
+- (nullable NSDictionary *)getDataInJSON;
+
+/**
  * @brief Abandons the request. DECLARED ONLY.
  */
 - (void)cancel;

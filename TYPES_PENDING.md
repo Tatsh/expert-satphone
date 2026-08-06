@@ -872,6 +872,27 @@ The lesson is narrower than "verify more". Reachability is not a property of one
 absent from every write in the method that switches on it can still arrive from a sibling. The
 first reading had examined every writer inside `-fireAnimation` and `-start` and stopped there.
 
+### `LogoViewController` (class at 0x34d3e8) — `eventDownloader` is never cleaned up
+
+The splash owns three `Downloader` ivars and treats one of them differently in all three places
+that matter. `-viewDidUnload` (0x8335c) cancels `knitBgDownloader` and `imageDownloader` and clears
+both, and does not touch `eventDownloader`. `-downloaderError:` (0x83c90) clears the same two and
+again omits it. `-downloaderFinished:` (0x83598) clears `knitBgDownloader` and `imageDownloader` on
+their branches, and its `eventDownloader` branch ends without clearing.
+
+That is three independent sites agreeing, which is what rules out a misread. It was worth ruling
+out: `imageDownloader` really is created later than the other two — only in `-downloaderFinished:`,
+when the campaign banner is not already cached — so an early reading of `-viewDidUnload` alone
+could plausibly have been "the third one does not exist yet". `-loadView` (0x8244c) disproves that.
+It creates `eventDownloader` immediately after `knitBgDownloader` and starts it the same way.
+
+The consequence is bounded rather than serious. The ivar is strong, so the request survives
+`-viewDidUnload` and is only released when the controller is deallocated, and its completion
+handler writes to the app delegate rather than to any view. A response arriving after the splash
+has gone will still switch the app into hinabita or NagaCora mode, which is very likely what was
+wanted; nothing observable leaks. It is recorded because the asymmetry is deliberate-looking and a
+later reader should not "fix" it.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.

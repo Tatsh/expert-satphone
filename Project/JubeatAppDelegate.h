@@ -327,13 +327,13 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * @ghidraAddress 0xb9b8 (getter)
  * @ghidraAddress 0xb9c8 (setter)
  */
-@property(nonatomic, strong) id campaignImageName;
+@property(nonatomic, strong, nullable) NSString *campaignImageName;
 /**
  * @brief The on-disk path of the current campaign's banner image.
  * @ghidraAddress 0xb9dc (getter)
  * @ghidraAddress 0xb9ec (setter)
  */
-@property(nonatomic, strong) id campaignImagePath;
+@property(nonatomic, strong, nullable) NSString *campaignImagePath;
 /**
  * @brief The mission text shown on the store screen.
  * @ghidraAddress 0xbb00 (getter)
