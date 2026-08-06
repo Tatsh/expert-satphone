@@ -455,6 +455,23 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x871c
  */
 - (void)enableCopiousMarkers;
+
+#pragma mark - Validation
+
+/**
+ * @brief Whether a string is non-empty and consists only of decimal digits.
+ *
+ * Scans with an explicit character set built from the literal "0123456789" rather than using
+ * @c NSCharacterSet.decimalDigitCharacterSet, so the non-ASCII digits that predefined set would
+ * accept are rejected here.
+ *
+ * Two details are easy to lose. The scanner comes from
+ * @c +[NSScanner localizedScannerWithString:], not the plain @c +scannerWithString:, so it carries
+ * the current locale. And its @c charactersToBeSkipped is explicitly set to nil, which disables the
+ * default whitespace skipping — without that a string of spaces and digits would pass.
+ * @ghidraAddress 0x8fa8
+ */
+- (BOOL)digitStringCheck:(nullable NSString *)string;
 /**
  * @brief Latches @c bEnableReward on.
  *

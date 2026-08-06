@@ -35,6 +35,10 @@ static NSString *const kThemePreferenceKey = @"PrefTheme";
 // The user-defaults key the copious marker unlock is recorded under, from the CFString at 0x2d42a0.
 static NSString *const kCopiousUnlockedPreferenceKey = @"PrefCopiousUnlocked";
 
+// The digit set -digitStringCheck: accepts, from the CFString at 0x2d4340. The binary spells the
+// digits out rather than using NSCharacterSet.decimalDigitCharacterSet.
+static NSString *const kDecimalDigitCharacters = @"0123456789";
+
 // The knit-colour palette type the hinabita collaboration selects, a bare immediate at 0x86d4.
 static const int kHinabitaKnitColorType = 4;
 
@@ -195,6 +199,22 @@ enum {
 - (void)rewardEnable {
     // Latched on only, like -markerDownloadComplete.
     _bEnableReward = YES;
+}
+
+#pragma mark - Validation
+
+- (BOOL)digitStringCheck:(NSString *)string {
+    if (string.length == 0) {
+        return NO;
+    }
+    NSCharacterSet *digits =
+        [NSCharacterSet characterSetWithCharactersInString:kDecimalDigitCharacters];
+    // A localized scanner, not the plain +scannerWithString:.
+    NSScanner *scanner = [NSScanner localizedScannerWithString:string];
+    // Disables the default whitespace skipping; without this, spaces would pass the check.
+    scanner.charactersToBeSkipped = nil;
+    [scanner scanCharactersFromSet:digits intoString:nil];
+    return scanner.isAtEnd;
 }
 
 #pragma mark - Licence
