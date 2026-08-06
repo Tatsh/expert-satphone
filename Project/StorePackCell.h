@@ -6,9 +6,6 @@
  *
  * The superclass is @c UITableViewCell, from the dyld bind at the class object's superclass slot
  * (0x34eac0).
- *
- * RECONSTRUCTION STATE: five of six members written. @c -initWithStyle:reuseIdentifier: is
- * declared but not reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
 #import <UIKit/UIKit.h>
@@ -43,7 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds the row's six subviews.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * The background image view becomes the cell's @c backgroundView rather than a subview. The other
+ * six go on the content view, and their horizontal frames are measured against its width once,
+ * with autoresizing masks carrying them through any later change.
  *
  * @param style The cell style.
  * @param reuseIdentifier The reuse identifier.
