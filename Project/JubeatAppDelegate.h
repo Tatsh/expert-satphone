@@ -437,6 +437,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)setKnitColor:(NSArray *)knitColor;
 /**
+ * @brief Switches the title screen to the current event's presentation.
+ *
+ * When @c isHinabitaMode is set it first tells the knit-colour manager to use colour type 4; the
+ * type is a bare immediate in the binary, not a named constant. It then sends
+ * @c -changeTitleTheme to @c rootViewCtrl unconditionally, so the non-hinabita path still
+ * refreshes the title.
+ * @ghidraAddress 0x868c
+ */
+- (void)switchTitleEvent;
+/**
  * @brief Latches @c bEnableReward on.
  *
  * As with @c -markerDownloadComplete, this only ever sets the flag; nothing clears it.

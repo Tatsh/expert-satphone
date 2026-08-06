@@ -32,6 +32,9 @@ static NSString *const kTotalScoreLeaderboardCategoryPhone = @"jubeat.totalscore
 // The user-defaults key the selected theme is persisted under, from the CFString at 0x2d4280.
 static NSString *const kThemePreferenceKey = @"PrefTheme";
 
+// The knit-colour palette type the hinabita collaboration selects, a bare immediate at 0x86d4.
+static const int kHinabitaKnitColorType = 4;
+
 // The key each queued notification stores its fire time under, from the CFString at 0x2d4680.
 static NSString *const kNotificationExpireKey = @"expire";
 
@@ -168,6 +171,15 @@ enum {
 
 - (void)setKnitColor:(NSArray *)knitColor {
     [KnitColorManager.sharedManager setColorWithArray:knitColor];
+}
+
+- (void)switchTitleEvent {
+    if (_isHinabitaMode) {
+        // A bare immediate in the binary; there is no named constant for the palette type.
+        [KnitColorManager.sharedManager setColorWithType:kHinabitaKnitColorType];
+    }
+    // Sent on both arms, not only the hinabita one.
+    [self.rootViewCtrl changeTitleTheme];
 }
 
 - (void)rewardEnable {

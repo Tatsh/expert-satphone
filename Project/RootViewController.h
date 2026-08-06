@@ -27,6 +27,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)changeThemeAndGoTitle;
 
+/**
+ * @brief Refreshes the title screen for the current theme or event.
+ *
+ * Called from @c -[JubeatAppDelegate switchTitleEvent] at 0x8708, unconditionally on both arms.
+ */
+- (void)changeTitleTheme;
+
 @end
 
 NS_ASSUME_NONNULL_END

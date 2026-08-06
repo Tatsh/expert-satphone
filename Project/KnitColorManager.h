@@ -31,6 +31,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)setColorWithArray:(NSArray *)colors;
 
+/**
+ * @brief Selects a built-in palette by type.
+ *
+ * Called from @c -[JubeatAppDelegate switchTitleEvent] at 0x86d8 with the immediate 4 on the
+ * hinabita arm. The type's width is @c int rather than @c NSInteger: the caller passes it in
+ * @c w2, a 32-bit register.
+ */
+- (void)setColorWithType:(int)type;
+
 @end
 
 NS_ASSUME_NONNULL_END
