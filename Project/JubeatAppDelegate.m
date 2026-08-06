@@ -32,6 +32,10 @@ static NSString *const kTotalScoreLeaderboardCategoryPhone = @"jubeat.totalscore
 // The user-defaults key the selected theme is persisted under, from the CFString at 0x2d4280.
 static NSString *const kThemePreferenceKey = @"PrefTheme";
 
+// The two path components of the persisted notification queue, at 0x2d4560 and 0x2d4580.
+static NSString *const kNotificationDirectoryName = @"notification";
+static NSString *const kNotificationFileName = @"noti.txt";
+
 // The Game Center error code the authentication handler treats as fatal, compared as the immediate
 // 16 at 0x84f0. That is GKErrorNotSupported; the binary spells it as a bare number.
 static const NSInteger kGameCenterNotSupportedErrorCode = 16;
@@ -213,6 +217,34 @@ enum {
 
 - (void)setTotalAmount:(int)amount {
     _totalPurchaseAmount = amount;
+}
+
+#pragma mark - Notification persistence
+
+- (NSString *)getNotificationFilePath {
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSString *directory =
+        [JubeatAppDelegate.appCachesDirectory stringByAppendingPathComponent:
+            kNotificationDirectoryName];
+    if (![fileManager fileExistsAtPath:directory]) {
+        NSError *error = nil;
+        [fileManager createDirectoryAtPath:directory
+               withIntermediateDirectories:YES
+                                attributes:nil
+                                     error:&error];
+    }
+    NSString *path = [directory stringByAppendingPathComponent:kNotificationFileName];
+    (void)[fileManager fileExistsAtPath:path]; // Yes, the binary discards this call's result.
+    return path;
+}
+
+- (void)loadNotification {
+    NSData *data = [[NSData alloc] initWithContentsOfFile:self.getNotificationFilePath];
+    // A missing or unreadable file leaves the queue as it was; nothing is cleared on this path.
+    if (data == nil) {
+        return;
+    }
+    _pushNotificationList = [[NSKeyedUnarchiver unarchiveObjectWithData:data] mutableCopy];
 }
 
 #pragma mark - Application lifecycle

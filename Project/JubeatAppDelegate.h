@@ -386,12 +386,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The queued push notifications, persisted to disk between launches.
  *
- * @c -saveNotification archives this with @c +[NSKeyedArchiver archivedDataWithRootObject:] and
- * messages it @c -count, which establishes an array; whether the binary holds a mutable array has
- * not been proven.
+ * Proven mutable: @c -loadNotification stores the result of sending @c -mutableCopy to the
+ * unarchived object at 0xa828, so the ivar holds a mutable array rather than an immutable one.
  * @ghidraAddress 0xba50 (getter)
  */
-@property(nonatomic, readonly) NSArray *pushNotificationList;
+@property(nonatomic, readonly) NSMutableArray *pushNotificationList;
 /**
  * @brief The payload of the remote push that launched or resumed the application.
  * @ghidraAddress 0xbb24 (getter)
@@ -490,6 +489,24 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setChallengeMusic:(int)musicID diff:(int)difficulty;
 /** @brief Sets @c totalPurchaseAmount. @ghidraAddress 0x8f14 */
 - (void)setTotalAmount:(int)amount;
+
+#pragma mark - Notification persistence
+
+/**
+ * @brief The on-disk path of the persisted notification queue, creating its directory if needed.
+ *
+ * Builds @c <caches>/notification, creates that directory with intermediate directories when it
+ * does not already exist, and returns @c <caches>/notification/noti.txt.
+ * @ghidraAddress 0xa530
+ */
+- (NSString *)getNotificationFilePath;
+/**
+ * @brief Reads the persisted notification queue back into @c pushNotificationList.
+ *
+ * A missing or unreadable file leaves the property untouched rather than clearing it.
+ * @ghidraAddress 0xa7a4
+ */
+- (void)loadNotification;
 
 #pragma mark - Application lifecycle
 

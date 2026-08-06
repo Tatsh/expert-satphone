@@ -39,7 +39,6 @@ These are not `id`, but are less specific than the binary may allow and should b
 
 | Declaration                             | Weakened to        | Settled by                                        |
 | --------------------------------------- | ------------------ | ------------------------------------------------- |
-| `JubeatAppDelegate.pushNotificationList` | `NSArray`          | `-popNotification` @0xb594, which will show whether it mutates in place |
 | `JubeatAppDelegate.deviceType`          | `NSInteger`        | the writer, which will give the enumeration its case names |
 | `KnitColorManager.setColorWithArray:`   | `NSArray`          | the manager's own body; the delegate passes its argument straight through |
 
@@ -52,3 +51,4 @@ Kept as a record of what the evidence was, so a later reader does not have to re
 | `JubeatAppDelegate.deviceType`   | `id`         | `NSInteger`            | the four idiom predicates compare it against 1 to 7.     |
 | `JubeatAppDelegate.currentTheme` | `int`        | `unsigned int`         | `-changeTheme:` boxes it with `+numberWithUnsignedInt:`. |
 | `JubeatAppDelegate.rootViewCtrl` | `UIViewController` | `RootViewController` | `-changeTheme:` sends `-changeThemeAndGoTitle`, whose only implementation is `-[RootViewController changeThemeAndGoTitle]` @0x1a8a68. |
+| `JubeatAppDelegate.pushNotificationList` | `NSArray` | `NSMutableArray` | `-loadNotification` stores `-mutableCopy` of the unarchived object at 0xa828. |
