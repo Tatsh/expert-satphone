@@ -11,3 +11,9 @@
 /.claude/statusline-quota-cache.sh
 /HANDOFF.md
 /session-recover.yaml
+
+# Editor swap files
+*.swp
+*.swo
+*~
+.*.sw[a-p]
