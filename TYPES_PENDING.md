@@ -191,6 +191,10 @@ would be indistinguishable from a reconstructed one.
 | `-[CubePurchaseInfo getProductID]`         | ditto                                  | 0x63c5c |
 | `-[CubePurchaseInfo getProduct]`           | ditto                                  | 0x63d10 |
 | `-[CubePurchaseInfo getName]`              | ditto                                  | 0x63d38 |
+| `-[StorePromotion initWithPackInfo:imageURL:sampleURL:]` | `BannerView` reads its `imageURL` | 0x1bd754 |
+| `-[StorePromotion initWithGenreIndex:imageURL:]` | ditto                          | 0x1bd88c |
+| `-[StorePromotion getSampleURL]`           | ditto                                  | 0x1bd954 |
+| `-[StorePromotion getSampleName]`          | ditto                                  | 0x1bd9d8 |
 
 ## Defects found in the binary
 
