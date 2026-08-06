@@ -10,22 +10,16 @@
 
 #import <UIKit/UIKit.h>
 
-@class MusicSelectViewController;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Hosts the game's screens and owns the music-select controller it presents.
+ *
+ * The three ivars this class is known to have — @c logoViewCtrl, @c currentSceneID, and
+ * @c musicSelectViewCtrl, at offset globals 0x34b784, 0x34b788, and 0x34b78c — have no accessors
+ * anywhere in the binary, so they are declared in a class extension rather than exposed here.
  */
 @interface RootViewController : UIViewController
-
-/**
- * @brief The presented music-select screen.
- *
- * Backed by @c musicSelectViewCtrl (offset global 0x34b78c). The concrete class is not established;
- * see TYPES_PENDING.md.
- */
-@property(nonatomic, readonly, nullable) UIViewController *musicSelectViewCtrl;
 
 /**
  * @brief Runs a named cross-fade. DECLARED ONLY.
@@ -64,14 +58,23 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)reloadMarkers;
 /**
- * @brief Presents the notification the delegate has just queued.
+ * @brief Presents the notification the delegate has just queued, if the select screen is up.
  *
- * RECONSTRUCTION STATE: declared because @c -[JubeatAppDelegate
- * application:didReceiveLocalNotification:] sends it on the foreground path; the body is not
- * reconstructed yet.
+ * Forwards to the identically named selector on @c musicSelectViewCtrl, but only when
+ * @c currentSceneID is "SceneSelect" and that controller is non-nil. A notification arriving on any
+ * other screen is therefore queued by the delegate and never shown by this path.
  * @ghidraAddress 0x1aaaa4
  */
 - (void)pushNotificate;
+/**
+ * @brief Installs the logo screen as a child and starts it.
+ *
+ * The last thing @c -[JubeatAppDelegate application:didFinishLaunchingWithOptions:] does to the UI.
+ * Builds a @c LogoViewController, adds it as a child, adds its view, sends it @c -start, and then
+ * sets @c currentSceneID to "SceneLogo".
+ * @ghidraAddress 0x1a79d4
+ */
+- (void)startLogo;
 /**
  * @brief Reports a remote notification back to the server.
  *

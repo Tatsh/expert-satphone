@@ -37,7 +37,8 @@ These are not `id`, but are less specific than the binary may allow and should b
 
 | Declaration                             | Weakened to        | Settled by                                        |
 | --------------------------------------- | ------------------ | ------------------------------------------------- |
-| `RootViewController.musicSelectViewCtrl` | `UIViewController` | whatever constructs it; it responds to `-reloadMarkerSelectView`, which `UIViewController` does not declare |
+| `RootViewController.musicSelectViewCtrl` | `UIViewController` | whatever constructs it; it responds to `-reloadMarkerSelectView` and `-pushNotificate`, neither of which `UIViewController` declares |
+| `RootViewController.currentSceneID`     | `NSString`         | proven by `-isEqualToString:`, but the set of scene identifiers is not; "SceneStore", "AnimTitle", and "AnimSelect" sit beside the two known ones in the string pool |
 | `KnitColorManager.setColorWithArray:`   | `NSArray`          | the manager's own body; the delegate passes its argument straight through |
 
 ## Declared without a body
@@ -60,9 +61,9 @@ would be indistinguishable from a reconstructed one.
 | `+[EditorIDManager getKeyQuery:]`        | `+isExistEditorID` sends it           | not located yet |
 | `+[EditorIDManager deleteKeychain]`      | `+isExistEditorID` sends it           | not located yet |
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
-| `-[RootViewController pushNotificate]`   | `-application:didReceiveLocalNotification:` sends it | 0x1aaaa4 |
+| `-[UIViewController pushNotificate]` (on `musicSelectViewCtrl`) | `-[RootViewController pushNotificate]` forwards to it | not located yet |
+| `-[LogoViewController start]`            | `-[RootViewController startLogo]` sends it | not located yet |
 | `-[RootViewController responseRemoteNotification:pushInfo:]` | `-application:didReceiveRemoteNotification:` sends it | 0x1ab0d4 |
-| `-[RootViewController startLogo]`         | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
 | `-[BFCodec cipherInit:]`                 | `CreateLabEncryptedData` sends it      | 0x94a58   |
 | `-[BFCodec encipher:]`                   | `CreateLabEncryptedData` sends it      | 0x94aec   |
 | `+[MarkerManager moveMarkerDataInDoc]`    | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |

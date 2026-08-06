@@ -49,9 +49,9 @@ rough order of how much each unlocks:
 
 | Target | Address | Notes |
 | --- | --- | --- |
-| `-[RootViewController startLogo]` | not located yet | The launch handler's last call into the UI; likely the entry to the whole title sequence. |
-| `-[RootViewController pushNotificate]` | 0x1aaaa4 | Small, and completes the notification path. |
 | `-[RootViewController responseRemoteNotification:pushInfo:]` | 0x1ab0d4 | Reaches `CJSONSerializer`, `Downloader`, and `ScratchUtil`, three unstarted classes. |
+| `-[LogoViewController start]` | not located yet | The launch sequence continues here; class at 0x348a58. |
+| `-[RootViewController fade:durationIn:durationOut:]` | not located yet | The last RootViewController member still declared without a body. |
 | `PurchaseManager` | class at 0x348100 | Four launch-time entry points plus `-end`. 81 xrefs, so this is the largest unstarted class. |
 | `MarkerManager`, `TweetResourceManager`, `StoreMusicListManager` | 0x3480d0, 0x3480d8, 0x348108 | Declared-only stubs; each has two or three known members. |
 
