@@ -46,6 +46,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(class, nonatomic, readonly) NSString *deviceName;
 /**
+ * @brief The device model identifier, by a second copy of the same routine.
+ *
+ * Surprising but faithful: this is byte-for-byte the same algorithm as @c +deviceName — the same
+ * @c hw.machine sysctl, the same @c UIDevice.currentDevice.model fallback on a zero length, and the
+ * same UTF-8 @c -initWithCString:encoding:. The compiler emitted two complete copies rather than
+ * one calling the other, so both are reconstructed rather than collapsed into one.
+ * @ghidraAddress 0x7e94
+ */
+@property(class, nonatomic, readonly) NSString *primDeviceName;
+/**
  * @brief The application version.
  *
  * Surprising but faithful: this is not read from the bundle's Info.plist. The binary builds it from
@@ -372,6 +382,46 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xba70 (setter)
  */
 @property(nonatomic) int hasNewRecommendNum;
+
+#pragma mark - Application lifecycle
+
+/**
+ * @brief Schedules the coin-refill notification as the application leaves the foreground.
+ *
+ * The whole body is @c [[ChallengeStatus sharedStatus] createCoinNotification]; the
+ * @c UIApplication argument is ignored.
+ * @ghidraAddress 0xb6f8
+ */
+- (void)applicationDidEnterBackground:(UIApplication *)application;
+/**
+ * @brief Does nothing.
+ *
+ * Surprising but faithful: the compiled method is a single @c ret. It is present only to satisfy
+ * the delegate protocol.
+ * @ghidraAddress 0xb740
+ */
+- (void)applicationWillResignActive:(UIApplication *)application;
+/**
+ * @brief Clears the icon badge and cancels every pending local notification.
+ *
+ * Note that it messages @c UIApplication.sharedApplication twice rather than reusing the argument
+ * it was handed, which is ignored.
+ * @ghidraAddress 0xb744
+ */
+- (void)applicationDidBecomeActive:(UIApplication *)application;
+/**
+ * @brief Shuts the purchase manager down and flushes the score records.
+ * @ghidraAddress 0xb7c8
+ */
+- (void)applicationWillTerminate:(UIApplication *)application;
+/**
+ * @brief Does nothing.
+ *
+ * As with @c -applicationWillResignActive:, the compiled method is a single @c ret. The binary
+ * takes no action on a memory warning.
+ * @ghidraAddress 0xb844
+ */
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application;
 
 #pragma mark - Download selection mutators
 

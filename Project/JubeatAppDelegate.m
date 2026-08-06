@@ -4,6 +4,10 @@
 
 #include <sys/sysctl.h>
 
+#import "ChallengeStatus.h"
+#import "PurchaseManager.h"
+#import "ScoreRecordManager.h"
+
 // The sysctl name the binary passes to sysctlbyname, embedded at 0x27dc6d.
 static const char *const kHardwareMachineSysctlName = "hw.machine";
 
@@ -62,6 +66,46 @@ enum {
     NSString *name = [[NSString alloc] initWithCString:machine encoding:NSUTF8StringEncoding];
     free(machine);
     return name;
+}
+
++ (NSString *)primDeviceName {
+    // Yes, this duplicates +deviceName exactly. The binary emits two complete copies of the
+    // routine at 0x7e94 and 0x7f78 rather than one calling the other, so both are kept.
+    size_t length = 0;
+    sysctlbyname(kHardwareMachineSysctlName, NULL, &length, NULL, 0);
+    if (length == 0) {
+        return UIDevice.currentDevice.model;
+    }
+    char *machine = malloc(length);
+    sysctlbyname(kHardwareMachineSysctlName, machine, &length, NULL, 0);
+    NSString *name = [[NSString alloc] initWithCString:machine encoding:NSUTF8StringEncoding];
+    free(machine);
+    return name;
+}
+
+#pragma mark - Application lifecycle
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    [ChallengeStatus.sharedStatus createCoinNotification];
+}
+
+- (void)applicationWillResignActive:(UIApplication *)application {
+    // Yes, the compiled method at 0xb740 is a bare ret.
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    // The binary re-reads the shared application twice rather than using the argument.
+    [UIApplication.sharedApplication setApplicationIconBadgeNumber:0];
+    [UIApplication.sharedApplication cancelAllLocalNotifications];
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+    [PurchaseManager.sharedManager end];
+    [ScoreRecordManager.sharedManager saveRecords];
+}
+
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
+    // Yes, the compiled method at 0xb844 is a bare ret. Nothing is freed on a memory warning.
 }
 
 #pragma mark - Device idiom predicates
