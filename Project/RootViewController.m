@@ -1,5 +1,7 @@
 #import "RootViewController.h"
 
+#import <QuartzCore/QuartzCore.h>
+
 #import "AudioManager.h"
 #import "CJSONSerializer.h"
 #import "Downloader.h"
@@ -21,6 +23,7 @@
     UIViewController *titleViewCtrl;
     UIViewController *gameViewCtrl;
     UIViewController *editViewCtrl;
+    UIViewController *storeViewCtrl;
     NSString *suspendedAnimID;
     double durationIn;
     double durationOut;
@@ -354,6 +357,60 @@ static const double kTitleSwitchFadeDuration = 1.5;
     // The other end of the block -fade:durationIn:durationOut: put in place. Reached on every path,
     // including an unrecognised animation name, so input cannot be left disabled.
     [UIApplication.sharedApplication endIgnoringInteractionEvents];
+}
+
+/** @ghidraAddress 0x1a81b4 */
+- (void)openStoreAnimStop:(NSString *)animationID
+                 finished:(NSNumber *)finished
+                  context:(void *)context {
+    // The store slides in over music select with a 3-D layer transform rather than through the
+    // fade machinery above, so this callback pairs with neither -fade: nor its two dispatchers.
+    [AudioManager.sharedManager releaseBgm:YES];
+
+    // Rasterisation was turned on for the duration of the transform and is turned off again here on
+    // both layers, which is the usual trick for keeping a 3-D rotation smooth.
+    musicSelectViewCtrl.view.layer.shouldRasterize = NO;
+    // Restores the identity transform, copied 128 bytes at a time out of the CATransform3DIdentity
+    // global at 0x2c8018 rather than built inline.
+    self.view.layer.sublayerTransform = CATransform3DIdentity;
+    storeViewCtrl.view.layer.shouldRasterize = NO;
+    storeViewCtrl.view.layer.anchorPointZ = 0.0;
+
+    // Music select goes away entirely once the store is up.
+    [self detachChildViewController:musicSelectViewCtrl];
+    musicSelectViewCtrl = nil;
+
+    [storeViewCtrl loadInitialStoreInfo];
+    [UIApplication.sharedApplication endIgnoringInteractionEvents];
+}
+
+/** @ghidraAddress 0x1a8d7c */
+- (void)endStoreAnimStop:(NSString *)animationID
+                finished:(NSNumber *)finished
+                 context:(void *)context {
+    // The mirror of -openStoreAnimStop:. Note input is released first here and last there.
+    [UIApplication.sharedApplication endIgnoringInteractionEvents];
+
+    musicSelectViewCtrl.view.layer.shouldRasterize = NO;
+    self.view.layer.sublayerTransform = CATransform3DIdentity;
+    storeViewCtrl.view.layer.shouldRasterize = NO;
+
+    [self detachChildViewController:storeViewCtrl];
+    storeViewCtrl = nil;
+
+    musicSelectViewCtrl.view.layer.anchorPointZ = 0.0;
+    // Cleared a second time, having already been cleared at the top of the method. Reproduced as
+    // compiled; nothing between the two sets it.
+    musicSelectViewCtrl.view.layer.shouldRasterize = NO;
+
+    [musicSelectViewCtrl startMainBgm];
+    [musicSelectViewCtrl requestNewInfo];
+
+    // The same deferred-download check the fade-in dispatcher performs, but without the store and
+    // notification cases: coming back from the store, only a pending chart download is acted on.
+    if (JubeatAppDelegate.appDelegate.jcfDownloadID != nil) {
+        [musicSelectViewCtrl JcfDownLoad:JubeatAppDelegate.appDelegate.jcfDownloadID];
+    }
 }
 
 /** @ghidraAddress 0x1a743c */

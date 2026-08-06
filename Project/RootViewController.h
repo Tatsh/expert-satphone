@@ -96,6 +96,37 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x1a8bd0
  */
 - (void)titleSwitch;
+/**
+ * @brief Finishes the slide into the store screen.
+ *
+ * The store transition does not go through @c -fade:durationIn:durationOut: at all. It rotates the
+ * root view's sublayer transform in 3-D and rasterises both layers for the duration, so this
+ * callback restores @c CATransform3DIdentity, clears both @c shouldRasterize flags, drops the
+ * music-select screen, and asks the store to load.
+ *
+ * @param animationID Never read.
+ * @param finished Never read.
+ * @param context Never read.
+ * @ghidraAddress 0x1a81b4
+ */
+- (void)openStoreAnimStop:(NSString *)animationID
+                 finished:(NSNumber *)finished
+                  context:(void *)context;
+/**
+ * @brief Finishes the slide back out of the store screen.
+ *
+ * The mirror of @c -openStoreAnimStop:finished:context:, with two differences worth knowing: input
+ * is released first here rather than last, and on the way back only a pending chart download is
+ * acted on — the store and notification cases the fade-in dispatcher handles are absent.
+ *
+ * @param animationID Never read.
+ * @param finished Never read.
+ * @param context Never read.
+ * @ghidraAddress 0x1a8d7c
+ */
+- (void)endStoreAnimStop:(NSString *)animationID
+                finished:(NSNumber *)finished
+                 context:(void *)context;
 
 /**
  * @brief Dismisses the music-select screen and returns to the title under the new theme.

@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **80 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **82 annotated, 0
 mismatched, 0 selectors absent.**
 
 ## Method
@@ -53,7 +53,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/Md5Utilities.m` | Complete; a free function. |
 | `Project/LabUtilities.m` | Complete; a free function. Reaches `BFCodec`. |
 | `Project/ScratchUtil.m` | One of two known members. The API host is `agx11.s.konaminet.jp`. |
-| `Project/RootViewController.m` | Ten methods, including both transition dispatchers and the theme factory. |
+| `Project/RootViewController.m` | Twelve methods: both fade dispatchers, both store callbacks, the theme factory. |
 
 ## Next, in order
 
@@ -63,7 +63,6 @@ rough order of how much each unlocks:
 | Target | Address | Notes |
 | --- | --- | --- |
 | `-[LogoViewController start]` | not located yet | The launch sequence continues here; class at 0x348a58. |
-| `-[RootViewController openStoreAnimStop:...]`, `-endStoreAnimStop:...` | 0x1a81b4, 0x1a8d7c | Two more animation callbacks in the class, not yet reached by anything reconstructed. |
 | `AudioManager` | class at 0x348038 | 357 xrefs, the most of any class reached. Every sound goes through it. |
 | `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds. |
 | `ImageCache` | class at 0x348468 | 132 xrefs. |

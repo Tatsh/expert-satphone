@@ -29,7 +29,7 @@ What the other subcommands do and do not cover here:
 
 | Subcommand | Coverage in this tree |
 | --- | --- |
-| `addresses` | Real. 80 method annotations checked against the runtime metadata. |
+| `addresses` | Real. 82 method annotations checked against the runtime metadata. |
 | `literals` | Nearly vacuous. It skips any literal with no character above U+0x2000, so it checks the two Japanese strings in `ChallengeStatus.m` and nothing else. Selector checking covers `@selector()` only; the tree now has two, both verified present. |
 | `globals` | Vacuous. No annotated global initialisers here yet. |
 | `unwritten-members` | Vacuous. It looks for C++ `m_` members, and this tree has none yet. |
@@ -79,6 +79,7 @@ These are not `id`, but are less specific than the binary may allow and should b
 | `RootViewController.currentSceneID`     | `NSString`         | proven by `-isEqualToString:`, but the set of scene identifiers is not; "SceneStore" sits beside the two known ones in the string pool |
 | `RootViewController.titleViewCtrl`      | `UIViewController` | it holds either a `TitleViewControllerOrg` or a `TitleViewControllerRpl` depending on the theme, so a common base or protocol is likely; both respond to `-start` and `-stopAnimation` |
 | `RootViewController.gameViewCtrl`       | `UIViewController` | never built in any reconstructed routine, only revealed; whatever assigns it will name the class |
+| `RootViewController.storeViewCtrl`      | `UIViewController` | as above. It responds to `-loadInitialStoreInfo`; the binary has both `StoreViewController` and `StoreViewControllerV2`, so which one is not settled |
 | `RootViewController.editViewCtrl`       | `UIViewController` | as above. It responds to the same `-loadResources`/`-startAnimation`/`-terminate`/`-releaseResources` set as `gameViewCtrl`, so the two share an interface |
 | `KnitColorManager.setColorWithArray:`   | `NSArray`          | the manager's own body; the delegate passes its argument straight through |
 
@@ -110,6 +111,7 @@ would be indistinguishable from a reconstructed one.
 | `-[MusicSelectViewController stopStoreInfo]` | the dispatcher sends it            | not located yet |
 | `-[MusicSelectViewController reloadMarkerSelectView]` | `-reloadMarkers` sends it | not located yet |
 | `-[MusicSelectViewController pushNotificate]` | `-pushNotificate` forwards to it | not located yet |
+| `-loadInitialStoreInfo` on the store screen | `-openStoreAnimStop:finished:context:` sends it | not located yet |
 | `-[MusicSelectViewController checkAndRetryBgm]`, `-requestNewInfo`, `-JcfDownLoad:`, `-schemeMoveStore`, `-notificationDisp`, `-startOpenDetailPanel` | `-fadeinAnimStop:finished:context:` sends them | not located yet |
 | `TitleViewControllerKnt`, `TitleViewControllerNte` | `-createKnitTitleViewController` and `-titleSwitch` build them | not located yet |
 | `-showLogo` on the title screens | `-fadeinAnimStop:finished:context:` sends it | not located yet |
