@@ -9,9 +9,6 @@
  *
  * The button draws itself rather than using a background image, which is why both colour setters
  * force a redraw and why the two state overrides exist at all.
- *
- * RECONSTRUCTION STATE: nine of twelve members written. @c -drawRect: is declared but not
- * reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
 #import <UIKit/UIKit.h>
@@ -86,9 +83,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setSelected:(BOOL)selected;
 
 /**
- * @brief Fills the button and rounds it.
+ * @brief Fills the button and draws its inner shadow.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * A flat fill when disabled, otherwise a four-stop vertical gradient derived from
+ * @c buttonColor . The inner shadow that follows is drawn by throwing the shadow one button-width
+ * sideways and translating the mask back the same distance, so only the cast shadow lands inside
+ * the clip.
  *
  * @param rect The area to redraw.
  * @ghidraAddress 0x170f34

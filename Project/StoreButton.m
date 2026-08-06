@@ -22,6 +22,47 @@ static const CGFloat kNormalShadowAlpha = 0.7f;     // @ghidraAddress 0x291c98
 static const CGFloat kHighlightedTitleWhite = 0.8f; // @ghidraAddress 0x28e080
 static const CGFloat kDisabledShadowAlpha = 0.6f;   // @ghidraAddress 0x28f230
 
+// How far the fill is darkened before the gradient is built. Pressing the button darkens it.
+static const CGFloat kNormalShade = 0.8;      // @ghidraAddress 0x2933e0
+static const CGFloat kHighlightedShade = 0.6; // @ghidraAddress 0x2933e8
+
+// The four gradient stops, lightening towards the top of the button. The first factor is a literal
+// zero, so only three of the four come from the pool.
+static const CGFloat kGradientFactorFirst = 0.0;
+static const CGFloat kGradientFactorSecond = 0.16f; // @ghidraAddress 0x2933c0
+static const CGFloat kGradientFactorThird = 0.32f;  // @ghidraAddress 0x2933c8
+static const CGFloat kGradientFactorFourth = 0.48f; // @ghidraAddress 0x2933d0
+
+// Where each of those four sits along the gradient. The middle pair straddles the midpoint, so the
+// band between them is the narrow bright strip across the button's waist.
+static const CGFloat kGradientLocationFirst = 0.0;   // @ghidraAddress 0x2933f0
+static const CGFloat kGradientLocationSecond = 0.45; // @ghidraAddress 0x2933f8
+static const CGFloat kGradientLocationThird = 0.55;  // @ghidraAddress 0x293400
+static const CGFloat kGradientLocationFourth = 1.0;  // @ghidraAddress 0x293408
+
+// Added to both halves of the shadow offset, carrying the sign of the value it is added to.
+static const CGFloat kShadowNudge = 0.1; // @ghidraAddress 0x28f290
+
+// The horizontal term of -CGRectOffset. It is negative zero in the pool rather than a zeroed
+// register, which is a distinction without a numeric difference.
+static const CGFloat kNoHorizontalOffset = -0.0; // @ghidraAddress 0x291df8
+
+// The depth and blur the shadow is drawn with. Only the highlighted state differs; the disabled
+// state shares the normal one. All six are fmov immediates, so none has a pool address.
+static const CGFloat kNormalShadowDepth = 1.0;
+static const CGFloat kHighlightedShadowDepth = 2.0;
+static const CGFloat kNormalShadowBlur = 2.0;
+static const CGFloat kHighlightedShadowBlur = 3.0;
+
+// The final outward inset applied to the shadow's bounding rect.
+static const CGFloat kOuterInset = -1.0;
+
+enum {
+    kGradientStopCount = 4,
+    // A colour with this many components is RGBA; anything else is treated as greyscale.
+    kRGBAComponentCount = 4,
+};
+
 @implementation StoreButton
 
 // Both accessors are hand-written for these two, which suppresses auto-synthesis of the ivars the
@@ -121,6 +162,121 @@ static const CGFloat kDisabledShadowAlpha = 0.6f;   // @ghidraAddress 0x28f230
     if (changed == 1) {
         [self setNeedsDisplay];
     }
+}
+
+/** @ghidraAddress 0x170f34 */
+- (void)drawRect:(CGRect)rect {
+    CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextClearRect(context, rect);
+
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect
+                                                    cornerRadius:self.cornerRadius];
+    CGContextSaveGState(context);
+
+    CGFloat shadowDepth;
+    CGFloat shadowBlur;
+    if (self.state == UIControlStateDisabled) {
+        // No gradient when disabled: one flat fill, and the shadow below is drawn as for normal.
+        [self.disabledColor setFill];
+        [path fill];
+        shadowDepth = kNormalShadowDepth;
+        shadowBlur = kNormalShadowBlur;
+    } else {
+        BOOL highlighted = (self.state == UIControlStateHighlighted);
+        CGFloat shade = highlighted ? kHighlightedShade : kNormalShade;
+        shadowDepth = highlighted ? kHighlightedShadowDepth : kNormalShadowDepth;
+        shadowBlur = highlighted ? kHighlightedShadowBlur : kNormalShadowBlur;
+
+        double components[kRGBAComponentCount];
+        // -getRed:green:blue:alpha: only arrived in iOS 5, hence the check rather than a plain
+        // call.
+        if ([UIColor instancesRespondToSelector:@selector(getRed:green:blue:alpha:)]) {
+            [self.buttonColor getRed:&components[kComponentRed]
+                               green:&components[kComponentGreen]
+                                blue:&components[kComponentBlue]
+                               alpha:&components[kComponentAlpha]];
+        } else {
+            const CGFloat *raw = CGColorGetComponents(self.buttonColor.CGColor);
+            // Yes, buttonColor is fetched a second time for the count.
+            if (CGColorGetNumberOfComponents(self.buttonColor.CGColor) == kRGBAComponentCount) {
+                components[kComponentRed] = raw[0];
+                components[kComponentGreen] = raw[1];
+                components[kComponentBlue] = raw[2];
+                components[kComponentAlpha] = raw[3];
+            } else {
+                // Greyscale: one value across all three channels, and the second is the alpha.
+                components[kComponentRed] = raw[0];
+                components[kComponentGreen] = raw[0];
+                components[kComponentBlue] = raw[0];
+                components[kComponentAlpha] = raw[1];
+            }
+        }
+
+        // Darken the colour, but move the alpha towards opaque rather than scaling it down.
+        double shaded[kRGBAComponentCount];
+        shaded[kComponentRed] = shade * components[kComponentRed];
+        shaded[kComponentGreen] = shade * components[kComponentGreen];
+        shaded[kComponentBlue] = shade * components[kComponentBlue];
+        shaded[kComponentAlpha] = (1.0 - shade) + shade * components[kComponentAlpha];
+
+        UIColor *first = [self highlightColor:shaded factor:kGradientFactorFirst];
+        UIColor *second = [self highlightColor:shaded factor:kGradientFactorSecond];
+        UIColor *third = [self highlightColor:shaded factor:kGradientFactorThird];
+        UIColor *fourth = [self highlightColor:shaded factor:kGradientFactorFourth];
+
+        CGColorRef stops[] = {first.CGColor, second.CGColor, third.CGColor, fourth.CGColor};
+        NSArray *colors = [NSArray arrayWithObjects:(__unsafe_unretained const id *)stops
+                                              count:kGradientStopCount];
+        CGFloat locations[] = {kGradientLocationFirst,
+                               kGradientLocationSecond,
+                               kGradientLocationThird,
+                               kGradientLocationFourth};
+        CGGradientRef gradient =
+            CGGradientCreateWithColors(space, (__bridge CFArrayRef)colors, locations);
+
+        [path addClip];
+        // Bottom to top, so the lightest stop lands along the top edge.
+        CGContextDrawLinearGradient(
+            context, gradient, CGPointMake(0.0, rect.size.height), CGPointZero, 0);
+        CGGradientRelease(gradient);
+    }
+    CGContextRestoreGState(context);
+
+    CGColorRef shadowColor = UIColor.blackColor.CGColor;
+
+    // Grow the path's bounds by the blur, lift it by the depth, union it back with the bounds it
+    // came from, then grow the result by one more point.
+    CGRect grown = CGRectInset(path.bounds, -shadowBlur, -shadowBlur);
+    CGRect lifted = CGRectOffset(grown, kNoHorizontalOffset, -shadowDepth);
+    CGRect outer = CGRectInset(CGRectUnion(lifted, path.bounds), kOuterInset, kOuterInset);
+
+    // The rounded path punched out of that rect, so filling it covers everything except the button.
+    UIBezierPath *mask = [UIBezierPath bezierPathWithRect:outer];
+    [mask appendPath:path];
+    mask.usesEvenOddFillRule = YES;
+
+    CGContextSaveGState(context);
+
+    // This is how the inner shadow is drawn without a dedicated API. The shadow is thrown a whole
+    // button-width to the right and the mask is then translated the same distance to the left, so
+    // the mask itself lands outside the clip and only the shadow it casts is visible.
+    CGFloat slide = round(outer.size.width);
+    // The binary adds a literal zero to the rounded width before the nudge.
+    CGContextSetShadowWithColor(context,
+                                CGSizeMake(slide + copysign(kShadowNudge, slide),
+                                           shadowDepth + copysign(kShadowNudge, shadowDepth)),
+                                shadowBlur,
+                                shadowColor);
+
+    [path addClip];
+    [mask applyTransform:CGAffineTransformMakeTranslation(-slide, 0.0)];
+    // The fill colour never shows; only the shadow cast by this fill does.
+    [UIColor.grayColor setFill];
+    [mask fill];
+
+    CGContextRestoreGState(context);
+    CGColorSpaceRelease(space);
 }
 
 /** @ghidraAddress 0x171624 */
