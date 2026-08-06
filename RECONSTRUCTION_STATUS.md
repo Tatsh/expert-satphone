@@ -39,7 +39,8 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/main.m` | Complete. |
 | `Project/JubeatAppDelegate.h` | 36 properties, all accessors from both blocks. |
 | `Project/JubeatAppDelegate.m` | **Complete.** 62 methods, every one reached. |
-| `Project/Md5Utilities.m` | Complete; the one free function in the tree. |
+| `Project/Md5Utilities.m` | Complete; a free function. |
+| `Project/LabUtilities.m` | Complete; a free function. Reaches `BFCodec`. |
 
 ## Next, in order
 
@@ -48,7 +49,6 @@ rough order of how much each unlocks:
 
 | Target | Address | Notes |
 | --- | --- | --- |
-| `CreateLabEncryptedData` | 0x8011c | Fully analysed already; needs only a `BFCodec` declaration before it can be written. |
 | `-[RootViewController startLogo]` | not located yet | The launch handler's last call into the UI; likely the entry to the whole title sequence. |
 | `-[RootViewController pushNotificate]` | 0x1aaaa4 | Small, and completes the notification path. |
 | `-[RootViewController responseRemoteNotification:pushInfo:]` | 0x1ab0d4 | Reaches `CJSONSerializer`, `Downloader`, and `ScratchUtil`, three unstarted classes. |

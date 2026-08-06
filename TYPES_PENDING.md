@@ -63,7 +63,8 @@ would be indistinguishable from a reconstructed one.
 | `-[RootViewController pushNotificate]`   | `-application:didReceiveLocalNotification:` sends it | 0x1aaaa4 |
 | `-[RootViewController responseRemoteNotification:pushInfo:]` | `-application:didReceiveRemoteNotification:` sends it | 0x1ab0d4 |
 | `-[RootViewController startLogo]`         | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `CreateLabEncryptedData`                 | `-application:didFinishLaunchingWithOptions:` calls it | 0x8011c |
+| `-[BFCodec cipherInit:]`                 | `CreateLabEncryptedData` sends it      | 0x94a58   |
+| `-[BFCodec encipher:]`                   | `CreateLabEncryptedData` sends it      | 0x94aec   |
 | `+[MarkerManager moveMarkerDataInDoc]`    | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
 | `+[MarkerManager checkRegularMarkerData]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
 | `+[TweetResourceManager checkResourceData]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |

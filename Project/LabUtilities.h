@@ -4,8 +4,8 @@
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: only the declaration is recovered. The body is fully analysed but needs a
- * @c BFCodec declaration first, so it is not written yet.
+ * The one caller is @c -[JubeatAppDelegate application:didFinishLaunchingWithOptions:], which uses
+ * it once on first launch to obfuscate the Lab URL before storing it in user defaults.
  */
 
 #import <Foundation/Foundation.h>
@@ -26,6 +26,10 @@ extern "C" {
  * caller could keep changing it. The key is an MD5 of a 19-character passphrase that this function
  * rebuilds on its own stack rather than calling @c CreateLabUrlCipherKey at 0x7f9b0, though the
  * passphrase is byte-for-byte the same.
+ *
+ * One edge is worth knowing about: @c -dataUsingEncoding: returns nil for input it cannot encode,
+ * and @c +dataWithData: raises on nil rather than returning it, so a malformed string throws rather
+ * than producing the nil this function's nil check implies it handles.
  *
  * @param pszString The plaintext. nil is accepted and yields nil.
  * @return The ciphertext, autoreleased, or nil when the input was nil.
