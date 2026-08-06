@@ -673,6 +673,35 @@ The jump table at 0xe8094 was read rather than inferred: its four entries are -3
 -156 relative to the table's own address, landing on 0xe7f30, 0xe7f74, 0xe7fb8 and 0xe7ff8 — the
 four blocks in source order, with no tail sharing this time.
 
+### `-[TuneInfo infoDict]` (0x775d0) — one of three optional strings is unguarded
+
+The method copies three string properties into a dictionary. Two are tested first and one is not:
+
+```text
+1000777c0: cbz x23,0x1000777fc   ; nameYomi nil -> skip
+100077820: cbz x23,0x10007785c   ; artist   nil -> skip
+100077790: bl <[dict setObject:name forKey:@"Name"]>   ; no test at all
+```
+
+`-setObject:forKey:` raises on a nil object, so a `TuneInfo` whose `Name` key was missing from the
+catalogue reaches `-infoDict` and throws. The initialiser does nothing to prevent that: it assigns
+`[dictionary objectForKey:@"Name"]` straight through, nil included.
+
+### `-[TuneInfo compareYomi:]` (0x779c4) — the fallback sorts the other way
+
+When both tunes have a reading the order is `-localizedCaseInsensitiveCompare:`, which is ascending.
+When neither does, the method falls back to the identifier and reverses:
+
+```text
+100077ac4: cmp w22,w0
+100077ac8: b.ls 0x100077ad4
+100077acc: mov x20,#-0x1        ; self.tuneID > other.tuneID -> NSOrderedAscending
+```
+
+A larger identifier sorts *first*. Both comparisons are unsigned, matching the property's `I`
+encoding, so this is a deliberate reversal rather than a sign error. It only shows for a pair of
+tunes that both lack a reading, which is presumably why it survived.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.

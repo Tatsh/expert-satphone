@@ -24,6 +24,27 @@ NS_ASSUME_NONNULL_BEGIN
 @property(class, nonatomic, readonly) StoreMusicListManager *sharedManager;
 
 /**
+ * @brief The store's own purchase link for a tune, which overrides whatever the tune list carries.
+ *
+ * DECLARED ONLY.
+ *
+ * @param tuneID The tune.
+ * @return The link, or nil when the store has none.
+ */
+- (nullable NSString *)linkURLForID:(unsigned int)tuneID;
+
+/**
+ * @brief The extend-pack record for a tune, if it belongs to one.
+ *
+ * DECLARED ONLY. The three keys @c -[TuneInfo initWithfilePath:dictionary:] reads out of it are
+ * @c extendFlag , @c holdFlag and @c extID , each optional.
+ *
+ * @param tuneID The tune.
+ * @return The record, or nil.
+ */
+- (nullable NSDictionary *)extendInfoForID:(unsigned int)tuneID;
+
+/**
  * @brief Loads the store's music list.
  *
  * Sent at 0x9eec, immediately after the four PurchaseManager calls and before the audio session is
