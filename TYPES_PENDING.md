@@ -59,6 +59,23 @@ would be indistinguishable from a reconstructed one.
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
 | `+[ScoreRecordManager sharedManager]`    | `-applicationWillTerminate:` sends it | not located yet |
 
+## Data not transcribed
+
+### `kKnitColorPalettes` (0x353d78)
+
+`-[KnitColorManager setColorWithType:]` indexes a table of 0x30-byte rows here, three 16-byte groups
+of four floats each. The method itself is reconstructed; the table's contents are **not**, and it is
+declared `extern` rather than filled in.
+
+Most rows read as colours with red, green, and blue on a 0 to 255 scale and alpha on 0 to 1 — row 0
+is `255,255,255,1` base, `0,0,0,1` line, `252,200,0,1` wave. But row 2's wave group decodes to
+`2290, 0, 18, 1`, and 2290 fits no colour scale. Either the row layout is not uniform, the group is
+not a colour, or the decode is wrong.
+
+Transcribing a table on an interpretation that already fails on one row would bake the error into
+the source, so the values stay in the binary until `-makeColor:` is reconstructed and shows how the
+components are actually consumed. `-makeColor:` is the thing to read next for this class.
+
 ## Defects found in the binary
 
 Behaviour that is faithfully reproduced but is a bug in the shipped application. Recorded here so a
