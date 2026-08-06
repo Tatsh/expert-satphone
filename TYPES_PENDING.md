@@ -439,6 +439,44 @@ split at 0xb17c. Only the foreground arm reads the result, at 0xb3ac. On the rou
 dictionary is built and then released at 0xb50c without ever being used — every URL-routed remote
 notification allocates and discards an `NSMutableDictionary`.
 
+### `+[Crypto sha1:]` (0x266b14) and `+[Crypto sha256:]` (0x266c9c) — UTF-8 bytes, UTF-16 count
+
+Both build the buffer they hash the same way, and both get its length from the wrong measure:
+
+```text
+100266b6c: bl 0x10027cef0  ; [x19 cStringUsingEncoding:0x4]   -> the UTF-8 bytes
+100266b90: bl 0x10027cef0  ; [x19 length]                     -> the UTF-16 character count
+100266bb8: bl 0x10027cef0  ; [NSData dataWithBytes:x21 length:x19]
+```
+
+The same three, in the same order, sit at 0x266cf4, 0x266d18, and 0x266d40 in `+sha256:`.
+
+`x19` is the same string in both calls, and `w2` is 4, `NSUTF8StringEncoding`. So the pointer is to
+a UTF-8 encoding while the count is of UTF-16 code units. The two agree only when every character
+is ASCII, which is the only case the method was evidently tested on. For anything else the count is
+too small — a string of *n* Japanese characters yields 3*n* UTF-8 bytes and a length of *n*, so
+two-thirds of the input is dropped and the digest is of a truncated prefix that is itself not valid
+UTF-8. The correct measure is `-lengthOfBytesUsingEncoding:NSUTF8StringEncoding`.
+
+The consequence is a hash that is stable but wrong: it still returns the same digest for the same
+input, so nothing visibly breaks, and any server computing the digest correctly disagrees with it.
+
+`+createHash:` (0x266a44) does not have the fault, because it takes an `NSData` and asks it for its
+own `-length`.
+
+### `+[Crypto cryptorToData:value:key:]` (0x266e24) — the key length is a constant
+
+The key argument's own length is never read. `w4` is set from an immediate:
+
+```text
+100266f44: mov w4,#0x10
+```
+
+so `CCCrypt` is always told the key is sixteen bytes whatever the `NSData` actually holds. A shorter
+key is read past its end; a longer one is silently truncated to AES-128. `x5` is likewise zero, so
+there is no initialisation vector and the cipher runs in ECB — identical plaintext blocks encrypt to
+identical ciphertext blocks.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.
