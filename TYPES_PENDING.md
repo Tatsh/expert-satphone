@@ -177,8 +177,35 @@ would be indistinguishable from a reconstructed one.
 | `GetScaledResourcePath`                   | `LoadScaledPngImage` calls it          | 0x7e37c |
 | `LoadScaledEncryptedTexImage`             | `-[UnsealDrawController viewDidLoad]` calls it | 0x7e9dc |
 | `CreateImageFromEncryptedData`            | `LoadScaledEncryptedTexImage` calls it | not located yet |
+| `-[CubePurchaseInfo initWithDictionary:]`  | `CubePurchaseListViewCell` is its consumer | 0x63b68 |
+| `-[CubePurchaseInfo updateProduct:]`       | ditto                                  | 0x63c48 |
+| `-[CubePurchaseInfo getProductID]`         | ditto                                  | 0x63c5c |
+| `-[CubePurchaseInfo getProduct]`           | ditto                                  | 0x63d10 |
+| `-[CubePurchaseInfo getName]`              | ditto                                  | 0x63d38 |
 
 ## Defects found in the binary
+
+### `-[CubePurchaseListViewCell setBgImage:info:cache:aDelegate:]` (0x64328) — a sixth digit
+
+The row owns exactly five digit image views (`numImg` is `[5@"UIImageView"]`), but the loop that
+counts the cube total's digits can return six.
+
+The counting loop divides by ten and then tests two things: whether the quotient still exceeds one
+digit, and whether the pass counter is at most three. The counter is read *before* it is
+incremented — `ccmp w9,#3,#0,cs` at 0x64438 sets the flags, and the `add w9,w9,#1` two instructions
+later does not touch them — so four back-edges are allowed and the counter reaches five. The digit
+count is that plus one.
+
+The fill loop then walks `numImg[digitCount - 1]` down to `numImg[0]`, so a count of six writes one
+element past the array. It needs a cube total of at least 100000 to trigger, which the store's
+packs presumably never reach, so it is latent rather than live. Reproduced as written.
+
+### `-[CubePurchaseListViewCell addBtn]` (0x64728) — a property nothing ever assigns
+
+`addBtn` is declared readonly over the `_addBtn` ivar and has a getter, but the class defines no
+setter and neither of its two other methods writes the ivar. Since the ivar is private, nothing can
+write it, so the property returns nil for the lifetime of every instance. Only `.cxx_destruct`
+touches it. Declared faithfully, with the fact noted at the declaration.
 
 ### `-[ChallengeLoginMessageView initWithFrame:scratchNum:]` (0xa75fc) — a backspace in a label
 
