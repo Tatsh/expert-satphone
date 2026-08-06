@@ -79,7 +79,11 @@ NS_ASSUME_NONNULL_BEGIN
  *   "os"      @c UIDevice.currentDevice.systemVersion
  *   "locale"  @c NSLocale.currentLocale.localeIdentifier
  *
- * The "uuid" entry is not a device UUID despite its key: it is a salted hash of the music-list key.
+ * The "uuid" entry is the MD5 of @c musicListKey with "STORE" appended. Despite that selector
+ * name, @c musicListKey is not derived from any music list: it is a per-install identifier
+ * persisted in the keychain, minted with @c CFUUIDCreate the first time it is missing. So the
+ * "uuid" value is a stable per-install identifier after all, though it reaches that state by a
+ * route neither key name suggests.
  * @ghidraAddress 0x805c
  */
 @property(class, nonatomic, readonly) NSDictionary *clientInfo;
