@@ -20,7 +20,6 @@ each entry below names the routine whose reconstruction will settle it.
 
 | Property            | Settled by                                                       | Evidence so far                                         |
 | ------------------- | ---------------------------------------------------------------- | ------------------------------------------------------- |
-| `deviceToken`       | `-application:didRegisterForRemoteNotificationsWithDeviceToken:` @0xa8a4 | Object by load width only.                     |
 | `markerList`        | the marker loader, not yet located                                | Object by load width only.                              |
 | `jcfDownloadID`     | the download starter, not yet located                             | Cleared to nil by `-resetDownLoadIndex` @0x8c38.        |
 | `storeGenreID`      | `-setDownloadGenreID:` callers                                    | Retained via `objc_storeStrong`, so an object.          |
@@ -71,3 +70,4 @@ Kept as a record of what the evidence was, so a later reader does not have to re
 | `JubeatAppDelegate.currentTheme` | `int`        | `unsigned int`         | `-changeTheme:` boxes it with `+numberWithUnsignedInt:`. |
 | `JubeatAppDelegate.rootViewCtrl` | `UIViewController` | `RootViewController` | `-changeTheme:` sends `-changeThemeAndGoTitle`, whose only implementation is `-[RootViewController changeThemeAndGoTitle]` @0x1a8a68. |
 | `JubeatAppDelegate.pushNotificationList` | `NSArray` | `NSMutableArray` | `-loadNotification` stores `-mutableCopy` of the unarchived object at 0xa828. |
+| `JubeatAppDelegate.deviceToken` | `id` | `NSString` | `-application:didRegisterForRemoteNotificationsWithDeviceToken:` stores the token's `-description` with `<`, `>`, and spaces stripped. |

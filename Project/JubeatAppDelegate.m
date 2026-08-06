@@ -371,6 +371,29 @@ enum {
     }
 }
 
+#pragma mark - Notification registration
+
+- (void)application:(UIApplication *)application
+    didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
+    // The granted types are never inspected; registration proceeds either way.
+    [application registerForRemoteNotifications];
+}
+
+- (void)application:(UIApplication *)application
+    didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    // Depends on NSData.description's "<xxxx xxxx>" format, stripped literal by literal.
+    _deviceToken = [[[deviceToken.description
+        stringByReplacingOccurrencesOfString:@"<" withString:@""]
+        stringByReplacingOccurrencesOfString:@">" withString:@""]
+        stringByReplacingOccurrencesOfString:@" " withString:@""];
+}
+
+- (void)application:(UIApplication *)application
+    didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    // Yes, the compiled method at 0xa98c is a bare ret. The failure is neither recorded nor
+    // reported, so deviceToken stays nil.
+}
+
 #pragma mark - Application lifecycle
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {

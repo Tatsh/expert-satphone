@@ -146,12 +146,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The APNs device token, retained as received.
  *
- * Backed by @c _deviceToken (0x349670). Written by
- * @c -application:didRegisterForRemoteNotificationsWithDeviceToken: at 0xa8a4, which is not yet
- * reconstructed, so the concrete class is not asserted.
+ * Backed by @c _deviceToken (0x349670). An @c NSString, not the @c NSData the callback receives:
+ * @c -application:didRegisterForRemoteNotificationsWithDeviceToken: stores the token's
+ * @c -description with the angle brackets and spaces stripped out.
  * @ghidraAddress 0xbaf0 (getter)
  */
-@property(nonatomic, readonly) id deviceToken;
+@property(nonatomic, readonly, nullable) NSString *deviceToken;
 
 #pragma mark - Device idiom predicates
 
@@ -599,6 +599,37 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xb594
  */
 - (nullable NSDictionary *)popNotification;
+
+#pragma mark - Notification registration
+
+/**
+ * @brief Proceeds to remote-notification registration once the user has answered the prompt.
+ *
+ * The settings argument is ignored: the binary does not inspect which types were granted, so this
+ * registers even when the user allowed nothing.
+ * @ghidraAddress 0xa868
+ */
+- (void)application:(UIApplication *)application
+    didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings;
+/**
+ * @brief Stores the APNs device token as a bare hexadecimal string.
+ *
+ * Takes @c -description of the @c NSData and strips the three literals "<", ">", and " " from it in
+ * that order. This is the pre-iOS-13 idiom for turning a token into hex; it depends on
+ * @c NSData.description's format and is reproduced as written.
+ * @ghidraAddress 0xa8a4
+ */
+- (void)application:(UIApplication *)application
+    didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+/**
+ * @brief Does nothing.
+ *
+ * Surprising but faithful: the compiled method at 0xa98c is a single @c ret. A failed registration
+ * is neither recorded nor reported, so @c deviceToken simply stays nil.
+ * @ghidraAddress 0xa98c
+ */
+- (void)application:(UIApplication *)application
+    didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
 
 #pragma mark - Application lifecycle
 
