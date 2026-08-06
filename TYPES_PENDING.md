@@ -702,6 +702,33 @@ A larger identifier sorts *first*. Both comparisons are unsigned, matching the p
 encoding, so this is a deliberate reversal rather than a sign error. It only shows for a pair of
 tunes that both lack a reading, which is presumably why it survived.
 
+### `-[CampaignItemInfo initWithDictionary:]` (0xbca0) — four URL fields, three levels of checking
+
+The entry carries four URL-shaped strings and each is treated differently:
+
+| Key | Where from | Checked | Stored as |
+| --- | --- | --- | --- |
+| `bannerUrl` | nested `v2` | not at all | `NSString` |
+| `iconUrl` | nested `v2` | `+[StoreUtil isValidURL:]` | `NSString` |
+| `thumbnailUrl` | nested `v2` | `+[StoreUtil isValidURL:]` | `NSURL` |
+| `foreignUrl` | the entry itself | `isValidURL:` **and** `-length` | `NSURL` |
+
+The extra length test on `foreignUrl` is a genuine short-circuit pair, not one call:
+
+```text
+10000be4c: cbz w0,0x10000be9c    ; !isValidURL -> skip
+10000be5c: bl <[foreignURL length]>
+10000be60: cbz x0,0x10000be9c    ; length == 0 -> skip
+```
+
+Whether the difference matters depends on what `+isValidURL:` does with an empty string, which is
+not reconstructed yet — but the author evidently did not trust it to, on one field out of four.
+`bannerUrl` is not checked at all, so an empty or malformed banner address reaches the UI as-is.
+
+`hideType` is read from the entry here and then set back to zero by `-termCheck` — but only on the
+unlocked path. A locked item keeps whatever the entry said, an unlocked one always reports zero, so
+the field only ever carries the entry's value for items the player cannot have.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.

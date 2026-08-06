@@ -39,10 +39,80 @@ static NSString *const kSchemeProbeFormat = @"%@://";
 // A marker's data name.
 static NSString *const kMarkerDataNameFormat = @"mk%04d";
 
+// The campaign entry's own keys.
+static NSString *const kNestedKey = @"v2";
+static NSString *const kCampaignIDKey = @"campaignId";
+static NSString *const kItemIDKey = @"itemId";
+static NSString *const kItemTypeKey = @"itemType";
+static NSString *const kForeignURLKey = @"foreignUrl";
+static NSString *const kUnlockedKey = @"unlocked";
+static NSString *const kTermsTableKey = @"termsTable";
+static NSString *const kUnlockTypeKey = @"unlockType";
+static NSString *const kHideTypeKey = @"hideType";
+
+// Everything the player actually sees comes out of the nested "v2" dictionary instead.
+static NSString *const kBannerURLKey = @"bannerUrl";
+static NSString *const kIconURLKey = @"iconUrl";
+static NSString *const kCopyrightKey = @"copyright";
+static NSString *const kTermsDescriptionKey = @"termsDescription";
+static NSString *const kDescriptionKey = @"description";
+static NSString *const kNameKey = @"name";
+static NSString *const kThumbnailURLKey = @"thumbnailUrl";
+
 @implementation CampaignItemInfo {
     // Neither of these carries an underscore in the metadata, so neither backs a property.
     NSArray *termsTable;
     int unlockType;
+}
+
+/** @ghidraAddress 0xbca0 */
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+    self = [super init];
+    if (self) {
+        // Two dictionaries: the numbers and the unlock rule come from the entry itself, everything
+        // the player reads from a nested one.
+        NSDictionary *presentation = [dictionary objectForKey:kNestedKey];
+
+        _campaignID = [[dictionary objectForKey:kCampaignIDKey] intValue];
+        _itemID = [[dictionary objectForKey:kItemIDKey] intValue];
+        _itemType = [[dictionary objectForKey:kItemTypeKey] intValue];
+
+        // Taken with no validation at all, unlike the three URLs below it.
+        _bannerURL = [presentation objectForKey:kBannerURLKey];
+
+        NSString *foreignURL = [dictionary objectForKey:kForeignURLKey];
+        // The only one of the four URL fields that is length-checked as well as validated.
+        if ([StoreUtil isValidURL:foreignURL] && foreignURL.length != 0) {
+            _linkURL = [NSURL URLWithString:foreignURL];
+        }
+
+        _bServerUnlock = [[dictionary objectForKey:kUnlockedKey] boolValue];
+        termsTable = [dictionary objectForKey:kTermsTableKey];
+        unlockType = [[dictionary objectForKey:kUnlockTypeKey] intValue];
+        // Read here and then cleared again by -termCheck below, but only when the item comes out
+        // unlocked — a locked item keeps whatever the entry said.
+        _hideType = [[dictionary objectForKey:kHideTypeKey] intValue];
+
+        NSString *iconURL = [presentation objectForKey:kIconURLKey];
+        if ([StoreUtil isValidURL:iconURL]) {
+            // Kept as text, where the other two validated URLs become NSURLs.
+            _itemImageURL = iconURL;
+        }
+
+        _lisenceText = [presentation objectForKey:kCopyrightKey];
+        _unlockDescription = [presentation objectForKey:kTermsDescriptionKey];
+        _itemDescription = [presentation objectForKey:kDescriptionKey];
+        _name = [presentation objectForKey:kNameKey];
+
+        NSString *thumbnailURL = [presentation objectForKey:kThumbnailURLKey];
+        if ([StoreUtil isValidURL:thumbnailURL]) {
+            _sampleURL = [NSURL URLWithString:thumbnailURL];
+        }
+
+        // Evaluated once here, so every derived property is set before the caller sees the item.
+        [self termCheck];
+    }
+    return self;
 }
 
 /** @ghidraAddress 0xc16c */

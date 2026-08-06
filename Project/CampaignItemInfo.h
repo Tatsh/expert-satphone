@@ -10,9 +10,6 @@
  * Every property is read-only, and @c -termCheck is what fills them in: it decides whether the
  * item is unlocked, whether it is already downloaded, and which button and hide states the UI
  * should use.
- *
- * RECONSTRUCTION STATE: five of six members written. @c -initWithDictionary: is declared but not
- * reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
 #import <Foundation/Foundation.h>
@@ -110,7 +107,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds an item from a campaign dictionary.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * The entry is split in two: the identifiers and the unlock rule come from the dictionary itself,
+ * and everything the player reads from a nested @c v2 dictionary inside it. The initialiser ends by
+ * running @c -termCheck , so an item is fully evaluated before its caller ever sees it.
  *
  * @param dictionary The campaign entry.
  * @return The initialised item.
