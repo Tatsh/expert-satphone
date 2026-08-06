@@ -649,6 +649,30 @@ And the obvious guess is wrong. An OpenGL application overriding `+layerClass` a
 rather than the classref would have produced a plausible, checkable-looking, incorrect line. The
 class object at 0x38a500 is `CAGradientLayer`.
 
+### `-[HoldMarkerRender renderHoldLine:start:vector:trans:alpha:frame:addLength:]` (0xe7eb8) — an unguarded default
+
+The tail's rectangle is built in one of four arms selected by `vector`, and the range check does not
+protect the draw:
+
+```text
+1000e7f14: cmp w2,#0x3
+1000e7f18: b.hi 0x1000e8038   ; out of range -> straight to the draw
+1000e7f24: ldrsw x10,[x11, x10, LSL #0x2]
+1000e7f2c: br x10             ; 0..3 -> the four arms
+```
+
+0xe8038 is the draw itself, not a return. The four values the rectangle is assembled in — `d12`,
+`d9`, `d10` and `d11` — are callee-saved, and on the out-of-range path only `d9` has been written
+(it holds the first point's `y`, saved at entry). The other three still hold whatever the caller
+left in them, and they go to `-drawSprite:inRect:transform:alpha:` as a width, a height and an `x`.
+
+So a `vector` outside 0–3 does not draw nothing; it draws the sprite at an arbitrary rectangle. The
+reconstruction reproduces this by leaving the `CGRect` uninitialised on the default arm.
+
+The jump table at 0xe8094 was read rather than inferred: its four entries are -356, -288, -220 and
+-156 relative to the table's own address, landing on 0xe7f30, 0xe7f74, 0xe7fb8 and 0xe7ff8 — the
+four blocks in source order, with no tail sharing this time.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.

@@ -41,6 +41,22 @@ NS_ASSUME_NONNULL_BEGIN
          transform:(char)transform
              alpha:(float)alpha;
 
+/**
+ * @brief Draws one sprite stretched into a rectangle.
+ *
+ * DECLARED ONLY. Encoding @c v64\@0:8Q16{CGRect=…}24c56f60 : @c transform is a @c char and
+ * @c alpha a @c float , as in the overload above.
+ *
+ * @param sprite The sprite index.
+ * @param rect Where to draw it.
+ * @param transform A transform selector, not a matrix.
+ * @param alpha The opacity.
+ */
+- (void)drawSprite:(NSUInteger)sprite
+            inRect:(CGRect)rect
+         transform:(char)transform
+             alpha:(float)alpha;
+
 @end
 
 NS_ASSUME_NONNULL_END
