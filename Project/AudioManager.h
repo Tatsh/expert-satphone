@@ -28,6 +28,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)stopAllSe;
 /**
+ * @brief Plays a sound effect named by bundle resource.
+ *
+ * Looks the name up in the main bundle with the type @c caf — restricted to that one extension —
+ * and hands the resulting path to @c -playSeFile:. A nil @c directory selects the two-argument
+ * @c -pathForResource:ofType: instead of the three-argument form; a nil @c name does nothing at
+ * all. DECLARED ONLY, though the signature is proven from the body at 0x77f50.
+ *
+ * @param name The resource's base name, with no extension.
+ * @param directory The subdirectory to search, or nil to search the bundle's root.
+ */
+- (void)playSeResFile:(nullable NSString *)name inDirectory:(nullable NSString *)directory;
+/**
  * @brief Releases the background music.
  *
  * The one reconstructed caller always passes YES. What the flag selects is not established, since

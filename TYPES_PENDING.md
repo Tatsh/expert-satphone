@@ -37,6 +37,7 @@ What the other subcommands do and do not cover here:
 | `objc property-types` | Real, and tree-wide: 406 scalar properties. It caught `JubeatAppDelegate.deviceType` declared over `NSInteger` when the metadata encodes it `Q`, and `challengeMusicID` declared `int` when it encodes `I`. |
 | `objc property-accessors` | Real. It reports accessors the binary writes by hand, which a `@property` declaration silently satisfies. |
 | `objc frame-arithmetic` | Real, but takes **no** binary argument — passing one is an error, not a clean run. |
+| `objc format-calls` | Real, and the check for the variadic rule: it compares each format's specifier count against the arguments the stack setup actually supplies. |
 | `literals` | Nearly vacuous. It skips any literal with no character above U+0x2000, so it checks the two Japanese strings in `ChallengeStatus.m` and nothing else. Selector checking covers `@selector()` only; the tree now has two, both verified present. |
 | `globals` | Vacuous. No annotated global initialisers here yet. |
 | `unwritten-members` | Vacuous. It looks for C++ `m_` members, and this tree has none yet. |
@@ -172,8 +173,30 @@ would be indistinguishable from a reconstructed one.
 | `-[PurchaseManager loadPendingList]`      | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
 | `-[PurchaseManager loadPendingConsumeList]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
 | `+[ScoreRecordManager sharedManager]`    | `-applicationWillTerminate:` sends it | not located yet |
+| `-[AudioManager playSeResFile:inDirectory:]` | `-[ChallengeLoginMessageView closeMessage:]` sends it | 0x77f50 |
+| `LoadScaledPngImage`                      | `-[ChallengeLoginMessageView initWithFrame:scratchNum:]` calls it | 0x7ebe8 |
+| `GetScaledResourcePath`                   | `LoadScaledPngImage` calls it          | not located yet |
 
 ## Defects found in the binary
+
+### `-[ChallengeLoginMessageView initWithFrame:scratchNum:]` (0xa75fc) — a backspace in a label
+
+The upper label's format string, the CFString at 0x2d9940, is twenty UTF-16 units long and the
+first is **U+0008**, a backspace, ahead of the first Japanese character:
+
+```
+U+0008 U+3042 U+3068 U+0025 U+0064 U+56DE ...
+```
+
+It is worth saying why this is the string and not a misread, because the alternative is plausible.
+The data begins at 0x2c0dfe and the next constant string begins at 0x2c0e28; nineteen units from
+0x2c0e00 and twenty units from 0x2c0dfe both end at the same address, so alignment alone cannot
+decide it. The CFString's own two fields do: it records `ptr = 0x2c0dfe` and `length = 20`. Had the
+text been the nineteen visible characters the compiler would have emitted the later pointer and the
+smaller length.
+
+Reproduced verbatim as `@"\bあと%d回無料でスクラッチができます！"`. The neighbouring note label at
+0x2d9960 has no such prefix, so this is one string and not a pattern.
 
 ### `-[KnitColorManager setColorWithType:]` (0x1660d8) — type 5 reads past the table
 
