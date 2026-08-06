@@ -788,6 +788,29 @@ This is recorded as a property of the shipped binary, not as something to change
 kind of detail a reconstruction is for: invisible in the class's interface, and only findable by
 reading what the initialiser stores.
 
+### `-[ApplilinkIndicator close]` (0x250284) — the spinner is abandoned, not removed
+
+`-close` stops the spinner and then clears the ivar without taking the view out of the hierarchy:
+
+```text
+1002502c4: bl <[_indicator stopAnimating]>
+1002502c8: ldr x0,[x19, x20, LSL #0x0]   ; the old spinner
+1002502cc: str xzr,[x19, x20, LSL #0x0]  ; _indicator = nil
+1002502d8: b  <objc_release>             ; …and released
+```
+
+There is no `-removeFromSuperview` anywhere in the class, so the `UIActivityIndicatorView` stays a
+subview of the sheet, held only by the superview's own array. Nothing can reach it again.
+
+That makes `-close` one-way. `-show` afterwards un-hides the sheet but its `if (self.indicator)`
+guard fails, so no spinner starts, and `-layoutSubviews` skips positioning for the same reason —
+leaving a dimmed black sheet with a stationary spinner on it, which is the opposite of what the
+method names suggest.
+
+`-touchEventActived` is the escape from that: it clears the background colour and sets
+`userInteractionEnabled` to **NO**, so the sheet stops dimming and stops swallowing touches. The
+name reads as enabling something and what it does is disable this view's own handling.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.

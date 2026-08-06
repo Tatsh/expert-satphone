@@ -14,8 +14,8 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **335 annotated, 0
-mismatched, 0 selectors absent; 117 constants checked against their bytes.**
+which of the four subcommands actually cover anything here. Last run: **341 annotated, 0
+mismatched, 0 selectors absent; 118 constants checked against their bytes.**
 
 ## Measured progress
 
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 328 of 5036 methods, 6.5%. 93 of 317 classes complete.**
+**As of the last run: 334 of 5036 methods, 6.6%. 94 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -168,6 +168,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/RotateStoreProductViewController.m` | **Complete.** Six methods, 264 bytes total. Three of them add nothing to `super`. |
 | `Project/SEManager.m` | **Complete.** Six methods. A locked set of playing sound effects; `-play:` is the one unlocked access. |
 | `Project/BFCodec.m` | **Complete.** Six methods. Blowfish CBC with a fixed vector and a length trailer — see TYPES_PENDING.md. |
+| `Project/ApplilinkIndicator.m` | **Complete.** Six methods. A blocking activity sheet; `-close` is one-way — see TYPES_PENDING.md. |
 | `Project/DestinationCore.m` | **Complete.** Four methods. Three of them are inert and the fourth discards its delegate. |
 | `Project/ImageCache.m` | **Complete.** Four methods; the caching layer over LoadScaledPngImage. |
 | `Project/ChallengeMenuViewCell.m` | **Complete.** Four methods; the button targets the delegate, not self. |
