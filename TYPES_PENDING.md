@@ -273,6 +273,24 @@ reversed, so **descending**. Each index is therefore removed before any lower in
 Recorded because the safety is entirely in the comparator, four hundred instructions away from the
 removal, and a reader checking only the loop would reasonably conclude it was broken.
 
+### `+[StickerUtility checkExistSticker:]` (0xdc690) — the argument is never read
+
+The method is encoded `B24@0:8@16`, so it takes an object and returns a boolean. The body never
+touches `x2`. What it actually does is ask `NSFileManager` for the app group's container URL and
+test whether *that directory* exists.
+
+The container exists whenever the app group is provisioned, so the method answers the same value
+for every sticker name it is given, including names that were never saved. A caller using it to
+decide whether to re-download a sticker would skip every download.
+
+Reproduced with the argument declared and unused, and the header says plainly that the name does
+not do what it says.
+
+Related, in the same class: `+cleanStickerList` removes the name dictionary but does not call
+`-synchronize`, where `+saveSticker:displayName:data:` does — and it deletes no files, so the
+sticker images survive with no names attached. Neither is obviously wrong on its own; together they
+mean the file set and the name dictionary can disagree in both directions.
+
 ### `-[ChallengeListViewCell initWithStyle:reuseIdentifier:]` (0x2087e0) — the label overhangs its plate
 
 `ChallengeListViewCell` and `ChallengePresentListViewCell` are the same class twice over: same

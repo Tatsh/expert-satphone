@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **202 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **205 annotated, 0
 mismatched, 0 selectors absent; 51 constants checked against their bytes.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 197 of 5036 methods, 3.9%. 61 of 317 classes complete.**
+**As of the last run: 200 of 5036 methods, 4.0%. 62 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -51,6 +51,12 @@ binary. The table at 0x1ba5dc says otherwise and all four directions are handled
 pattern — `-0x3fd8000000000000` for -12.0, `-0x4010000000000000` for -1.0. Decode `imm8` from the
 instruction encoding instead: bits 20:13, expanded as sign, `NOT(bit6)`, `bit6`×8, bits 5:4, then
 bits 3:0 as the mantissa's top nibble. This has already produced two wrong constants when trusted.
+
+**A class object with no convenient cross-reference can still be located from its name.** Scan
+`__objc_const` for a pointer to the class-name string, subtract 0x18 to reach the `class_ro_t`,
+then scan for a pointer to *that* to reach the `class_t`; its superclass slot is at +8 and the
+metaclass's is the sibling structure. That is how `StickerUtility` was confirmed to derive from
+`NSObject` when no `objc_msgSendSuper2` call site existed to read it from.
 
 A superclass is **not** in the file. The class object's superclass slot is a dyld bind target and
 reads as zero on disk, so it has to come from the binding. `get_xrefs_from` on the slot address in
@@ -130,6 +136,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/frameTableCell.m` | **Complete.** Two methods. Third sibling; ticks the row matching `PrefTwitterBgFrame`. |
 | `Project/StoreTableCell.m` | **Complete.** Two methods, including the tree's first `-dealloc`. |
 | `Project/EditorInfoCell.m` | **Complete.** Two methods; badge selected from a three-entry table. |
+| `Project/StickerUtility.m` | **Complete.** Three methods; one ignores its argument entirely. |
 | `Project/BGRipple.m` | **Complete.** Three methods; a two-stage swell with an independently-tested fade. |
 | `Project/StoreRecommendPackView.m` | Three of four methods. `-initWithFrame:` is declared only — see Next. |
 | `Project/ImageCache.m` | **Complete.** Four methods; the caching layer over LoadScaledPngImage. |
