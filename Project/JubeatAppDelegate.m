@@ -7,6 +7,7 @@
 #import <GameKit/GameKit.h>
 #import <Security/Security.h>
 
+#import "ApplilinkNetwork.h"
 #import "ChallengeStatus.h"
 #import "EditorIDManager.h"
 #import "KnitColorManager.h"
@@ -26,6 +27,15 @@
     UIWindow *mainWindow;
 }
 @end
+
+// The bundled plist +initialize seeds NSUserDefaults from, at 0x2d4140 and 0x2d4160.
+static NSString *const kDefaultSettingsResourceName = @"DefaultSettings";
+static NSString *const kPropertyListResourceType = @"plist";
+
+// The applilink SDK credentials, from the one-character CFStrings at 0x2d4120 and 0x2d4100. Their
+// bytes are at 0x27dc3c and 0x27dc3a; the template tree documents env "0" through "4".
+static NSString *const kApplilinkApplicationID = @"3";
+static NSString *const kApplilinkEnvironment = @"0";
 
 // The sysctl name the binary passes to sysctlbyname, embedded at 0x27dc6d.
 static const char *const kHardwareMachineSysctlName = "hw.machine";
@@ -154,6 +164,43 @@ static const NSTimeInterval kPreferredIOBufferDuration = 0.01;
 static const int kDefaultTheme = 0;
 
 @implementation JubeatAppDelegate
+
+#pragma mark - Class setup
+
+/** @ghidraAddress 0x7b60 */
++ (void)initialize {
+    // Seeds NSUserDefaults from a bundled plist before anything reads a preference. This is why the
+    // launch handler's "missing key" paths are rarely taken in practice.
+    NSString *path = [NSBundle.mainBundle pathForResource:kDefaultSettingsResourceName
+                                                   ofType:kPropertyListResourceType];
+    NSDictionary *defaults = [NSDictionary dictionaryWithContentsOfFile:path];
+    // Guarded, so a missing or unreadable plist is silently tolerated.
+    if (defaults != nil) {
+        [NSUserDefaults.standardUserDefaults registerDefaults:defaults];
+    }
+
+    [ApplilinkNetwork initializeWithAppliId:kApplilinkApplicationID
+                                        env:kApplilinkEnvironment
+                                   callback:^(NSError *error) {
+                                     /** @ghidraAddress 0x7c68 */
+                                     // A global block: it captures nothing, which is why the
+                                     // literal at 0x2c8ab0 is a __NSConcreteGlobalBlock with no
+                                     // copy or dispose helper.
+                                     //
+                                     // Returns on any error, so the user identifier is only sent
+                                     // once the SDK is up.
+                                     if (error != nil) {
+                                         return;
+                                     }
+                                     NSString *editorKey = [EditorIDManager
+                                         getKeyString:EditorIDManager.getEditorIDKey];
+                                     // A device with no editor identifier yet simply stays
+                                     // anonymous to the ad SDK.
+                                     if (editorKey != nil) {
+                                         [ApplilinkNetwork setUserId:editorKey];
+                                     }
+                                   }];
+}
 
 #pragma mark - Identification
 
