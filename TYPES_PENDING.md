@@ -564,6 +564,33 @@ remainder would have been negative and the sign-extending `ldrsw` in both getter
 it into an enormous `NSUInteger` index. `rand()` returns a non-negative `int`, so the signed modulo
 is safe. The instruction selection alone does not tell you that — the imported symbol does.
 
+### `-[ChallengeMissionListCell setTitle:period:]` (0xa9e64) — both labels overhang their background
+
+Each label is placed at `x = bgView.frame.size.height / 2` and given `bgView.frame.size.width` as
+its width, so each one's right edge lands half the background's height past the background's right
+edge. The two are laid out by the same pair of instructions, once per label:
+
+```text
+1000a9f80: fmul d9,d3,d11        ; d9 = bgView height * 0.5   -> becomes the label's x
+...
+1000a9f9c: bl <[bgView frame]>   ; leaves d2 = bgView width   -> stays in v2 as the width
+1000a9fa4: scvtf d3,w8           ; d3 = labelHeight
+1000a9fbc: bl <initWithFrame:>   ; (d9, d10, d2, d3)
+```
+
+The `x` is not the mistake. `-setIconImage:selectedImage:` (0xaa248) centres the icon horizontally
+inside `bgView.frame.size.height / 2` — the same expression — so that value is the icon's column and
+starting the text after it is deliberate. What is missing is the matching reduction in width: it
+should be the background's width *less* that column, and it is the full width instead.
+
+Nothing clips it. The labels are subviews of the cell rather than of `bgView`, and a
+`UITableViewCell` does not clip by default, so the text simply runs on. Left-aligned text short
+enough to fit would never reveal it, which is presumably why it survived.
+
+Both labels are also built once and never re-laid-out: the frame is computed only inside the
+`if (!label)` arm, and a later call to the setter reaches `-setText:` alone. A row reused for a
+sheet with a period after one without still has its title on the single-line centre.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.
