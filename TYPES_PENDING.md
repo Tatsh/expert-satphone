@@ -512,6 +512,31 @@ and `-finishLoadWithResponse:` (0x250f54) are each a single `ret`, and `-redirec
 (0x250f58) is `mov w0,#0x0` then `ret`. The registration's outcome is therefore unobservable to
 anyone, which is presumably why the discarded argument was never noticed.
 
+### `StoreLeafletCell` (class at 0x350958) — unfinished scaffolding that shipped
+
+Not one defect but a class that was never finished, and four separate pieces of evidence say so
+rather than one ambiguous one:
+
+- The button's frame is `{100, 100, 100, 50}` — a constant, with the origin and the width all
+  loaded from the same pool slot at 0x28f3f0. The `frame` the initialiser is handed is passed to
+  `super` and then never consulted, so the control sits at the same place whatever size the row is.
+- The button is a bare `UIButtonTypeCustom` filled with `UIColor.blueColor` and captioned `open`
+  (CFString at 0x2e0840, four bytes at 0x2884e9). Nothing else in this tree uses an unmodified
+  primary blue.
+- `-opendetail` (0x1c5870) asks its delegate to open the literal `@"10001"` (CFString at 0x2e0860,
+  five bytes at 0x2884ee). The row holds no pack of its own to substitute.
+- The `isPad` ivar is written in the initialiser and never read. `get_xrefs_to` on its offset
+  global at 0x34ba40 returns exactly two results binary-wide: the ivar-list entry at 0x324f88 and
+  the single write at 0x1c5758.
+
+`-cache:willEvictObject:` (0x1c5928) is a lone `ret`, so the declared `NSCacheDelegate` conformance
+does nothing either. `-dealloc` (0x1c592c) is likewise empty — its only instruction is the super
+call, which is compiler-emitted, since the class has a `.cxx_destruct` at 0x1c5998 and is therefore
+ARC.
+
+The class is reconstructed faithfully, placeholder and all. It is recorded here so a later reader
+does not take the hardcoded pack identifier for a reconstruction error.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.
