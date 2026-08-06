@@ -28,9 +28,12 @@ cd ../recon-tools && uv run python ../jubeat-src/tools/progress.py \
 ```
 
 Excluded as never-hand-written: `.cxx_destruct`, which ARC emits to release strong ivars, and
-property accessors, which a `@property` declaration synthesises. Both are correctly *not* work.
+property accessors — but **only the synthesised ones**. A class can implement an accessor by hand,
+and then the whole routine is real work that a name-only test cannot see. The tool separates the two
+by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
+wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 117 of 5012 methods, 2.3%. 33 of 317 classes complete.**
+**As of the last run: 117 of 5036 methods, 2.3%. 32 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -94,7 +97,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/Md5Utilities.m` | Complete; a free function. |
 | `Project/LabUtilities.m` | Complete; a free function. Reaches `BFCodec`. |
 | `Project/ScratchUtil.m` | One of two known members. The API host is `agx11.s.konaminet.jp`. |
-| `Project/ScoreRecordManager.m` | **Complete.** Singleton plus the Core Data save. |
+| `Project/ScoreRecordManager.m` | Singleton plus the Core Data save. **Not complete**: three hand-written accessors remain at 0x1717a8, 0x171850, 0x171940. |
 | `Project/DetailTextView.m` | **Complete.** One method. |
 | `Project/UnselectableTextView.m` | **Complete.** One method. |
 | `Project/PagingScrollView.m` | **Complete.** One method. |

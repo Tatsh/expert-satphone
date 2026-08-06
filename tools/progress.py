@@ -9,19 +9,17 @@ Counts every method the runtime metadata declares, minus the ones no human wrote
 bodies present in the tree. Pass a class name to list that class's outstanding selectors.
 """
 
+import itertools
 import sys
 from collections import defaultdict
 from pathlib import Path
 
+from recon_tools.arm64 import INSTRUCTION_SIZE, body_length
 from recon_tools.macho import MachOBinary
-from recon_tools.objc import source_bodies
+from recon_tools.objc import TRIVIAL_INSTRUCTIONS, source_bodies
 
-# Never written by hand, so never outstanding work.
-#
-# .cxx_destruct is emitted by ARC to release a class's strong ivars and has no source form at all.
-# A property accessor is synthesised from the @property declaration, so declaring the property is
-# what implements it -- there is no body to write unless the binary implements one by hand, which
-# `rctool objc property-accessors` reports separately.
+# Never written by hand, so never outstanding work. ARC emits .cxx_destruct to release a class's
+# strong ivars and it has no source form at all.
 _COMPILER_GENERATED = ('.cxx_destruct',)
 
 
@@ -33,6 +31,33 @@ def _is_accessor(selector: str, properties: dict[str, str]) -> bool:
     return False
 
 
+def _hand_written_accessors(binary: MachOBinary, methods: dict[tuple[str, str, str], int],
+                            properties: dict[str, dict[str, str]]) -> set[tuple[str, str, str]]:
+    """
+    Find accessors the binary implements by hand rather than synthesising.
+
+    Declaring a @property satisfies the *selector*, so an accessor normally costs no source and is
+    correctly not work. But a class can implement one by hand, and then the whole routine is real
+    work that a name-only test cannot see -- `ScoreRecordManager` was reported complete while three
+    of its accessors, one of them 153 instructions, had never been written.
+
+    Size is what separates the two, and the gap is wide: a synthesised accessor is a handful of
+    instructions. The threshold is the same one `rctool objc property-accessors` uses.
+    """
+    addresses = sorted(set(methods.values()))
+    following = dict(itertools.pairwise(addresses))
+    out: set[tuple[str, str, str]] = set()
+    for (cls, kind, sel), address in methods.items():
+        if not _is_accessor(sel, properties.get(cls, {})):
+            continue
+        end = following.get(address)
+        if end is None:
+            continue
+        if body_length(binary, address, (end - address) // INSTRUCTION_SIZE) > TRIVIAL_INSTRUCTIONS:
+            out.add((cls, kind, sel))
+    return out
+
+
 def main() -> int:
     binary_path, tree_path = Path(sys.argv[1]), Path(sys.argv[2])
     only = sys.argv[3] if len(sys.argv) > 3 else None
@@ -42,12 +67,14 @@ def main() -> int:
     properties = binary.property_map()
     written = {(cls, kind, sel) for cls, kind, sel in source_bodies(tree_path)}
 
+    hand_written = _hand_written_accessors(binary, methods, properties)
+
     outstanding: dict[str, list[tuple[str, str, int]]] = defaultdict(list)
     total_real = 0
     for (cls, kind, sel), address in methods.items():
         if sel in _COMPILER_GENERATED:
             continue
-        if _is_accessor(sel, properties.get(cls, {})):
+        if _is_accessor(sel, properties.get(cls, {})) and (cls, kind, sel) not in hand_written:
             continue
         total_real += 1
         if (cls, kind, sel) not in written:
