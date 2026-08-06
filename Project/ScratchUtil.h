@@ -4,8 +4,14 @@
  * Reconstructed from Ghidra program Jubeat (class ScratchUtil, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: a stub grown outwards from its callers. The class object is at 0x3482a0.
- * Only the one member reached so far is declared.
+ * RECONSTRUCTION STATE: only the one member reached so far is recovered. The class object is at
+ * 0x3482a0 and has a sibling @c +pushNotificationIDSendURL at 0x180450 that nothing reconstructed
+ * reaches yet, so it is not declared.
+ *
+ * Class properties and bare class methods compile to the same single class method, so declaring
+ * @c pushNotificationResponseURL as a class property below claims nothing the binary contradicts.
+ * That is unlike an instance property, whose accessor pair is observable — see the note in
+ * TYPES_PENDING.md.
  */
 
 #import <Foundation/Foundation.h>
@@ -20,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The endpoint a push-notification receipt is reported to.
  *
- * The body at 0x180524 is straight-line code that formats a string and wraps it with
- * @c -[NSURL initWithString:]; the only path component it embeds is "/agx/api". DECLARED ONLY.
+ * Built in two formatting steps from four separate literals, and with no branch anywhere in the
+ * method — so the endpoint is fixed, with no staging or debug host to select between.
  * @ghidraAddress 0x180524
  */
 @property(class, nonatomic, readonly) NSURL *pushNotificationResponseURL;

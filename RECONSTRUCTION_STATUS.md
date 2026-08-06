@@ -41,6 +41,8 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/JubeatAppDelegate.m` | **Complete.** 62 methods, every one reached. |
 | `Project/Md5Utilities.m` | Complete; a free function. |
 | `Project/LabUtilities.m` | Complete; a free function. Reaches `BFCodec`. |
+| `Project/ScratchUtil.m` | One of two known members. The API host is `agx11.s.konaminet.jp`. |
+| `Project/RootViewController.m` | Five methods. `-fade:durationIn:durationOut:` is the last one declared without a body. |
 
 ## Next, in order
 
@@ -49,7 +51,6 @@ rough order of how much each unlocks:
 
 | Target | Address | Notes |
 | --- | --- | --- |
-| `+[ScratchUtil pushNotificationResponseURL]` | 0x180524 | Straight-line and small; will expose the server host the whole application talks to. |
 | `-[LogoViewController start]` | not located yet | The launch sequence continues here; class at 0x348a58. |
 | `Downloader` | class at 0x348250 | `-startDownloading` has 98 xrefs, so essentially every server call routes through it. |
 | `-[RootViewController fade:durationIn:durationOut:]` | not located yet | The last RootViewController member still declared without a body. |

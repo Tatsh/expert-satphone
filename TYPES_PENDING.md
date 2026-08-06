@@ -22,6 +22,11 @@ each entry below names the routine whose reconstruction will settle it.
   responseRemoteNotification:pushInfo:]` the one place that uses `setValue:forKey:` instead.
   Array subscripting is the opposite case: `objectAtIndexedSubscript:` is genuinely used by
   `-popNotification`, while every other indexed read sends `objectAtIndex:`.
+- Declare an **instance** property only when the binary has the accessor pair. An ivar-offset global
+  proves an ivar exists and gives its runtime name; it says nothing about a property wrapping it.
+  `RootViewController.musicSelectViewCtrl` was declared as a property on that evidence and had to be
+  demoted to an ivar. **Class** properties are the exception: they compile to a single class method
+  and are indistinguishable from one, so either spelling is defensible there.
 
 ## `JubeatAppDelegate`
 
@@ -74,7 +79,6 @@ would be indistinguishable from a reconstructed one.
 | `-[CJSONSerializer serializeDictionary:error:]` | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
 | `-[Downloader initWithURL:postJsonData:delegate:]` | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
 | `-[Downloader startDownloading]`          | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
-| `+[ScratchUtil pushNotificationResponseURL]` | `-responseRemoteNotification:pushInfo:` sends it | 0x180524 |
 | `-[BFCodec cipherInit:]`                 | `CreateLabEncryptedData` sends it      | 0x94a58   |
 | `-[BFCodec encipher:]`                   | `CreateLabEncryptedData` sends it      | 0x94aec   |
 | `+[MarkerManager moveMarkerDataInDoc]`    | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
