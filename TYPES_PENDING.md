@@ -836,6 +836,32 @@ The nil in the first call is the same idiom used correctly: nil is a reliable NO
 literal that gives a reliable YES this way, which is the trap — `-performSelector:withObject:` cannot
 pass a scalar, and the author appears to have reached for the nearest non-nil object.
 
+### `-[LogoViewController fireAnimation]` (0x828ec) — the age notice never fades out
+
+The splash is a state machine that runs one animation per call and passes itself as that
+animation's completion. Two of its eight arms cannot run, and the fade-out of the age-rating notice
+is one of them.
+
+The method opens with `cmp w8, #0x7` / `b.cc` at 0x82918, so anything from 7 upwards skips the
+switch entirely and goes to the branch that arms the end timer. The switch is therefore only ever
+entered with a value of 0 through 6. Its own bound is `cmp w8, #0x7` / `b.hi` at 0x82a2c and the
+jump table at 0x82df8 has eight entries, so the compiler emitted an arm for 7 that no path reaches.
+That arm — at 0x82d04, block at 0x82f90 — sets the notice's alpha back to 0 and steps to 8.
+
+The arm for 6 is dead for a different reason: nothing writes 6. Step 5 sets 7 directly
+(`orr w8, wzr, #0x7` at 0x82c9c), skipping it, and the only other writer is `-start`, which sets 0.
+Its table entry points at 0x82dd4, which is the epilogue, so the compiled arm does nothing but
+release the block and return.
+
+The visible consequence is that the age-rating notice fades in over half a second and then stays at
+full opacity until `-end:` tears the whole controller down three seconds later. Whether that is the
+intent or a missed step is not decidable from the binary; what is decidable is that the code to fade
+it out was written, compiled, and cannot execute.
+
+Both facts were read from the jump table's bytes rather than inferred from the branch structure.
+The decompile presents a `case 7` alongside a guard that excludes it and gives no hint that the two
+disagree.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.

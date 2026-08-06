@@ -44,10 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadView;
 
 /**
- * @brief Advances the logo animation one step.
+ * @brief Runs one step of the logo animation and schedules the next.
  *
- * DECLARED ONLY — the body has not been reconstructed yet. This is the state machine that drives
- * the @c state ivar.
+ * Each step animates one fade and passes itself as that animation's completion, so the sequence
+ * advances one step per finished animation rather than on a timer. Once the sequence is over this
+ * arms the timer that sends @c -end: .
  *
  * @ghidraAddress 0x828ec
  */
