@@ -176,6 +176,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)startLogo;
 /**
+ * @brief Takes the logo screen back down again.
+ *
+ * DECLARED ONLY — the body has not been reconstructed yet. Called by @c -[LogoViewController end:]
+ * once the splash animation has finished or been skipped.
+ * @ghidraAddress 0x1a7ad8
+ */
+- (void)endLogo;
+/**
  * @brief Reports a remote notification back to the server.
  *
  * POSTs a three-entry JSON dictionary — @c "user_id" from
