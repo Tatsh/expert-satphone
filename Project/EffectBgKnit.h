@@ -4,8 +4,6 @@
  * Reconstructed from Ghidra program Jubeat (class EffectBgKnit, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: two of three members written. @c -renderEffect is declared but not
- * reconstructed; see RECONSTRUCTION_STATUS.md for what is already known about it.
  */
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -66,8 +64,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Advances the animation by one frame and draws it.
  *
- * DECLARED ONLY — the body has not been reconstructed yet. Returns YES once the frame counter has
- * reached the effect's duration, so a caller can drop the sprite.
+ * Dispatches six ways on the effect type. Returns YES once the frame counter has reached the
+ * effect's duration, so a caller can drop the sprite. A type outside the six draws nothing but
+ * still ages, so it retires on schedule.
  * @ghidraAddress 0x1950c0
  */
 - (BOOL)renderEffect;
