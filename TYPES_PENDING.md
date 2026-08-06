@@ -273,6 +273,24 @@ reversed, so **descending**. Each index is therefore removed before any lower in
 Recorded because the safety is entirely in the comparator, four hundred instructions away from the
 removal, and a reader checking only the loop would reasonably conclude it was broken.
 
+### `TimerView` (class at 0x34f968) — an entire class that does nothing
+
+Not one method, but all of them. The class ships six ivars, a weak delegate property and four
+methods. Three of those methods — `-setTimeFont:`, `-setTimer:` and `-timerStart` — have bodies
+consisting of a single `ret`. The fourth, `-initWithFrame:`, calls `[super initWithFrame:]` and
+returns its result with nothing in between: no assignment to `self`, no nil check, no ivar setup.
+
+`startTime`, `endTime`, `currentTime`, `timer` and `timeText` are therefore never read and never
+written by anything. The only code that touches any of them is the compiler-generated
+`.cxx_destruct` at 0x15c924, which releases `timer` and `timeText` — neither of which can ever hold
+anything.
+
+Note that `-setTimer:` takes a `double`, per its `v24@0:8d16` encoding, so it is a duration rather
+than a setter for the `NSTimer` ivar that shares its name. Even the naming was never reconciled.
+
+Reproduced in full, empty bodies and all. A reader who finds this class and assumes the
+reconstruction is incomplete would be wrong, which is exactly why it is recorded here.
+
 ### `+[StickerUtility checkExistSticker:]` (0xdc690) — the argument is never read
 
 The method is encoded `B24@0:8@16`, so it takes an object and returns a boolean. The body never
