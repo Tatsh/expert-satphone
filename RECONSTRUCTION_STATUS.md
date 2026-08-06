@@ -163,7 +163,7 @@ rough order of how much each unlocks:
 
 | Target | Address | Notes |
 | --- | --- | --- |
-| `-[EffectBgKnit renderEffect]` | 0x1950c0 | Two of three members written; this one is left. Already known: it calls `-expand:totalFrame:max:` with a max of 1.5f, clamps the result to 1.0f, scales it by 0.15f into `s8`, then dispatches six ways on `type_` through the table at 0x195598 — cases at 0x195148, 0x1951ec, 0x1952b8, 0x1953a8, 0x195410 and 0x1954b8. The tail increments `frame_` and returns `frame_ >= totalFrame_`. A `type_` above 5 skips straight to that tail, so an out-of-range type animates and draws nothing but still ages. |
+| `-[EffectBgKnit renderEffect]` | 0x1950c0 | Two of three members written; this one is left. See the notes below — cases 0, 1 and 2 are already read, 3, 4 and 5 are not. |
 | `-[LogoViewController start]` | not located yet | The launch sequence continues here; class at 0x348a58. |
 | `AudioManager` | class at 0x348038 | 357 xrefs, the most of any class reached. Every sound goes through it. |
 | `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds. |
@@ -171,6 +171,45 @@ rough order of how much each unlocks:
 | `Downloader` | class at 0x348250 | `-startDownloading` has 98 xrefs, so essentially every server call routes through it. |
 | `PurchaseManager` | class at 0x348100 | Four launch-time entry points plus `-end`. 81 xrefs, so this is the largest unstarted class. |
 | `MarkerManager`, `TweetResourceManager`, `StoreMusicListManager` | 0x3480d0, 0x3480d8, 0x348108 | Declared-only stubs; each has two or three known members. |
+
+### `-[EffectBgKnit renderEffect]` — what is already established
+
+Recorded so the next session starts from facts. All of this is read from the disassembly, not the
+decompile.
+
+**Shape.** `expandValue = [self expand:frame_ totalFrame:totalFrame_ max:1.5f]`, clamped with
+`fmin` to 1.0f, then multiplied by 0.15f into `s8`. `type_` above 5 branches straight to the tail,
+so an out-of-range type draws nothing but still ages. The tail is `++frame_` then
+`return frame_ >= totalFrame_`. The six-way table is at 0x195598 with cases at 0x195148, 0x1951ec,
+0x1952b8, 0x1953a8, 0x195410 and 0x1954b8.
+
+**The drawing call.** Every case ends in
+`-[Texture2D drawSprite:atPoint:scale:rotate:anchor:transform:alpha:]` at 0xeb28, whose encoding is
+`v72@0:8Q16{CGPoint=dd}24f40f44{CGPoint=dd}48c64f68`:
+
+| Argument | Type | Register |
+| --- | --- | --- |
+| `drawSprite:` | `NSUInteger` | `x2` |
+| `atPoint:` | `CGPoint` | `d0`, `d1` |
+| `scale:` | `float` | `s2` |
+| `rotate:` | `float` | `s3` |
+| `anchor:` | `CGPoint` | `d4`, `d5` |
+| `transform:` | `char` | `w3` |
+| `alpha:` | `float` | `s6` |
+
+The mixed float/double split is the thing to be careful with: the two points are doubles while
+scale, rotate and alpha are singles, so the argument registers interleave rather than run in order.
+
+**Case 0** (0x195148), read in full: sprite index is `frame_ % totalFrame_ + 11`; point and anchor
+are both `drawPos_`; scale is `wmax_ / 100.0f`; rotate is `move_ / 180.0f * M_PI` computed by
+widening to double for the multiply and narrowing back; transform is 0; alpha is 0.3f.
+
+**Constants** already decoded: 100.0f at 0x28f4e0, 180.0f at 0x28f538, π (double) at 0x28f278, 0.3f
+at 0x28e0b0, 0.2f at 0x28f3c8, −50.0f at 0x293a8c, 0.15f at 0x293a88.
+
+Cases 1 and 2 additionally call `InterpolateFloatByFrame` before drawing, and case 1 draws twice —
+once with `w2 = 4` and once with `w2 = 5` after adding 100 to `move_`. Cases 3, 4 and 5 have not
+been read.
 
 The pattern that has held for every method so far still applies: read the whole routine's
 disassembly before writing any of it, and resolve every constant from memory rather than from the
