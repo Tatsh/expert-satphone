@@ -4,6 +4,8 @@
 
 #include <sys/sysctl.h>
 
+#import <Security/Security.h>
+
 #import <GameKit/GameKit.h>
 
 #import "ChallengeStatus.h"
@@ -35,6 +37,10 @@ static NSString *const kThemePreferenceKey = @"PrefTheme";
 
 // The user-defaults key the copious marker unlock is recorded under, from the CFString at 0x2d42a0.
 static NSString *const kCopiousUnlockedPreferenceKey = @"PrefCopiousUnlocked";
+
+// The keychain account the per-install identifier is stored under, from the CFString at 0x2d42c0.
+// Its name says what the value really is, unlike the -musicListKey selector that returns it.
+static NSString *const kKeychainAccountName = @"ApplicationUniqueID";
 
 // The salt appended to the music-list key before hashing, from the CFString at 0x2d4180.
 static NSString *const kClientInfoUuidSalt = @"STORE";
@@ -237,6 +243,90 @@ enum {
 - (void)rewardEnable {
     // Latched on only, like -markerDownloadComplete.
     _bEnableReward = YES;
+}
+
+#pragma mark - Install identifier
+
+- (NSString *)musicListKey {
+    NSString *service = NSBundle.mainBundle.bundleIdentifier;
+
+    NSString *queryKeys[] = {
+        (__bridge NSString *)kSecClass,
+        (__bridge NSString *)kSecAttrAccount,
+        (__bridge NSString *)kSecAttrService,
+        (__bridge NSString *)kSecMatchLimit,
+        (__bridge NSString *)kSecReturnAttributes,
+    };
+    id queryValues[] = {
+        (__bridge id)kSecClassGenericPassword,
+        kKeychainAccountName,
+        service,
+        (__bridge id)kSecMatchLimitOne,
+        (__bridge id)kCFBooleanTrue,
+    };
+    NSDictionary *query = [NSDictionary dictionaryWithObjects:queryValues
+                                                      forKeys:queryKeys
+                                                        count:sizeof(queryKeys) /
+                                                              sizeof(queryKeys[0])];
+
+    // The branch at 0x8970 is cbz on an OSStatus, so zero is errSecSuccess and this is the
+    // item-found arm.
+    CFTypeRef attributes = NULL;
+    if (SecItemCopyMatching((__bridge CFDictionaryRef)query, &attributes) == errSecSuccess) {
+        // The found attributes are reused as the basis of a second query that asks for the payload.
+        NSMutableDictionary *fetch =
+            [NSMutableDictionary dictionaryWithDictionary:(__bridge NSDictionary *)attributes];
+        fetch[(__bridge NSString *)kSecClass] = (__bridge id)kSecClassGenericPassword;
+        fetch[(__bridge NSString *)kSecReturnData] = (__bridge id)kCFBooleanTrue;
+        CFRelease(attributes);
+
+        CFTypeRef payload = NULL;
+        NSString *stored = nil;
+        if (SecItemCopyMatching((__bridge CFDictionaryRef)fetch, &payload) == errSecSuccess) {
+            NSData *bytes = (__bridge NSData *)payload;
+            stored = [[NSString alloc] initWithBytes:bytes.bytes
+                                              length:bytes.length
+                                            encoding:NSUTF8StringEncoding];
+        }
+        if (stored != nil) {
+            return stored;
+        }
+        // A present-but-undecodable payload falls through and mints a replacement, rather than
+        // returning nil. The branch back to the create path is the cbz at 0x8bec.
+    }
+
+    CFUUIDRef uuid = CFUUIDCreate(NULL);
+    CFStringRef uuidString = CFUUIDCreateString(NULL, uuid);
+    NSString *key = [NSString stringWithString:(__bridge NSString *)uuidString];
+    CFRelease(uuidString);
+    CFRelease(uuid);
+
+    NSString *addKeys[] = {
+        (__bridge NSString *)kSecClass,
+        (__bridge NSString *)kSecAttrAccount,
+        (__bridge NSString *)kSecAttrService,
+        (__bridge NSString *)kSecAttrLabel,
+        (__bridge NSString *)kSecAttrDescription,
+        (__bridge NSString *)kSecAttrAccessible,
+        (__bridge NSString *)kSecValueData,
+    };
+    id addValues[] = {
+        (__bridge id)kSecClassGenericPassword,
+        kKeychainAccountName,
+        service,
+        @"",
+        @"",
+        (__bridge id)kSecAttrAccessibleAfterFirstUnlock,
+        [key dataUsingEncoding:NSUTF8StringEncoding],
+    };
+    // The result of SecItemAdd is discarded: a failure to persist is not reported and the freshly
+    // minted key is returned regardless.
+    SecItemAdd((__bridge CFDictionaryRef)[NSDictionary dictionaryWithObjects:addValues
+                                                                    forKeys:addKeys
+                                                                      count:sizeof(addKeys) /
+                                                                            sizeof(addKeys[0])],
+               NULL);
+    return key;
 }
 
 #pragma mark - Validation

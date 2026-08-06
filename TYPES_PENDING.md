@@ -49,24 +49,6 @@ would be indistinguishable from a reconstructed one.
 
 | Declaration                              | Why it is declared                    | Body at   |
 | ---------------------------------------- | ------------------------------------- | --------- |
-| `-[JubeatAppDelegate musicListKey]`      | `+clientInfo` sends it                | 0x8814    |
-
-### Note on `-musicListKey` (0x8814)
-
-Partially read — 400 of its 1060 bytes — and deliberately **not** written from that partial read.
-What the first 400 bytes establish, which is already enough to correct a misreading elsewhere:
-
-- It is **Keychain-backed**, not derived from any music list. It builds a five-entry query
-  dictionary with `+dictionaryWithObjects:forKeys:count:` out of Security framework constants
-  (`kSecClass` @0x2c8258, `kSecAttrAccount` @0x2c8220, and four more) and calls
-  `SecItemCopyMatching` at 0x896c.
-- The branch at 0x8970 is `cbz w0`, and `w0` there is an `OSStatus`. Zero is `errSecSuccess`, so
-  the **jump** is the found case and the **fall-through** is the not-found case.
-- The not-found path calls `CFUUIDCreate` then `CFUUIDCreateString` at 0x8978 and 0x8988, so a
-  missing entry mints a fresh UUID.
-
-So the value is a per-install identifier persisted in the keychain, and it survives app deletion the
-way keychain items do. The remaining 660 bytes hold the store-back and the return path.
 | `CreateMd5HexStringFromCString`          | `+clientInfo` calls it                | 0x7f168   |
 | `-[RootViewController changeThemeAndGoTitle]` | `-changeTheme:` sends it         | 0x1a8a68  |
 | `-[RootViewController changeTitleTheme]` | `-switchTitleEvent` sends it          | not located yet |

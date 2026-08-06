@@ -478,10 +478,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)enableCopiousMarkers;
 
 /**
- * @brief The key identifying the installed music list.
+ * @brief The per-install identifier, persisted in the keychain.
  *
- * DECLARED ONLY. The body at 0x8814 is about a kilobyte and has not been reconstructed yet; it is
- * declared here because @c +clientInfo sends it. See TYPES_PENDING.md.
+ * The selector name is misleading and is the binary's own: this has nothing to do with any music
+ * list. It looks up a generic-password item keyed on the account "ApplicationUniqueID" and the
+ * bundle identifier as the service, and returns its stored UTF-8 payload. When the item is absent,
+ * or is present but its payload does not decode, it mints a fresh @c CFUUID, adds it to the
+ * keychain, and returns that.
+ *
+ * Because the item is stored with @c kSecAttrAccessibleAfterFirstUnlock and never deleted, the
+ * value survives reinstalling the application, which is what makes @c +clientInfo's "uuid" entry a
+ * stable per-install identifier.
  * @ghidraAddress 0x8814
  */
 - (NSString *)musicListKey;
