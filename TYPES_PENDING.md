@@ -91,6 +91,7 @@ These are not `id`, but are less specific than the binary may allow and should b
 | `RootViewController.editViewCtrl`       | `UIViewController` | as above. It responds to the same `-loadResources`/`-startAnimation`/`-terminate`/`-releaseResources` set as `gameViewCtrl`, so the two share an interface |
 | `KnitColorManager.setColorWithArray:`   | `NSArray`          | the manager's own body; the delegate passes its argument straight through |
 | `CustomSequencePageNavViewController.delegate` | `id`      | nothing reconstructed sends it anything yet, so no protocol is proven. Held weakly via `objc_storeWeak` |
+| `StorePackView.delegate`                | `id`               | as above; `-[StoreTableCell dealloc]` only clears it |
 
 ## Declared without a body
 
