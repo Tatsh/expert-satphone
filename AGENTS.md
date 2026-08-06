@@ -22,6 +22,15 @@ and use each product's own mechanics for attaching repo context where needed.
 | [toml-ini](.claude/rules/toml-ini.md)           | TOML and INI files                         |
 | [markdown](.claude/rules/markdown.md)           | Markdown files                             |
 
+## Pending types
+
+A declaration typed `id` in this tree means "the concrete class is not established yet", never "the
+binary is genuinely dynamic here". Every such declaration **must** have a row in
+[TYPES_PENDING.md](TYPES_PENDING.md) naming the routine whose reconstruction will settle it, added
+in the same commit that introduces the `id`, and removed in the same commit that replaces it. The
+same applies to a type deliberately weakened to a base class. Leaving a placeholder untracked is how
+a wrong-but-compiling type survives, which the reconstruction rules treat as a defect.
+
 ## Relationship to `rbplus-src`
 
 This tree is the jubeat counterpart of the sibling `rbplus-src` reconstruction, and it inherits that

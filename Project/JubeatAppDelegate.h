@@ -30,6 +30,14 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Identification
 
 /**
+ * @brief The shared application's delegate.
+ *
+ * The binary forwards @c -[UIApplication delegate] unchanged without a class check; the concrete
+ * type is stated here because that is what it is at runtime and what every caller relies on.
+ * @ghidraAddress 0x7cf4
+ */
+@property(class, nonatomic, readonly, nullable) JubeatAppDelegate *appDelegate;
+/**
  * @brief The device model identifier, for example @c "iPhone9,3".
  *
  * Reads @c hw.machine through @c sysctlbyname and wraps it in an @c NSString; when the sysctl
@@ -37,6 +45,37 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x7f78
  */
 @property(class, nonatomic, readonly) NSString *deviceName;
+/**
+ * @brief The application version.
+ *
+ * Surprising but faithful: this is not read from the bundle's Info.plist. The binary builds it from
+ * a hardcoded C string literal at 0x27dc66, whose bytes are "3.9.11", with
+ * @c -initWithCString:encoding: at UTF-8 (encoding 4).
+ * @ghidraAddress 0x7e58
+ */
+@property(class, nonatomic, readonly) NSString *appVersion;
+
+#pragma mark - Standard directories
+
+/**
+ * @brief The user Library directory.
+ *
+ * @c NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) followed by
+ * @c -lastObject. The directory constant 5 and the domain mask 1 were read from the immediate
+ * @c mov instructions at 0x7d5c-0x7d64.
+ * @ghidraAddress 0x7d50
+ */
+@property(class, nonatomic, readonly) NSString *appLibraryDirectory;
+/**
+ * @brief The user Documents directory. The directory constant is 9 (@c NSDocumentDirectory).
+ * @ghidraAddress 0x7da8
+ */
+@property(class, nonatomic, readonly) NSString *appDocumentsDirectory;
+/**
+ * @brief The user Caches directory. The directory constant is 13 (@c NSCachesDirectory).
+ * @ghidraAddress 0x7e00
+ */
+@property(class, nonatomic, readonly) NSString *appCachesDirectory;
 
 #pragma mark - Root view controller
 
@@ -61,13 +100,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly) NSString *userAgent;
 /**
- * @brief The device model description reported to the servers.
+ * @brief The device idiom and screen class this build has classified the device as.
  *
- * Backed by @c _deviceType (0x349600). An object by load width; its concrete class is not yet
- * proven, as the writer has not been reconstructed.
+ * Backed by @c _deviceType (0x349600). This is an INTEGER, not an object, despite the getter
+ * loading a full 64-bit word: the four predicates below load the same ivar and compare it against
+ * the small constants 1 to 7, which only makes sense for a scalar. It is 8 bytes wide, so it is
+ * spelled @c NSInteger.
+ *
+ * The individual values are not named here because the binary never names them; what is proven is
+ * the set membership each predicate tests. The writer has not been reconstructed yet, so the
+ * enumeration's spelling is deliberately left open.
  * @ghidraAddress 0xb878 (getter)
  */
-@property(nonatomic, readonly) id deviceType;
+@property(nonatomic, readonly) NSInteger deviceType;
 /**
  * @brief The APNs device token, retained as received.
  *
@@ -77,6 +122,38 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xbaf0 (getter)
  */
 @property(nonatomic, readonly) id deviceToken;
+
+#pragma mark - Device idiom predicates
+
+/**
+ * @brief Whether this is an iPad.
+ *
+ * Computed as @c (deviceType @c | @c 1) @c == @c 7, so it is true for device types 6 and 7. The
+ * @c orr with 1 folds the pair into a single comparison.
+ * @ghidraAddress 0x82c0
+ */
+@property(nonatomic, readonly) BOOL isPad;
+/**
+ * @brief Whether this is a retina iPhone.
+ *
+ * Computed as @c (deviceType @c - @c 1) @c < @c 5 unsigned, so it is true for device types 1 to 5.
+ * @ghidraAddress 0x82dc
+ */
+@property(nonatomic, readonly) BOOL isPhoneRetina;
+/**
+ * @brief Whether the screen has the taller four-inch aspect ratio.
+ *
+ * Computed as @c (deviceType @c - @c 2) @c < @c 4 unsigned, so it is true for device types 2 to 5.
+ * @ghidraAddress 0x82f8
+ */
+@property(nonatomic, readonly) BOOL is4inchAspect;
+/**
+ * @brief Whether this is a retina iPad.
+ *
+ * Computed as @c deviceType @c == @c 7 exactly, which is the narrower half of @c isPad.
+ * @ghidraAddress 0x8314
+ */
+@property(nonatomic, readonly) BOOL isPadRetina;
 
 #pragma mark - Game Center
 
