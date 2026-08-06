@@ -58,6 +58,10 @@ would be indistinguishable from a reconstructed one.
 | `-[ChallengeStatus restCoinNum]`         | `-createCoinNotification` sends it    | not located yet |
 | `-[ChallengeStatus getTimeLeft:]`        | `-createCoinNotification` sends it    | not located yet |
 | `-[ChallengeStatus coinRestDate]`        | `-createCoinNotification` sends it    | not located yet |
+| `+[EditorIDManager getEditorIDKey]`      | `+isExistEditorID` sends it           | not located yet |
+| `+[EditorIDManager getEditorPassKey]`    | `+isExistEditorID` sends it           | not located yet |
+| `+[EditorIDManager getKeyQuery:]`        | `+isExistEditorID` sends it           | not located yet |
+| `+[EditorIDManager deleteKeychain]`      | `+isExistEditorID` sends it           | not located yet |
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
 | `+[ScoreRecordManager sharedManager]`    | `-applicationWillTerminate:` sends it | not located yet |
 
