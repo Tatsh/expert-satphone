@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **100 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **102 annotated, 0
 mismatched, 0 selectors absent.**
 
 ## Measured progress
@@ -30,7 +30,7 @@ cd ../recon-tools && uv run python ../jubeat-src/tools/progress.py \
 Excluded as never-hand-written: `.cxx_destruct`, which ARC emits to release strong ivars, and
 property accessors, which a `@property` declaration synthesises. Both are correctly *not* work.
 
-**As of the last run: 95 of 5012 methods, 1.9%. 21 of 317 classes complete.**
+**As of the last run: 97 of 5012 methods, 1.9%. 23 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -104,6 +104,8 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/ApplilinkMessage.m` | **Complete.** One method. Six keys here against the sibling's two. |
 | `Project/MusicListScroll.m` | **Complete.** Two methods. |
 | `Project/StoreDetailCopyrightCell.m` | **Complete.** One method. |
+| `Project/StoreManageTableViewCell.m` | **Complete.** One method. |
+| `Project/CustomSequencePageNavViewController.m` | **Complete.** One method. |
 | `Project/RootViewController.m` | Twelve methods: both fade dispatchers, both store callbacks, the theme factory. |
 
 ## Next, in order
