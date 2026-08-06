@@ -57,7 +57,7 @@ would be indistinguishable from a reconstructed one.
 | `-[KnitColorManager setColorWithType:]`  | `-switchTitleEvent` sends it          | not located yet |
 | `-[ChallengeStatus createCoinNotification]` | `-applicationDidEnterBackground:` sends it | not located yet |
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
-| `-[ScoreRecordManager saveRecords]`      | `-applicationWillTerminate:` sends it | not located yet |
+| `+[ScoreRecordManager sharedManager]`    | `-applicationWillTerminate:` sends it | not located yet |
 
 ## Defects found in the binary
 
