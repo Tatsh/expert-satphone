@@ -4,6 +4,17 @@
 
 #import "SEManager.h"
 
+// -loadBgmResAAC:inDirectory: only ever looks for this extension.
+static NSString *const kBgmResourceExtension = @"m4a";
+
+// The fade timer ticks at this rate, and it doubles as the threshold below which a requested fade
+// is not worth running.
+static const NSTimeInterval kFadeTickInterval = 0.1; // @ghidraAddress 0x28f290
+
+// What -startBgm:fadeTime: passes to -setNumberOfLoops: for a looping track. Not AVAudioPlayer's
+// documented -1 for "forever", just a number large enough that it never runs out.
+static const NSInteger kBgmLoopForever = 2000000000;
+
 @implementation AudioManager {
     // Declared in this order by the runtime metadata; the ivar offset globals sit in a different
     // order again, and the offsets are what the code indexes by.
@@ -11,11 +22,13 @@
     AVAudioPlayer *pushedBgmPlayer; // offset global 0x349f40
     float pushedBgmVolume;          // offset global 0x349f18
     BOOL fadeInOrOut;               // offset global 0x349f30
-    NSTimer *fadeTimer;             // offset global 0x349f2c
-    double fadeInterval;            // offset global 0x349f38
-    double fadeDuration;            // offset global 0x349f34
-    SEManager *seManager;           // offset global 0x349f20
-    BOOL isBgmSuspended;            // offset global 0x349f3c
+    // Weak, from the objc_loadWeakRetained in -startBgm:fadeTime: and -onFadeinTimer: and the
+    // objc_storeWeak that clears it. The run loop owns a scheduled timer, so this does not.
+    __weak NSTimer *fadeTimer; // offset global 0x349f2c
+    double fadeInterval;       // offset global 0x349f38
+    double fadeDuration;       // offset global 0x349f34
+    SEManager *seManager;      // offset global 0x349f20
+    BOOL isBgmSuspended;       // offset global 0x349f3c
 }
 
 /** @ghidraAddress 0x77d28 */
@@ -59,6 +72,123 @@
 /** @ghidraAddress 0x78104 */
 - (void)stopAllSe {
     [seManager stopAll];
+}
+
+#pragma mark - Background music loading
+
+/** @ghidraAddress 0x7811c */
+- (BOOL)loadBgmFile:(NSString *)path {
+    if (!path) {
+        return NO;
+    }
+    // The old player goes before the new one is built, so a failed load leaves nothing loaded.
+    _bgmPlayer = nil;
+
+    NSError *error = nil;
+    _bgmPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:path]
+                                                        error:&error];
+    // The test is on the error, not on the player. A player that came back nil without setting an
+    // error would be kept and reported as a success.
+    if (error) {
+        _bgmPlayer = nil;
+        return NO;
+    }
+    _bgmPlayer.delegate = self;
+    [_bgmPlayer prepareToPlay];
+    return YES;
+}
+
+/** @ghidraAddress 0x78248 */
+- (BOOL)loadBgmResAAC:(NSString *)name inDirectory:(NSString *)directory {
+    if (!name) {
+        return NO;
+    }
+    // The extension is fixed, so this only ever finds AAC in an m4a container.
+    NSString *path = directory ?
+                         [NSBundle.mainBundle pathForResource:name
+                                                       ofType:kBgmResourceExtension
+                                                  inDirectory:directory] :
+                         [NSBundle.mainBundle pathForResource:name ofType:kBgmResourceExtension];
+    return [self loadBgmFile:path];
+}
+
+/** @ghidraAddress 0x7834c */
+- (BOOL)loadBgmData:(NSData *)data {
+    if (!data) {
+        return NO;
+    }
+    _bgmPlayer = nil;
+
+    NSError *error = nil;
+    _bgmPlayer = [[AVAudioPlayer alloc] initWithData:data error:&error];
+    // Same error-not-player test as -loadBgmFile:.
+    if (error) {
+        _bgmPlayer = nil;
+        return NO;
+    }
+    _bgmPlayer.delegate = self;
+    [_bgmPlayer prepareToPlay];
+    return YES;
+}
+
+#pragma mark - Background music playback
+
+/** @ghidraAddress 0x7846c */
+- (void)startBgm:(BOOL)loop fadeTime:(double)fadeTime {
+    // Does nothing without a loaded player, and nothing if one is already playing.
+    if (!_bgmPlayer || _bgmPlayer.playing) {
+        return;
+    }
+
+    _bgmPlayer.numberOfLoops = loop ? kBgmLoopForever : 0;
+
+    if (_interrupted) {
+        // Remembered rather than played; -appDidBecomeActive: is what resumes it.
+        isBgmSuspended = YES;
+        return;
+    }
+
+    // A fade shorter than one tick is not worth running, so it becomes an immediate start.
+    if (fadeTime <= kFadeTickInterval) {
+        _bgmPlayer.volume = bgmVolume;
+        [_bgmPlayer play];
+        return;
+    }
+
+    if (fadeTimer) {
+        [fadeTimer invalidate];
+    }
+    fadeInOrOut = YES;
+    _bgmPlayer.volume = 0.0f;
+    // Elapsed time, despite the name; fadeInterval is the total. The two read backwards.
+    fadeDuration = 0.0;
+    fadeInterval = fadeTime;
+
+    fadeTimer = [NSTimer timerWithTimeInterval:kFadeTickInterval
+                                        target:self
+                                      selector:@selector(onFadeinTimer:)
+                                      userInfo:nil
+                                       repeats:YES];
+    [_bgmPlayer play];
+    [NSRunLoop.currentRunLoop addTimer:fadeTimer forMode:NSRunLoopCommonModes];
+}
+
+/** @ghidraAddress 0x78690 */
+- (void)onFadeinTimer:(NSTimer *)timer {
+    // A timer that is not the current one is a leftover from a superseded fade.
+    if (fadeTimer != timer) {
+        return;
+    }
+
+    fadeDuration += kFadeTickInterval;
+    if (fadeDuration < fadeInterval) {
+        _bgmPlayer.volume = (float)(fadeDuration * bgmVolume / fadeInterval);
+        return;
+    }
+
+    _bgmPlayer.volume = bgmVolume;
+    [fadeTimer invalidate];
+    fadeTimer = nil;
 }
 
 #pragma mark - Background music position

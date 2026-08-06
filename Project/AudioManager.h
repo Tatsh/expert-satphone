@@ -11,8 +11,8 @@
  * initialiser builds. What this class owns is the one BGM player, its volume, and the fade timer
  * that moves between them.
  *
- * RECONSTRUCTION STATE: twelve of thirty-two members written. The loading, fading, and
- * interruption handling are declared but not reconstructed; see RECONSTRUCTION_STATUS.md.
+ * RECONSTRUCTION STATE: seventeen of thirty-two members written. The fade out, push/pop, and
+ * interruption callbacks are declared but not reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
 #import <AVFoundation/AVFoundation.h>
@@ -127,10 +127,9 @@ NS_ASSUME_NONNULL_BEGIN
  * DECLARED ONLY — the body has not been reconstructed yet.
  *
  * @param path The file to play.
- * @return The player the effect is running on.
  * @ghidraAddress 0x77ea0
  */
-- (nullable AVAudioPlayer *)playSeFile:(nullable NSString *)path;
+- (void)playSeFile:(nullable NSString *)path;
 
 /**
  * @brief Plays a sound effect from a bundle resource.
@@ -139,11 +138,9 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param name The resource name.
  * @param directory The bundle subdirectory.
- * @return The player the effect is running on.
  * @ghidraAddress 0x77f50
  */
-- (nullable AVAudioPlayer *)playSeResFile:(nullable NSString *)name
-                              inDirectory:(nullable NSString *)directory;
+- (void)playSeResFile:(nullable NSString *)name inDirectory:(nullable NSString *)directory;
 
 /**
  * @brief Plays a sound effect from data already in memory.
@@ -151,15 +148,14 @@ NS_ASSUME_NONNULL_BEGIN
  * DECLARED ONLY — the body has not been reconstructed yet.
  *
  * @param data The encoded audio.
- * @return The player the effect is running on.
  * @ghidraAddress 0x78040
  */
-- (nullable AVAudioPlayer *)playSeData:(nullable NSData *)data;
+- (void)playSeData:(nullable NSData *)data;
 
 /**
  * @brief Loads background music from a file path.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Drops any previous player first, so a failed load leaves nothing loaded.
  *
  * @param path The file to load.
  * @return @c YES when the music loaded.
@@ -170,7 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Loads background music from a bundled AAC resource.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * The extension is fixed at @c m4a , so this only ever finds AAC.
  *
  * @param name The resource name.
  * @param directory The bundle subdirectory.
@@ -182,8 +178,6 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Loads background music from data already in memory.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
- *
  * @param data The encoded audio.
  * @return @c YES when the music loaded.
  * @ghidraAddress 0x7834c
@@ -193,18 +187,19 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Starts the background music, optionally fading it in.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Does nothing when no player is loaded or one is already playing. During an interruption the
+ * request is remembered rather than played.
  *
- * @param volume The volume to reach.
- * @param fadeTime How long the fade in takes, or zero for none.
+ * @param loop Whether the track repeats.
+ * @param fadeTime How long the fade in takes; a value at or below the tick interval skips it.
  * @ghidraAddress 0x7846c
  */
-- (void)startBgm:(float)volume fadeTime:(double)fadeTime;
+- (void)startBgm:(BOOL)loop fadeTime:(double)fadeTime;
 
 /**
  * @brief Advances a fade in by one tick.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Ignores a timer that is not the current one, which is how a superseded fade is discarded.
  *
  * @param timer The driving timer.
  * @ghidraAddress 0x78690
@@ -234,9 +229,10 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * DECLARED ONLY — the body has not been reconstructed yet.
  *
+ * @return @c YES when something was restored.
  * @ghidraAddress 0x7894c
  */
-- (void)popBgm;
+- (BOOL)popBgm;
 
 /**
  * @brief Fades the background music out over a time.
@@ -273,10 +269,10 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * DECLARED ONLY — the body has not been reconstructed yet.
  *
- * @param player The player to release.
+ * @param stopFirst Whether the player is stopped before being dropped.
  * @ghidraAddress 0x78cb0
  */
-- (void)releaseBgm:(nullable AVAudioPlayer *)player;
+- (void)releaseBgm:(BOOL)stopFirst;
 
 /**
  * @brief Called back when the application returns to the foreground.
