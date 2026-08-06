@@ -4,9 +4,9 @@
  * Reconstructed from Ghidra program Jubeat (class ChallengeStatus, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: a stub grown outwards from its callers. Only the members reached so far are
- * declared — the class object is referenced from 0x348150 and has 116 cross-references, so the bulk
- * of it is still unrecovered.
+ * RECONSTRUCTION STATE: grown outwards from its callers. The class object at 0x348150 has 116
+ * cross-references, so most of it is still unrecovered. Only the members reached so far are
+ * declared, and several are declared without a body — see TYPES_PENDING.md.
  */
 
 #import <Foundation/Foundation.h>
@@ -14,7 +14,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Shared state for the challenge mode.
+ * @brief Shared state for the challenge mode, including the play-coin economy.
  */
 @interface ChallengeStatus : NSObject
 
@@ -22,14 +22,52 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief The shared instance.
  *
  * The selector is @c sharedStatus rather than the @c sharedManager this binary uses elsewhere.
+ * DECLARED ONLY — the body has not been located yet.
  */
 @property(class, nonatomic, readonly) ChallengeStatus *sharedStatus;
 
 /**
- * @brief Schedules the local notification that tells the player their coins have refilled.
+ * @brief Whether the challenge state has been loaded.
  *
- * Called from @c -[JubeatAppDelegate applicationDidEnterBackground:] at 0xb714, which is its only
- * call site in the binary.
+ * Backed by @c _bInitialized (offset global 0x34baac). @c -createCoinNotification returns
+ * immediately when it is clear.
+ */
+@property(nonatomic, readonly) BOOL bInitialized;
+/**
+ * @brief The number of play coins the player currently holds. Backed by @c _coinNum (0x34bb04).
+ */
+@property(nonatomic, readonly) int coinNum;
+/**
+ * @brief The maximum number of play coins. Backed by @c _coinLim (0x34bb00).
+ */
+@property(nonatomic, readonly) int coinLim;
+/**
+ * @brief Seconds one coin takes to regenerate. Backed by @c coinRestTime (0x34bafc), a @c double.
+ */
+@property(nonatomic, readonly) double coinRestTime;
+/**
+ * @brief The moment the current coin's regeneration started.
+ *
+ * DECLARED ONLY — the body has not been located yet.
+ */
+@property(nonatomic, readonly, nullable) NSDate *coinRestDate;
+
+/**
+ * @brief Recomputes the coin count from elapsed time. DECLARED ONLY.
+ */
+- (int)restCoinNum;
+/**
+ * @brief Seconds remaining until the given date. DECLARED ONLY.
+ */
+- (double)getTimeLeft:(nullable NSDate *)date;
+
+/**
+ * @brief Schedules the local notification announcing that play coins have refilled.
+ *
+ * Called from @c -[JubeatAppDelegate applicationDidEnterBackground:], its only call site. Returns
+ * without scheduling when the state is not initialised or when the coin count is not below the
+ * limit.
+ * @ghidraAddress 0x1cd874
  */
 - (void)createCoinNotification;
 

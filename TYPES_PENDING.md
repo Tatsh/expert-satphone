@@ -54,7 +54,10 @@ would be indistinguishable from a reconstructed one.
 | `-[RootViewController changeTitleTheme]` | `-switchTitleEvent` sends it          | not located yet |
 | `-[RootViewController reloadMarkers]`    | `-enableCopiousMarkers` sends it      | not located yet |
 | `-[KnitColorManager setColorWithArray:]` | `-setKnitColor:` sends it             | not located yet |
-| `-[ChallengeStatus createCoinNotification]` | `-applicationDidEnterBackground:` sends it | not located yet |
+| `+[ChallengeStatus sharedStatus]`        | `-applicationDidEnterBackground:` sends it | not located yet |
+| `-[ChallengeStatus restCoinNum]`         | `-createCoinNotification` sends it    | not located yet |
+| `-[ChallengeStatus getTimeLeft:]`        | `-createCoinNotification` sends it    | not located yet |
+| `-[ChallengeStatus coinRestDate]`        | `-createCoinNotification` sends it    | not located yet |
 | `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
 | `+[ScoreRecordManager sharedManager]`    | `-applicationWillTerminate:` sends it | not located yet |
 
