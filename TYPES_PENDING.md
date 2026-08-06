@@ -729,6 +729,37 @@ not reconstructed yet — but the author evidently did not trust it to, on one f
 unlocked path. A locked item keeps whatever the entry said, an unlocked one always reports zero, so
 the field only ever carries the entry's value for items the player cannot have.
 
+### `-[SEManager play:]` (0x790ec) — the one unlocked access to a locked set
+
+Four of the class's five real methods bracket their use of `playingSEs` with `objc_sync_enter` /
+`objc_sync_exit` on the set itself. `-play:` does not:
+
+```text
+100079128: bl <[player setDelegate:self]>
+100079144: bl <[playingSEs addObject:player]>   ; no objc_sync_enter anywhere in this method
+```
+
+The lock is not decorative — `-audioPlayerDidFinishPlaying:successfully:` and
+`-audioPlayerBeginInterruption:` are delegate callbacks, which is exactly the case the locking is
+for. `-play:` mutates the same set from whichever thread starts a sound.
+
+Two smaller asymmetries in the same class. `-audioPlayerDidFinishPlaying:successfully:` never reads
+its `successfully` flag, so a player that failed leaves the set by the same path as one that
+finished. And `-audioPlayerDecodeErrorDidOccur:error:` (0x79380) is a lone `ret`, so a decode
+failure is the one way a player can stay in the set for good — every other exit removes it.
+
+### `RotateStoreProductViewController` (class at 0x352898) — three overrides that add nothing
+
+`-initWithNibName:bundle:` (0x274c34), `-viewDidLoad` (0x274cac) and `-didReceiveMemoryWarning`
+(0x274ce8) each contain a single `objc_msgSendSuper2` call and nothing else — no ivar access, no
+other message send, no constant. They are behaviourally identical to not overriding at all.
+
+The class's reason to exist is the other three members: `-shouldAutorotate` and
+`-shouldAutorotateToInterfaceOrientation:` both return YES unconditionally, and
+`-supportedInterfaceOrientations` returns 0x1e, which is `UIInterfaceOrientationMaskAll`. Subclassing
+`SKStoreProductViewController` purely to unlock its rotation is the whole point; the other three
+appear to be template leftovers.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.
