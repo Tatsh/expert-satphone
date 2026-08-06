@@ -27,6 +27,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(class, nonatomic, readonly) BOOL canUseApplilinkSdk;
 
+/**
+ * @brief The HTTPS base every applilink web-API path is appended to.
+ *
+ * DECLARED ONLY.
+ */
+@property(class, nonatomic, readonly, nullable) NSString *baseUrlSsl;
+
 @end
 
 NS_ASSUME_NONNULL_END

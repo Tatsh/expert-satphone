@@ -487,6 +487,31 @@ key is read past its end; a longer one is silently truncated to AES-128. `x5` is
 there is no initialisation vector and the cipher runs in ECB — identical plaintext blocks encrypt to
 identical ciphertext blocks.
 
+### `-[DestinationCore destinationRegistWithCountryCode:url:delegate:]` (0x250d24) — a dead delegate
+
+The three-argument method takes a delegate and never reads it. Its arguments arrive in `x2`, `x3`
+and `x4`; the prologue saves the first two and not the third:
+
+```text
+100250d40: mov x21,x3    ; url
+100250d44: mov x22,x2    ; countryCode
+100250d48: mov x19,x0    ; self
+```
+
+`x4` is never read anywhere in the body — the only appearance of the register is a `mov x4,x21` at
+0x250eb8, which writes it. The connection is then handed `self`:
+
+```text
+100250f10: mov x3,x19
+100250f14: bl 0x10027cef0  ; [ApplilinkURLConnection loadRequestWithRequest:… delegate:x19]
+```
+
+So every caller's delegate is silently replaced by the `DestinationCore` itself. That would matter
+less if the class did anything with the callbacks, but it does not: `-failLoadWithError:` (0x250f50)
+and `-finishLoadWithResponse:` (0x250f54) are each a single `ret`, and `-redirectStartLoad:`
+(0x250f58) is `mov w0,#0x0` then `ret`. The registration's outcome is therefore unobservable to
+anyone, which is presumably why the discarded argument was never noticed.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.
