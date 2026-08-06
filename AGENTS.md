@@ -4,38 +4,39 @@ All agent definitions, skills, and project rules live under **`.claude/`**. Use 
 use Claude Code, Cursor, GitHub Copilot, or another assistant: open or reference the files directly,
 and use each product's own mechanics for attaching repo context where needed.
 
-- **Hard prerequisite before any repository edit:** Read
-  [.claude/rules/general.md](.claude/rules/general.md) in full (including _Before editing repository
-  files_), then every other relevant `.claude/rules/*.md` for the paths you will change. Do this
-  **before** creating, modifying, or deleting tracked files.
+- **Hard prerequisite before any repository edit:** Read [.claude/rules/general.md](.claude/rules/general.md)
+  in full (including _Before editing repository files_), then every other relevant
+  `.claude/rules/*.md` for the paths you will change, and any applicable `.claude/agents/*.md` or
+  `.claude/skills/*/SKILL.md` (for example when the task follows CI, regen, or another named
+  workflow, or the user names an agent or skill). Do this **before** creating, modifying, or deleting
+  tracked files.
 - If the user is only adding instructions for the assistant, **do not edit the repository** unless
   they ask for a concrete change.
 
 ## Rules (`.claude/rules/`)
 
-| File                                            | Scope                                      |
-| ----------------------------------------------- | ------------------------------------------ |
-| [general](.claude/rules/general.md)             | Project-wide conventions                   |
-| [reconstruction](.claude/rules/reconstruction.md) | Getting from the binary to correct source  |
-| [c-cpp-objc](.claude/rules/c-cpp-objc.md)       | C, C++, and Objective-C style              |
-| [json-yaml](.claude/rules/json-yaml.md)         | JSON and YAML files                        |
-| [toml-ini](.claude/rules/toml-ini.md)           | TOML and INI files                         |
-| [markdown](.claude/rules/markdown.md)           | Markdown files                             |
+| File                                    | Scope                    |
+| --------------------------------------- | ------------------------ |
+| [general](.claude/rules/general.md)     | Project-wide conventions |
+| [json-yaml](.claude/rules/json-yaml.md) | JSON and YAML files      |
+| [toml-ini](.claude/rules/toml-ini.md)   | TOML and INI files       |
+| [markdown](.claude/rules/markdown.md)   | Markdown files           |
 
-## Pending types
+## Skills (`.claude/skills/`)
 
-A declaration typed `id` in this tree means "the concrete class is not established yet", never "the
-binary is genuinely dynamic here". Every such declaration **must** have a row in
-[TYPES_PENDING.md](TYPES_PENDING.md) naming the routine whose reconstruction will settle it, added
-in the same commit that introduces the `id`, and removed in the same commit that replaces it. The
-same applies to a type deliberately weakened to a base class. Leaving a placeholder untracked is how
-a wrong-but-compiling type survives, which the reconstruction rules treat as a defect.
+Skills are folders with a `SKILL.md` file (for example [ci](.claude/skills/ci/SKILL.md) or
+[make-release](.claude/skills/make-release/SKILL.md) when present). The `make-release` skill drives
+the changelog, version bump, and push.
 
-## Relationship to `rbplus-src`
+## Agents (`.claude/agents/`)
 
-This tree is the jubeat counterpart of the sibling `rbplus-src` reconstruction, and it inherits that
-project's rules verbatim. The two binaries embed the same Konami "applilink" advertising SDK, so the
-`Applilink*`, `Recommend*`, `Reward*`, and `AnalysisNetwork*` classes already reconstructed in
-`rbplus-src/Project/` are a reference for the same classes here. They are a reference, not a source:
-the two applications ship different builds of the SDK, so every method must still be read out of
-this binary before it is written here.
+| Agent                                                        | Purpose                                                     |
+| ------------------------------------------------------------ | ----------------------------------------------------------- |
+| [markdownlint-fixer](.claude/agents/markdownlint-fixer.md)   | Fix markdownlint-cli2 issues.                               |
+| [qa-fixer](.claude/agents/qa-fixer.md)                       | Run `yarn format` and `yarn qa` until clean.                |
+| [workflow-shellcheck](.claude/agents/workflow-shellcheck.md) | ShellCheck embedded Bash in workflow YAML.                  |
+| [badge-sync](.claude/agents/badge-sync.md)                   | Sync `docs/badges.rst` with `README.md`.                    |
+| [changelog](.claude/agents/changelog.md)                     | Update CHANGELOG.md with entries since last release.        |
+| [copy-editor](.claude/agents/copy-editor.md)                 | Fix prose style, grammar, and spelling in comments/strings. |
+| [regen](.claude/agents/regen.md)                             | Run Wiswa, post-process, verify, and commit.                |
+| [wiswa-sync](.claude/agents/wiswa-sync.md)                   | Reflect managed file changes back to `.wiswa.jsonnet`.      |

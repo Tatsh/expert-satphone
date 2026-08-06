@@ -46,10 +46,6 @@ concrete repository change, do not edit project files.
   different directory.
 - Spell-check uses cspell with British English (`en-GB`). Exception: code identifiers must use
   American English (`ColorCode` not `ColourCode`).
-- Add new words to `.vscode/dictionary.txt` in lowercase and keep the file sorted. A dictionary
-  change may be committed as an incidental part of the commit whose new words it covers (staged
-  alongside those files); it does not need its own `dictionary: update` commit. A standalone
-  `dictionary: update` commit is still fine when the dictionary is the only change.
 
 ## Avoiding Permission Prompts
 

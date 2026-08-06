@@ -37,20 +37,20 @@ fix.
 
 What the other subcommands do and do not cover here:
 
-| Subcommand | Coverage in this tree |
-| --- | --- |
-| `addresses` | Real. 91 method annotations checked against the runtime metadata. |
-| `objc properties` | Real, and tree-wide: 1379 properties across 222 classes. It caught `ChallengeStatus.coinRestDate` declared `readonly` when the class ships a setter. |
-| `objc ivars` | Real, and tree-wide: 3142 ivars across 276 classes. |
-| `objc return-widths` | Real. It caught two parameters declared `int` that encode `I`. |
-| `objc methods` | Real. Confirms no coined helper name collides with a selector the binary uses. |
-| `objc property-types` | Real, and tree-wide: 406 scalar properties. It caught `JubeatAppDelegate.deviceType` declared over `NSInteger` when the metadata encodes it `Q`, and `challengeMusicID` declared `int` when it encodes `I`. |
-| `objc property-accessors` | Real. It reports accessors the binary writes by hand, which a `@property` declaration silently satisfies. |
-| `objc frame-arithmetic` | Real, but takes **no** binary argument — passing one is an error, not a clean run. |
-| `objc format-calls` | Real, and the check for the variadic rule: it compares each format's specifier count against the arguments the stack setup actually supplies. |
-| `literals` | Nearly vacuous. It skips any literal with no character above U+0x2000, so it checks the two Japanese strings in `ChallengeStatus.m` and nothing else. Selector checking covers `@selector()` only; the tree now has two, both verified present. |
-| `globals` | Vacuous. No annotated global initialisers here yet. |
-| `unwritten-members` | Vacuous. It looks for C++ `m_` members, and this tree has none yet. |
+| Subcommand                | Coverage in this tree                                                                                                                                                                                                                           |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `addresses`               | Real. 91 method annotations checked against the runtime metadata.                                                                                                                                                                               |
+| `objc properties`         | Real, and tree-wide: 1379 properties across 222 classes. It caught `ChallengeStatus.coinRestDate` declared `readonly` when the class ships a setter.                                                                                            |
+| `objc ivars`              | Real, and tree-wide: 3142 ivars across 276 classes.                                                                                                                                                                                             |
+| `objc return-widths`      | Real. It caught two parameters declared `int` that encode `I`.                                                                                                                                                                                  |
+| `objc methods`            | Real. Confirms no coined helper name collides with a selector the binary uses.                                                                                                                                                                  |
+| `objc property-types`     | Real, and tree-wide: 406 scalar properties. It caught `JubeatAppDelegate.deviceType` declared over `NSInteger` when the metadata encodes it `Q`, and `challengeMusicID` declared `int` when it encodes `I`.                                     |
+| `objc property-accessors` | Real. It reports accessors the binary writes by hand, which a `@property` declaration silently satisfies.                                                                                                                                       |
+| `objc frame-arithmetic`   | Real, but takes **no** binary argument — passing one is an error, not a clean run.                                                                                                                                                              |
+| `objc format-calls`       | Real, and the check for the variadic rule: it compares each format's specifier count against the arguments the stack setup actually supplies.                                                                                                   |
+| `literals`                | Nearly vacuous. It skips any literal with no character above U+0x2000, so it checks the two Japanese strings in `ChallengeStatus.m` and nothing else. Selector checking covers `@selector()` only; the tree now has two, both verified present. |
+| `globals`                 | Vacuous. No annotated global initialisers here yet.                                                                                                                                                                                             |
+| `unwritten-members`       | Vacuous. It looks for C++ `m_` members, and this tree has none yet.                                                                                                                                                                             |
 
 **A constant annotation must be a trailing `//` comment on the declaration line**, not a Doxygen
 block above it:
@@ -77,7 +77,7 @@ Run **every** member of the `objc` group, not a habitual subset. Each of the las
 turned up a real error in already-committed code from a subcommand that had not been run before:
 `property-accessors` found three unwritten `ScoreRecordManager` accessors, and `property-types`
 found the two width errors above. The `challengeMusicID` case is the sharpest: `return-widths` had
-already corrected the *setter's* parameter to `unsigned int` in an earlier session, while the
+already corrected the _setter's_ parameter to `unsigned int` in an earlier session, while the
 property kept `int`. Two subcommands covering two halves of one field, and running only one of them
 left the tree internally inconsistent.
 
@@ -97,7 +97,7 @@ the Node tooling is wired up.
   selector. `dict[key]` is `objectForKeyedSubscript:`, which appears **nowhere** in this binary
   — searching the whole image for "forKeyedSubscript" returns zero hits. Every dictionary access
   here is `objectForKey:` or `setObject:forKey:`, with `-[RootViewController
-  responseRemoteNotification:pushInfo:]` the one place that uses `setValue:forKey:` instead.
+responseRemoteNotification:pushInfo:]` the one place that uses `setValue:forKey:` instead.
   Array subscripting is the opposite case: `objectAtIndexedSubscript:` is genuinely used by
   `-popNotification`, while every other indexed read sends `objectAtIndex:`.
 - Run the whole `rctool objc` group, not just `audit addresses`. Unlike the `audit` group, these
@@ -112,33 +112,33 @@ the Node tooling is wired up.
 
 ## `JubeatAppDelegate`
 
-| Property            | Settled by                                                       | Evidence so far                                         |
-| ------------------- | ---------------------------------------------------------------- | ------------------------------------------------------- |
-| `markerList`        | the marker loader, not yet located                                | Object by load width only.                              |
-| `jcfDownloadID`     | the download starter, not yet located                             | Cleared to nil by `-resetDownLoadIndex` @0x8c38.        |
-| `storeGenreID`      | `-setDownloadGenreID:` callers                                    | Retained via `objc_storeStrong`, so an object.          |
-| `storePackID`       | `-setDownloadPackID:` callers                                     | Retained via `objc_storeStrong`, so an object.          |
-| `storeCampaignID`   | `-setCampaignID:` callers                                         | Retained via `objc_storeStrong`, so an object.          |
-| `campaignImageName` | `-setCampaignImageName:` callers                                  | Retained via `objc_storeStrong`, so an object.          |
-| `campaignImagePath` | `-setCampaignImagePath:` callers                                  | Retained via `objc_storeStrong`, so an object.          |
-| `storeMissionText`  | `-setStoreMissionText:` callers                                   | Retained via `objc_storeStrong`, so an object.          |
-| `searchString`      | `-setSearchString:` callers                                       | Retained via `objc_storeStrong`, so an object.          |
-| `notificationTime`  | `-downloaderFinished:` @0x1f078 or `-pushClose:` @0x183090        | Retained as handed in; both callers are in unreconstructed classes. |
+| Property            | Settled by                                                 | Evidence so far                                                     |
+| ------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------- |
+| `markerList`        | the marker loader, not yet located                         | Object by load width only.                                          |
+| `jcfDownloadID`     | the download starter, not yet located                      | Cleared to nil by `-resetDownLoadIndex` @0x8c38.                    |
+| `storeGenreID`      | `-setDownloadGenreID:` callers                             | Retained via `objc_storeStrong`, so an object.                      |
+| `storePackID`       | `-setDownloadPackID:` callers                              | Retained via `objc_storeStrong`, so an object.                      |
+| `storeCampaignID`   | `-setCampaignID:` callers                                  | Retained via `objc_storeStrong`, so an object.                      |
+| `campaignImageName` | `-setCampaignImageName:` callers                           | Retained via `objc_storeStrong`, so an object.                      |
+| `campaignImagePath` | `-setCampaignImagePath:` callers                           | Retained via `objc_storeStrong`, so an object.                      |
+| `storeMissionText`  | `-setStoreMissionText:` callers                            | Retained via `objc_storeStrong`, so an object.                      |
+| `searchString`      | `-setSearchString:` callers                                | Retained via `objc_storeStrong`, so an object.                      |
+| `notificationTime`  | `-downloaderFinished:` @0x1f078 or `-pushClose:` @0x183090 | Retained as handed in; both callers are in unreconstructed classes. |
 
 ## Types weakened rather than `id`
 
 These are not `id`, but are less specific than the binary may allow and should be revisited.
 
-| Declaration                             | Weakened to        | Settled by                                        |
-| --------------------------------------- | ------------------ | ------------------------------------------------- |
-| `RootViewController.currentSceneID`     | `NSString`         | proven by `-isEqualToString:`, but the set of scene identifiers is not; "SceneStore" sits beside the two known ones in the string pool |
-| `RootViewController.titleViewCtrl`      | `UIViewController` | it holds either a `TitleViewControllerOrg` or a `TitleViewControllerRpl` depending on the theme, so a common base or protocol is likely; both respond to `-start` and `-stopAnimation` |
-| `RootViewController.gameViewCtrl`       | `UIViewController` | never built in any reconstructed routine, only revealed; whatever assigns it will name the class |
-| `RootViewController.storeViewCtrl`      | `UIViewController` | as above. It responds to `-loadInitialStoreInfo`; the binary has both `StoreViewController` and `StoreViewControllerV2`, so which one is not settled |
-| `RootViewController.editViewCtrl`       | `UIViewController` | as above. It responds to the same `-loadResources`/`-startAnimation`/`-terminate`/`-releaseResources` set as `gameViewCtrl`, so the two share an interface |
-| `KnitColorManager.setColorWithArray:`   | `NSArray`          | the manager's own body; the delegate passes its argument straight through |
-| `CustomSequencePageNavViewController.delegate` | `id`      | nothing reconstructed sends it anything yet, so no protocol is proven. Held weakly via `objc_storeWeak` |
-| `StorePackView.delegate`                | `id`               | as above; `-[StoreTableCell dealloc]` only clears it |
+| Declaration                                    | Weakened to        | Settled by                                                                                                                                                                             |
+| ---------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RootViewController.currentSceneID`            | `NSString`         | proven by `-isEqualToString:`, but the set of scene identifiers is not; "SceneStore" sits beside the two known ones in the string pool                                                 |
+| `RootViewController.titleViewCtrl`             | `UIViewController` | it holds either a `TitleViewControllerOrg` or a `TitleViewControllerRpl` depending on the theme, so a common base or protocol is likely; both respond to `-start` and `-stopAnimation` |
+| `RootViewController.gameViewCtrl`              | `UIViewController` | never built in any reconstructed routine, only revealed; whatever assigns it will name the class                                                                                       |
+| `RootViewController.storeViewCtrl`             | `UIViewController` | as above. It responds to `-loadInitialStoreInfo`; the binary has both `StoreViewController` and `StoreViewControllerV2`, so which one is not settled                                   |
+| `RootViewController.editViewCtrl`              | `UIViewController` | as above. It responds to the same `-loadResources`/`-startAnimation`/`-terminate`/`-releaseResources` set as `gameViewCtrl`, so the two share an interface                             |
+| `KnitColorManager.setColorWithArray:`          | `NSArray`          | the manager's own body; the delegate passes its argument straight through                                                                                                              |
+| `CustomSequencePageNavViewController.delegate` | `id`               | nothing reconstructed sends it anything yet, so no protocol is proven. Held weakly via `objc_storeWeak`                                                                                |
+| `StorePackView.delegate`                       | `id`               | as above; `-[StoreTableCell dealloc]` only clears it                                                                                                                                   |
 
 ## Declared without a body
 
@@ -146,74 +146,74 @@ A declaration written because a reconstructed caller sends it, whose own body is
 The tree does not compile as a unit until these are filled in, which is deliberate: a stub body
 would be indistinguishable from a reconstructed one.
 
-| Declaration                              | Why it is declared                    | Body at   |
-| ---------------------------------------- | ------------------------------------- | --------- |
-| `-[KnitColorManager setColorWithArray:]` | `-setKnitColor:` sends it             | not located yet |
-| `+[ChallengeStatus sharedStatus]`        | `-applicationDidEnterBackground:` sends it | not located yet |
-| `-[ChallengeStatus restCoinNum]`         | `-createCoinNotification` sends it    | not located yet |
-| `-[ChallengeStatus getTimeLeft:]`        | `-createCoinNotification` sends it    | not located yet |
-| `-[ChallengeStatus coinRestDate]`        | `-createCoinNotification` sends it    | not located yet |
-| `+[EditorIDManager getEditorIDKey]`      | `+isExistEditorID` sends it           | not located yet |
-| `+[EditorIDManager getEditorPassKey]`    | `+isExistEditorID` sends it           | not located yet |
-| `+[EditorIDManager getKeyQuery:]`        | `+isExistEditorID` sends it           | not located yet |
-| `+[EditorIDManager deleteKeychain]`      | `+isExistEditorID` sends it           | not located yet |
-| `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
-| `-[LogoViewController start]`            | `-[RootViewController startLogo]` sends it | not located yet |
-| `-[AudioManager stopAllSe]`              | the dispatcher sends it                | not located yet |
-| `-[AudioManager releaseBgm:]`            | the dispatcher sends it                | not located yet |
-| `+[AudioManager sharedManager]`          | the dispatcher sends it                | not located yet |
-| `-[MusicSelectViewController startMainBgm]` | the dispatcher sends it             | not located yet |
-| `-[MusicSelectViewController stopStoreInfo]` | the dispatcher sends it            | not located yet |
-| `-[MusicSelectViewController reloadMarkerSelectView]` | `-reloadMarkers` sends it | not located yet |
-| `-[MusicSelectViewController pushNotificate]` | `-pushNotificate` forwards to it | not located yet |
-| `-loadInitialStoreInfo` on the store screen | `-openStoreAnimStop:finished:context:` sends it | not located yet |
-| `-[MusicSelectViewController checkAndRetryBgm]`, `-requestNewInfo`, `-JcfDownLoad:`, `-schemeMoveStore`, `-notificationDisp`, `-startOpenDetailPanel` | `-fadeinAnimStop:finished:context:` sends them | not located yet |
-| `TitleViewControllerKnt`, `TitleViewControllerNte` | `-createKnitTitleViewController` and `-titleSwitch` build them | not located yet |
-| `-showLogo` on the title screens | `-fadeinAnimStop:finished:context:` sends it | not located yet |
-| `-startGame` on the game and edit screens | `-fadeinAnimStop:finished:context:` sends it | not located yet |
-| `TitleViewControllerOrg`, `TitleViewControllerRpl` | the theme switch builds them | not located yet |
-| `+[CJSONSerializer serializer]`           | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
-| `-[CJSONSerializer serializeDictionary:error:]` | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
-| `-[Downloader initWithURL:postJsonData:delegate:]` | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
-| `-[Downloader startDownloading]`          | `-responseRemoteNotification:pushInfo:` sends it | not located yet |
-| `-[BFCodec cipherInit:]`                 | `CreateLabEncryptedData` sends it      | 0x94a58   |
-| `-[BFCodec encipher:]`                   | `CreateLabEncryptedData` sends it      | 0x94aec   |
-| `+[MarkerManager moveMarkerDataInDoc]`    | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `+[MarkerManager checkRegularMarkerData]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `+[TweetResourceManager checkResourceData]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `+[TweetResourceManager moveResourceDataInDoc]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `+[TweetResourceManager checkEnableSelecteFrame:]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `+[StoreMusicListManager sharedManager]`  | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `-[StoreMusicListManager loadMusicList]`  | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `-[PurchaseManager start]`                | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `-[PurchaseManager loadProductList]`      | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `-[PurchaseManager loadPendingList]`      | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `-[PurchaseManager loadPendingConsumeList]` | `-application:didFinishLaunchingWithOptions:` sends it | not located yet |
-| `+[ScoreRecordManager sharedManager]`    | `-applicationWillTerminate:` sends it | not located yet |
-| `-[AudioManager playSeResFile:inDirectory:]` | `-[ChallengeLoginMessageView closeMessage:]` sends it | 0x77f50 |
-| `GetScaledResourcePath`                   | `LoadScaledPngImage` calls it          | 0x7e37c |
-| `LoadScaledEncryptedTexImage`             | `-[UnsealDrawController viewDidLoad]` calls it | 0x7e9dc |
-| `CreateImageFromEncryptedData`            | `LoadScaledEncryptedTexImage` calls it | not located yet |
-| `-[CubePurchaseInfo initWithDictionary:]`  | `CubePurchaseListViewCell` is its consumer | 0x63b68 |
-| `-[CubePurchaseInfo updateProduct:]`       | ditto                                  | 0x63c48 |
-| `-[CubePurchaseInfo getProductID]`         | ditto                                  | 0x63c5c |
-| `-[CubePurchaseInfo getProduct]`           | ditto                                  | 0x63d10 |
-| `-[CubePurchaseInfo getName]`              | ditto                                  | 0x63d38 |
-| `-[StorePromotion initWithPackInfo:imageURL:sampleURL:]` | `BannerView` reads its `imageURL` | 0x1bd754 |
-| `-[StorePromotion initWithGenreIndex:imageURL:]` | ditto                          | 0x1bd88c |
-| `-[StorePromotion getSampleURL]`           | ditto                                  | 0x1bd954 |
-| `-[StorePromotion getSampleName]`          | ditto                                  | 0x1bd9d8 |
-| `MyGetOpenALAudioData`                     | `-[SePlayer initWithPath:]` calls it    | 0x153cd4 |
-| `+[ApplilinkConsts canUseApplilinkSdk]`    | `AnalysisNetwork` guards on it         | 0x22ec4c |
-| `+[AnalysisNetworkCore postAnalysisDataWithResultId:callback:]` | `AnalysisNetwork` forwards to it | 0x2395bc |
-| `+[AnalysisNetworkCore openExternalWebBrowserCore:env:callback:]` | ditto              | 0x23a2fc |
-| `+[AnalysisNetworkCore openWebBrowserWithAppliIdCore:env:callback:]` | ditto           | 0x23b04c |
-| `AnalysisNetworkCore`'s other ten class methods | reached only through the SDK       | 0x238d98 onwards |
-| `-[StoreRecommendPackView initWithFrame:]`  | `StoreRecommendTableCell` builds two | 0x1449fc |
-| `-[StorePackInfo packID]` and four siblings | `-[StoreRecommendPackView loadPackInfo:index:]` reads them | 0xbe3d0, 0xbe410, 0xbe3e0, 0xbe3f0, 0xbd6b4 |
-| `+[StoreUtil productIDForPackID:]`          | ditto                                | 0xbab70 |
-| `-[PurchaseManager isPurchased:]`           | ditto                                | 0xb61d8 |
-| `-[PurchaseManager isPending:]`             | ditto                                | 0xb61f0 |
+| Declaration                                                                                                                                           | Why it is declared                                             | Body at                                     |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------- |
+| `-[KnitColorManager setColorWithArray:]`                                                                                                              | `-setKnitColor:` sends it                                      | not located yet                             |
+| `+[ChallengeStatus sharedStatus]`                                                                                                                     | `-applicationDidEnterBackground:` sends it                     | not located yet                             |
+| `-[ChallengeStatus restCoinNum]`                                                                                                                      | `-createCoinNotification` sends it                             | not located yet                             |
+| `-[ChallengeStatus getTimeLeft:]`                                                                                                                     | `-createCoinNotification` sends it                             | not located yet                             |
+| `-[ChallengeStatus coinRestDate]`                                                                                                                     | `-createCoinNotification` sends it                             | not located yet                             |
+| `+[EditorIDManager getEditorIDKey]`                                                                                                                   | `+isExistEditorID` sends it                                    | not located yet                             |
+| `+[EditorIDManager getEditorPassKey]`                                                                                                                 | `+isExistEditorID` sends it                                    | not located yet                             |
+| `+[EditorIDManager getKeyQuery:]`                                                                                                                     | `+isExistEditorID` sends it                                    | not located yet                             |
+| `+[EditorIDManager deleteKeychain]`                                                                                                                   | `+isExistEditorID` sends it                                    | not located yet                             |
+| `-[PurchaseManager end]`                                                                                                                              | `-applicationWillTerminate:` sends it                          | not located yet                             |
+| `-[LogoViewController start]`                                                                                                                         | `-[RootViewController startLogo]` sends it                     | not located yet                             |
+| `-[AudioManager stopAllSe]`                                                                                                                           | the dispatcher sends it                                        | not located yet                             |
+| `-[AudioManager releaseBgm:]`                                                                                                                         | the dispatcher sends it                                        | not located yet                             |
+| `+[AudioManager sharedManager]`                                                                                                                       | the dispatcher sends it                                        | not located yet                             |
+| `-[MusicSelectViewController startMainBgm]`                                                                                                           | the dispatcher sends it                                        | not located yet                             |
+| `-[MusicSelectViewController stopStoreInfo]`                                                                                                          | the dispatcher sends it                                        | not located yet                             |
+| `-[MusicSelectViewController reloadMarkerSelectView]`                                                                                                 | `-reloadMarkers` sends it                                      | not located yet                             |
+| `-[MusicSelectViewController pushNotificate]`                                                                                                         | `-pushNotificate` forwards to it                               | not located yet                             |
+| `-loadInitialStoreInfo` on the store screen                                                                                                           | `-openStoreAnimStop:finished:context:` sends it                | not located yet                             |
+| `-[MusicSelectViewController checkAndRetryBgm]`, `-requestNewInfo`, `-JcfDownLoad:`, `-schemeMoveStore`, `-notificationDisp`, `-startOpenDetailPanel` | `-fadeinAnimStop:finished:context:` sends them                 | not located yet                             |
+| `TitleViewControllerKnt`, `TitleViewControllerNte`                                                                                                    | `-createKnitTitleViewController` and `-titleSwitch` build them | not located yet                             |
+| `-showLogo` on the title screens                                                                                                                      | `-fadeinAnimStop:finished:context:` sends it                   | not located yet                             |
+| `-startGame` on the game and edit screens                                                                                                             | `-fadeinAnimStop:finished:context:` sends it                   | not located yet                             |
+| `TitleViewControllerOrg`, `TitleViewControllerRpl`                                                                                                    | the theme switch builds them                                   | not located yet                             |
+| `+[CJSONSerializer serializer]`                                                                                                                       | `-responseRemoteNotification:pushInfo:` sends it               | not located yet                             |
+| `-[CJSONSerializer serializeDictionary:error:]`                                                                                                       | `-responseRemoteNotification:pushInfo:` sends it               | not located yet                             |
+| `-[Downloader initWithURL:postJsonData:delegate:]`                                                                                                    | `-responseRemoteNotification:pushInfo:` sends it               | not located yet                             |
+| `-[Downloader startDownloading]`                                                                                                                      | `-responseRemoteNotification:pushInfo:` sends it               | not located yet                             |
+| `-[BFCodec cipherInit:]`                                                                                                                              | `CreateLabEncryptedData` sends it                              | 0x94a58                                     |
+| `-[BFCodec encipher:]`                                                                                                                                | `CreateLabEncryptedData` sends it                              | 0x94aec                                     |
+| `+[MarkerManager moveMarkerDataInDoc]`                                                                                                                | `-application:didFinishLaunchingWithOptions:` sends it         | not located yet                             |
+| `+[MarkerManager checkRegularMarkerData]`                                                                                                             | `-application:didFinishLaunchingWithOptions:` sends it         | not located yet                             |
+| `+[TweetResourceManager checkResourceData]`                                                                                                           | `-application:didFinishLaunchingWithOptions:` sends it         | not located yet                             |
+| `+[TweetResourceManager moveResourceDataInDoc]`                                                                                                       | `-application:didFinishLaunchingWithOptions:` sends it         | not located yet                             |
+| `+[TweetResourceManager checkEnableSelecteFrame:]`                                                                                                    | `-application:didFinishLaunchingWithOptions:` sends it         | not located yet                             |
+| `+[StoreMusicListManager sharedManager]`                                                                                                              | `-application:didFinishLaunchingWithOptions:` sends it         | not located yet                             |
+| `-[StoreMusicListManager loadMusicList]`                                                                                                              | `-application:didFinishLaunchingWithOptions:` sends it         | not located yet                             |
+| `-[PurchaseManager start]`                                                                                                                            | `-application:didFinishLaunchingWithOptions:` sends it         | not located yet                             |
+| `-[PurchaseManager loadProductList]`                                                                                                                  | `-application:didFinishLaunchingWithOptions:` sends it         | not located yet                             |
+| `-[PurchaseManager loadPendingList]`                                                                                                                  | `-application:didFinishLaunchingWithOptions:` sends it         | not located yet                             |
+| `-[PurchaseManager loadPendingConsumeList]`                                                                                                           | `-application:didFinishLaunchingWithOptions:` sends it         | not located yet                             |
+| `+[ScoreRecordManager sharedManager]`                                                                                                                 | `-applicationWillTerminate:` sends it                          | not located yet                             |
+| `-[AudioManager playSeResFile:inDirectory:]`                                                                                                          | `-[ChallengeLoginMessageView closeMessage:]` sends it          | 0x77f50                                     |
+| `GetScaledResourcePath`                                                                                                                               | `LoadScaledPngImage` calls it                                  | 0x7e37c                                     |
+| `LoadScaledEncryptedTexImage`                                                                                                                         | `-[UnsealDrawController viewDidLoad]` calls it                 | 0x7e9dc                                     |
+| `CreateImageFromEncryptedData`                                                                                                                        | `LoadScaledEncryptedTexImage` calls it                         | not located yet                             |
+| `-[CubePurchaseInfo initWithDictionary:]`                                                                                                             | `CubePurchaseListViewCell` is its consumer                     | 0x63b68                                     |
+| `-[CubePurchaseInfo updateProduct:]`                                                                                                                  | ditto                                                          | 0x63c48                                     |
+| `-[CubePurchaseInfo getProductID]`                                                                                                                    | ditto                                                          | 0x63c5c                                     |
+| `-[CubePurchaseInfo getProduct]`                                                                                                                      | ditto                                                          | 0x63d10                                     |
+| `-[CubePurchaseInfo getName]`                                                                                                                         | ditto                                                          | 0x63d38                                     |
+| `-[StorePromotion initWithPackInfo:imageURL:sampleURL:]`                                                                                              | `BannerView` reads its `imageURL`                              | 0x1bd754                                    |
+| `-[StorePromotion initWithGenreIndex:imageURL:]`                                                                                                      | ditto                                                          | 0x1bd88c                                    |
+| `-[StorePromotion getSampleURL]`                                                                                                                      | ditto                                                          | 0x1bd954                                    |
+| `-[StorePromotion getSampleName]`                                                                                                                     | ditto                                                          | 0x1bd9d8                                    |
+| `MyGetOpenALAudioData`                                                                                                                                | `-[SePlayer initWithPath:]` calls it                           | 0x153cd4                                    |
+| `+[ApplilinkConsts canUseApplilinkSdk]`                                                                                                               | `AnalysisNetwork` guards on it                                 | 0x22ec4c                                    |
+| `+[AnalysisNetworkCore postAnalysisDataWithResultId:callback:]`                                                                                       | `AnalysisNetwork` forwards to it                               | 0x2395bc                                    |
+| `+[AnalysisNetworkCore openExternalWebBrowserCore:env:callback:]`                                                                                     | ditto                                                          | 0x23a2fc                                    |
+| `+[AnalysisNetworkCore openWebBrowserWithAppliIdCore:env:callback:]`                                                                                  | ditto                                                          | 0x23b04c                                    |
+| `AnalysisNetworkCore`'s other ten class methods                                                                                                       | reached only through the SDK                                   | 0x238d98 onwards                            |
+| `-[StoreRecommendPackView initWithFrame:]`                                                                                                            | `StoreRecommendTableCell` builds two                           | 0x1449fc                                    |
+| `-[StorePackInfo packID]` and four siblings                                                                                                           | `-[StoreRecommendPackView loadPackInfo:index:]` reads them     | 0xbe3d0, 0xbe410, 0xbe3e0, 0xbe3f0, 0xbd6b4 |
+| `+[StoreUtil productIDForPackID:]`                                                                                                                    | ditto                                                          | 0xbab70                                     |
+| `-[PurchaseManager isPurchased:]`                                                                                                                     | ditto                                                          | 0xb61d8                                     |
+| `-[PurchaseManager isPending:]`                                                                                                                       | ditto                                                          | 0xb61f0                                     |
 
 ## Defects found in the binary
 
@@ -236,7 +236,7 @@ The row owns exactly five digit image views (`numImg` is `[5@"UIImageView"]`), b
 counts the cube total's digits can return six.
 
 The counting loop divides by ten and then tests two things: whether the quotient still exceeds one
-digit, and whether the pass counter is at most three. The counter is read *before* it is
+digit, and whether the pass counter is at most three. The counter is read _before_ it is
 incremented — `ccmp w9,#3,#0,cs` at 0x64438 sets the flags, and the `add w9,w9,#1` two instructions
 later does not touch them — so four back-edges are allowed and the counter reaches five. The digit
 count is that plus one.
@@ -305,7 +305,7 @@ reconstruction is incomplete would be wrong, which is exactly why it is recorded
 
 The method is encoded `B24@0:8@16`, so it takes an object and returns a boolean. The body never
 touches `x2`. What it actually does is ask `NSFileManager` for the app group's container URL and
-test whether *that directory* exists.
+test whether _that directory_ exists.
 
 The container exists whenever the app group is provisioned, so the method answers the same value
 for every sticker name it is given, including names that were never saved. A caller using it to
@@ -329,7 +329,7 @@ The present cell gives its label a width of 299 on the phone and 440 on the pad,
 10 and 20 and a plate width of 309 and 460 — so `inset + width` is exactly the plate width and the
 label ends flush with it.
 
-The challenge cell gives its label the plate's *own* width, 309 or 460, while still insetting it by
+The challenge cell gives its label the plate's _own_ width, 309 or 460, while still insetting it by
 10 or 20. `inset + width` therefore exceeds the plate by one inset and the label overhangs its
 trailing edge.
 
@@ -381,13 +381,12 @@ Row 2's wave group reads `2290, 0, 18, 1`. `-makeColor:` divides the first three
 giving 8.98 for red, which `UIColor` clamps to 1.0 — so it renders as pure red rather than the
 intended shade. Transcribed as-is; it is the binary's value, not a transcription error.
 
-
 Behaviour that is faithfully reproduced but is a bug in the shipped application. Recorded here so a
 later reader does not "fix" the reconstruction into disagreeing with the binary.
 
 ### `-application:handleOpenURL:` (0x9090) — dead pack and genre routes
 
-Inside the arm guarded by `components[1] == "jbtstore"`, the code fetches `components[1]` *again* at
+Inside the arm guarded by `components[1] == "jbtstore"`, the code fetches `components[1]` _again_ at
 0x91e0 and compares it against `"pack"` and `"genre"`. One array element cannot equal two different
 strings, so neither comparison can succeed and the `_storePackID` and `_storeGenreID` stores are
 unreachable under every URL shape. Index 2 is fetched separately at 0x91c0 and used only as the
@@ -444,7 +443,7 @@ the settings are what determine the permission prompt.
 The remote twin repeats the discarded `timeIntervalSince1970` at 0xb3dc and the unguarded
 `objectAtIndex:2` at 0xb4b4, and drops even the `userInfo` nil test.
 
-It adds one of its own: `-apsDictionary:` is called at 0xb150, *before* the `applicationState`
+It adds one of its own: `-apsDictionary:` is called at 0xb150, _before_ the `applicationState`
 split at 0xb17c. Only the foreground arm reads the result, at 0xb3ac. On the routing path the
 dictionary is built and then released at 0xb50c without ever being used — every URL-routed remote
 notification allocates and discards an `NSMutableDictionary`.
@@ -464,7 +463,7 @@ The same three, in the same order, sit at 0x266cf4, 0x266d18, and 0x266d40 in `+
 `x19` is the same string in both calls, and `w2` is 4, `NSUTF8StringEncoding`. So the pointer is to
 a UTF-8 encoding while the count is of UTF-16 code units. The two agree only when every character
 is ASCII, which is the only case the method was evidently tested on. For anything else the count is
-too small — a string of *n* Japanese characters yields 3*n* UTF-8 bytes and a length of *n*, so
+too small — a string of _n_ Japanese characters yields 3*n* UTF-8 bytes and a length of _n_, so
 two-thirds of the input is dropped and the digest is of a truncated prefix that is itself not valid
 UTF-8. The correct measure is `-lengthOfBytesUsingEncoding:NSUTF8StringEncoding`.
 
@@ -558,7 +557,7 @@ zero for an empty list and then both getters index element zero of an empty arra
 class prevents that; whether a caller can supply an empty list is not established here.
 
 A near miss worth recording so it is not re-derived: the slot is picked with `rand()` at 0x27cfbc,
-**not** `arc4random`, and the modulo is a 32-bit *signed* `sdiv`/`msub` pair. Had the source been
+**not** `arc4random`, and the modulo is a 32-bit _signed_ `sdiv`/`msub` pair. Had the source been
 `arc4random`, whose full 32-bit range makes the signed interpretation negative half the time, the
 remainder would have been negative and the sign-extending `ldrsw` in both getters would have turned
 it into an enormous `NSUInteger` index. `rand()` returns a non-negative `int`, so the signed modulo
@@ -581,7 +580,7 @@ edge. The two are laid out by the same pair of instructions, once per label:
 The `x` is not the mistake. `-setIconImage:selectedImage:` (0xaa248) centres the icon horizontally
 inside `bgView.frame.size.height / 2` — the same expression — so that value is the icon's column and
 starting the text after it is deliberate. What is missing is the matching reduction in width: it
-should be the background's width *less* that column, and it is the full width instead.
+should be the background's width _less_ that column, and it is the full width instead.
 
 Nothing clips it. The labels are subviews of the cell rather than of `bgView`, and a
 `UITableViewCell` does not clip by default, so the text simply runs on. Left-aligned text short
@@ -594,7 +593,7 @@ sheet with a period after one without still has its title on the single-line cen
 ### `-[LatelyJcfListManager addJcfOwner:]` (0x1e2b14) — the eviction keeps the wrong end
 
 Once the list holds its twenty entries, a new owner overwrites one of them. The scan that picks
-which is a straightforward maximum-finder, and the maximum of a set of dates is the *newest*:
+which is a straightforward maximum-finder, and the maximum of a set of dates is the _newest_:
 
 ```text
 1001e2cb4: bl <[chosenDate compare:candidateDate]>
@@ -604,7 +603,7 @@ which is a straightforward maximum-finder, and the maximum of a set of dates is 
 ```
 
 `cmn x0,#1` is zero exactly when the comparison returned -1, so the adopt arm runs on
-`NSOrderedAscending` — that is, when the entry held so far is *earlier* than the candidate. Each
+`NSOrderedAscending` — that is, when the entry held so far is _earlier_ than the candidate. Each
 iteration therefore moves the choice towards the later date, and the index handed to
 `replaceObjectAtIndex:` at 0x1e2d18 is the newest entry's. For a list whose whole purpose is
 recency, the entry that should survive is the one that gets thrown away.
@@ -635,7 +634,7 @@ against the incoming one.
 ### `+[EditFileListViewController layerClass]` (0x208318) — a `UIView` hook on a view controller
 
 The method returns `CAGradientLayer` and is never called. `+layerClass` is a `UIView` class method;
-UIKit asks a *view* for the class of the layer to back it with, and never asks a view controller.
+UIKit asks a _view_ for the class of the layer to back it with, and never asks a view controller.
 This class derives from `UITableViewController` — confirmed from the dyld bind at its superclass
 slot 0x351770 — so nothing consults it.
 
@@ -698,7 +697,7 @@ When neither does, the method falls back to the identifier and reverses:
 100077acc: mov x20,#-0x1        ; self.tuneID > other.tuneID -> NSOrderedAscending
 ```
 
-A larger identifier sorts *first*. Both comparisons are unsigned, matching the property's `I`
+A larger identifier sorts _first_. Both comparisons are unsigned, matching the property's `I`
 encoding, so this is a deliberate reversal rather than a sign error. It only shows for a pair of
 tunes that both lack a reading, which is presumably why it survived.
 
@@ -706,12 +705,12 @@ tunes that both lack a reading, which is presumably why it survived.
 
 The entry carries four URL-shaped strings and each is treated differently:
 
-| Key | Where from | Checked | Stored as |
-| --- | --- | --- | --- |
-| `bannerUrl` | nested `v2` | not at all | `NSString` |
-| `iconUrl` | nested `v2` | `+[StoreUtil isValidURL:]` | `NSString` |
-| `thumbnailUrl` | nested `v2` | `+[StoreUtil isValidURL:]` | `NSURL` |
-| `foreignUrl` | the entry itself | `isValidURL:` **and** `-length` | `NSURL` |
+| Key            | Where from       | Checked                         | Stored as  |
+| -------------- | ---------------- | ------------------------------- | ---------- |
+| `bannerUrl`    | nested `v2`      | not at all                      | `NSString` |
+| `iconUrl`      | nested `v2`      | `+[StoreUtil isValidURL:]`      | `NSString` |
+| `thumbnailUrl` | nested `v2`      | `+[StoreUtil isValidURL:]`      | `NSURL`    |
+| `foreignUrl`   | the entry itself | `isValidURL:` **and** `-length` | `NSURL`    |
 
 The extra length test on `foreignUrl` is a genuine short-circuit pair, not one call:
 
@@ -825,7 +824,7 @@ the same kind of thing:
 
 `-setAutomaticallyAdjustsScrollViewInsets:` takes a `BOOL`. Under `-performSelector:withObject:` the
 object pointer lands in `x2` and the setter reads its low byte, so the flag ends up as
-`(char)(uintptr_t)self` — the *address* of the controller, truncated.
+`(char)(uintptr_t)self` — the _address_ of the controller, truncated.
 
 Objects are sixteen-byte aligned, so that byte is one of `0x00, 0x10, …, 0xF0`. Fifteen times in
 sixteen it is non-zero and the property comes out YES, which is presumably what was meant. One time
@@ -897,15 +896,15 @@ later reader should not "fix" it.
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.
 
-| Declaration                      | Was          | Now                    | Proven by                                                |
-| -------------------------------- | ------------ | ---------------------- | -------------------------------------------------------- |
-| `JubeatAppDelegate.deviceType`   | `id`         | `NSInteger`            | the four idiom predicates compare it against 1 to 7.     |
-| `JubeatAppDelegate.currentTheme` | `int`        | `unsigned int`         | `-changeTheme:` boxes it with `+numberWithUnsignedInt:`. |
-| `JubeatAppDelegate.rootViewCtrl` | `UIViewController` | `RootViewController` | `-changeTheme:` sends `-changeThemeAndGoTitle`, whose only implementation is `-[RootViewController changeThemeAndGoTitle]` @0x1a8a68. |
-| `JubeatAppDelegate.pushNotificationList` | `NSArray` | `NSMutableArray` | `-loadNotification` stores `-mutableCopy` of the unarchived object at 0xa828. |
-| `JubeatAppDelegate.deviceToken` | `id` | `NSString` | `-application:didRegisterForRemoteNotificationsWithDeviceToken:` stores the token's `-description` with `<`, `>`, and spaces stripped. |
-| `JubeatAppDelegate.remotePushInfo` | `id` | `NSDictionary` | `-application:didFinishLaunchingWithOptions:` stores a `-copy` of `launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]` at 0x96b0; it is the only writer. |
-| `JubeatAppDelegate.deviceType` | `NSInteger` | `JubeatDeviceType` | the classifier at 0x9748-0x97d0 and 0xa180-0xa25c assigns all eight values; see below. |
+| Declaration                              | Was                | Now                  | Proven by                                                                                                                                                            |
+| ---------------------------------------- | ------------------ | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `JubeatAppDelegate.deviceType`           | `id`               | `NSInteger`          | the four idiom predicates compare it against 1 to 7.                                                                                                                 |
+| `JubeatAppDelegate.currentTheme`         | `int`              | `unsigned int`       | `-changeTheme:` boxes it with `+numberWithUnsignedInt:`.                                                                                                             |
+| `JubeatAppDelegate.rootViewCtrl`         | `UIViewController` | `RootViewController` | `-changeTheme:` sends `-changeThemeAndGoTitle`, whose only implementation is `-[RootViewController changeThemeAndGoTitle]` @0x1a8a68.                                |
+| `JubeatAppDelegate.pushNotificationList` | `NSArray`          | `NSMutableArray`     | `-loadNotification` stores `-mutableCopy` of the unarchived object at 0xa828.                                                                                        |
+| `JubeatAppDelegate.deviceToken`          | `id`               | `NSString`           | `-application:didRegisterForRemoteNotificationsWithDeviceToken:` stores the token's `-description` with `<`, `>`, and spaces stripped.                               |
+| `JubeatAppDelegate.remotePushInfo`       | `id`               | `NSDictionary`       | `-application:didFinishLaunchingWithOptions:` stores a `-copy` of `launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]` at 0x96b0; it is the only writer. |
+| `JubeatAppDelegate.deviceType`           | `NSInteger`        | `JubeatDeviceType`   | the classifier at 0x9748-0x97d0 and 0xa180-0xa25c assigns all eight values; see below.                                                                               |
 
 ### The `deviceType` enumeration
 
@@ -913,16 +912,16 @@ Settled by disassembling the classifier, which the decompile rendered wrongly �
 scale as re-read per comparison and lost that `d8` holds the scale for the first test and then
 `bounds.size.height` (register `v3`) for the second. The real decision is:
 
-| Value | Idiom | Scale | `bounds.size.height` |
-| --- | --- | --- | --- |
-| 0 | Phone | neither 2 nor 3 | not consulted |
-| 1 | Phone | 2 | neither 667 nor 568 |
-| 2 | Phone | 2 | 568 |
-| 3 | Phone | 2 | 667 |
-| 4 | Phone | 3 | 667 |
-| 5 | Phone | 3 | not 667 |
-| 6 | not Phone | not 2 | not consulted |
-| 7 | not Phone | 2 | not consulted |
+| Value | Idiom     | Scale           | `bounds.size.height` |
+| ----- | --------- | --------------- | -------------------- |
+| 0     | Phone     | neither 2 nor 3 | not consulted        |
+| 1     | Phone     | 2               | neither 667 nor 568  |
+| 2     | Phone     | 2               | 568                  |
+| 3     | Phone     | 2               | 667                  |
+| 4     | Phone     | 3               | 667                  |
+| 5     | Phone     | 3               | not 667              |
+| 6     | not Phone | not 2           | not consulted        |
+| 7     | not Phone | 2               | not consulted        |
 
 The two heights are the pooled doubles at 0x28dfd0 and 0x28dfd8, decoded from memory as 667.0 and
 568.0 rather than guessed.
