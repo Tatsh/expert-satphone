@@ -222,6 +222,44 @@ The fill loop then walks `numImg[digitCount - 1]` down to `numImg[0]`, so a coun
 element past the array. It needs a cube total of at least 100000 to trigger, which the store's
 packs presumably never reach, so it is latent rather than live. Reproduced as written.
 
+### `-[ChallengeMissionPlayTerm initWithData:achieve:]` (0x1ef338) — ~380 instructions of dead work
+
+The routine compares each play-term row against row 0 twice, in two near-identical blocks. The
+second block's result is stored as `historyDup`. The first block's is discarded.
+
+The first block allocates a seven-entry flag array at 0x1ef63c, populates it across the whole
+detail list, and releases it at 0x1efa3c. Between those two points `x28` is only ever the receiver
+of `setObject:atIndexedSubscript:`; no instruction stores it into an ivar or anywhere else. Its
+four scratch values live in `[sp+0x90]`, `[sp+0x88]`, `[sp+0x84]` and `[sp+0x80]`, read only inside
+its own loop, and `[sp+0x90]` is overwritten with the terms object at 0x1efa4c the moment the block
+ends. The live block further down uses a different set of slots for the same four values, so the
+two do not feed each other.
+
+The two blocks are also not equivalent, which is what makes the dead one look like an earlier draft
+rather than a copy:
+
+- the dead one starts every flag `NO` and sets `YES` on a mismatch; the live one starts `YES` and
+  sets `NO`;
+- the dead one guards all four comparisons behind a single `expected music == -1` test, so an
+  unconstrained music column suppresses the other three; the live one guards each column with its
+  own `-1` test;
+- the live one also maintains an "everything agreed" boolean that decides whether `playHistory` is
+  filled at all.
+
+Reproduced in full. It is inert, but removing it would make the source disagree with the binary in
+a way no later reader could detect.
+
+### `-[ChallengeMissionPlayTerm initWithData:achieve:]` (0x1ef338) — the sort that makes removal safe
+
+The tail removes achieved rows from a mutable copy of the mission list with
+`removeObjectAtIndex:`, iterating the achievement keys. Removing by index while walking a key list
+is the classic shifting-index bug, and it is not one here: the keys are sorted through the global
+comparator block at 0x1f0a28, which boxes both arguments and answers `[second compare:first]` —
+reversed, so **descending**. Each index is therefore removed before any lower index can shift.
+
+Recorded because the safety is entirely in the comparator, four hundred instructions away from the
+removal, and a reader checking only the loop would reasonably conclude it was broken.
+
 ### `-[ChallengeListViewCell initWithStyle:reuseIdentifier:]` (0x2087e0) — the label overhangs its plate
 
 `ChallengeListViewCell` and `ChallengePresentListViewCell` are the same class twice over: same
