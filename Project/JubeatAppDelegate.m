@@ -8,6 +8,7 @@
 
 #import "ChallengeStatus.h"
 #import "KnitColorManager.h"
+#import "Md5Utilities.h"
 #import "RootViewController.h"
 #import "PurchaseManager.h"
 #import "ScoreRecordManager.h"
@@ -34,6 +35,16 @@ static NSString *const kThemePreferenceKey = @"PrefTheme";
 
 // The user-defaults key the copious marker unlock is recorded under, from the CFString at 0x2d42a0.
 static NSString *const kCopiousUnlockedPreferenceKey = @"PrefCopiousUnlocked";
+
+// The salt appended to the music-list key before hashing, from the CFString at 0x2d4180.
+static NSString *const kClientInfoUuidSalt = @"STORE";
+
+// The five keys of the client-info dictionary, from the CFStrings at 0x2d41a0 through 0x2d4220.
+static NSString *const kClientInfoUuidKey = @"uuid";
+static NSString *const kClientInfoVersionKey = @"version";
+static NSString *const kClientInfoDeviceKey = @"device";
+static NSString *const kClientInfoOsKey = @"os";
+static NSString *const kClientInfoLocaleKey = @"locale";
 
 // The digit set -digitStringCheck: accepts, from the CFString at 0x2d4340. The binary spells the
 // digits out rather than using NSCharacterSet.decimalDigitCharacterSet.
@@ -76,6 +87,33 @@ enum {
 + (NSString *)appVersion {
     return [[NSString alloc] initWithCString:kApplicationVersionString
                                     encoding:NSUTF8StringEncoding];
+}
+
++ (NSDictionary *)clientInfo {
+    // Despite the "uuid" key this is not a device identifier: it is the music-list key with a
+    // fixed salt appended, hashed.
+    NSString *salted =
+        [JubeatAppDelegate.appDelegate.musicListKey stringByAppendingString:kClientInfoUuidSalt];
+    NSString *uuid = CreateMd5HexStringFromCString(salted.UTF8String);
+
+    // The count of 5 is an immediate in the call, so the slot list below is exact.
+    NSString *keys[] = {
+        kClientInfoUuidKey,
+        kClientInfoVersionKey,
+        kClientInfoDeviceKey,
+        kClientInfoOsKey,
+        kClientInfoLocaleKey,
+    };
+    NSString *values[] = {
+        uuid,
+        JubeatAppDelegate.appVersion,
+        JubeatAppDelegate.deviceName,
+        UIDevice.currentDevice.systemVersion,
+        NSLocale.currentLocale.localeIdentifier,
+    };
+    return [NSDictionary dictionaryWithObjects:values
+                                       forKeys:keys
+                                         count:sizeof(keys) / sizeof(keys[0])];
 }
 
 #pragma mark - Standard directories

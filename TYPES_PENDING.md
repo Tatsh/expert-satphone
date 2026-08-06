@@ -42,6 +42,25 @@ These are not `id`, but are less specific than the binary may allow and should b
 | `JubeatAppDelegate.deviceType`          | `NSInteger`        | the writer, which will give the enumeration its case names |
 | `KnitColorManager.setColorWithArray:`   | `NSArray`          | the manager's own body; the delegate passes its argument straight through |
 
+## Declared without a body
+
+A declaration written because a reconstructed caller sends it, whose own body is not recovered yet.
+The tree does not compile as a unit until these are filled in, which is deliberate: a stub body
+would be indistinguishable from a reconstructed one.
+
+| Declaration                              | Why it is declared                    | Body at   |
+| ---------------------------------------- | ------------------------------------- | --------- |
+| `-[JubeatAppDelegate musicListKey]`      | `+clientInfo` sends it                | 0x8814    |
+| `CreateMd5HexStringFromCString`          | `+clientInfo` calls it                | 0x7f168   |
+| `-[RootViewController changeThemeAndGoTitle]` | `-changeTheme:` sends it         | 0x1a8a68  |
+| `-[RootViewController changeTitleTheme]` | `-switchTitleEvent` sends it          | not located yet |
+| `-[RootViewController reloadMarkers]`    | `-enableCopiousMarkers` sends it      | not located yet |
+| `-[KnitColorManager setColorWithArray:]` | `-setKnitColor:` sends it             | not located yet |
+| `-[KnitColorManager setColorWithType:]`  | `-switchTitleEvent` sends it          | not located yet |
+| `-[ChallengeStatus createCoinNotification]` | `-applicationDidEnterBackground:` sends it | not located yet |
+| `-[PurchaseManager end]`                 | `-applicationWillTerminate:` sends it | not located yet |
+| `-[ScoreRecordManager saveRecords]`      | `-applicationWillTerminate:` sends it | not located yet |
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.

@@ -66,6 +66,23 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x7e58
  */
 @property(class, nonatomic, readonly) NSString *appVersion;
+/**
+ * @brief The client identification dictionary sent to the servers.
+ *
+ * Five entries, built with @c +dictionaryWithObjects:forKeys:count: and a count of exactly 5 — the
+ * slot count is read from the stack setup at 0x8100-0x81d4 rather than from the decompile, which
+ * renders this kind of constructor with only its first argument:
+ *
+ *   "uuid"    the MD5 hex digest of @c musicListKey with "STORE" appended
+ *   "version" @c +appVersion
+ *   "device"  @c +deviceName
+ *   "os"      @c UIDevice.currentDevice.systemVersion
+ *   "locale"  @c NSLocale.currentLocale.localeIdentifier
+ *
+ * The "uuid" entry is not a device UUID despite its key: it is a salted hash of the music-list key.
+ * @ghidraAddress 0x805c
+ */
+@property(class, nonatomic, readonly) NSDictionary *clientInfo;
 
 #pragma mark - Standard directories
 
@@ -455,6 +472,15 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x871c
  */
 - (void)enableCopiousMarkers;
+
+/**
+ * @brief The key identifying the installed music list.
+ *
+ * DECLARED ONLY. The body at 0x8814 is about a kilobyte and has not been reconstructed yet; it is
+ * declared here because @c +clientInfo sends it. See TYPES_PENDING.md.
+ * @ghidraAddress 0x8814
+ */
+- (NSString *)musicListKey;
 
 #pragma mark - Validation
 
