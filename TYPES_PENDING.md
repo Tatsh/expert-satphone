@@ -39,6 +39,7 @@ These are not `id`, but are less specific than the binary may allow and should b
 | Declaration                             | Weakened to        | Settled by                                        |
 | --------------------------------------- | ------------------ | ------------------------------------------------- |
 | `JubeatAppDelegate.deviceType`          | `NSInteger`        | the writer, which will give the enumeration its case names |
+| `RootViewController.musicSelectViewCtrl` | `UIViewController` | whatever constructs it; it responds to `-reloadMarkerSelectView`, which `UIViewController` does not declare |
 | `KnitColorManager.setColorWithArray:`   | `NSArray`          | the manager's own body; the delegate passes its argument straight through |
 
 ## Declared without a body
@@ -50,9 +51,8 @@ would be indistinguishable from a reconstructed one.
 | Declaration                              | Why it is declared                    | Body at   |
 | ---------------------------------------- | ------------------------------------- | --------- |
 | `CreateMd5HexStringFromCString`          | `+clientInfo` calls it                | 0x7f168   |
-| `-[RootViewController changeThemeAndGoTitle]` | `-changeTheme:` sends it         | 0x1a8a68  |
-| `-[RootViewController changeTitleTheme]` | `-switchTitleEvent` sends it          | not located yet |
-| `-[RootViewController reloadMarkers]`    | `-enableCopiousMarkers` sends it      | not located yet |
+| `-[RootViewController fade:durationIn:durationOut:]` | all three reconstructed methods send it | not located yet |
+| `-[UIViewController reloadMarkerSelectView]` | `-reloadMarkers` sends it        | not located yet |
 | `-[KnitColorManager setColorWithArray:]` | `-setKnitColor:` sends it             | not located yet |
 | `+[ChallengeStatus sharedStatus]`        | `-applicationDidEnterBackground:` sends it | not located yet |
 | `-[ChallengeStatus restCoinNum]`         | `-createCoinNotification` sends it    | not located yet |
