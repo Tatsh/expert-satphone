@@ -34,12 +34,39 @@ What the other subcommands do and do not cover here:
 | `objc ivars` | Real, and tree-wide: 3142 ivars across 276 classes. |
 | `objc return-widths` | Real. It caught two parameters declared `int` that encode `I`. |
 | `objc methods` | Real. Confirms no coined helper name collides with a selector the binary uses. |
+| `objc property-types` | Real, and tree-wide: 406 scalar properties. It caught `JubeatAppDelegate.deviceType` declared over `NSInteger` when the metadata encodes it `Q`, and `challengeMusicID` declared `int` when it encodes `I`. |
+| `objc property-accessors` | Real. It reports accessors the binary writes by hand, which a `@property` declaration silently satisfies. |
+| `objc frame-arithmetic` | Real, but takes **no** binary argument — passing one is an error, not a clean run. |
 | `literals` | Nearly vacuous. It skips any literal with no character above U+0x2000, so it checks the two Japanese strings in `ChallengeStatus.m` and nothing else. Selector checking covers `@selector()` only; the tree now has two, both verified present. |
 | `globals` | Vacuous. No annotated global initialisers here yet. |
 | `unwritten-members` | Vacuous. It looks for C++ `m_` members, and this tree has none yet. |
 
+**A constant annotation must be a trailing `//` comment on the declaration line**, not a Doxygen
+block above it:
+
+```objc
+static const CGFloat kDefaultArrowPosision = 0.3f; // @ghidraAddress 0x28f248
+```
+
+Written as `/** @ghidraAddress 0x28f248 */` on the preceding line the audit silently ignores it and
+reports `constants: 0 annotated`, which is the same shape of vacuous pass as the `0 annotated`
+method case above. The correct form makes the tool read the eight bytes at that address and compare
+them, so it is the difference between a documented constant and a checked one.
+
+Run **every** member of the `objc` group, not a habitual subset. Each of the last three rounds has
+turned up a real error in already-committed code from a subcommand that had not been run before:
+`property-accessors` found three unwritten `ScoreRecordManager` accessors, and `property-types`
+found the two width errors above. The `challengeMusicID` case is the sharpest: `return-widths` had
+already corrected the *setter's* parameter to `unsigned int` in an earlier session, while the
+property kept `int`. Two subcommands covering two halves of one field, and running only one of them
+left the tree internally inconsistent.
+
 So a clean run is necessary and nowhere near sufficient, and only the `addresses` number means
 anything today.
+
+`yarn format` does **not** work in this tree: there is no `package.json` (the sibling `rbplus-src`
+has one). `.clang-format` is present, so run `clang-format -i` on the touched files directly until
+the Node tooling is wired up.
 
 ## Rules
 

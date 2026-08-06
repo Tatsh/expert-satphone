@@ -14,8 +14,8 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **125 annotated, 0
-mismatched, 0 selectors absent.**
+which of the four subcommands actually cover anything here. Last run: **128 annotated, 0
+mismatched, 0 selectors absent; 2 constants checked against their bytes.**
 
 ## Measured progress
 
@@ -33,13 +33,19 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 120 of 5036 methods, 2.4%. 33 of 317 classes complete.**
+**As of the last run: 123 of 5036 methods, 2.4%. 34 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
 class reached so far, `ChallengeStatus`, has 101 of them on its own. Pass a class name to the tool
 to get that class's outstanding selectors with addresses, which is the fastest way to pick the next
 unit of work.
+
+**Read a jump table's bytes; do not infer cases from the branch structure.** `-[BalloonView
+contentRect]`'s four arms looked like two, because cases 1 and 3 enter the *middle* of the blocks
+cases 0 and 2 begin — ordinary tail sharing. Reading the branch layout alone gave "the down and
+right arrows are not accounted for", which would have been recorded as a defect in the shipped
+binary. The table at 0x1ba5dc says otherwise and all four directions are handled correctly.
 
 **Ghidra prints a negative `fmov` immediate wrongly.** It shows neither the value nor its bit
 pattern — `-0x3fd8000000000000` for -12.0, `-0x4010000000000000` for -1.0. Decode `imm8` from the
@@ -124,6 +130,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/frameTableCell.m` | **Complete.** Two methods. Third sibling; ticks the row matching `PrefTwitterBgFrame`. |
 | `Project/StoreTableCell.m` | **Complete.** Two methods, including the tree's first `-dealloc`. |
 | `Project/EditorInfoCell.m` | **Complete.** Two methods; badge selected from a three-entry table. |
+| `Project/BalloonView.m` | **Complete.** Three methods; the speech-balloon path with a four-way arrow. |
 | `Project/RootViewController.m` | Twelve methods: both fade dispatchers, both store callbacks, the theme factory. |
 
 ## Next, in order

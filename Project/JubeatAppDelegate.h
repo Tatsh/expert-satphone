@@ -53,7 +53,7 @@ typedef NS_ENUM(unsigned int, JubeatTheme) {
  * The ordering is not arbitrary: the four idiom predicates test contiguous ranges of it, which is
  * why the phone classes run 0 to 5 and the pad classes are the top pair.
  */
-typedef NS_ENUM(NSInteger, JubeatDeviceType) {
+typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
     /** Non-retina phone: idiom Phone, scale neither 2 nor 3. */
     JubeatDeviceTypePhone = 0,
     /** Retina phone, 480-point screen: scale 2, height neither 667 nor 568. */
@@ -429,10 +429,11 @@ typedef NS_ENUM(NSInteger, JubeatDeviceType) {
  */
 @property(nonatomic, readonly) BOOL bChallengeMode;
 /**
- * @brief The music identifier for the current challenge. A 4-byte load, so @c int.
+ * @brief The music identifier for the current challenge. A 4-byte unsigned load, so
+ * @c unsigned @c int.
  * @ghidraAddress 0xba20 (getter)
  */
-@property(nonatomic, readonly) int challengeMusicID;
+@property(nonatomic, readonly) unsigned int challengeMusicID;
 /**
  * @brief The difficulty for the current challenge. A 4-byte load, so @c int.
  * @ghidraAddress 0xba30 (getter)
