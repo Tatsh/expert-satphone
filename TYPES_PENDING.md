@@ -58,6 +58,11 @@ The check covers **numeric** constants only. A `static NSString *const` or an `N
 annotated the same way is not read back and not compared — the annotation there is documentation,
 not verification, and must not be counted as evidence.
 
+`MachOBinary.method_types()` is keyed by the **image-relative** address, not the absolute one, so
+`mt.get(0x1eee00)` works where `mt.get(0x1001eee00)` silently returns `None`. A `None` there reads
+as "no type information" when the information is present, which is how two `init`-named methods
+nearly got conventional signatures instead of their real ones.
+
 Run **every** member of the `objc` group, not a habitual subset. Each of the last three rounds has
 turned up a real error in already-committed code from a subcommand that had not been run before:
 `property-accessors` found three unwritten `ScoreRecordManager` accessors, and `property-types`

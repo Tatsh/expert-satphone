@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **155 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **158 annotated, 0
 mismatched, 0 selectors absent; 34 constants checked against their bytes.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 150 of 5036 methods, 3.0%. 47 of 317 classes complete.**
+**As of the last run: 153 of 5036 methods, 3.0%. 48 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -130,6 +130,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/frameTableCell.m` | **Complete.** Two methods. Third sibling; ticks the row matching `PrefTwitterBgFrame`. |
 | `Project/StoreTableCell.m` | **Complete.** Two methods, including the tree's first `-dealloc`. |
 | `Project/EditorInfoCell.m` | **Complete.** Two methods; badge selected from a three-entry table. |
+| `Project/ChallengeMissionAchieve.m` | **Complete.** Three methods; documents the mission-achievement wire format. |
 | `Project/EditButtonViewController.m` | **Complete.** Two methods; a weak delegate and an NS_TYPED_ENUM payload. |
 | `Project/ChallengeRewardListCell.m` | **Complete.** Three methods; every subview is built lazily by the setters. |
 | `Project/ChallengeListViewCell.m` | **Complete.** Two methods; its label overhangs its plate. |
@@ -154,6 +155,7 @@ rough order of how much each unlocks:
 
 | Target | Address | Notes |
 | --- | --- | --- |
+| `ChallengeMissionPlayTerm` | 0x1ef288, 0x1ef2e4, 0x1ef338 | Started, not written. `-init` and `-reset` are small; `-initWithData:achieve:` is ~1470 instructions with four fast-enumeration loops and a `sortedArrayUsingComparator:` block, so it is its own unit. Returns **void** despite the name (`v32@0:8@16@24`). |
 | `-[LogoViewController start]` | not located yet | The launch sequence continues here; class at 0x348a58. |
 | `AudioManager` | class at 0x348038 | 357 xrefs, the most of any class reached. Every sound goes through it. |
 | `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds. |
