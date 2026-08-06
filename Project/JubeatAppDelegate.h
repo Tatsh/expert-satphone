@@ -638,6 +638,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url;
 
+#pragma mark - Push payload
+
+/**
+ * @brief Flattens an APNs payload into the shape the notification queue stores.
+ *
+ * Returns nil when the payload has no "aps" entry. Otherwise it copies, each only when present:
+ * "alert" from inside "aps" — stored under the different key "body" — plus "sound" from inside
+ * "aps", and "url", "expire", and "id" from the top level.
+ *
+ * The "alert" to "body" rename is the only key that changes name; every other entry keeps its own.
+ * @ghidraAddress 0xa990
+ */
+- (nullable NSMutableDictionary *)apsDictionary:(NSDictionary *)userInfo;
+
 #pragma mark - Notification registration
 
 /**

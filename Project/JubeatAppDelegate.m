@@ -81,6 +81,15 @@ static NSString *const kDecimalDigitCharacters = @"0123456789";
 // The knit-colour palette type the hinabita collaboration selects, a bare immediate at 0x86d4.
 static const int kHinabitaKnitColorType = 4;
 
+// The APNs payload keys -apsDictionary: reads and writes, from the CFStrings at 0x2d4600, 0x2d4620,
+// 0x2d4640, 0x2d4660, 0x2d4400, 0x2d4680, and 0x2d46a0.
+static NSString *const kApsPayloadKey = @"aps";
+static NSString *const kApsAlertKey = @"alert";
+static NSString *const kNotificationBodyKey = @"body";
+static NSString *const kNotificationSoundKey = @"sound";
+static NSString *const kNotificationURLKey = @"url";
+static NSString *const kNotificationIdentifierKey = @"id";
+
 // The key each queued notification stores its fire time under, from the CFString at 0x2d4680.
 static NSString *const kNotificationExpireKey = @"expire";
 
@@ -550,6 +559,34 @@ enum {
         _jcfDownloadID = tail;
     }
     return YES;
+}
+
+#pragma mark - Push payload
+
+- (NSMutableDictionary *)apsDictionary:(NSDictionary *)userInfo {
+    NSDictionary *aps = userInfo[kApsPayloadKey];
+    if (aps == nil) {
+        return nil;
+    }
+    NSMutableDictionary *flattened = [[NSMutableDictionary alloc] init];
+    // Every entry below is looked up twice, once to test and once to fetch, as compiled.
+    if (aps[kApsAlertKey] != nil) {
+        // The only key that is renamed on the way across: "alert" in, "body" out.
+        flattened[kNotificationBodyKey] = aps[kApsAlertKey];
+    }
+    if (aps[kNotificationSoundKey] != nil) {
+        flattened[kNotificationSoundKey] = aps[kNotificationSoundKey];
+    }
+    if (userInfo[kNotificationURLKey] != nil) {
+        flattened[kNotificationURLKey] = userInfo[kNotificationURLKey];
+    }
+    if (userInfo[kNotificationExpireKey] != nil) {
+        flattened[kNotificationExpireKey] = userInfo[kNotificationExpireKey];
+    }
+    if (userInfo[kNotificationIdentifierKey] != nil) {
+        flattened[kNotificationIdentifierKey] = userInfo[kNotificationIdentifierKey];
+    }
+    return flattened;
 }
 
 #pragma mark - Notification registration
