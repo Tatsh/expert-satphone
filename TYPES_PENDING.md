@@ -217,6 +217,25 @@ The fill loop then walks `numImg[digitCount - 1]` down to `numImg[0]`, so a coun
 element past the array. It needs a cube total of at least 100000 to trigger, which the store's
 packs presumably never reach, so it is latent rather than live. Reproduced as written.
 
+### `-[ChallengeListViewCell initWithStyle:reuseIdentifier:]` (0x2087e0) — the label overhangs its plate
+
+`ChallengeListViewCell` and `ChallengePresentListViewCell` are the same class twice over: same
+ivars, same properties, same two selectors, same plate widths from the same two pool slots. They
+disagree on one piece of arithmetic.
+
+The present cell gives its label a width of 299 on the phone and 440 on the pad, against an inset of
+10 and 20 and a plate width of 309 and 460 — so `inset + width` is exactly the plate width and the
+label ends flush with it.
+
+The challenge cell gives its label the plate's *own* width, 309 or 460, while still insetting it by
+10 or 20. `inset + width` therefore exceeds the plate by one inset and the label overhangs its
+trailing edge.
+
+Both labels are subviews of the cell rather than of the plate, so this clips nothing and crashes
+nothing; long text simply runs past the artwork. Recorded because the two classes are otherwise
+identical, which makes the difference deliberate-looking when it is much more likely a copy that
+missed one subtraction.
+
 ### `-[CubePurchaseListViewCell addBtn]` (0x64728) — a property nothing ever assigns
 
 `addBtn` is declared readonly over the `_addBtn` ivar and has a getter, but the class defines no
