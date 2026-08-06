@@ -201,6 +201,10 @@ would be indistinguishable from a reconstructed one.
 | `+[AnalysisNetworkCore openExternalWebBrowserCore:env:callback:]` | ditto              | 0x23a2fc |
 | `+[AnalysisNetworkCore openWebBrowserWithAppliIdCore:env:callback:]` | ditto           | 0x23b04c |
 | `AnalysisNetworkCore`'s other ten class methods | reached only through the SDK       | 0x238d98 onwards |
+| `-[StoreRecommendPackView initWithFrame:]`  | `StoreRecommendTableCell` builds two | 0x1449fc |
+| `-[StoreRecommendPackView setBgImage:]`     | ditto                                | 0x145638 |
+| `-[StoreRecommendPackView handleTap:]`      | ditto                                | 0x145650 |
+| `-[StoreRecommendPackView loadPackInfo:index:]` | ditto                            | 0x145704 |
 
 ## Defects found in the binary
 
