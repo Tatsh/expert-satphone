@@ -507,6 +507,24 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xa7a4
  */
 - (void)loadNotification;
+/**
+ * @brief Writes @c pushNotificationList to disk, or deletes the file when the queue is empty.
+ *
+ * The archive is built before the emptiness test, so an empty queue archives an empty array and
+ * then throws the result away.
+ * @ghidraAddress 0xa66c
+ */
+- (void)saveNotification;
+/**
+ * @brief Whether a scheduled fire time is still in the future.
+ *
+ * Compares the current Unix time, truncated toward zero from
+ * @c -[NSDate timeIntervalSince1970], against @c fireTime and answers YES when the current time is
+ * less than or equal to it. Note the comparison is inclusive, so a notification due at exactly the
+ * current second still counts as active.
+ * @ghidraAddress 0xb534
+ */
+- (BOOL)pushActiveCheck:(NSInteger)fireTime;
 
 #pragma mark - Application lifecycle
 

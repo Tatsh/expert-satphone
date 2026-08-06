@@ -247,6 +247,26 @@ enum {
     _pushNotificationList = [[NSKeyedUnarchiver unarchiveObjectWithData:data] mutableCopy];
 }
 
+- (void)saveNotification {
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSString *path = self.getNotificationFilePath;
+    // The archive is built unconditionally, before the emptiness test below.
+    NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:self.pushNotificationList];
+    // The property is fetched a second time here rather than reusing the value just archived.
+    if (self.pushNotificationList.count == 0) {
+        [fileManager removeItemAtPath:path error:nil];
+    } else {
+        [fileManager createFileAtPath:path contents:archive attributes:nil];
+    }
+}
+
+- (BOOL)pushActiveCheck:(NSInteger)fireTime {
+    // fcvtzs truncates toward zero rather than rounding.
+    NSInteger now = (NSInteger)NSDate.date.timeIntervalSince1970;
+    // cset le: inclusive, so a notification due this very second is still active.
+    return now <= fireTime;
+}
+
 #pragma mark - Application lifecycle
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
