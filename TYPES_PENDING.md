@@ -591,6 +591,47 @@ Both labels are also built once and never re-laid-out: the frame is computed onl
 `if (!label)` arm, and a later call to the setter reaches `-setText:` alone. A row reused for a
 sheet with a period after one without still has its title on the single-line centre.
 
+### `-[LatelyJcfListManager addJcfOwner:]` (0x1e2b14) — the eviction keeps the wrong end
+
+Once the list holds its twenty entries, a new owner overwrites one of them. The scan that picks
+which is a straightforward maximum-finder, and the maximum of a set of dates is the *newest*:
+
+```text
+1001e2cb4: bl <[chosenDate compare:candidateDate]>
+1001e2cb8: cmn x0,#0x1        ; x0 + 1
+1001e2cbc: b.ne 0x1001e2ce0   ; skip unless x0 == -1
+1001e2cc0: …                  ; adopt candidate as the new chosen entry
+```
+
+`cmn x0,#1` is zero exactly when the comparison returned -1, so the adopt arm runs on
+`NSOrderedAscending` — that is, when the entry held so far is *earlier* than the candidate. Each
+iteration therefore moves the choice towards the later date, and the index handed to
+`replaceObjectAtIndex:` at 0x1e2d18 is the newest entry's. For a list whose whole purpose is
+recency, the entry that should survive is the one that gets thrown away.
+
+The list is not sorted anywhere in the class, so position does not stand in for age either: entries
+are appended in arrival order below the cap and then overwritten in place, which scrambles it.
+
+### `-[LatelyJcfListManager addJcfOwner:]` (0x1e2b14) — the duplicate check has two holes
+
+The same method is meant to avoid recording an owner twice, and the check misses in two ways.
+
+It only exists on the full path. Below twenty entries the method runs straight from building the
+entry to `[list addObject:]` at 0x1e2d28 with no comparison at all, so the first twenty additions
+of the same owner all land.
+
+Even on the full path it starts at index one. Entry zero is read before the loop, but only for its
+date, to seed the candidate:
+
+```text
+1001e2bec: bl <[list objectAtIndex:0]>
+1001e2c08: bl <[… objectAtIndex:1]>   ; its date, not its owner
+1001e2bfc: mov w25,#0x1               ; the loop starts here
+```
+
+The `isEqualToString:` at 0x1e2c78 is inside the loop, so the owner in slot zero is never compared
+against the incoming one.
+
 ## Settled
 
 Kept as a record of what the evidence was, so a later reader does not have to re-derive it.
