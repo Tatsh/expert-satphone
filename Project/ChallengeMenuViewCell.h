@@ -6,9 +6,6 @@
  *
  * The superclass is @c UITableViewCell, taken from the dyld bind at the class object's superclass
  * slot (0x34cb30) rather than from the name.
- *
- * RECONSTRUCTION STATE: three of four members written. @c -setBgImage:numImage: is declared but
- * not reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
 #import <UIKit/UIKit.h>
@@ -39,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds the row's button, badge plate and digit views.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Builds everything on the first call only; later calls just re-apply the tag, the target and the
+ * background. The digit views are laid out to centre exactly, three or two at a time.
  *
  * @param bgImg The row's background artwork.
  * @param numImg The digit artwork, indexed 0 to 9.
@@ -61,6 +59,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The row button's action. Does nothing at all — the body is a single return.
+ *
+ * Not dead code: @c -setBgImage:numImage: targets the button at @c aDelegate rather than at self,
+ * so with a nil delegate UIKit walks the responder chain to this cell and this method absorbs the
+ * tap.
+ *
  * @param sender The tapped button. Unused.
  * @ghidraAddress 0x425e4
  */
