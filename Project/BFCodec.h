@@ -10,9 +10,6 @@
  * The class is a thin Objective-C shell over a C Blowfish implementation, adding CBC chaining and a
  * length trailer of its own. @c -cipherInit: alone has 189 cross-references, so essentially every
  * encrypted asset and request in the application passes through here.
- *
- * RECONSTRUCTION STATE: five of six members written. @c -decipher: is declared but not
- * reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
 #import <Foundation/Foundation.h>
@@ -71,11 +68,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Decrypts a buffer in place.
  *
- * DECLARED ONLY — the body has not been reconstructed yet. The return type is @c BOOL rather than
- * the @c void this header previously claimed, from the metadata encoding @c B24\@0:8\@16 .
+ * Both of the trailer's words are checked before anything is decrypted, and the buffer is truncated
+ * back to the plaintext afterwards. The return type is @c BOOL rather than the @c void this header
+ * previously claimed, from the metadata encoding @c B24\@0:8\@16 .
  *
  * @param data The buffer to decrypt, modified in place.
- * @return Whether the buffer decrypted successfully.
+ * @return NO when the trailer does not describe the buffer, YES otherwise.
  * @ghidraAddress 0x94e20
  */
 - (BOOL)decipher:(nullable NSMutableData *)data;

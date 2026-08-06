@@ -59,6 +59,15 @@ void SetKey(BFCodecContext *pCtx, const uint8_t *pbKey, int nKeyLength);
  */
 void EncipherBlock(BFCodecContext *pCtx, uint64_t *pqwLeft, uint64_t *pqwRight);
 
+/**
+ * @brief Decrypts one 64-bit block in place, as two 32-bit halves.
+ * @param pCtx The context.
+ * @param pqwLeft The block's left half.
+ * @param pqwRight The block's right half.
+ * @ghidraAddress 0x93e28
+ */
+void DecipherBlock(BFCodecContext *pCtx, uint64_t *pqwLeft, uint64_t *pqwRight);
+
 #ifdef __cplusplus
 }
 #endif

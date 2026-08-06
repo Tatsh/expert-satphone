@@ -108,6 +108,73 @@ static inline void PutBigEndianWord(unsigned char *bytes, uint64_t word) {
     return paddedLength;
 }
 
+/** @ghidraAddress 0x94e20 */
+- (BOOL)decipher:(NSMutableData *)data {
+    unsigned int totalLength = (unsigned int)data.length;
+    // Anything too short to hold the trailer is rejected before it is read.
+    if (totalLength < kBlockLength) {
+        return NO;
+    }
+    unsigned int cipherLength = totalLength - kBlockLength;
+
+    // The trailer's two words are read with -getBytes:range: rather than off the mutable pointer,
+    // so the buffer is validated before it is touched at all.
+    unsigned char trailer[4];
+    [data getBytes:trailer range:NSMakeRange(cipherLength, sizeof(trailer))];
+    unsigned int plainLength = ((unsigned int)trailer[0] << 24) | ((unsigned int)trailer[1] << 16) |
+                               ((unsigned int)trailer[2] << 8) | trailer[3];
+
+    [data getBytes:trailer range:NSMakeRange(totalLength - sizeof(trailer), sizeof(trailer))];
+    unsigned int storedCipherLength = ((unsigned int)trailer[0] << 24) |
+                                      ((unsigned int)trailer[1] << 16) |
+                                      ((unsigned int)trailer[2] << 8) | trailer[3];
+
+    // Two checks, and both must hold: the stored ciphertext length has to match what the buffer
+    // actually holds, and the stored plaintext length has to round up to it.
+    if (storedCipherLength != cipherLength) {
+        return NO;
+    }
+    if (cipherLength != ((plainLength + kBlockMask) & ~kBlockMask)) {
+        return NO;
+    }
+
+    unsigned char *bytes = data.mutableBytes;
+
+    if (cipherLength != 0) {
+        // The same fixed vector -cipherInit:length: wrote, read back big-endian.
+        uint64_t chainLeft =
+            ((uint64_t)_iv[0] << 24) | ((uint64_t)_iv[1] << 16) | ((uint64_t)_iv[2] << 8) | _iv[3];
+        uint64_t chainRight =
+            ((uint64_t)_iv[4] << 24) | ((uint64_t)_iv[5] << 16) | ((uint64_t)_iv[6] << 8) | _iv[7];
+
+        unsigned int position = 0;
+        unsigned int offset = 0;
+        do {
+            // Kept before decryption: the ciphertext, not the plaintext, is what chains onwards.
+            uint64_t cipherLeft = TakeBigEndianWord(bytes, cipherLength, &position);
+            uint64_t cipherRight = TakeBigEndianWord(bytes, cipherLength, &position);
+
+            uint64_t left = cipherLeft;
+            uint64_t right = cipherRight;
+            DecipherBlock(_blf, &left, &right);
+
+            left ^= chainLeft;
+            right ^= chainRight;
+
+            PutBigEndianWord(bytes + offset, left);
+            PutBigEndianWord(bytes + offset + 4, right);
+
+            chainLeft = cipherLeft;
+            chainRight = cipherRight;
+            offset += kBlockLength;
+        } while (position < cipherLength);
+    }
+
+    // Truncated back to the plaintext, discarding the padding and the trailer together.
+    data.length = plainLength;
+    return YES;
+}
+
 /** @ghidraAddress 0x9510c */
 - (void)dealloc {
     // The vector is wiped before the schedule is released, so neither outlives the codec.

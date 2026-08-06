@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the *Verification* section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **334 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **335 annotated, 0
 mismatched, 0 selectors absent; 117 constants checked against their bytes.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 327 of 5036 methods, 6.5%. 92 of 317 classes complete.**
+**As of the last run: 328 of 5036 methods, 6.5%. 93 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -167,7 +167,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/StoreGenreTitleView.m` | **Complete.** Four methods. The pad and phone build structurally different views. |
 | `Project/RotateStoreProductViewController.m` | **Complete.** Six methods, 264 bytes total. Three of them add nothing to `super`. |
 | `Project/SEManager.m` | **Complete.** Six methods. A locked set of playing sound effects; `-play:` is the one unlocked access. |
-| `Project/BFCodec.m` | Five of six methods. `-decipher:` is declared only — see Next. |
+| `Project/BFCodec.m` | **Complete.** Six methods. Blowfish CBC with a fixed vector and a length trailer — see TYPES_PENDING.md. |
 | `Project/DestinationCore.m` | **Complete.** Four methods. Three of them are inert and the fourth discards its delegate. |
 | `Project/ImageCache.m` | **Complete.** Four methods; the caching layer over LoadScaledPngImage. |
 | `Project/ChallengeMenuViewCell.m` | **Complete.** Four methods; the button targets the delegate, not self. |
@@ -206,7 +206,6 @@ rough order of how much each unlocks:
 
 | Target | Address | Notes |
 | --- | --- | --- |
-| `-[BFCodec decipher:]` | 0x94e20 | The one open partial. About 187 instructions, and the exact inverse of `-encipher:` (0x94aec), which is reconstructed and gives the whole shape: CBC from the fixed vector at `E3 DA 2C 66 31 85 A0 64`, big-endian words, and an eight-byte trailer holding the plaintext and ciphertext lengths. It returns `BOOL`, so it presumably validates that trailer before trusting it. `EncipherBlock` is at 0x93db0; look for its decrypting counterpart nearby. |
 | `-[LogoViewController start]` | not located yet | The launch sequence continues here; class at 0x348a58. |
 | `AudioManager` | class at 0x348038 | 357 xrefs, the most of any class reached. Every sound goes through it. |
 | `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds. |
