@@ -62,6 +62,26 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Seconds remaining until the given date. DECLARED ONLY.
  */
 - (double)getTimeLeft:(nullable NSDate *)date;
+/**
+ * @brief The date the free-scratch allowance next resets. DECLARED ONLY.
+ *
+ * Readwrite in the metadata, not readonly — the class ships a setter for it.
+ * @ghidraAddress 0x1ce084
+ */
+@property(nonatomic, strong, nullable) NSDate *scratchResetDate;
+/**
+ * @brief Renders a second count as display text. DECLARED ONLY.
+ * @ghidraAddress 0x1cd35c
+ */
+- (nullable NSString *)timeStringFromInterval:(double)interval;
+/**
+ * @brief The phone's layout scale relative to the pad's. Single precision, per the @c f encoding.
+ *
+ * Views that lay out in pad coordinates multiply by this on the phone and by nothing on the pad.
+ * DECLARED ONLY.
+ * @ghidraAddress 0x1ce234
+ */
+@property(nonatomic, readonly) float phoneScreenRate;
 
 /**
  * @brief Schedules the local notification announcing that play coins have refilled.
