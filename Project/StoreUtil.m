@@ -20,6 +20,12 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
 + (nullable NSURL *)cubeVerifyReceiptURL;
 @end
 
+@interface StoreUtil ()
+// De-inlined: wraps a path in "https://agx.s.konaminet.jp<path>" and builds the NSURL. The binary
+// emits this two-format-call, alloc/initWithString: sequence inline in each URL builder.
++ (nullable NSURL *)storeURLForPath:(NSString *)path;
+@end
+
 @implementation StoreUtil
 
 #pragma mark - Layout metrics
@@ -62,14 +68,18 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
 
 #pragma mark - URLs
 
++ (NSURL *)storeURLForPath:(NSString *)path {
+    NSString *urlString = [NSString stringWithFormat:kStoreURLFormat, kStoreHost, path];
+    return [[NSURL alloc] initWithString:urlString];
+}
+
 /** @ghidraAddress 0xba318 */
 + (NSURL *)storeNewInfoURL {
     // Builds "/agx/main/cgi/new/?target=JP" plus the client-info query, under the store host.
     NSMutableString *path =
         [NSMutableString stringWithFormat:kStoreNewInfoPathFormat, kStoreCGIPath, kStoreRegion];
     [path appendString:[self queryStringForDictionary:JubeatAppDelegate.clientInfo]];
-    NSString *urlString = [NSString stringWithFormat:kStoreURLFormat, kStoreHost, path];
-    return [[NSURL alloc] initWithString:urlString];
+    return [self storeURLForPath:path];
 }
 
 /** @ghidraAddress 0xba464 */
@@ -81,6 +91,37 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
 + (NSURL *)verifyReceiptConsumeURL {
     // Identical to +verifyReceiptNewURL; both delegate to the same ScratchUtil endpoint.
     return [NSClassFromString(kScratchUtilClassName) cubeVerifyReceiptURL];
+}
+
+/** @ghidraAddress 0xba578 */
++ (NSURL *)campaignListURL {
+    NSString *path = [NSString stringWithFormat:@"%s/campaign/list/index.jsp", kStoreCGIPath];
+    return [self storeURLForPath:path];
+}
+
+/** @ghidraAddress 0xba64c */
++ (NSURL *)campaignSerialCheckURL {
+    NSString *path = [NSString stringWithFormat:@"%s/campaign/verify/index.jsp", kStoreCGIPath];
+    return [self storeURLForPath:path];
+}
+
+/** @ghidraAddress 0xba720 */
++ (NSURL *)campaignItemURL {
+    NSString *path = [NSString stringWithFormat:@"%s/campaign/fetch/index.jsp", kStoreCGIPath];
+    return [self storeURLForPath:path];
+}
+
+/** @ghidraAddress 0xba7f4 */
++ (NSURL *)knitColorURL {
+    NSString *path = [NSString stringWithFormat:@"%s/knit/change_color/index.jsp", kStoreCGIPath];
+    return [self storeURLForPath:path];
+}
+
+/** @ghidraAddress 0xba8c8 */
++ (NSURL *)markerListURL {
+    NSString *path =
+        [NSString stringWithFormat:@"%s/check_marker/?target=%s", kStoreCGIPath, kStoreRegion];
+    return [self storeURLForPath:path];
 }
 
 @end

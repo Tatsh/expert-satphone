@@ -69,6 +69,27 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSURL *)verifyReceiptConsumeURL;
 
 /**
+ * @brief The campaign-list URL.
+ * @ghidraAddress 0xba578
+ */
++ (nullable NSURL *)campaignListURL;
+/**
+ * @brief The campaign serial-check URL.
+ * @ghidraAddress 0xba64c
+ */
++ (nullable NSURL *)campaignSerialCheckURL;
+/**
+ * @brief The campaign-item fetch URL.
+ * @ghidraAddress 0xba720
+ */
++ (nullable NSURL *)campaignItemURL;
+/**
+ * @brief The marker-list check URL.
+ * @ghidraAddress 0xba8c8
+ */
++ (nullable NSURL *)markerListURL;
+
+/**
  * @brief Whether a string is a URL worth keeping.
  *
  * @c StoreMusicInfo gates three of its six string fields on this and leaves them nil when it
