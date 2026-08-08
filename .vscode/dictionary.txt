@@ -204,6 +204,7 @@ statusline
 stdbool
 stdlib
 strb
+strikethrough
 stur
 sturh
 subclassing
