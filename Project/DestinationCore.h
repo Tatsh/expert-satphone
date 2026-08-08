@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param response Ignored.
  * @ghidraAddress 0x250f54
  */
-- (void)finishLoadWithResponse:(nullable NSURLResponse *)response;
+- (void)finishLoadWithResponse:(nullable NSString *)response;
 
 /**
  * @brief Refuses every redirect.

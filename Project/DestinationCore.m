@@ -51,8 +51,9 @@ static const float kRequestTimeout = 10.0f;
 }
 
 /** @ghidraAddress 0x250f54 */
-- (void)finishLoadWithResponse:(NSURLResponse *)response {
-    // The binary's body is a single ret. The registration's answer is never examined.
+- (void)finishLoadWithResponse:(NSString *)response {
+    // The binary's body is a single ret. The registration's answer is never examined. The argument
+    // is the UTF-8 body string that ApplilinkURLConnection decodes.
 }
 
 /** @ghidraAddress 0x250f58 */
