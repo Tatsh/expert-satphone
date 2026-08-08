@@ -202,4 +202,26 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
     return [[NSURL alloc] initWithString:urlString];
 }
 
+#pragma mark - Utilities
+
+/** @ghidraAddress 0xbb230 */
++ (BOOL)isValidURL:(NSString *)url {
+    // A URL is kept only when it parses and its scheme is http or https.
+    NSURL *parsed = [NSURL URLWithString:url];
+    if (!parsed) {
+        return NO;
+    }
+    if ([parsed.scheme isEqualToString:@"http"]) {
+        return YES;
+    }
+    return [parsed.scheme isEqualToString:@"https"];
+}
+
+/** @ghidraAddress 0xbb310 */
++ (NSString *)filePathForMusicID:(unsigned int)musicID {
+    // "<documents>/%09d.jbt" — the path is returned whether or not the file exists.
+    NSString *name = [[NSString alloc] initWithFormat:@"%09d.jbt", musicID];
+    return [JubeatAppDelegate.appDocumentsDirectory stringByAppendingPathComponent:name];
+}
+
 @end
