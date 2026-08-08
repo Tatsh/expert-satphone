@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the _Verification_ section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **593 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **600 annotated, 0
 mismatched, 0 selectors absent; 143 constants checked against their bytes.**
 
 ## Measured progress
@@ -229,6 +229,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/RootViewController.m`                  | **Complete**, confirmed by `tools/progress.py`: 0 outstanding. Forty-three methods — the whole screen host: the fade dispatchers and their nine transitions, the 3-D store cube-flip, the game and edit entry points, the application-state and view-lifecycle handlers, the rotation overrides, the achievement overlay, and the deferred-move checks.                |
 | `Project/InheritCodePayView.m`                  | **Complete.** Four methods. The inherit-code screen: issue button, server round-trip, and the cross-fade to a two-field code panel — verified against the disassembly.                                                                                                                                                                                                 |
 | `Project/MissionAchievementMessage.m`           | Eleven of twelve methods: the four-stage entry chain, the two-stage exit chain, tap dismissal, the auto-dismiss timer, the balloon background, and the attributed-text layout (`createAchiveText:`, `messageHeight:`, `setAchieveTitle:`) — all verified against the disassembly. Only `+createTitleArray:achieve:` is declared only, pending the mission wire format. |
+| `Project/EditorIDManager.m`                     | Nine methods: the keychain lookup and add-query builders, the two-step key reads, and the jubeatLab provisioning flow (`initWithDelegate:` and its three callbacks) that writes the editor identity to the keychain — all verified against the disassembly. Three account-name accessors remain declared only.                                                         |
 
 ## Next, in order
 
@@ -250,23 +251,23 @@ decompile's rendering of it.
 Each was created because a reconstructed caller sends to it. Members declared so far are listed in
 `TYPES_PENDING.md` under _Declared without a body_.
 
-| Class                                                              | Class object                   | Xrefs                | Members declared          |
-| ------------------------------------------------------------------ | ------------------------------ | -------------------- | ------------------------- |
-| `RootViewController`                                               | via 0x340430                   | —                    | **complete (43 methods)** |
-| `ChallengeStatus`                                                  | 0x348150                       | 116                  | 1                         |
-| `PurchaseManager`                                                  | 0x348100                       | 81                   | 1                         |
-| `ScoreRecordManager`                                               | 0x3480e0                       | 12                   | 1                         |
-| `KnitColorManager`                                                 | 0x3480a0                       | 7                    | 2                         |
-| `EditorIDManager`                                                  | 0x348060                       | 126                  | 3                         |
-| `Md5Utilities` (free function)                                     | —                              | —                    | **implemented**           |
-| `AudioManager`                                                     | 0x348038                       | 357                  | 3                         |
-| `BFCodec`                                                          | 0x3481d8                       | 189 (`-cipherInit:`) | 2                         |
-| `MusicSelectViewController`                                        | 0x348a68                       | —                    | 4                         |
-| `TitleViewControllerOrg` / `Rpl`                                   | 0x348a78 / 0x348a70            | —                    | 2 each                    |
-| `LogoViewController`                                               | 0x348a58                       | —                    | 1                         |
-| `MarkerManager` / `TweetResourceManager` / `StoreMusicListManager` | 0x3480d0 / 0x3480d8 / 0x348108 | —                    | 2 / 3 / 2                 |
-| `ScratchUtil`                                                      | 0x3482a0                       | —                    | **implemented**           |
-| `CJSONSerializer` (3rdparty)                                       | 0x348248                       | —                    | 2                         |
+| Class                                                              | Class object                   | Xrefs                | Members declared              |
+| ------------------------------------------------------------------ | ------------------------------ | -------------------- | ----------------------------- |
+| `RootViewController`                                               | via 0x340430                   | —                    | **complete (43 methods)**     |
+| `ChallengeStatus`                                                  | 0x348150                       | 116                  | 1                             |
+| `PurchaseManager`                                                  | 0x348100                       | 81                   | 1                             |
+| `ScoreRecordManager`                                               | 0x3480e0                       | 12                   | 1                             |
+| `KnitColorManager`                                                 | 0x3480a0                       | 7                    | 2                             |
+| `EditorIDManager`                                                  | 0x348060                       | 126                  | **9 implemented**, 3 declared |
+| `Md5Utilities` (free function)                                     | —                              | —                    | **implemented**               |
+| `AudioManager`                                                     | 0x348038                       | 357                  | 3                             |
+| `BFCodec`                                                          | 0x3481d8                       | 189 (`-cipherInit:`) | 2                             |
+| `MusicSelectViewController`                                        | 0x348a68                       | —                    | 4                             |
+| `TitleViewControllerOrg` / `Rpl`                                   | 0x348a78 / 0x348a70            | —                    | 2 each                        |
+| `LogoViewController`                                               | 0x348a58                       | —                    | 1                             |
+| `MarkerManager` / `TweetResourceManager` / `StoreMusicListManager` | 0x3480d0 / 0x3480d8 / 0x348108 | —                    | 2 / 3 / 2                     |
+| `ScratchUtil`                                                      | 0x3482a0                       | —                    | **implemented**               |
+| `CJSONSerializer` (3rdparty)                                       | 0x348248                       | —                    | 2                             |
 
 `ScoreRecordManager` is the cheapest to finish at 12 cross-references; `EditorIDManager` and
 `ChallengeStatus` are the largest at 126 and 116.
