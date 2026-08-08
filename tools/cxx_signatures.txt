@@ -1,0 +1,14 @@
+# Signatures for the C/C++ functions and Objective-C blocks listed in STATUS_06.md.
+#
+# One entry per line: an image-relative Ghidra address, a single tab, then the routine's full
+# reconstructed signature. Fill an entry in as the routine is reconstructed and its true signature
+# is known; STATUS_06.md reads this file so the Signature column survives regeneration.
+#
+# Use ordinary C/C++ declaration syntax for functions and block syntax for blocks, for example:
+#   0x7ebe8	UIImage *LoadScaledPngImage(NSString *name)
+#   0x23f6a0	void (^)(NSInteger status, NSError *error)
+#
+# Address<TAB>Signature
+0x7ebe8	UIImage *LoadScaledPngImage(NSString *pszBaseName)
+0x7fa54	NSData *CreateResourceDataCipherKey(void)
+0x125548	float InterpolateFloatByFrame(float flFrom, float flTo, unsigned int nCurrentFrame, unsigned int nStartFrame, unsigned int nEndFrame)
