@@ -2,26 +2,13 @@
 
 #import "AlertViewManager.h"
 #import "ChallengeStatus.h"
+#import "ChallengeTextInputView.h"
 #import "CopyableUiLabel.h"
 #import "Downloader.h"
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
-
-// The name-entry sub-view. Not reconstructed as its own file yet, so it is reached through a
-// forward declaration here. Its selectors are noted in TYPES_PENDING.md. It reports an edit back to
-// its aDelegate with -commitText:.
-@class ChallengeNameSettingView;
-
-@interface ChallengeTextInputView : UIView
-- (instancetype)initWithFrame:(CGRect)frame;
-@property(nonatomic, readonly, nullable) UITextField *nameBox;
-@property(nonatomic, readonly, nullable) UIButton *changeBtn;
-- (void)setDefaultText:(nullable NSString *)text;
-- (void)setADelegate:(nullable id)delegate;
-- (nullable NSString *)inputText;
-@end
 
 // The challenge root view messaged when a session-error alert is dismissed. Not reconstructed yet;
 // only the one selector this sheet sends is declared. See TYPES_PENDING.md.
@@ -92,7 +79,9 @@ static const int kStatusUpdateRequired = 0x186ab;
 // The alert tag used to route the session-error dismissal.
 static const int kSessionErrorAlertTag = 9999;
 
-@interface ChallengeNameSettingView () <AlertViewManagerDelegate, DownloaderDelegate>
+@interface ChallengeNameSettingView () <AlertViewManagerDelegate,
+                                        ChallengeTextInputViewDelegate,
+                                        DownloaderDelegate>
 @end
 
 @implementation ChallengeNameSettingView {
@@ -145,8 +134,8 @@ static const int kSessionErrorAlertTag = 9999;
         (bgFrame.size.width - nameBoxWidth) * kHalf, nameBoxY, nameBoxWidth, nameBoxHeight);
     inputView.nameBox.textAlignment = NSTextAlignmentCenter;
     inputView.nameBox.font = [UIFont fontWithName:kNameFontName size:fontSize];
-    inputView.defaultText = [ChallengeStatus sharedStatus].myName;
-    [inputView setADelegate:self];
+    [inputView setDefaultText:[ChallengeStatus sharedStatus].myName];
+    inputView.aDelegate = self;
 
     // The change button sits centred horizontally, half-way down the background.
     UIImage *changeImage = LoadScaledPngImage(kChangeButtonImageName);
