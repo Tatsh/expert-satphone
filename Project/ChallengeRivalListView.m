@@ -1,6 +1,7 @@
 #import "ChallengeRivalListView.h"
 
 #import "AlertViewManager.h"
+#import "ChallengeListView.h"
 #import "ChallengeStatus.h"
 #import "Downloader.h"
 #import "EditorIDManager.h"
@@ -8,17 +9,6 @@
 #import "JubeatAppDelegate.h"
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
-
-// The rival-list table view this modal hosts. Not reconstructed as its own file yet, so it is
-// reached through a forward declaration here. Its selectors are noted in TYPES_PENDING.md.
-@class ChallengeRivalListView;
-
-@interface ChallengeListView : UIView
-- (instancetype)initWithFrame:(CGRect)frame listPosY:(int)listPosY;
-- (void)setTitleImage:(nullable UIImage *)image animation:(BOOL)animation;
-- (void)setListArray:(nullable NSArray *)listArray;
-- (void)setADelegate:(nullable id)delegate;
-@end
 
 // The challenge root view messaged when a session-error alert is dismissed. Not reconstructed yet.
 // See TYPES_PENDING.md.
