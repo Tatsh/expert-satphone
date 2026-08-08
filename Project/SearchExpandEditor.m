@@ -10,8 +10,33 @@
 // The persisted dictionary's filename in the documents directory.
 static NSString *const kDictionaryFileName = @"SearchExpandDict.txt";
 
+// The bundled seed dictionary's resource name and type.
+static NSString *const kSeedResourceName = @"SearchExpandDict";
+static NSString *const kSeedResourceType = @"txt";
+
 @implementation SearchExpandEditor {
     NSMutableDictionary *expandDict; // +0x8
+}
+
+#pragma mark - Seeding
+
+/** @ghidraAddress 0x15f4bc */
++ (void)copyDictionary {
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSString *seedPath = [NSBundle.mainBundle pathForResource:kSeedResourceName
+                                                       ofType:kSeedResourceType];
+    if (!seedPath) {
+        return;
+    }
+    NSString *destinationPath = [JubeatAppDelegate.appDocumentsDirectory
+        stringByAppendingPathComponent:kDictionaryFileName];
+    // The remove's error is threaded into the copy's error-out slot, so a stale destination is
+    // cleared first and the copy reports over the same pointer, as in the binary.
+    NSError *error = nil;
+    if ([fileManager fileExistsAtPath:destinationPath]) {
+        [fileManager removeItemAtPath:destinationPath error:&error];
+    }
+    [fileManager copyItemAtPath:seedPath toPath:destinationPath error:&error];
 }
 
 #pragma mark - Construction

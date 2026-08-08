@@ -16,6 +16,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SearchExpandEditor : NSObject
 
 /**
+ * @brief Copies the bundled seed dictionary into the documents directory, replacing any existing
+ * copy.
+ * @ghidraAddress 0x15f4bc
+ */
++ (void)copyDictionary;
+
+/**
  * @brief Loads the persisted dictionary (or an empty one when none exists).
  * @return The initialised editor.
  * @ghidraAddress 0x15ee9c

@@ -7,10 +7,8 @@
  * The superclass is @c UIView , from the @c super initWithFrame: at 0x4e150 with
  * @c UIScreen.mainScreen.bounds .
  *
- * RECONSTRUCTION STATE: grown outwards from @c -[RootViewController init] , which builds one with a
- * nil title and installs itself as the delegate. Everything is recovered except the reward-title
- * table builder @c +createTitleArray:achieve: , which is declared only until the mission wire
- * format it reads is resolved.
+ * RECONSTRUCTION STATE: complete. Grown outwards from @c -[RootViewController init] , which builds
+ * one with a nil title and installs itself as the delegate.
  */
 
 #import <UIKit/UIKit.h>
@@ -129,15 +127,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSAttributedString *)createAchiveText:(nullable id)title;
 
 /**
- * @brief Builds the array of reward-title lines for a mission and its achievement state.
+ * @brief Builds the array of reward-title lines for the mission sheets and their achievement state.
  *
- * DECLARED ONLY — reconstructed in a later pass.
- * @param title The mission title payload.
- * @param achieve The achievement state.
- * @return The array of title lines.
+ * For every sheet, opens a line group with the sheet name, then for each of the sheet's mission
+ * terms whose id matches an achievement record renders a "title" or "title(progress/target)" entry;
+ * a group is kept only when it gained at least one entry beyond its name.
+ * @param title The array of @c ChallengeMissionSheet mission sheets.
+ * @param achieve The achievement records, keyed by mission id.
+ * @return The array of line groups, each an array of strings.
  * @ghidraAddress 0x4d790
  */
-+ (nullable NSArray *)createTitleArray:(nullable id)title achieve:(nullable id)achieve;
++ (nullable NSArray *)createTitleArray:(nullable NSArray *)title
+                               achieve:(nullable NSDictionary *)achieve;
 
 @end
 

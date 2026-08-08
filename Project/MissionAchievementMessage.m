@@ -4,11 +4,42 @@
 
 #import "AudioManager.h"
 #import "BalloonView.h"
+#import "ChallengeMissionTerms.h"
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 
+// One mission sheet in the title payload: a named group of mission terms. Forward-declared until
+// ChallengeMissionSheet is reconstructed (class name from the binary at 0x288417).
+@interface ChallengeMissionSheet : NSObject
+@property(nonatomic, readonly, nullable) NSString *sheetName;
+@property(nonatomic, readonly, nullable) NSArray<ChallengeMissionTerms *> *missionTable;
+@end
+
 // The completion sound played as the banner enters. From the CFString at 0x2d6960.
 static NSString *const kMissionGaugeSEName = @"SD_MISSION_GAUGE";
+
+// The achievement-record keys read from each mission's record: the current progress value and the
+// per-index progress detail. From the CFStrings at 0x1002d4360 (@"0") and 0x1002d6900 (@"data").
+static NSString *const kMissionAchieveProgressKey = @"0";
+static NSString *const kMissionAchieveDataKey = @"data";
+
+// The rendered-line formats: a bare title for a completed mission, and a title with a
+// progress/target pair otherwise. From the CFStrings at 0x1002d4360 (@"%@") and 0x1002d6920
+// (@"%@(%d/%d)").
+static NSString *const kMissionTitleFormat = @"%@";
+static NSString *const kMissionTitleProgressFormat = @"%@(%d/%d)";
+
+// The mission-state value that marks a mission as complete (the "status" achievement value). The
+// mission types whose progress is summed across the detail array, and the single type that reads
+// a per-key progress sum. Verified from the branch tests at 0x4dd68 (state == 4), 0x4db38
+// (type - 4 < 2, i.e. 4 or 5), and 0x4dbf4 (type == 3).
+static const int kMissionStateComplete = 4;
+static const unsigned int kMissionTypeDetailFirst = 4;
+static const unsigned int kMissionTypeDetailLast = 5;
+static const unsigned int kMissionTypeSummedDetail = 3;
+
+// The achievement record's completion-state key. From the CFString at 0x1002d5000 (@"status").
+static NSString *const kMissionAchieveStatusKey = @"status";
 
 // The per-entry format inside a rendered line, and the trailing flourish. From 0x2d6980 and
 // 0x2d69a0.
@@ -407,6 +438,68 @@ static const int kMissionIconWrapThreshold = 24;
         height = ((int)measure.frame.size.height + 4) * (entryCount + 1) + lineHeight;
     }
     return height;
+}
+
+#pragma mark - Title array
+
+/** @ghidraAddress 0x4d790 */
++ (NSArray *)createTitleArray:(NSArray *)title achieve:(NSDictionary *)achieve {
+    NSMutableArray *result = [[NSMutableArray alloc] init];
+    // The achievement records are matched in ascending numeric-key order, matching the binary's
+    // sortedArrayUsingComparator: over the keys' int values.
+    NSArray *sortedKeys =
+        [achieve.allKeys sortedArrayUsingComparator:^NSComparisonResult(id left, id right) {
+          /** @ghidraAddress 0x4dfd4 */
+          return [@([left intValue]) compare:@([right intValue])];
+        }];
+    for (ChallengeMissionSheet *sheet in title) {
+        NSMutableArray *lines = [[NSMutableArray alloc] init];
+        [lines addObject:sheet.sheetName];
+        for (ChallengeMissionTerms *terms in sheet.missionTable) {
+            for (NSString *key in sortedKeys) {
+                if (key.intValue != terms.missionID) {
+                    continue;
+                }
+                NSString *missionTitle = terms.missionTitle;
+                NSDictionary *record = achieve[key];
+                // Defaults: the target is the number of condition parameters, and the progress is
+                // the number of recorded data entries.
+                int target = (int)terms.missionDetail.count;
+                int progress = (int)[[record objectForKey:kMissionAchieveDataKey] count];
+                unsigned int type = terms.missionType;
+                if (type >= kMissionTypeDetailFirst && type <= kMissionTypeDetailLast) {
+                    // The first condition parameter is the target; the "0" data entry is the
+                    // progress.
+                    NSDictionary *data = record[kMissionAchieveDataKey];
+                    target = [terms.missionDetail[0] intValue];
+                    progress = [data[kMissionAchieveProgressKey] intValue];
+                } else if (type == kMissionTypeSummedDetail) {
+                    NSDictionary *data = record[kMissionAchieveDataKey];
+                    if (data) {
+                        target = [terms.missionDetail[0] intValue];
+                        progress = 0;
+                        for (NSString *dataKey in data) {
+                            progress += [data[dataKey] intValue];
+                        }
+                    }
+                }
+                int shown = progress <= target ? progress : target;
+                if ([record[kMissionAchieveStatusKey] intValue] == kMissionStateComplete) {
+                    [lines addObject:[NSString stringWithFormat:kMissionTitleFormat, missionTitle]];
+                } else if (shown > 0) {
+                    [lines addObject:[NSString stringWithFormat:kMissionTitleProgressFormat,
+                                                                missionTitle,
+                                                                shown,
+                                                                target]];
+                }
+            }
+        }
+        // Keep the group only when it gained an entry beyond the sheet name.
+        if (lines.count > 1) {
+            [result addObject:[lines copy]];
+        }
+    }
+    return [result copy];
 }
 
 /** @ghidraAddress 0x4fa3c */
