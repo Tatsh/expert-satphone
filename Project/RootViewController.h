@@ -198,6 +198,36 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)responseRemoteNotification:(BOOL)launchedFromNotification pushInfo:(NSDictionary *)pushInfo;
 
+/**
+ * @brief Dismisses any alert and suspends the visible game or edit screen as the app deactivates.
+ *
+ * Closes the shared alert, clears @c _isActive so a transition arriving now parks its name rather
+ * than running, and sends @c -suspend to the game and edit controllers only while their view is a
+ * direct subview of the root view.
+ *
+ * @param notification The deactivation notification. Never read.
+ * @ghidraAddress 0x1aab40
+ */
+- (void)appWillResignActive:(nullable NSNotification *)notification;
+/**
+ * @brief Resumes activity: runs any parked transition, then the three auto-move checks.
+ *
+ * Sets @c _isActive , runs the transition parked in @c suspendedAnimID (clearing it first), kicks
+ * off the custom-sequence download and the challenge and pack auto-moves, and resumes the visible
+ * game or edit screen.
+ *
+ * @param notification The activation notification. Never read.
+ * @ghidraAddress 0x1aacc8
+ */
+- (void)appDidBecomeActive:(nullable NSNotification *)notification;
+/**
+ * @brief Flushes user defaults and terminates the game and edit screens as the app quits.
+ *
+ * @param notification The termination notification. Never read.
+ * @ghidraAddress 0x1aae84
+ */
+- (void)appWillTerminate:(nullable NSNotification *)notification;
+
 @end
 
 NS_ASSUME_NONNULL_END

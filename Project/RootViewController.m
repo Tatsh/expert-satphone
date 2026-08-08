@@ -33,6 +33,11 @@
     MusicSelectViewController *musicSelectViewCtrl;
     BOOL _isActive;
 }
+// DECLARED ONLY — bodies not reconstructed yet; -appDidBecomeActive: sends all three.
+// Bodies at 0x1aa4a4, 0x1aa60c, and 0x1aa71c.
+- (void)downloadCustomSequence;
+- (void)autoMoveChallenge;
+- (void)autoMovePackDownload;
 @end
 
 // The five scene identifiers, from the CFStrings at 0x2e0000, 0x2e0080, and 0x2e01a0 to 0x2e01e0.
@@ -91,6 +96,8 @@ static const double kTitleSwitchFadeDuration = 1.5;
 - (void)terminate;
 - (void)restartGame;
 - (void)replayGame;
+- (void)suspend;
+- (void)resume;
 @end
 
 @implementation RootViewController
@@ -528,6 +535,105 @@ static const double kTitleSwitchFadeDuration = 1.5;
                                                 postJsonData:json
                                                     delegate:nil];
     [downloader startDownloading];
+}
+
+#pragma mark - Application state
+
+/** @ghidraAddress 0x1aab40 */
+- (void)appWillResignActive:(NSNotification *)notification {
+    // Any open alert is dismissed and the controller marks itself inactive, which is what makes a
+    // transition arriving while backgrounded park its name in suspendedAnimID instead of running.
+    [[NSClassFromString(@"AlertViewManager") sharedManager] closeAlert];
+    _isActive = NO;
+    // The game and edit screens are suspended only while they are the visible child — their view's
+    // superview is the root view. Verified at 0x1aac0c and the mirror at the edit block.
+    if (gameViewCtrl.view.superview == self.view) {
+        [gameViewCtrl suspend];
+    }
+    if (editViewCtrl.view.superview == self.view) {
+        [editViewCtrl suspend];
+    }
+}
+
+/** @ghidraAddress 0x1aacc8 */
+- (void)appDidBecomeActive:(NSNotification *)notification {
+    _isActive = YES;
+    // A transition that arrived while inactive was parked in suspendedAnimID; run it now, clearing
+    // the ivar first so a re-entrant become-active does not run it twice.
+    NSString *parked = suspendedAnimID;
+    if (parked) {
+        suspendedAnimID = nil;
+        [self fadeoutAnimStop:parked finished:nil context:NULL];
+    }
+    [self downloadCustomSequence];
+    [self autoMoveChallenge];
+    [self autoMovePackDownload];
+    // The mirror of -appWillResignActive:: resume the visible game or edit child.
+    if (gameViewCtrl.view.superview == self.view) {
+        [gameViewCtrl resume];
+    }
+    if (editViewCtrl.view.superview == self.view) {
+        [editViewCtrl resume];
+    }
+}
+
+/** @ghidraAddress 0x1aae84 */
+- (void)appWillTerminate:(NSNotification *)notification {
+    [NSUserDefaults.standardUserDefaults synchronize];
+    [gameViewCtrl terminate];
+    [editViewCtrl terminate];
+}
+
+/** @ghidraAddress 0x1aab08 */
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+}
+
+#pragma mark - View lifecycle
+
+/** @ghidraAddress 0x1aaf00 */
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+}
+
+/** @ghidraAddress 0x1aaf38 */
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+}
+
+/** @ghidraAddress 0x1aaf70 */
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+}
+
+/** @ghidraAddress 0x1aafa8 */
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+}
+
+#pragma mark - Rotation
+
+/** @ghidraAddress 0x1aafe0 */
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation {
+    // orientation - 1 < 2 (unsigned), so only Portrait (1) and PortraitUpsideDown (2) rotate.
+    // Verified at 0x1aafe0: sub x8,x2,#0x1 / cmp x8,#0x2 / cset w0,cc.
+    return (NSUInteger)(orientation - UIInterfaceOrientationPortrait) < 2;
+}
+
+/** @ghidraAddress 0x1aaff0 */
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    // 0x6 = Portrait | PortraitUpsideDown. Verified at 0x1aaff0: orr w0,wzr,#0x6.
+    return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
+}
+
+/** @ghidraAddress 0x1aaff8 */
+- (BOOL)shouldAutorotate {
+    return YES;
+}
+
+/** @ghidraAddress 0x1ab000 */
+- (BOOL)prefersStatusBarHidden {
+    return YES;
 }
 
 @end

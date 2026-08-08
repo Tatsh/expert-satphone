@@ -222,7 +222,7 @@ would be indistinguishable from a reconstructed one.
 
 ## Defects found in the binary
 
-### `-[ApplilinkParameters setRequestWithAdModel:adLocation:verticalAlign:requestCode:]` (0x26895c) — the alignment is discarded
+### `-[ApplilinkParameters setRequestWithAdModel:…]` (0x26895c) — the alignment is discarded
 
 The four-argument setter never reads its `verticalAlign` argument. `x4` is untouched from entry to
 return, and the ivar at 0x34c684 receives `x5`, the request code. The body is otherwise identical
@@ -355,7 +355,7 @@ touches it. Declared faithfully, with the fact noted at the declaration.
 The upper label's format string, the CFString at 0x2d9940, is twenty UTF-16 units long and the
 first is **U+0008**, a backspace, ahead of the first Japanese character:
 
-```
+```text
 U+0008 U+3042 U+3068 U+0025 U+0064 U+56DE ...
 ```
 
@@ -653,7 +653,7 @@ And the obvious guess is wrong. An OpenGL application overriding `+layerClass` a
 rather than the classref would have produced a plausible, checkable-looking, incorrect line. The
 class object at 0x38a500 is `CAGradientLayer`.
 
-### `-[HoldMarkerRender renderHoldLine:start:vector:trans:alpha:frame:addLength:]` (0xe7eb8) — an unguarded default
+### `-[HoldMarkerRender renderHoldLine:…addLength:]` (0xe7eb8) — an unguarded default
 
 The tail's rectangle is built in one of four arms selected by `vector`, and the range check does not
 protect the draw:
