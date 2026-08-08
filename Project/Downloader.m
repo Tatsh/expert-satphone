@@ -1,20 +1,11 @@
 #import "Downloader.h"
 
+#import "Downloader_Protected.h"
 #import "JubeatAppDelegate.h"
 
-@implementation Downloader {
-    // Declared in this order by the runtime metadata; the ivar offset globals sit in a different
-    // order and the code indexes by those.
-    NSURLRequest *request;         // offset global 0x34a36c
-    NSURLSession *session;         // offset global 0x34a378
-    NSURLSessionTask *sessionTask; // offset global 0x34a37c
-    NSMutableData *data;           // offset global 0x34a380
-    int64_t dl_size;               // offset global 0x34a384
-    // Weak, from the objc_storeWeak at 0xa7e60 and every clear at 0xa83c4/0xa889c via 0x27cf74, and
-    // every read via objc_loadWeakRetained. The encoding is a bare @ and records none of that.
-    __weak id<DownloaderDelegate> delegate; // offset global 0x34a370
-    int _tag;                               // offset global 0x34a374
-}
+// The ivars are declared in Downloader_Protected.h so the SessionDownloader subclass can reach
+// them, matching how the binary indexes the shared slots by offset.
+@implementation Downloader
 
 /** @ghidraAddress 0xa7d4c */
 - (instancetype)initWithURL:(NSURL *)url delegate:(id<DownloaderDelegate>)aDelegate {

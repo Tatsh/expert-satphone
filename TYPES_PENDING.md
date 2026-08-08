@@ -146,25 +146,6 @@ A declaration written because a reconstructed caller sends it, whose own body is
 The tree does not compile as a unit until these are filled in, which is deliberate: a stub body
 would be indistinguishable from a reconstructed one.
 
-**`SessionDownloader` (class at 0x348298) is fully analysed but not yet written**, because it needs
-a `Downloader` design decision first. It is a `Downloader` **subclass** (its `-initWithURL:postData:`
-delegate calls `objc_msgSendSuper2` `init`, and its overrides read and write `Downloader`'s own
-`request`, `data`, `delegate`, `session`, `sessionTask`, and `dl_size` ivars directly by offset).
-`Downloader` currently declares those ivars privately in its `.m`, so a faithful subclass cannot see
-them — writing `SessionDownloader` requires first exposing them (a shared class-extension header or
-`@protected` ivars in `Downloader.h`). Its nine methods are all read: `dataHash:` (0xff7b8) appends
-fixed salt `88f2cf8c…` to the UTF-8 body and SHA-256-hexes it into the `JBT_REQUEST_MAC` header;
-`createPostRequest:postData:` (0xff8b4) builds a 60-second POST and, when the global cookie cache
-`DAT_100354180` is empty, falls back to `getSessionRequest`; `getSessionRequest` (0xfff4c) POSTs
-`{user_id, target: "JP", passwd, cnonce}` to `+[ScratchUtil challengeSessionURL]`; the three inits
-seed a random `cnonce`; `-startDownloading` (0xff648) short-circuits to a cached session response for
-apiTag 1/2/3; and `-URLSession:task:didCompleteWithError:` (0x100560) verifies the `JBT_RESPONSE_MAC`
-and runs the retry state machine — status 0x18b50–0x18b52 re-open the session unconditionally,
-0x18b53 re-opens only for apiTag 2/3 (else caches the session response), and other non-0x186aa errors
-retry up to five times. Ivar offsets: `_apiTag` +0x60 (0x34aa90), `sendCnonce` +0x40 (0x34aa94), `tmpRequest`
-+0x48 (0x34aa98), `receiveHash` +0x58 (0x34aa9c), `requestURL` +0x10 (0x34a378), `requestData` +0x18
-(0x34a37c), `retryCnt` +0x08 (0x34a36c).
-
 | Declaration                                                                                                                                           | Why it is declared                                                                     | Body at                                     |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------- |
 | `-[KnitColorManager setColorWithArray:]`                                                                                                              | `-setKnitColor:` sends it                                                              | not located yet                             |
@@ -228,8 +209,6 @@ retry up to five times. Ivar offsets: `_apiTag` +0x60 (0x34aa90), `sendCnonce` +
 | `-[StorePackInfo packID]` and four siblings                                                                                                           | `-[StoreRecommendPackView loadPackInfo:index:]` reads them                             | 0xbe3d0, 0xbe410, 0xbe3e0, 0xbe3f0, 0xbd6b4 |
 | `-[PurchaseManager isPurchased:]`                                                                                                                     | ditto                                                                                  | 0xb61d8                                     |
 | `-[PurchaseManager isPending:]`                                                                                                                       | ditto                                                                                  | 0xb61f0                                     |
-| `-[SessionDownloader initWithURL:postDictionary:delegate:]`                                                                                           | `-[InheritCodePayView tapCodeOutput:]` sends it                                        | 0xff324                                     |
-| `-[SessionDownloader getDataInJSON]`                                                                                                                  | `-[InheritCodePayView downloaderFinished:]` sends it                                   | 0xa87a4                                     |
 | `+[AlertViewManager sharedManager]`                                                                                                                   | `-[InheritCodePayView downloaderError:]` sends it                                      | not located yet                             |
 | `-[AlertViewManager makeAlert:delegate:tag:title:msg:cancel:btnText:show:viewController:]`                                                            | `-[InheritCodePayView downloaderError:]` sends it                                      | 0xa8cfc                                     |
 | `+[ScratchUtil getInheritOutputURL]`                                                                                                                  | `-[InheritCodePayView tapCodeOutput:]` sends it                                        | 0x1823cc                                    |

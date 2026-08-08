@@ -1,0 +1,34 @@
+/** @file
+ * The @c Downloader ivars shared with its @c SessionDownloader subclass.
+ *
+ * The binary's @c SessionDownloader reads and writes @c Downloader 's own request, session, task,
+ * data, size, and delegate slots directly by offset (it is a compiled subclass in the same image),
+ * so the reconstruction exposes them here for the subclass to see. These offset globals are listed
+ * on each ivar; @c Downloader.m and @c SessionDownloader.m both import this header.
+ */
+
+#import <Foundation/Foundation.h>
+
+#import "Downloader.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface Downloader () {
+@protected
+    NSURLRequest *request;         // offset global 0x34a36c
+    NSURLSession *session;         // offset global 0x34a378
+    NSURLSessionTask *sessionTask; // offset global 0x34a37c
+    NSMutableData *data;           // offset global 0x34a380
+    int64_t dl_size;               // offset global 0x34a384
+    // Weak, from the objc_storeWeak at 0xa7e60 and every clear at 0xa83c4/0xa889c via 0x27cf74, and
+    // every read via objc_loadWeakRetained. The encoding is a bare @ and records none of that.
+    __weak id<DownloaderDelegate> delegate; // offset global 0x34a370
+    int _tag;                               // offset global 0x34a374
+}
+@end
+
+NS_ASSUME_NONNULL_END
+
+// code: language=Objective-C
+// kate: hl Objective-C;
+// vim: set ft=objc :

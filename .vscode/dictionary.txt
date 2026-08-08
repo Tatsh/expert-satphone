@@ -140,6 +140,7 @@ noti
 notifacation
 notificate
 nshttp
+nshttpurl
 nssq
 nsurl
 nsurls
