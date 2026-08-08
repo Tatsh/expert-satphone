@@ -228,6 +228,7 @@ would be indistinguishable from a reconstructed one.
 | `Sequence (+checkExistHoldMarkerFlag:)`, `+CreateTuneInfoCipherKey`, `-[KUnzip initWithData:range:]`, and `+[NSDictionary dictionaryFromPropertyListData:]` | `-[StoreDownloadManager downloaderFinished:]`/`-getTuneInfoFromUnzip:` unpack each pack through them | 0x7f854 (cipher key)         |
 | `+CreateResourceDataCipherKey`, `ExcludeUrlFromICloudBackup`, and `+[NSArray arrayFromPropertyListData:]`                                                   | `-[ChallengeResourceManager …]` enciphers and stores the panel resources through them                | not located yet              |
 | `ApplilinkUdid (+getAdUdid)` and `+[ApplilinkWebAPI requestSynchronousWithURL:method:parameters:cachePolicy:error:]`                                        | `-[RecommendAdId …]` resolves the ad-udid and drives the pasteboard web API through them             | not located yet              |
+| `+[ApplilinkConsts envServer]`                                                                                                                              | `-[ApplilinkPasteBoard getServiceNameOld]` reads it                                                  | 0x347758 (selector)          |
 
 ## Defects found in the binary
 
