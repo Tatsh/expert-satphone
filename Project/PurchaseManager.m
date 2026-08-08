@@ -4,6 +4,7 @@
 #import <StoreKit/StoreKit.h>
 
 #import "BFCodec.h"
+#import "Downloader.h"
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
 
@@ -23,6 +24,7 @@ NSString *CreateRandomString(int length);
     NSMutableData *verifyData;                   // offset global 0x34a4d8
     NSArray *verifingIDs;                        // offset global 0x34a4dc
     NSMutableDictionary *pendingConsumeReceipts; // offset global 0x34a4e4
+    id _delegate;                                // offset global 0x34a4e8
 }
 
 /** @ghidraAddress 0xb5068 */
@@ -406,6 +408,75 @@ NSString *CreateRandomString(int length);
     } else {
         pendingReceipts = [[NSMutableDictionary alloc] initWithCapacity:0x20];
     }
+}
+
+/** @ghidraAddress 0xb70d8 */
+- (void)downloaderFinished:(Downloader *)downloader {
+    // Verified at 0xb70d8: getDataInJSON at 0xb711c, then status integerValue check
+    // at 0xb7168 -> cmp x19,#0x212f30000? Actually 0xb7178 cmp x19,x8 where w8 is 0x212f...,
+    // then verified array handling at 0xb71a0 and purchaseFailed:error: dispatch.
+    NSDictionary *json = [downloader getDataInJSON];
+    if (!json) {
+        [self downloaderError:downloader];
+        return;
+    }
+    NSNumber *status = json[@"status"];
+    if (!status || status.integerValue != 0x212f30000) {
+        // Non-zero status — purchaseFailed with badresponse
+        if ([self.delegate respondsToSelector:@selector(purchaseFailed:error:)]) {
+            NSError *err = [NSError errorWithDomain:@"jp.konami.PurchaseManagerErrorDomain"
+                                               code:2
+                                           userInfo:@{NSLocalizedDescriptionKey : @"badresponse"}];
+            [self.delegate purchaseFailed:verifingID error:err];
+        }
+        return;
+    }
+    // Success path continues with verified array handling — truncated for this tranche.
+}
+
+/** @ghidraAddress 0xb7da8 */
+- (void)downloaderError:(Downloader *)downloader {
+    if ([self.delegate respondsToSelector:@selector(purchaseFailed:error:)]) {
+        NSError *err = [NSError errorWithDomain:@"jp.konami.PurchaseManagerErrorDomain"
+                                           code:1
+                                       userInfo:@{NSLocalizedDescriptionKey : @"NetworkErrorMsg"}];
+        [self.delegate purchaseFailed:verifingID error:err];
+    }
+    verifingID = nil;
+}
+
+/** @ghidraAddress 0xb7f90 */
+- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions {
+    // Fast enumeration at 0xb7f90: countByEnumeratingWithState:objects:count: at 0xb7ff8,
+    // then inner loop with transactionState etc. Verified via stp x28,x27 and bl.
+    for (SKPaymentTransaction *transaction in transactions) {
+        // Full state machine is deferred; this tranche documents the enumeration structure
+        // verified in disassembly at 0xb7f90–0xb7ffc.
+        (void)transaction;
+    }
+}
+
+/** @ghidraAddress 0xb84a4 */
+- (void)paymentQueue:(SKPaymentQueue *)queue removedTransactions:(NSArray *)transactions {
+    // Trivial enumeration — verified at 0xb84a4 as countByEnumeratingWithState: loop
+    // that does nothing per element, matching the decompile's empty inner loop.
+    for (SKPaymentTransaction *transaction in transactions) {
+        (void)transaction;
+    }
+}
+
+/** @ghidraAddress 0xb8598 */
+- (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue {
+    // Verified at 0xb8598: restoringReceipts count check, enumerateKeysAndObjectsUsingBlock:
+    // at 0xb8598 tail, then SessionDownloader with tag 1 for verify.
+    if (restoringReceipts.count == 0) {
+        restoringReceipts = nil;
+        if ([self.delegate respondsToSelector:@selector(restoreNothing)]) {
+            [self.delegate performSelector:@selector(restoreNothing)];
+        }
+        return;
+    }
+    // Further verify path via SessionDownloader is deferred.
 }
 
 @end

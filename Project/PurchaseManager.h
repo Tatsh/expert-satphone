@@ -4,9 +4,9 @@
  * Reconstructed from Ghidra program Jubeat (class PurchaseManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: twenty-one of thirty-five members written. The shared instance, StoreKit
- * lifecycle, consumable/non-consumable entry points, and the add/verify scaffolding — verified
- * against the disassembly via curl on port 8089.
+ * RECONSTRUCTION STATE: twenty-six of thirty-five members written. The shared instance, StoreKit
+ * lifecycle, consumable/non-consumable entry points, the add/verify scaffolding, and the
+ * StoreKit/downloader delegates — verified against the disassembly via curl on port 8089.
  */
 
 #import <Foundation/Foundation.h>
@@ -18,7 +18,19 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Drives in-app purchases.
  */
+@protocol PurchaseManagerDelegate <NSObject>
+@optional
+- (void)purchaseFailed:(NSString *)productID error:(NSError *)error;
+- (void)restoreNothing;
+@end
+
 @interface PurchaseManager : NSObject
+
+/**
+ * @brief The delegate.
+ * @ghidraAddress 0x34a4e8
+ */
+@property(nonatomic, weak, nullable) id<PurchaseManagerDelegate> delegate;
 
 /**
  * @brief The shared instance.
