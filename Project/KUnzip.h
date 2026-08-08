@@ -29,6 +29,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithPath:(nullable NSString *)path tail:(int)tail;
 
 /**
+ * @brief Opens an archive held in memory over a byte range.
+ *
+ * DECLARED ONLY. @c -[StoreDownloadManager downloaderFinished:] passes the downloaded pack's data
+ * and its full range.
+ *
+ * @param data The archive bytes.
+ * @param range The range of @p data the archive occupies.
+ * @return The opened archive, or nil.
+ */
+- (nullable instancetype)initWithData:(nullable NSData *)data range:(NSRange)range;
+
+/**
  * @brief Reads one entry out of the archive.
  *
  * DECLARED ONLY. The bytes come back still enciphered — @c -[ArtworkLoader loadArtwork] runs them

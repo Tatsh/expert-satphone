@@ -90,6 +90,7 @@ hinabita
 ifdef
 ifndef
 immediates
+infov
 initilize
 instancetype
 ints
@@ -146,6 +147,7 @@ nshttpurl
 nsjson
 nssq
 nsurl
+nsurlis
 nsurls
 nsutf
 nullability
