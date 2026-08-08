@@ -156,6 +156,7 @@ packlist
 pbxproj
 pendconlist
 pendlist
+pntmp
 posision
 preapproved
 prefjubeat

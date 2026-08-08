@@ -1,5 +1,9 @@
 #import "ScratchUtil.h"
 
+#import "JubeatAppDelegate.h"
+#import "StoreMusicListManager.h"
+#import "StoreUtil.h"
+
 // The API host, from the CFString at 0x2df240. Twenty characters, read from 0x2872a1.
 static NSString *const kAPIHost = @"agx11.s.konaminet.jp";
 
@@ -14,6 +18,9 @@ static NSString *const kSecureURLFormat = @"https://%@%@";
 // De-inlined: formats a path (whose leading "%s" is the API root) and wraps it in
 // "https://agx11.s.konaminet.jp<path>". Every JSON endpoint builder below shares this shape.
 + (nullable NSURL *)scratchURLForPath:(NSString *)pathFormat;
+// De-inlined: a documents-relative cache directory, created (with intermediates) on first use and
+// returning nil when creation fails. Shared by the two cache-directory accessors.
++ (nullable NSString *)cacheDirectoryNamed:(NSString *)name;
 @end
 
 @implementation ScratchUtil
@@ -22,6 +29,23 @@ static NSString *const kSecureURLFormat = @"https://%@%@";
     NSString *path = [NSString stringWithFormat:pathFormat, kAPIRootPath];
     NSString *urlString = [NSString stringWithFormat:kSecureURLFormat, kAPIHost, path];
     return [[NSURL alloc] initWithString:urlString];
+}
+
++ (NSString *)cacheDirectoryNamed:(NSString *)name {
+    NSString *directory =
+        [JubeatAppDelegate.appDocumentsDirectory stringByAppendingPathComponent:name];
+    NSFileManager *manager = NSFileManager.defaultManager;
+    if (![manager fileExistsAtPath:directory]) {
+        NSError *error = nil;
+        [manager createDirectoryAtPath:directory
+            withIntermediateDirectories:YES
+                             attributes:nil
+                                  error:&error];
+        if (error) {
+            return nil;
+        }
+    }
+    return directory;
 }
 
 /** @ghidraAddress 0x180524 */
@@ -228,6 +252,96 @@ static NSString *const kSecureURLFormat = @"https://%@%@";
     NSString *urlString =
         [NSString stringWithFormat:@"https://%@%s/info/iOS/v1/Inquiry/", kAPIHost, kAPIRootPath];
     return [[NSURL alloc] initWithString:urlString];
+}
+
+/** @ghidraAddress 0x1822ec */
++ (NSURL *)getMissionSheetSetURL {
+    return [self challengeSampleURL];
+}
+
+/** @ghidraAddress 0x180448 */
++ (NSURL *)challengeSampleURL {
+    // Always nil in the shipped build.
+    return nil;
+}
+
+#pragma mark - Cache directories
+
+/** @ghidraAddress 0x181904 */
++ (NSString *)scratchImageDirectory {
+    return [self cacheDirectoryNamed:@"scImg"];
+}
+
+/** @ghidraAddress 0x182648 */
++ (NSString *)unlockPanelImageDirectory {
+    return [self cacheDirectoryNamed:@"ulImg"];
+}
+
+/** @ghidraAddress 0x18273c */
++ (NSString *)panelDataPath {
+    NSString *directory = [self scratchImageDirectory];
+    if (!directory) {
+        return nil;
+    }
+    return [directory stringByAppendingString:@"pntmp"];
+}
+
+#pragma mark - Image and item paths
+
+/** @ghidraAddress 0x1819f8 */
++ (NSString *)imagePathForMusicID:(unsigned int)musicID {
+    // Tune 0 is the bundled placeholder button; the rest live in the scratch-image cache.
+    if (musicID == 0) {
+        return [NSBundle.mainBundle pathForResource:@"scratch_btn_scratch_00" ofType:@"png"];
+    }
+    NSString *directory = [self scratchImageDirectory];
+    if (!directory) {
+        return nil;
+    }
+    NSString *name = [[NSString alloc] initWithFormat:@"aw%09d.img", musicID];
+    return [directory stringByAppendingPathComponent:name];
+}
+
+/** @ghidraAddress 0x181b24 */
++ (NSString *)itemPathForMusicID:(unsigned int)musicID {
+    // Prefer the downloaded store file when the tune is a store tune and the file is present.
+    if ([StoreMusicListManager.sharedManager hasMusic:musicID]) {
+        NSString *storePath = [StoreUtil filePathForMusicID:musicID];
+        if ([NSFileManager.defaultManager fileExistsAtPath:storePath]) {
+            return storePath;
+        }
+    }
+    NSString *directory = [self scratchImageDirectory];
+    if (!directory) {
+        return nil;
+    }
+    NSString *name = [[NSString alloc] initWithFormat:@"%09d.jbt", musicID];
+    return [directory stringByAppendingPathComponent:name];
+}
+
+/** @ghidraAddress 0x1827b0 */
++ (NSString *)panelImagePathForItemID:(int)itemID {
+    NSString *directory = [self scratchImageDirectory];
+    if (!directory) {
+        return nil;
+    }
+    NSString *name = [[NSString alloc] initWithFormat:@"aw%09d.img", itemID];
+    return [directory stringByAppendingPathComponent:name];
+}
+
+/** @ghidraAddress 0x18286c */
++ (NSString *)checkRegularPanelImage {
+    // Always nil in the shipped build.
+    return nil;
+}
+
+#pragma mark - Cache management
+
+/** @ghidraAddress 0x181c8c */
++ (void)clearScratchData {
+    // Remove the scratch-image directory outright, then recreate it empty.
+    [NSFileManager.defaultManager removeItemAtPath:[self scratchImageDirectory] error:nil];
+    [self scratchImageDirectory];
 }
 
 @end

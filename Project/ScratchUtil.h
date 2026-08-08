@@ -4,9 +4,9 @@
  * Reconstructed from Ghidra program Jubeat (class ScratchUtil, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: only the one member reached so far is recovered. The class object is at
- * 0x3482a0 and has a sibling @c +pushNotificationIDSendURL at 0x180450 that nothing reconstructed
- * reaches yet, so it is not declared.
+ * The class is complete: all forty-one hand-written class methods are recovered — the full family
+ * of server-endpoint URL builders, the scratch/unlock image cache directories, and the tune image
+ * and item path builders. The class object is at 0x3482a0.
  *
  * Class properties and bare class methods compile to the same single class method, so declaring
  * @c pushNotificationResponseURL as a class property below claims nothing the binary contradicts.
@@ -238,6 +238,71 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x182874
  */
 + (nullable NSURL *)getInquiryURL;
+
+/**
+ * @brief The mission sheet-set URL; forwards to @c +challengeSampleURL .
+ * @ghidraAddress 0x1822ec
+ */
++ (nullable NSURL *)getMissionSheetSetURL;
+/**
+ * @brief A sample-scratch URL. Always nil in the shipped build.
+ * @ghidraAddress 0x180448
+ */
++ (nullable NSURL *)challengeSampleURL;
+
+/**
+ * @brief The scratch-image cache directory, created on first use.
+ * @return The directory path, or nil when it cannot be created.
+ * @ghidraAddress 0x181904
+ */
++ (nullable NSString *)scratchImageDirectory;
+/**
+ * @brief The unlock-panel-image cache directory, created on first use.
+ * @return The directory path, or nil when it cannot be created.
+ * @ghidraAddress 0x182648
+ */
++ (nullable NSString *)unlockPanelImageDirectory;
+/**
+ * @brief The temporary panel-data path inside the scratch-image directory.
+ * @ghidraAddress 0x18273c
+ */
++ (nullable NSString *)panelDataPath;
+
+/**
+ * @brief The scratch image path for a tune.
+ *
+ * A zero identifier maps to the bundled @c scratch_btn_scratch_00.png ; otherwise
+ * @c "<scratchImageDirectory>/aw%09d.img" .
+ * @param musicID The tune identifier.
+ * @ghidraAddress 0x1819f8
+ */
++ (nullable NSString *)imagePathForMusicID:(unsigned int)musicID;
+/**
+ * @brief The tune data path, preferring the downloaded store file when present.
+ *
+ * When the tune is in the store list and its @c +[StoreUtil filePathForMusicID:] exists on disk
+ * that path is returned; otherwise @c "<scratchImageDirectory>/%09d.jbt" .
+ * @param musicID The tune identifier.
+ * @ghidraAddress 0x181b24
+ */
++ (nullable NSString *)itemPathForMusicID:(unsigned int)musicID;
+/**
+ * @brief The unlock-panel image path for an item.
+ * @param itemID The item identifier.
+ * @ghidraAddress 0x1827b0
+ */
++ (nullable NSString *)panelImagePathForItemID:(int)itemID;
+/**
+ * @brief A regular-panel-image check. Always nil in the shipped build.
+ * @ghidraAddress 0x18286c
+ */
++ (nullable NSString *)checkRegularPanelImage;
+
+/**
+ * @brief Clears the scratch-image cache directory and recreates it empty.
+ * @ghidraAddress 0x181c8c
+ */
++ (void)clearScratchData;
 
 @end
 
