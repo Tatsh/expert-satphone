@@ -36,6 +36,7 @@ chksco
 cjson
 classess
 classref
+cnonce
 codesign
 color
 colors
