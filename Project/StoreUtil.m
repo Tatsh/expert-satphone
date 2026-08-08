@@ -89,6 +89,37 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
     return [self storeURLForPathWithClientInfo:path];
 }
 
+/** @ghidraAddress 0xb9a2c */
++ (NSURL *)packListURL:(unsigned int)head limit:(unsigned int)limit genre:(unsigned int)genre {
+    NSMutableString *path =
+        [NSMutableString stringWithFormat:@"%s/packlist_secure/?target=%s&head=%d&limit=%d",
+                                          kStoreCGIPath,
+                                          kStoreRegion,
+                                          head,
+                                          limit];
+    if (genre != 0) {
+        [path appendFormat:@"&genre=%d", genre];
+    }
+    return [self storeURLForPathWithClientInfo:path];
+}
+
+/** @ghidraAddress 0xb9ba0 */
++ (NSURL *)recommendPackListURL:(unsigned int)useGenre {
+    // Head 0, limit 8, and — when a genre is wanted — one drawn at random from a fixed ten-entry
+    // table. Verified at 0xb9c04: rand() % 10 indexes kRecommendGenres.
+    static const int kRecommendGenres[] = {0, 130, 135, 115, 120, 140, 70, 110, 105, 100};
+    NSMutableString *path =
+        [NSMutableString stringWithFormat:@"%s/packlist_secure/?target=%s&head=%d&limit=%d",
+                                          kStoreCGIPath,
+                                          kStoreRegion,
+                                          0,
+                                          8];
+    if (useGenre != 0) {
+        [path appendFormat:@"&genre=%d", kRecommendGenres[rand() % 10]];
+    }
+    return [self storeURLForPathWithClientInfo:path];
+}
+
 /** @ghidraAddress 0xb9f28 */
 + (NSURL *)packInfoURL:(unsigned int)packID {
     NSMutableString *path =

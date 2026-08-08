@@ -57,6 +57,30 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSURL *)storeNewInfoURL;
 
 /**
+ * @brief The pack-list URL for a page, optionally filtered by genre.
+ *
+ * Formats @c packlist_secure with the head and limit and appends @c "&genre=%d" only when @p genre
+ * is non-zero, then the client-info query.
+ * @param head The first index.
+ * @param limit The page size.
+ * @param genre The genre filter, or 0 for none.
+ * @ghidraAddress 0xb9a2c
+ */
++ (nullable NSURL *)packListURL:(unsigned int)head
+                          limit:(unsigned int)limit
+                          genre:(unsigned int)genre;
+/**
+ * @brief The recommended-pack-list URL: head 0, limit 8, and a random genre when @p useGenre is
+ * set.
+ *
+ * When @p useGenre is non-zero it appends @c "&genre=%d" with a value chosen at random from a
+ * ten-entry table.
+ * @param useGenre Whether to append a random genre filter.
+ * @ghidraAddress 0xb9ba0
+ */
++ (nullable NSURL *)recommendPackListURL:(unsigned int)useGenre;
+
+/**
  * @brief The pack-info URL for a pack, carrying the client info as a query.
  * @param packID The pack identifier.
  * @ghidraAddress 0xb9f28

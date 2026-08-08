@@ -149,6 +149,7 @@ omgker
 oneline
 opendetail
 packinfo
+packlist
 pbxproj
 pendconlist
 pendlist
