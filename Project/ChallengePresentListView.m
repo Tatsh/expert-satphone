@@ -1,17 +1,8 @@
 #import "ChallengePresentListView.h"
 
+#import "ChallengePresentListViewCell.h"
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
-
-// The present-list table cell this list vends. Not reconstructed as its own file yet, so it is
-// reached through a forward declaration here. Its selectors are noted in TYPES_PENDING.md.
-@class ChallengePresentListView;
-
-@interface ChallengePresentListViewCell : UITableViewCell
-- (instancetype)initWithStyle:(UITableViewCellStyle)style
-              reuseIdentifier:(nullable NSString *)reuseIdentifier;
-- (void)setBgImage:(nullable UIImage *)image text:(nullable NSString *)text;
-@end
 
 // The background, title, and close-button art.
 static NSString *const kBackgroundImageName = @"scratch_list_bg";
