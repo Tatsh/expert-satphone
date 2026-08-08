@@ -28,3 +28,33 @@ NSString *CreateMd5HexStringFromCString(const char *lpcszInput) {
     // An immutable copy is returned, not the mutable buffer.
     return [NSString stringWithString:hex];
 }
+
+NSData *CreateMd5DataFromCString(const char *lpcszInput) {
+    CC_MD5_CTX context;
+    CC_MD5_Init(&context);
+    CC_MD5_Update(&context, lpcszInput, (CC_LONG)strlen(lpcszInput));
+    unsigned char digest[CC_MD5_DIGEST_LENGTH];
+    CC_MD5_Final(digest, &context);
+
+    // +dataWithBytes:length: already autoreleases, so there is no separate retain/autorelease
+    // dance here, unlike most of its siblings in this cluster.
+    return [NSData dataWithBytes:digest length:sizeof(digest)];
+}
+
+NSString *CreateMD5HexString(const void *pvData, unsigned int cbLength) {
+    CC_MD5_CTX context;
+    CC_MD5_Init(&context);
+    CC_MD5_Update(&context, pvData, cbLength);
+    unsigned char digest[CC_MD5_DIGEST_LENGTH];
+    CC_MD5_Final(digest, &context);
+
+    NSMutableString *hex = [[NSMutableString alloc] initWithCapacity:kMd5HexStringCapacity];
+    // The binary emits sixteen separate appendFormat: calls rather than a loop; each passes the
+    // digest byte as a stack vararg the decompiler renders invisibly. Written as a loop here
+    // because the unrolling carries no information.
+    for (int index = 0; index < CC_MD5_DIGEST_LENGTH; ++index) {
+        [hex appendFormat:kHexByteFormat, digest[index]];
+    }
+    // An immutable copy is returned, not the mutable buffer.
+    return [NSString stringWithString:hex];
+}

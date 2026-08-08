@@ -13,6 +13,7 @@ archs
 autorelease
 autoreleased
 autoreleasepool
+autoreleases
 autoreleasing
 autoresizes
 autoresizing
@@ -100,6 +101,7 @@ fneg
 fopen
 forgenre
 foxundermoon
+fqsah
 fread
 fseek
 ftell
@@ -117,6 +119,7 @@ idurl
 ifdef
 ifndef
 immediates
+independ
 infomation
 infov
 initalize
@@ -138,6 +141,7 @@ jinja
 jsonnet
 jsonschema
 jubeat
+jubeatmissiondata
 jubeatplus
 jubeat's
 konaminet
@@ -241,6 +245,7 @@ regist
 revoinf
 rgba
 ripgreprc
+rodata
 rtti
 rturl
 satphone
@@ -303,6 +308,7 @@ unichar
 unrecovered
 unretained
 unselectable
+vararg
 vendored
 venv
 verifing
