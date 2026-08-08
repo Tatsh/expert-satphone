@@ -48,12 +48,12 @@
 0x82fc0	(^void)(BOOL)
 0x832f8	(^void)(void)
 0x83328	(^void)(BOOL)
-0x93b34	BFCodecContext *AllocContext(void)
-0x93b64	void FreeContext(BFCodecContext *pCtx)
-0x93b70	void ClearContext(BFCodecContext *pCtx)
-0x93b88	void SetKey(BFCodecContext *pCtx, const uint8_t *pbKey, int nKeyLength)
-0x93db0	void EncipherBlock(BFCodecContext *pCtx, uint64_t *pqwLeft, uint64_t *pqwRight)
-0x93e28	void DecipherBlock(BFCodecContext *pCtx, uint64_t *pqwLeft, uint64_t *pqwRight)
+0x93b34	BFCodecContext::BFCodecContext(void)
+0x93b64	BFCodecContext::~BFCodecContext()
+0x93b70	void BFCodecContext::clear()
+0x93b88	void BFCodecContext::setKey(const uint8_t *pbKey, int nKeyLength)
+0x93db0	void BFCodecContext::encipherBlock(uint64_t *pqwLeft, uint64_t *pqwRight) const
+0x93e28	void BFCodecContext::decipherBlock(uint64_t *pqwLeft, uint64_t *pqwRight) const
 0x982ec	(^void)(void)
 0x985d0	(^void)(void)
 0x9861c	(^void)(BOOL)

@@ -1,5 +1,7 @@
 #import "BFCodec.h"
 
+#import "bfcodeccontext.h"
+
 // Blowfish's block size, and the width of the length trailer that follows the ciphertext.
 enum {
     kBlockLength = 8,
@@ -45,16 +47,16 @@ static inline void PutBigEndianWord(unsigned char *bytes, uint64_t word) {
     if (self) {
         // Zeroed as one 64-bit store, not eight byte stores.
         *(uint64_t *)_iv = 0;
-        _blf = AllocContext();
+        _blf = new BFCodecContext();
     }
     return self;
 }
 
 /** @ghidraAddress 0x949e0 */
 - (void)cipherInit:(const char *)key length:(int)length {
-    ClearContext(_blf);
+    _blf->clear();
     memcpy(_iv, kFixedChainVector, sizeof(_iv));
-    SetKey(_blf, (const uint8_t *)key, length);
+    _blf->setKey((const uint8_t *)key, length);
 }
 
 /** @ghidraAddress 0x94a58 */
@@ -88,7 +90,7 @@ static inline void PutBigEndianWord(unsigned char *bytes, uint64_t word) {
             uint64_t left = TakeBigEndianWord(bytes, plainLength, &position) ^ chainLeft;
             uint64_t right = TakeBigEndianWord(bytes, plainLength, &position) ^ chainRight;
 
-            EncipherBlock(_blf, &left, &right);
+            _blf->encipherBlock(&left, &right);
 
             PutBigEndianWord(bytes + offset, left);
             PutBigEndianWord(bytes + offset + 4, right);
@@ -156,7 +158,7 @@ static inline void PutBigEndianWord(unsigned char *bytes, uint64_t word) {
 
             uint64_t left = cipherLeft;
             uint64_t right = cipherRight;
-            DecipherBlock(_blf, &left, &right);
+            _blf->decipherBlock(&left, &right);
 
             left ^= chainLeft;
             right ^= chainRight;
@@ -179,7 +181,7 @@ static inline void PutBigEndianWord(unsigned char *bytes, uint64_t word) {
 - (void)dealloc {
     // The vector is wiped before the schedule is released, so neither outlives the codec.
     *(uint64_t *)_iv = 0;
-    FreeContext(_blf);
+    delete _blf;
 }
 
 @end

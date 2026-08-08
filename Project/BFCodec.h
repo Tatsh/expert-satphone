@@ -7,14 +7,13 @@
  * The superclass is @c NSObject, from the dyld bind at the class object's superclass slot
  * (0x34d760).
  *
- * The class is a thin Objective-C shell over a C Blowfish implementation, adding CBC chaining and a
- * length trailer of its own. @c -cipherInit: alone has 189 cross-references, so essentially every
- * encrypted asset and request in the application passes through here.
+ * The class is a thin Objective-C shell over a C++ Blowfish implementation (@c BFCodecContext),
+ * adding CBC chaining and a length trailer of its own. @c -cipherInit: alone has 189
+ * cross-references, so essentially every encrypted asset and request in the application passes
+ * through here.
  */
 
 #import <Foundation/Foundation.h>
-
-#import "BFCodecContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
