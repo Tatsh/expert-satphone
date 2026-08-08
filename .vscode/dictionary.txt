@@ -6,6 +6,8 @@ adrp
 anim
 appli
 applilink
+applilinkapplist
+applist
 archs
 autorelease
 autoreleased
@@ -191,6 +193,7 @@ reflesh
 reflow
 regen
 regist
+revoinf
 rgba
 ripgreprc
 rtti
