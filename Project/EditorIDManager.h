@@ -66,13 +66,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property(class, nonatomic, readonly) BOOL isExistEditorID;
 
 /**
- * @brief The keychain account for the editor identifier. DECLARED ONLY.
+ * @brief The keychain account for the editor identifier, the constant @c "EditorUniqueID".
+ * @ghidraAddress 0x1d3034
  */
-+ (id)getEditorIDKey;
++ (NSString *)getEditorIDKey;
 /**
- * @brief The keychain account for the editor passphrase. DECLARED ONLY.
+ * @brief The keychain account for the editor passphrase, the constant @c "EditorPassword".
+ * @ghidraAddress 0x1d3060
  */
-+ (id)getEditorPassKey;
++ (NSString *)getEditorPassKey;
 /**
  * @brief Builds the keychain lookup query for an account.
  *
@@ -84,9 +86,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSDictionary *)getKeyQuery:(id)key;
 /**
- * @brief Removes the editor keychain entries. DECLARED ONLY.
+ * @brief Removes the editor keychain entries that are present.
+ *
+ * Looks up the identifier and the passphrase in turn and deletes each one only when the lookup
+ * succeeds, so an absent entry is left alone rather than delete-attempted.
+ * @ghidraAddress 0x1d325c
  */
 + (void)deleteKeychain;
+
+/**
+ * @brief Deletes the generic-password keychain item for an account.
+ * @param key The account name.
+ * @ghidraAddress 0x1d31ac
+ */
++ (void)deleteKeychainString:(id)key;
 
 /**
  * @brief Builds the keychain add query for an account.
@@ -131,6 +144,49 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x1d33c4
  */
 + (nullable NSString *)getKeyString:(id)key;
+
+/**
+ * @brief Builds the keychain add query for an account. Identical to @c -createAddQuery: .
+ * @param key The account name.
+ * @return The add-query dictionary.
+ * @ghidraAddress 0x1d3538
+ */
++ (NSDictionary *)createAddQueryG:(id)key;
+
+/**
+ * @brief Writes the editor identifier and passphrase into the keychain.
+ * @param editorID The editor identifier.
+ * @param passwd The passphrase.
+ * @ghidraAddress 0x1d36b8
+ */
++ (void)setKeyChain:(id)editorID passwd:(id)passwd;
+
+/**
+ * @brief Replaces the keychain from a provisioning response, when its status marks a switch.
+ *
+ * Reads @c Status , @c UserID , and @c Passwd ; only when the status is @c 0x75DA does it hand the
+ * identifier and passphrase to @c +replaceKeyChain:pass: .
+ * @param response The provisioning response dictionary.
+ * @ghidraAddress 0x1d38dc
+ */
++ (void)replaceKeyChain:(id)response;
+
+/**
+ * @brief Switches the editor account: rewrites the keychain and clears the derived session state.
+ *
+ * When both arguments are present it deletes the keychain, writes the new pair, refreshes the user
+ * agent, resets @c ChallengeStatus , and clears every stored HTTP cookie.
+ * @param editorID The new editor identifier.
+ * @param pass The new passphrase.
+ * @ghidraAddress 0x1d39d4
+ */
++ (void)replaceKeyChain:(id)editorID pass:(id)pass;
+
+/**
+ * @brief Debugging hook that prints the keychain. Does nothing in the shipped build.
+ * @ghidraAddress 0x1d3534
+ */
++ (void)printKeychain;
 
 @end
 

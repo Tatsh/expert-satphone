@@ -15,6 +15,19 @@ static NSString *const kResponseUserIDKey = @"UserID";
 static NSString *const kResponsePasswordKey = @"Passwd";
 static NSString *const kResponseMessageKey = @"MsgUser";
 
+// The keychain account names. From the CFStrings at 0x2e0fc0 and 0x2e0fe0.
+static NSString *const kEditorIDAccount = @"EditorUniqueID";
+static NSString *const kEditorPassAccount = @"EditorPassword";
+
+// The provisioning status that marks an account switch. Spelled as a bare 0x75DA in the binary.
+static const int kAccountSwitchStatus = 0x75da;
+
+// ChallengeStatus is reached only to reset it on an account switch; not reconstructed yet.
+@interface NSObject (EditorIDChallengeStatus)
++ (instancetype)sharedStatus;
+- (void)resetStatus;
+@end
+
 // The selectors the provisioning client is messaged through and reports back on.
 @interface NSObject (JubeatLabAccess)
 - (instancetype)initUIDApi:(nullable id)delegate;
@@ -81,6 +94,41 @@ static NSString *const kResponseMessageKey = @"MsgUser";
                                   encoding:NSUTF8StringEncoding];
 }
 
+/** @ghidraAddress 0x1d3034 */
++ (NSString *)getEditorIDKey {
+    return kEditorIDAccount;
+}
+
+/** @ghidraAddress 0x1d3060 */
++ (NSString *)getEditorPassKey {
+    return kEditorPassAccount;
+}
+
+/** @ghidraAddress 0x1d325c */
++ (void)deleteKeychain {
+    // Each account is deleted only when it is actually present. Verified at 0x1d325c: a
+    // SecItemCopyMatching guards each deleteKeychainString: call.
+    CFTypeRef found = NULL;
+    if (SecItemCopyMatching((__bridge CFDictionaryRef)[self getKeyQuery:self.getEditorIDKey],
+                            &found) == errSecSuccess) {
+        [self deleteKeychainString:self.getEditorIDKey];
+    }
+    found = NULL;
+    if (SecItemCopyMatching((__bridge CFDictionaryRef)[self getKeyQuery:self.getEditorPassKey],
+                            &found) == errSecSuccess) {
+        [self deleteKeychainString:self.getEditorPassKey];
+    }
+}
+
+/** @ghidraAddress 0x1d31ac */
++ (void)deleteKeychainString:(id)key {
+    // A generic-password delete query keyed only by the account name.
+    NSMutableDictionary *query = [NSMutableDictionary dictionary];
+    query[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
+    query[(__bridge id)kSecAttrAccount] = key;
+    SecItemDelete((__bridge CFDictionaryRef)query);
+}
+
 /** @ghidraAddress 0x1d2ec4 */
 + (NSDictionary *)getKeyQuery:(id)key {
     // A generic-password lookup scoped to the bundle identifier, asking for the item's attributes
@@ -93,6 +141,69 @@ static NSString *const kResponseMessageKey = @"MsgUser";
         (__bridge id)kSecMatchLimit : (__bridge id)kSecMatchLimitOne,
         (__bridge id)kSecReturnAttributes : (__bridge id)kCFBooleanTrue,
     };
+}
+
+/** @ghidraAddress 0x1d3538 */
++ (NSDictionary *)createAddQueryG:(id)key {
+    // Identical to -createAddQuery:: a generic-password entry scoped to the bundle identifier with
+    // an empty label and description, accessible after first unlock.
+    NSString *service = NSBundle.mainBundle.bundleIdentifier;
+    return @{
+        (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
+        (__bridge id)kSecAttrAccount : key,
+        (__bridge id)kSecAttrService : service,
+        (__bridge id)kSecAttrLabel : @"",
+        (__bridge id)kSecAttrDescription : @"",
+        (__bridge id)kSecAttrAccessible : (__bridge id)kSecAttrAccessibleAfterFirstUnlock,
+    };
+}
+
+/** @ghidraAddress 0x1d36b8 */
++ (void)setKeyChain:(id)editorID passwd:(id)passwd {
+    NSMutableDictionary *idAdd =
+        [NSMutableDictionary dictionaryWithDictionary:[self createAddQueryG:self.getEditorIDKey]];
+    idAdd[(__bridge id)kSecValueData] = [editorID dataUsingEncoding:NSUTF8StringEncoding];
+    SecItemAdd((__bridge CFDictionaryRef)idAdd, NULL);
+
+    NSMutableDictionary *passAdd =
+        [NSMutableDictionary dictionaryWithDictionary:[self createAddQueryG:self.getEditorPassKey]];
+    passAdd[(__bridge id)kSecValueData] = [passwd dataUsingEncoding:NSUTF8StringEncoding];
+    SecItemAdd((__bridge CFDictionaryRef)passAdd, NULL);
+}
+
+/** @ghidraAddress 0x1d38dc */
++ (void)replaceKeyChain:(id)response {
+    NSNumber *status = [response objectForKey:kResponseStatusKey];
+    NSString *userID = [response objectForKey:kResponseUserIDKey];
+    NSString *password = [response objectForKey:kResponsePasswordKey];
+    if (status.intValue == kAccountSwitchStatus) {
+        [self replaceKeyChain:userID pass:password];
+    }
+}
+
+/** @ghidraAddress 0x1d39d4 */
++ (void)replaceKeyChain:(id)editorID pass:(id)pass {
+    // The account-switch path: rewrite the keychain, then discard everything derived from the old
+    // account — the user agent, the challenge status, and every stored cookie.
+    if (!editorID || !pass) {
+        return;
+    }
+    [self deleteKeychain];
+    [self setKeyChain:editorID passwd:pass];
+    [JubeatAppDelegate.appDelegate refreshUserAgent];
+    [[NSClassFromString(@"ChallengeStatus") sharedStatus] resetStatus];
+
+    NSHTTPCookieStorage *storage = NSHTTPCookieStorage.sharedHTTPCookieStorage;
+    [storage.cookies
+        enumerateObjectsUsingBlock:^(NSHTTPCookie *cookie, NSUInteger index, BOOL *stop) {
+          /** @ghidraAddress 0x1d3b68 */
+          [storage deleteCookie:cookie];
+        }];
+}
+
+/** @ghidraAddress 0x1d3534 */
++ (void)printKeychain {
+    // Empty in the shipped build.
 }
 
 #pragma mark - Provisioning
