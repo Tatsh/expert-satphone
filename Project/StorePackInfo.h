@@ -35,6 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xbd6b4
  */
 @property(nonatomic, readonly, nullable) NSAttributedString *attributedPriceString;
+/** @brief The pack's long description. DECLARED ONLY. @ghidraAddress 0xbe420 */
+@property(nonatomic, readonly, nullable) NSString *comment;
+/** @brief The related-site link URL string. DECLARED ONLY. @ghidraAddress 0xbe450 */
+@property(nonatomic, readonly, nullable) NSString *linkURL;
+/** @brief The related-site link title. DECLARED ONLY. @ghidraAddress 0xbe460 */
+@property(nonatomic, readonly, nullable) NSString *linkTitle;
 
 @end
 
