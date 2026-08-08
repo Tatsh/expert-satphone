@@ -45,6 +45,18 @@
 static NSString *const kGameViewControllerClassName = @"GameViewController";
 static NSString *const kEditViewControllerClassName = @"EditViewController";
 static NSString *const kMissionAchievementMessageClassName = @"MissionAchievementMessage";
+// The store screen -openStore: builds and -endStore tears down; not reconstructed yet.
+static NSString *const kStoreViewControllerClassName = @"StoreViewController";
+
+// The store transition's 3-D geometry. The perspective term is written into CATransform3DIdentity's
+// m34 slot from an immediate built inline with movk (0x1a7cd8-0x1a7ce4), whose bit pattern
+// 0xBF40624DE0000000 is -0.0005f widened. The half-turn is ±π/2 about the Y axis, from the pooled
+// doubles at 0x28f460 (+) and 0x291c00 (-).
+static const CGFloat kStorePerspectiveM34 = -0.0005f; // movk immediate 0xBF40624DE0000000
+static const CGFloat kStoreFlipAngle = M_PI_2; // @ghidraAddress 0x28f460 (1.5707963267948966)
+// The transition timings: a 0.1s delay before a 1.5s linear-curve rotation.
+static const double kStoreTransitionDelay = 0.1;    // @ghidraAddress 0x28f290
+static const double kStoreTransitionDuration = 1.5; // fmov 0x3FF8000000000000
 
 // The six scene identifiers, from the CFStrings at 0x2e0000, 0x2e0060, 0x2e0080, and 0x2e01a0 to
 // 0x2e01e0. "SceneStore" is reached by the auto-move checks and -openStore:.
@@ -109,6 +121,8 @@ static const double kTitleSwitchFadeDuration = 1.5;
 - (void)storeClose;
 - (void)openDetail:(nullable id)packID;
 - (void)openCampaignDetail:(nullable id)campaignID;
+- (void)setStartupParameters:(nullable id)parameters;
+- (void)loadInitialStoreInfo;
 - (void)resumeJcfDownload;
 - (void)schemeMoveStore;
 @end
@@ -173,6 +187,18 @@ static const double kTitleSwitchFadeDuration = 1.5;
 }
 
 #pragma mark - Transition helpers
+
+// De-inlined from -openStore: and -endStore:. Installs the perspective sublayer transform on the
+// root view's layer and returns the depth used for the two child layers' anchor points. The depth
+// is minus half the root view's height; the perspective term goes into the identity matrix's m34
+// slot before it is translated back by that depth.
+- (CGFloat)installStoreSublayerTransform {
+    CGFloat depth = self.view.bounds.size.height * -0.5;
+    CATransform3D perspective = CATransform3DIdentity;
+    perspective.m34 = kStorePerspectiveM34;
+    self.view.layer.sublayerTransform = CATransform3DTranslate(perspective, 0, 0, depth);
+    return depth;
+}
 
 // De-inlined. The binary emits this same three-message teardown five times, at 0x1a95a0, 0x1a965c,
 // 0x1a970c, 0x1a990c, and 0x1a9c68. Nilling the ivar stays at the call site because each copy
@@ -434,6 +460,89 @@ static const double kTitleSwitchFadeDuration = 1.5;
     // The other end of the block -fade:durationIn:durationOut: put in place. Reached on every path,
     // including an unrecognised animation name, so input cannot be left disabled.
     [UIApplication.sharedApplication endIgnoringInteractionEvents];
+}
+
+/** @ghidraAddress 0x1a7b58 */
+- (void)openStore:(id)startupParameters {
+    // The store slides in over music select with a 3-D cube-flip about the Y axis, driven by the
+    // pre-iOS-4 begin/commit animation API rather than -fade:. Input is blocked for the duration.
+    [UIApplication.sharedApplication beginIgnoringInteractionEvents];
+    currentSceneID = kStoreSceneID;
+
+    [ImageCache.sharedCache clear];
+    [AudioManager.sharedManager fadeoutBgm:1.0];
+
+    // Perspective on the root layer; both children share the same anchor-point depth.
+    CGFloat depth = [self installStoreSublayerTransform];
+
+    // Music select starts flat and facing the player.
+    musicSelectViewCtrl.view.layer.transform = CATransform3DIdentity;
+    musicSelectViewCtrl.view.layer.anchorPointZ = depth;
+
+    // The store is built, handed its startup parameters, and starts rotated a quarter-turn away.
+    storeViewCtrl = [[NSClassFromString(kStoreViewControllerClassName) alloc] init];
+    [storeViewCtrl setStartupParameters:startupParameters];
+    storeViewCtrl.view.layer.transform = CATransform3DMakeRotation(kStoreFlipAngle, 0, 1, 0);
+    storeViewCtrl.view.layer.anchorPointZ = depth;
+
+    [self addChildViewController:storeViewCtrl];
+    [storeViewCtrl didMoveToParentViewController:self];
+    [self.view addSubview:storeViewCtrl.view];
+
+    // Rasterise both layers for the duration to keep the rotation smooth; cleared in the callback.
+    musicSelectViewCtrl.view.layer.shouldRasterize = YES;
+    storeViewCtrl.view.layer.shouldRasterize = YES;
+
+    // Rotate the store in to face the player and music select out the far side.
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+    [UIView setAnimationDelay:kStoreTransitionDelay];
+    [UIView setAnimationDuration:kStoreTransitionDuration];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(openStoreAnimStop:finished:context:)];
+    storeViewCtrl.view.layer.transform = CATransform3DIdentity;
+    musicSelectViewCtrl.view.layer.transform = CATransform3DMakeRotation(-kStoreFlipAngle, 0, 1, 0);
+    [UIView commitAnimations];
+}
+
+/** @ghidraAddress 0x1a8430 */
+- (void)endStore {
+    // The mirror of -openStore:. Two differences from it: the scene identifier is not set here, and
+    // the BGM is stopped outright rather than faded. The store is asked to close before the flip.
+    [UIApplication.sharedApplication beginIgnoringInteractionEvents];
+
+    [ImageCache.sharedCache clear];
+    [AudioManager.sharedManager stopBgm];
+    [storeViewCtrl storeClose];
+
+    CGFloat depth = [self installStoreSublayerTransform];
+
+    // The store starts flat and facing the player.
+    storeViewCtrl.view.layer.transform = CATransform3DIdentity;
+    storeViewCtrl.view.layer.anchorPointZ = depth;
+
+    // A fresh music-select screen is built rotated a quarter-turn away, ready to flip in.
+    musicSelectViewCtrl = [[MusicSelectViewController alloc] init];
+    musicSelectViewCtrl.view.layer.transform = CATransform3DMakeRotation(-kStoreFlipAngle, 0, 1, 0);
+    musicSelectViewCtrl.view.layer.anchorPointZ = depth;
+
+    [self addChildViewController:musicSelectViewCtrl];
+    [musicSelectViewCtrl didMoveToParentViewController:self];
+    [self.view addSubview:musicSelectViewCtrl.view];
+
+    musicSelectViewCtrl.view.layer.shouldRasterize = YES;
+    storeViewCtrl.view.layer.shouldRasterize = YES;
+
+    // Rotate music select in and the store out.
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+    [UIView setAnimationDelay:kStoreTransitionDelay];
+    [UIView setAnimationDuration:kStoreTransitionDuration];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(endStoreAnimStop:finished:context:)];
+    musicSelectViewCtrl.view.layer.transform = CATransform3DIdentity;
+    storeViewCtrl.view.layer.transform = CATransform3DMakeRotation(kStoreFlipAngle, 0, 1, 0);
+    [UIView commitAnimations];
 }
 
 /** @ghidraAddress 0x1a81b4 */

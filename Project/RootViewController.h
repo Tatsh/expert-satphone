@@ -140,6 +140,27 @@ NS_ASSUME_NONNULL_BEGIN
                  context:(void *)context;
 
 /**
+ * @brief Slides the store screen in over music select with a 3-D cube-flip.
+ *
+ * Blocks input, marks the scene @c SceneStore , clears the image cache, fades out the BGM, and then
+ * flips the store in about the Y axis while music select rotates out the far side. The rotation is
+ * driven by the pre-iOS-4 begin/commit animation API; @c -openStoreAnimStop:finished:context: is
+ * what finishes it.
+ * @param startupParameters The parameters the store screen is opened with.
+ * @ghidraAddress 0x1a7b58
+ */
+- (void)openStore:(nullable id)startupParameters;
+/**
+ * @brief Slides the store screen back out, flipping a fresh music-select screen in.
+ *
+ * The mirror of @c -openStore: : it does not set the scene identifier, stops the BGM outright
+ * rather than fading it, and asks the store to close before the flip. @c
+ * -endStoreAnimStop:finished:context: finishes it.
+ * @ghidraAddress 0x1a8430
+ */
+- (void)endStore;
+
+/**
  * @brief Dismisses the music-select screen and returns to the title under the new theme.
  *
  * Branches on @c JubeatAppDelegate.appDelegate.isPad, and the two arms differ in ordering rather
