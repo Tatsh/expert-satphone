@@ -11,8 +11,7 @@
  * initialiser builds. What this class owns is the one BGM player, its volume, and the fade timer
  * that moves between them.
  *
- * RECONSTRUCTION STATE: seventeen of thirty-two members written. The fade out, push/pop, and
- * interruption callbacks are declared but not reconstructed; see RECONSTRUCTION_STATUS.md.
+ * The class is complete: all thirty-two hand-written members are recovered.
  */
 
 #import <AVFoundation/AVFoundation.h>
@@ -124,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Plays a sound effect from a file path.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Nothing happens when the path is nil or the player fails to initialise.
  *
  * @param path The file to play.
  * @ghidraAddress 0x77ea0
@@ -134,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Plays a sound effect from a bundle resource.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Resolves the resource as a @c caf file, so this only ever plays that container.
  *
  * @param name The resource name.
  * @param directory The bundle subdirectory.
@@ -144,8 +143,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Plays a sound effect from data already in memory.
- *
- * DECLARED ONLY — the body has not been reconstructed yet.
  *
  * @param data The encoded audio.
  * @ghidraAddress 0x78040
@@ -207,9 +204,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)onFadeinTimer:(nullable NSTimer *)timer;
 
 /**
- * @brief Stops the background music.
- *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * @brief Stops the background music and any fade in progress.
  *
  * @ghidraAddress 0x787a4
  */
@@ -218,7 +213,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Saves the current background music so another track can play over it.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Stops the current track, moves it and its volume to the pushed slot, and clears the active one.
  *
  * @ghidraAddress 0x788b0
  */
@@ -227,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Restores the background music saved by @c -pushBgm .
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Drops any current player first, then moves the pushed one back and reattaches the delegate.
  *
  * @return @c YES when something was restored.
  * @ghidraAddress 0x7894c
@@ -237,7 +232,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Fades the background music out over a time.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Does nothing when nothing is playing or the fade is at or below the tick interval.
  *
  * @param fadeTime How long the fade takes.
  * @ghidraAddress 0x789f0
@@ -247,7 +242,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Changes the background music's playback rate.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Enables rate adjustment and sets the rate to the same value.
  *
  * @param speed The new rate.
  * @ghidraAddress 0x78b6c
@@ -257,7 +252,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Advances a fade out by one tick.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Ignores a timer that is not the current one. On completion, stops the music rather than just
+ * restoring the volume.
  *
  * @param timer The driving timer.
  * @ghidraAddress 0x78bc0
@@ -265,11 +261,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)onFadeoutTimer:(nullable NSTimer *)timer;
 
 /**
- * @brief Drops a background music player.
+ * @brief Drops the active background music player, optionally also the pushed one.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Always stops the active player before clearing it.
  *
- * @param stopFirst Whether the player is stopped before being dropped.
+ * @param stopFirst Whether the pushed player is also dropped.
  * @ghidraAddress 0x78cb0
  */
 - (void)releaseBgm:(BOOL)stopFirst;
@@ -277,7 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Called back when the application returns to the foreground.
  *
- * DECLARED ONLY — the body has not been reconstructed yet.
+ * Resumes the BGM if it was suspended and clears the interruption flag.
  *
  * @param notification The notification.
  * @ghidraAddress 0x78ee0

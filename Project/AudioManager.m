@@ -7,6 +7,14 @@
 // -loadBgmResAAC:inDirectory: only ever looks for this extension.
 static NSString *const kBgmResourceExtension = @"m4a";
 
+// -playSeResFile:inDirectory: only ever looks for this one.
+static NSString *const kSeResourceExtension = @"caf";
+
+// Posted when the BGM player finishes naturally. The typo is the binary's, not the
+// reconstruction's.
+static NSString *const kJubeatAudioManagerFinishBgmNotification =
+    @"JubeatAudioManagerFinishBgmNotifacation"; // @ghidraAddress 0x27eefa
+
 // The fade timer ticks at this rate, and it doubles as the threshold below which a requested fade
 // is not worth running.
 static const NSTimeInterval kFadeTickInterval = 0.1; // @ghidraAddress 0x28f290
@@ -59,6 +67,44 @@ static const NSInteger kBgmLoopForever = 2000000000;
 }
 
 #pragma mark - Sound effects
+
+/** @ghidraAddress 0x77ea0 */
+- (void)playSeFile:(NSString *)path {
+    if (!path) {
+        return;
+    }
+    NSError *error = nil;
+    AVAudioPlayer *player =
+        [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:path] error:&error];
+    if (player) {
+        [seManager play:player];
+    }
+}
+
+/** @ghidraAddress 0x77f50 */
+- (void)playSeResFile:(NSString *)name inDirectory:(NSString *)directory {
+    if (!name) {
+        return;
+    }
+    NSString *path = directory ?
+                         [NSBundle.mainBundle pathForResource:name
+                                                       ofType:kSeResourceExtension
+                                                  inDirectory:directory] :
+                         [NSBundle.mainBundle pathForResource:name ofType:kSeResourceExtension];
+    [self playSeFile:path];
+}
+
+/** @ghidraAddress 0x78040 */
+- (void)playSeData:(NSData *)data {
+    if (!data) {
+        return;
+    }
+    NSError *error = nil;
+    AVAudioPlayer *player = [[AVAudioPlayer alloc] initWithData:data error:&error];
+    if (player) {
+        [seManager play:player];
+    }
+}
 
 /** @ghidraAddress 0x780e4 */
 - (void)playSePlayer:(AVAudioPlayer *)player {
@@ -191,6 +237,94 @@ static const NSInteger kBgmLoopForever = 2000000000;
     fadeTimer = nil;
 }
 
+#pragma mark - Background music control
+
+/** @ghidraAddress 0x787a4 */
+- (void)stopBgm {
+    if (_bgmPlayer.playing) {
+        [_bgmPlayer stop];
+    }
+    if (fadeTimer) {
+        [fadeTimer invalidate];
+        fadeTimer = nil;
+    }
+    isBgmSuspended = NO;
+}
+
+/** @ghidraAddress 0x788b0 */
+- (void)pushBgm {
+    [self stopBgm];
+    pushedBgmPlayer = nil;
+    _bgmPlayer.delegate = nil;
+    pushedBgmPlayer = _bgmPlayer;
+    pushedBgmVolume = bgmVolume;
+    _bgmPlayer = nil;
+    bgmVolume = 1.0f;
+}
+
+/** @ghidraAddress 0x7894c */
+- (BOOL)popBgm {
+    if (!pushedBgmPlayer) {
+        return NO;
+    }
+    [self releaseBgm:NO];
+    _bgmPlayer = pushedBgmPlayer;
+    bgmVolume = pushedBgmVolume;
+    _bgmPlayer.delegate = self;
+    pushedBgmPlayer = nil;
+    return YES;
+}
+
+/** @ghidraAddress 0x789f0 */
+- (void)fadeoutBgm:(double)fadeTime {
+    if (!_bgmPlayer.playing) {
+        return;
+    }
+    if (fadeTime <= kFadeTickInterval) {
+        return;
+    }
+    if (fadeTimer) {
+        [fadeTimer invalidate];
+    }
+    fadeInOrOut = NO;
+    fadeDuration = 0.0;
+    fadeInterval = fadeTime;
+    fadeTimer = [NSTimer timerWithTimeInterval:kFadeTickInterval
+                                        target:self
+                                      selector:@selector(onFadeoutTimer:)
+                                      userInfo:nil
+                                       repeats:YES];
+    [NSRunLoop.currentRunLoop addTimer:fadeTimer forMode:NSRunLoopCommonModes];
+}
+
+/** @ghidraAddress 0x78b6c */
+- (void)setBgmSpeed:(float)speed {
+    _bgmPlayer.enableRate = YES;
+    _bgmPlayer.rate = speed;
+}
+
+/** @ghidraAddress 0x78bc0 */
+- (void)onFadeoutTimer:(NSTimer *)timer {
+    if (fadeTimer != timer) {
+        return;
+    }
+    fadeDuration += kFadeTickInterval;
+    if (fadeDuration < fadeInterval) {
+        _bgmPlayer.volume = (float)((fadeInterval - fadeDuration) * bgmVolume / fadeInterval);
+        return;
+    }
+    [self stopBgm];
+}
+
+/** @ghidraAddress 0x78cb0 */
+- (void)releaseBgm:(BOOL)stopFirst {
+    [_bgmPlayer stop];
+    _bgmPlayer = nil;
+    if (stopFirst) {
+        pushedBgmPlayer = nil;
+    }
+}
+
 #pragma mark - Background music position
 
 /** @ghidraAddress 0x78448 */
@@ -233,10 +367,64 @@ static const NSInteger kBgmLoopForever = 2000000000;
     _interrupted = NO;
 }
 
+#pragma mark - AVAudioPlayerDelegate
+
+/** @ghidraAddress 0x78d20 */
+- (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag {
+    if (_bgmPlayer != player) {
+        return;
+    }
+    [NSNotificationCenter.defaultCenter
+        postNotificationName:kJubeatAudioManagerFinishBgmNotification
+                      object:self
+                    userInfo:nil];
+}
+
+/** @ghidraAddress 0x78da0 */
+- (void)audioPlayerBeginInterruption:(AVAudioPlayer *)player {
+    if (!fadeTimer) {
+        isBgmSuspended = YES;
+    } else {
+        [fadeTimer invalidate];
+        fadeTimer = nil;
+        isBgmSuspended = fadeInOrOut;
+    }
+}
+
+/** @ghidraAddress 0x78e3c */
+- (void)audioPlayerEndInterruption:(AVAudioPlayer *)player {
+    if (!isBgmSuspended) {
+        return;
+    }
+    _bgmPlayer.volume = bgmVolume;
+    if ([_bgmPlayer play]) {
+        isBgmSuspended = NO;
+    }
+}
+
 /** @ghidraAddress 0x78d9c */
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error {
     // Empty in the binary: the whole body is a single ret at 0x78d9c, so a decode error is
     // swallowed without so much as a log.
+}
+
+/** @ghidraAddress 0x78ee0 */
+- (void)appDidBecomeActive:(NSNotification *)notification {
+    if (isBgmSuspended) {
+        _bgmPlayer.volume = bgmVolume;
+        if ([_bgmPlayer play]) {
+            isBgmSuspended = NO;
+        }
+    }
+    if (_interrupted) {
+        _interrupted = NO;
+    }
+}
+
+/** @ghidraAddress 0x78f74 */
+- (void)dealloc {
+    [fadeTimer invalidate];
+    // [super dealloc] is compiler-emitted (ARC — .cxx_destruct at 0x79000).
 }
 
 @end

@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the _Verification_ section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **405 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **420 annotated, 0
 mismatched, 0 selectors absent; 138 constants checked against their bytes.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 386 of 5036 methods, 7.7%. 98 of 317 classes complete.**
+**As of the last run: 401 of 5036 methods, 8.0%. 99 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -189,7 +189,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/NotificationPageNavController.m`       | **Complete.** Six methods. Closing the page is what marks it read — see TYPES_PENDING.md.                                                                        |
 | `Project/StoreButton.m`                         | **Complete.** Ten methods. `-drawRect:` draws its inner shadow by throwing it a button-width sideways.                                                           |
 | `Project/LogoViewController.m`                  | **Complete.** Twenty-one methods. A weak `endTimer`, one unreachable animation arm, and a downloader that is never cleaned up.                                   |
-| `Project/AudioManager.m`                        | Seventeen of thirty-two. Singleton, effect forwarders, BGM loading, the fade in, and the position accessors.                                                     |
+| `Project/AudioManager.m`                        | **Complete.** Thirty-two methods. One BGM player, a two-slot stack, and a single fade timer that serves both directions.                                           |
 | `Project/DestinationCore.m`                     | **Complete.** Four methods. Three of them are inert and the fourth discards its delegate.                                                                        |
 | `Project/ImageCache.m`                          | **Complete.** Four methods; the caching layer over LoadScaledPngImage.                                                                                           |
 | `Project/ChallengeMenuViewCell.m`               | **Complete.** Four methods; the button targets the delegate, not self.                                                                                           |
@@ -228,9 +228,8 @@ rough order of how much each unlocks:
 
 | Target                                                                          | Address                      | Notes                                                                                                                                                                                                                                                                                             |
 | ------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `AudioManager`                                                                  | class at 0x34d1b8            | Seventeen of thirty-two written. What is left is the fade out (`-fadeoutBgm:` 0x789f0, `-onFadeoutTimer:` 0x78bc0), `-stopBgm` 0x787a4, push/pop (0x788b0, 0x7894c), the three sound-effect entry points (0x77ea0, 0x77f50, 0x78040), and the interruption callbacks (0x78da0, 0x78e3c, 0x78ee0). |
-| `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds.                                                                                                                                                                                                                                                          |
 | `Downloader`                                                                    | class at 0x348250            | `-startDownloading` has 98 xrefs, so essentially every server call routes through it.                                                                                                                                                                                                             |
+| `MusicSelectViewController`, `TitleViewControllerOrg`, `TitleViewControllerRpl` | 0x348a68, 0x348a78, 0x348a70 | The three screens the dispatcher builds.                                                                                                                                                                                                                                                          |
 | `PurchaseManager`                                                               | class at 0x348100            | Four launch-time entry points plus `-end`. 81 xrefs, so this is the largest unstarted class.                                                                                                                                                                                                      |
 | `MarkerManager`, `TweetResourceManager`, `StoreMusicListManager`                | 0x3480d0, 0x3480d8, 0x348108 | Declared-only stubs; each has two or three known members.                                                                                                                                                                                                                                         |
 
@@ -253,7 +252,6 @@ Each was created because a reconstructed caller sends to it. Members declared so
 | `EditorIDManager`                                                  | 0x348060                       | 126                  | 3                             |
 | `Md5Utilities` (free function)                                     | —                              | —                    | **implemented**               |
 | `AudioManager`                                                     | 0x348038                       | 357                  | 3                             |
-| `Downloader`                                                       | 0x348250                       | —                    | 2                             |
 | `BFCodec`                                                          | 0x3481d8                       | 189 (`-cipherInit:`) | 2                             |
 | `MusicSelectViewController`                                        | 0x348a68                       | —                    | 4                             |
 | `TitleViewControllerOrg` / `Rpl`                                   | 0x348a78 / 0x348a70            | —                    | 2 each                        |
