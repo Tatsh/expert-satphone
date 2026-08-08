@@ -176,13 +176,58 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)startLogo;
 /**
- * @brief Takes the logo screen back down again.
+ * @brief Takes the logo screen back down and starts the Game Center login.
  *
- * DECLARED ONLY — the body has not been reconstructed yet. Called by @c -[LogoViewController end:]
- * once the splash animation has finished or been skipped.
+ * Fades the logo out over 0.5 and back in over 1.0 through @c -fade:durationIn:durationOut: with
+ * "AnimTitle", then sends @c -loginGameCenter to the delegate. Called by
+ * @c -[LogoViewController end:] once the splash animation has finished or been skipped.
  * @ghidraAddress 0x1a7ad8
  */
 - (void)endLogo;
+/**
+ * @brief Fades from the title screen into the music-select screen.
+ *
+ * A single @c -fade:durationIn:durationOut: with "AnimSelect", 1.5, and 0.5.
+ * @ghidraAddress 0x1a7b3c
+ */
+- (void)endTitle;
+/**
+ * @brief Restarts the current tune, keeping its audio and textures.
+ *
+ * A single @c -fade:durationIn:durationOut: with "AnimGameRestart", 1.0, and 0.5.
+ * @ghidraAddress 0x1a925c
+ */
+- (void)musicRestart;
+/**
+ * @brief Replays the current tune, keeping its audio and textures.
+ *
+ * A single @c -fade:durationIn:durationOut: with "AnimGameReplay", 1.0, and 0.5.
+ * @ghidraAddress 0x1a9278
+ */
+- (void)musicReplay;
+/**
+ * @brief Returns from the game to the music-select screen.
+ *
+ * A single @c -fade:durationIn:durationOut: with "AnimReturnMusicSelect", 1.0, and 0.5.
+ * @ghidraAddress 0x1a9294
+ */
+- (void)returnToMusicSelect;
+/**
+ * @brief Shows the achievement-message overlay with the given title.
+ *
+ * Forwards @p title to the overlay's @c -setAchieveTitle: , resets its transform, starts its enter
+ * animation, and adds it to the root view.
+ * @param title The achievement title to display.
+ * @ghidraAddress 0x1ab008
+ */
+- (void)openAchiveMessage:(nullable id)title;
+/**
+ * @brief Removes the achievement-message overlay.
+ *
+ * Resets the overlay's transform and removes it from its superview.
+ * @ghidraAddress 0x1ab094
+ */
+- (void)messageClose;
 /**
  * @brief Reports a remote notification back to the server.
  *

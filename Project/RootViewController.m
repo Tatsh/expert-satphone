@@ -32,6 +32,9 @@
     NSString *currentSceneID;
     MusicSelectViewController *musicSelectViewCtrl;
     BOOL _isActive;
+    // The achievement-message overlay, at offset global 0x34b774. Its concrete class is not
+    // established yet, so it is typed UIView and its three selectors are declared below.
+    UIView *achieveMessage;
 }
 // DECLARED ONLY — bodies not reconstructed yet; -appDidBecomeActive: sends all three.
 // Bodies at 0x1aa4a4, 0x1aa60c, and 0x1aa71c.
@@ -98,6 +101,14 @@ static const double kTitleSwitchFadeDuration = 1.5;
 - (void)replayGame;
 - (void)suspend;
 - (void)resume;
+@end
+
+// The achievement-message overlay's selectors. Its class is not established yet; see
+// -openAchiveMessage: and -messageClose. Declared on UIView so the overlay can be messaged.
+@interface UIView (JubeatAchieveMessage)
+- (void)setAchieveTitle:(nullable id)title;
+- (void)transReset;
+- (void)enterAnimationStart;
 @end
 
 @implementation RootViewController
@@ -508,6 +519,59 @@ static const double kTitleSwitchFadeDuration = 1.5;
     // A plain objc_storeStrong into the ivar, which is why this is an assignment and not a setter
     // call: the class has no -setCurrentSceneID:.
     currentSceneID = kLogoSceneID;
+}
+
+/** @ghidraAddress 0x1a7ad8 */
+- (void)endLogo {
+    // Fade out the logo over 0.5 and back in over 1.0, then start the Game Center login. The two
+    // durations are fmov immediates 0x3fe0000000000000 (0.5) and 0x3ff0000000000000 (1.0) at
+    // 0x1a7af4-0x1a7af8.
+    [self fade:kTitleAnimationName durationIn:0.5 durationOut:1.0];
+    [JubeatAppDelegate.appDelegate loginGameCenter];
+}
+
+/** @ghidraAddress 0x1a7b3c */
+- (void)endTitle {
+    // A single fade into the select screen: durationIn 1.5, durationOut 0.5 (fmov immediates
+    // 0x3ff8000000000000 and 0x3fe0000000000000 at 0x1a7b4c-0x1a7b50).
+    [self fade:kSelectAnimationName durationIn:1.5 durationOut:0.5];
+}
+
+#pragma mark - Game transitions
+
+/** @ghidraAddress 0x1a925c */
+- (void)musicRestart {
+    // Restart keeps its audio and textures, so the fade dispatcher's AnimGameRestart arm is cheap.
+    [self fade:kGameRestartAnimationName durationIn:1.0 durationOut:0.5];
+}
+
+/** @ghidraAddress 0x1a9278 */
+- (void)musicReplay {
+    [self fade:kGameReplayAnimationName durationIn:1.0 durationOut:0.5];
+}
+
+/** @ghidraAddress 0x1a9294 */
+- (void)returnToMusicSelect {
+    [self fade:kReturnMusicSelectAnimationName durationIn:1.0 durationOut:0.5];
+}
+
+#pragma mark - Achievement message
+
+/** @ghidraAddress 0x1ab008 */
+- (void)openAchiveMessage:(id)title {
+    // The title argument is forwarded straight into -setAchieveTitle: (x2 is untouched between the
+    // method entry and the call at 0x1ab030). The overlay resets its transform, starts its enter
+    // animation, and is added to the root view.
+    [achieveMessage setAchieveTitle:title];
+    [achieveMessage transReset];
+    [achieveMessage enterAnimationStart];
+    [self.view addSubview:achieveMessage];
+}
+
+/** @ghidraAddress 0x1ab094 */
+- (void)messageClose {
+    [achieveMessage transReset];
+    [achieveMessage removeFromSuperview];
 }
 
 /** @ghidraAddress 0x1ab0d4 */
