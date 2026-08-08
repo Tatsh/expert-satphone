@@ -8,10 +8,9 @@
  * @c UIScreen.mainScreen.bounds .
  *
  * RECONSTRUCTION STATE: grown outwards from @c -[RootViewController init] , which builds one with a
- * nil title and installs itself as the delegate. The entry and exit animations, the tap dismissal,
- * and the balloon background are recovered; the attributed-text layout methods
- * (@c -messageHeight: , @c -setAchieveTitle: , @c -createAchiveText: ) and the reward-title table
- * builder (@c +createTitleArray:achieve: ) are declared only and reconstructed in a later pass.
+ * nil title and installs itself as the delegate. Everything is recovered except the reward-title
+ * table builder @c +createTitleArray:achieve: , which is declared only until the mission wire
+ * format it reads is resolved.
  */
 
 #import <UIKit/UIKit.h>
@@ -100,7 +99,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Measures the height the achievement text needs for a title.
  *
- * DECLARED ONLY — the attributed-text layout is reconstructed in a later pass.
+ * With no title the base line height (40 on a pad, 20 otherwise) is returned; otherwise the text is
+ * measured in a throwaway label and the height grows by one line per achieved entry.
  * @param title The mission title payload.
  * @return The text height in points.
  * @ghidraAddress 0x4e6fc
@@ -110,7 +110,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Replaces the banner's text with a new title and re-lays out the balloon.
  *
- * DECLARED ONLY — the attributed-text layout is reconstructed in a later pass.
+ * Tears down the old balloon and text, re-lays the text inside the balloon content box, sizes a new
+ * balloon to fit, and recentres the completion icon over it.
  * @param title The mission title payload.
  * @ghidraAddress 0x4fa3c
  */
@@ -119,7 +120,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds the attributed achievement text for a title.
  *
- * DECLARED ONLY — reconstructed in a later pass.
+ * The title is an array of lines of segments; segment zero of each line is the sheet name in white
+ * and the rest are achieved sub-titles in orange, one per line, closed with a white flourish.
  * @param title The mission title payload.
  * @return The attributed string.
  * @ghidraAddress 0x4fcf0
