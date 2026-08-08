@@ -1,6 +1,9 @@
 #import "StoreUtil.h"
 
+#import <StoreKit/StoreKit.h>
+
 #import "JubeatAppDelegate.h"
+#import "StoreMusicInfo.h"
 #import "StoreMusicListManager.h"
 
 // ScratchUtil is reached only for the shared receipt-verify URL; its class is reached by name since
@@ -137,6 +140,22 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
         [path appendFormat:@"&genre=%d", kRecommendGenres[rand() % 10]];
     }
     return [self storeURLForPathWithClientInfo:path];
+}
+
+/** @ghidraAddress 0xb9d48 */
++ (NSURL *)selectivePackListURL:(NSArray *)packIDs {
+    // An empty set has no URL. Otherwise the pack identifiers are appended comma-separated after
+    // "&packs=", the first without a leading comma. No client-info query.
+    if (packIDs.count == 0) {
+        return nil;
+    }
+    NSMutableString *path = [NSMutableString
+        stringWithFormat:@"%s/optional_packlist/?target=%s&packs=", kStoreCGIPath, kStoreRegion];
+    [packIDs enumerateObjectsUsingBlock:^(NSNumber *packID, NSUInteger index, BOOL *stop) {
+      /** @ghidraAddress 0xb9eac */
+      [path appendFormat:(index == 0 ? @"%d" : @",%d"), packID.unsignedIntValue];
+    }];
+    return [self storeURLForPath:path];
 }
 
 /** @ghidraAddress 0xb9f28 */
@@ -302,6 +321,74 @@ static NSString *const kStorePackProductPrefix = @"jubeat.pack";
         }
     }
     return -1;
+}
+
+#pragma mark - Music presence
+
+/** @ghidraAddress 0xbbda8 */
++ (BOOL)existDownloadableExtendMusic:(NSArray *)entries {
+    // A downloadable extend exists when an entry's base tune is in the store list and on disk but
+    // its non-zero extend tune is not yet downloaded. Verified at 0xbbdf0-0xbbf3c.
+    for (StoreMusicInfo *entry in entries) {
+        if (![StoreMusicListManager.sharedManager hasMusic:entry.musicID]) {
+            continue;
+        }
+        if (entry.extendMusicID == 0) {
+            continue;
+        }
+        if ([self existMusicFile:entry.musicID] && ![self existMusicFile:entry.extendMusicID]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+#pragma mark - Affiliate parameters
+
+/** @ghidraAddress 0xbad90 */
++ (NSDictionary *)affiliateParametersFromURL:(NSURL *)url {
+    // Only iTunes URLs carry affiliate parameters. The query's i/at/ct pairs become the item
+    // identifier, affiliate token, and campaign token. Verified at 0xbadd0-0xbb0a0.
+    if (!url) {
+        return nil;
+    }
+    if (![url.host isEqualToString:@"itunes.apple.com"]) {
+        return nil;
+    }
+    NSInteger itemID = 0;
+    NSString *affiliateToken = nil;
+    NSString *campaignToken = nil;
+    for (NSString *pair in [url.query componentsSeparatedByString:@"&"]) {
+        if (pair.length == 0) {
+            continue;
+        }
+        NSArray *kv = [pair componentsSeparatedByString:@"="];
+        if (kv.count != 2) {
+            continue;
+        }
+        NSString *key = kv[0];
+        if ([key isEqualToString:@"i"]) {
+            itemID = [kv[1] integerValue];
+        } else if ([key isEqualToString:@"at"]) {
+            affiliateToken = kv[1];
+        } else if ([key isEqualToString:@"ct"]) {
+            campaignToken = kv[1];
+        }
+    }
+    if (!affiliateToken || itemID <= 0) {
+        return nil;
+    }
+    if (!campaignToken) {
+        return @{
+            SKStoreProductParameterITunesItemIdentifier : @(itemID),
+            SKStoreProductParameterAffiliateToken : affiliateToken,
+        };
+    }
+    return @{
+        SKStoreProductParameterITunesItemIdentifier : @(itemID),
+        SKStoreProductParameterAffiliateToken : affiliateToken,
+        SKStoreProductParameterCampaignToken : campaignToken,
+    };
 }
 
 #pragma mark - Response verification

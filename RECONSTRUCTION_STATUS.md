@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the _Verification_ section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **675 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **678 annotated, 0
 mismatched, 0 selectors absent; 143 constants checked against their bytes.**
 
 ## Measured progress
@@ -230,7 +230,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/InheritCodePayView.m`                  | **Complete.** Four methods. The inherit-code screen: issue button, server round-trip, and the cross-fade to a two-field code panel — verified against the disassembly.                                                                                                                                                                                                                                                             |
 | `Project/MissionAchievementMessage.m`           | Eleven of twelve methods: the four-stage entry chain, the two-stage exit chain, tap dismissal, the auto-dismiss timer, the balloon background, and the attributed-text layout (`createAchiveText:`, `messageHeight:`, `setAchieveTitle:`) — all verified against the disassembly. Only `+createTitleArray:achieve:` is declared only, pending the mission wire format.                                                             |
 | `Project/EditorIDManager.m`                     | **Complete**, confirmed by `tools/progress.py`: 0 outstanding. Sixteen methods: the keychain lookup, add, and delete-query builders, the two-step key reads, the account-name accessors, the jubeatLab provisioning flow, and the account-switch path that rewrites the keychain and clears the derived session state and cookies — all verified against the disassembly.                                                          |
-| `Project/StoreUtil.m`                           | Thirty-two of thirty-five methods: the URL builders, the utilities, the identifier maps, the SHA-256-verified checkStoreResponse:, and the currency priceString:withLocale: — all verified against the disassembly. The selective-pack-list builder, the affiliate-parameter parser, and existDownloadableExtendMusic: remain.                                                                                                     |
+| `Project/StoreUtil.m`                           | **Complete**, confirmed by `tools/progress.py`: 0 outstanding. Thirty-five class methods — the layout metrics, the query helper, the whole family of server URL builders, the pack/product identifier maps, the SHA-256-verified response check, the currency formatter, and the affiliate-parameter parser — all verified against the disassembly.                                                                                |
 | `Project/jubeatLabAccess.m`                     | **Complete**, confirmed by `tools/progress.py`: 0 outstanding. Thirty-four methods — the two core request builders, the versioned URL builder, the keychain helpers, the NSURLSession HTTP engine, the five web-page-URL class helpers, and all fourteen endpoint initialisers (UID, session×2, licence×2, top-page, upload, download, comprised-pack, good-job, level, play, create-user) — all verified against the disassembly. |
 
 ## Next, in order

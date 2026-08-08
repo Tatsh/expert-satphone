@@ -4,9 +4,10 @@
  * Reconstructed from Ghidra program Jubeat (class StoreUtil, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: grown outwards from its callers. The class object is at 0x348158. The
- * layout metrics, the query-string helper, the store-new-info URL, and the receipt-verify URLs are
- * recovered; the remaining URL builders and the pack/product identifier maps are declared only.
+ * The class is complete: all thirty-five hand-written class methods are recovered — the layout
+ * metrics, the query-string helper, the whole family of server URL builders, the identifier maps,
+ * the SHA-256-verified response check, the currency formatter, and the affiliate-parameter parser.
+ * The class object is at 0x348158.
  */
 
 #import <Foundation/Foundation.h>
@@ -79,6 +80,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xb9ba0
  */
 + (nullable NSURL *)recommendPackListURL:(unsigned int)useGenre;
+/**
+ * @brief The optional-pack-list URL for a set of pack identifiers.
+ *
+ * Formats @c optional_packlist with a comma-separated @c packs list. Returns nil for an empty set.
+ * @param packIDs The pack identifiers, as @c NSNumber s.
+ * @ghidraAddress 0xb9d48
+ */
++ (nullable NSURL *)selectivePackListURL:(nullable NSArray *)packIDs;
 
 /**
  * @brief The pack-info URL for a pack, carrying the client info as a query.
@@ -242,6 +251,27 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xbbaf4
  */
 + (BOOL)existMusicFile:(int)musicID;
+
+/**
+ * @brief Whether any entry has a downloadable extend tune that is not yet on disk.
+ *
+ * Answers YES for the first entry whose base tune is in the store list and present on disk while
+ * its non-zero @c extendMusicID is not.
+ * @param entries The store music entries.
+ * @ghidraAddress 0xbbda8
+ */
++ (BOOL)existDownloadableExtendMusic:(nullable NSArray *)entries;
+
+/**
+ * @brief Extracts the App Store affiliate parameters from an iTunes URL.
+ *
+ * Returns nil unless the host is @c itunes.apple.com and the query carries a positive @c i item
+ * identifier and an @c at affiliate token; a @c ct campaign token is added when present.
+ * @param url The affiliate URL.
+ * @return The @c SKStoreProductParameter dictionary, or nil.
+ * @ghidraAddress 0xbad90
+ */
++ (nullable NSDictionary *)affiliateParametersFromURL:(nullable NSURL *)url;
 
 /**
  * @brief Where a downloaded tune's data would live.
