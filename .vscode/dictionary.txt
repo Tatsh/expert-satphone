@@ -130,6 +130,7 @@ ifdef
 ifndef
 immediates
 imura
+independ
 infomation
 infov
 initalize
@@ -234,6 +235,7 @@ offscreen
 omgker
 oneline
 opendetail
+openurl
 otsuka
 packinfo
 packlist
