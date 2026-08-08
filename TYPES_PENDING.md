@@ -220,6 +220,8 @@ would be indistinguishable from a reconstructed one.
 | `-[StoreCampaignViewController selectItem:]`                                                                                                          | `-[StoreCampaignTableViewCell touchesEnded:withEvent:]` forwards to it                  | 0xbfd60                      |
 | `ScratchView` (`initWithFrame:`, `setADelegate:`, `updateView:`, `getState`, `setButtonEnable:`, `timerUpdate`)                                       | `-[ScratchBoardView initWithFrame:]` builds sixteen and fans out to them                | 0x1afc88 onwards             |
 | `-[ChallengeStatus nailNum]` and `-scratchablePanelNum`                                                                                               | `-[ScratchBoardView refreshScratchCount]`/`-refreshScratchTable` read them              | 0x1ce164, 0x1cd60c           |
+| `-[ChallengeStatus jCubeNum]` and `-timeStringFromInterval:Minute:`                                                                                   | `-[ChallengeStatusView updateDisplayStatus]`/`-timerUpdate` read them                   | not located yet              |
+| The `cubePurchaseStart:` delegate of `ChallengeStatusView`                                                                                            | `-tapBuyCube:`/`-alertSelect:` send it; no protocol proven                              | not located yet              |
 
 ## Defects found in the binary
 
