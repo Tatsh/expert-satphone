@@ -20,6 +20,7 @@ badresponse
 basesize
 behavior
 bemani
+bewfsujtjoh
 bfcodeccontext
 bitcode
 bsky
@@ -105,6 +106,7 @@ jbtchallenge
 jbtgift
 jbtstore
 jcube
+jefoujgjfs
 jinja
 jsonnet
 jsonschema
@@ -138,6 +140,7 @@ mulist
 musicinfo
 musiclistfree
 mypy
+nbobhfs
 neenginebridge
 ngid
 nilled
@@ -146,6 +149,7 @@ nonnull
 noti
 notifacation
 notificate
+nsascii
 nshttp
 nshttpurl
 nsjson
@@ -154,6 +158,7 @@ nsurl
 nsurlis
 nsurls
 nsutf
+nsuuid
 nullability
 nullptr
 objc
