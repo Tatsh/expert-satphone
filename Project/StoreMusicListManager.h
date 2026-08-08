@@ -4,7 +4,7 @@
  * Reconstructed from Ghidra program Jubeat (class StoreMusicListManager, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: five of seventeen members written. The shared instance, init, and catalogue
+ * RECONSTRUCTION STATE: ten of seventeen members written. The shared instance, init, and catalogue
  * queries — verified against the disassembly via curl on port 8089.
  */
 
@@ -38,6 +38,41 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray *)builtinMusic;
 
 /**
+ * @brief The purchased-music list (arrayMusic).
+ * @return The array of purchased music dicts.
+ * @ghidraAddress 0xd3ea4
+ */
+- (NSArray *)purchasedMusic;
+
+/**
+ * @brief The extend-music list.
+ * @return The array of extend music dicts.
+ * @ghidraAddress 0xd3eb0
+ */
+- (NSArray *)extendMusic;
+
+/**
+ * @brief The extend-music dictionary.
+ * @return The dict of extend music.
+ * @ghidraAddress 0xd3ebc
+ */
+- (NSDictionary *)extendMusicDictionary;
+
+/**
+ * @brief The original-music dictionary.
+ * @return The dict of original music.
+ * @ghidraAddress 0xd3ec8
+ */
+- (NSDictionary *)originalMusicDictionary;
+
+/**
+ * @brief The combined list of music IDs (builtin + purchased).
+ * @return The array of IDs.
+ * @ghidraAddress 0xd3ed4
+ */
+- (NSArray *)listMusicID;
+
+/**
  * @brief The builtin-music list.
  * @ghidraAddress 0xd6b38 (getter)
  * @ghidraAddress 0xd6b48 (setter)
@@ -50,6 +85,27 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xd6b00 (setter)
  */
 @property(nonatomic, strong, nullable) NSMutableArray *arrayMusic;
+
+/**
+ * @brief The extend-music list.
+ * @ghidraAddress 0xd6b14 (getter)
+ * @ghidraAddress 0xd6b24 (setter)
+ */
+@property(nonatomic, strong, nullable) NSMutableArray *arrayExtendMusic;
+
+/**
+ * @brief The extend-music dictionary.
+ * @ghidraAddress 0xd6b5c (getter)
+ * @ghidraAddress 0xd6b6c (setter)
+ */
+@property(nonatomic, strong, nullable) NSMutableDictionary *dictExtendMusic;
+
+/**
+ * @brief The original-music dictionary.
+ * @ghidraAddress 0xd6b80 (getter)
+ * @ghidraAddress 0xd6b90 (setter)
+ */
+@property(nonatomic, strong, nullable) NSMutableDictionary *dictOriginalMusic;
 
 /**
  * @brief The store's own purchase link for a tune, which overrides whatever the tune list carries.

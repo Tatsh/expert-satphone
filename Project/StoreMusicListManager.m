@@ -73,6 +73,41 @@
     return self.arrayBuiltinMusic;
 }
 
+/** @ghidraAddress 0xd3ea4 */
+- (NSArray *)purchasedMusic {
+    // Trivial getter at 0xd3ea4: adrp 0x34a000 / ldr x1,[x8,#0x718] / b arrayMusic
+    return self.arrayMusic;
+}
+
+/** @ghidraAddress 0xd3eb0 */
+- (NSArray *)extendMusic {
+    return self.arrayExtendMusic;
+}
+
+/** @ghidraAddress 0xd3ebc */
+- (NSDictionary *)extendMusicDictionary {
+    return self.dictExtendMusic;
+}
+
+/** @ghidraAddress 0xd3ec8 */
+- (NSDictionary *)originalMusicDictionary {
+    return self.dictOriginalMusic;
+}
+
+/** @ghidraAddress 0xd3ed4 */
+- (NSArray *)listMusicID {
+    // Builds a combined array of builtin IDs plus purchased IDs.
+    // Disassembly at 0xd3ed4: alloc/initWithArray:arrayBuiltinMusic at 0xd3f28, then
+    // countByEnumeratingWithState: on arrayMusic at 0xd3f70, then for each dict,
+    // objectForKey:@"ID" and addObject: — verified at 0xd3f70–0xd3f90 via
+    // ldr x1,[x8,#0x718] / bl arrayMusic / bl countByEnumerating...
+    NSMutableArray *ids = [[NSMutableArray alloc] initWithArray:self.arrayBuiltinMusic];
+    for (NSDictionary *dict in self.arrayMusic) {
+        [ids addObject:dict[@"ID"]];
+    }
+    return ids;
+}
+
 /** @ghidraAddress 0xd40c0 */
 - (NSString *)linkURLForID:(unsigned int)tuneID {
     // Searches arrayMusic for @"ID" == tuneID, then returns @"iTunesURL" from that dict.
