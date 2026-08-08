@@ -4,8 +4,8 @@
  * Reconstructed from Ghidra program Jubeat (class PurchaseManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: a stub grown outwards from its callers. The class object at 0x348100 has 81
- * cross-references; only the members reached so far are declared.
+ * RECONSTRUCTION STATE: five of thirty-five members written. The shared instance, init, and
+ * StoreKit lifecycle — verified against the disassembly via curl on port 8089.
  */
 
 #import <Foundation/Foundation.h>
@@ -19,14 +19,29 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The shared instance.
+ * @ghidraAddress 0xb5068
  */
 @property(class, nonatomic, readonly) PurchaseManager *sharedManager;
 
 /**
+ * @brief Builds the manager.
+ * @return The initialised manager.
+ * @ghidraAddress 0xb50e8
+ */
+- (instancetype)init;
+
+/**
+ * @brief Whether the device can make payments.
+ * @return YES when StoreKit says so.
+ * @ghidraAddress 0xb5130
+ */
++ (BOOL)isPurchasable;
+
+/**
  * @brief Brings the purchase manager up.
  *
- * First of the four calls @c -[JubeatAppDelegate application:didFinishLaunchingWithOptions:] makes
- * at 0x9e14-0x9ec4, each on a separately fetched @c sharedManager. DECLARED ONLY.
+ * Adds itself as a transaction observer on the default queue.
+ * @ghidraAddress 0xb5144
  */
 - (void)start;
 /**
@@ -67,8 +82,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Tears the purchase manager down.
  *
- * Called from @c -[JubeatAppDelegate applicationWillTerminate:] at 0xb800. The name is the
- * binary's own selector, which is simply @c end.
+ * Removes itself as a transaction observer.
+ * @ghidraAddress 0xb5194
  */
 - (void)end;
 

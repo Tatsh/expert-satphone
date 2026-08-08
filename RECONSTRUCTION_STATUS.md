@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the _Verification_ section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **509 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **514 annotated, 0
 mismatched, 0 selectors absent; 138 constants checked against their bytes.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 488 of 5036 methods, 9.7%. 104 of 317 classes complete.**
+**As of the last run: 493 of 5036 methods, 9.8%. 104 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -194,6 +194,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/TitleViewControllerOrg.m`              | **Complete.** Twenty-four methods. The title background with its 5-frame animation, the Konami-code handlers, and the licence/ID callbacks — all verified against the disassembly. |
 | `Project/TitleViewControllerRpl.m`              | **Complete.** Twenty-four methods. The Rpl theme's ripple layers, white background, and the same Konami-code handlers as Org — all verified against the disassembly. |
 | `Project/StoreMusicListManager.m`               | **Complete.** Seventeen methods. The purchasable catalogue with its encrypted mulist persistence — all verified against the disassembly. |
+| `Project/PurchaseManager.m`                     | Five of thirty-five. Shared instance, init, and StoreKit lifecycle — verified against the disassembly. |
 | `Project/Downloader.m`                          | **Complete.** Seventeen methods. The HTTP client that every server call goes through; delegate is weak, verified in disassembly. |
 | `Project/DestinationCore.m`                     | **Complete.** Four methods. Three of them are inert and the fourth discards its delegate.                                                                        |
 | `Project/ImageCache.m`                          | **Complete.** Four methods; the caching layer over LoadScaledPngImage.                                                                                           |
