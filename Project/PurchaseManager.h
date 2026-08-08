@@ -4,9 +4,9 @@
  * Reconstructed from Ghidra program Jubeat (class PurchaseManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: twenty-six of thirty-five members written. The shared instance, StoreKit
- * lifecycle, consumable/non-consumable entry points, the add/verify scaffolding, and the
- * StoreKit/downloader delegates — verified against the disassembly via curl on port 8089.
+ * RECONSTRUCTION STATE: complete — thirty-five of thirty-five members written. The class object at
+ * 0x348100 has 81 cross-references; all hand-written members are recovered — verified against the
+ * disassembly via curl on port 8089.
  */
 
 #import <Foundation/Foundation.h>
@@ -127,6 +127,59 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)verifyReceipt;
 /**
+ * @brief Handle a failed receipt restore.
+ * @param queue The payment queue.
+ * @param error The error.
+ * @ghidraAddress 0xb8970
+ */
+- (void)paymentQueue:(SKPaymentQueue *)queue
+    restoreCompletedTransactionsFailedWithError:(NSError *)error;
+/**
+ * @brief Handle a finished SKRequest.
+ * @param request The request.
+ * @ghidraAddress 0xb8a34
+ */
+- (void)requestDidFinish:(SKRequest *)request;
+/**
+ * @brief Save pending consumable receipts.
+ * @ghidraAddress 0xb8b78
+ */
+- (void)savePendingConsumeList;
+/**
+ * @brief Load pending consumable receipts.
+ * @ghidraAddress 0xb8dc8
+ */
+- (void)loadPendingConsumeList;
+/**
+ * @brief Verify the consumable receipt.
+ * @ghidraAddress 0xb908c
+ */
+- (void)verifyConsumeReceipt;
+/**
+ * @brief Verify any pending consumable receipt.
+ * @return YES if a verification was started.
+ * @ghidraAddress 0xb92b4
+ */
+- (BOOL)verifyPendingConsumeReceipt;
+/**
+ * @brief Check if an item ID is a consumable cube.
+ * @param itemID The item ID.
+ * @return YES if it has the jubeat.cube prefix.
+ * @ghidraAddress 0xb9628
+ */
+- (BOOL)checkConsumeItemID:(NSString *)itemID;
+/**
+ * @brief Handle an alert selection for a consumable.
+ * @param alert The alert.
+ * @ghidraAddress 0xb9644
+ */
+- (void)alertSelect:(id)alert;
+/**
+ * @brief Tears down the manager and clears the delegate.
+ * @ghidraAddress 0xb96a4
+ */
+- (void)dealloc;
+/**
  * @brief The packs the player has bought.
  * @ghidraAddress 0xb51e4
  */
@@ -148,10 +201,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xb5c04
  */
 - (void)loadPendingList;
-/**
- * @brief Loads consumable purchases awaiting consumption. DECLARED ONLY.
- */
-- (void)loadPendingConsumeList;
 /**
  * @brief Tears the purchase manager down.
  *

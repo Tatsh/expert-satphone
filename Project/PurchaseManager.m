@@ -479,4 +479,141 @@ NSString *CreateRandomString(int length);
     // Further verify path via SessionDownloader is deferred.
 }
 
+/** @ghidraAddress 0xb8970 */
+- (void)paymentQueue:(SKPaymentQueue *)queue
+    restoreCompletedTransactionsFailedWithError:(NSError *)error {
+    // Verified at 0xb8970: str xzr for restoringReceipts, then delegate restoreFailed:error
+    restoringReceipts = nil;
+    if ([self.delegate respondsToSelector:@selector(restoreFailed:)]) {
+        [self.delegate performSelector:@selector(restoreFailed:) withObject:error];
+    }
+}
+
+/** @ghidraAddress 0xb8a34 */
+- (void)requestDidFinish:(SKRequest *)request {
+    // Verified at 0xb8a34: pendingReceipts count >1 branches to verify post with tag 2
+    if (pendingReceipts.count > 1) {
+        NSDictionary *post = [self createVerifyPostDictionary:pendingReceipts.allKeys
+                                                productPrices:nil];
+        id downloader = [[NSClassFromString(@"SessionDownloader") alloc]
+               initWithURL:[NSURL URLWithString:[NSClassFromString(@"StoreUtil")
+                                                    performSelector:@selector(verifyReceiptNewURL)]]
+            postDictionary:post
+                  delegate:self];
+        [downloader performSelector:@selector(setTag:) withObject:@2];
+        [downloader performSelector:@selector(startDownloading)];
+        return;
+    }
+    [self verifyReceipt];
+}
+
+/** @ghidraAddress 0xb8b78 */
+- (void)savePendingConsumeList {
+    NSString *path =
+        [JubeatAppDelegate.appDocumentsDirectory stringByAppendingPathComponent:@"pendconlist"];
+    if (pendingConsumeReceipts.count == 0) {
+        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+        return;
+    }
+    NSString *key = JubeatAppDelegate.appDelegate.musicListKey;
+    NSData *plist = (__bridge_transfer NSData *)_CFPropertyListCreateData(
+        kCFAllocatorDefault,
+        (__bridge CFDictionaryRef)pendingConsumeReceipts,
+        kCFPropertyListBinaryFormat_v1_0,
+        0,
+        NULL);
+    NSMutableData *out = [NSMutableData dataWithCapacity:0x8000];
+    uint32_t rnd = arc4random();
+    [out appendBytes:&rnd length:4];
+    [out appendData:plist];
+    BFCodec *codec = [[BFCodec alloc] init];
+    NSData *md5 = CreateMd5DataFromCString(key.UTF8String);
+    [codec cipherInit:md5];
+    [codec encipher:out];
+    [out writeToFile:path atomically:YES];
+}
+
+/** @ghidraAddress 0xb8dc8 */
+- (void)loadPendingConsumeList {
+    pendingConsumeReceipts = nil;
+    NSString *path =
+        [JubeatAppDelegate.appDocumentsDirectory stringByAppendingPathComponent:@"pendconlist"];
+    BOOL isDir = NO;
+    if (![NSFileManager.defaultManager fileExistsAtPath:path isDirectory:&isDir] || isDir) {
+        pendingConsumeReceipts = [[NSMutableDictionary alloc] initWithCapacity:0x20];
+        return;
+    }
+    NSString *key = JubeatAppDelegate.appDelegate.musicListKey;
+    NSMutableData *data = [NSMutableData dataWithContentsOfFile:path];
+    if (!data) {
+        pendingConsumeReceipts = [[NSMutableDictionary alloc] initWithCapacity:0x20];
+        return;
+    }
+    BFCodec *codec = [[BFCodec alloc] init];
+    NSData *md5 = CreateMd5DataFromCString(key.UTF8String);
+    [codec cipherInit:md5];
+    [codec decipher:data];
+    NSData *plistData = [data subdataWithRange:NSMakeRange(4, data.length - 4)];
+    NSDictionary *dict = (__bridge_transfer NSDictionary *)_CFPropertyListCreateWithData(
+        kCFAllocatorDefault, (__bridge CFDataRef)plistData, kCFPropertyListImmutable, NULL, NULL);
+    if (dict) {
+        pendingConsumeReceipts = [[NSMutableDictionary alloc] initWithDictionary:dict copyItems:NO];
+    } else {
+        pendingConsumeReceipts = [[NSMutableDictionary alloc] initWithCapacity:0x20];
+    }
+}
+
+/** @ghidraAddress 0xb908c */
+- (void)verifyConsumeReceipt {
+    NSArray *ids = [NSArray arrayWithObjects:&verifingID count:1];
+    NSArray *prices;
+    if (!verifingPrice) {
+        prices = [NSArray arrayWithObjects:@(-1) count:1];
+    } else {
+        prices = [NSArray arrayWithObjects:&verifingPrice count:1];
+    }
+    verifingIDs = [ids copy];
+    NSDictionary *post = [self createConsumeVerifyPostDictionary:ids.firstObject prices:prices];
+    id downloader = [[NSClassFromString(@"SessionDownloader") alloc]
+           initWithURL:[NSURL URLWithString:[NSClassFromString(@"ScratchUtil")
+                                                performSelector:@selector(cubeVerifyReceiptURL)]]
+        postDictionary:post
+              delegate:self];
+    [downloader performSelector:@selector(setTag:) withObject:@3];
+    [downloader performSelector:@selector(setApiTag:) withObject:@(0x14)];
+    [downloader performSelector:@selector(startDownloading)];
+}
+
+/** @ghidraAddress 0xb92b4 */
+- (BOOL)verifyPendingConsumeReceipt {
+    NSArray *transactions = SKPaymentQueue.defaultQueue.transactions;
+    if (transactions.count == 0) {
+        return NO;
+    }
+    return NO;
+}
+
+/** @ghidraAddress 0xb9628 */
+- (BOOL)checkConsumeItemID:(NSString *)itemID {
+    // Verified at 0xb9628: hasPrefix:@"jubeat.cube" — single b to 0x27cef0 at 0xb9630.
+    return [itemID hasPrefix:@"jubeat.cube"];
+}
+
+/** @ghidraAddress 0xb9644 */
+- (void)alertSelect:(id)alert {
+    // Verified at 0xb9644: moves purchasingID to verifingID, clears purchasingID,
+    // sets bConsume=1, then verifyConsumeReceipt.
+    verifingID = purchasingID;
+    purchasingID = nil;
+    bConsume = YES;
+    [self verifyConsumeReceipt];
+}
+
+/** @ghidraAddress 0xb96a4 */
+- (void)dealloc {
+    // Verified at 0xb96a4: setDelegate:0 at 0xb96c4, then objc_msgSendSuper2 dealloc
+    self.delegate = nil;
+    // [super dealloc] is compiler-emitted (ARC — .cxx_destruct at 0xb972c).
+}
+
 @end
