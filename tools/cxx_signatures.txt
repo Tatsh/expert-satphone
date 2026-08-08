@@ -182,3 +182,4 @@
 0x7f904	NSData *CreateSaveDataCipherKey(void)
 0x7f9b0	NSData *CreateLabUrlCipherKey(void)
 0x7faf0	NSData *CreateMissionDataCipherKey(void)
+0xea2c	void SetQuadTexCoordsAndAlpha(float flU0, float flV0, float flU1, float flV1, float flAlpha, SpriteVertex *pQuadVerts, SpriteTransform bTransform)
