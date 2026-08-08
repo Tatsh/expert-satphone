@@ -4,8 +4,7 @@
  * Reconstructed from Ghidra program Jubeat (class KnitColorManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: grown outwards from its callers. The class object at 0x3480a0 has seven
- * cross-references; only the members reached so far are declared.
+ * The class is complete: all nine hand-written members are recovered.
  */
 
 #import <UIKit/UIKit.h>
@@ -44,10 +43,16 @@ typedef struct {
 
 /**
  * @brief The shared instance.
- *
- * DECLARED ONLY — the body has not been located yet. See TYPES_PENDING.md.
+ * @ghidraAddress 0x165fe0
  */
 @property(class, nonatomic, readonly) KnitColorManager *sharedManager;
+
+/**
+ * @brief Builds the manager.
+ * @return The initialised manager.
+ * @ghidraAddress 0x166060
+ */
+- (instancetype)init;
 
 /**
  * @brief Whether the current palette differs from the default.
@@ -90,11 +95,41 @@ typedef struct {
 /**
  * @brief Replaces the palette from an array of colour components.
  *
- * DECLARED ONLY — the body has not been located yet. Called from
- * @c -[JubeatAppDelegate setKnitColor:] at 0x8f88, which passes its argument straight through, so
- * the element type is not established.
+ * Expects nine integers: three triples for base, line, and wave. Each triple is divided by 255 and
+ * used with alpha 1.0. If the count is not nine, nothing happens and the differ flag is cleared.
+ * @ghidraAddress 0x1661c0
  */
 - (void)setColorWithArray:(NSArray *)colors;
+
+/**
+ * @brief The current palette's type, derived from the three colours.
+ *
+ * Returns 0 when the differ flag is clear, 1 when the colours match palette 1, 4 when they match
+ * palette 4, and 5 otherwise.
+ * @ghidraAddress 0x166528
+ */
+- (int)getColorType;
+
+/**
+ * @brief The current base colour.
+ * @return The base colour.
+ * @ghidraAddress 0x166744
+ */
+- (UIColor *)getBaseColor;
+
+/**
+ * @brief The current line colour.
+ * @return The line colour.
+ * @ghidraAddress 0x166754
+ */
+- (UIColor *)getLineColor;
+
+/**
+ * @brief The current wave colour.
+ * @return The wave colour.
+ * @ghidraAddress 0x166764
+ */
+- (UIColor *)getWaveColor;
 
 @end
 
