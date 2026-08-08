@@ -95,6 +95,7 @@ ifdef
 ifndef
 immediates
 infov
+initalize
 initilize
 instancetype
 ints
