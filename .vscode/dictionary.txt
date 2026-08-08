@@ -141,6 +141,7 @@ jubeat
 jubeatplus
 jubeat's
 konaminet
+kunzip
 labo
 ldrb
 ldrsw
