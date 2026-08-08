@@ -4,8 +4,8 @@
  * Reconstructed from Ghidra program Jubeat (class StorePackInfo, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: a stub grown outwards from its callers. Only the five members
- * @c StoreRecommendPackView reads are declared.
+ * RECONSTRUCTION STATE: a stub grown outwards from its callers. Only the members
+ * @c StoreRecommendPackView and @c StorePackView read are declared.
  */
 
 #import <Foundation/Foundation.h>
@@ -24,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) int packID;
 /** @brief The pack's display name. DECLARED ONLY. @ghidraAddress 0xbe410 */
 @property(nonatomic, readonly, nullable) NSString *packName;
+/** @brief The pack's one-line comment. DECLARED ONLY. @ghidraAddress 0xbe430 */
+@property(nonatomic, readonly, nullable) NSString *shortComment;
 /** @brief Whether to show the "new" marker. DECLARED ONLY. @ghidraAddress 0xbe3e0 */
 @property(nonatomic, readonly) BOOL isNew;
 /** @brief Whether to show the "extend" marker. DECLARED ONLY. @ghidraAddress 0xbe3f0 */
