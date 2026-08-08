@@ -29,16 +29,18 @@ delegate class `JubeatAppDelegate`, and every routine reachable from there is re
 
 ## Layout
 
-| Path                       | Contents                                                                  |
-| -------------------------- | ------------------------------------------------------------------------- |
-| `Project/`                 | Reconstructed sources, one class per header and implementation.           |
-| `.claude/`                 | Rules governing reconstruction fidelity and coding style.                 |
-| `RECONSTRUCTION_STATUS.md` | What is done, what is next with addresses, and the method used.           |
-| `TYPES_PENDING.md`         | Placeholder types, declarations without bodies, and binary defects found. |
+| Path               | Contents                                                                  |
+| ------------------ | ------------------------------------------------------------------------- |
+| `Project/`         | Reconstructed sources, one class per header and implementation.           |
+| `.claude/`         | Rules governing reconstruction fidelity and coding style.                 |
+| `STATUS.md`        | Per-method status index over the `STATUS_NN.md` tables.                   |
+| `STATUS_NN.md`     | Every authored method with its status, cross-reference count, and length. |
+| `TYPES_PENDING.md` | Placeholder types, declarations without bodies, and binary defects found. |
 
-This is a long-running task. Start a session by reading
-[RECONSTRUCTION_STATUS.md](RECONSTRUCTION_STATUS.md); it names the next routines with their
-addresses and sizes so no time goes into re-deriving where the work stopped.
+This is a long-running task. Start a session by reading [STATUS.md](STATUS.md); it indexes the
+per-method status tables (`STATUS_NN.md`), each row a method in `-[ClassName selector]` form with a
+done/outstanding tick, its cross-reference count, and its byte length in the binary. Regenerate them
+with `tools/status_tables_gen.py` after landing new work.
 
 ## Provenance
 

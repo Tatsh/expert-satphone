@@ -8,8 +8,7 @@
  * slot (0x348a70 + 8) and confirmed by the super calls at 0x13d140, 0x13ff9c, and 0x13fea0.
  *
  * The class is complete: all twenty-four hand-written members are recovered. The view construction,
- * animation control, and input handling are declared but not reconstructed; see
- * RECONSTRUCTION_STATUS.md.
+ * animation control, and input handling are declared but not reconstructed; see the STATUS tables.
  */
 
 #import <UIKit/UIKit.h>
