@@ -224,6 +224,7 @@ would be indistinguishable from a reconstructed one.
 | The `cubePurchaseStart:` delegate of `ChallengeStatusView`                                                                                            | `-tapBuyCube:`/`-alertSelect:` send it; no protocol proven                              | not located yet              |
 | `RecommendCore` (`+sharedInstance`, `-redirectWithRequest:`, `-redirectViewContollerWithRequest:`, `-showVideoViewWithQuery:`)                        | `-[ApplilinkWebView …]` and `-[RecommendWebViewController …]` route through it          | not located yet              |
 | `RewardWebViewController`                                                                                                                             | superclass of `RecommendWebViewController`; forward-declared as a `UIViewController`    | not located yet              |
+| `MusicView` (`initWithFrame:artworkSize:colType:labelDisp:`, `setInfo:bArtistNameDisp:`, `imgView`, `clearInfo`, `tuneInfo`)                          | `-[collectionCell initCell:parentDelegate:viewType:labelDisp:]` builds and drives one   | not located yet              |
 
 ## Defects found in the binary
 
