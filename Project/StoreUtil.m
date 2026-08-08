@@ -27,6 +27,8 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
 // De-inlined: appends the client-info query fragment to a mutable path and wraps it. The
 // query-carrying URL builders share this tail.
 + (nullable NSURL *)storeURLForPathWithClientInfo:(NSMutableString *)path;
+// De-inlined: the shared policy/store URL builder keyed by a user-defaults version value.
++ (nullable NSURL *)policyStoreURLWithVersionDefaultsKey:(NSString *)defaultsKey;
 @end
 
 @implementation StoreUtil
@@ -231,6 +233,31 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
     NSString *urlString =
         [NSString stringWithFormat:@"https://%@/agx/main/news/passed_info.jsp", kStoreHost];
     return [[NSURL alloc] initWithString:urlString];
+}
+
+// De-inlined: builds the policy/store URL with a {version, target} query where the version value is
+// read from the given user-defaults key (or "" when absent). Shared by the two policy-store URLs.
++ (NSURL *)policyStoreURLWithVersionDefaultsKey:(NSString *)defaultsKey {
+    NSMutableString *path = [NSMutableString
+        stringWithFormat:@"%s/policy/store/?target=%s", kStoreCGIPath, kStoreRegion];
+    NSString *version = [NSUserDefaults.standardUserDefaults objectForKey:defaultsKey];
+    if (!version) {
+        version = @"";
+    }
+    NSDictionary *params =
+        @{@"version" : version, @"target" : [NSString stringWithFormat:@"%s", kStoreRegion]};
+    [path appendString:[self queryStringForDictionary:params]];
+    return [self storeURLForPath:path];
+}
+
+/** @ghidraAddress 0xbb67c */
++ (NSURL *)storeUserPolicyURL {
+    return [self policyStoreURLWithVersionDefaultsKey:@"PrefStoreAgreeLicenseVersion"];
+}
+
+/** @ghidraAddress 0xbb8b8 */
++ (NSURL *)storeExtendListURL {
+    return [self policyStoreURLWithVersionDefaultsKey:@"PrefExtendListLastUpdate"];
 }
 
 #pragma mark - Identifier maps

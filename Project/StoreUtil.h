@@ -159,6 +159,21 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xbb5e8
  */
 + (nullable NSURL *)passedInfoListURL;
+/**
+ * @brief The store user-policy URL, carrying the agreed licence version.
+ *
+ * The query is @c {version: <PrefStoreAgreeLicenseVersion or "">, target: "JP"} .
+ * @ghidraAddress 0xbb67c
+ */
++ (nullable NSURL *)storeUserPolicyURL;
+/**
+ * @brief The store extend-list URL, carrying the last-update timestamp.
+ *
+ * Structurally identical to @c +storeUserPolicyURL but the version value is read from
+ * @c PrefExtendListLastUpdate .
+ * @ghidraAddress 0xbb8b8
+ */
++ (nullable NSURL *)storeExtendListURL;
 
 /**
  * @brief Whether a string is a URL worth keeping.
