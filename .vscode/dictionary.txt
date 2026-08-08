@@ -93,6 +93,7 @@ ghidra's
 gles
 handoff
 hinabita
+idurl
 ifdef
 ifndef
 immediates
