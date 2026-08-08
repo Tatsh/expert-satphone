@@ -66,12 +66,70 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSURL *)getApiPath:(nullable NSString *)scheme api:(nullable NSString *)api;
 
 /**
+ * @brief Builds the keychain lookup query for an account. Identical to
+ * @c +[EditorIDManager getKeyQuery:] .
+ * @param key The account name.
+ * @return The query dictionary.
+ * @ghidraAddress 0x1d8840
+ */
+- (NSDictionary *)getKeyQuery:(nullable id)key;
+
+/**
+ * @brief Reads the keychain payload for an account and decodes it as a UTF-8 string. Identical to
+ * @c +[EditorIDManager getKeyString:] .
+ * @param key The account name.
+ * @return The stored string, or nil when the lookup fails.
+ * @ghidraAddress 0x1d89b0
+ */
+- (nullable NSString *)getKeyString:(nullable id)key;
+
+/**
  * @brief Starts a create-user-identifier request, POSTing the device UUID.
  * @param delegate The object told how the request finished.
  * @return The initialised client.
  * @ghidraAddress 0x1d90a8
  */
 - (instancetype)initUIDApi:(nullable id)delegate;
+
+/**
+ * @brief Starts a session-open request, POSTing the passphrase for the current editor identifier.
+ * @param delegate The object told how the request finished.
+ * @return The initialised client.
+ * @ghidraAddress 0x1da078
+ */
+- (instancetype)initSessionApi:(nullable id)delegate;
+
+/**
+ * @brief Starts a top-page session-open request (the @c Session2 variant).
+ * @param delegate The object told how the request finished.
+ * @return The initialised client.
+ * @ghidraAddress 0x1da320
+ */
+- (instancetype)initTopPageSessionApi:(nullable id)delegate;
+
+/**
+ * @brief Starts a GET for the privacy-policy last-update timestamp.
+ * @param delegate The object told how the request finished.
+ * @return The initialised client.
+ * @ghidraAddress 0x1da5c8
+ */
+- (instancetype)initLicenseVersionApi:(nullable id)delegate;
+
+/**
+ * @brief Starts a GET for the privacy policy.
+ * @param delegate The object told how the request finished.
+ * @return The initialised client.
+ * @ghidraAddress 0x1da694
+ */
+- (instancetype)initLicenseApi:(nullable id)delegate;
+
+/**
+ * @brief Starts a GET for the lab top-page URL.
+ * @param delegate The object told how the request finished.
+ * @return The initialised client.
+ * @ghidraAddress 0x1da948
+ */
+- (instancetype)initTopPageApi:(nullable id)delegate;
 
 @end
 

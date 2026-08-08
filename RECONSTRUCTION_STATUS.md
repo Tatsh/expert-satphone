@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the _Verification_ section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **613 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **620 annotated, 0
 mismatched, 0 selectors absent; 143 constants checked against their bytes.**
 
 ## Measured progress
@@ -230,7 +230,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/InheritCodePayView.m`                  | **Complete.** Four methods. The inherit-code screen: issue button, server round-trip, and the cross-fade to a two-field code panel — verified against the disassembly.                                                                                                                                                                                                    |
 | `Project/MissionAchievementMessage.m`           | Eleven of twelve methods: the four-stage entry chain, the two-stage exit chain, tap dismissal, the auto-dismiss timer, the balloon background, and the attributed-text layout (`createAchiveText:`, `messageHeight:`, `setAchieveTitle:`) — all verified against the disassembly. Only `+createTitleArray:achieve:` is declared only, pending the mission wire format.    |
 | `Project/EditorIDManager.m`                     | **Complete**, confirmed by `tools/progress.py`: 0 outstanding. Sixteen methods: the keychain lookup, add, and delete-query builders, the two-step key reads, the account-name accessors, the jubeatLab provisioning flow, and the account-switch path that rewrites the keychain and clears the derived session state and cookies — all verified against the disassembly. |
-| `Project/jubeatLabAccess.m`                     | Four of thirty-four methods: the two core initialisers (the plain GET and the body/method form), the versioned URL builder, and the create-user-identifier endpoint — all verified against the disassembly. The other ~30 endpoint initialisers funnel through the same core init and are reconstructed in later passes.                                                  |
+| `Project/jubeatLabAccess.m`                     | Eleven of thirty-four methods: the two core initialisers, the versioned URL builder, the keychain query and read helpers, and the UID, both session, and three GET license/top-page endpoints — all verified against the disassembly. The remaining endpoint initialisers funnel through the same core init and are reconstructed in later passes.                        |
 
 ## Next, in order
 
