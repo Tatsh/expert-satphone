@@ -43,6 +43,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (nullable NSURL *)getEventTypeURL;
 
+/**
+ * @brief The endpoint an inherit code is requested from.
+ *
+ * DECLARED ONLY — the body has not been reconstructed yet. Sent by
+ * @c -[InheritCodePayView tapCodeOutput:] with the editor identity as its POST body.
+ *
+ * @return The inherit-code request URL.
+ * @ghidraAddress 0x1823cc
+ */
++ (nullable NSURL *)getInheritOutputURL;
+
 @end
 
 NS_ASSUME_NONNULL_END

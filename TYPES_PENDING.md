@@ -214,6 +214,11 @@ would be indistinguishable from a reconstructed one.
 | `+[StoreUtil productIDForPackID:]`                                                                                                                    | ditto                                                          | 0xbab70                                     |
 | `-[PurchaseManager isPurchased:]`                                                                                                                     | ditto                                                          | 0xb61d8                                     |
 | `-[PurchaseManager isPending:]`                                                                                                                       | ditto                                                          | 0xb61f0                                     |
+| `-[SessionDownloader initWithURL:postDictionary:delegate:]`                                                                                           | `-[InheritCodePayView tapCodeOutput:]` sends it                | 0xff324                                     |
+| `-[SessionDownloader getDataInJSON]`                                                                                                                  | `-[InheritCodePayView downloaderFinished:]` sends it           | 0xa87a4                                     |
+| `+[AlertViewManager sharedManager]`                                                                                                                   | `-[InheritCodePayView downloaderError:]` sends it              | not located yet                             |
+| `-[AlertViewManager makeAlert:delegate:tag:title:msg:cancel:btnText:show:viewController:]`                                                            | `-[InheritCodePayView downloaderError:]` sends it              | 0xa8cfc                                     |
+| `+[ScratchUtil getInheritOutputURL]`                                                                                                                  | `-[InheritCodePayView tapCodeOutput:]` sends it                | 0x1823cc                                    |
 
 ## Defects found in the binary
 
