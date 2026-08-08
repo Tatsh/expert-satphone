@@ -34,6 +34,18 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, nullable) NSString *genreBgImageURL;
 
 /**
+ * @brief The banner tile's artwork address, distinct from @c genreBgImageURL. DECLARED ONLY.
+ * @ghidraAddress 0x1b0dd4
+ */
+@property(nonatomic, readonly, nullable) NSString *genreImageURL;
+
+/**
+ * @brief The banner tile's border colour, or nil to fall back to a translucent blue. DECLARED ONLY.
+ * @ghidraAddress 0x1b0de4
+ */
+@property(nonatomic, readonly, nullable) UIColor *genreColor;
+
+/**
  * @brief The genre's description. DECLARED ONLY.
  */
 @property(nonatomic, readonly, nullable) NSString *genreComment;
