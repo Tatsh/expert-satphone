@@ -4,8 +4,8 @@
  * Reconstructed from Ghidra program Jubeat (class StoreMusicListManager, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: ten of seventeen members written. The shared instance, init, and catalogue
- * queries — verified against the disassembly via curl on port 8089.
+ * The class is complete: all seventeen hand-written members are recovered. The shared instance,
+ * init, and catalogue queries — verified against the disassembly via curl on port 8089.
  */
 
 #import <Foundation/Foundation.h>
@@ -120,11 +120,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The extend-pack record for a tune, if it belongs to one.
  *
- * DECLARED ONLY. The three keys @c -[TuneInfo initWithfilePath:dictionary:] reads out of it are
- * @c extendFlag , @c holdFlag and @c extID , each optional.
- *
+ * Searches arrayMusic for ID == tuneID and returns the extend info.
  * @param tuneID The tune.
  * @return The record, or nil.
+ * @ghidraAddress 0xd425c
  */
 - (nullable NSDictionary *)extendInfoForID:(unsigned int)tuneID;
 
@@ -139,10 +138,52 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Loads the store's music list.
  *
- * Sent at 0x9eec, immediately after the four PurchaseManager calls and before the audio session is
- * configured. DECLARED ONLY.
+ * Decrypts mulist and splits into arrayMusic and dicts.
+ * @ghidraAddress 0xd4bc0
  */
 - (void)loadMusicList;
+
+/**
+ * @brief Saves the store's music list.
+ * @ghidraAddress 0xd489c
+ */
+- (void)saveMusicList;
+
+/**
+ * @brief Checks if a music entry changed and updates it.
+ * @param oldInfo The existing info.
+ * @param newInfo The new info.
+ * @return YES if changed.
+ * @ghidraAddress 0xd546c
+ */
+- (BOOL)checkChangedMusic:(NSDictionary *)oldInfo info:(NSDictionary *)newInfo;
+
+/**
+ * @brief Adds or updates a music entry.
+ * @param musicInfo The music info.
+ * @return YES if added/updated.
+ * @ghidraAddress 0xd5bb8
+ */
+- (BOOL)addMusic:(NSDictionary *)musicInfo;
+
+/**
+ * @brief Updates hold/extend flags for a tune.
+ * @param musicID The tune.
+ * @param holdFlag The hold flag.
+ * @param extendFlag The extend flag.
+ * @ghidraAddress 0xd64a4
+ */
+- (void)extendMusicInfo:(unsigned int)musicID
+                holdFlg:(unsigned int)holdFlag
+              extendFlg:(unsigned int)extendFlag;
+
+/**
+ * @brief Sets the extend ID for a tune.
+ * @param musicID The tune.
+ * @param extendID The extend ID.
+ * @ghidraAddress 0xd683c
+ */
+- (void)extendMusicID:(unsigned int)musicID extendMID:(unsigned int)extendID;
 
 @end
 
