@@ -35,13 +35,61 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-from recon_tools.arm64 import INSTRUCTION_SIZE, body_length
+from recon_tools.arm64 import INSTRUCTION_SIZE, body_length, branch_target, is_branch_with_link
 from recon_tools.macho import IMAGE_BASE, MachOBinary
 from recon_tools.objc import TRIVIAL_INSTRUCTIONS, source_bodies
 
 # Never written by hand, so never part of the authored surface. ARC emits .cxx_destruct to release
 # a class's strong ivars and it has no source form at all.
 _COMPILER_GENERATED = ('.cxx_destruct',)
+
+
+def _super_only_deallocs(binary, methods, ends):
+    """
+    Find every -dealloc whose whole body is a single `[super dealloc]` call.
+
+    Under this tree's ARC-only rule such a dealloc has no hand-written form -- `[super dealloc]`
+    cannot be written -- so, like .cxx_destruct, it is not authored work. A dealloc that also
+    releases ivars or clears a weak reference makes more than one `bl` and stays in scope. The test
+    is structural (exactly one branch-with-link, to the shared super-dealloc trampoline) rather than
+    size-based, so it never mistakes a real dealloc for a trampoline.
+    """
+    trampolines = {address for (_, _, sel), address in methods.items() if sel == 'dealloc'}
+    # The one call target every trampoline dealloc shares is objc_msgSendSuper2's stub; learn it
+    # from the deallocs themselves as the target reached by a lone bl.
+    lone_targets = {}
+    for (cls, kind, sel), address in methods.items():
+        if sel != 'dealloc':
+            continue
+        end = ends.get(address)
+        if end is None:
+            continue
+        calls = []
+        for offset in range(address, end, INSTRUCTION_SIZE):
+            word = binary.word_at(offset) & 0xFFFFFFFF
+            if is_branch_with_link(word):
+                calls.append(branch_target(word, offset))
+        if len(calls) == 1:
+            lone_targets.setdefault(calls[0], 0)
+            lone_targets[calls[0]] += 1
+    if not lone_targets:
+        return set()
+    trampoline_target = max(lone_targets, key=lone_targets.get)
+    out = set()
+    for (cls, kind, sel), address in methods.items():
+        if sel != 'dealloc':
+            continue
+        end = ends.get(address)
+        if end is None:
+            continue
+        calls = [
+            branch_target(binary.word_at(offset) & 0xFFFFFFFF, offset)
+            for offset in range(address, end, INSTRUCTION_SIZE)
+            if is_branch_with_link(binary.word_at(offset) & 0xFFFFFFFF)
+        ]
+        if calls == [trampoline_target]:
+            out.add((cls, kind, sel))
+    return out
 
 _ROWS_PER_FILE = 1000
 _CXX_FILE_INDEX = 6
@@ -246,12 +294,15 @@ def main():
     ends = dict(itertools.pairwise(all_starts))
 
     hand_written = _hand_written_accessors(binary, methods, properties, ends)
+    super_only_deallocs = _super_only_deallocs(binary, methods, ends)
 
     # Objective-C authored methods, ordered by ascending Ghidra address and split into fixed-size
     # files.
     authored = []
     for (cls, kind, sel), address in methods.items():
         if sel in _COMPILER_GENERATED:
+            continue
+        if (cls, kind, sel) in super_only_deallocs:
             continue
         if _is_accessor(sel, properties.get(cls, {})) and (cls, kind, sel) not in hand_written:
             continue

@@ -63,6 +63,7 @@ cset
 dashcam
 dcmake
 ddeployment
+deallocs
 demangled
 denable
 descript
@@ -150,7 +151,6 @@ malloc
 math
 mbar
 memcmp
-memcpy
 menuview
 minizip
 miter
