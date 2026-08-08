@@ -4,9 +4,9 @@
  * Reconstructed from Ghidra program Jubeat (class PurchaseManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: ten of thirty-five members written. The shared instance, StoreKit
- * lifecycle, and the consumable/non-consumable purchase entry points — verified against the
- * disassembly via curl on port 8089.
+ * RECONSTRUCTION STATE: twenty-one of thirty-five members written. The shared instance, StoreKit
+ * lifecycle, consumable/non-consumable entry points, and the add/verify scaffolding — verified
+ * against the disassembly via curl on port 8089.
  */
 
 #import <Foundation/Foundation.h>
@@ -78,6 +78,42 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xb6238
  */
 - (void)beginRestore;
+/**
+ * @brief Add a product to purchasedProducts if not already present, and clear pending.
+ * @param productID The product identifier.
+ * @ghidraAddress 0xb6308
+ */
+- (void)addProduct:(NSString *)productID;
+/**
+ * @brief Create a consume-verify post dictionary.
+ * @param sku The SKU.
+ * @param prices The prices array.
+ * @return The dictionary or nil.
+ * @ghidraAddress 0xb63bc
+ */
+- (nullable NSDictionary *)createConsumeVerifyPostDictionary:(NSString *)sku
+                                                      prices:(NSArray *)prices;
+/**
+ * @brief Create verify post data for given products.
+ * @param products The products array.
+ * @return The dictionary or nil.
+ * @ghidraAddress 0xb66ec
+ */
+- (nullable NSDictionary *)createVerifyPostData:(NSArray *)products;
+/**
+ * @brief Create verify post dictionary with product prices.
+ * @param products The products array.
+ * @param productPrices The prices array.
+ * @return The dictionary or nil.
+ * @ghidraAddress 0xb6af0
+ */
+- (nullable NSDictionary *)createVerifyPostDictionary:(NSArray *)products
+                                        productPrices:(NSArray *)productPrices;
+/**
+ * @brief Verify the receipt for the current verifingID/Price.
+ * @ghidraAddress 0xb6ec4
+ */
+- (void)verifyReceipt;
 /**
  * @brief The packs the player has bought.
  * @ghidraAddress 0xb51e4

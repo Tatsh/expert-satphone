@@ -4,9 +4,11 @@
 #import <StoreKit/StoreKit.h>
 
 #import "BFCodec.h"
+#import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
 
 NSData *CreateMd5DataFromCString(const char *lpcszInput);
+NSString *CreateRandomString(int length);
 
 @implementation PurchaseManager {
     int purchaseCnt;                             // offset global 0x34a4b4
@@ -18,6 +20,8 @@ NSData *CreateMd5DataFromCString(const char *lpcszInput);
     NSString *verifingID;                        // offset global 0x34a4cc
     NSNumber *verifingPrice;                     // offset global 0x34a4d0
     NSMutableDictionary *restoringReceipts;      // offset global 0x34a4d4
+    NSMutableData *verifyData;                   // offset global 0x34a4d8
+    NSArray *verifingIDs;                        // offset global 0x34a4dc
     NSMutableDictionary *pendingConsumeReceipts; // offset global 0x34a4e4
 }
 
@@ -124,6 +128,135 @@ NSData *CreateMd5DataFromCString(const char *lpcszInput);
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"PrefFirstRestoreEnd"];
     restoringReceipts = [[NSMutableDictionary alloc] init];
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
+}
+
+/** @ghidraAddress 0xb6308 */
+- (void)addProduct:(NSString *)productID {
+    // Verified at 0xb6308: tbnz isPurchased check at 0xb6338, then addObject: at 0xb6354
+    // and saveProductList, then isPending check at 0xb636c and removeObjectForKey: at 0xb6398.
+    if (![self isPurchased:productID]) {
+        [purchasedProducts addObject:productID];
+        [self saveProductList];
+    }
+    if ([self isPending:productID]) {
+        [pendingReceipts removeObjectForKey:productID];
+        [self savePendingList];
+    }
+}
+
+/** @ghidraAddress 0xb63bc */
+- (NSDictionary *)createConsumeVerifyPostDictionary:(NSString *)sku prices:(NSArray *)prices {
+    // Verified at 0xb63bc: mainBundle/appStoreReceiptURL/dataWithContentsOfURL/base64
+    // at 0xb63f8, then CreateRandomString 0x10, clientInfo, initWithDictionary:,
+    // setObject:forKey: receipt/target/sku/price/market, plus EditorID branch.
+    NSData *receiptData = [NSData dataWithContentsOfURL:NSBundle.mainBundle.appStoreReceiptURL];
+    NSString *receipt = [receiptData base64EncodedStringWithOptions:0];
+    if (!receipt) {
+        return nil;
+    }
+    NSString *nonce = CreateRandomString(0x10);
+    NSMutableDictionary *dict =
+        [[NSMutableDictionary alloc] initWithDictionary:JubeatAppDelegate.appDelegate.clientInfo];
+    dict[@"receipt"] = receipt;
+    dict[@"target"] = @"JP";
+    dict[@"sku"] = sku;
+    dict[@"price"] = prices;
+    dict[@"market"] = @1;
+    if ([EditorIDManager isExistEditorID]) {
+        NSString *key = [EditorIDManager getEditorIDKey];
+        NSString *userID = [EditorIDManager getKeyString:key];
+        NSString *passKey = [EditorIDManager getEditorPassKey];
+        NSString *passwd = [EditorIDManager getKeyString:passKey];
+        dict[@"user_id"] = userID;
+        dict[@"passwd"] = passwd;
+    }
+    return dict;
+}
+
+/** @ghidraAddress 0xb66ec */
+- (NSDictionary *)createVerifyPostData:(NSArray *)products {
+    NSData *receiptData = [NSData dataWithContentsOfURL:NSBundle.mainBundle.appStoreReceiptURL];
+    NSString *receipt = [receiptData base64EncodedStringWithOptions:0];
+    if (!receipt) {
+        return nil;
+    }
+    NSString *nonce = CreateRandomString(0x10);
+    NSMutableDictionary *dict =
+        [[NSMutableDictionary alloc] initWithDictionary:JubeatAppDelegate.appDelegate.clientInfo];
+    dict[@"receiptdata"] = receipt;
+    dict[@"target"] = @"JP";
+    dict[@"nonce"] = nonce;
+    dict[@"products"] = products;
+    if ([EditorIDManager isExistEditorID]) {
+        NSString *key = [EditorIDManager getEditorIDKey];
+        NSString *userID = [EditorIDManager getKeyString:key];
+        NSString *passKey = [EditorIDManager getEditorPassKey];
+        NSString *passwd = [EditorIDManager getKeyString:passKey];
+        dict[@"userid"] = userID;
+        dict[@"passwd"] = passwd;
+    }
+    NSDictionary *payload = [NSDictionary dictionaryWithDictionary:dict];
+    // Serialise via CJSONSerializer and store in verifyData with hardcoded prefix.
+    id serializer = [NSClassFromString(@"CJSONSerializer") performSelector:@selector(serializer)];
+    NSData *json = [serializer performSelector:@selector(serializeDictionary:error:)
+                                    withObject:payload];
+    verifyData = [[NSMutableData alloc] initWithCapacity:0x1000];
+    [verifyData appendBytes:"3fc9f6fe23460a7093aff11e4fa1f4b9omgker" length:0x20];
+    [verifyData appendData:[nonce dataUsingEncoding:4]];
+    return dict;
+}
+
+/** @ghidraAddress 0xb6af0 */
+- (NSDictionary *)createVerifyPostDictionary:(NSArray *)products
+                               productPrices:(NSArray *)productPrices {
+    NSData *receiptData = [NSData dataWithContentsOfURL:NSBundle.mainBundle.appStoreReceiptURL];
+    NSString *receipt = [receiptData base64EncodedStringWithOptions:0];
+    if (!receipt) {
+        return nil;
+    }
+    if (!productPrices) {
+        NSMutableArray *tmp = [[NSMutableArray alloc] init];
+        for (NSUInteger i = 0; i < products.count; ++i) {
+            [tmp addObject:@(-1)];
+        }
+        productPrices = [tmp copy];
+    }
+    if (productPrices.count < products.count) {
+        NSMutableArray *tmp = [[NSMutableArray alloc] init];
+        for (NSUInteger i = 0; i < products.count; ++i) {
+            [tmp addObject:@(-1)];
+        }
+        productPrices = [tmp copy];
+    }
+    NSMutableDictionary *dict =
+        [[NSMutableDictionary alloc] initWithDictionary:JubeatAppDelegate.appDelegate.clientInfo];
+    dict[@"receipt"] = receipt;
+    dict[@"products"] = products;
+    dict[@"prices"] = productPrices;
+    return dict;
+}
+
+/** @ghidraAddress 0xb6ec4 */
+- (void)verifyReceipt {
+    // Verified at 0xb6ec4: arrayWithObjects: verifingID (0xb6f00), then verifingPrice check
+    // at 0xb6f34 cbz, then copy to verifingIDs, then createVerifyPostDictionary:productPrices:
+    // at 0xb6ec4 tail, then SessionDownloader with verifyReceiptNewURL and tag 0.
+    NSArray *ids = [NSArray arrayWithObjects:&verifingID count:1];
+    NSArray *prices;
+    if (!verifingPrice) {
+        prices = [NSArray arrayWithObjects:@(-1) count:1];
+    } else {
+        prices = [NSArray arrayWithObjects:&verifingPrice count:1];
+    }
+    verifingIDs = [ids copy];
+    NSDictionary *post = [self createVerifyPostDictionary:ids productPrices:prices];
+    id downloader = [[NSClassFromString(@"SessionDownloader") alloc]
+           initWithURL:[NSURL URLWithString:[NSClassFromString(@"StoreUtil")
+                                                performSelector:@selector(verifyReceiptNewURL)]]
+        postDictionary:post
+              delegate:self];
+    [downloader performSelector:@selector(setTag:) withObject:@0];
+    [downloader performSelector:@selector(startDownloading)];
 }
 
 /** @ghidraAddress 0xb51e4 */
