@@ -9,10 +9,16 @@
 NSData *CreateMd5DataFromCString(const char *lpcszInput);
 
 @implementation PurchaseManager {
+    int purchaseCnt;                             // offset global 0x34a4b4
     NSMutableArray *purchasedProducts;           // offset global 0x34a4b8
     NSMutableDictionary *pendingReceipts;        // offset global 0x34a4bc
+    BOOL bConsume;                               // offset global 0x34a4c0
+    NSString *purchasingID;                      // offset global 0x34a4c4
+    NSNumber *purchasingPrice;                   // offset global 0x34a4c8
+    NSString *verifingID;                        // offset global 0x34a4cc
+    NSNumber *verifingPrice;                     // offset global 0x34a4d0
+    NSMutableDictionary *restoringReceipts;      // offset global 0x34a4d4
     NSMutableDictionary *pendingConsumeReceipts; // offset global 0x34a4e4
-    int purchaseCnt;                             // offset global 0x34a4b4
 }
 
 /** @ghidraAddress 0xb5068 */
@@ -54,6 +60,70 @@ NSData *CreateMd5DataFromCString(const char *lpcszInput);
 - (void)end {
     // Mirror of start: removeTransactionObserver: at 0xb5194.
     [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
+}
+
+/** @ghidraAddress 0xb61d8 */
+- (BOOL)isPurchased:(NSString *)productID {
+    // Verified via disassembly at 0xb61d8: ldr x0,[x0,x8] where x8 = purchasedProducts
+    // offset (0x34a4b8), then b to containsObject: . No retain fixup, direct.
+    return [purchasedProducts containsObject:productID];
+}
+
+/** @ghidraAddress 0xb61f0 */
+- (BOOL)isPending:(NSString *)productID {
+    // Verified at 0xb61f0: ldr x0 pendingReceipts, then objectForKey: , then !=0 check.
+    // The decompile shows isEqual, disassembly confirms objectForKey: at 0xb61f0 path.
+    return [pendingReceipts objectForKey:productID] != nil;
+}
+
+/** @ghidraAddress 0xb5ec8 */
+- (void)beginConsumePurchase:(SKProduct *)product {
+    // Verified against disassembly at 0xb5ec8: strb w9,[x20,x8] where w9=1 at 0xb5eec
+    // sets bConsume, then productIdentifier at 0xb5ef8, price at 0xb5f38,
+    // paymentWithProduct: at 0xb5f74, setQuantity:1 at 0xb5f9c,
+    // defaultQueue + addPayment: at 0xb5fb0.
+    bConsume = YES;
+    purchasingID = product.productIdentifier;
+    purchasingPrice = product.price;
+    SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:product];
+    payment.quantity = 1;
+    [[SKPaymentQueue defaultQueue] addPayment:payment];
+}
+
+/** @ghidraAddress 0xb5fec */
+- (void)beginPurchase:(SKProduct *)product {
+    // Verified at 0xb5fec: strb wzr (bConsume=NO) at 0xb6018, then isPending: check at
+    // 0xb6048; cbz w23 branches to purchasingID path (0xb6104) vs verifingID path
+    // (0xb6070). Disassembly confirms both addPayment: and SKReceiptRefreshRequest
+    // branches.
+    bConsume = NO;
+    NSString *identifier = product.productIdentifier;
+    BOOL pending = [self isPending:identifier];
+    // Need second fetch after isPending: call clobbers, see 0xb6058 mov x0,x19
+    identifier = product.productIdentifier;
+    if (!pending) {
+        purchasingID = identifier;
+        purchasingPrice = product.price;
+        SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:product];
+        payment.quantity = 1;
+        [[SKPaymentQueue defaultQueue] addPayment:payment];
+    } else {
+        verifingID = identifier;
+        verifingPrice = product.price;
+        SKReceiptRefreshRequest *request = [[SKReceiptRefreshRequest alloc] init];
+        request.delegate = self;
+        [request start];
+    }
+}
+
+/** @ghidraAddress 0xb6238 */
+- (void)beginRestore {
+    // Verified at 0xb6238: strb wzr (bConsume=NO), then setBool:forKey: PrefFirstRestoreEnd,
+    // alloc/init restoringReceipts dictionary, then restoreCompletedTransactions.
+    bConsume = NO;
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"PrefFirstRestoreEnd"];
+    restoringReceipts = [[NSMutableDictionary alloc] init];
+    [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
 }
 
 /** @ghidraAddress 0xb51e4 */
