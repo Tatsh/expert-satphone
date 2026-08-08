@@ -16,6 +16,16 @@
 - (void)connectionCancel;
 @end
 
+// StoreUtil is reached only for the recommended-pack URL; not reconstructed yet.
+@interface NSObject (JubeatLabStoreUtil)
++ (nullable NSURL *)recommendPackURL:(unsigned int)tuneID;
+@end
+
+// TouchJSON's base64 category on NSData, used to encode an uploaded sequence.
+@interface NSData (Base64)
+- (nullable NSString *)base64EncodedString;
+@end
+
 // The API host and the versioned path prefix every endpoint hangs off. From the CFString at
 // 0x2e1520 and the C string at 0x288deb.
 static NSString *const kJubeatLabHost = @"jubeat-lab.s.game.konami.jp";
@@ -37,6 +47,24 @@ static NSString *const kJubeatLabLicenseVersionAPI = @"policy/lastUpdate";
 static NSString *const kJubeatLabLicenseAPI = @"policy";
 static NSString *const kJubeatLabTopPageAPI = @"utils/getLabURL";
 static NSString *const kJubeatLabPasswordKey = @"passwd";
+
+// The remaining endpoint path formats and body keys. From the CFStrings at 0x2e1260-0x2e1420.
+static NSString *const kJubeatLabUploadAPIFormat = @"users/%@/seqs";
+static NSString *const kJubeatLabDownloadAPIFormat = @"seqs/%@?userID=%@";
+static NSString *const kJubeatLabLikeAPIFormat = @"seqs/%@/Like";
+static NSString *const kJubeatLabPlayedAPIFormat = @"seqs/%@/Played";
+static NSString *const kJubeatLabVoteLevelAPIFormat = @"seqs/%@/VoteLevel";
+static NSString *const kJubeatLabCreateUserAPI = @"users/SpecialUser";
+static NSString *const kJubeatLabUUIDBodyKey = @"uuid";
+static NSString *const kJubeatLabJcfDataKey = @"jcfData";
+static NSString *const kJubeatLabUserIDKey = @"userID";
+static NSString *const kJubeatLabMusicIDKey = @"musicID";
+static NSString *const kJubeatLabLevelKey = @"level";
+static NSString *const kJubeatLabUserNameKey = @"userName";
+static NSString *const kJubeatLabUserTypeKey = @"userType";
+
+// The placeholder identifier sent when the keychain has no editor identifier. From cf_ERRUSR.
+static NSString *const kJubeatLabMissingUserID = @"ERRUSR";
 
 // The request timeout in seconds; the pooled double at the requestWithURL: call is 15.0.
 static const NSTimeInterval kJubeatLabTimeout = 15.0;
@@ -196,6 +224,102 @@ static const char *const kJubeatLabRegion = "JP";
     NSString *api = [NSString stringWithFormat:@"%@", kJubeatLabTopPageAPI];
     NSURL *url = [self getApiPath:@"https" api:api];
     return [self initWithURL:url sendData:nil command:kJubeatLabGETCommand delegate:aDelegate];
+}
+
+/** @ghidraAddress 0x1d9228 */
+- (instancetype)initUploadApi:(id)aDelegate seqData:(NSData *)seqData {
+    // POSTs {uuid, passwd, jcfData} to users/<editorID>/seqs. The sequence data is base64-encoded.
+    NSString *editorID = [self getKeyString:EditorIDManager.getEditorIDKey];
+    NSString *passwd = [self getKeyString:EditorIDManager.getEditorPassKey];
+    NSString *uuid = JubeatAppDelegate.clientInfo[kJubeatLabUUIDBodyKey];
+    NSString *api = [NSString stringWithFormat:kJubeatLabUploadAPIFormat, editorID];
+    NSURL *url = [self getApiPath:@"https" api:api];
+    NSDictionary *body = @{
+        kJubeatLabUUIDBodyKey : uuid,
+        kJubeatLabPasswordKey : passwd,
+        kJubeatLabJcfDataKey : [seqData base64EncodedString],
+    };
+    NSData *json = [CJSONSerializer.serializer serializeDictionary:body error:nil];
+    return [self initWithURL:url sendData:json command:kJubeatLabPOSTCommand delegate:aDelegate];
+}
+
+/** @ghidraAddress 0x1d9588 */
+- (instancetype)initDownloadApi:(id)aDelegate seqID:(id)seqID {
+    // GETs seqs/<seqID>?userID=<editorID>.
+    NSString *editorID = [self getKeyString:EditorIDManager.getEditorIDKey];
+    NSString *api = [NSString stringWithFormat:kJubeatLabDownloadAPIFormat, seqID, editorID];
+    NSURL *url = [self getApiPath:@"https" api:api];
+    return [self initWithURL:url sendData:nil command:kJubeatLabGETCommand delegate:aDelegate];
+}
+
+/** @ghidraAddress 0x1d96c8 */
+- (instancetype)initComprisedPackApi:(id)aDelegate tuneID:(unsigned int)tuneID {
+    NSURL *url = [NSClassFromString(@"StoreUtil") recommendPackURL:tuneID];
+    return [self initWithURL:url sendData:nil command:kJubeatLabGETCommand delegate:aDelegate];
+}
+
+/** @ghidraAddress 0x1d976c */
+- (instancetype)initGoodJobApi:(id)aDelegate tuneID:(int)tuneID seqID:(id)seqID {
+    // POSTs {userID, musicID} to seqs/<seqID>/Like; a missing editor identifier is sent as
+    // "ERRUSR".
+    NSString *editorID = [self getKeyString:EditorIDManager.getEditorIDKey];
+    if (!editorID) {
+        editorID = kJubeatLabMissingUserID;
+    }
+    NSString *api = [NSString stringWithFormat:kJubeatLabLikeAPIFormat, seqID];
+    NSURL *url = [self getApiPath:@"https" api:api];
+    NSDictionary *body = @{kJubeatLabUserIDKey : editorID, kJubeatLabMusicIDKey : @(tuneID)};
+    NSData *json = [CJSONSerializer.serializer serializeDictionary:body error:nil];
+    return [self initWithURL:url sendData:json command:kJubeatLabPOSTCommand delegate:aDelegate];
+}
+
+/** @ghidraAddress 0x1d9a5c */
+- (instancetype)initLevelApi:(id)aDelegate tuneID:(int)tuneID seqID:(id)seqID level:(int)level {
+    // POSTs {level, userID, musicID} to seqs/<seqID>/VoteLevel.
+    NSString *editorID = [self getKeyString:EditorIDManager.getEditorIDKey];
+    if (!editorID) {
+        editorID = kJubeatLabMissingUserID;
+    }
+    NSString *api = [NSString stringWithFormat:kJubeatLabVoteLevelAPIFormat, seqID];
+    NSURL *url = [self getApiPath:@"https" api:api];
+    NSDictionary *body = @{
+        kJubeatLabLevelKey : @(level),
+        kJubeatLabUserIDKey : editorID,
+        kJubeatLabMusicIDKey : @(tuneID),
+    };
+    NSData *json = [CJSONSerializer.serializer serializeDictionary:body error:nil];
+    return [self initWithURL:url sendData:json command:kJubeatLabPOSTCommand delegate:aDelegate];
+}
+
+/** @ghidraAddress 0x1d9d88 */
+- (instancetype)initPlayApi:(id)aDelegate tuneID:(int)tuneID seqID:(id)seqID {
+    // The Played twin of -initGoodJobApi:tuneID:seqID:.
+    NSString *editorID = [self getKeyString:EditorIDManager.getEditorIDKey];
+    if (!editorID) {
+        editorID = kJubeatLabMissingUserID;
+    }
+    NSString *api = [NSString stringWithFormat:kJubeatLabPlayedAPIFormat, seqID];
+    NSURL *url = [self getApiPath:@"https" api:api];
+    NSDictionary *body = @{kJubeatLabUserIDKey : editorID, kJubeatLabMusicIDKey : @(tuneID)};
+    NSData *json = [CJSONSerializer.serializer serializeDictionary:body error:nil];
+    return [self initWithURL:url sendData:json command:kJubeatLabPOSTCommand delegate:aDelegate];
+}
+
+/** @ghidraAddress 0x1da760 */
+- (instancetype)initCreateUserID:(id)aDelegate
+                          userID:(id)userID
+                            name:(id)name
+                        userType:(int)userType {
+    // POSTs {userName, userID, userType} to users/SpecialUser.
+    NSString *api = [NSString stringWithFormat:@"%@", kJubeatLabCreateUserAPI];
+    NSURL *url = [self getApiPath:@"https" api:api];
+    NSDictionary *body = @{
+        kJubeatLabUserNameKey : name,
+        kJubeatLabUserIDKey : userID,
+        kJubeatLabUserTypeKey : @(userType),
+    };
+    NSData *json = [CJSONSerializer.serializer serializeDictionary:body error:nil];
+    return [self initWithURL:url sendData:json command:kJubeatLabPOSTCommand delegate:aDelegate];
 }
 
 #pragma mark - Web-page URLs

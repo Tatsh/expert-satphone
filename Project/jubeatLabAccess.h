@@ -172,6 +172,95 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initTopPageApi:(nullable id)delegate;
 
 /**
+ * @brief Starts an upload of a custom sequence.
+ *
+ * POSTs @c {uuid, passwd, jcfData} to @c users/<editorID>/seqs , with the sequence data
+ * base64-encoded.
+ * @param delegate The object told how the request finished.
+ * @param seqData The sequence data to upload.
+ * @return The initialised client.
+ * @ghidraAddress 0x1d9228
+ */
+- (instancetype)initUploadApi:(nullable id)delegate seqData:(nullable NSData *)seqData;
+
+/**
+ * @brief Starts a GET of a shared sequence by its identifier.
+ *
+ * Fetches @c seqs/<seqID>?userID=<editorID> .
+ * @param delegate The object told how the request finished.
+ * @param seqID The sequence identifier.
+ * @return The initialised client.
+ * @ghidraAddress 0x1d9588
+ */
+- (instancetype)initDownloadApi:(nullable id)delegate seqID:(nullable id)seqID;
+
+/**
+ * @brief Starts a GET of the recommended pack for a tune.
+ * @param delegate The object told how the request finished.
+ * @param tuneID The tune identifier.
+ * @return The initialised client.
+ * @ghidraAddress 0x1d96c8
+ */
+- (instancetype)initComprisedPackApi:(nullable id)delegate tuneID:(unsigned int)tuneID;
+
+/**
+ * @brief Starts a good-job (like) POST for a sequence.
+ *
+ * POSTs @c {userID, musicID} to @c seqs/<seqID>/Like . A missing editor identifier is sent as
+ * @c "ERRUSR".
+ * @param delegate The object told how the request finished.
+ * @param tuneID The tune identifier.
+ * @param seqID The sequence identifier.
+ * @return The initialised client.
+ * @ghidraAddress 0x1d976c
+ */
+- (instancetype)initGoodJobApi:(nullable id)delegate tuneID:(int)tuneID seqID:(nullable id)seqID;
+
+/**
+ * @brief Starts a vote-level POST for a sequence.
+ *
+ * POSTs @c {level, userID, musicID} to @c seqs/<seqID>/VoteLevel .
+ * @param delegate The object told how the request finished.
+ * @param tuneID The tune identifier.
+ * @param seqID The sequence identifier.
+ * @param level The voted level.
+ * @return The initialised client.
+ * @ghidraAddress 0x1d9a5c
+ */
+- (instancetype)initLevelApi:(nullable id)delegate
+                      tuneID:(int)tuneID
+                       seqID:(nullable id)seqID
+                       level:(int)level;
+
+/**
+ * @brief Starts a play-count POST for a sequence.
+ *
+ * POSTs @c {userID, musicID} to @c seqs/<seqID>/Played .
+ * @param delegate The object told how the request finished.
+ * @param tuneID The tune identifier.
+ * @param seqID The sequence identifier.
+ * @return The initialised client.
+ * @ghidraAddress 0x1d9d88
+ */
+- (instancetype)initPlayApi:(nullable id)delegate tuneID:(int)tuneID seqID:(nullable id)seqID;
+
+/**
+ * @brief Starts a special-user creation POST.
+ *
+ * POSTs @c {userName, userID, userType} to @c users/SpecialUser .
+ * @param delegate The object told how the request finished.
+ * @param userID The user identifier.
+ * @param name The user name.
+ * @param userType The user type.
+ * @return The initialised client.
+ * @ghidraAddress 0x1da760
+ */
+- (instancetype)initCreateUserID:(nullable id)delegate
+                          userID:(nullable id)userID
+                            name:(nullable id)name
+                        userType:(int)userType;
+
+/**
  * @brief Builds a web-page URL under the lab host.
  *
  * Assembles @c "<scheme>://jubeat-lab.s.game.konami.jp/<pagePath>" . As with @c -getApiPath:api:

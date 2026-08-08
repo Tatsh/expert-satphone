@@ -61,6 +61,7 @@ dios
 docstrings
 dplatform
 dyld
+errusr
 esbenp
 extern
 fadd
@@ -181,6 +182,7 @@ scorefor
 scvtf
 sdiv
 selecte
+seqs
 serch
 sess
 shellcheck
