@@ -125,6 +125,8 @@ momd
 movi
 movk
 mulist
+musicinfo
+musiclistfree
 mypy
 neenginebridge
 ngid
@@ -146,6 +148,7 @@ objcpp
 omgker
 oneline
 opendetail
+packinfo
 pbxproj
 pendconlist
 pendlist

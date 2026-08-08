@@ -57,6 +57,37 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSURL *)storeNewInfoURL;
 
 /**
+ * @brief The pack-info URL for a pack, carrying the client info as a query.
+ * @param packID The pack identifier.
+ * @ghidraAddress 0xb9f28
+ */
++ (nullable NSURL *)packInfoURL:(unsigned int)packID;
+/**
+ * @brief The restore-pack-info URL for a pack, carrying the client info as a query.
+ * @param packID The pack identifier.
+ * @ghidraAddress 0xba078
+ */
++ (nullable NSURL *)restorePackInfoURL:(unsigned int)packID;
+/**
+ * @brief The music-info URL for a tune, carrying the client info as a query.
+ * @param musicID The tune identifier.
+ * @ghidraAddress 0xba1c8
+ */
++ (nullable NSURL *)musicInfoURL:(unsigned int)musicID;
+/**
+ * @brief The free-music-list (privilege) URL keyed by a value.
+ * @param key The list key.
+ * @ghidraAddress 0xba48c
+ */
++ (nullable NSURL *)privilegeListURL:(int)key;
+/**
+ * @brief The privilege music-info URL; forwards to @c +musicInfoURL: .
+ * @param musicID The tune identifier.
+ * @ghidraAddress 0xba56c
+ */
++ (nullable NSURL *)privilegeMusicInfoURL:(unsigned int)musicID;
+
+/**
  * @brief The receipt-verify URL for a new purchase; delegates to @c ScratchUtil .
  * @ghidraAddress 0xba464
  */

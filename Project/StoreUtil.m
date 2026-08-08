@@ -24,6 +24,9 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
 // De-inlined: wraps a path in "https://agx.s.konaminet.jp<path>" and builds the NSURL. The binary
 // emits this two-format-call, alloc/initWithString: sequence inline in each URL builder.
 + (nullable NSURL *)storeURLForPath:(NSString *)path;
+// De-inlined: appends the client-info query fragment to a mutable path and wraps it. The
+// query-carrying URL builders share this tail.
++ (nullable NSURL *)storeURLForPathWithClientInfo:(NSMutableString *)path;
 @end
 
 @implementation StoreUtil
@@ -73,13 +76,63 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
     return [[NSURL alloc] initWithString:urlString];
 }
 
++ (NSURL *)storeURLForPathWithClientInfo:(NSMutableString *)path {
+    [path appendString:[self queryStringForDictionary:JubeatAppDelegate.clientInfo]];
+    return [self storeURLForPath:path];
+}
+
 /** @ghidraAddress 0xba318 */
 + (NSURL *)storeNewInfoURL {
     // Builds "/agx/main/cgi/new/?target=JP" plus the client-info query, under the store host.
     NSMutableString *path =
         [NSMutableString stringWithFormat:kStoreNewInfoPathFormat, kStoreCGIPath, kStoreRegion];
-    [path appendString:[self queryStringForDictionary:JubeatAppDelegate.clientInfo]];
+    return [self storeURLForPathWithClientInfo:path];
+}
+
+/** @ghidraAddress 0xb9f28 */
++ (NSURL *)packInfoURL:(unsigned int)packID {
+    NSMutableString *path =
+        [NSMutableString stringWithFormat:@"%s/packinfo_secure/?target=%s&pack=%d",
+                                          kStoreCGIPath,
+                                          kStoreRegion,
+                                          packID];
+    return [self storeURLForPathWithClientInfo:path];
+}
+
+/** @ghidraAddress 0xba078 */
++ (NSURL *)restorePackInfoURL:(unsigned int)packID {
+    NSMutableString *path =
+        [NSMutableString stringWithFormat:@"%s/restore_packinfo_secure/?target=%s&pack=%d",
+                                          kStoreCGIPath,
+                                          kStoreRegion,
+                                          packID];
+    return [self storeURLForPathWithClientInfo:path];
+}
+
+/** @ghidraAddress 0xba1c8 */
++ (NSURL *)musicInfoURL:(unsigned int)musicID {
+    NSMutableString *path =
+        [NSMutableString stringWithFormat:@"%s/musicinfo_secure/?target=%s&music=%d",
+                                          kStoreCGIPath,
+                                          kStoreRegion,
+                                          musicID];
+    return [self storeURLForPathWithClientInfo:path];
+}
+
+/** @ghidraAddress 0xba48c */
++ (NSURL *)privilegeListURL:(int)key {
+    // Unlike the pack/music URLs this one carries no client-info query.
+    NSString *path =
+        [NSString stringWithFormat:@"%s/musiclistfree_secure/?target=%s&head=0&limit=10&key=%d",
+                                   kStoreCGIPath,
+                                   kStoreRegion,
+                                   key];
     return [self storeURLForPath:path];
+}
+
+/** @ghidraAddress 0xba56c */
++ (NSURL *)privilegeMusicInfoURL:(unsigned int)musicID {
+    return [self musicInfoURL:musicID];
 }
 
 /** @ghidraAddress 0xba464 */
