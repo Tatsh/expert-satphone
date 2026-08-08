@@ -222,6 +222,7 @@ would be indistinguishable from a reconstructed one.
 | `RewardWebViewController`                                                                                                                             | superclass of `RecommendWebViewController`; forward-declared as a `UIViewController`    | not located yet              |
 | `MusicView` (`initWithFrame:artworkSize:colType:labelDisp:`, `setInfo:bArtistNameDisp:`, `imgView`, `clearInfo`, `tuneInfo`)                          | `-[collectionCell initCell:parentDelegate:viewType:labelDisp:]` builds and drives one   | not located yet              |
 | `GameNetworkUtil` (`+rewardCheckURL`, `+getStoreTarget`, `+fillInstallAppNum:`)                                                                       | `-[RewardCheck …]` builds and reports its request through it                            | not located yet              |
+| `MarkerManager` (`+getMarkerPath:`, `+saveMarker:markerID:`, `+pullOutMarkerBanner:bannerID:`, `+setMarkerInfo:`) and `VerifyMd5Digest`               | `-[MarkerDownloadManager downloaderFinished:]` installs each verified pack through them | 0x1b884c onwards, 0x7f560    |
 
 ## Defects found in the binary
 
