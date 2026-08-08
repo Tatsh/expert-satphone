@@ -158,6 +158,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSString *)productIDForPackID:(int)packID;
 
 /**
+ * @brief Maps an App Store product identifier back to its pack identifier.
+ *
+ * Strips the @c "jubeat.pack" prefix and parses the remainder; returns -1 when the string does not
+ * carry the prefix or the number is not positive.
+ * @param productID The product identifier.
+ * @return The pack identifier, or -1.
+ * @ghidraAddress 0xbabc8
+ */
++ (int)packIDForProductID:(nullable NSString *)productID;
+
+/**
  * @brief Where a downloaded tune's data would live.
  *
  * DECLARED ONLY. Returns the path whether or not anything is there; the caller tests it with

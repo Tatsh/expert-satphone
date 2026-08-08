@@ -202,6 +202,33 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
     return [[NSURL alloc] initWithString:urlString];
 }
 
+#pragma mark - Identifier maps
+
+// The App Store product-identifier prefix for a pack. From the CFString at 0x2da3c0.
+static NSString *const kStorePackProductPrefix = @"jubeat.pack";
+
+/** @ghidraAddress 0xbab70 */
++ (NSString *)productIDForPackID:(int)packID {
+    // Only positive pack identifiers have a product; the rest map to nil.
+    if (packID > 0) {
+        return [NSString stringWithFormat:@"%@%05d", kStorePackProductPrefix, packID];
+    }
+    return nil;
+}
+
+/** @ghidraAddress 0xbabc8 */
++ (int)packIDForProductID:(NSString *)productID {
+    // Requires the "jubeat.pack" prefix and a positive number after it; -1 otherwise.
+    if (productID.length > kStorePackProductPrefix.length &&
+        [productID hasPrefix:kStorePackProductPrefix]) {
+        int packID = [productID substringFromIndex:kStorePackProductPrefix.length].intValue;
+        if (packID >= 1) {
+            return packID;
+        }
+    }
+    return -1;
+}
+
 #pragma mark - Utilities
 
 /** @ghidraAddress 0xbb230 */
