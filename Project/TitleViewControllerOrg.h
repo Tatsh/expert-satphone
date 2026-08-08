@@ -7,7 +7,7 @@
  * The superclass is @c TitleViewController , from the dyld bind at the class object's superclass
  * slot (0x34a78 + 8) and confirmed by the super calls at 0x13abe8, 0x13c5e8, and 0x13c4c8.
  *
- * RECONSTRUCTION STATE: eight of twenty-four members written. The view construction, animation
+ * RECONSTRUCTION STATE: fifteen of twenty-four members written. The view construction, animation
  * control, and input handling are declared but not reconstructed; see RECONSTRUCTION_STATUS.md.
  */
 
@@ -42,7 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadView;
 
 /**
- * @brief Begins the title sequence. DECLARED ONLY.
+ * @brief Begins the title sequence.
+ *
+ * Hides the logo views and starts the title BGM and welcome voice.
  * @ghidraAddress 0x13b65c
  */
 - (void)start;
@@ -53,19 +55,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)stopAnimation;
 
 /**
- * @brief Fades the touch prompt in and out. DECLARED ONLY.
+ * @brief Fades the touch prompt in and out forever.
  * @ghidraAddress 0x13b7a8
  */
 - (void)blinkPrompt;
 
 /**
- * @brief Starts the prompt blink and installs swipe/tap recognisers. DECLARED ONLY.
+ * @brief Starts the prompt blink and installs the four swipe and one tap recognisers.
  * @ghidraAddress 0x13b9e0
  */
 - (void)startBlinkPrompt;
 
 /**
- * @brief Fades the logo in. DECLARED ONLY.
+ * @brief Fades the logo in and then starts the marker check.
  * @ghidraAddress 0x13bd1c
  */
 - (void)showLogo;
@@ -85,14 +87,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleSwipe:(id)sender;
 
 /**
- * @brief Pauses the title animation. DECLARED ONLY.
+ * @brief Pauses the title animation when the app backgrounds.
  * @param sender The notification.
  * @ghidraAddress 0x13c418
  */
 - (void)suspend:(id)sender;
 
 /**
- * @brief Resumes the title animation. DECLARED ONLY.
+ * @brief Resumes the title animation when the app foregrounds.
  * @param sender The notification.
  * @ghidraAddress 0x13c478
  */
