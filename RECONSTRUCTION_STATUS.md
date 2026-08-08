@@ -14,8 +14,8 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the _Verification_ section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **582 annotated, 0
-mismatched, 0 selectors absent; 139 constants checked against their bytes.**
+which of the four subcommands actually cover anything here. Last run: **590 annotated, 0
+mismatched, 0 selectors absent; 141 constants checked against their bytes.**
 
 ## Measured progress
 
@@ -228,6 +228,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/BalloonView.m`                         | **Complete.** Three methods; the speech-balloon path with a four-way arrow.                                                                                                                                                                                                                                                                             |
 | `Project/RootViewController.m`                  | **Complete**, confirmed by `tools/progress.py`: 0 outstanding. Forty-three methods — the whole screen host: the fade dispatchers and their nine transitions, the 3-D store cube-flip, the game and edit entry points, the application-state and view-lifecycle handlers, the rotation overrides, the achievement overlay, and the deferred-move checks. |
 | `Project/InheritCodePayView.m`                  | **Complete.** Four methods. The inherit-code screen: issue button, server round-trip, and the cross-fade to a two-field code panel — verified against the disassembly.                                                                                                                                                                                  |
+| `Project/MissionAchievementMessage.m`           | Eight of twelve methods: the four-stage entry chain, the two-stage exit chain, tap dismissal, the auto-dismiss timer, and the balloon background — all verified against the disassembly. The attributed-text layout methods are declared only.                                                                                                          |
 
 ## Next, in order
 
