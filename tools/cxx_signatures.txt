@@ -157,3 +157,7 @@
 0x1dd80	CGPoint GetComboAnimPosition(unsigned int dwAnimGroup, int nFrameIndex)
 0x1de54	float EvalComboAnimCurve(float flTime, unsigned int dwAnimGroup, int nFrameIndex)
 0x1dff0	float EvalComboScaleCurve(float flTime, unsigned int dwCurveIndex)
+0xfd4f0	int GetMusicGridCellsPerPage(int nColumnType)
+0xfd654	int GetMusicGridColumnCount(int nColumnType)
+0xfd6c4	int GetMusicGridRowCount(int nColumnType)
+0xfd7cc	double GetMusicCellScaleForColumnType(int nColumnType)
