@@ -73,6 +73,7 @@ dyld
 errusr
 esbenp
 extern
+fabsf
 fadd
 fadein
 fcmp
