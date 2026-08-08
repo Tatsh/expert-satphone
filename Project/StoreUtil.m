@@ -177,4 +177,29 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
     return [self storeURLForPath:path];
 }
 
+/** @ghidraAddress 0xbb3bc */
++ (NSURL *)recommendPackURL:(unsigned int)musicID {
+    NSMutableString *path =
+        [NSMutableString stringWithFormat:@"%s/recommended_pack/?target=%s&music=%d",
+                                          kStoreCGIPath,
+                                          kStoreRegion,
+                                          musicID];
+    return [self storeURLForPathWithClientInfo:path];
+}
+
+/** @ghidraAddress 0xbb50c */
++ (NSURL *)startNewsURL {
+    NSString *path =
+        [NSString stringWithFormat:@"%s/startup/?target=%s", kStoreCGIPath, kStoreRegion];
+    return [self storeURLForPath:path];
+}
+
+/** @ghidraAddress 0xbb5e8 */
++ (NSURL *)passedInfoListURL {
+    // A single literal endpoint under the store host.
+    NSString *urlString =
+        [NSString stringWithFormat:@"https://%@/agx/main/news/passed_info.jsp", kStoreHost];
+    return [[NSURL alloc] initWithString:urlString];
+}
+
 @end

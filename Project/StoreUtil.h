@@ -119,6 +119,22 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xba8c8
  */
 + (nullable NSURL *)markerListURL;
+/**
+ * @brief The recommended-pack URL for a tune, carrying the client info as a query.
+ * @param musicID The tune identifier.
+ * @ghidraAddress 0xbb3bc
+ */
++ (nullable NSURL *)recommendPackURL:(unsigned int)musicID;
+/**
+ * @brief The startup-news URL.
+ * @ghidraAddress 0xbb50c
+ */
++ (nullable NSURL *)startNewsURL;
+/**
+ * @brief The passed-information list URL.
+ * @ghidraAddress 0xbb5e8
+ */
++ (nullable NSURL *)passedInfoListURL;
 
 /**
  * @brief Whether a string is a URL worth keeping.
