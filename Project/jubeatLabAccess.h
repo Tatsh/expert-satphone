@@ -171,6 +171,47 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initTopPageApi:(nullable id)delegate;
 
+/**
+ * @brief Builds a web-page URL under the lab host.
+ *
+ * Assembles @c "<scheme>://jubeat-lab.s.game.konami.jp/<pagePath>" . As with @c -getApiPath:api:
+ * the scheme is used verbatim and the @c "https" comparison is discarded.
+ * @param scheme The URL scheme.
+ * @param pagePath The page path under the host.
+ * @return The page URL.
+ * @ghidraAddress 0x1d8e90
+ */
++ (nullable NSURL *)getWebPagePath:(nullable NSString *)scheme
+                          pagePath:(nullable NSString *)pagePath;
+
+/**
+ * @brief The user-management web page URL.
+ * @ghidraAddress 0x1db05c
+ */
++ (nullable NSURL *)getUserPageURL;
+
+/**
+ * @brief The session-error web page URL.
+ * @ghidraAddress 0x1db0e8
+ */
++ (nullable NSURL *)getUserPageSessionFailedURL;
+
+/**
+ * @brief The sequence-search web page URL for a music identifier.
+ * @param musicID The music identifier.
+ * @return The search-page URL.
+ * @ghidraAddress 0x1db160
+ */
++ (nullable NSURL *)getSequenceSerchURL:(int)musicID;
+
+/**
+ * @brief The sequence-detail web page URL for a sequence identifier.
+ * @param sequenceID The sequence identifier.
+ * @return The detail-page URL.
+ * @ghidraAddress 0x1db224
+ */
++ (nullable NSURL *)getSequencePageURL:(nullable id)sequenceID;
+
 @end
 
 NS_ASSUME_NONNULL_END

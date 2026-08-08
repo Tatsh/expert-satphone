@@ -181,6 +181,7 @@ scorefor
 scvtf
 sdiv
 selecte
+serch
 sess
 shellcheck
 shellformat

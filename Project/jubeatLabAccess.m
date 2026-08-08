@@ -41,6 +41,14 @@ static NSString *const kJubeatLabPasswordKey = @"passwd";
 // The request timeout in seconds; the pooled double at the requestWithURL: call is 15.0.
 static const NSTimeInterval kJubeatLabTimeout = 15.0;
 
+// The web-page paths reached through +getWebPagePath:pagePath:. From the CFStrings at 0x2e1460,
+// 0x2e1480, 0x2e14a0, 0x2e14e0, and the C string "JP" at 0x27f352.
+static NSString *const kJubeatLabUserPageFormat = @"aqq/contents/manage/index.jsp?t=%s";
+static NSString *const kJubeatLabSessionErrorPage = @"aqq/contents/error/session_err.jsp";
+static NSString *const kJubeatLabMusicPage = @"aqq/contents/ios/music.jsp";
+static NSString *const kJubeatLabDetailPage = @"aqq/contents/ios/detail.jsp";
+static const char *const kJubeatLabRegion = "JP";
+
 @implementation jubeatLabAccess {
     NSMutableURLRequest *request;      // +0x08, ivar-offset global 0x34bc68
     NSMutableData *data;               // +0x10, ivar-offset global 0x34bc78
@@ -188,6 +196,42 @@ static const NSTimeInterval kJubeatLabTimeout = 15.0;
     NSString *api = [NSString stringWithFormat:@"%@", kJubeatLabTopPageAPI];
     NSURL *url = [self getApiPath:@"https" api:api];
     return [self initWithURL:url sendData:nil command:kJubeatLabGETCommand delegate:aDelegate];
+}
+
+#pragma mark - Web-page URLs
+
+/** @ghidraAddress 0x1d8e90 */
++ (NSURL *)getWebPagePath:(NSString *)scheme pagePath:(NSString *)pagePath {
+    // As with -getApiPath:api:, the scheme is used verbatim and the "https" comparison discarded.
+    (void)[scheme isEqualToString:@"https"];
+    NSString *urlString =
+        [NSMutableString stringWithFormat:@"%@://%@/%@", scheme, kJubeatLabHost, pagePath];
+    return [NSURL URLWithString:urlString];
+}
+
+/** @ghidraAddress 0x1db05c */
++ (NSURL *)getUserPageURL {
+    NSString *page = [NSString stringWithFormat:kJubeatLabUserPageFormat, kJubeatLabRegion];
+    return [self getWebPagePath:@"https" pagePath:page];
+}
+
+/** @ghidraAddress 0x1db0e8 */
++ (NSURL *)getUserPageSessionFailedURL {
+    NSString *page = [NSString stringWithFormat:@"%@", kJubeatLabSessionErrorPage];
+    return [self getWebPagePath:@"https" pagePath:page];
+}
+
+/** @ghidraAddress 0x1db160 */
++ (NSURL *)getSequenceSerchURL:(int)musicID {
+    NSString *midString = [NSString stringWithFormat:@"%d", musicID];
+    NSString *page = [NSString stringWithFormat:@"%@?mid=%@&kfs=a", kJubeatLabMusicPage, midString];
+    return [self getWebPagePath:@"https" pagePath:page];
+}
+
+/** @ghidraAddress 0x1db224 */
++ (NSURL *)getSequencePageURL:(id)sequenceID {
+    NSString *page = [NSString stringWithFormat:@"%@?s=%@", kJubeatLabDetailPage, sequenceID];
+    return [self getWebPagePath:@"https" pagePath:page];
 }
 
 #pragma mark - Request lifecycle
