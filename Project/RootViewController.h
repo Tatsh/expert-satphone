@@ -22,6 +22,17 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RootViewController : UIViewController
 
 /**
+ * @brief Builds the controller and its two persistent child screens.
+ *
+ * Allocates the game and edit view controllers once and keeps them as children for the whole
+ * lifetime, registers the three application-state observers, and builds the achievement-message
+ * overlay with this controller as its delegate.
+ * @return The initialised controller.
+ * @ghidraAddress 0x1a751c
+ */
+- (instancetype)init;
+
+/**
  * @brief Runs a named cross-fade and hands the name to the transition dispatcher.
  *
  * Blocks input, parks both durations in ivars, builds a fresh full-screen black cover, and fades it

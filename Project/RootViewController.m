@@ -32,11 +32,19 @@
     NSString *currentSceneID;
     MusicSelectViewController *musicSelectViewCtrl;
     BOOL _isActive;
-    // The achievement-message overlay, at offset global 0x34b774. Its concrete class is not
-    // established yet, so it is typed UIView and its three selectors are declared below.
+    // The achievement-message overlay, at offset global 0x34b774. -init allocates it as a
+    // MissionAchievementMessage; that class is not reconstructed yet, so it is typed UIView and its
+    // selectors are declared below.
     UIView *achieveMessage;
 }
 @end
+
+// The screens -init builds. GameViewController and EditViewController are not reconstructed yet, so
+// they are reached by name; see TYPES_PENDING.md. gameViewCtrl and editViewCtrl are typed
+// UIViewController for the same reason.
+static NSString *const kGameViewControllerClassName = @"GameViewController";
+static NSString *const kEditViewControllerClassName = @"EditViewController";
+static NSString *const kMissionAchievementMessageClassName = @"MissionAchievementMessage";
 
 // The six scene identifiers, from the CFStrings at 0x2e0000, 0x2e0060, 0x2e0080, and 0x2e01a0 to
 // 0x2e01e0. "SceneStore" is reached by the auto-move checks and -openStore:.
@@ -108,12 +116,61 @@ static const double kTitleSwitchFadeDuration = 1.5;
 // The achievement-message overlay's selectors. Its class is not established yet; see
 // -openAchiveMessage: and -messageClose. Declared on UIView so the overlay can be messaged.
 @interface UIView (JubeatAchieveMessage)
+- (instancetype)initWithTitle:(nullable id)title;
+- (void)setADelegate:(nullable id)delegate;
 - (void)setAchieveTitle:(nullable id)title;
 - (void)transReset;
 - (void)enterAnimationStart;
 @end
 
 @implementation RootViewController
+
+#pragma mark - Construction
+
+/** @ghidraAddress 0x1a751c */
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        // The game and edit screens are built once, up front, and kept as children for the whole
+        // lifetime — every transition swaps their views in and out rather than rebuilding them.
+        gameViewCtrl = [[NSClassFromString(kGameViewControllerClassName) alloc] init];
+        [self addChildViewController:gameViewCtrl];
+        [gameViewCtrl didMoveToParentViewController:self];
+
+        editViewCtrl = [[NSClassFromString(kEditViewControllerClassName) alloc] init];
+        [self addChildViewController:editViewCtrl];
+        [editViewCtrl didMoveToParentViewController:self];
+
+        suspendedAnimID = nil;
+
+        // The three application-state observers -dealloc later removes.
+        NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
+        [center addObserver:self
+                   selector:@selector(appDidBecomeActive:)
+                       name:UIApplicationDidBecomeActiveNotification
+                     object:nil];
+        [center addObserver:self
+                   selector:@selector(appWillResignActive:)
+                       name:UIApplicationWillResignActiveNotification
+                     object:nil];
+        [center addObserver:self
+                   selector:@selector(appWillTerminate:)
+                       name:UIApplicationWillTerminateNotification
+                     object:nil];
+
+        // The achievement overlay is built with a nil title and told to report back to this
+        // controller. It is added to the view only when -openAchiveMessage: fires.
+        achieveMessage =
+            [[NSClassFromString(kMissionAchievementMessageClassName) alloc] initWithTitle:nil];
+        [achieveMessage setADelegate:self];
+    }
+    return self;
+}
+
+/** @ghidraAddress 0x1a7738 */
+- (void)loadView {
+    [super loadView];
+}
 
 #pragma mark - Transition helpers
 

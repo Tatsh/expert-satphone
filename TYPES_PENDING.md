@@ -219,6 +219,9 @@ would be indistinguishable from a reconstructed one.
 | `+[AlertViewManager sharedManager]`                                                                                                                   | `-[InheritCodePayView downloaderError:]` sends it              | not located yet                             |
 | `-[AlertViewManager makeAlert:delegate:tag:title:msg:cancel:btnText:show:viewController:]`                                                            | `-[InheritCodePayView downloaderError:]` sends it              | 0xa8cfc                                     |
 | `+[ScratchUtil getInheritOutputURL]`                                                                                                                  | `-[InheritCodePayView tapCodeOutput:]` sends it                | 0x1823cc                                    |
+| `GameViewController` and `EditViewController`                                                                                                         | `-[RootViewController init]` builds one of each                | not located yet                             |
+| `-[MissionAchievementMessage initWithTitle:]` and `-setADelegate:`                                                                                    | `-[RootViewController init]` builds the overlay                | not located yet                             |
+| `-[MissionAchievementMessage setAchieveTitle:]`, `-transReset`, `-enterAnimationStart`                                                                | `-[RootViewController openAchiveMessage:]` sends them          | 0x4fa3c, 0x4f5cc, 0x4ea44                   |
 
 ## Defects found in the binary
 
