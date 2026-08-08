@@ -176,6 +176,31 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSURL *)storeExtendListURL;
 
 /**
+ * @brief Verifies a signed store response and returns its JSON body.
+ *
+ * The first 64 bytes are the expected lowercase SHA-256 hex of the body with a fixed salt in place
+ * of that prefix; when it matches, the remaining bytes are parsed as a JSON dictionary. Returns nil
+ * for a response shorter than 64 bytes or a failed signature.
+ * @param response The raw signed response.
+ * @return The verified JSON dictionary, or nil.
+ * @ghidraAddress 0xba9a4
+ */
++ (nullable NSDictionary *)checkStoreResponse:(nullable NSData *)response;
+
+/**
+ * @brief Formats a price number as a currency string in a locale.
+ *
+ * Returns the empty string when either argument is nil; otherwise uses an
+ * @c NSNumberFormatterCurrencyStyle formatter in the 10.4 behaviour.
+ * @param price The price number.
+ * @param locale The store-front locale.
+ * @return The formatted price, or @c "".
+ * @ghidraAddress 0xbaca0
+ */
++ (nullable NSString *)priceString:(nullable NSNumber *)price
+                        withLocale:(nullable NSLocale *)locale;
+
+/**
  * @brief Whether a string is a URL worth keeping.
  *
  * @c StoreMusicInfo gates three of its six string fields on this and leaves them nil when it

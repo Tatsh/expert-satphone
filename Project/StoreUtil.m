@@ -21,6 +21,22 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
 + (nullable NSURL *)cubeVerifyReceiptURL;
 @end
 
+// TouchJSON's deserialiser category, used by -checkStoreResponse:.
+@interface NSDictionary (CJSONDeserializer)
++ (nullable id)dictionaryWithJSONData:(nullable NSData *)data error:(NSError **)error;
+@end
+
+// The lowercase SHA-256 hex of a data buffer; a free function not reconstructed yet. Declared here
+// so -checkStoreResponse: can call it. See TYPES_PENDING.md.
+FOUNDATION_EXTERN NSString *_Nullable CreateSha256HexStringFromData(NSData *_Nullable data,
+                                                                    BOOL uppercase);
+
+// The salt written over the signature prefix before hashing. Kept verbatim from 0xba9a4.
+static const char *const kStoreResponseSalt =
+    "i3yuYjsZeKQq9zZ7dbm18Buwt6LioKJdfeGD7pMirHuTwfcC2vohdEnBNz9lkkld";
+// The signature is the leading 64 hex characters of the response.
+static const NSUInteger kStoreResponseSignatureLength = 0x40;
+
 @interface StoreUtil ()
 // De-inlined: wraps a path in "https://agx.s.konaminet.jp<path>" and builds the NSURL. The binary
 // emits this two-format-call, alloc/initWithString: sequence inline in each URL builder.
@@ -286,6 +302,47 @@ static NSString *const kStorePackProductPrefix = @"jubeat.pack";
         }
     }
     return -1;
+}
+
+#pragma mark - Response verification
+
+/** @ghidraAddress 0xba9a4 */
++ (NSDictionary *)checkStoreResponse:(NSData *)response {
+    // The first 64 bytes are the expected SHA-256 hex of the body once its own signature prefix has
+    // been overwritten with a fixed salt. Verified at 0xba9d4-0xbaa78.
+    if (response.length < kStoreResponseSignatureLength) {
+        return nil;
+    }
+    NSMutableData *salted = [[NSMutableData alloc] initWithData:response];
+    NSData *signatureData = [salted subdataWithRange:NSMakeRange(0, kStoreResponseSignatureLength)];
+    NSString *expected = [[NSString alloc] initWithData:signatureData
+                                               encoding:NSUTF8StringEncoding];
+    [salted replaceBytesInRange:NSMakeRange(0, kStoreResponseSignatureLength)
+                      withBytes:kStoreResponseSalt
+                         length:kStoreResponseSignatureLength];
+    NSString *computed = CreateSha256HexStringFromData(salted, NO);
+    if ([computed compare:expected options:NSCaseInsensitiveSearch] != NSOrderedSame) {
+        return nil;
+    }
+    // The verified body is everything after the signature prefix.
+    NSData *body =
+        [response subdataWithRange:NSMakeRange(kStoreResponseSignatureLength,
+                                               response.length - kStoreResponseSignatureLength)];
+    return [NSDictionary dictionaryWithJSONData:body error:nil];
+}
+
+#pragma mark - Formatting
+
+/** @ghidraAddress 0xbaca0 */
++ (NSString *)priceString:(NSNumber *)price withLocale:(NSLocale *)locale {
+    if (!price || !locale) {
+        return @"";
+    }
+    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+    formatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+    formatter.numberStyle = NSNumberFormatterCurrencyStyle;
+    formatter.locale = locale;
+    return [formatter stringFromNumber:price];
 }
 
 #pragma mark - Utilities
