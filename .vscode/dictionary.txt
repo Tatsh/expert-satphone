@@ -43,6 +43,7 @@ color
 colors
 commitizen
 constexpr
+contoller
 cooldown
 copysign
 coveragerc
