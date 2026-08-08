@@ -216,6 +216,8 @@ would be indistinguishable from a reconstructed one.
 | `CreateReflectedImage` (free function)                                                                                                                | `-[StoreDetailHeaderView setArtwork:]` calls it                                         | 0x7ecdc                      |
 | `+[ScratchUtil cubeVerifyReceiptURL]`                                                                                                                 | `+[StoreUtil verifyReceiptNewURL]` and `-verifyReceiptConsumeURL` call it               | 0x181688                     |
 | `StoreViewController` with `-setStartupParameters:`, `-storeClose`, `-openDetail:`, `-openCampaignDetail:`, `-loadInitialStoreInfo`                   | `-[RootViewController openStore:]` and the store callbacks send them                    | not located yet              |
+| `-[CampaignItemInfo campaignID]`                                                                                                                      | `-[StoreCampaignTableViewCell setInfo:tag:]` reads it                                   | 0xc8b4                       |
+| `-[StoreCampaignViewController selectItem:]`                                                                                                          | `-[StoreCampaignTableViewCell touchesEnded:withEvent:]` forwards to it                  | 0xbfd60                      |
 
 ## Defects found in the binary
 
