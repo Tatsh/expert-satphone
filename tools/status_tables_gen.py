@@ -3,7 +3,12 @@
 Run from the recon-tools checkout so its modules are importable::
 
     uv run python /path/to/jubeat-src/tools/status_tables_gen.py \\
-        /path/to/Jubeat.app/Jubeat /path/to/jubeat-src [--xrefs-host HOST:PORT]
+        /path/to/Jubeat.app/Jubeat /path/to/jubeat-src [--xrefs-host HOST:PORT] \\
+        [--ignore FILE.m[,FILE2.m] ...]
+
+``--ignore`` (repeatable, or a comma-separated list) drops source files by basename from the
+"written" scan, so a file a background agent is still editing does not flip its routines to done
+before it has been reviewed and integrated.
 
 Writes STATUS_00.md, STATUS_01.md, ... for the Objective-C methods (grouped whole-class, at most
 1000 rows per file), STATUS_06.md for the non-Objective-C C/C++ functions and Objective-C blocks,
@@ -156,11 +161,18 @@ def _xref_count(host, address):
     return sum(1 for line in body.splitlines() if line.strip())
 
 
-def _annotated_addresses(tree_path):
-    """Every image-relative address the tree tags with @ghidraAddress."""
+def _annotated_addresses(tree_path, ignore=frozenset()):
+    """Every image-relative address the tree tags with @ghidraAddress.
+
+    Source files whose basename is listed in ``ignore`` are skipped, so a partially written file
+    (for example one a background agent is still editing) does not flip its routines to done before
+    it has been reviewed and integrated.
+    """
     out = set()
     for path in tree_path.rglob('*'):
         if path.suffix not in _SOURCE_SUFFIXES:
+            continue
+        if path.name in ignore:
             continue
         text = path.read_text(encoding='utf-8', errors='replace')
         for match in re.finditer(r'@ghidraAddress\s+0x([0-9a-fA-F]+)', text):
@@ -275,13 +287,23 @@ def main():
         index = args.index('--xrefs-host')
         host = args[index + 1]
         del args[index:index + 2]
+    # Source-file basenames to exclude from the "written" scan. Repeatable; also accepts a single
+    # comma-separated value. Use it to keep a file a background agent is still editing from flipping
+    # its routines to done before the file has been reviewed and integrated.
+    ignore = set()
+    while '--ignore' in args:
+        index = args.index('--ignore')
+        ignore.update(part for part in args[index + 1].split(',') if part)
+        del args[index:index + 2]
     binary_path, tree_path = Path(args[0]), Path(args[1])
 
     binary = MachOBinary(binary_path)
     methods = binary.method_map()
     properties = binary.property_map()
-    written_bodies = set(source_bodies(tree_path))
-    annotated = _annotated_addresses(tree_path)
+    written_bodies = {key
+                      for key, body in source_bodies(tree_path).items()
+                      if body.path.name not in ignore}
+    annotated = _annotated_addresses(tree_path, ignore)
     signatures = _load_signatures(tree_path)
 
     # Byte lengths come from the gap to the next routine, over the union of every routine's start so
