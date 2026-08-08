@@ -290,6 +290,7 @@ undiceided
 undraft
 undrafted
 unhighlightable
+unichar
 unrecovered
 unretained
 unselectable
