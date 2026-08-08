@@ -143,6 +143,7 @@ notifacation
 notificate
 nshttp
 nshttpurl
+nsjson
 nssq
 nsurl
 nsurls
