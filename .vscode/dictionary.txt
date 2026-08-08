@@ -212,6 +212,7 @@ strb
 strikethrough
 stur
 sturh
+subarray
 subclassing
 subview
 subview's
