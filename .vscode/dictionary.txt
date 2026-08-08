@@ -108,6 +108,7 @@ jsonnet
 jsonschema
 jubeat
 jubeatplus
+jubeat's
 konaminet
 labo
 ldrb
@@ -223,6 +224,7 @@ subview's
 subviews
 superview
 superview's
+supportedi
 svbg
 sxtl
 sysctlbyname
@@ -235,6 +237,7 @@ theos
 totalscore
 totalscorephone
 udid
+udids
 udiv
 udvare
 uintptr
