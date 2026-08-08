@@ -82,6 +82,7 @@ docstrings
 dplatform
 dyld
 eagl
+edithelp
 erina
 errno
 errusr
