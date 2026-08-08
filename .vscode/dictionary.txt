@@ -110,6 +110,7 @@ gles
 handoff
 highscore
 hinabita
+howtoplay
 idurl
 ifdef
 ifndef
