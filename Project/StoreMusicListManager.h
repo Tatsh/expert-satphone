@@ -4,9 +4,8 @@
  * Reconstructed from Ghidra program Jubeat (class StoreMusicListManager, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: a stub grown outwards from its callers. Only the member
- * @c -[JubeatAppDelegate application:didFinishLaunchingWithOptions:] sends is declared. The class
- * object is at 0x348108.
+ * RECONSTRUCTION STATE: five of seventeen members written. The shared instance, init, and catalogue
+ * queries — verified against the disassembly via curl on port 8089.
  */
 
 #import <Foundation/Foundation.h>
@@ -20,16 +19,45 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The shared instance.
+ * @ghidraAddress 0xd395c
  */
 @property(class, nonatomic, readonly) StoreMusicListManager *sharedManager;
 
 /**
+ * @brief Builds the manager and its builtin-music list.
+ * @return The initialised manager.
+ * @ghidraAddress 0xd39dc
+ */
+- (instancetype)init;
+
+/**
+ * @brief The builtin-music list.
+ * @return The array of builtin IDs.
+ * @ghidraAddress 0xd3e98
+ */
+- (NSArray *)builtinMusic;
+
+/**
+ * @brief The builtin-music list.
+ * @ghidraAddress 0xd6b38 (getter)
+ * @ghidraAddress 0xd6b48 (setter)
+ */
+@property(nonatomic, strong, nullable) NSArray *arrayBuiltinMusic;
+
+/**
+ * @brief The store's music list.
+ * @ghidraAddress 0xd6af0 (getter)
+ * @ghidraAddress 0xd6b00 (setter)
+ */
+@property(nonatomic, strong, nullable) NSMutableArray *arrayMusic;
+
+/**
  * @brief The store's own purchase link for a tune, which overrides whatever the tune list carries.
  *
- * DECLARED ONLY.
- *
+ * Searches arrayMusic for ID == tuneID.
  * @param tuneID The tune.
  * @return The link, or nil when the store has none.
+ * @ghidraAddress 0xd40c0
  */
 - (nullable NSString *)linkURLForID:(unsigned int)tuneID;
 
@@ -45,9 +73,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSDictionary *)extendInfoForID:(unsigned int)tuneID;
 
 /**
- * @brief Whether a tune is in the catalogue at all. DECLARED ONLY.
+ * @brief Whether a tune is in the catalogue at all.
  * @param musicID The tune.
  * @return YES when the catalogue lists it.
+ * @ghidraAddress 0xd3b1c
  */
 - (BOOL)hasMusic:(int)musicID;
 
