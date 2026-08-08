@@ -131,6 +131,7 @@ malloc
 math
 memcmp
 memcpy
+menuview
 metaclass's
 minizip
 miter
