@@ -189,6 +189,7 @@ rturl
 satphone
 schemafile
 scorefor
+scratchable
 scvtf
 sdiv
 selecte
@@ -213,6 +214,7 @@ subview's
 subviews
 superview
 superview's
+svbg
 sxtl
 sysctlbyname
 tatsh

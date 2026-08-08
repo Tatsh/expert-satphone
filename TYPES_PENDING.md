@@ -218,6 +218,8 @@ would be indistinguishable from a reconstructed one.
 | `StoreViewController` with `-setStartupParameters:`, `-storeClose`, `-openDetail:`, `-openCampaignDetail:`, `-loadInitialStoreInfo`                   | `-[RootViewController openStore:]` and the store callbacks send them                    | not located yet              |
 | `-[CampaignItemInfo campaignID]`                                                                                                                      | `-[StoreCampaignTableViewCell setInfo:tag:]` reads it                                   | 0xc8b4                       |
 | `-[StoreCampaignViewController selectItem:]`                                                                                                          | `-[StoreCampaignTableViewCell touchesEnded:withEvent:]` forwards to it                  | 0xbfd60                      |
+| `ScratchView` (`initWithFrame:`, `setADelegate:`, `updateView:`, `getState`, `setButtonEnable:`, `timerUpdate`)                                       | `-[ScratchBoardView initWithFrame:]` builds sixteen and fans out to them                | 0x1afc88 onwards             |
+| `-[ChallengeStatus nailNum]` and `-scratchablePanelNum`                                                                                               | `-[ScratchBoardView refreshScratchCount]`/`-refreshScratchTable` read them              | 0x1ce164, 0x1cd60c           |
 
 ## Defects found in the binary
 
