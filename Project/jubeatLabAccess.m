@@ -6,6 +6,16 @@
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
 
+// TouchJSON's deserialiser category, the same one -[Downloader getDataInJSON] uses.
+@interface NSDictionary (CJSONDeserializer)
++ (nullable id)dictionaryWithJSONData:(nullable NSData *)data error:(NSError **)error;
+@end
+
+@interface jubeatLabAccess ()
+// De-inlined: cancels and drops the session task. @ghidraAddress 0x1db2d0
+- (void)connectionCancel;
+@end
+
 // The API host and the versioned path prefix every endpoint hangs off. From the CFString at
 // 0x2e1520 and the C string at 0x288deb.
 static NSString *const kJubeatLabHost = @"jubeat-lab.s.game.konami.jp";
@@ -32,8 +42,12 @@ static NSString *const kJubeatLabPasswordKey = @"passwd";
 static const NSTimeInterval kJubeatLabTimeout = 15.0;
 
 @implementation jubeatLabAccess {
-    NSMutableURLRequest *request; // +0x08, ivar-offset global 0x34bc68
-    __weak id delegate;           // +0x20, ivar-offset global 0x34bc6c
+    NSMutableURLRequest *request;      // +0x08, ivar-offset global 0x34bc68
+    NSMutableData *data;               // +0x10, ivar-offset global 0x34bc78
+    NSInteger dl_size;                 // +0x18, ivar-offset global 0x34bc7c
+    __weak id delegate;                // +0x20, ivar-offset global 0x34bc6c
+    NSURLSession *session;             // +0x28, ivar-offset global 0x34bc70
+    NSURLSessionDataTask *sessionTask; // +0x30, ivar-offset global 0x34bc74
 }
 
 /** @ghidraAddress 0x1d8b20 */
@@ -174,6 +188,132 @@ static const NSTimeInterval kJubeatLabTimeout = 15.0;
     NSString *api = [NSString stringWithFormat:@"%@", kJubeatLabTopPageAPI];
     NSURL *url = [self getApiPath:@"https" api:api];
     return [self initWithURL:url sendData:nil command:kJubeatLabGETCommand delegate:aDelegate];
+}
+
+#pragma mark - Request lifecycle
+
+/** @ghidraAddress 0x1daa14 */
+- (void)startAccess {
+    [self connectionCancel];
+    NSURLSessionConfiguration *config = NSURLSessionConfiguration.defaultSessionConfiguration;
+    session = [NSURLSession sessionWithConfiguration:config
+                                            delegate:self
+                                       delegateQueue:NSOperationQueue.mainQueue];
+    sessionTask = [session dataTaskWithRequest:request];
+    [sessionTask resume];
+}
+
+/** @ghidraAddress 0x1dab20 */
+- (void)cancel {
+    delegate = nil;
+    [self connectionCancel];
+    data = nil;
+}
+
+/** @ghidraAddress 0x1db2d0 */
+- (void)connectionCancel {
+    [sessionTask cancel];
+    sessionTask = nil;
+}
+
+/** @ghidraAddress 0x1daf10 */
+- (NSData *)getData {
+    return data;
+}
+
+/** @ghidraAddress 0x1daf20 */
+- (NSDictionary *)getDataInJSON {
+    if (!data) {
+        return nil;
+    }
+    id json = [NSDictionary dictionaryWithJSONData:data error:nil];
+    if ([json isKindOfClass:NSDictionary.class]) {
+        return json;
+    }
+    return nil;
+}
+
+/** @ghidraAddress 0x1dae8c */
+- (NSInteger)currentSize {
+    return data.length;
+}
+
+/** @ghidraAddress 0x1daea4 */
+- (float)currentProgress {
+    // Zero until the expected length is known; then the fraction received, capped at 1.
+    if (dl_size <= 0) {
+        return 0;
+    }
+    float progress = (float)data.length / (float)dl_size;
+    if (progress > 1.0f) {
+        progress = 1.0f;
+    }
+    return progress;
+}
+
+#pragma mark - NSURLSessionDataDelegate
+
+/** @ghidraAddress 0x1dab70 */
+- (void)URLSession:(NSURLSession *)aSession
+              dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveResponse:(NSURLResponse *)response
+     completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
+    // Ignores callbacks from a stale session; pre-sizes the buffer when the length is known.
+    if (session != aSession) {
+        return;
+    }
+    dl_size = (NSInteger)response.expectedContentLength;
+    if (dl_size > 0) {
+        data = [NSMutableData dataWithCapacity:dl_size];
+    }
+    completionHandler(NSURLSessionResponseAllow);
+}
+
+/** @ghidraAddress 0x1dac60 */
+- (void)URLSession:(NSURLSession *)aSession
+          dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveData:(NSData *)receivedData {
+    if (session != aSession) {
+        return;
+    }
+    if (!data) {
+        // A 64 KiB buffer when the response length was unknown.
+        data = [NSMutableData dataWithCapacity:0x10000];
+    }
+    [data appendData:receivedData];
+    if ([delegate respondsToSelector:@selector(jubeatLabAccessProceed:)]) {
+        [delegate performSelector:@selector(jubeatLabAccessProceed:) withObject:self];
+    }
+}
+
+/** @ghidraAddress 0x1dad84 */
+- (void)URLSession:(NSURLSession *)aSession
+                    task:(NSURLSessionTask *)task
+    didCompleteWithError:(NSError *)error {
+    // Ignores a stale session, then reports success or failure to the delegate. A failure also
+    // drops the partial data.
+    if (session != aSession) {
+        return;
+    }
+    session = nil;
+    SEL callback;
+    if (!error) {
+        callback = @selector(jubeatLabAccessFinished:);
+    } else {
+        data = nil;
+        callback = @selector(jubeatLabAccessError:);
+    }
+    if ([delegate respondsToSelector:callback]) {
+        [delegate performSelector:callback withObject:self];
+    }
+}
+
+#pragma mark - Teardown
+
+/** @ghidraAddress 0x1daff4 */
+- (void)dealloc {
+    delegate = nil;
+    [self connectionCancel];
 }
 
 @end

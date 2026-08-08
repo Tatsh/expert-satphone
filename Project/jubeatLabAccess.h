@@ -22,7 +22,47 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Builds and holds an HTTP request to the jubeatLab API and reports its outcome to a
  * delegate.
  */
-@interface jubeatLabAccess : NSObject
+@interface jubeatLabAccess : NSObject <NSURLSessionDataDelegate>
+
+/**
+ * @brief Starts the request on the main queue.
+ *
+ * Cancels any running task, opens an @c NSURLSession with this object as its delegate, and resumes
+ * a data task for the built request.
+ * @ghidraAddress 0x1daa14
+ */
+- (void)startAccess;
+
+/**
+ * @brief Abandons the request: clears the weak delegate, cancels the task, and drops the data.
+ * @ghidraAddress 0x1dab20
+ */
+- (void)cancel;
+
+/**
+ * @brief The accumulated response body.
+ * @ghidraAddress 0x1daf10
+ */
+- (nullable NSData *)getData;
+
+/**
+ * @brief The response body decoded as a JSON dictionary, or nil when it is absent or not a
+ * dictionary.
+ * @ghidraAddress 0x1daf20
+ */
+- (nullable NSDictionary *)getDataInJSON;
+
+/**
+ * @brief The number of bytes received so far.
+ * @ghidraAddress 0x1dae8c
+ */
+- (NSInteger)currentSize;
+
+/**
+ * @brief The download progress in [0, 1], or 0 when the expected length is unknown.
+ * @ghidraAddress 0x1daea4
+ */
+- (float)currentProgress;
 
 /**
  * @brief Builds a plain GET request to a URL.
