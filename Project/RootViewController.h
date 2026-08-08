@@ -273,6 +273,42 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)appWillTerminate:(nullable NSNotification *)notification;
 
+/**
+ * @brief Returns from the note editor to the music-select screen.
+ *
+ * A single @c -fade:durationIn:durationOut: with "AnimEndEdit", 1.0, and 0.5.
+ * @ghidraAddress 0x1a9404
+ */
+- (void)returnFromEdit;
+/**
+ * @brief Acts on a pending custom-sequence download for whichever screen is up.
+ *
+ * Returns immediately when the delegate has no @c jcfDownloadID . The logo and title screens ignore
+ * it; the select screen resumes the download itself; the game and edit screens are sent @c -end ;
+ * the store screen backs out through @c -endStore .
+ * @ghidraAddress 0x1aa4a4
+ */
+- (void)downloadCustomSequence;
+/**
+ * @brief Consumes a queued challenge-open request for whichever screen is up.
+ *
+ * Returns immediately unless the delegate's @c bChallengeOpen is set. The store screen backs out
+ * through @c -endStore ; the select and edit screens drop the flag; every other screen leaves it
+ * set.
+ * @ghidraAddress 0x1aa60c
+ */
+- (void)autoMoveChallenge;
+/**
+ * @brief Acts on a queued store pack, campaign, or genre for whichever screen is up.
+ *
+ * Returns immediately when the delegate has no queued store identifier. The logo and title screens
+ * ignore it; the select screen forwards to the store through @c -schemeMoveStore ; the game and
+ * edit screens are sent @c -end ; the store screen opens the queued item directly, preferring a
+ * pack over a campaign over a genre, and clears whichever it used.
+ * @ghidraAddress 0x1aa71c
+ */
+- (void)autoMovePackDownload;
+
 @end
 
 NS_ASSUME_NONNULL_END

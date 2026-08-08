@@ -36,20 +36,16 @@
     // established yet, so it is typed UIView and its three selectors are declared below.
     UIView *achieveMessage;
 }
-// DECLARED ONLY — bodies not reconstructed yet; -appDidBecomeActive: sends all three.
-// Bodies at 0x1aa4a4, 0x1aa60c, and 0x1aa71c.
-- (void)downloadCustomSequence;
-- (void)autoMoveChallenge;
-- (void)autoMovePackDownload;
 @end
 
-// The five scene identifiers, from the CFStrings at 0x2e0000, 0x2e0080, and 0x2e01a0 to 0x2e01e0.
-// "SceneStore" sits beside them in the pool and is not reached by anything recovered so far.
+// The six scene identifiers, from the CFStrings at 0x2e0000, 0x2e0060, 0x2e0080, and 0x2e01a0 to
+// 0x2e01e0. "SceneStore" is reached by the auto-move checks and -openStore:.
 static NSString *const kLogoSceneID = @"SceneLogo";
 static NSString *const kSelectSceneID = @"SceneSelect";
 static NSString *const kTitleSceneID = @"SceneTitle";
 static NSString *const kGameSceneID = @"SceneGame";
 static NSString *const kEditSceneID = @"SceneEdit";
+static NSString *const kStoreSceneID = @"SceneStore";
 
 // The transition names the two dispatchers branch on, from the CFStrings at 0x2e0020 to 0x2e0180.
 static NSString *const kTitleAnimationName = @"AnimTitle";
@@ -101,6 +97,12 @@ static const double kTitleSwitchFadeDuration = 1.5;
 - (void)replayGame;
 - (void)suspend;
 - (void)resume;
+- (void)end;
+- (void)storeClose;
+- (void)openDetail:(nullable id)packID;
+- (void)openCampaignDetail:(nullable id)campaignID;
+- (void)resumeJcfDownload;
+- (void)schemeMoveStore;
 @end
 
 // The achievement-message overlay's selectors. Its class is not established yet; see
@@ -572,6 +574,141 @@ static const double kTitleSwitchFadeDuration = 1.5;
 - (void)messageClose {
     [achieveMessage transReset];
     [achieveMessage removeFromSuperview];
+}
+
+#pragma mark - Deferred moves
+
+/** @ghidraAddress 0x1a9404 */
+- (void)returnFromEdit {
+    [self fade:kEndEditAnimationName durationIn:1.0 durationOut:0.5];
+}
+
+/** @ghidraAddress 0x1aa4a4 */
+- (void)downloadCustomSequence {
+    // Nothing to do without a pending chart download. Verified at 0x1aa4a4: jcfDownloadID nil
+    // check.
+    if (!JubeatAppDelegate.appDelegate.jcfDownloadID) {
+        return;
+    }
+    // The logo and title screens ignore the pending download; every other scene acts on it. The
+    // scene tests run in the binary's order (logo, title, select, edit, game, store).
+    if ([currentSceneID isEqualToString:kLogoSceneID] ||
+        [currentSceneID isEqualToString:kTitleSceneID]) {
+        return;
+    }
+    if ([currentSceneID isEqualToString:kSelectSceneID]) {
+        // The select screen resumes the download itself, but only when it is actually up.
+        if (musicSelectViewCtrl) {
+            [musicSelectViewCtrl resumeJcfDownload];
+        }
+        return;
+    }
+    if ([currentSceneID isEqualToString:kEditSceneID]) {
+        [editViewCtrl end];
+        return;
+    }
+    if ([currentSceneID isEqualToString:kGameSceneID]) {
+        [gameViewCtrl end];
+        return;
+    }
+    if ([currentSceneID isEqualToString:kStoreSceneID]) {
+        [self endStore];
+    }
+}
+
+/** @ghidraAddress 0x1aa60c */
+- (void)autoMoveChallenge {
+    // Nothing to do unless the challenge-open flag is set. Verified at 0x1aa60c.
+    if (!JubeatAppDelegate.appDelegate.bChallengeOpen) {
+        return;
+    }
+    // The store screen backs out first; the select and edit screens just consume the flag; every
+    // other screen leaves it set for later.
+    if ([currentSceneID isEqualToString:kStoreSceneID]) {
+        [self endStore];
+        return;
+    }
+    if ([currentSceneID isEqualToString:kSelectSceneID] ||
+        [currentSceneID isEqualToString:kEditSceneID]) {
+        [JubeatAppDelegate.appDelegate dropChallengeOpenFlag];
+    }
+}
+
+/** @ghidraAddress 0x1aa71c */
+- (void)autoMovePackDownload {
+    // Nothing to do unless a pack, campaign, or genre is queued for the store. Verified at
+    // 0x1aa71c: storePackID, then storeCampaignID, then storeGenreID are each checked for nil.
+    JubeatAppDelegate *appDelegate = JubeatAppDelegate.appDelegate;
+    if (!appDelegate.storePackID && !appDelegate.storeCampaignID && !appDelegate.storeGenreID) {
+        return;
+    }
+    // The logo and title screens ignore the queued move.
+    if ([currentSceneID isEqualToString:kLogoSceneID] ||
+        [currentSceneID isEqualToString:kTitleSceneID]) {
+        return;
+    }
+    if ([currentSceneID isEqualToString:kSelectSceneID]) {
+        // The select screen forwards to the store, but only when it is up and something is queued.
+        if (!musicSelectViewCtrl) {
+            return;
+        }
+        if (!appDelegate.storePackID && !appDelegate.storeCampaignID && !appDelegate.storeGenreID) {
+            return;
+        }
+        [musicSelectViewCtrl schemeMoveStore];
+        [appDelegate resetDownloadGenreID];
+        return;
+    }
+    if ([currentSceneID isEqualToString:kEditSceneID]) {
+        [editViewCtrl end];
+        [appDelegate resetDownloadGenreID];
+        return;
+    }
+    if ([currentSceneID isEqualToString:kGameSceneID]) {
+        [gameViewCtrl end];
+        [appDelegate resetDownloadGenreID];
+        return;
+    }
+    if (![currentSceneID isEqualToString:kStoreSceneID]) {
+        return;
+    }
+    // On the store screen the queued item is opened directly and then cleared. A pack wins over a
+    // campaign, which wins over a genre — the same priority the nil checks above imply.
+    if (appDelegate.storePackID) {
+        [storeViewCtrl openDetail:appDelegate.storePackID];
+        [appDelegate resetDownloadPackID];
+    } else if (appDelegate.storeCampaignID) {
+        [storeViewCtrl openCampaignDetail:appDelegate.storeCampaignID];
+        [appDelegate resetCampaignID];
+    } else if (appDelegate.storeGenreID) {
+        [storeViewCtrl openCampaignDetail:appDelegate.storeGenreID];
+        [appDelegate resetDownloadGenreID];
+    }
+}
+
+#pragma mark - Downloader delegate
+
+/** @ghidraAddress 0x1ab31c */
+- (void)downloaderFinished:(id)downloader {
+    // Empty in the binary: the push-receipt POST is sent with a nil delegate, so nothing observes
+    // it, and this required delegate method is a stub.
+}
+
+#pragma mark - Teardown
+
+/** @ghidraAddress 0x1ab320 */
+- (void)dealloc {
+    // Unregisters the three application-state observers this controller installs. Verified at
+    // 0x1ab320: removeObserver:name:object: for become-active, resign-active, and will-terminate.
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIApplicationDidBecomeActiveNotification
+                                                object:nil];
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIApplicationWillResignActiveNotification
+                                                object:nil];
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UIApplicationWillTerminateNotification
+                                                object:nil];
 }
 
 /** @ghidraAddress 0x1ab0d4 */
