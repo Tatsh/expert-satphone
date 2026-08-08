@@ -180,6 +180,7 @@ pntmp
 posision
 preapproved
 prefjubeat
+prevrank
 proc
 prodlist
 pycache
