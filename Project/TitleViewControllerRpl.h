@@ -7,8 +7,9 @@
  * The superclass is @c TitleViewController , from the dyld bind at the class object's superclass
  * slot (0x348a70 + 8) and confirmed by the super calls at 0x13d140, 0x13ff9c, and 0x13fea0.
  *
- * RECONSTRUCTION STATE: sixteen of twenty-four members written. The view construction, animation
- * control, and input handling are declared but not reconstructed; see RECONSTRUCTION_STATUS.md.
+ * The class is complete: all twenty-four hand-written members are recovered. The view construction,
+ * animation control, and input handling are declared but not reconstructed; see
+ * RECONSTRUCTION_STATUS.md.
  */
 
 #import <UIKit/UIKit.h>
@@ -36,7 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)dealloc;
 
 /**
- * @brief Builds the view hierarchy. DECLARED ONLY.
+ * @brief Builds the view hierarchy.
+ *
+ * Sets white background, stores yHorizon, and builds the jubeat logo, touch, copyright, and marker
+ * views.
  * @ghidraAddress 0x13e17c
  */
 - (void)loadView;
@@ -79,14 +83,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)showLogo;
 
 /**
- * @brief Handles a tap on the title screen. DECLARED ONLY.
+ * @brief Handles a tap on the title screen.
+ *
+ * Part of the Konami-code handler.
  * @param sender The recogniser.
  * @ghidraAddress 0x13f13c
  */
 - (void)handleTap:(id)sender;
 
 /**
- * @brief Handles a swipe on the title screen. DECLARED ONLY.
+ * @brief Handles a swipe on the title screen.
+ *
+ * Konami-code state machine on kcState.
  * @param sender The recogniser.
  * @ghidraAddress 0x13f990
  */
@@ -151,6 +159,43 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x13ff94
  */
 - (BOOL)shouldAutorotate;
+
+/**
+ * @brief Handles a licence agreement error.
+ * @param agreement The agreement.
+ * @param msgStr The error message.
+ * @ghidraAddress 0x1405a0
+ */
+- (void)agreementError:(id)agreement msgStr:(NSString *)msgStr;
+
+/**
+ * @brief Handles a licence agreement success.
+ * @param agreement The agreement.
+ * @ghidraAddress 0x140740
+ */
+- (void)agreementSuccess:(id)agreement;
+
+/**
+ * @brief Handles a licence agreement failure.
+ * @param agreement The agreement.
+ * @ghidraAddress 0x1407b8
+ */
+- (void)agreementFailed:(id)agreement;
+
+/**
+ * @brief Handles an ID download error.
+ * @param download The download.
+ * @param msgStr The error message.
+ * @ghidraAddress 0x140820
+ */
+- (void)errorIDDownload:(id)download msgStr:(NSString *)msgStr;
+
+/**
+ * @brief Handles a successful ID download.
+ * @param download The download.
+ * @ghidraAddress 0x1409c8
+ */
+- (void)successIDDownload:(id)download;
 
 @end
 
