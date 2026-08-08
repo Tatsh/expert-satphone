@@ -226,6 +226,7 @@ would be indistinguishable from a reconstructed one.
 | `GameNetworkUtil` (`+rewardCheckURL`, `+getStoreTarget`, `+fillInstallAppNum:`)                                                                             | `-[RewardCheck …]` builds and reports its request through it                                         | not located yet              |
 | `MarkerManager` (`+getMarkerPath:`, `+saveMarker:markerID:`, `+pullOutMarkerBanner:bannerID:`, `+setMarkerInfo:`) and `VerifyMd5Digest`                     | `-[MarkerDownloadManager downloaderFinished:]` installs each verified pack through them              | 0x1b884c onwards, 0x7f560    |
 | `Sequence (+checkExistHoldMarkerFlag:)`, `+CreateTuneInfoCipherKey`, `-[KUnzip initWithData:range:]`, and `+[NSDictionary dictionaryFromPropertyListData:]` | `-[StoreDownloadManager downloaderFinished:]`/`-getTuneInfoFromUnzip:` unpack each pack through them | 0x7f854 (cipher key)         |
+| `+CreateResourceDataCipherKey`, `ExcludeUrlFromICloudBackup`, and `+[NSArray arrayFromPropertyListData:]`                                                   | `-[ChallengeResourceManager …]` enciphers and stores the panel resources through them                | not located yet              |
 
 ## Defects found in the binary
 

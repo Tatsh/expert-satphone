@@ -163,6 +163,7 @@ packlist
 pbxproj
 pendconlist
 pendlist
+pnlres
 pntmp
 posision
 preapproved
