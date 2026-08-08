@@ -14,7 +14,7 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the _Verification_ section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **459 annotated, 0
+which of the four subcommands actually cover anything here. Last run: **467 annotated, 0
 mismatched, 0 selectors absent; 138 constants checked against their bytes.**
 
 ## Measured progress
@@ -33,7 +33,7 @@ and then the whole routine is real work that a name-only test cannot see. The to
 by body size, using the same threshold as `rctool objc property-accessors`. Excluding accessors
 wholesale hid 24 methods and wrongly reported `ScoreRecordManager` as finished.
 
-**As of the last run: 438 of 5036 methods, 8.7%. 101 of 317 classes complete.**
+**As of the last run: 446 of 5036 methods, 8.9%. 102 of 317 classes complete.**
 
 That is the honest denominator for "every class implemented" and it is worth stating plainly: the
 binary defines 317 classes and just over five thousand hand-written methods. The largest single
@@ -191,7 +191,7 @@ the partial view had missed or reversed** — that is the evidence for step 2, n
 | `Project/LogoViewController.m`                  | **Complete.** Twenty-one methods. A weak `endTimer`, one unreachable animation arm, and a downloader that is never cleaned up.                                   |
 | `Project/AudioManager.m`                        | **Complete.** Thirty-two methods. One BGM player, a two-slot stack, and a single fade timer that serves both directions.                                           |
 | `Project/KnitColorManager.m`                    | **Complete.** Nine methods. The knit palette table with five rows, one out-of-range entry, and a differ flag that is cleared for types 0 and 5. |
-| `Project/TitleViewControllerOrg.m`              | Fifteen of twenty-four. Plus start, blinkPrompt, showLogo, marker check, and the suspend/resume pair — all verified against the disassembly. |
+| `Project/TitleViewControllerOrg.m`              | **Complete.** Twenty-four methods. The title background with its 5-frame animation, the Konami-code handlers, and the licence/ID callbacks — all verified against the disassembly. |
 | `Project/Downloader.m`                          | **Complete.** Seventeen methods. The HTTP client that every server call goes through; delegate is weak, verified in disassembly. |
 | `Project/DestinationCore.m`                     | **Complete.** Four methods. Three of them are inert and the fourth discards its delegate.                                                                        |
 | `Project/ImageCache.m`                          | **Complete.** Four methods; the caching layer over LoadScaledPngImage.                                                                                           |
@@ -231,7 +231,6 @@ rough order of how much each unlocks:
 
 | Target                                                                          | Address                      | Notes                                                                                                                                                                                                                                                                                             |
 | ------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `TitleViewControllerOrg`                            | class at 0x348a78            | Fifteen of twenty-four written. What is left is loadView (0x13ac88, 1840 B), the Konami-code handlers (0x13be70, 0x13c328), and the agreement/ID callbacks (0x13cb84–0x13cfac) — all to be verified against the disassembly, not just the decompile. |
 | `MusicSelectViewController`, `TitleViewControllerRpl`           | 0x348a68, 0x348a70            | The dispatcher builds these; Org is the fallback.                                                                                                                                                                                                                                                     |
 | `PurchaseManager`                                                               | class at 0x348100            | Four launch-time entry points plus `-end`. 81 xrefs, so this is the largest unstarted class.                                                                                                                                                                                                      |
 | `MarkerManager`, `TweetResourceManager`, `StoreMusicListManager`                | 0x3480d0, 0x3480d8, 0x348108 | Declared-only stubs; each has two or three known members.                                                                                                                                                                                                                                         |

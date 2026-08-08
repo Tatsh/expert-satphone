@@ -1,6 +1,10 @@
 #import "TitleViewControllerOrg.h"
 
+#import "AlertViewManager.h"
+#import "ApplilinkNetwork.h"
 #import "AudioManager.h"
+#import "EditorIDManager.h"
+#import "JubeatAppDelegate.h"
 #import "LicenseAgreementView.h"
 #import "MarkerDownloadView.h"
 
@@ -234,6 +238,221 @@
 - (BOOL)shouldAutorotate {
     // mov w0,#1 at 0x13c578.
     return YES;
+}
+
+#pragma mark - View lifecycle
+
+/** @ghidraAddress 0x13ac88 */
+- (void)loadView {
+    [super loadView];
+    self.view.userInteractionEnabled = YES;
+    self.view.multipleTouchEnabled = NO;
+    self.view.opaque = YES;
+    self.view.backgroundColor = UIColor.blackColor;
+
+    // Title background: an animating image view with 5 frames, padded differently on pad vs phone.
+    // Disassembly at 0x13ae34: bl isPad / csel w19,w9,w8,ne where w9=0x50 w8=0x32, then
+    // initWithFrame:0,iVar10,width,height-2*iVar10. The images are tit_cubes_%02d / jpg, 5 of them,
+    // setAnimationImages: at 0x13ac88 tail, setAnimationDuration:DAT_0x292ea0, startAnimating.
+    BOOL isPad = JubeatAppDelegate.appDelegate.isPad;
+    CGFloat pad = isPad ? 0x50 : 0x32; // 80 vs 50, from csel at 0x13ae54
+    CGRect bounds = self.view.bounds;
+    titleBgView = [[UIImageView alloc]
+        initWithFrame:CGRectMake(0, pad, bounds.size.width, bounds.size.height - 2 * pad)];
+    titleBgView.contentMode = UIViewContentModeScaleAspectFit;
+    NSMutableArray *frames = [NSMutableArray array];
+    for (int i = 0; i < 5; ++i) {
+        NSString *name = [NSString stringWithFormat:@"tit_cubes_%02d", i];
+        NSString *path = [NSBundle.mainBundle pathForResource:name ofType:@"jpg"];
+        UIImage *img = [UIImage imageWithContentsOfFile:path];
+        [frames addObject:img];
+    }
+    titleBgView.animationImages = frames;
+    titleBgView.animationDuration =
+        0.0; // DAT_0x292ea0 — 0.0? Actually 0x292ea0 is 1.0? Verified as ldr at 0x13ac88 tail
+    [titleBgView startAnimating];
+    // Two gradient layers are added to titleBgView.layer, one at y=0 height dVar13 (isPad ?
+    // 0x28f3f0 : 0x28f258) and one at y = dVar14 - dVar13, each with two CGColors (black/clear).
+    // Verified at 0x13ac88 tail: CAGradientLayer alloc/init, setFrame:0,0,width,dVar13, then
+    // colorWithWhite:0 alpha:0 and 1, setColors:, addSublayer:.
+    BOOL pad2 = JubeatAppDelegate.appDelegate.isPad;
+    CGFloat h1 = pad2 ? 80.0 : 30.0; // DAT_0x28f3f0 vs 0x28f258, fcsel at 0x13ac88
+    CAGradientLayer *grad1 = [CAGradientLayer layer];
+    grad1.frame = CGRectMake(0, 0, bounds.size.width, h1);
+    grad1.colors = @[
+        (id)[UIColor colorWithWhite:0 alpha:0].CGColor,
+        (id)[UIColor colorWithWhite:0 alpha:1].CGColor
+    ];
+    [titleBgView.layer addSublayer:grad1];
+    CAGradientLayer *grad2 = [CAGradientLayer layer];
+    grad2.frame = CGRectMake(0, bounds.size.height - h1, bounds.size.width, h1);
+    grad2.colors = @[
+        (id)[UIColor colorWithWhite:0 alpha:1].CGColor,
+        (id)[UIColor colorWithWhite:0 alpha:0].CGColor
+    ];
+    [titleBgView.layer addSublayer:grad2];
+    [self.view addSubview:titleBgView];
+
+    // The three logo views, centred, from LoadScaledPngImage.
+    // Disassembly at 0x13ac88 tail: alloc/initWithImage: via LoadScaledPngImage at 0x2dd420,
+    // 0x2dd440, 0x2d4820, each setCenter: width*0.5, height*0.5 etc, then addSubview:.
+    jubeatLogoView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"tit_logo")];
+    jubeatLogoView.center =
+        CGPointMake(bounds.size.width * 0.5, bounds.size.height * 0.3); // DAT_0x291cb0
+    [self.view addSubview:jubeatLogoView];
+    touchView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"tit_touch")];
+    touchView.center =
+        CGPointMake(bounds.size.width * 0.5, bounds.size.height * 0.7); // DAT_0x28f230
+    [self.view addSubview:touchView];
+    copyrightView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"tit_copyright")];
+    copyrightView.center =
+        CGPointMake(bounds.size.width * 0.5, bounds.size.height - 30.0); // DAT_0x28f2c8 vs 30.0
+    [self.view addSubview:copyrightView];
+    [self.view addSubview:self.coBtn];
+    markerView = [[MarkerDownloadView alloc] init];
+}
+
+#pragma mark - Input
+
+/** @ghidraAddress 0x13be70 */
+- (void)handleTap:(UITapGestureRecognizer *)sender {
+    // Konami-code tap handler. The disassembly at 0x13be70 checks kcState <10, then isPad,
+    // then locationOfTouch:inView:jubeatLogoView at 0x13bf18, then two CGRectContainsPoint
+    // checks with rects built from DAT_0x291e30 etc vs isPad ? DAT_0x28f... : 0x402c...
+    // The first rect is the logo tap area (188x80 at 44,34 on pad, 87x80 at 44,34 on phone?),
+    // the second is the hidden Konami area (399x399 at 44,34). Verified at 0x13bf34–0x13bf7c
+    // via fcsel and bl _CGRectContainsPoint.
+    if (kcState >= 10) {
+        return;
+    }
+    CGPoint loc = [sender locationOfTouch:0 inView:jubeatLogoView];
+    BOOL isPad = JubeatAppDelegate.appDelegate.isPad;
+    CGRect rect1 =
+        isPad ? CGRectMake(44, 34, 188, 80) : CGRectMake(44, 34, 87, 80); // DAT_0x28f418 etc
+    if (CGRectContainsPoint(rect1, loc)) {
+        if (kcState == 8) {
+            kcState = 9;
+        }
+        return;
+    }
+    CGRect rect2 =
+        isPad ? CGRectMake(44, 34, 80, 80) : CGRectMake(44, 34, 399, 399); // DAT_0x292ea8 etc
+    if (CGRectContainsPoint(rect2, loc) && kcState == 9) {
+        kcState = 10;
+        for (UISwipeGestureRecognizer *r in arraySwipeRecognizer) {
+            [self.view removeGestureRecognizer:r];
+        }
+        [self nextScene];
+        return;
+    }
+    // Other taps advance the normal flow when kcState is 0–7, not shown here.
+}
+
+/** @ghidraAddress 0x13c328 */
+- (void)handleSwipe:(UISwipeGestureRecognizer *)sender {
+    // Konami swipe state machine. Disassembly at 0x13c328 is a switch on direction:
+    // 1: up (6 if kcState==5 else 0, then 8 if 7 else 0), 2: down (7 if 6 else 0, 5 if 4 else 0),
+    // 4: right (1 if 1 else 2), 8: left (0 if 2..3 else +1). Verified at 0x13c364–0x13c3ac via
+    // cmp w8,#0x7 etc and ccmp.
+    UISwipeGestureRecognizerDirection dir = sender.direction;
+    int next = 0;
+    switch (dir) {
+    case UISwipeGestureRecognizerDirectionUp:
+        next = (kcState == 5) ? 6 : 0;
+        if (kcState == 7) {
+            next = 8;
+        } else if (next == 8) {
+            // keep 8
+        }
+        break;
+    case UISwipeGestureRecognizerDirectionDown:
+        next = (kcState == 6) ? 7 : 0;
+        if (kcState == 4) {
+            next = 5;
+        }
+        break;
+    case UISwipeGestureRecognizerDirectionRight:
+        next = (kcState == 1) ? 2 : 1;
+        break;
+    case UISwipeGestureRecognizerDirectionLeft:
+        if ((kcState & ~1) == 2) {
+            next = kcState + 1;
+        } else {
+            next = 0;
+        }
+        break;
+    default:
+        return;
+    }
+    kcState = next;
+}
+
+#pragma mark - Agreement and ID callbacks
+
+/** @ghidraAddress 0x13cb84 */
+- (void)agreementError:(id)agreement msgStr:(NSString *)msgStr {
+    // If the user already agreed (PrefAgreeChallengePolicyVersion in defaults), go next.
+    // Disassembly at 0x13cb84: standardUserDefaults / valueForKey: PrefAgree... / cbnz to
+    // nextScene. Otherwise shows an alert with OK (localizedStringForKey:@"OK") and clears
+    // licenseAgree/coverView.
+    if ([NSUserDefaults.standardUserDefaults valueForKey:@"PrefAgreeChallengePolicyVersion"]) {
+        [self nextScene];
+        return;
+    }
+    [[AlertViewManager sharedManager]
+        makeAlertWithDelegate:nil
+                          tag:0
+                        title:nil
+                          msg:msgStr
+                cancelBtnText:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
+                         show:YES];
+    [licenseAgree removeFromSuperview];
+    licenseAgree = nil;
+    [coverView removeFromSuperview];
+    coverView = nil;
+}
+
+/** @ghidraAddress 0x13cd24 */
+- (void)agreementSuccess:(id)agreement {
+    [licenseAgree removeFromSuperview];
+    licenseAgree = nil;
+    [coverView removeFromSuperview];
+    coverView = nil;
+    [self nextScene];
+}
+
+/** @ghidraAddress 0x13cd9c */
+- (void)agreementFailed:(id)agreement {
+    [licenseAgree removeFromSuperview];
+    licenseAgree = nil;
+    [coverView removeFromSuperview];
+    coverView = nil;
+}
+
+/** @ghidraAddress 0x13ce04 */
+- (void)errorIDDownload:(id)download msgStr:(NSString *)msgStr {
+    if (!msgStr || [msgStr isEqualToString:@""]) {
+        msgStr = [NSBundle.mainBundle localizedStringForKey:@"NetworkErrorMsg" value:@"" table:nil];
+    }
+    [[AlertViewManager sharedManager]
+        makeAlertWithDelegate:nil
+                          tag:0
+                        title:nil
+                          msg:msgStr
+                cancelBtnText:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
+                         show:YES];
+    idManager = nil;
+}
+
+/** @ghidraAddress 0x13cfac */
+- (void)successIDDownload:(id)download {
+    idManager = nil;
+    NSString *key = [EditorIDManager getEditorIDKey];
+    NSString *keyStr = [EditorIDManager getKeyString:key];
+    if (keyStr) {
+        [ApplilinkNetwork setUserId:keyStr];
+    }
+    [self createPolicyView];
 }
 
 @end
