@@ -93,6 +93,14 @@ static const int kPushResponseStatusReceived = 2;
 // "id" entry. From the CFString at 0x2d46a0.
 static NSString *const kNotificationIdentifierKey = @"id";
 
+// The user-defaults keys the game and edit entry points read the current settings from. From the
+// CFStrings at 0x2d5ea0 and 0x2d6120.
+static NSString *const kPrefDifficultyKey = @"PrefDifficulty";
+static NSString *const kPrefCurrentMarkerIDKey = @"PrefCurrentMarkerID";
+
+// The game and edit transitions both fade in over 0.6, the pooled double at 0x28f288.
+static const double kStartSceneFadeOutDuration = 0.6;
+
 // The theme-change fade timings. The 0.6 is the pooled double at 0x28f230, whose bit pattern
 // 0x3FE3333340000000 is 0.6f widened rather than the closest double to 0.6.
 static const double kChangeThemeFadeInDuration = 0.6f;
@@ -125,6 +133,12 @@ static const double kTitleSwitchFadeDuration = 1.5;
 - (void)loadInitialStoreInfo;
 - (void)resumeJcfDownload;
 - (void)schemeMoveStore;
+- (void)setCurrentTune:(nullable id)tune;
+- (void)setCurrentDiff:(NSInteger)difficulty;
+- (void)setCurrentMarker:(nullable id)markerID;
+- (void)setShareManager:(nullable id)shareManager;
+- (void)setMusicData:(nullable id)musicData;
+- (void)setDelegate:(nullable id)delegate;
 @end
 
 // The achievement-message overlay's selectors. Its class is not established yet; see
@@ -721,6 +735,44 @@ static const double kTitleSwitchFadeDuration = 1.5;
 /** @ghidraAddress 0x1a9294 */
 - (void)returnToMusicSelect {
     [self fade:kReturnMusicSelectAnimationName durationIn:1.0 durationOut:0.5];
+}
+
+/** @ghidraAddress 0x1a90bc */
+- (void)startMainGame:(id)tune shareManager:(id)shareManager musicData:(id)musicData {
+    // The current difficulty and marker are read from user defaults, which are flushed first. The
+    // tune, difficulty, and marker are pushed into the game screen unconditionally; the share
+    // manager and music data only when supplied.
+    NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+    [defaults synchronize];
+    [gameViewCtrl setCurrentTune:tune];
+    [gameViewCtrl setCurrentDiff:[defaults integerForKey:kPrefDifficultyKey]];
+    [gameViewCtrl setCurrentMarker:[defaults objectForKey:kPrefCurrentMarkerIDKey]];
+    if (shareManager) {
+        // The share manager reports back to the game screen, and the game screen holds it in turn.
+        [shareManager setDelegate:gameViewCtrl];
+        [gameViewCtrl setShareManager:shareManager];
+    }
+    if (musicData) {
+        [gameViewCtrl setMusicData:musicData];
+    }
+    [self fade:kStartGameAnimationName durationIn:1.0 durationOut:kStartSceneFadeOutDuration];
+}
+
+/** @ghidraAddress 0x1a92b0 */
+- (void)startEditNote:(id)tune musicData:(id)musicData jcfName:(id)jcfName {
+    // The mirror of -startMainGame:… for the note editor, with two differences: it has no share
+    // manager, and although it takes a jcfName the binary never reads it — the parameter is
+    // discarded. Verified at 0x1a92b0: param_5 is untouched from entry to return.
+    NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+    [defaults synchronize];
+    [editViewCtrl setCurrentTune:tune];
+    [editViewCtrl setCurrentDiff:[defaults integerForKey:kPrefDifficultyKey]];
+    [editViewCtrl setCurrentMarker:[defaults objectForKey:kPrefCurrentMarkerIDKey]];
+    if (musicData) {
+        [editViewCtrl setMusicData:musicData];
+    }
+    (void)jcfName; // Yes, the binary never reads the jcfName argument.
+    [self fade:kStartEditAnimationName durationIn:1.0 durationOut:kStartSceneFadeOutDuration];
 }
 
 #pragma mark - Achievement message

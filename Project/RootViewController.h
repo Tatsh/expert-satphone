@@ -245,6 +245,33 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)returnToMusicSelect;
 /**
+ * @brief Starts a tune on the game screen and fades into it.
+ *
+ * Flushes user defaults, pushes the tune, the current difficulty (@c PrefDifficulty ), and the
+ * current marker (@c PrefCurrentMarkerID ) into the game screen, wires up the share manager when
+ * one is supplied, sets the music data when supplied, then fades in with "AnimStartGame".
+ * @param tune The tune to play.
+ * @param shareManager The score-share manager, or nil.
+ * @param musicData The music data, or nil.
+ * @ghidraAddress 0x1a90bc
+ */
+- (void)startMainGame:(nullable id)tune
+         shareManager:(nullable id)shareManager
+            musicData:(nullable id)musicData;
+/**
+ * @brief Starts editing a tune on the note editor and fades into it.
+ *
+ * The mirror of @c -startMainGame:shareManager:musicData: without a share manager. It takes a
+ * @p jcfName but never reads it, then fades in with "AnimStartEdit".
+ * @param tune The tune to edit.
+ * @param musicData The music data, or nil.
+ * @param jcfName The custom-sequence name. Never read.
+ * @ghidraAddress 0x1a92b0
+ */
+- (void)startEditNote:(nullable id)tune
+            musicData:(nullable id)musicData
+              jcfName:(nullable id)jcfName;
+/**
  * @brief Shows the achievement-message overlay with the given title.
  *
  * Forwards @p title to the overlay's @c -setAchieveTitle: , resets its transform, starts its enter
