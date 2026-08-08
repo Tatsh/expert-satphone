@@ -4,8 +4,9 @@
  * Reconstructed from Ghidra program Jubeat (class StoreUtil, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: a stub grown outwards from its callers. Only the one member
- * @c -[StoreMusicInfo initWithDictionary:] reaches is declared. The class object is at 0x348158.
+ * RECONSTRUCTION STATE: grown outwards from its callers. The class object is at 0x348158. The
+ * layout metrics, the query-string helper, the store-new-info URL, and the receipt-verify URLs are
+ * recovered; the remaining URL builders and the pack/product identifier maps are declared only.
  */
 
 #import <Foundation/Foundation.h>
@@ -16,6 +17,56 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Odds and ends the store screens share.
  */
 @interface StoreUtil : NSObject
+
+/**
+ * @brief The store tab header height, 44 points.
+ * @ghidraAddress 0xb9844
+ */
++ (int)storeTabHeaderHeight;
+/**
+ * @brief The store tab footer height, 49 points.
+ * @ghidraAddress 0xb984c
+ */
++ (int)storeTabFooterHeight;
+/**
+ * @brief The store category list height, 80 points.
+ * @ghidraAddress 0xb9854
+ */
++ (int)storeCategoryListHeight;
+/**
+ * @brief The store category title height, 100 points.
+ * @ghidraAddress 0xb985c
+ */
++ (int)storeCategoryTitleHeight;
+
+/**
+ * @brief Builds a @c "&key=value" query fragment from a dictionary's string entries.
+ *
+ * Every pair, including the first, is prefixed with @c "&" , so the result is not a well-formed
+ * query string on its own; non-string keys or values are skipped and nothing is percent-encoded.
+ * @param dictionary The parameters.
+ * @return The concatenated fragment.
+ * @ghidraAddress 0xb9864
+ */
++ (nullable NSString *)queryStringForDictionary:(nullable NSDictionary *)dictionary;
+
+/**
+ * @brief The store's new-information URL, carrying the client info as a query.
+ * @ghidraAddress 0xba318
+ */
++ (nullable NSURL *)storeNewInfoURL;
+
+/**
+ * @brief The receipt-verify URL for a new purchase; delegates to @c ScratchUtil .
+ * @ghidraAddress 0xba464
+ */
++ (nullable NSURL *)verifyReceiptNewURL;
+/**
+ * @brief The receipt-verify URL for a consumable purchase; delegates to @c ScratchUtil . Identical
+ * to @c +verifyReceiptNewURL .
+ * @ghidraAddress 0xba478
+ */
++ (nullable NSURL *)verifyReceiptConsumeURL;
 
 /**
  * @brief Whether a string is a URL worth keeping.
