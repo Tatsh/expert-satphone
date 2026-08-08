@@ -208,6 +208,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (int)packIDForProductID:(nullable NSString *)productID;
 
 /**
+ * @brief Whether a tune's file is present, whether built in or downloaded.
+ *
+ * When the bundled @c Music resource exists it answers YES for any identifier in
+ * @c StoreMusicListManager 's built-in list; otherwise it tests whether
+ * @c "<documents>/%d.jbt" exists on disk.
+ * @param musicID The tune identifier.
+ * @ghidraAddress 0xbbaf4
+ */
++ (BOOL)existMusicFile:(int)musicID;
+
+/**
  * @brief Where a downloaded tune's data would live.
  *
  * DECLARED ONLY. Returns the path whether or not anything is there; the caller tests it with

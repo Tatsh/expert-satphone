@@ -1,6 +1,7 @@
 #import "StoreUtil.h"
 
 #import "JubeatAppDelegate.h"
+#import "StoreMusicListManager.h"
 
 // ScratchUtil is reached only for the shared receipt-verify URL; its class is reached by name since
 // only this one selector is needed here.
@@ -300,6 +301,24 @@ static NSString *const kStorePackProductPrefix = @"jubeat.pack";
         return YES;
     }
     return [parsed.scheme isEqualToString:@"https"];
+}
+
+/** @ghidraAddress 0xbbaf4 */
++ (BOOL)existMusicFile:(int)musicID {
+    // On a build that ships the Music resource bundle, a tune is present when it is in the built-in
+    // list; otherwise fall through to the on-disk check. Verified at 0xbbb1c-0xbbd44.
+    if ([NSBundle.mainBundle pathForResource:@"Music" ofType:@""]) {
+        for (NSNumber *builtin in StoreMusicListManager.sharedManager.builtinMusic) {
+            if (builtin.intValue == musicID) {
+                return YES;
+            }
+        }
+    }
+    // The downloaded-file check uses a plain "%d.jbt", not the zero-padded -filePathForMusicID:
+    // form.
+    NSString *name = [[NSString alloc] initWithFormat:@"%d.jbt", musicID];
+    NSString *path = [JubeatAppDelegate.appDocumentsDirectory stringByAppendingPathComponent:name];
+    return [NSFileManager.defaultManager fileExistsAtPath:path];
 }
 
 /** @ghidraAddress 0xbb310 */
