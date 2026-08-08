@@ -50,6 +50,7 @@ colors
 commitizen
 constexpr
 contoller
+contrib
 controll
 cooldown
 copysign
@@ -154,6 +155,7 @@ mbar
 memcmp
 menuview
 minizip
+minizip's
 miter
 mktemp
 modelines
@@ -213,6 +215,7 @@ pycache
 pyinstaller
 pylock
 pyproject
+pzlib
 quary
 rbplus
 rctool
@@ -298,6 +301,7 @@ unselectable
 vendored
 venv
 verifing
+voidpf
 vtable
 werror
 winget
@@ -311,5 +315,11 @@ xref
 xrefs
 yarnrc
 yomi
+zclose
+zerror
 ziparchive
 zizmor
+zread
+zseek
+ztell
+zwrite
