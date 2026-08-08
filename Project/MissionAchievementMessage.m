@@ -30,6 +30,40 @@ static const NSTimeInterval kMissionMessageShortStageDuration = 0.2;  // @ghidra
 static const NSTimeInterval kMissionMessageSettleStageDuration = 0.3; // @ghidraAddress 0x28f260
 static const CGFloat kMissionMessageSlideDownDistance = 20.0;         // fmov 0x4034000000000000
 
+// The dimming background's alpha; the pooled double at 0x28f2c0.
+static const CGFloat kMissionBackgroundAlpha = 0.4;
+
+// The message view's width by idiom: the pooled doubles at 0x28f5c0 (phone) and 0x28f5c8 (pad).
+static const CGFloat kMissionMessageWidthPhone = 320.0; // @ghidraAddress 0x28f5c0
+static const CGFloat kMissionMessageWidthPad = 640.0;   // @ghidraAddress 0x28f5c8
+
+// The phone-only horizontal inset added to the centred message view; the fmov 0x402c000000000000.
+static const CGFloat kMissionMessagePhoneInset = 14.0;
+
+// The completion-icon overshoot below the message view, and the label inset inside the balloon on
+// every edge; both are the fmov 0x4024000000000000.
+static const CGFloat kMissionIconBottomOffset = 10.0;
+static const CGFloat kMissionLabelInset = 10.0;
+
+// The label's rect is inset from the balloon by twice the corner allowance on each axis.
+static const int kMissionLabelSizeInset = 20;
+
+// The point sizes of the bold message font by idiom.
+static const int kMissionFontSizePad = 20;
+static const int kMissionFontSizePhone = 10;
+
+// The completion-icon animation: two loops of the 24 frames at this duration; the pooled double at
+// 0x28f240.
+static const int kMissionIconRepeatCount = 2;
+static const NSTimeInterval kMissionIconAnimationDuration = 0.2; // @ghidraAddress 0x28f240
+
+// The completion-icon frame names format, and the frame-number range. The mission_con NN images run
+// 18..24 then wrap to 1..17, so the loop counter 18..41 clamps values above 24 back by 24.
+static NSString *const kMissionIconNameFormat = @"mission_con%02d";
+static const int kMissionIconFirstFrame = 18;
+static const int kMissionIconLastFrame = 41;
+static const int kMissionIconWrapThreshold = 24;
+
 @implementation MissionAchievementMessage {
     UIImageView *conImg;         // +0x08, ivar-offset global 0x349c5c
     UIView *messageView;         // +0x10, ivar-offset global 0x349c54
@@ -44,6 +78,79 @@ static const CGFloat kMissionMessageSlideDownDistance = 20.0;         // fmov 0x
     BOOL bTap;                   // +0x50, ivar-offset global 0x349c70
     BOOL isPad;                  // +0x51, ivar-offset global 0x349c48
     // _aDelegate is weak, at +0x58 (ivar-offset global 0x349c78).
+}
+
+#pragma mark - Construction
+
+/** @ghidraAddress 0x4e0c8 */
+- (instancetype)initWithTitle:(id)title {
+    self = [super initWithFrame:UIScreen.mainScreen.bounds];
+    if (!self) {
+        return nil;
+    }
+    isPad = JubeatAppDelegate.appDelegate.isPad;
+    // The dimming background is opaque black at 40% alpha, but the view starts fully transparent
+    // and is faded in by -enterAnimationStart.
+    self.backgroundColor = [UIColor colorWithWhite:0 alpha:kMissionBackgroundAlpha];
+    self.alpha = 0;
+
+    fontSize = isPad ? kMissionFontSizePad : kMissionFontSizePhone;
+    UIFont *font = [UIFont boldSystemFontOfSize:fontSize];
+
+    CGFloat messageWidth = isPad ? kMissionMessageWidthPad : kMissionMessageWidthPhone;
+    int textHeight = [self messageHeight:title];
+    viewHeight = textHeight;
+    CGFloat screenWidth = self.frame.size.width;
+    CGFloat inset = isPad ? 0 : kMissionMessagePhoneInset;
+    int messageX = (int)(inset + (screenWidth - messageWidth) * 0.5);
+    messageView = [[UIView alloc] initWithFrame:CGRectMake(messageX, 0, messageWidth, textHeight)];
+    [self addSubview:messageView];
+
+    // Build the 24 completion-icon frames in the order the binary walks them: 18..24 then 1..17.
+    conImgTable = [[NSMutableArray alloc] init];
+    UIImage *iconImage = nil;
+    for (int frame = kMissionIconFirstFrame; frame <= kMissionIconLastFrame; ++frame) {
+        int frameIndex =
+            frame > kMissionIconWrapThreshold ? frame - kMissionIconWrapThreshold : frame;
+        iconImage =
+            LoadScaledPngImage([NSString stringWithFormat:kMissionIconNameFormat, frameIndex]);
+        [conImgTable addObject:iconImage];
+    }
+
+    // The icon sits at the message view's bottom-right corner, pushed down by the overshoot.
+    CGSize iconSize = iconImage.size;
+    CGRect iconFrame = CGRectMake(messageWidth - iconSize.width,
+                                  (viewHeight - iconSize.height) + kMissionIconBottomOffset,
+                                  iconSize.width,
+                                  iconSize.height);
+    conImg = [[UIImageView alloc] initWithFrame:iconFrame];
+    conImg.image = iconImage;
+    conImg.animationImages = conImgTable;
+    conImg.animationRepeatCount = kMissionIconRepeatCount;
+    conImg.animationDuration = kMissionIconAnimationDuration;
+    [messageView addSubview:conImg];
+    conImg.userInteractionEnabled = YES;
+    conImg.tag = 1;
+
+    // The balloon fills the message view to the left of the icon.
+    [self createMassageBg:CGSizeMake((int)(messageWidth - iconSize.width), viewHeight)];
+    [messageView addSubview:bgView];
+    bgWidth = (int)bgView.frame.size.width;
+    bgHeight = (int)bgView.frame.size.height;
+
+    // The text label is inset inside the balloon and carries the attributed achievement text.
+    messageText = [[UILabel alloc] initWithFrame:CGRectMake(kMissionLabelInset,
+                                                            kMissionLabelInset,
+                                                            bgWidth - kMissionLabelSizeInset,
+                                                            bgHeight - kMissionLabelSizeInset)];
+    messageText.textColor = UIColor.whiteColor;
+    messageText.font = font;
+    messageText.numberOfLines = 0;
+    messageText.attributedText = [self createAchiveText:title];
+    [bgView addSubview:messageText];
+
+    [self transReset];
+    return self;
 }
 
 #pragma mark - Entry animation

@@ -14,8 +14,8 @@ uv run rctool -W /path/to/jubeat-src audit addresses /path/to/Jubeat.app/Jubeat
 
 It must report a non-zero `annotated` count. A `0 annotated` line reads like a pass and is not one;
 see the _Verification_ section of [TYPES_PENDING.md](TYPES_PENDING.md) for what that means and for
-which of the four subcommands actually cover anything here. Last run: **749 annotated, 0
-mismatched, 0 selectors absent; 143 constants checked against their bytes.**
+which of the four subcommands actually cover anything here. Last run: **750 annotated, 0
+mismatched, 0 selectors absent; 146 constants checked against their bytes.**
 
 ## Measured progress
 
