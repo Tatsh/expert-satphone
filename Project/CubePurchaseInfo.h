@@ -3,14 +3,10 @@
  *
  * Reconstructed from Ghidra program Jubeat (class CubePurchaseInfo, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
- *
- * RECONSTRUCTION STATE: a stub grown outwards from its callers. Only the three members
- * @c CubePurchaseListViewCell reaches are declared; the class also carries
- * @c -initWithDictionary:, @c -updateProduct:, @c -getProductID, @c -getProduct and @c -getName,
- * listed in TYPES_PENDING.md.
  */
 
 #import <Foundation/Foundation.h>
+#import <StoreKit/StoreKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,20 +19,53 @@ NS_ASSUME_NONNULL_BEGIN
 @interface CubePurchaseInfo : NSObject
 
 /**
- * @brief How many cubes the pack contains.
- *
- * @c -[itemName intValue], so the count is carried as text and parsed on every call.
- * DECLARED ONLY.
- * @ghidraAddress 0x63d20
+ * @brief Fills the pack from a store dictionary.
+ * @param dictionary The store dictionary (carries @c item_id , @c name , and @c description ).
+ * @ghidraAddress 0x63b68
  */
-- (int)getCubeNum;
+- (void)initWithDictionary:(nullable NSDictionary *)dictionary;
+
+/**
+ * @brief Attaches the resolved StoreKit product.
+ * @param product The product.
+ * @ghidraAddress 0x63c48
+ */
+- (void)updateProduct:(nullable SKProduct *)product;
+
+/**
+ * @brief The pack's product identifier.
+ * @ghidraAddress 0x63c5c
+ */
+- (nullable NSString *)getProductID;
+
 /**
  * @brief The pack's price, already formatted for display. DECLARED ONLY.
  * @ghidraAddress 0x63c6c
  */
 - (nullable NSString *)getPriceString;
+
 /**
- * @brief The pack's description line. DECLARED ONLY.
+ * @brief The attached StoreKit product.
+ * @ghidraAddress 0x63d10
+ */
+- (nullable SKProduct *)getProduct;
+
+/**
+ * @brief How many cubes the pack contains.
+ *
+ * @c -[itemName intValue], so the count is carried as text and parsed on every call.
+ * @ghidraAddress 0x63d20
+ */
+- (int)getCubeNum;
+
+/**
+ * @brief The pack's name (also the cube count as a string).
+ * @ghidraAddress 0x63d38
+ */
+- (nullable NSString *)getName;
+
+/**
+ * @brief The pack's description line.
  * @ghidraAddress 0x63d48
  */
 - (nullable NSString *)getDescription;
