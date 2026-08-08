@@ -27,6 +27,7 @@ bitcode
 bsky
 buyjcube
 byref
+bzero
 caache
 caeagl
 calcel
@@ -123,6 +124,7 @@ initilize
 instancetype
 interitem
 ints
+ioapi
 ivar
 ivar's
 ivars
@@ -152,6 +154,7 @@ lsizei
 malloc
 math
 mbar
+mday
 memcmp
 menuview
 minizip
@@ -202,6 +205,7 @@ pbxproj
 pendconlist
 pendlist
 persional
+pglobal
 pnlres
 pntmp
 posision
@@ -319,6 +323,7 @@ zclose
 zerror
 ziparchive
 zizmor
+zopen
 zread
 zseek
 ztell
