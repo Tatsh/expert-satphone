@@ -59,6 +59,10 @@ _COMPILER_FUNCTION_MARKERS = ('_BlockCopyHelper', '_BlockDestroyHelper', '_Block
 # real library, so it is not part of the reconstruction surface.
 _EXCLUDED_FUNCTION_PREFIXES = ('unz',)
 
+# Display-name overrides for routines Ghidra labels with a placeholder. The LC_MAIN target is the
+# app's own main(), reconstructed in main.m, so it is shown under its real name.
+_FUNCTION_NAME_OVERRIDES = {0x7b08: 'main'}
+
 
 def _is_accessor(selector, properties):
     if selector in properties:
@@ -191,6 +195,7 @@ def _write_cxx_table(tree_path, rows, ends, signatures, annotated, xref_reachabl
     done = 0
     for name_fn, address in rows:
         relative = address - IMAGE_BASE
+        name_fn = _FUNCTION_NAME_OVERRIDES.get(relative, name_fn)
         written = relative in annotated
         if written:
             done += 1

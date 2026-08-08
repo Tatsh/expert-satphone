@@ -9,6 +9,7 @@
 #   0x23f6a0	void (^)(NSInteger status, NSError *error)
 #
 # Address<TAB>Signature
+0x7b08	int main(int argc, char *argv[])
 0x7c68	(^void)(NSError *)
 0x848c	(^void)(UIViewController *, NSError *)
 0x3a7c4	(^void)(void)

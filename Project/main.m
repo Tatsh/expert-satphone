@@ -17,6 +17,7 @@
 
 #import "JubeatAppDelegate.h"
 
+/** @ghidraAddress 0x7b08 */
 int main(int argc, char *argv[]) {
     @autoreleasepool {
         return UIApplicationMain(argc, argv, nil, NSStringFromClass([JubeatAppDelegate class]));
