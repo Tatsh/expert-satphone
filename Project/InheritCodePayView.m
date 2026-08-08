@@ -2,16 +2,15 @@
 
 #import <QuartzCore/QuartzCore.h>
 
+#import "AlertViewManager.h"
 #import "CopyableUiLabel.h"
 #import "EditorIDManager.h"
 #import "ImageLoading.h"
 #import "ScratchUtil.h"
 
 // The issue-request downloader is not reconstructed as a class yet, so it is reached by name, as in
-// PurchaseManager. The shared alert presenter is reached through its runtime class for the same
-// reason; see the AlertViewManager note in TYPES_PENDING.md.
+// PurchaseManager.
 static NSString *const kSessionDownloaderClassName = @"SessionDownloader";
-static NSString *const kAlertViewManagerClassName = @"AlertViewManager";
 
 // The caution text and the button title are UTF-16 CFStrings in the binary; kept verbatim.
 static NSString *const kCautionText =
@@ -203,16 +202,15 @@ static NSString *const kUserIDTitleText = @"あなたのユーザーID";
 // tag, an empty title, no button text, and the parent controller. Verified at 0x3aa64 and 0x39f10.
 - (void)_showAlertWithMessage:(NSString *)msg {
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
-    id alertManager = [NSClassFromString(kAlertViewManagerClassName) sharedManager];
-    [alertManager makeAlert:nil
-                   delegate:nil
-                        tag:0
-                      title:@""
-                        msg:msg
-                     cancel:ok
-                    btnText:nil
-                       show:YES
-             viewController:self.parentCtrl];
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:nil
+                                            tag:0
+                                          title:@""
+                                            msg:msg
+                                         cancel:ok
+                                        btnText:nil
+                                           show:YES
+                                 viewController:self.parentCtrl];
 }
 
 @end

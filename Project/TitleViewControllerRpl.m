@@ -316,13 +316,18 @@
         [self nextScene];
         return;
     }
-    [[AlertViewManager sharedManager]
-        makeAlertWithDelegate:nil
-                          tag:0
-                        title:nil
-                          msg:msgStr
-                cancelBtnText:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
-                         show:YES];
+    // The msgStr argument is discarded: the alert always shows the fixed communication-error copy.
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:nil
+                                            tag:0
+                                          title:@"通信エラー"
+                                            msg:@"サーバに接続できません。\nネットワーク接続をご確"
+                                                @"認下さい。\n初期起動時のみ通信が必須となります。"
+                                         cancel:[NSBundle.mainBundle localizedStringForKey:@"OK"
+                                                                                     value:@""
+                                                                                     table:nil]
+                                        btnText:nil
+                                           show:YES];
     [licenseAgree removeFromSuperview];
     licenseAgree = nil;
     [coverView removeFromSuperview];
@@ -351,13 +356,16 @@
     if (!msgStr || [msgStr isEqualToString:@""]) {
         msgStr = [NSBundle.mainBundle localizedStringForKey:@"NetworkErrorMsg" value:@"" table:nil];
     }
-    [[AlertViewManager sharedManager]
-        makeAlertWithDelegate:nil
-                          tag:0
-                        title:nil
-                          msg:msgStr
-                cancelBtnText:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
-                         show:YES];
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:nil
+                                            tag:0
+                                          title:@""
+                                            msg:msgStr
+                                         cancel:[NSBundle.mainBundle localizedStringForKey:@"OK"
+                                                                                     value:@""
+                                                                                     table:nil]
+                                        btnText:nil
+                                           show:YES];
     idManager = nil;
 }
 

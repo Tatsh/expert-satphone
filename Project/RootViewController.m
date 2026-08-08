@@ -2,6 +2,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 
+#import "AlertViewManager.h"
 #import "AudioManager.h"
 #import "CJSONSerializer.h"
 #import "Downloader.h"
@@ -962,7 +963,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
 - (void)appWillResignActive:(NSNotification *)notification {
     // Any open alert is dismissed and the controller marks itself inactive, which is what makes a
     // transition arriving while backgrounded park its name in suspendedAnimID instead of running.
-    [[NSClassFromString(@"AlertViewManager") sharedManager] closeAlert];
+    [[AlertViewManager sharedManager] closeAlert];
     _isActive = NO;
     // The game and edit screens are suspended only while they are the visible child — their view's
     // superview is the root view. Verified at 0x1aac0c and the mirror at the edit block.
