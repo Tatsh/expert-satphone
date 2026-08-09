@@ -396,3 +396,5 @@
 0x234018	(^void)(NSError *)
 0x2341a4	(^void)(NSArray *, NSError *)
 0x23436c	(^void)(void)
+0x9a710	(^void)(void)
+0x9a848	(^void)(void)
