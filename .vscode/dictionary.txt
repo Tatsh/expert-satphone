@@ -26,6 +26,7 @@ autoresizes
 autoresizing
 autoreverses
 badresponse
+bagde
 basenames
 basesize
 behavior
