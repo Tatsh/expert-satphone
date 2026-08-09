@@ -213,3 +213,7 @@
 0x1d791c	(^void)(void)
 0x1d7b34	(^void)(void)
 0x1d7b80	(^void)(BOOL)
+0x61328	(^void)(void)
+0x61374	(^void)(BOOL)
+0x61594	(^void)(void)
+0x615e0	(^void)(BOOL)
