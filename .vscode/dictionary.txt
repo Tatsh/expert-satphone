@@ -233,6 +233,7 @@ movide
 moview
 movk
 mulist
+multipeer
 musiccache
 musicinfo
 musiclistfree
