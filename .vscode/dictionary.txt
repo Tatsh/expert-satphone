@@ -1,3 +1,4 @@
+Decription
 accela
 accum
 achive
@@ -67,6 +68,7 @@ cnonce
 codesign
 color
 colors
+comboed
 commitizen
 constexpr
 contoller
@@ -161,6 +163,8 @@ hiroyuki
 hitomi
 horiz
 howtoplay
+hsboard
+hstext
 idfa
 idurl
 ifdef
@@ -242,6 +246,7 @@ memu
 menuview
 michi
 miho
+minfo
 minizip
 minizip's
 miter
