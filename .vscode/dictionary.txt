@@ -5,6 +5,7 @@ adid
 adrp
 angjp
 anim
+apiurl
 appli
 appliid
 applilink
