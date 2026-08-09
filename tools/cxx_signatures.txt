@@ -437,3 +437,7 @@
 0x266234	(^void)(id, NSError *)
 0x2663d4	(^void)(id, id)
 0x2665b8	(^void)(id, NSError *)
+0x27a1e0	(^void)(void)
+0x27a980	(^void)(void)
+0x27b5a0	(^void)(void)
+0x27b8fc	(^void)(void)
