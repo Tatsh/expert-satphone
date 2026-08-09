@@ -11,6 +11,12 @@
 - (void)setBFromNavigate:(BOOL)bFromNavigate;
 @end
 
+// Not yet reconstructed. Vends the shared manager and the editable slot limit.
+@interface EditDataManager : NSObject
++ (instancetype)sharedManager;
+- (int)getEditSlotLimit;
+@end
+
 // The binary's delegate protocol carries three more optional callbacks than the base
 // EditFileListViewController reconstruction captured; they are messaged here through
 // -respondsToSelector: guards. This local extension names them so the calls stay typed.
@@ -52,6 +58,18 @@ enum { kSectionMenu = 0, kSectionFiles = 1, kSectionBlank = 2, kSectionCount = 3
     UITableViewCell *menuCell[2];
     int menuIndex[2];
     UILabel *sectionLabel[3];
+}
+
+#pragma mark - Lifecycle
+
+- (instancetype)initWithSize:(CGSize)size {
+    /** @ghidraAddress 0x1f8d10 */
+    self = [super initWithSize:size];
+    if (self != nil) {
+        selectName = nil;
+        slotLim = [[EditDataManager sharedManager] getEditSlotLimit];
+    }
+    return self;
 }
 
 #pragma mark - Cell building

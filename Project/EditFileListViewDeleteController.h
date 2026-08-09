@@ -28,6 +28,16 @@ NS_ASSUME_NONNULL_BEGIN
 @interface EditFileListViewDeleteController : EditFileListViewController
 
 /**
+ * @brief Initialises the controller at a given size and seeds the slot limit.
+ * @details Chains to the superclass initialiser, clears the highlighted file name, and reads the
+ * editable slot limit from the shared @c EditDataManager.
+ * @param size The table view size passed to the superclass.
+ * @return The initialised controller, or @c nil.
+ * @ghidraAddress 0x1f8d10
+ */
+- (nullable instancetype)initWithSize:(CGSize)size;
+
+/**
  * @brief Builds (or dequeues) a menu cell for one of the top-section entries.
  * @param tableView The table asking for the cell.
  * @param row The menu index: @c 0 is "make a chart", @c 1 is "find a chart to download".
