@@ -311,6 +311,7 @@ rasterize
 rbplus
 rctool
 rdparty
+readwrite
 reccommend
 receiptdata
 recomputation
@@ -447,6 +448,7 @@ withfile
 wmax
 wmin
 worktree
+writable
 xffu
 xref
 xrefs
