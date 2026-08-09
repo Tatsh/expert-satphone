@@ -28,6 +28,7 @@ behavior
 bemani
 bewfsujtjoh
 bfcodeccontext
+bgcolor
 bitcode
 blit
 blits
