@@ -21,30 +21,30 @@ static const CGFloat kPreferredContentWidth = 320.0;  // 0x10028f470
 static const CGFloat kPreferredContentHeight = 400.0; // 0x10028f2e0
 
 // Section indices in Playlists mode.
-typedef NS_ENUM(NSInteger, MusicPlaylistSection) {
+typedef enum : NSInteger {
     MusicPlaylistSectionFilters = 0,   // The "All Songs" family of filter rows.
     MusicPlaylistSectionLevel = 1,     // The single level-filter row.
     MusicPlaylistSectionPlaylists = 2, // The user's playlists.
-};
+} MusicPlaylistSection;
 
 // Rows in the filters section.
-typedef NS_ENUM(NSInteger, MusicPlaylistFilterRow) {
+typedef enum : NSInteger {
     MusicPlaylistFilterRowAllSongs = 0,
     MusicPlaylistFilterRowAllSongsHold = 1,
     MusicPlaylistFilterRowAllSongsNotHold = 2,
     MusicPlaylistFilterRowNotYetPlayed = 3,
-};
+} MusicPlaylistFilterRow;
 
 // Selection sentinels the delegate reports and the controller compares against. They are negative
 // so they never collide with a playlist row index.
-typedef NS_ENUM(NSInteger, MusicPlaylistSelection) {
+typedef enum : NSInteger {
     MusicPlaylistSelectionNone = -65536,         // 0xffffffffffff0000
     MusicPlaylistSelectionAllSongs = -2,         // 0xfffffffffffffffe
     MusicPlaylistSelectionAllSongsHold = -11,    // 0xfffffffffffffff5
     MusicPlaylistSelectionAllSongsNotHold = -12, // 0xfffffffffffffff4
     MusicPlaylistSelectionLevel = -10,           // 0xfffffffffffffff6
     MusicPlaylistSelectionNotYetPlayed = -1,     // 0xffffffffffffffff
-};
+} MusicPlaylistSelection;
 
 @implementation MusicPlaylistViewController {
     // The persisted level filter value (one-based), and whether the level row is highlighted.

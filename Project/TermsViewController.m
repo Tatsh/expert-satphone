@@ -29,14 +29,14 @@ static const int kMenuRowCount = 6;
 
 // The menu values whose selection opens a legal document, mapped to the SettingsPolicyType the
 // SettingsPolicyViewController is constructed with.
-typedef NS_ENUM(int, TermsMenuValue) {
+typedef enum {
     TermsMenuValueContent = 0,             // Opens SettingsPolicyTypeContent (1).
     TermsMenuValueCurrency = 1,            // Opens SettingsPolicyTypeCurrency (2).
     TermsMenuValuePaymentServices = 2,     // Opens SettingsPolicyTypePaymentServices (4).
     TermsMenuValueMinors = 3,              // Opens SettingsPolicyTypeMinors (8).
     TermsMenuValueSpecifiedCommercial = 4, // Opens the specified-commercial notice in the browser.
     TermsMenuValueInquiry = 5,             // Opens SettingsInquiryViewController.
-};
+} TermsMenuValue;
 
 @interface TermsViewController () {
     NSArray *menuTable;     // +0x8

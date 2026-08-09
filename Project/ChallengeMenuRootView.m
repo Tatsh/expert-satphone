@@ -8,14 +8,14 @@
 @class ChallengePrevRankingView;
 
 // Sub-view selectors passed to -createMenuView: and -enterMenuSelectedView:.
-typedef NS_ENUM(int, ChallengeMenuRootViewIndex) {
+typedef enum {
     ChallengeMenuRootViewIndexPresent = 0,
     ChallengeMenuRootViewIndexNameSetting = 1,
     ChallengeMenuRootViewIndexRivalSearch = 2,
     ChallengeMenuRootViewIndexRivalList = 3,
     ChallengeMenuRootViewIndexPrevRanking = 4,
     ChallengeMenuRootViewIndexLoginInformation = 5,
-};
+} ChallengeMenuRootViewIndex;
 
 // Every animation in this class uses the same 0.2 s linear tween with no delay. Duration read
 // from the __const pool at 0x28e040; options 0x30000 is UIViewAnimationOptionCurveLinear.

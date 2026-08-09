@@ -21,19 +21,19 @@ static NSString *const kEditorInfoKeyCopyLock = @"copyLock";
 static NSString *const kPrefEditorNameKey = @"PrefEditorName";
 
 // The sections, in order. The upload section is only present when uploading is enabled.
-typedef NS_ENUM(NSInteger, EditModalSection) {
-    EditModalSectionFields = 0, /*!< The three editable text fields. */
-    EditModalSectionLevel = 1,  /*!< The level scale and slider. */
-    EditModalSectionCopy = 2,   /*!< The copy-permission switch. */
-    EditModalSectionUpload = 3, /*!< The upload button (only when uploading is enabled). */
-};
+typedef enum : NSInteger {
+    EditModalSectionFields = 0, // The three editable text fields.
+    EditModalSectionLevel = 1,  // The level scale and slider.
+    EditModalSectionCopy = 2,   // The copy-permission switch.
+    EditModalSectionUpload = 3, // The upload button (only when uploading is enabled).
+} EditModalSection;
 
 // The rows in the fields section, in order; each is also the text view's tag.
-typedef NS_ENUM(NSInteger, EditModalField) {
-    EditModalFieldChartName = 0,  /*!< The chart name. */
-    EditModalFieldEditorName = 1, /*!< The editor name. */
-    EditModalFieldComment = 2,    /*!< The comment (allowed to be longer). */
-};
+typedef enum : NSInteger {
+    EditModalFieldChartName = 0,  // The chart name.
+    EditModalFieldEditorName = 1, // The editor name.
+    EditModalFieldComment = 2,    // The comment (allowed to be longer).
+} EditModalField;
 
 // The number of editable fields, hence the length of editText and cntLabel.
 static const int kFieldCount = 3;

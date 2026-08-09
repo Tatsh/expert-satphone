@@ -32,11 +32,11 @@
 static const int kSettingsMapItemModelCorabo = 9999;
 
 // The spot models the downloaded list encodes as its Model string.
-typedef NS_ENUM(int, SettingsMapSpotModel) {
-    SettingsMapSpotModelDefault = 0, /*!< An ordinary jubeat store spot. */
-    SettingsMapSpotModelCop = 1,     /*!< A "cop" collaboration spot. */
-    SettingsMapSpotModelSau = 2,     /*!< A "sau" collaboration spot. */
-};
+typedef enum {
+    SettingsMapSpotModelDefault = 0, // An ordinary jubeat store spot.
+    SettingsMapSpotModelCop = 1,     // A "cop" collaboration spot.
+    SettingsMapSpotModelSau = 2,     // A "sau" collaboration spot.
+} SettingsMapSpotModel;
 
 // The spot-list request format and endpoint.
 static NSString *const kSpotListRequestFormat = @"lat=%.6f&long=%.6f&range=%.6f";

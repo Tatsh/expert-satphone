@@ -35,7 +35,7 @@ static const float kSharePlayMaxPingTryCount = 10.0f;
 static const NSUInteger kSharePlayStreamReadBufferSize = 1024;
 
 // The message-type tag carried under kSharePlayKeyDataType.
-typedef NS_ENUM(int, SharePlayMessageType) {
+typedef enum {
     SharePlayMessageTypeCheckExistMusic = 1,
     SharePlayMessageTypeMusicSendComplete = 2,
     SharePlayMessageTypeSelectStart = 3,
@@ -48,7 +48,7 @@ typedef NS_ENUM(int, SharePlayMessageType) {
     SharePlayMessageTypeFinalData = 11,
     SharePlayMessageTypeHostClock = 12,
     SharePlayMessageTypeClientClock = 13,
-};
+} SharePlayMessageType;
 
 @interface SharePlayManager () {
     MCPeerID *myPeerID;

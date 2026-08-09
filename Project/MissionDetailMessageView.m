@@ -88,11 +88,11 @@ enum {
 };
 
 // Which direction the fade timer is driving the alpha.
-typedef NS_ENUM(int, MissionDetailFadeType) {
-    MissionDetailFadeTypeIn = 0,   /*!< Fading the overlay in. */
-    MissionDetailFadeTypeOut = 1,  /*!< Fading the overlay out. */
-    MissionDetailFadeTypeIdle = 2, /*!< No fade in progress. */
-};
+typedef enum {
+    MissionDetailFadeTypeIn = 0,   // Fading the overlay in.
+    MissionDetailFadeTypeOut = 1,  // Fading the overlay out.
+    MissionDetailFadeTypeIdle = 2, // No fade in progress.
+} MissionDetailFadeType;
 
 // The title label is inset this many points on each side (2 * 74).
 static const CGFloat kTitleFixedX = 74.0;       // 0x28f6f8 -> 74.0

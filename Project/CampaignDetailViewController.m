@@ -66,10 +66,10 @@ static const CGFloat kTermsRowDefaultHeight = 60.0f; // @ghidraAddress 0x28f258
 static const CGFloat kCopyrightRowDefaultHeight = 20.0f;
 
 // The two table rows: the item's unlock terms above its licence copyright.
-typedef NS_ENUM(NSInteger, CampaignDetailRow) {
-    CampaignDetailRowTerms = 0,     /*!< The unlock-terms row. */
-    CampaignDetailRowCopyright = 1, /*!< The licence-copyright row. */
-};
+typedef enum : NSInteger {
+    CampaignDetailRowTerms = 0,     // The unlock-terms row.
+    CampaignDetailRowCopyright = 1, // The licence-copyright row.
+} CampaignDetailRow;
 
 @implementation CampaignDetailViewController {
     int rowSamplePlayed;

@@ -44,13 +44,13 @@ static NSString *const kJubeatLabIconName = @"pl_icon_lab_w";
 static NSString *const kNewInfoBackgroundImageName = @"news_bg_s";
 
 // The sentinel playlist indices -playlistButtonChanged: switches over.
-typedef NS_ENUM(NSInteger, MusicPlaylistSentinel) {
+typedef enum : NSInteger {
     MusicPlaylistSentinelAllSongsNotHold = -12,
     MusicPlaylistSentinelAllSongsHold = -11,
     MusicPlaylistSentinelLevel = -10,
     MusicPlaylistSentinelAllSongs = -2,
     MusicPlaylistSentinelNotYetPlayed = -1,
-};
+} MusicPlaylistSentinel;
 
 // The bar's own height, and the layout metrics that scale with the phone/pad idiom.
 static const CGFloat kBarHeight = 30.0;

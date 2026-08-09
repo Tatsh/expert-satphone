@@ -49,12 +49,12 @@ static NSString *const kTimeFormat = @"-%02d:%02d";
 extern const double g_dAnimDuration020;
 
 // The menu overlay states stored in _menuStatus.
-typedef NS_ENUM(int, VideoViewMenuStatus) {
+typedef enum {
     VideoViewMenuStatusHidden = 0,    // Overlay hidden.
     VideoViewMenuStatusShown = 1,     // Overlay fully shown.
     VideoViewMenuStatusAnimating = 2, // Overlay fading in or out.
     VideoViewMenuStatusFinished = 3,  // Overlay pinned on after playback ends.
-};
+} VideoViewMenuStatus;
 
 // The streaming-timeout watchdog delay in seconds (read from __const at 0x291bd0).
 static const NSTimeInterval kStreamingTimeout = 180.0;

@@ -21,25 +21,25 @@
 
 // The reward item kinds carried by ChallengeMissionReward's itemType. Music resolves to a store
 // tune path, marker to a marker path, and stickers (5, 6) to the shared app-group container.
-typedef NS_ENUM(int, MissionRewardItemType) {
+typedef enum {
     MissionRewardItemTypeImage = 0,
     MissionRewardItemTypeMusic = 3,
     MissionRewardItemTypeMarker = 4,
     MissionRewardItemTypeStickerFront = 5,
     MissionRewardItemTypeStickerAlt = 6,
-};
+} MissionRewardItemType;
 
 // The tag stamped on each Downloader/SessionDownloader so downloaderFinished: can tell the stages
 // apart: 0 is the icon image, 1 the reward metadata post, 2 the item body, 3 the music-info fetch,
 // 4 the sample-info fetch, and 5 the sample audio.
-typedef NS_ENUM(int, MissionRewardDownloadTag) {
+typedef enum {
     MissionRewardDownloadTagIcon = 0,
     MissionRewardDownloadTagInfo = 1,
     MissionRewardDownloadTagItem = 2,
     MissionRewardDownloadTagMusicInfo = 3,
     MissionRewardDownloadTagSampleInfo = 4,
     MissionRewardDownloadTagSampleAudio = 5,
-};
+} MissionRewardDownloadTag;
 
 // The download button's three art states: idle, disabled/greyed, and downloaded.
 static NSString *const kBackgroundImageName = @"cm_reward_bg";

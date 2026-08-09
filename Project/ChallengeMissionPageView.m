@@ -13,10 +13,10 @@
 #import "ScratchUtil.h"
 
 // The download indices carried by the SessionDownloader tag and the two list buttons.
-typedef NS_ENUM(int, ChallengeMissionListKind) {
-    ChallengeMissionListKindMission = 0, /*!< The mission-sheet list. */
-    ChallengeMissionListKindReward = 1,  /*!< The rewards list. */
-};
+typedef enum {
+    ChallengeMissionListKindMission = 0, // The mission-sheet list.
+    ChallengeMissionListKindReward = 1,  // The rewards list.
+} ChallengeMissionListKind;
 
 // The sheet-list and reward-list response JSON keys, verbatim from the binary.
 static NSString *const kStatusKey = @"status";          // @ghidraAddress 0x2d5000
