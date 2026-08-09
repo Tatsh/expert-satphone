@@ -1,0 +1,410 @@
+/** @file
+ * The base gameplay renderer and driver for a single play session.
+ *
+ * Reconstructed from Ghidra program Jubeat (class MainGameRenderer, image base 0x100000000). All
+ * @ghidraAddress values are offsets relative to that image base.
+ *
+ * The superclass is @c NSObject, taken from the @c [NSObject init] chain-up in @c -init at
+ * 0xf6b4. This is the abstract base of the renderer family: @c MainGameRendererPad ,
+ * @c MainGameRendererPhone , their replay (@c ...Rpl ) and Konami-theme (@c ...Knt ) variants, and
+ * the edit-note renderers all derive from it. Almost every drawing and layout method here is an
+ * empty or constant-returning override point that a concrete subclass fills in per device idiom and
+ * theme, so the base carries the shared state (the protected combo, marker, and hold-marker ivars
+ * below) and the play-session properties while leaving the actual geometry to its subclasses.
+ */
+
+#import <CoreGraphics/CoreGraphics.h>
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// The number of panels in the game's 4x4 grid, sizing the per-panel state arrays.
+enum { kMainGameGridPanelCount = 16 };
+
+/**
+ * @brief One panel's hold-marker tracking state.
+ *
+ * The metadata types it @c {?="state"i"move"I"currentSector"I"endSector"I} : sixteen bytes, one
+ * signed and three unsigned 32-bit fields, and the field names are the binary's own.
+ */
+typedef struct {
+    int state;                  // +0x00 The hold's lifecycle state.
+    unsigned int move;          // +0x04 Whether and how the hold is moving.
+    unsigned int currentSector; // +0x08 The sector the hold currently occupies.
+    unsigned int endSector;     // +0x0c The sector the hold terminates in.
+} MainGameHoldState;
+
+/**
+ * @brief A play session's cumulative score summary.
+ *
+ * The metadata types it @c {?=iiiiiiiiiii[30c]} , seventy-six bytes; the field names are the
+ * binary's own, recovered from the @c _replayBackupScore ivar encoding. The type is shared with the
+ * score system (it is what @c -[Sequence getScore] returns), but no reconstructed file defines it
+ * yet, so it is declared here where this class first needs it.
+ */
+typedef struct {
+    int nMiss;               // +0x00
+    int nPoor;               // +0x04
+    int nGood;               // +0x08
+    int nGreat;              // +0x0c
+    int nPerfect;            // +0x10
+    int curCombo;            // +0x14
+    int maxCombo;            // +0x18
+    int tension;             // +0x1c
+    int point;               // +0x20
+    int bonusPoint;          // +0x24
+    int totalPoint;          // +0x28
+    char musicBarResult[30]; // +0x2c A per-bar grade string for the result-screen music bar.
+} ScoreData;
+
+@class RendererConf;
+@class Sequence;
+@class EAGLView;
+@class HoldMarkerRender;
+
+/**
+ * @brief The abstract base renderer for a play session.
+ */
+@interface MainGameRenderer : NSObject {
+@protected
+    float shutterOpen;                        /*!< The shutter-open animation progress. */
+    unsigned int lastCombo;                   /*!< The combo count as of the last frame. */
+    unsigned int comboEffectFrame;            /*!< The combo burst animation frame. */
+    unsigned int comboCutFrame;               /*!< The combo cut-in animation frame. */
+    unsigned int scoreDisplay;                /*!< The score currently shown, tweened up. */
+    unsigned int partnerScoreDisplay;         /*!< The partner's shown score, tweened up. */
+    int markerState[kMainGameGridPanelCount]; /*!< Per-panel marker animation state. */
+    MainGameHoldState holdState[kMainGameGridPanelCount]; /*!< Per-panel hold-marker state. */
+    HoldMarkerRender *holdMarkerRender;                   /*!< The hold-marker sub-renderer. */
+}
+
+/**
+ * @brief Initialises the renderer, clearing its texture-change, good-job image, and score-backup
+ *        state.
+ * @return The initialised renderer, or @c nil.
+ * @ghidraAddress 0xf6b4
+ */
+- (nullable instancetype)init;
+
+/**
+ * @brief Loads the textures for a play session. The base implementation does nothing; each concrete
+ *        subclass loads the idiom- and theme-appropriate textures.
+ * @param conf The renderer configuration describing the tune, difficulty, and marker.
+ * @param artwork The jacket artwork image.
+ * @param index An additional texture image the subclass composites in.
+ * @ghidraAddress 0xf714
+ */
+- (void)loadTexure:(nullable RendererConf *)conf
+           artwork:(nullable UIImage *)artwork
+             index:(nullable UIImage *)index;
+
+/**
+ * @brief Releases the session textures. The base implementation does nothing.
+ * @ghidraAddress 0xf718
+ */
+- (void)releaseTexture;
+
+/**
+ * @brief The ready-go countdown duration, in seconds. The base returns 0.
+ * @return The countdown duration.
+ * @ghidraAddress 0xf7c4
+ */
+- (double)durationOfReadyGo;
+
+/**
+ * @brief Notifies the renderer that play has started. The base implementation does nothing.
+ * @ghidraAddress 0xf7cc
+ */
+- (void)startPlay;
+
+/**
+ * @brief Notifies the renderer that the result screen should begin. The base does nothing.
+ * @ghidraAddress 0xf7d0
+ */
+- (void)endResult;
+
+/**
+ * @brief The vertical offset of the button area, in points. The base returns 0.
+ * @return The button-area offset.
+ * @ghidraAddress 0xf7d4
+ */
+- (double)buttonAreaOffset;
+
+/**
+ * @brief The vertical offset of the game area, in points. The base returns 0.
+ * @return The game-area offset.
+ * @ghidraAddress 0xf7dc
+ */
+- (double)gameAreaOffset;
+
+/**
+ * @brief Draws one frame. The base implementation does nothing; subclasses render the play field.
+ * @ghidraAddress 0xf7e4
+ */
+- (void)draw;
+
+/**
+ * @brief Draws debug text at a point. The base implementation does nothing.
+ * @param text The C string to draw.
+ * @param pos The position to draw it at.
+ * @param alpha The opacity.
+ * @ghidraAddress 0xf7e8
+ */
+- (void)drawDebugText:(nullable const char *)text pos:(CGPoint)pos alpha:(float)alpha;
+
+/**
+ * @brief The rectangle of the result-screen music bar. The base returns @c CGRectZero .
+ * @return The music-bar rectangle.
+ * @ghidraAddress 0xf7fc
+ */
+- (CGRect)getMusicBarRect;
+
+/**
+ * @brief Snapshots the sequence's current score into @c replayBackupScore for replay, and marks the
+ *        score backed up.
+ * @ghidraAddress 0xf810
+ */
+- (void)backupScoreData;
+
+/**
+ * @brief Notifies the renderer that a replay was selected. The base implementation does nothing.
+ * @ghidraAddress 0xf87c
+ */
+- (void)replaySelect;
+
+/**
+ * @brief Notifies the renderer that a replay ended. The base implementation does nothing.
+ * @ghidraAddress 0xf880
+ */
+- (void)replayEnd;
+
+/**
+ * @brief The renderer configuration for the current session.
+ * @ghidraAddress 0xf884 (getter), 0xf894 (setter)
+ */
+@property(nonatomic, strong, nullable) RendererConf *rendererConf;
+
+/**
+ * @brief The high-level render state. Setting it also resets @c subState to 0.
+ * @ghidraAddress 0xf71c (getter), 0xf72c (setter)
+ */
+@property(nonatomic) unsigned int state;
+
+/**
+ * @brief The render sub-state within the current @c state .
+ * @ghidraAddress 0xf8a8 (getter), 0xf8b8 (setter)
+ */
+@property(nonatomic) unsigned int subState;
+
+/**
+ * @brief Whether the combo counter is shown.
+ * @ghidraAddress 0xf8c8 (getter), 0xf8d8 (setter)
+ */
+@property(nonatomic) BOOL showCombo;
+
+/**
+ * @brief Whether the session set a new record.
+ * @ghidraAddress 0xf8e8 (getter), 0xf8f8 (setter)
+ */
+@property(nonatomic) BOOL isNewRecord;
+
+/**
+ * @brief The previous best score record for this tune.
+ * @ghidraAddress 0xf908 (getter), 0xf918 (setter)
+ */
+@property(nonatomic) unsigned int scoreRecord;
+
+/**
+ * @brief The currently pressed button bitmask.
+ * @ghidraAddress 0xf928 (getter), 0xf938 (setter)
+ */
+@property(nonatomic) int btnPress;
+
+/**
+ * @brief The currently held-down button bitmask.
+ * @ghidraAddress 0xf948 (getter), 0xf958 (setter)
+ */
+@property(nonatomic) int btnDown;
+
+/**
+ * @brief Whether the session partner has finished.
+ * @ghidraAddress 0xf968 (getter), 0xf978 (setter)
+ */
+@property(nonatomic) BOOL partnerFinished;
+
+/**
+ * @brief The partner's current score.
+ * @ghidraAddress 0xf988 (getter), 0xf998 (setter)
+ */
+@property(nonatomic) unsigned int partnerScore;
+
+/**
+ * @brief The partner's final bonus.
+ * @ghidraAddress 0xf9a8 (getter), 0xf9b8 (setter)
+ */
+@property(nonatomic) unsigned int partnerFinalBonus;
+
+/**
+ * @brief Whether the partner achieved a full combo.
+ * @ghidraAddress 0xf9c8 (getter), 0xf9d8 (setter)
+ */
+@property(nonatomic) BOOL partnerFullcombo;
+
+/**
+ * @brief The note sequence being played.
+ * @ghidraAddress 0xf9e8 (getter), 0xf9f8 (setter)
+ */
+@property(nonatomic, strong, nullable) Sequence *sequence;
+
+/**
+ * @brief The GL view this renderer draws into.
+ * @ghidraAddress 0xfa0c (getter), 0xfa1c (setter)
+ */
+@property(nonatomic, strong, nullable) EAGLView *eaglView;
+
+/**
+ * @brief The ghost-play button bitmask.
+ * @ghidraAddress 0xfa30 (getter), 0xfa40 (setter)
+ */
+@property(nonatomic) int ghostPress;
+
+/**
+ * @brief The good-job overlay image view. Stored without ownership, matching the binary.
+ * @ghidraAddress 0xfa50 (getter), 0xfa60 (setter)
+ */
+@property(nonatomic, unsafe_unretained, nullable) UIImageView *goodJobImage;
+
+/**
+ * @brief The peak opacity of the good-job overlay.
+ * @ghidraAddress 0xfa70 (getter), 0xfa80 (setter)
+ */
+@property(nonatomic) float goodJobAlphaMax;
+
+/**
+ * @brief Whether this is a session (versus) play.
+ * @ghidraAddress 0xfa90 (getter), 0xfaa0 (setter)
+ */
+@property(nonatomic) BOOL isSession;
+
+/**
+ * @brief Whether the session partner is connected.
+ * @ghidraAddress 0xfab0 (getter), 0xfac0 (setter)
+ */
+@property(nonatomic) BOOL isConnected;
+
+/**
+ * @brief Whether this is a custom (edit) sequence.
+ * @ghidraAddress 0xfad0 (getter), 0xfae0 (setter)
+ */
+@property(nonatomic) BOOL isCustom;
+
+/**
+ * @brief Whether the tune was downloaded.
+ * @ghidraAddress 0xfaf0 (getter), 0xfb00 (setter)
+ */
+@property(nonatomic) BOOL isDownload;
+
+/**
+ * @brief Whether a texture change is pending.
+ * @ghidraAddress 0xfb10 (getter), 0xfb20 (setter)
+ */
+@property(nonatomic) BOOL isTextureChange;
+
+/**
+ * @brief Whether the session has music.
+ * @ghidraAddress 0xfb30 (getter), 0xfb40 (setter)
+ */
+@property(nonatomic) BOOL hasMusic;
+
+/**
+ * @brief Whether a replay is playing.
+ * @ghidraAddress 0xfb50 (getter), 0xfb60 (setter)
+ */
+@property(nonatomic) BOOL replayPlaying;
+
+/**
+ * @brief Whether the score has been backed up for replay.
+ * @ghidraAddress 0xfb70 (getter), 0xfb80 (setter)
+ */
+@property(nonatomic) BOOL scoreBackup;
+
+/**
+ * @brief Whether the session has reached its end sub-state.
+ * @ghidraAddress 0xf748
+ */
+@property(nonatomic, readonly) BOOL isEndState;
+
+/**
+ * @brief The button identifier for the end action. The base returns 0.
+ * @ghidraAddress 0xf76c
+ */
+@property(nonatomic, readonly) unsigned int endButtonID;
+
+/**
+ * @brief The button identifier for the evaluate action. The base returns 0.
+ * @ghidraAddress 0xf774
+ */
+@property(nonatomic, readonly) unsigned int evaluateButtonID;
+
+/**
+ * @brief The button identifier for the good-job action. The base returns 0.
+ * @ghidraAddress 0xf77c
+ */
+@property(nonatomic, readonly) unsigned int goodJobButtonID;
+
+/**
+ * @brief The position of the good-job overlay. The base returns @c CGPointZero .
+ * @ghidraAddress 0xf784
+ */
+@property(nonatomic, readonly) CGPoint goodJobPosition;
+
+/**
+ * @brief The default button margin used by the 480-point-tall phone layout.
+ * @ghidraAddress 0xf7ec
+ */
+@property(nonatomic, readonly) int buttonMarginForScreen40;
+
+/**
+ * @brief The default upper-background height used by the 480-point-tall phone layout.
+ * @ghidraAddress 0xf7f4
+ */
+@property(nonatomic, readonly) int upperBgHeight40;
+
+/**
+ * @brief The button identifier for the tweet-send action. The base returns 0.
+ * @ghidraAddress 0xf794
+ */
+@property(nonatomic, readonly) unsigned int twitterSendButtonID;
+
+/**
+ * @brief The position of the tweet-send button. The base returns @c CGPointZero .
+ * @ghidraAddress 0xf79c
+ */
+@property(nonatomic, readonly) CGPoint twitterBtnPosition;
+
+/**
+ * @brief The button identifier for the store-move action. The base returns 0.
+ * @ghidraAddress 0xf7ac
+ */
+@property(nonatomic, readonly) unsigned int storeMoveButtonID;
+
+/**
+ * @brief The position of the store-move button. The base returns @c CGPointZero .
+ * @ghidraAddress 0xf7b4
+ */
+@property(nonatomic, readonly) CGPoint storeMoveBtnPosition;
+
+/**
+ * @brief The score snapshot captured for replay by @c -backupScoreData .
+ * @ghidraAddress 0xfb90
+ */
+@property(nonatomic, readonly) ScoreData replayBackupScore;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+// code: language=Objective-C
+// kate: hl Objective-C;
+// vim: set ft=objc :
