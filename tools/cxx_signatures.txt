@@ -308,3 +308,7 @@
 0x2261d4	(^void)(NSError *error)
 0x1bd1b4	(^void)(NSData *, NSURLResponse *, NSError *)
 0x1bd274	(^void)(void)
+0x1af610	(^void)(void)
+0x1afc38	(^void)(void)
+0x1b0270	(^void)(void)
+0x1b02c0	(^void)(void)
