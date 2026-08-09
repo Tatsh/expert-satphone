@@ -37,6 +37,7 @@ bitcode
 blit
 blits
 blitted
+branchless
 bsky
 buttom
 buyjcube
@@ -145,6 +146,7 @@ glext
 gltypes
 glubyte
 goshima
+haku
 handoff
 harada
 hidetoshi
@@ -158,6 +160,8 @@ idfa
 idurl
 ifdef
 ifndef
+ijbq
+ijsq
 immediates
 imura
 independ
