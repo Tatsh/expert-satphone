@@ -353,3 +353,8 @@
 0x23cc70	(^void)(NSError *)
 0x1c2af0	(^void)(void)
 0x1c2b3c	(^void)(BOOL)
+0xcbabc	(^void)(StorePackListGenre *, NSUInteger, BOOL *)
+0xcbcdc	(^void)(id, NSUInteger, BOOL *)
+0xcc148	(^void)(id, NSUInteger, BOOL *)
+0xccaac	(^void)(StorePackListGenre *, NSUInteger, BOOL *)
+0xcdcec	(^void)(id, NSUInteger, BOOL *)
