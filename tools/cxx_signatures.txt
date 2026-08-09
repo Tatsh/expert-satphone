@@ -295,3 +295,5 @@
 0x252478	(^void)(NSURLResponse *, NSData *, NSError *)
 0x253104	(^void)(NSString *, BOOL *)
 0x2537fc	(^void)(void)
+0x1f43e4	(^void)(void)
+0x1f4ffc	(^void)(SLComposeViewControllerResult)
