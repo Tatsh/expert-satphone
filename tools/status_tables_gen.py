@@ -40,9 +40,17 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+import recon_tools.objc as _objc
 from recon_tools.arm64 import INSTRUCTION_SIZE, body_length, branch_target, is_branch_with_link
 from recon_tools.macho import IMAGE_BASE, MachOBinary
 from recon_tools.objc import TRIVIAL_INSTRUCTIONS, source_bodies
+
+# recon_tools.objc caps how far a method signature may wrap before its opening brace at eight
+# lines, which drops a body whose selector is kept one keyword per line past that (for example the
+# ten-part ``requestAsynchronousWithURL:...`` definition), so those methods never flip to written
+# even though they carry a matching @ghidraAddress. The package is a read-only dependency here, so
+# raise the cap in place before parsing any bodies.
+_objc._SIGNATURE_LINES = 16
 
 # Never written by hand, so never part of the authored surface. ARC emits .cxx_destruct to release
 # a class's strong ivars and it has no source form at all.
