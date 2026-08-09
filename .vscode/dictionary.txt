@@ -87,6 +87,7 @@ dialog
 dios
 docstrings
 dplatform
+dpoint
 dyld
 eagl
 edithelp
