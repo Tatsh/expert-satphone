@@ -2,7 +2,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 
-#import "ImageUtilities.h"
+#import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 #import "StoreButton.h"
 #import "jubeatLabAccess.h"

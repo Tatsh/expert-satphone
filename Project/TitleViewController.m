@@ -4,7 +4,7 @@
 
 #import "AlertViewManager.h"
 #import "Downloader.h"
-#import "ImageUtilities.h"
+#import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 #import "LabUtilities.h"
 #import "MessageTextView.h"

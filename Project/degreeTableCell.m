@@ -1,6 +1,6 @@
 #import "degreeTableCell.h"
 
-#import "ImageUtilities.h"
+#import "ImageLoading.h"
 
 // The four subviews, at offset globals 0x34ac64 through 0x34ac70. The names match
 // accessoryTableCell's, but these are this class's own ivars at its own offsets.

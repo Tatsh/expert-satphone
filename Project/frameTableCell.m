@@ -1,6 +1,6 @@
 #import "frameTableCell.h"
 
-#import "ImageUtilities.h"
+#import "ImageLoading.h"
 
 // The four subviews, at offset globals 0x34aa40 through 0x34aa4c.
 @interface frameTableCell () {

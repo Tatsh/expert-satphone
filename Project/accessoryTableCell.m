@@ -1,6 +1,6 @@
 #import "accessoryTableCell.h"
 
-#import "ImageUtilities.h"
+#import "ImageLoading.h"
 #import "ResultTweet.h"
 
 // The four subviews, at offset globals 0x34a868 through 0x34a874. None has an accessor pair, so

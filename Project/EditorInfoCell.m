@@ -1,6 +1,6 @@
 #import "EditorInfoCell.h"
 
-#import "ImageUtilities.h"
+#import "ImageLoading.h"
 
 // Shared with the three lower-case cell classes, from the CFStrings at 0x2db3c0 and 0x2db3e0.
 static NSString *const kReuseIdentifier = @"EditorInfoListViewTableCell";

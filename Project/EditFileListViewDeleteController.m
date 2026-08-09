@@ -2,7 +2,7 @@
 
 #import "AlertViewManager.h"
 #import "EditorInfoCell.h"
-#import "ImageUtilities.h"
+#import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 
 // Not yet reconstructed. Vends -initWithMusicID:delegate: and -setBFromNavigate:.
