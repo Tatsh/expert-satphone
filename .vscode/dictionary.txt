@@ -352,6 +352,7 @@ rtti
 rturl
 saeki
 sakuraba
+sasa
 satphone
 scalef
 schemafile
@@ -466,6 +467,7 @@ wmin
 worktree
 writable
 xffu
+xform
 xref
 xrefs
 yarnrc
