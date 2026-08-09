@@ -351,3 +351,5 @@
 0x23c8a4	(^void)(id, NSError *)
 0x23cbc0	(^void)(NSError *)
 0x23cc70	(^void)(NSError *)
+0x1c2af0	(^void)(void)
+0x1c2b3c	(^void)(BOOL)

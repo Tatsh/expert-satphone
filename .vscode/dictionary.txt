@@ -400,6 +400,7 @@ texels
 texure
 thema
 theos
+tokusho
 topcover
 totalscore
 totalscorephone
