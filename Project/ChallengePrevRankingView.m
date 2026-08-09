@@ -39,11 +39,6 @@
 @protocol ChallengeRootView <NSObject>
 - (void)closeChallengeModeSessionError;
 @end
-
-@interface ChallengeStatus (PrevRanking)
-- (nullable id<ChallengeRootView>)rootView;
-@end
-
 // The previous-scratch request's post-body key and the "全曲ランキング" head row it prepends.
 static NSString *const kPostPrevKey = @"prev";
 static NSString *const kAllTunesRowTitle = @"全曲ランキング";

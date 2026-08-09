@@ -10,15 +10,6 @@
 
 // The shared 0.2s animation duration, pooled at 0x28f240 and shared across the view layer.
 extern const double g_dAnimDuration020;
-
-// The two ChallengeStatus accessors this card reads; ChallengeStatus is not yet fully
-// reconstructed, so they are declared locally (matching ScratchBoardView.m).
-@interface ChallengeStatus (ScratchView)
-- (int)nailNum;
-- (int)scratchablePanelNum;
-- (NSArray<ScratchInfo *> *)scratchInfoTable;
-@end
-
 // The scratch-entry accessors this card reads; ScratchInfo exposes them only through its private
 // ivars so far, so they are declared locally. See TYPES_PENDING.md.
 @interface ScratchInfo (ScratchView)

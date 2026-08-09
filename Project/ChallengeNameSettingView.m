@@ -15,16 +15,6 @@
 @protocol ChallengeRootView <NSObject>
 - (void)closeChallengeModeSessionError;
 @end
-
-// The ChallengeStatus accessors this sheet reads and updates; ChallengeStatus is not fully
-// reconstructed, so they are declared locally. See TYPES_PENDING.md.
-@interface ChallengeStatus (NameSetting)
-- (nullable NSString *)myName;
-- (nullable NSString *)mySearchID;
-- (void)updateName:(nullable NSString *)name;
-- (nullable id<ChallengeRootView>)rootView;
-@end
-
 // The three background/button images.
 static NSString *const kBackgroundImageName = @"scratch_sheet_name";
 static NSString *const kChangeButtonImageName = @"scratch_btn_name";

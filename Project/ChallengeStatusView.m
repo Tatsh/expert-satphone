@@ -5,14 +5,6 @@
 #import "ChallengeStatus.h"
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
-
-// Two ChallengeStatus accessors this view reads that are not yet declared on the (incomplete)
-// ChallengeStatus header. See TYPES_PENDING.md.
-@interface ChallengeStatus (ChallengeStatusView)
-- (int)jCubeNum;
-- (nullable NSString *)timeStringFromInterval:(double)interval Minute:(BOOL)minute;
-@end
-
 @interface ChallengeStatusView ()
 - (void)setNumberImage:(int)type num:(int)number;
 - (void)tapBuyCube:(nonnull id)sender;
@@ -215,7 +207,7 @@ static const int kStatusConfirmOKButton = 1;
     [self setNumberImage:kStatusNumberTypeCube num:status.jCubeNum];
     if (status.coinNum < status.coinLim) {
         double timeLeft = [status getTimeLeft:status.coinRestDate];
-        NSString *time = [status timeStringFromInterval:timeLeft Minute:YES];
+        NSString *time = [status timeStringFromInterval_Minute:timeLeft];
         coinRestTime.text = [NSString stringWithFormat:kStatusRestTimeFormat, time];
     } else {
         coinRestTime.text = @"";
@@ -228,8 +220,8 @@ static const int kStatusConfirmOKButton = 1;
     if (status.coinNum < status.coinLim) {
         double timeLeft = [status getTimeLeft:status.coinRestDate];
         if (timeLeft >= kStatusRegenThreshold) {
-            NSString *time = [status timeStringFromInterval:[status getTimeLeft:status.coinRestDate]
-                                                     Minute:YES];
+            NSString *time =
+                [status timeStringFromInterval_Minute:[status getTimeLeft:status.coinRestDate]];
             coinRestTime.text = [NSString stringWithFormat:kStatusRestTimeFormat, time];
         } else {
             // The timer elapsed: regenerate a coin and re-render the coin count.
@@ -237,8 +229,7 @@ static const int kStatusConfirmOKButton = 1;
             [self setNumberImage:kStatusNumberTypeCoin num:status.coinNum];
             if (status.coinNum < status.coinLim) {
                 NSString *time =
-                    [status timeStringFromInterval:[status getTimeLeft:status.coinRestDate]
-                                            Minute:YES];
+                    [status timeStringFromInterval_Minute:[status getTimeLeft:status.coinRestDate]];
                 coinRestTime.text = [NSString stringWithFormat:kStatusRestTimeFormat, time];
             } else {
                 coinRestTime.text = @"";

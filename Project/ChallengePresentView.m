@@ -23,13 +23,6 @@
 @protocol ChallengeRootView <NSObject>
 - (void)closeChallengeModeSessionError;
 @end
-
-@interface ChallengeStatus (Present)
-- (void)receivePresent:(nullable NSDictionary *)json;
-- (void)setPresentNum:(int)num;
-- (nullable id<ChallengeRootView>)rootView;
-@end
-
 // The present-list request's post-body keys and values.
 static NSString *const kPostUserIDKey = @"user_id";
 static NSString *const kPostTargetKey = @"target";

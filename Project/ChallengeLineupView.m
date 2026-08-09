@@ -7,16 +7,6 @@
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 #import "StoreMusicListManager.h"
-
-// The line-up source and per-tune artwork live on ChallengeStatus, whose header does not yet
-// declare them; forward-declare only what this view needs. See TYPES_PENDING.md.
-@interface ChallengeStatus (LineupView)
-/** The current scratch line-up: an array of per-tune dictionaries. */
-- (nullable NSArray *)scratchLineUp;
-/** The square artwork for a tune, keyed by its @c music_id number. */
-- (nullable UIImage *)getLineupImage:(nullable id)musicID;
-@end
-
 // The background, title, and close-button art.
 static NSString *const kBackgroundImageName = @"scratch_list_bg";
 static NSString *const kTitleImageName = @"scratch_list_title_lineup";

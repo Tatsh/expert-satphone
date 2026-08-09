@@ -7,14 +7,6 @@
 #import "JubeatAppDelegate.h"
 #import "PurchaseManager.h"
 #import "StoreDialogView.h"
-
-// The unread-present count lives on ChallengeStatus, whose header does not yet declare its getter;
-// forward-declare only what this view reads. See TYPES_PENDING.md.
-@interface ChallengeStatus (MenuView)
-/** @brief The number of unread presents shown on the first row's badge. */
-- (int)presentNum;
-@end
-
 // The background plate, close-button, and first-row artwork.
 static NSString *const kBackgroundImageName = @"challenge_menu_bg";
 static NSString *const kCloseButtonImageName = @"scratch_btn_cancel";

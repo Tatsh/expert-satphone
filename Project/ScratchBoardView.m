@@ -18,14 +18,6 @@
 - (void)setButtonEnable:(BOOL)enable;
 - (void)timerUpdate;
 @end
-
-// The two extra ChallengeStatus accessors this board reads; ChallengeStatus is not fully
-// reconstructed, so they are declared locally. See TYPES_PENDING.md.
-@interface ChallengeStatus (ScratchBoard)
-- (int)nailNum;
-- (int)scratchablePanelNum;
-@end
-
 // The board's background art and the per-panel background art.
 static NSString *const kBoardBackgroundImageName = @"scratch_sheet";
 static NSString *const kBoardPanelBackgroundImageName = @"scratch_jacket_bg";

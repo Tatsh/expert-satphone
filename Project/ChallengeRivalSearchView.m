@@ -15,12 +15,6 @@
 @protocol ChallengeRootView <NSObject>
 - (void)closeChallengeModeSessionError;
 @end
-
-@interface ChallengeStatus (RivalSearch)
-- (nullable NSString *)mySearchID;
-- (nullable id<ChallengeRootView>)rootView;
-@end
-
 // The background, message, and button artwork.
 static NSString *const kSearchSheetImageName = @"scratch_sheet_Search";
 static NSString *const kSearchButtonImageName = @"scratch_btn_Search";

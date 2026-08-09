@@ -1,13 +1,6 @@
 #import "ScratchInfo.h"
 
 #import "ChallengeStatus.h"
-
-// ChallengeStatus.scratchLineUp is not declared on the (incomplete) ChallengeStatus header yet. See
-// TYPES_PENDING.md.
-@interface ChallengeStatus (ScratchInfo)
-@property(nonatomic, readonly, nullable) NSArray *scratchLineUp;
-@end
-
 // The number of difficulties and the clamps the getters apply to an out-of-range index.
 static const int kScratchDifficultyCount = 4;
 static const int kScratchScoreClamp = 4;

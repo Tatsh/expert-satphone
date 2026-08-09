@@ -6,13 +6,6 @@
 #import "EditorIDManager.h"
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
-
-// ChallengeStatus vends the challenge information page URL through -informationURL, which the
-// class's own header does not yet declare; declared here until ChallengeStatus is extended.
-@interface ChallengeStatus (ChallengeLoginInformation)
-- (nullable NSString *)informationURL;
-@end
-
 // The sheet's background art, and the two close-button images selected by buttonType.
 static NSString *const kBackgroundImageName = @"scratch_login_sheet";
 static NSString *const kCloseCancelImageName = @"scratch_btn_cancel";
