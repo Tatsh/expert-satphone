@@ -28,6 +28,7 @@ basesize
 behavior
 bemani
 bewfsujtjoh
+bezier
 bfcodeccontext
 bgcolor
 bitcode
@@ -84,6 +85,7 @@ ddeployment
 deallocs
 demangled
 denable
+descender
 descript
 deserialisation
 deserialiser
@@ -292,6 +294,7 @@ pylock
 pyproject
 pzlib
 quary
+rasterize
 rbplus
 rctool
 rdparty
@@ -409,6 +412,7 @@ vararg
 vendored
 venv
 verifing
+vermette
 voidpf
 vtable
 werror
