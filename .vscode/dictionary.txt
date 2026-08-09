@@ -69,6 +69,7 @@ crossfade
 cryptor
 csel
 cset
+ctype
 daji
 dashcam
 dcmake
@@ -153,6 +154,7 @@ ints
 inukai
 ioapi
 isono
+isspace
 ivar
 ivar's
 ivars
@@ -338,6 +340,9 @@ stdbool
 stdlib
 strb
 strikethrough
+strncmp
+strnstr
+strtoull
 stur
 sturh
 subarray
