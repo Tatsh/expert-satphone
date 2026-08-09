@@ -302,6 +302,7 @@ pbxproj
 pendconlist
 pendlist
 persional
+persision
 pglobal
 physmem
 plid

@@ -480,3 +480,5 @@
 0xae3e8	(^void)(BOOL)
 0xae6f0	(^void)(void)
 0xae73c	(^void)(BOOL)
+0x1cacd0	(^void)(void)
+0x1ccd1c	(^NSComparisonResult)(id, id)
