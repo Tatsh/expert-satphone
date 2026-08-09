@@ -208,3 +208,8 @@
 0x1251b0	Texture2D *CreateTexture2DFromEncryptedTexResource(NSString *resourceName, BFCodec *cipher)
 0x1e604	(^void)(void)
 0x434dc	(^void)(void)
+0x1d7778	(^void)(void)
+0x1d77c4	(^void)(BOOL)
+0x1d791c	(^void)(void)
+0x1d7b34	(^void)(void)
+0x1d7b80	(^void)(BOOL)
