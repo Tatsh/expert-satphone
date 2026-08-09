@@ -205,3 +205,4 @@
 0x124e00	BOOL LoadTextureSubImageFromEncryptedTex(Texture2D *texture, NSString *resourceName, BFCodec *cipher, CGPoint point)
 0x124fec	Texture2D *CreateTexture2DFromPngResource(NSString *resourceName)
 0x1251b0	Texture2D *CreateTexture2DFromEncryptedTexResource(NSString *resourceName, BFCodec *cipher)
+0x1e604	(^void)(void)
