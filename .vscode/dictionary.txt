@@ -2,7 +2,6 @@ achive
 actived
 adid
 adrp
-Ångström
 anim
 appli
 appliid
@@ -160,9 +159,9 @@ jinja
 jsonnet
 jsonschema
 jubeat
+jubeat's
 jubeatmissiondata
 jubeatplus
-jubeat's
 kabasawa
 katsuyoshi
 kazuki
@@ -356,6 +355,7 @@ thema
 theos
 totalscore
 totalscorephone
+ubfiz
 udid
 udids
 udiv
@@ -404,3 +404,4 @@ zread
 zseek
 ztell
 zwrite
+Ångström

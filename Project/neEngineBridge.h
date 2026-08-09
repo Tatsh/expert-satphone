@@ -36,6 +36,31 @@ float InterpolateFloatByFrame(float flFrom,
                               unsigned int nStartFrame,
                               unsigned int nEndFrame);
 
+/**
+ * @brief Interpolates linearly between two values across a float window, clamped at both ends.
+ *
+ * The all-float sibling of @c InterpolateFloatByFrame: the same weighted-average maths, but the
+ * window bounds are floats and the comparisons are genuine floating-point compares, so negative
+ * positions behave sensibly. Eleven instructions with no calls, so a genuine free function rather
+ * than a method whose receiver was optimised away. Single precision throughout.
+ *
+ * The result at a position inside the window is
+ * @code
+ * ((flCurrent - flStart) * flTo + (flEnd - flCurrent) * flFrom) / (flEnd - flStart)
+ * @endcode
+ * which is exact at both endpoints without a separate clamp.
+ *
+ * @param flCurrent Where in the window to sample.
+ * @param flStart The window's lower bound.
+ * @param flEnd The window's upper bound.
+ * @param flFrom The value at @p flStart, and the result when @p flCurrent is below the window.
+ * @param flTo The value at @p flEnd, and the result when @p flCurrent is above the window.
+ * @return The interpolated value.
+ * @ghidraAddress 0x125584
+ */
+float InterpolateFloatByPosition(
+    float flCurrent, float flStart, float flEnd, float flFrom, float flTo);
+
 #ifdef __cplusplus
 }
 #endif
