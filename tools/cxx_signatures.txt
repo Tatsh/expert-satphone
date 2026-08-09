@@ -441,3 +441,6 @@
 0x27a980	(^void)(void)
 0x27b5a0	(^void)(void)
 0x27b8fc	(^void)(void)
+0x16d47c	(^void)(void)
+0x16d6e4	(^void)(void)
+0x16d7d0	(^void)(BOOL)
