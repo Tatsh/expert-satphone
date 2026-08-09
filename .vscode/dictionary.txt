@@ -227,6 +227,7 @@ minizip's
 miter
 miyahara
 mktemp
+modaltable
 modelines
 modelview
 momd
