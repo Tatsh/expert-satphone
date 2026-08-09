@@ -451,3 +451,8 @@
 0x128508	(^void)(void)
 0x1285d0	(^void)(BOOL)
 0x1288cc	(^void)(BOOL)
+0xc6068	(^void)(void)
+0xc6128	(^void)(void)
+0xc71e8	(^void)(void)
+0xc8690	(^void)(void)
+0xc8d1c	(^void)(void)
