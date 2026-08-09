@@ -3,6 +3,7 @@ achive
 actived
 adid
 adrp
+angjp
 anim
 appli
 appliid
@@ -141,6 +142,7 @@ ghidra's
 gles
 glext
 gltypes
+glubyte
 goshima
 handoff
 harada
@@ -179,6 +181,7 @@ jbtgift
 jbtstore
 jcube
 jefoujgjfs
+jgnwe
 jinja
 jsonnet
 jsonschema
@@ -310,6 +313,7 @@ rctool
 rdparty
 reccommend
 receiptdata
+recomputation
 recon
 rect
 rect's
