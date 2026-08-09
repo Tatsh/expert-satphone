@@ -3,6 +3,7 @@ achive
 actived
 adid
 adrp
+Ångström
 anim
 appli
 appliid
@@ -23,6 +24,7 @@ autoresizes
 autoresizing
 autoreverses
 badresponse
+basenames
 basesize
 behavior
 bemani
@@ -70,6 +72,7 @@ coveragerc
 cplusplus
 cpucores
 crossfade
+crossfading
 cryptor
 csel
 cset
@@ -86,6 +89,7 @@ deserialisation
 deserialiser
 deserialises
 dialog
+dialog's
 dios
 docstrings
 dplatform
@@ -173,9 +177,9 @@ jinja
 jsonnet
 jsonschema
 jubeat
-jubeat's
 jubeatmissiondata
 jubeatplus
+jubeat's
 kabasawa
 katsuyoshi
 kazuki
@@ -431,4 +435,3 @@ zread
 zseek
 ztell
 zwrite
-Ångström
