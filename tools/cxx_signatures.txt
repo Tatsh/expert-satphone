@@ -29,6 +29,7 @@
 0x4f558	(^void)(BOOL)
 0x73708	(^void)(void)
 0x77d68	(^void)(void)
+0x79474	(^void)(void)
 0x7b668	(^void)(void)
 0x7b6b4	(^void)(BOOL)
 0x7e37c	NSString *GetScaledResourcePath(NSString *pszBaseName, BOOL *pfScaled, float *pflScale, NSString *pszExtension)
