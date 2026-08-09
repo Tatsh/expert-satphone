@@ -290,3 +290,8 @@
 0x22a868	(^void)(void)
 0x22a89c	(^void)(BOOL)
 0x22aac0	(^void)(void)
+0x2520c8	(^void)(void)
+0x2523b0	(^void)(void)
+0x252478	(^void)(NSURLResponse *, NSData *, NSError *)
+0x253104	(^void)(NSString *, BOOL *)
+0x2537fc	(^void)(void)

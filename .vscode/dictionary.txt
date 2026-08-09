@@ -252,6 +252,7 @@ noti
 notifacation
 notificate
 nsascii
+nsec
 nshttp
 nshttpurl
 nsjson
@@ -368,6 +369,7 @@ stur
 sturh
 subarray
 subclassing
+subobject
 subview
 subview's
 subviews
