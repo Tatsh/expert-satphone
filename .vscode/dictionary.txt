@@ -71,6 +71,7 @@ coveragerc
 cplusplus
 cpucores
 crossfade
+crossfades
 crossfading
 cryptor
 csel
