@@ -3,7 +3,6 @@ achive
 actived
 adid
 adrp
-Ångström
 anim
 appli
 appliid
@@ -177,9 +176,9 @@ jinja
 jsonnet
 jsonschema
 jubeat
+jubeat's
 jubeatmissiondata
 jubeatplus
-jubeat's
 kabasawa
 katsuyoshi
 kazuki
@@ -349,6 +348,7 @@ sptl
 statusline
 stdbool
 stdlib
+stmps
 strb
 strikethrough
 strncmp
@@ -435,3 +435,4 @@ zread
 zseek
 ztell
 zwrite
+Ångström

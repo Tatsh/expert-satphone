@@ -236,3 +236,5 @@
 0x4935c	(^void)(BOOL)
 0x4ab64	(^void)(BOOL)
 0x1f890c	(^void)(NSInteger)
+0x1bdfb8	(^void)(void)
+0x1be758	(^NSComparisonResult)(id, id)
