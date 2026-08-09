@@ -232,6 +232,7 @@ movide
 moview
 movk
 mulist
+musiccache
 musicinfo
 musiclistfree
 mypy
