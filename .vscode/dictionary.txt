@@ -233,6 +233,8 @@ mbar
 mday
 memcmp
 memcpy
+memmove
+memset
 memu
 menuview
 michi
