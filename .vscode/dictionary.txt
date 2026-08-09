@@ -129,6 +129,7 @@ foxundermoon
 fqsah
 framebuffers
 fread
+frinta
 fseek
 ftell
 fukuda
@@ -279,6 +280,7 @@ packinfo
 packlist
 parameteri
 parameteriv
+pbase
 pbxproj
 pendconlist
 pendlist
@@ -325,6 +327,7 @@ revoinf
 rgba
 ripgreprc
 rodata
+roundf
 rtti
 rturl
 saeki
