@@ -52,7 +52,7 @@ static NSString *const kMessageArrayNoOpenBracket =
     @"Could not scan array. Array not started by a '[' character.";
 static NSString *const kMessageArrayFailedToScanValue =
     @"Could not scan array. Could not scan a value.";
-static NSString *const kMessageArrayValueIsNull = @"Could not scan array. Value is nullptr.";
+static NSString *const kMessageArrayValueIsNull = @"Could not scan array. Value is NULL.";
 static NSString *const kMessageArrayNoCloseBracket =
     @"Could not scan array. Array not terminated by a ']' character.";
 static NSString *const kMessageStringNoOpenQuote =
