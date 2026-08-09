@@ -25,6 +25,7 @@ bemani
 bewfsujtjoh
 bfcodeccontext
 bitcode
+blit
 blits
 blitted
 bsky
@@ -59,6 +60,7 @@ controll
 cooldown
 copysign
 corabo
+cosf
 coveragerc
 cplusplus
 cpucores
@@ -324,6 +326,8 @@ shinsaku
 shogo
 shohei
 signedness
+sincosf
+sinf
 snapcraft
 sourcei
 sptl
