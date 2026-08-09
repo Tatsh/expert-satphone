@@ -87,7 +87,7 @@
     // Licence view key is PrefAgreeChallengePolicyVersion at 0x2d60a0, verified as
     // add x3,x3,#0xa0 after adrp 0x2d6000 at 0x13ca74.
     LicenseAgreementView *view =
-        [[LicenseAgreementView alloc] initWithKeyString:@"PrefAgreeChallengePolicyVersion"];
+        [[LicenseAgreementView alloc] init:self keyString:@"PrefAgreeChallengePolicyVersion"];
     licenseAgree = view;
     [view setWeakCoverView:coverView];
     // Centres on the view's bounds * 0.5, from ldr d2,d3 of bounds at 0x13caa0–0x13caac and

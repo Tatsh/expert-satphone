@@ -79,7 +79,7 @@
 - (void)createPolicyView {
     // Identical to Org: PrefAgreeChallengePolicyVersion at 0x2d60a0.
     LicenseAgreementView *view =
-        [[LicenseAgreementView alloc] initWithKeyString:@"PrefAgreeChallengePolicyVersion"];
+        [[LicenseAgreementView alloc] init:self keyString:@"PrefAgreeChallengePolicyVersion"];
     licenseAgree = view;
     [view setWeakCoverView:coverView];
     CGRect bounds = self.view.bounds;

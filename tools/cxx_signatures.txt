@@ -324,3 +324,6 @@
 0x1e8950	(^void)(void)
 0x1b17d0	(^void)(NSData *, NSURLResponse *, NSError *)
 0x1b19b8	(^void)(void)
+0x1f73b4	(^void)(void)
+0x1f77d4	(^void)(void)
+0x1f77f8	(^void)(BOOL)

@@ -6,16 +6,9 @@
 #import "ImageLoading.h"
 #import "JcfUploader.h"
 #import "JubeatAppDelegate.h"
+#import "LicenseAgreementView.h"
 #import "ShadowView.h"
 #import "StoreButton.h"
-
-// LicenseAgreementView is reconstructed in LicenseAgreementView.h, but that header declares its
-// initialiser as -initWithKeyString:, whereas the binary calls the two-argument selector
-// init:keyString: (delegate first, then the preference key). Forward-declare the real selector here
-// rather than editing that file.
-@interface LicenseAgreementView : UIView
-- (instancetype)init:(nullable id)delegate keyString:(nullable NSString *)keyString;
-@end
 
 // The board width is chosen by device idiom; the height is the same on both.
 static const CGFloat kBoardWidthPad = 320.0;   // @ghidraAddress 0x28f470
