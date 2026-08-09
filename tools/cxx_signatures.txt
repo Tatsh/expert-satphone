@@ -322,3 +322,5 @@
 0x1e88a8	(^void)(void)
 0x1e88ac	(^void)(void)
 0x1e8950	(^void)(void)
+0x1b17d0	(^void)(NSData *, NSURLResponse *, NSError *)
+0x1b19b8	(^void)(void)
