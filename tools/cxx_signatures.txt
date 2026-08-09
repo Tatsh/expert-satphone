@@ -456,3 +456,7 @@
 0xc71e8	(^void)(void)
 0xc8690	(^void)(void)
 0xc8d1c	(^void)(void)
+0x1793a0	(^void)(void)
+0x1793ec	(^void)(BOOL)
+0x179608	(^void)(void)
+0x179654	(^void)(BOOL)

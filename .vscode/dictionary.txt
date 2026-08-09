@@ -172,6 +172,7 @@ initilize
 instancetype
 integerv
 interitem
+intptr
 ints
 inukai
 ioapi
