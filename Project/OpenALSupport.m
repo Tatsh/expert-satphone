@@ -1,19 +1,19 @@
 #import "OpenALSupport.h"
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <AudioToolbox/AudioToolbox.h>
 
 // The maximum channel count this loader accepts. Anything of three channels or
 // more is rejected as unsupported.
-constexpr UInt32 kMaxSupportedChannels = 2;
+static const UInt32 kMaxSupportedChannels = 2;
 
 // Signed 16-bit linear PCM: two bytes per sample per channel, sixteen bits per
 // channel, packed signed integer.
-constexpr UInt32 kBytesPerChannel = 2;
-constexpr UInt32 kBitsPerChannel = 16;
-constexpr UInt32 kFramesPerPacket = 1;
+static const UInt32 kBytesPerChannel = 2;
+static const UInt32 kBitsPerChannel = 16;
+static const UInt32 kFramesPerPacket = 1;
 
 /** @ghidraAddress 0x153cd4 */
 void *MyGetOpenALAudioData(NSURL *inFileURL,
@@ -28,8 +28,7 @@ void *MyGetOpenALAudioData(NSURL *inFileURL,
 
     OSStatus status = ExtAudioFileOpenURL((__bridge CFURLRef)inFileURL, &extRef);
     if (status != noErr) {
-        printf("MyGetOpenALAudioData: ExtAudioFileOpenURL FAILED, Error = %ld\n",
-               static_cast<long>(status));
+        printf("MyGetOpenALAudioData: ExtAudioFileOpenURL FAILED, Error = %ld\n", (long)status);
         goto Exit;
     }
 
@@ -40,7 +39,7 @@ void *MyGetOpenALAudioData(NSURL *inFileURL,
         printf("MyGetOpenALAudioData: "
                "ExtAudioFileGetProperty(kExtAudioFileProperty_FileDataFormat) FAILED, "
                "Error = %ld\n",
-               static_cast<long>(status));
+               (long)status);
         goto Exit;
     }
 
@@ -72,7 +71,7 @@ void *MyGetOpenALAudioData(NSURL *inFileURL,
             printf("MyGetOpenALAudioData: "
                    "ExtAudioFileSetProperty(kExtAudioFileProperty_ClientDataFormat) FAILED, "
                    "Error = %ld\n",
-                   static_cast<long>(status));
+                   (long)status);
             goto Exit;
         }
 
@@ -86,13 +85,12 @@ void *MyGetOpenALAudioData(NSURL *inFileURL,
             printf("MyGetOpenALAudioData: "
                    "ExtAudioFileGetProperty(kExtAudioFileProperty_FileLengthFrames) FAILED, "
                    "Error = %ld\n",
-                   static_cast<long>(status));
+                   (long)status);
             goto Exit;
         }
 
         // Read all the data into memory.
-        UInt32 dataSize =
-            static_cast<UInt32>(theOutputFormat.mBytesPerFrame * theFileLengthInFrames);
+        UInt32 dataSize = (UInt32)(theOutputFormat.mBytesPerFrame * theFileLengthInFrames);
         theData = malloc(dataSize);
         if (theData != nullptr) {
             AudioBufferList theDataBuffer;
@@ -103,20 +101,19 @@ void *MyGetOpenALAudioData(NSURL *inFileURL,
 
             // Read the data into an AudioBufferList. The binary reuses the low 32 bits of the
             // 8-byte frame-count slot as the in/out frame count rather than a fresh local.
-            status = ExtAudioFileRead(
-                extRef, reinterpret_cast<UInt32 *>(&theFileLengthInFrames), &theDataBuffer);
+            status = ExtAudioFileRead(extRef, (UInt32 *)&theFileLengthInFrames, &theDataBuffer);
             if (status == noErr) {
                 // Success.
-                *outDataSize = static_cast<ALsizei>(dataSize);
+                *outDataSize = (ALsizei)dataSize;
                 *outDataFormat =
                     (theOutputFormat.mChannelsPerFrame > 1) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
-                *outSampleRate = static_cast<ALsizei>(theOutputFormat.mSampleRate);
+                *outSampleRate = (ALsizei)theOutputFormat.mSampleRate;
             } else {
                 // Failure.
                 free(theData);
                 theData = nullptr;
                 printf("MyGetOpenALAudioData: ExtAudioFileRead FAILED, Error = %ld\n",
-                       static_cast<long>(status));
+                       (long)status);
             }
         }
     }
