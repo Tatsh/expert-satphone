@@ -262,3 +262,6 @@
 0x1418c0	(^void)(void)
 0x14190c	(^void)(BOOL)
 0x1419c0	(^void)(void)
+0x1ecaf8	(^void)(void)
+0x184144	(^void)(void)
+0x184208	(^void)(BOOL)

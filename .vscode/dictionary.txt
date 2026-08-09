@@ -48,6 +48,7 @@ ccmp
 ccontext
 cdevice
 cfstr
+cfstring
 cfurl
 cfuuid
 checkmark
