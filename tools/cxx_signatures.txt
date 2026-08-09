@@ -265,3 +265,5 @@
 0x1ecaf8	(^void)(void)
 0x184144	(^void)(void)
 0x184208	(^void)(BOOL)
+0x279020	(^void)(void)
+0x1e98e8	(^void)(void)
