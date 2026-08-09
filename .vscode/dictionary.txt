@@ -199,6 +199,7 @@ jubeat
 jubeat's
 jubeatmissiondata
 jubeatplus
+jubeatskmpledata
 kabasawa
 katsuyoshi
 kazuki
@@ -357,6 +358,7 @@ rtti
 rturl
 saeki
 sakuraba
+sampledata
 sasa
 satphone
 scalef
@@ -383,6 +385,7 @@ shohei
 signedness
 sincosf
 sinf
+skmpledata
 snapcraft
 sourcei
 sptl
@@ -450,6 +453,7 @@ unrecovered
 unretained
 unrotated
 unselectable
+unsuffixed
 vararg
 varargs
 vartical
