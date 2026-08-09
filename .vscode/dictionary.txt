@@ -11,6 +11,8 @@ applilinkapplist
 applist
 arakawa
 archs
+autocapitalization
+autocorrection
 autorelease
 autoreleased
 autoreleasepool
