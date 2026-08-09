@@ -5,6 +5,8 @@
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
 
+#import "OpenALSupport.h"
+
 // One buffer and one source per instance.
 static const ALsizei kHandleCount = 1;
 
@@ -19,24 +21,6 @@ static const char *const kBufferDataStaticName = "alBufferDataStatic";
 
 // Resolved once on first use and cached. The binary keeps this at 0x3541a8.
 static alBufferDataStaticProcPtr gBufferDataStatic = nullptr;
-
-/**
- * @brief Decodes an audio file into raw samples for OpenAL.
- *
- * DECLARED ONLY — the body has not been reconstructed yet. See TYPES_PENDING.md. Ghidra already
- * carries the name and signature, which match Apple's oalTouch sample verbatim.
- *
- * @param inFileURL The file to decode.
- * @param outDataSize Receives the sample data's length in bytes.
- * @param outDataFormat Receives the OpenAL format enumerator.
- * @param outSampleRate Receives the sample rate.
- * @return The sample data, which the caller owns and must free.
- * @ghidraAddress 0x153cd4
- */
-extern void *MyGetOpenALAudioData(NSURL *inFileURL,
-                                  ALsizei *outDataSize,
-                                  ALenum *outDataFormat,
-                                  ALsizei *outSampleRate);
 
 @implementation SePlayer {
     ALuint soundBuffer;
