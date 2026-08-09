@@ -606,10 +606,7 @@ static const double kBgmRestoreFadeTime = 0.2;
                                                                         path:itemPath];
             NSMutableArray *tasks = [NSMutableArray arrayWithObject:task];
             if (musicInfo.extendMusicID != 0) {
-                // The binary passes the extendItemURL string pointer straight into
-                // +filePathForMusicID:, which takes an int; the pointer's low word is read as
-                // the id. This is preserved as-is.
-                int extendID = (int)(intptr_t)musicInfo.extendItemURL;
+                int extendID = [musicInfo.extendItemURL intValue];
                 NSString *extendPath = [StoreUtil filePathForMusicID:extendID];
                 StoreDownloadTask *extendTask =
                     [[StoreDownloadTask alloc] initWithURL:musicInfo.extendItemURL path:extendPath];

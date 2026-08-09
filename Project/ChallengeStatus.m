@@ -212,17 +212,16 @@ static NSString *const kNotificationExpireKey = @"expire";
 
 /** @ghidraAddress 0x1cb238 */
 - (void)updateConsume:(NSDictionary *)dictionary {
-    // The binary stores the returned object pointer's low word straight into the int field without
-    // an -intValue; a JSON number here is an NSNumber, so this keeps its pointer bits, not its
-    // value. Faithful to the shipped code.
+    // Each value is read with -intValue (objectForKey: then the intValue message send in the
+    // disassembly), not stored as a raw pointer.
     if (dictionary[kKeyConsumePlayCoin]) {
-        self.consumePlayCoin = (int)(intptr_t)dictionary[kKeyConsumePlayCoin];
+        self.consumePlayCoin = [dictionary[kKeyConsumePlayCoin] intValue];
     }
     if (dictionary[kKeyConsumeScratchCube]) {
-        self.consumeScratchCube = (int)(intptr_t)dictionary[kKeyConsumeScratchCube];
+        self.consumeScratchCube = [dictionary[kKeyConsumeScratchCube] intValue];
     }
     if (dictionary[kKeyConsumeRestCoin]) {
-        self.consumeRestCube = (int)(intptr_t)dictionary[kKeyConsumeRestCoin];
+        self.consumeRestCube = [dictionary[kKeyConsumeRestCoin] intValue];
     }
 }
 
