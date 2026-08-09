@@ -386,6 +386,7 @@ tbnz
 teardown
 teardowns
 terada
+texel
 texels
 texure
 thema
@@ -429,6 +430,7 @@ withfile
 wmax
 wmin
 worktree
+xffu
 xref
 xrefs
 yarnrc
