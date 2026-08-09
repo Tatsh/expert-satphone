@@ -206,3 +206,4 @@
 0x124fec	Texture2D *CreateTexture2DFromPngResource(NSString *resourceName)
 0x1251b0	Texture2D *CreateTexture2DFromEncryptedTexResource(NSString *resourceName, BFCodec *cipher)
 0x1e604	(^void)(void)
+0x434dc	(^void)(void)
