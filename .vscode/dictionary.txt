@@ -36,6 +36,7 @@ blit
 blits
 blitted
 bsky
+buttom
 buyjcube
 byref
 bzero
@@ -217,6 +218,7 @@ mbar
 mday
 memcmp
 memcpy
+memu
 menuview
 michi
 miho
