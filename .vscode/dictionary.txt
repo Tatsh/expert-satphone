@@ -25,6 +25,8 @@ bemani
 bewfsujtjoh
 bfcodeccontext
 bitcode
+blits
+blitted
 bsky
 buyjcube
 byref
@@ -354,6 +356,7 @@ tbnz
 teardown
 teardowns
 terada
+texels
 texure
 thema
 theos

@@ -34,6 +34,22 @@ extern "C" {
 UIImage *_Nullable LoadScaledPngImage(NSString *pszBaseName);
 
 /**
+ * @brief Builds a vertically-flipped, gradient-faded reflection of an image.
+ *
+ * The well-known iOS reflection idiom: the top @p height rows of @p image are drawn upside-down
+ * into an offscreen context and masked with a black-to-white vertical ramp so the copy fades out.
+ * Everything is worked in pixels — the source's own @c scale is folded in when it is not already
+ * @c 1.0 — and the result is re-wrapped at that scale so a Retina source is not doubled in size.
+ *
+ * @param image The source image. A @c nil image yields @c nil .
+ * @param height The reflection height in points; a zero height yields @c nil . Used internally as
+ *               an unsigned count.
+ * @return The autoreleased reflection, or @c nil .
+ * @ghidraAddress 0x7ecdc
+ */
+UIImage *_Nullable CreateReflectedImage(UIImage *_Nullable image, int height);
+
+/**
  * @brief The same job as @c LoadScaledPngImage, for the encrypted @c .tex assets.
  *
  * Resolves the variant through the same @c GetScaledResourcePath, reads the file, decrypts it
