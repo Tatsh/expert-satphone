@@ -267,3 +267,5 @@
 0x184208	(^void)(BOOL)
 0x279020	(^void)(void)
 0x1e98e8	(^void)(void)
+0x212c50	(^void)(NSData *, NSURLResponse *, NSError *)
+0x212e38	(^void)(void)
