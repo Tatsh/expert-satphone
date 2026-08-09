@@ -68,7 +68,7 @@ const float kMusicCenterHalf = 0.5f;
     if (self) {
         ignoreOffset = NO;
         isPad = JubeatAppDelegate.appDelegate.isPad;
-        deviceType = (int)JubeatAppDelegate.appDelegate.deviceType;
+        deviceType = static_cast<int>(JubeatAppDelegate.appDelegate.deviceType);
         is4Inch = JubeatAppDelegate.appDelegate.is4inchAspect;
         elementsArray = [NSMutableArray array];
     }
@@ -153,7 +153,7 @@ const float kMusicCenterHalf = 0.5f;
 - (void)prepareLayout {
     [elementsArray removeAllObjects];
     int columns = GetMusicGridColumnCount(self.columnType);
-    float scale = (float)self.frameScale;
+    float scale = static_cast<float>(self.frameScale);
     float heightBase;
     if (isPad) {
         heightBase = kMusicCellHeightBasePad;
@@ -162,15 +162,15 @@ const float kMusicCenterHalf = 0.5f;
     }
     NSInteger itemCount = [self count:0];
     // The bounds width is truncated to an integer page width for the horizontal paging.
-    int boundsWidth = (int)self.collectionView.bounds.size.width;
+    int boundsWidth = static_cast<int>(self.collectionView.bounds.size.width);
     int xSpace = [self getXSpace:self.columnType];
     int rows = GetMusicGridRowCount(self.columnType);
     int cellsPerPage = rows * columns;
     int xMargin = [self getXMargin:self.columnType];
     int yMargin = [self getYMargin:self.columnType];
     if (itemCount >= 1) {
-        int cellHeight = (int)(scale * heightBase);
-        int cellWidth = (int)(scale * kMusicCellWidthBase[isPad ? 1 : 0]);
+        int cellHeight = static_cast<int>(scale * heightBase);
+        int cellWidth = static_cast<int>(scale * kMusicCellWidthBase[isPad ? 1 : 0]);
         int columnStride = xSpace + cellWidth;
         float halfColumnStride = columnStride * kMusicCenterHalf;
         float halfCellHeight = cellHeight * kMusicCenterHalf;
@@ -178,7 +178,7 @@ const float kMusicCenterHalf = 0.5f;
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:i inSection:0];
             UICollectionViewLayoutAttributes *attributes =
                 [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
-            int index = (int)i;
+            int index = static_cast<int>(i);
             int rowIndex = index / columns;
             int page = index / cellsPerPage;
             int pageRow = rowIndex / rows;
@@ -186,17 +186,17 @@ const float kMusicCenterHalf = 0.5f;
             // The binary refetches the vertical spacing on every item; kept for fidelity.
             int ySpace = [self getYSpace:self.columnType];
             int rowWithinPage = rowIndex - pageRow * rows;
-            float centerX =
-                halfColumnStride + (float)(xMargin + column * columnStride + page * boundsWidth);
-            float centerY =
-                halfCellHeight + (float)(yMargin + (ySpace + cellHeight) * rowWithinPage);
+            float centerX = halfColumnStride + static_cast<float>(xMargin + column * columnStride +
+                                                                  page * boundsWidth);
+            float centerY = halfCellHeight +
+                            static_cast<float>(yMargin + (ySpace + cellHeight) * rowWithinPage);
             attributes.center = CGPointMake(centerX, centerY);
             attributes.size = CGSizeMake(cellWidth, cellHeight);
             [elementsArray addObject:attributes];
         }
     }
-    int pages = ((int)itemCount + cellsPerPage - 1) / cellsPerPage;
-    contentsWidth = (double)(pages * boundsWidth);
+    int pages = (static_cast<int>(itemCount) + cellsPerPage - 1) / cellsPerPage;
+    contentsWidth = static_cast<double>(pages * boundsWidth);
 }
 
 - (CGSize)collectionViewContentSize {

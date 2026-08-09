@@ -106,15 +106,16 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     CGColorSpaceRef colorSpace = CGImageGetColorSpace(cgImage);
     // An alpha channel present anywhere but "none" (indices 1..4) keeps four components; otherwise
     // three. A missing colour space forces the single-channel A8 format below.
-    Texture2DPixelFormat colouredFormat = ((unsigned int)(alphaInfo - 1) > 3) ?
+    Texture2DPixelFormat colouredFormat = (static_cast<unsigned int>(alphaInfo - 1) > 3) ?
                                               Texture2DPixelFormatRGB888 :
                                               Texture2DPixelFormatRGBA8888;
 
     CGAffineTransform transform = CGAffineTransformIdentity;
-    int imageWidth = (int)CGImageGetWidth(cgImage);
-    int imageHeight = (int)CGImageGetHeight(cgImage);
-    unsigned int maxDimension =
-        (imageWidth < imageHeight) ? (unsigned int)imageHeight : (unsigned int)imageWidth;
+    int imageWidth = static_cast<int>(CGImageGetWidth(cgImage));
+    int imageHeight = static_cast<int>(CGImageGetHeight(cgImage));
+    unsigned int maxDimension = (imageWidth < imageHeight) ?
+                                    static_cast<unsigned int>(imageHeight) :
+                                    static_cast<unsigned int>(imageWidth);
 
     GLint maxTextureSize = 0;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
@@ -129,10 +130,10 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
 
     // Shrink by halves until the texture fits GL's maximum, scaling the content dimensions and the
     // draw transform to match.
-    while ((unsigned int)maxTextureSize < textureSize) {
+    while (static_cast<unsigned int>(maxTextureSize) < textureSize) {
         textureSize >>= 1;
-        imageWidth = (int)((unsigned int)imageWidth >> 1);
-        imageHeight = (int)((unsigned int)imageHeight >> 1);
+        imageWidth = static_cast<int>(static_cast<unsigned int>(imageWidth) >> 1);
+        imageHeight = static_cast<int>(static_cast<unsigned int>(imageHeight) >> 1);
         transform = CGAffineTransformScale(transform, kScale2xFactor, kScale2xFactor);
     }
 
@@ -186,16 +187,18 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     CGContextClearRect(context, CGRectMake(0, 0, textureSize, textureSize));
     // Bottom-align the image in the (square) texture so the used region sits at the origin GL reads
     // from.
-    if ((unsigned int)(textureSize - imageHeight) != 0) {
-        CGContextTranslateCTM(context, 0, (CGFloat)(textureSize - imageHeight));
+    if (static_cast<unsigned int>(textureSize - imageHeight) != 0) {
+        CGContextTranslateCTM(context, 0, static_cast<CGFloat>(textureSize - imageHeight));
     }
     if (!CGAffineTransformIsIdentity(transform)) {
         CGContextConcatCTM(context, transform);
     }
-    CGContextDrawImage(
-        context,
-        CGRectMake(0, 0, (CGFloat)CGImageGetWidth(cgImage), (CGFloat)CGImageGetHeight(cgImage)),
-        cgImage);
+    CGContextDrawImage(context,
+                       CGRectMake(0,
+                                  0,
+                                  static_cast<CGFloat>(CGImageGetWidth(cgImage)),
+                                  static_cast<CGFloat>(CGImageGetHeight(cgImage))),
+                       cgImage);
 
     self = [self initWithData:buffer
                   pixelFormat:format
@@ -248,11 +251,12 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     }
 
     _size = pixelSize;
-    _width = (NSUInteger)width;
-    _height = (NSUInteger)height;
+    _width = static_cast<NSUInteger>(width);
+    _height = static_cast<NSUInteger>(height);
     pixelFormat = aPixelFormat;
     if (!vertices) {
-        vertices = (SpriteVertex *)malloc(kMaxQuads * kVerticesPerQuad * sizeof(SpriteVertex));
+        vertices = static_cast<SpriteVertex *>(
+            malloc(kMaxQuads * kVerticesPerQuad * sizeof(SpriteVertex)));
     }
 }
 
@@ -274,8 +278,8 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     }
     glBindTexture(GL_TEXTURE_2D, _name);
     CGImageRef cgImage = image.CGImage;
-    int width = (int)rect.size.width;
-    int height = (int)rect.size.height;
+    int width = static_cast<int>(rect.size.width);
+    int height = static_cast<int>(rect.size.height);
 
     void *buffer = nullptr;
     CGContextRef context = nullptr;
@@ -322,12 +326,15 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
         break;
     }
 
-    CGContextClearRect(context, CGRectMake(0, 0, (CGFloat)width, (CGFloat)height));
-    CGContextDrawImage(context, CGRectMake(0, 0, (CGFloat)width, (CGFloat)height), cgImage);
+    CGContextClearRect(context,
+                       CGRectMake(0, 0, static_cast<CGFloat>(width), static_cast<CGFloat>(height)));
+    CGContextDrawImage(context,
+                       CGRectMake(0, 0, static_cast<CGFloat>(width), static_cast<CGFloat>(height)),
+                       cgImage);
     glTexSubImage2D(GL_TEXTURE_2D,
                     0,
-                    (int)rect.origin.x,
-                    (int)rect.origin.y,
+                    static_cast<int>(rect.origin.x),
+                    static_cast<int>(rect.origin.y),
                     width,
                     height,
                     uploadFormat,
@@ -348,8 +355,8 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     [self setSubImage:image
                inRect:CGRectMake(point.x,
                                  point.y,
-                                 (CGFloat)CGImageGetWidth(cgImage),
-                                 (CGFloat)CGImageGetHeight(cgImage))];
+                                 static_cast<CGFloat>(CGImageGetWidth(cgImage)),
+                                 static_cast<CGFloat>(CGImageGetHeight(cgImage)))];
 }
 
 #pragma mark - Batched drawing
@@ -360,11 +367,11 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
         return;
     }
     SpriteVertex *quad = &vertices[currentPolys * kVerticesPerQuad];
-    double span = (double)_size * scale;
-    float left = (float)point.x;
-    float top = (float)point.y;
-    float right = (float)(point.x + span);
-    float bottom = (float)(point.y + span);
+    double span = static_cast<double>(_size) * scale;
+    float left = static_cast<float>(point.x);
+    float top = static_cast<float>(point.y);
+    float right = static_cast<float>(point.x + span);
+    float bottom = static_cast<float>(point.y + span);
 
     quad[0].fX = left;
     quad[0].fY = top;
@@ -398,10 +405,10 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
         return;
     }
     SpriteVertex *quad = &vertices[currentPolys * kVerticesPerQuad];
-    float left = (float)rect.origin.x;
-    float top = (float)rect.origin.y;
-    float right = (float)(rect.origin.x + rect.size.width);
-    float bottom = (float)(rect.origin.y + rect.size.height);
+    float left = static_cast<float>(rect.origin.x);
+    float top = static_cast<float>(rect.origin.y);
+    float right = static_cast<float>(rect.origin.x + rect.size.width);
+    float bottom = static_cast<float>(rect.origin.y + rect.size.height);
 
     quad[0].fX = left;
     quad[0].fY = top;
@@ -412,7 +419,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     quad[3].fX = right;
     quad[3].fY = bottom;
 
-    double texSize = (double)_size;
+    double texSize = static_cast<double>(_size);
     CGFloat red = 0;
     CGFloat green = 0;
     CGFloat blue = 0;
@@ -421,14 +428,14 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
 
     // Only the alpha is clamped; the RGB components are used as-is. A NaN alpha propagates.
     float clampedAlpha = 0.0f;
-    if (!((float)alpha < 0.0f)) {
-        clampedAlpha = ((float)alpha <= 1.0f) ? (float)alpha : 1.0f;
+    if (!(static_cast<float>(alpha) < 0.0f)) {
+        clampedAlpha = (static_cast<float>(alpha) <= 1.0f) ? static_cast<float>(alpha) : 1.0f;
     }
 
-    float u0 = (float)(region.origin.x / texSize);
-    float v0 = (float)(region.origin.y / texSize);
-    float u1 = (float)((region.origin.x + region.size.width) / texSize);
-    float v1 = (float)((region.origin.y + region.size.height) / texSize);
+    float u0 = static_cast<float>(region.origin.x / texSize);
+    float v0 = static_cast<float>(region.origin.y / texSize);
+    float u1 = static_cast<float>((region.origin.x + region.size.width) / texSize);
+    float v1 = static_cast<float>((region.origin.y + region.size.height) / texSize);
 
     // The texture-coordinate permutation matches SetQuadTexCoordsAndAlpha's table exactly; this
     // path inlines it because it also writes a per-channel tint rather than a broadcast alpha.
@@ -495,12 +502,16 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
         break;
     }
 
-    uint8_t redByte = (uint8_t)(int)((float)red * kByteScale255);
-    uint8_t greenByte = (uint8_t)(int)((float)green * kByteScale255);
-    uint8_t blueByte = (uint8_t)(int)((float)blue * kByteScale255);
-    uint8_t alphaByte = (uint8_t)(int)(clampedAlpha * kByteScale255);
-    uint32_t packed = (uint32_t)redByte | ((uint32_t)greenByte << 8) | ((uint32_t)blueByte << 16) |
-                      ((uint32_t)alphaByte << 24);
+    uint8_t redByte =
+        static_cast<uint8_t>(static_cast<int>(static_cast<float>(red) * kByteScale255));
+    uint8_t greenByte =
+        static_cast<uint8_t>(static_cast<int>(static_cast<float>(green) * kByteScale255));
+    uint8_t blueByte =
+        static_cast<uint8_t>(static_cast<int>(static_cast<float>(blue) * kByteScale255));
+    uint8_t alphaByte = static_cast<uint8_t>(static_cast<int>(clampedAlpha * kByteScale255));
+    uint32_t packed = static_cast<uint32_t>(redByte) | (static_cast<uint32_t>(greenByte) << 8) |
+                      (static_cast<uint32_t>(blueByte) << 16) |
+                      (static_cast<uint32_t>(alphaByte) << 24);
     quad[0].dwColor = packed;
     quad[1].dwColor = packed;
     quad[2].dwColor = packed;
@@ -518,10 +529,10 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
         return;
     }
     SpriteVertex *quad = &vertices[currentPolys * kVerticesPerQuad];
-    float left = (float)rect.origin.x;
-    float top = (float)rect.origin.y;
-    float right = (float)(rect.origin.x + rect.size.width);
-    float bottom = (float)(rect.origin.y + rect.size.height);
+    float left = static_cast<float>(rect.origin.x);
+    float top = static_cast<float>(rect.origin.y);
+    float right = static_cast<float>(rect.origin.x + rect.size.width);
+    float bottom = static_cast<float>(rect.origin.y + rect.size.height);
 
     quad[0].fX = left;
     quad[0].fY = top;
@@ -532,11 +543,11 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     quad[3].fX = right;
     quad[3].fY = bottom;
 
-    double texSize = (double)_size;
-    SetQuadTexCoordsAndAlpha((float)(region.origin.x / texSize),
-                             (float)(region.origin.y / texSize),
-                             (float)((region.origin.x + region.size.width) / texSize),
-                             (float)((region.origin.y + region.size.height) / texSize),
+    double texSize = static_cast<double>(_size);
+    SetQuadTexCoordsAndAlpha(static_cast<float>(region.origin.x / texSize),
+                             static_cast<float>(region.origin.y / texSize),
+                             static_cast<float>((region.origin.x + region.size.width) / texSize),
+                             static_cast<float>((region.origin.y + region.size.height) / texSize),
                              alpha,
                              quad,
                              (SpriteTransform)transform);
@@ -551,14 +562,14 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
          transform:(char)transform
              alpha:(float)alpha {
     /** @ghidraAddress 0xeb28 */
-    if (sprite >= (NSUInteger)numSprite || currentPolys >= kMaxQuads) {
+    if (sprite >= static_cast<NSUInteger>(numSprite) || currentPolys >= kMaxQuads) {
         return;
     }
     CGRect source = spriteRect[sprite];
 
     CGAffineTransform matrix = CGAffineTransformMakeTranslation(anchor.x, anchor.y);
-    matrix = CGAffineTransformScale(matrix, (double)scale, (double)scale);
-    matrix = CGAffineTransformRotate(matrix, (double)rotate);
+    matrix = CGAffineTransformScale(matrix, static_cast<double>(scale), static_cast<double>(scale));
+    matrix = CGAffineTransformRotate(matrix, static_cast<double>(rotate));
     matrix = CGAffineTransformTranslate(matrix, -anchor.x, -anchor.y);
 
     double drawWidth = source.size.width;
@@ -576,20 +587,20 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
         CGPointApplyAffineTransform(CGPointMake(point.x + drawWidth, point.y), matrix);
     CGPoint corner3 =
         CGPointApplyAffineTransform(CGPointMake(point.x + drawWidth, point.y + drawHeight), matrix);
-    quad[0].fX = (float)corner0.x;
-    quad[0].fY = (float)corner0.y;
-    quad[1].fX = (float)corner1.x;
-    quad[1].fY = (float)corner1.y;
-    quad[2].fX = (float)corner2.x;
-    quad[2].fY = (float)corner2.y;
-    quad[3].fX = (float)corner3.x;
-    quad[3].fY = (float)corner3.y;
+    quad[0].fX = static_cast<float>(corner0.x);
+    quad[0].fY = static_cast<float>(corner0.y);
+    quad[1].fX = static_cast<float>(corner1.x);
+    quad[1].fY = static_cast<float>(corner1.y);
+    quad[2].fX = static_cast<float>(corner2.x);
+    quad[2].fY = static_cast<float>(corner2.y);
+    quad[3].fX = static_cast<float>(corner3.x);
+    quad[3].fY = static_cast<float>(corner3.y);
 
-    double texSize = (double)_size;
-    SetQuadTexCoordsAndAlpha((float)(source.origin.x / texSize),
-                             (float)(source.origin.y / texSize),
-                             (float)((source.origin.x + source.size.width) / texSize),
-                             (float)((source.origin.y + source.size.height) / texSize),
+    double texSize = static_cast<double>(_size);
+    SetQuadTexCoordsAndAlpha(static_cast<float>(source.origin.x / texSize),
+                             static_cast<float>(source.origin.y / texSize),
+                             static_cast<float>((source.origin.x + source.size.width) / texSize),
+                             static_cast<float>((source.origin.y + source.size.height) / texSize),
                              alpha,
                              quad,
                              (SpriteTransform)transform);
@@ -601,7 +612,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
          transform:(char)transform
              alpha:(float)alpha {
     /** @ghidraAddress 0xedb8 */
-    if (sprite >= (NSUInteger)numSprite) {
+    if (sprite >= static_cast<NSUInteger>(numSprite)) {
         return;
     }
     CGRect source = spriteRect[sprite];
@@ -609,7 +620,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     double drawHeight = source.size.height;
     // A transposing transform (mode 1 or 3, a 90-degree rotation) swaps the drawn width and
     // height; any other mode keeps them.
-    if ((((unsigned int)transform) | 2) == 3) {
+    if (((static_cast<unsigned int>(transform)) | 2) == 3) {
         double swap = drawWidth;
         drawWidth = drawHeight;
         drawHeight = swap;
@@ -629,7 +640,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
          transform:(char)transform
              alpha:(float)alpha {
     /** @ghidraAddress 0xee48 */
-    if (sprite >= (NSUInteger)numSprite) {
+    if (sprite >= static_cast<NSUInteger>(numSprite)) {
         return;
     }
     [self drawInRect:rect fromRegion:spriteRect[sprite] transform:transform alpha:alpha];
@@ -637,7 +648,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
 
 - (void)drawSprite:(NSUInteger)sprite atPoint:(CGPoint)point {
     /** @ghidraAddress 0xeea4 */
-    if (sprite >= (NSUInteger)numSprite) {
+    if (sprite >= static_cast<NSUInteger>(numSprite)) {
         return;
     }
     CGRect source = spriteRect[sprite];
@@ -655,7 +666,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
 
 - (void)drawSprite:(NSUInteger)sprite inRect:(CGRect)rect color:(nullable UIColor *)color {
     /** @ghidraAddress 0xef24 */
-    if (sprite >= (NSUInteger)numSprite) {
+    if (sprite >= static_cast<NSUInteger>(numSprite)) {
         return;
     }
     [self drawInRect:rect fromRegion:spriteRect[sprite] transform:SpriteTransformNone color:color];
@@ -663,7 +674,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
 
 - (void)drawSprite:(NSUInteger)sprite inRect:(CGRect)rect {
     /** @ghidraAddress 0xef64 */
-    if (sprite >= (NSUInteger)numSprite) {
+    if (sprite >= static_cast<NSUInteger>(numSprite)) {
         return;
     }
     [self drawInRect:rect fromRegion:spriteRect[sprite] transform:SpriteTransformNone alpha:1.0f];
@@ -681,14 +692,16 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
 
     BOOL clipped = !CGRectIsNull(_clipRect);
     if (clipped) {
-        glScissor((int)_clipRect.origin.x,
-                  (int)_clipRect.origin.y,
-                  (int)_clipRect.size.width,
-                  (int)_clipRect.size.height);
+        glScissor(static_cast<int>(_clipRect.origin.x),
+                  static_cast<int>(_clipRect.origin.y),
+                  static_cast<int>(_clipRect.size.width),
+                  static_cast<int>(_clipRect.size.height));
         glEnable(GL_SCISSOR_TEST);
     }
-    glDrawElements(
-        GL_TRIANGLES, (GLsizei)(currentPolys * kIndicesPerQuad), GL_UNSIGNED_SHORT, nullptr);
+    glDrawElements(GL_TRIANGLES,
+                   static_cast<GLsizei>(currentPolys * kIndicesPerQuad),
+                   GL_UNSIGNED_SHORT,
+                   nullptr);
     if (clipped) {
         glDisable(GL_SCISSOR_TEST);
     }
@@ -714,10 +727,10 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
 
     int index = 0;
     for (NSArray<NSNumber *> *entry in sprites) {
-        spriteRect[index] = CGRectMake((double)[entry[0] integerValue],
-                                       (double)[entry[1] integerValue],
-                                       (double)[entry[2] integerValue],
-                                       (double)[entry[3] integerValue]);
+        spriteRect[index] = CGRectMake(static_cast<double>([entry[0] integerValue]),
+                                       static_cast<double>([entry[1] integerValue]),
+                                       static_cast<double>([entry[2] integerValue]),
+                                       static_cast<double>([entry[3] integerValue]));
         ++index;
     }
     numSprite = index;
@@ -725,7 +738,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
 
 - (CGRect)spriteAtIndex:(unsigned int)index {
     /** @ghidraAddress 0xf3a0 */
-    if (index < (unsigned int)numSprite) {
+    if (index < static_cast<unsigned int>(numSprite)) {
         CGRect rect = spriteRect[index];
         if (_isScale2x) {
             rect.origin.x *= kScale2xFactor;
