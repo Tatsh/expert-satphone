@@ -488,3 +488,4 @@
 0xb3038	(^void)(StorePackMusicView *musicView, NSUInteger index, BOOL *stop)
 0xb3c80	(^void)(StorePackMusicView *musicView, NSUInteger index, BOOL *stop)
 0xb40d0	(^void)(StorePackMusicView *musicView, NSUInteger index, BOOL *stop)
+0x1c5a18	(^void)(void)
