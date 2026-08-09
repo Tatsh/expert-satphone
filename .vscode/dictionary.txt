@@ -428,6 +428,7 @@ unretained
 unrotated
 unselectable
 vararg
+varargs
 vartical
 vendored
 venv

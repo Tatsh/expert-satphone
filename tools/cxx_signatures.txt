@@ -398,3 +398,8 @@
 0x23436c	(^void)(void)
 0x9a710	(^void)(void)
 0x9a848	(^void)(void)
+0x1b4d0c	(^NSComparisonResult)(id, id)
+0x1b599c	(^void)(void)
+0x1b5a60	(^void)(BOOL)
+0x1b62ec	(^void)(void)
+0x1b63bc	(^void)(BOOL)
