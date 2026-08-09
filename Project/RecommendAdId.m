@@ -141,7 +141,7 @@ enum {
     if ([UIDevice currentDevice].systemVersion.floatValue >= kServerStorageMinimumSystemVersion) {
         NSString *udid = [ApplilinkUdid getAdUdid];
         if (udid == nil) {
-            if (error != NULL) {
+            if (error != nullptr) {
                 *error =
                     [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorUdidUnavailable];
             }
@@ -154,7 +154,7 @@ enum {
                                                 categoryId:categoryId
                                                      error:&requestError];
         if (requestError != nil) {
-            if (error != NULL) {
+            if (error != nullptr) {
                 *error = requestError;
             }
             return nil;
@@ -163,7 +163,7 @@ enum {
     }
     UIPasteboard *pasteboard = [UIPasteboard pasteboardWithName:_serviceName create:NO];
     if (pasteboard == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error =
                 [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorPasteboardUnavailable];
         }
@@ -171,7 +171,7 @@ enum {
     }
     id archived = [pasteboard valueForPasteboardType:kPasteboardType];
     if (archived == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorRecordNotFound];
         }
         return nil;
@@ -189,7 +189,7 @@ enum {
     if ([UIDevice currentDevice].systemVersion.floatValue >= kServerStorageMinimumSystemVersion) {
         NSString *udid = [ApplilinkUdid getAdUdid];
         if (udid == nil) {
-            if (error != NULL) {
+            if (error != nullptr) {
                 *error =
                     [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorUdidUnavailable];
             }
@@ -204,7 +204,7 @@ enum {
                              adType:adType
                               error:&requestError];
         if (requestError != nil) {
-            if (error != NULL) {
+            if (error != nullptr) {
                 *error = requestError;
             }
             return;
@@ -265,7 +265,7 @@ enum {
     }
     UIPasteboard *pasteboard = [UIPasteboard pasteboardWithName:_serviceName create:YES];
     if (pasteboard == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error =
                 [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorPasteboardUnavailable];
         }
@@ -286,7 +286,7 @@ enum {
     if ([UIDevice currentDevice].systemVersion.floatValue >= kServerStorageMinimumSystemVersion) {
         NSString *udid = [ApplilinkUdid getAdUdid];
         if (udid == nil) {
-            if (error != NULL) {
+            if (error != nullptr) {
                 *error =
                     [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorUdidUnavailable];
             }
@@ -299,7 +299,7 @@ enum {
                             categoryId:categoryId
                                  error:&requestError];
         if (requestError != nil) {
-            if (error != NULL) {
+            if (error != nullptr) {
                 *error = requestError;
             }
             return NO;
@@ -308,7 +308,7 @@ enum {
     }
     UIPasteboard *pasteboard = [UIPasteboard pasteboardWithName:_serviceName create:NO];
     if (pasteboard == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error =
                 [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorPasteboardUnavailable];
         }
@@ -429,13 +429,13 @@ static NSInteger ErrorCodeForResponse(NSDictionary *response) {
                                                             cachePolicy:nil
                                                                   error:&requestError];
     if (requestError != nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = requestError;
         }
         return nil;
     }
     if (response == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorRequestFailed
                                                                    userInfo:nil];
         }
@@ -443,7 +443,7 @@ static NSInteger ErrorCodeForResponse(NSDictionary *response) {
     }
     NSInteger errorCode = ErrorCodeForResponse(response);
     if (errorCode != 0) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:errorCode
                                                                    userInfo:response];
         }
@@ -500,20 +500,20 @@ static NSInteger ErrorCodeForResponse(NSDictionary *response) {
                                                             cachePolicy:nil
                                                                   error:&requestError];
     if (requestError != nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = requestError;
         }
         return;
     }
     if (response == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorRequestFailed
                                                                    userInfo:nil];
         }
         return;
     }
     NSInteger errorCode = ErrorCodeForResponse(response);
-    if (errorCode != 0 && error != NULL) {
+    if (errorCode != 0 && error != nullptr) {
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:errorCode
                                                                userInfo:response];
     }
@@ -542,20 +542,20 @@ static NSInteger ErrorCodeForResponse(NSDictionary *response) {
                                                             cachePolicy:nil
                                                                   error:&requestError];
     if (requestError != nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = requestError;
         }
         return;
     }
     if (response == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorRequestFailed
                                                                    userInfo:nil];
         }
         return;
     }
     NSInteger errorCode = ErrorCodeForResponse(response);
-    if (errorCode != 0 && error != NULL) {
+    if (errorCode != 0 && error != nullptr) {
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:errorCode
                                                                userInfo:response];
     }

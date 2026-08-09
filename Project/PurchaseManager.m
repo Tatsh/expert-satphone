@@ -300,19 +300,19 @@ NSString *CreateRandomString(int length);
     // Encrypted prodlist, same pattern as StoreMusicListManager.saveMusicList but with
     // purchasedProducts. Verified at 0xb54e0 as bl count / cbz, then bl appDocumentsDirectory /
     // stringByAppendingPathComponent:@"prodlist" at 0xb5540 (add x2,x2,#0x8a0),
-    // _CFPropertyListCreateData, arc4random, appendBytes:4, BFCodec with MD5(musicListKey).
+    // CFPropertyListCreateData, arc4random, appendBytes:4, BFCodec with MD5(musicListKey).
     if (purchasedProducts.count == 0) {
         return;
     }
     NSString *path =
         [JubeatAppDelegate.appDocumentsDirectory stringByAppendingPathComponent:@"prodlist"];
     NSString *key = JubeatAppDelegate.appDelegate.musicListKey;
-    NSData *plist = (__bridge_transfer NSData *)_CFPropertyListCreateData(
-        kCFAllocatorDefault,
-        (__bridge CFArrayRef)purchasedProducts,
-        kCFPropertyListBinaryFormat_v1_0,
-        0,
-        NULL);
+    NSData *plist =
+        (__bridge_transfer NSData *)CFPropertyListCreateData(kCFAllocatorDefault,
+                                                             (__bridge CFArrayRef)purchasedProducts,
+                                                             kCFPropertyListBinaryFormat_v1_0,
+                                                             0,
+                                                             nullptr);
     NSMutableData *out = [NSMutableData dataWithCapacity:0x4000];
     uint32_t rnd = arc4random();
     [out appendBytes:&rnd length:4];
@@ -345,8 +345,12 @@ NSString *CreateRandomString(int length);
     [codec cipherInit:md5];
     [codec decipher:data];
     NSData *plistData = [data subdataWithRange:NSMakeRange(4, data.length - 4)];
-    NSArray *arr = (__bridge_transfer NSArray *)_CFPropertyListCreateWithData(
-        kCFAllocatorDefault, (__bridge CFDataRef)plistData, kCFPropertyListImmutable, NULL, NULL);
+    NSArray *arr =
+        (__bridge_transfer NSArray *)CFPropertyListCreateWithData(kCFAllocatorDefault,
+                                                                  (__bridge CFDataRef)plistData,
+                                                                  kCFPropertyListImmutable,
+                                                                  nullptr,
+                                                                  nullptr);
     if (arr) {
         purchasedProducts = [[NSMutableArray alloc] initWithArray:arr copyItems:NO];
     } else {
@@ -363,12 +367,12 @@ NSString *CreateRandomString(int length);
         return;
     }
     NSString *key = JubeatAppDelegate.appDelegate.musicListKey;
-    NSData *plist = (__bridge_transfer NSData *)_CFPropertyListCreateData(
+    NSData *plist = (__bridge_transfer NSData *)CFPropertyListCreateData(
         kCFAllocatorDefault,
         (__bridge CFDictionaryRef)pendingReceipts,
         kCFPropertyListBinaryFormat_v1_0,
         0,
-        NULL);
+        nullptr);
     NSMutableData *out = [NSMutableData dataWithCapacity:0x8000];
     uint32_t rnd = arc4random();
     [out appendBytes:&rnd length:4];
@@ -401,8 +405,12 @@ NSString *CreateRandomString(int length);
     [codec cipherInit:md5];
     [codec decipher:data];
     NSData *plistData = [data subdataWithRange:NSMakeRange(4, data.length - 4)];
-    NSDictionary *dict = (__bridge_transfer NSDictionary *)_CFPropertyListCreateWithData(
-        kCFAllocatorDefault, (__bridge CFDataRef)plistData, kCFPropertyListImmutable, NULL, NULL);
+    NSDictionary *dict = (__bridge_transfer NSDictionary *)CFPropertyListCreateWithData(
+        kCFAllocatorDefault,
+        (__bridge CFDataRef)plistData,
+        kCFPropertyListImmutable,
+        nullptr,
+        nullptr);
     if (dict) {
         pendingReceipts = [[NSMutableDictionary alloc] initWithDictionary:dict copyItems:NO];
     } else {
@@ -516,12 +524,12 @@ NSString *CreateRandomString(int length);
         return;
     }
     NSString *key = JubeatAppDelegate.appDelegate.musicListKey;
-    NSData *plist = (__bridge_transfer NSData *)_CFPropertyListCreateData(
+    NSData *plist = (__bridge_transfer NSData *)CFPropertyListCreateData(
         kCFAllocatorDefault,
         (__bridge CFDictionaryRef)pendingConsumeReceipts,
         kCFPropertyListBinaryFormat_v1_0,
         0,
-        NULL);
+        nullptr);
     NSMutableData *out = [NSMutableData dataWithCapacity:0x8000];
     uint32_t rnd = arc4random();
     [out appendBytes:&rnd length:4];
@@ -554,8 +562,12 @@ NSString *CreateRandomString(int length);
     [codec cipherInit:md5];
     [codec decipher:data];
     NSData *plistData = [data subdataWithRange:NSMakeRange(4, data.length - 4)];
-    NSDictionary *dict = (__bridge_transfer NSDictionary *)_CFPropertyListCreateWithData(
-        kCFAllocatorDefault, (__bridge CFDataRef)plistData, kCFPropertyListImmutable, NULL, NULL);
+    NSDictionary *dict = (__bridge_transfer NSDictionary *)CFPropertyListCreateWithData(
+        kCFAllocatorDefault,
+        (__bridge CFDataRef)plistData,
+        kCFPropertyListImmutable,
+        nullptr,
+        nullptr);
     if (dict) {
         pendingConsumeReceipts = [[NSMutableDictionary alloc] initWithDictionary:dict copyItems:NO];
     } else {

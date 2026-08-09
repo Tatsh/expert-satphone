@@ -51,7 +51,7 @@ static const int kAccountSwitchStatus = 0x75da;
 
     // Both lookups share one out-parameter and neither result is used, so this is a presence test
     // rather than a fetch. Whatever the second lookup writes overwrites the first.
-    CFTypeRef found = NULL;
+    CFTypeRef found = nullptr;
     OSStatus idStatus = SecItemCopyMatching((__bridge CFDictionaryRef)idQuery, &found);
     OSStatus passStatus = SecItemCopyMatching((__bridge CFDictionaryRef)passQuery, &found);
 
@@ -71,7 +71,7 @@ static const int kAccountSwitchStatus = 0x75da;
 + (NSString *)getKeyString:(id)key {
     NSDictionary *query = [self getKeyQuery:key];
 
-    CFTypeRef attributes = NULL;
+    CFTypeRef attributes = nullptr;
     if (SecItemCopyMatching((__bridge CFDictionaryRef)query, &attributes) != errSecSuccess) {
         return nil;
     }
@@ -84,7 +84,7 @@ static const int kAccountSwitchStatus = 0x75da;
     fetch[(__bridge NSString *)kSecReturnData] = (__bridge id)kCFBooleanTrue;
     CFRelease(attributes);
 
-    CFTypeRef payload = NULL;
+    CFTypeRef payload = nullptr;
     if (SecItemCopyMatching((__bridge CFDictionaryRef)fetch, &payload) != errSecSuccess) {
         return nil;
     }
@@ -108,12 +108,12 @@ static const int kAccountSwitchStatus = 0x75da;
 + (void)deleteKeychain {
     // Each account is deleted only when it is actually present. Verified at 0x1d325c: a
     // SecItemCopyMatching guards each deleteKeychainString: call.
-    CFTypeRef found = NULL;
+    CFTypeRef found = nullptr;
     if (SecItemCopyMatching((__bridge CFDictionaryRef)[self getKeyQuery:self.getEditorIDKey],
                             &found) == errSecSuccess) {
         [self deleteKeychainString:self.getEditorIDKey];
     }
-    found = NULL;
+    found = nullptr;
     if (SecItemCopyMatching((__bridge CFDictionaryRef)[self getKeyQuery:self.getEditorPassKey],
                             &found) == errSecSuccess) {
         [self deleteKeychainString:self.getEditorPassKey];
@@ -163,12 +163,12 @@ static const int kAccountSwitchStatus = 0x75da;
     NSMutableDictionary *idAdd =
         [NSMutableDictionary dictionaryWithDictionary:[self createAddQueryG:self.getEditorIDKey]];
     idAdd[(__bridge id)kSecValueData] = [editorID dataUsingEncoding:NSUTF8StringEncoding];
-    SecItemAdd((__bridge CFDictionaryRef)idAdd, NULL);
+    SecItemAdd((__bridge CFDictionaryRef)idAdd, nullptr);
 
     NSMutableDictionary *passAdd =
         [NSMutableDictionary dictionaryWithDictionary:[self createAddQueryG:self.getEditorPassKey]];
     passAdd[(__bridge id)kSecValueData] = [passwd dataUsingEncoding:NSUTF8StringEncoding];
-    SecItemAdd((__bridge CFDictionaryRef)passAdd, NULL);
+    SecItemAdd((__bridge CFDictionaryRef)passAdd, nullptr);
 }
 
 /** @ghidraAddress 0x1d38dc */
@@ -281,12 +281,12 @@ static const int kAccountSwitchStatus = 0x75da;
         NSMutableDictionary *idAdd = [NSMutableDictionary
             dictionaryWithDictionary:[self createAddQuery:self.class.getEditorIDKey]];
         idAdd[(__bridge id)kSecValueData] = [userID dataUsingEncoding:NSUTF8StringEncoding];
-        SecItemAdd((__bridge CFDictionaryRef)idAdd, NULL);
+        SecItemAdd((__bridge CFDictionaryRef)idAdd, nullptr);
 
         NSMutableDictionary *passAdd = [NSMutableDictionary
             dictionaryWithDictionary:[self createAddQuery:self.class.getEditorPassKey]];
         passAdd[(__bridge id)kSecValueData] = [password dataUsingEncoding:NSUTF8StringEncoding];
-        SecItemAdd((__bridge CFDictionaryRef)passAdd, NULL);
+        SecItemAdd((__bridge CFDictionaryRef)passAdd, nullptr);
 
         [JubeatAppDelegate.appDelegate refreshUserAgent];
 

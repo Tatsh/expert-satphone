@@ -145,10 +145,10 @@
 - (void)saveMusicList {
     // Saves arrayMusic + extendMusic to mulist file, encrypted with BFCodec and MD5 of
     // musicListKey. Disassembly at 0xd489c shows the count check, mutableCopy,
-    // addObjectsFromArray:extendMusic, then _CFPropertyListCreateData at 0xd48a0 tail, arc4random
+    // addObjectsFromArray:extendMusic, then CFPropertyListCreateData at 0xd48a0 tail, arc4random
     // at 0xd48a0, appendBytes:length:4, appendData:, BFCodec cipherInit with
     // CreateMd5DataFromCString(musicListKey), encipher, and writeToFile:atomically: — verified via
-    // bl _CFPropertyListCreateData and bl arc4random.
+    // bl CFPropertyListCreateData and bl arc4random.
     if (self.arrayMusic.count == 0) {
         return;
     }
@@ -159,8 +159,12 @@
     NSString *path =
         [JubeatAppDelegate.appDocumentsDirectory stringByAppendingPathComponent:@"mulist"];
     NSString *key = JubeatAppDelegate.appDelegate.musicListKey;
-    NSData *plist = (__bridge_transfer NSData *)_CFPropertyListCreateData(
-        kCFAllocatorDefault, (__bridge CFArrayRef)all, kCFPropertyListBinaryFormat_v1_0, 0, NULL);
+    NSData *plist =
+        (__bridge_transfer NSData *)CFPropertyListCreateData(kCFAllocatorDefault,
+                                                             (__bridge CFArrayRef)all,
+                                                             kCFPropertyListBinaryFormat_v1_0,
+                                                             0,
+                                                             nullptr);
     NSMutableData *out = [NSMutableData dataWithCapacity:0x80];
     uint32_t rnd = arc4random();
     [out appendBytes:&rnd length:4];
@@ -176,7 +180,7 @@
 - (void)loadMusicList {
     // Loads and decrypts mulist, then splits into arrayMusic and dicts.
     // Disassembly at 0xd4bc0 shows the fileExists check, initWithContentsOfFile:, BFCodec
-    // decipher, _CFPropertyListCreateWithData, and the split into arrayMusic vs extendMusic via
+    // decipher, CFPropertyListCreateWithData, and the split into arrayMusic vs extendMusic via
     // extendFlag checks. Verified via bl fileExistsAtPath:isDirectory: and bl decipher.
     self.arrayMusic = nil;
     self.dictExtendMusic = nil;
@@ -197,8 +201,12 @@
     [codec decipher:data];
     // Skip the 4-byte arc4random prefix.
     NSData *plistData = [data subdataWithRange:NSMakeRange(4, data.length - 4)];
-    NSArray *all = (__bridge_transfer NSArray *)_CFPropertyListCreateWithData(
-        kCFAllocatorDefault, (__bridge CFDataRef)plistData, kCFPropertyListImmutable, NULL, NULL);
+    NSArray *all =
+        (__bridge_transfer NSArray *)CFPropertyListCreateWithData(kCFAllocatorDefault,
+                                                                  (__bridge CFDataRef)plistData,
+                                                                  kCFPropertyListImmutable,
+                                                                  nullptr,
+                                                                  nullptr);
     // Split logic is deferred; the file is correctly decrypted and parsed here.
     self.arrayMusic = [all mutableCopy];
 }

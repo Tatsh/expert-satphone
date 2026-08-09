@@ -124,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Resolve, and persist to the keychain, the reward-network UDID for the stored storage
  * index.
- * @param error On failure, set to the localised error; may be @c NULL.
+ * @param error On failure, set to the localised error; may be @c nullptr.
  * @return @c YES on success.
  * @ghidraAddress 0x2323bc
  */

@@ -80,8 +80,8 @@ typedef struct zlib_filefunc_def_s {
  * @param opaque The @c zlib_filefunc_def opaque cookie; unused.
  * @param filename The path to open.
  * @param mode A ZLIB_FILEFUNC_MODE_* bitmask.
- * @return The opened @c FILE * as a @c voidpf, or @c NULL when @p filename is @c NULL or the bits
- *         select no mode string.
+ * @return The opened @c FILE * as a @c voidpf, or @c nullptr when @p filename is @c nullptr or the
+ * bits select no mode string.
  * @ghidraAddress 0x72a64
  */
 voidpf fopen_file_func(voidpf opaque, const char *filename, int mode);
@@ -153,9 +153,10 @@ int fclose_file_func(voidpf opaque, voidpf stream);
 int ferror_file_func(voidpf opaque, voidpf stream);
 
 /**
- * @brief Fills @p pzlib_filefunc_def with the stdio implementations and a @c NULL opaque cookie.
+ * @brief Fills @p pzlib_filefunc_def with the stdio implementations and a @c nullptr opaque cookie.
  *
- * @param pzlib_filefunc_def The table to populate; written unconditionally with no @c NULL check.
+ * @param pzlib_filefunc_def The table to populate; written unconditionally with no @c nullptr
+ * check.
  * @ghidraAddress 0x72b40
  */
 void fill_fopen_filefunc(zlib_filefunc_def *pzlib_filefunc_def);

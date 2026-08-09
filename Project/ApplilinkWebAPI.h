@@ -174,7 +174,7 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
  * @param method The HTTP method.
  * @param parameters The request parameters.
  * @param cachePolicy The cache policy as a boxed @c NSNumber , or @c nil for the default policy.
- * @param error On failure, the localised error; may be @c NULL.
+ * @param error On failure, the localised error; may be @c nullptr.
  * @return The parsed JSON response, or @c nil on failure.
  * @ghidraAddress 0x253270
  */

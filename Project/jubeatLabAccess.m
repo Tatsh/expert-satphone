@@ -150,7 +150,7 @@ static const char *const kJubeatLabRegion = "JP";
 /** @ghidraAddress 0x1d89b0 */
 - (NSString *)getKeyString:(id)key {
     // Identical to +[EditorIDManager getKeyString:]: a two-step lookup, attributes then payload.
-    CFTypeRef attributes = NULL;
+    CFTypeRef attributes = nullptr;
     if (SecItemCopyMatching((__bridge CFDictionaryRef)[self getKeyQuery:key], &attributes) !=
         errSecSuccess) {
         return nil;
@@ -161,7 +161,7 @@ static const char *const kJubeatLabRegion = "JP";
     fetch[(__bridge id)kSecReturnData] = (__bridge id)kCFBooleanTrue;
     CFRelease(attributes);
 
-    CFTypeRef payload = NULL;
+    CFTypeRef payload = nullptr;
     if (SecItemCopyMatching((__bridge CFDictionaryRef)fetch, &payload) != errSecSuccess) {
         return nil;
     }

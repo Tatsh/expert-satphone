@@ -12,7 +12,7 @@ static NSString *const kURLEscapedCharacters = @"!*'();:@&=+$,/?%#[]";
     return CFBridgingRelease(
         CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
                                                 (__bridge CFStringRef)string,
-                                                NULL,
+                                                nullptr,
                                                 (__bridge CFStringRef)kURLEscapedCharacters,
                                                 kCFStringEncodingUTF8));
 }

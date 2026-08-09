@@ -46,7 +46,7 @@ static const int kStatusReplaceKeychainRetry = 0x75da;
         (__bridge id)kSecMatchLimit : (__bridge id)kSecMatchLimitOne,
         (__bridge id)kSecReturnAttributes : (__bridge id)kCFBooleanTrue,
     };
-    CFTypeRef attributesRef = NULL;
+    CFTypeRef attributesRef = nullptr;
     if (SecItemCopyMatching((__bridge CFDictionaryRef)query, &attributesRef) != errSecSuccess) {
         return nil;
     }
@@ -56,7 +56,7 @@ static const int kStatusReplaceKeychainRetry = 0x75da;
     dataQuery[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
     dataQuery[(__bridge id)kSecReturnData] = (__bridge id)kCFBooleanTrue;
     CFRelease(attributesRef);
-    CFTypeRef dataRef = NULL;
+    CFTypeRef dataRef = nullptr;
     if (SecItemCopyMatching((__bridge CFDictionaryRef)dataQuery, &dataRef) != errSecSuccess) {
         return nil;
     }

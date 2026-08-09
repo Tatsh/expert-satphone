@@ -266,12 +266,12 @@ static const int kDefaultTheme = 0;
 /** @ghidraAddress 0x7f78 */
 + (NSString *)deviceName {
     size_t length = 0;
-    sysctlbyname(kHardwareMachineSysctlName, NULL, &length, NULL, 0);
+    sysctlbyname(kHardwareMachineSysctlName, nullptr, &length, nullptr, 0);
     if (length == 0) {
         return UIDevice.currentDevice.model;
     }
     char *machine = malloc(length);
-    sysctlbyname(kHardwareMachineSysctlName, machine, &length, NULL, 0);
+    sysctlbyname(kHardwareMachineSysctlName, machine, &length, nullptr, 0);
     NSString *name = [[NSString alloc] initWithCString:machine encoding:NSUTF8StringEncoding];
     free(machine);
     return name;
@@ -282,12 +282,12 @@ static const int kDefaultTheme = 0;
     // Yes, this duplicates +deviceName exactly. The binary emits two complete copies of the
     // routine at 0x7e94 and 0x7f78 rather than one calling the other, so both are kept.
     size_t length = 0;
-    sysctlbyname(kHardwareMachineSysctlName, NULL, &length, NULL, 0);
+    sysctlbyname(kHardwareMachineSysctlName, nullptr, &length, nullptr, 0);
     if (length == 0) {
         return UIDevice.currentDevice.model;
     }
     char *machine = malloc(length);
-    sysctlbyname(kHardwareMachineSysctlName, machine, &length, NULL, 0);
+    sysctlbyname(kHardwareMachineSysctlName, machine, &length, nullptr, 0);
     NSString *name = [[NSString alloc] initWithCString:machine encoding:NSUTF8StringEncoding];
     free(machine);
     return name;
@@ -409,7 +409,7 @@ static const int kDefaultTheme = 0;
 
     // The branch at 0x8970 is cbz on an OSStatus, so zero is errSecSuccess and this is the
     // item-found arm.
-    CFTypeRef attributes = NULL;
+    CFTypeRef attributes = nullptr;
     if (SecItemCopyMatching((__bridge CFDictionaryRef)query, &attributes) == errSecSuccess) {
         // The found attributes are reused as the basis of a second query that asks for the payload.
         NSMutableDictionary *fetch =
@@ -418,7 +418,7 @@ static const int kDefaultTheme = 0;
         fetch[(__bridge NSString *)kSecReturnData] = (__bridge id)kCFBooleanTrue;
         CFRelease(attributes);
 
-        CFTypeRef payload = NULL;
+        CFTypeRef payload = nullptr;
         NSString *stored = nil;
         if (SecItemCopyMatching((__bridge CFDictionaryRef)fetch, &payload) == errSecSuccess) {
             NSData *bytes = (__bridge NSData *)payload;
@@ -433,8 +433,8 @@ static const int kDefaultTheme = 0;
         // returning nil. The branch back to the create path is the cbz at 0x8bec.
     }
 
-    CFUUIDRef uuid = CFUUIDCreate(NULL);
-    CFStringRef uuidString = CFUUIDCreateString(NULL, uuid);
+    CFUUIDRef uuid = CFUUIDCreate(nullptr);
+    CFStringRef uuidString = CFUUIDCreateString(nullptr, uuid);
     NSString *key = [NSString stringWithString:(__bridge NSString *)uuidString];
     CFRelease(uuidString);
     CFRelease(uuid);
@@ -463,7 +463,7 @@ static const int kDefaultTheme = 0;
                    [NSDictionary dictionaryWithObjects:addValues
                                                forKeys:addKeys
                                                  count:sizeof(addKeys) / sizeof(addKeys[0])],
-               NULL);
+               nullptr);
     return key;
 }
 

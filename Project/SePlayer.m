@@ -18,7 +18,7 @@ typedef ALvoid (*alBufferDataStaticProcPtr)(
 static const char *const kBufferDataStaticName = "alBufferDataStatic";
 
 // Resolved once on first use and cached. The binary keeps this at 0x3541a8.
-static alBufferDataStaticProcPtr gBufferDataStatic = NULL;
+static alBufferDataStaticProcPtr gBufferDataStatic = nullptr;
 
 /**
  * @brief Decodes an audio file into raw samples for OpenAL.
@@ -50,9 +50,9 @@ extern void *MyGetOpenALAudioData(NSURL *inFileURL,
 - (instancetype)initWithPath:(NSString *)path {
     self = [super init];
     if (self) {
-        soundDevice = alcOpenDevice(NULL);
-        if (soundDevice != NULL) {
-            soundContext = alcCreateContext(soundDevice, NULL);
+        soundDevice = alcOpenDevice(nullptr);
+        if (soundDevice != nullptr) {
+            soundContext = alcCreateContext(soundDevice, nullptr);
             alcMakeContextCurrent(soundContext);
             alGenBuffers(kHandleCount, &soundBuffer);
             alGenSources(kHandleCount, &soundSource);
@@ -66,11 +66,11 @@ extern void *MyGetOpenALAudioData(NSURL *inFileURL,
         soundData =
             MyGetOpenALAudioData([NSURL fileURLWithPath:path], &dataSize, &dataFormat, &sampleRate);
 
-        if (gBufferDataStatic == NULL) {
+        if (gBufferDataStatic == nullptr) {
             gBufferDataStatic =
-                (alBufferDataStaticProcPtr)alcGetProcAddress(NULL, kBufferDataStaticName);
+                (alBufferDataStaticProcPtr)alcGetProcAddress(nullptr, kBufferDataStaticName);
         }
-        if (gBufferDataStatic != NULL) {
+        if (gBufferDataStatic != nullptr) {
             gBufferDataStatic(soundBuffer, dataFormat, soundData, dataSize, sampleRate);
         }
 
@@ -96,9 +96,9 @@ extern void *MyGetOpenALAudioData(NSURL *inFileURL,
 
     soundBuffer = 0;
     soundSource = 0;
-    soundContext = NULL;
-    soundDevice = NULL;
-    soundData = NULL;
+    soundContext = nullptr;
+    soundDevice = nullptr;
+    soundData = nullptr;
 }
 
 @end

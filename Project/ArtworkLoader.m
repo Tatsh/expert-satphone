@@ -56,7 +56,7 @@ static NSString *const kSmallArtworkEntry = @"artwork_s";
 
     // Everything but the dimensions is copied from the source, so the redraw cannot change the
     // pixel format.
-    CGContextRef context = CGBitmapContextCreate(NULL,
+    CGContextRef context = CGBitmapContextCreate(nullptr,
                                                  (size_t)_size.width,
                                                  (size_t)_size.height,
                                                  CGImageGetBitsPerComponent(source),

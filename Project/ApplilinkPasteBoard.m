@@ -81,38 +81,38 @@ enum {
 /** @ghidraAddress 0x267ff4 */
 + (BOOL)validate:(NSDictionary *)dict error:(NSError **)error {
     if (![dict isKindOfClass:[NSDictionary class]]) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidFormat];
         }
         return NO;
     }
     if (dict[kValueKey] == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidValue];
         }
         return NO;
     }
     if (dict[kEntryDateKey] == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidEntryDate];
         }
         return NO;
     }
     if (dict[kLastAccessKey] == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error =
                 [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidLastAccess];
         }
         return NO;
     }
     if (dict[kVersionKey] == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidVersion];
         }
         return NO;
     }
     if ([dict[kVersionKey] intValue] <= 0) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorOldVersion];
         }
         return NO;
@@ -167,7 +167,7 @@ enum {
                                 storageIndex:(int)storageIndex
                                        error:(NSError **)error {
     if (storageIndex >= kStorageSlotCount) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidKey];
         }
         return nil;
@@ -175,14 +175,14 @@ enum {
     NSString *name = [NSString stringWithFormat:kPasteboardNameFormat, serviceName, storageIndex];
     UIPasteboard *pasteboard = [UIPasteboard pasteboardWithName:name create:NO];
     if (pasteboard == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidField];
         }
         return nil;
     }
     NSData *archive = [pasteboard valueForPasteboardType:kPasteboardType];
     if (archive == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidDataType];
         }
         return nil;
@@ -192,7 +192,7 @@ enum {
     if (![ApplilinkPasteBoard validate:record error:&validateError]) {
         // The stored record is invalid: clear the slot and report the failure.
         [pasteboard setData:nil forPasteboardType:kPasteboardType];
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorValidateError];
         }
         return nil;
@@ -228,7 +228,7 @@ enum {
         }
     }
     if (writeError != nil || deleteError != nil) {
-        // The binary writes through the error pointer here without a NULL check.
+        // The binary writes through the error pointer here without a nullptr check.
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorWriteFailed];
     }
     return nil;
@@ -239,7 +239,7 @@ enum {
                       storageIndex:(int)storageIndex
                              error:(NSError **)error {
     if (storageIndex >= kStorageSlotCount) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidKey];
         }
         return nil;
@@ -262,7 +262,7 @@ enum {
                                                                       nil];
     UIPasteboard *pasteboard = [UIPasteboard pasteboardWithName:name create:YES];
     if (pasteboard == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidField];
         }
         return nil;
@@ -276,7 +276,7 @@ enum {
 /** @ghidraAddress 0x267dec */
 - (BOOL)deleteWithStorageIndex:(int)storageIndex error:(NSError **)error {
     if (storageIndex >= kStorageSlotCount) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidKey];
         }
         return NO;
@@ -285,13 +285,13 @@ enum {
     NSString *name = [NSString stringWithFormat:kPasteboardNameFormat, serviceName, storageIndex];
     UIPasteboard *pasteboard = [UIPasteboard pasteboardWithName:name create:NO];
     if (pasteboard == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidField];
         }
         return NO;
     }
     if ([pasteboard valueForPasteboardType:kPasteboardType] == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorInvalidDataType];
         }
         return NO;

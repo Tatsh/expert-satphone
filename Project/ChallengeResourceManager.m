@@ -91,7 +91,7 @@ static const NSUInteger kSaveBufferCapacity = 0x80;
         stringByAppendingPathComponent:kResourceListFileName];
     NSArray *snapshot = [NSArray arrayWithArray:self.arrayResource];
     CFDataRef plist = CFPropertyListCreateData(
-        kCFAllocatorDefault, (CFArrayRef)snapshot, kCFPropertyListBinaryFormat_v1_0, 0, NULL);
+        kCFAllocatorDefault, (CFArrayRef)snapshot, kCFPropertyListBinaryFormat_v1_0, 0, nullptr);
     // Prefix a random four-byte nonce, then the plist, then encipher the whole buffer.
     NSMutableData *buffer = [[NSMutableData alloc] initWithCapacity:kSaveBufferCapacity];
     u_int32_t nonce = arc4random();

@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Loads the stored advertising identifier for a country code and category id.
  * @param countryCode The country code.
  * @param categoryId The advert category identifier.
- * @param error On failure, the localised error; may be @c NULL.
+ * @param error On failure, the localised error; may be @c nullptr.
  * @return The stored record, or nil.
  * @ghidraAddress 0x22bad8
  */
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param countryCode The country code.
  * @param categoryId The advert category identifier.
  * @param adType The advert-type string.
- * @param error On failure, the localised error; may be @c NULL.
+ * @param error On failure, the localised error; may be @c nullptr.
  * @ghidraAddress 0x22be90
  */
 - (void)setWithAdIdFrom:(nullable NSString *)adIdFrom
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Deletes the stored advertising identifier for a country code and category id.
  * @param countryCode The country code.
  * @param categoryId The advert category identifier.
- * @param error On failure, the localised error; may be @c NULL.
+ * @param error On failure, the localised error; may be @c nullptr.
  * @return @c NO when the udid or pasteboard is unavailable, otherwise @c YES .
  * @ghidraAddress 0x22c5a4
  */

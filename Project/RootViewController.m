@@ -250,7 +250,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
 // De-inlined from the tail at 0x1a9a94: fade the black cover back out over durationOut, and hand
 // off to -fadeinAnimStop:finished:context:, which is what re-enables input.
 - (void)beginFadeInForAnimation:(NSString *)animationID {
-    [UIView beginAnimations:animationID context:NULL];
+    [UIView beginAnimations:animationID context:nullptr];
     [UIView setAnimationCurve:UIViewAnimationCurveLinear];
     [UIView setAnimationDuration:durationOut];
     [UIView setAnimationDelegate:self];
@@ -295,7 +295,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
     fadeView.alpha = 0.0;
     [self.view addSubview:fadeView];
 
-    [UIView beginAnimations:animationName context:NULL];
+    [UIView beginAnimations:animationName context:nullptr];
     [UIView setAnimationCurve:UIViewAnimationCurveLinear];
     // Read back out of the ivar just written, not from the parameter register.
     [UIView setAnimationDuration:self->durationIn];
@@ -509,7 +509,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
     storeViewCtrl.view.layer.shouldRasterize = YES;
 
     // Rotate the store in to face the player and music select out the far side.
-    [UIView beginAnimations:nil context:NULL];
+    [UIView beginAnimations:nil context:nullptr];
     [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
     [UIView setAnimationDelay:kStoreTransitionDelay];
     [UIView setAnimationDuration:kStoreTransitionDuration];
@@ -549,7 +549,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
     storeViewCtrl.view.layer.shouldRasterize = YES;
 
     // Rotate music select in and the store out.
-    [UIView beginAnimations:nil context:NULL];
+    [UIView beginAnimations:nil context:nullptr];
     [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
     [UIView setAnimationDelay:kStoreTransitionDelay];
     [UIView setAnimationDuration:kStoreTransitionDuration];
@@ -946,9 +946,9 @@ static const double kTitleSwitchFadeDuration = 1.5;
                                                 kPushResponseStatusReceived)
             forKey:kPushResponseStatusKey];
 
-    // NULL for the error, so a serialisation failure is indistinguishable from success and would
+    // nullptr for the error, so a serialisation failure is indistinguishable from success and would
     // reach -initWithURL:postJsonData:delegate: as nil.
-    NSData *json = [CJSONSerializer.serializer serializeDictionary:body error:NULL];
+    NSData *json = [CJSONSerializer.serializer serializeDictionary:body error:nullptr];
 
     // A nil delegate, so nothing observes the outcome: the receipt is sent and forgotten.
     Downloader *downloader = [[Downloader alloc] initWithURL:ScratchUtil.pushNotificationResponseURL
@@ -983,7 +983,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
     NSString *parked = suspendedAnimID;
     if (parked) {
         suspendedAnimID = nil;
-        [self fadeoutAnimStop:parked finished:nil context:NULL];
+        [self fadeoutAnimStop:parked finished:nil context:nullptr];
     }
     [self downloadCustomSequence];
     [self autoMoveChallenge];

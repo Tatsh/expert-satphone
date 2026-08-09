@@ -63,7 +63,7 @@ static const size_t kPaddingHeadroom = kCCBlockSizeAES128;
                                      kCCOptionPKCS7Padding,
                                      key.bytes,
                                      kAESKeyLength,
-                                     NULL,
+                                     nullptr,
                                      value.bytes,
                                      value.length,
                                      output.mutableBytes,

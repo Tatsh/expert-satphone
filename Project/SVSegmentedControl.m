@@ -206,7 +206,7 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
         /** @ghidraAddress 0x100293358 */
         CGFloat components[] = {0.10, 1, 0.12, 1};
         CGGradientRef gradient =
-            CGGradientCreateWithColorComponents(colorSpace, components, NULL, 2);
+            CGGradientCreateWithColorComponents(colorSpace, components, nullptr, 2);
         CGContextDrawLinearGradient(
             context, gradient, CGPointMake(0, 0), CGPointMake(0, CGRectGetHeight(rect) - 1), 0);
         CGGradientRelease(gradient);
@@ -513,7 +513,7 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
                        self.activated = YES;
                        [self.thumb activate];
                      }
-                     completion:NULL];
+                     completion:nullptr];
 }
 
 /** @ghidraAddress 0x16d4d8 */

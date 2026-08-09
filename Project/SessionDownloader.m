@@ -237,7 +237,7 @@ static NSData *sSessionResponse = nil;
     NSData *macData = [body dataUsingEncoding:NSUTF8StringEncoding];
     NSString *computed = macData ? CreateSha256HexStringFromData(macData, NO) : nil;
 
-    SEL callback = NULL;
+    SEL callback = nullptr;
     if (!receiveHash || ![computed isEqualToString:receiveHash] || !json) {
         // A missing or mismatched MAC, or a body that is not a JSON dictionary, is a failure.
         callback = @selector(downloaderError:);

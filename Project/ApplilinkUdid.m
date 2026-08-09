@@ -129,7 +129,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     dispatch_once(&onceToken, ^{
       /** @ghidraAddress 0x25da14 */
       // The shared serial queue is created here, before the singleton, and -init only reads it.
-      g_pApplilinkUdidQueue = dispatch_queue_create(kQueueName.UTF8String, NULL);
+      g_pApplilinkUdidQueue = dispatch_queue_create(kQueueName.UTF8String, nullptr);
       if (g_pApplilinkUdidShared == nil) {
           g_pApplilinkUdidShared = [super allocWithZone:zone];
       }
@@ -175,7 +175,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     NSError *writeError = nil;
     NSDictionary *written = [shared.pasteBoard writeStorageData:udid error:&writeError];
     if (written == nil) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorWriteFailed];
         }
     } else {
@@ -224,7 +224,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     NSDictionary *data = [shared.pasteBoard storageDataWithServiceName:serviceName
                                                           storageIndex:storageIndex
                                                                  error:&readError];
-    if (data == nil && error != NULL) {
+    if (data == nil && error != nullptr) {
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorNoData];
     }
     return data;
@@ -233,7 +233,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
 /** @ghidraAddress 0x25e1e4 */
 + (NSDictionary *)udidForFirstInvalidDataWithError:(NSError **)error {
     NSDictionary *data = [ApplilinkUdid sharedInstance].pasteBoard.storageData;
-    if (data == nil && error != NULL) {
+    if (data == nil && error != nullptr) {
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorNoData];
     }
     return data;
@@ -242,7 +242,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
 /** @ghidraAddress 0x25e2b0 */
 + (NSDictionary *)udidOldForFirstInvalidDataWithError:(NSError **)error {
     NSDictionary *data = [ApplilinkUdid sharedInstance].pasteBoard.storageDataOld;
-    if (data == nil && error != NULL) {
+    if (data == nil && error != nullptr) {
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorNoData];
     }
     return data;
@@ -355,7 +355,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
 + (BOOL)deleteAdvertisingRewardUdidIndex:(int)index error:(NSError **)error {
     // The bound test is unsigned in the binary, so a negative index is out of range, not below it.
     if ((unsigned int)index >= (unsigned int)kStorageIndexCount) {
-        if (error == NULL) {
+        if (error == nullptr) {
             return NO;
         }
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorIndexOutOfRange];
@@ -368,7 +368,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     if (deleteError == nil) {
         return YES;
     }
-    if (error == NULL) {
+    if (error == nullptr) {
         return NO;
     }
     *error = deleteError;
@@ -412,7 +412,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     if (deleteError == nil) {
         return YES;
     }
-    if (error == NULL) {
+    if (error == nullptr) {
         return NO;
     }
     *error = deleteError;
@@ -459,7 +459,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
         (__bridge id)kSecAttrModificationDate : now,
         (__bridge id)kSecAttrGeneric : initialUseCount,
     };
-    SecItemAdd((__bridge CFDictionaryRef)query, NULL);
+    SecItemAdd((__bridge CFDictionaryRef)query, nullptr);
     return YES;
 }
 
@@ -481,7 +481,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     NSMutableDictionary *attributes = [NSMutableDictionary dictionaryWithDictionary:record];
     NSError *validateError = nil;
     if (![ApplilinkUdid validate:record error:&validateError]) {
-        if (error != NULL) {
+        if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorNotDictionary];
         }
         return nil;
@@ -497,7 +497,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     NSDictionary *update = @{
         (__bridge id)kSecAttrModificationDate : now,
     };
-    CFTypeRef match = NULL;
+    CFTypeRef match = nullptr;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)matchQuery, &match);
     if (status == errSecSuccess) {
         SecItemUpdate((__bridge CFDictionaryRef)matchQuery, (__bridge CFDictionaryRef)update);
@@ -520,7 +520,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
         (__bridge id)kSecReturnAttributes : (__bridge id)kCFBooleanTrue,
         (__bridge id)kSecAttrService : service,
     };
-    CFTypeRef result = NULL;
+    CFTypeRef result = nullptr;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &result);
     if (status != errSecSuccess) {
         return nil;
@@ -538,7 +538,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
         };
         OSStatus status = SecItemDelete((__bridge CFDictionaryRef)query);
         if (status != errSecSuccess) {
-            if (error != NULL) {
+            if (error != nullptr) {
                 *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorDeleteFailed];
             }
             return NO;
@@ -550,28 +550,28 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
 /** @ghidraAddress 0x25f850 */
 + (BOOL)validate:(NSDictionary *)attributes error:(NSError **)error {
     if (![attributes isKindOfClass:[NSDictionary class]]) {
-        if (error == NULL) {
+        if (error == nullptr) {
             return NO;
         }
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorValidateNotDict];
         return NO;
     }
     if (attributes[(__bridge id)kSecAttrAccount] == nil) {
-        if (error == NULL) {
+        if (error == nullptr) {
             return NO;
         }
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorValidateNoAccount];
         return NO;
     }
     if (attributes[(__bridge id)kSecAttrCreationDate] == nil) {
-        if (error == NULL) {
+        if (error == nullptr) {
             return NO;
         }
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorValidateNoCreated];
         return NO;
     }
     if (attributes[(__bridge id)kSecAttrModificationDate] == nil) {
-        if (error == NULL) {
+        if (error == nullptr) {
             return NO;
         }
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorValidateNoModified];
@@ -579,7 +579,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     }
     NSNumber *useCount = attributes[(__bridge id)kSecAttrGeneric];
     if (useCount == nil) {
-        if (error == NULL) {
+        if (error == nullptr) {
             return NO;
         }
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorValidateNoGeneric];
@@ -588,7 +588,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     if (useCount.intValue > 0) {
         return YES;
     }
-    if (error == NULL) {
+    if (error == nullptr) {
         return NO;
     }
     *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorValidateExpired];
@@ -604,7 +604,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
         (__bridge id)kSecReturnAttributes : (__bridge id)kCFBooleanTrue,
         (__bridge id)kSecAttrService : service,
     };
-    CFTypeRef result = NULL;
+    CFTypeRef result = nullptr;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &result);
     if (status != errSecSuccess) {
         return kDefaultStorageIndex;
@@ -626,7 +626,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
         (__bridge id)kSecAttrAccount : storageIndex,
         (__bridge id)kSecAttrService : service,
     };
-    SecItemAdd((__bridge CFDictionaryRef)query, NULL);
+    SecItemAdd((__bridge CFDictionaryRef)query, nullptr);
 }
 
 #pragma mark - Advertising identifier
@@ -811,9 +811,9 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     if (storedIndex != nil) {
         NSDictionary *record = [ApplilinkUdid udidWithServiceName:serviceName
                                                      storageIndex:storedIndex.intValue
-                                                            error:NULL];
+                                                            error:nullptr];
         if (record != nil) {
-            [ApplilinkUdid setOldUdid:record[kPasteBoardValueKey] error:NULL];
+            [ApplilinkUdid setOldUdid:record[kPasteBoardValueKey] error:nullptr];
             return;
         }
     }
@@ -821,9 +821,9 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     if (storedIndex != nil) {
         NSDictionary *record = [ApplilinkUdid udidWithServiceName:oldServiceName
                                                      storageIndex:storedIndex.intValue
-                                                            error:NULL];
+                                                            error:nullptr];
         if (record != nil) {
-            [ApplilinkUdid setOldUdid:record[kPasteBoardValueKey] error:NULL];
+            [ApplilinkUdid setOldUdid:record[kPasteBoardValueKey] error:nullptr];
         }
     }
 }
@@ -858,7 +858,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
         (__bridge id)kSecAttrService : @"",
         (__bridge id)kSecReturnAttributes : (__bridge id)kCFBooleanTrue,
     };
-    CFTypeRef result = NULL;
+    CFTypeRef result = nullptr;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &result);
     if (status == errSecItemNotFound) {
         status = SecItemAdd((__bridge CFDictionaryRef)query, &result);
