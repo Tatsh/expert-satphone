@@ -245,6 +245,7 @@ movi
 movide
 moview
 movk
+msel
 mulist
 multipeer
 musiccache
@@ -374,6 +375,7 @@ sinf
 snapcraft
 sourcei
 sptl
+startable
 statusline
 stdbool
 stdlib
