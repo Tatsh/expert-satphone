@@ -276,6 +276,7 @@ pendlist
 persional
 pglobal
 physmem
+plid
 pnlres
 pntmp
 posision
