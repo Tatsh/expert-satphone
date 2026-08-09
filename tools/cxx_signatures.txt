@@ -407,3 +407,4 @@
 0x7de44	(^void)(BOOL)
 0x2729b4	(^void)(NSError *)
 0x2744d4	(^void)(NSError *)
+0x24ef8c	(^void)(void)
