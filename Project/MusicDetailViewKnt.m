@@ -4,6 +4,7 @@
 
 #import "AlertViewManager.h"
 #import "EditDataManager.h"
+#import "EditModalView.h"
 #import "MusicSelectViewController.h"
 #import "TuneInfo.h"
 
@@ -13,6 +14,17 @@ static NSString *const kEditSelectSound = @"SD_KNT_OK";
 // The download-sequence alert messages, kept as the binary's own Japanese literals.
 static NSString *const kConnectErrorMessage = @"通信エラー";
 static NSString *const kDownloadFinishedMessage = @"ダウンロード終わり";
+
+// The web-view close and info-edit confirmation sounds.
+static NSString *const kMusicLeftSound = @"SD_KNT_MUSIC_LEFT";
+static NSString *const kMusicRightSound = @"SD_KNT_MUSIC_RIGHT";
+
+// The music bar holds 120 dot views; each dot's sprite comes from a 4-bit nibble in the dot map and
+// its image row from a 2-bit value in the resource map.
+enum {
+    kMusicBarDotCount = 120,
+    kMusicBarDotSpriteCount = 8,
+};
 
 @implementation MusicDetailViewKnt
 
@@ -122,6 +134,79 @@ static NSString *const kDownloadFinishedMessage = @"ダウンロード終わり"
                                          cancel:ok
                                         btnText:nil
                                            show:YES];
+}
+
+/** @ghidraAddress 0x19c608 */
+- (void)setMusicBarDot:(nullable char *)dots mbarRes:(nullable char *)mbarRes {
+    if (dots == nullptr) {
+        for (int i = 0; i < kMusicBarDotCount; ++i) {
+            [mbarDotView[i] setImage:nil];
+        }
+        return;
+    }
+    for (int i = 0; i < kMusicBarDotCount; ++i) {
+        int row = 0;
+        if (mbarRes != nullptr) {
+            row = (mbarRes[i >> 2] >> ((i & 3) * 2)) & 3;
+        }
+        int sprite = ((dots[i >> 1] >> ((i & 1) * 4)) & 0xf) - 1;
+        UIImage *image =
+            ((unsigned int)sprite < kMusicBarDotSpriteCount) ? mbarDotImg[row][sprite] : nil;
+        [mbarDotView[i] setImage:image];
+    }
+}
+
+/** @ghidraAddress 0x19d678 */
+- (void)setStartButtonEnable {
+    if (self.editPage == 1) {
+        int notesNum = [[EditDataManager sharedManager].getEditorInfo[@"notesNum"] intValue];
+        [uploadBtn setEnabled:[self checkEnableUpload]];
+        [editBtn setEnabled:[self checkEnableEdit]];
+        [infoBtn setEnabled:[self checkEnableInfoChange]];
+        if (notesNum == 0) {
+            [self.buttonStartPlay setEnabled:NO];
+            return;
+        }
+    }
+    [self.buttonStartPlay setEnabled:YES];
+    if (self.controller.sharePlayManager != nil && !self.isSharedStartable) {
+        [self.buttonStartPlay setEnabled:NO];
+    }
+}
+
+/** @ghidraAddress 0x1a1dd8 */
+- (void)pushInfoEdit:(nullable id)sender {
+    if (![self checkDownloadFile] && self.isPad) {
+        [[AudioManager sharedManager] playSeResFile:kMusicRightSound inDirectory:nil];
+        if (self.pEditModalView != nil) {
+            self.pEditModalView = nil;
+        }
+        self.pEditModalView = [[EditModalView alloc] initWithType:0];
+        [self.pEditModalView setEditDelegate:self];
+        self.isEditInfoOpen = YES;
+        [self.controller presentViewController:self.pEditModalView animated:YES completion:nil];
+        [self.controller unenableCoverTap];
+    }
+}
+
+/** @ghidraAddress 0x1a32bc */
+- (void)customWebViewClose:(nullable id)webView seqIndex:(nullable id)seqIndex {
+    [self resetTextField:(int)self.info.tuneID isFirst:NO];
+    [self setStartButtonEnable];
+    [[AudioManager sharedManager] playSeResFile:kMusicLeftSound inDirectory:nil];
+    [self.controller enableCoverTap];
+    [self.controller dismissViewControllerAnimated:YES completion:nil];
+}
+
+/** @ghidraAddress 0x1a3fe0 */
+- (CGPoint)getDifficultyPos:(int)difficulty {
+    int index = (difficulty > 2) ? 0 : difficulty;
+    int scrollY = (int)self.scrollView.frame.origin.y;
+    int buttonX = (int)btnDiff[index].frame.origin.x;
+    int scrollX = (int)self.scrollView.frame.origin.x;
+    int buttonY = (int)btnDiff[index].frame.origin.y;
+    return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
+                       (double)(int)((double)scrollY + (double)buttonY));
 }
 
 /** @ghidraAddress 0x1a3610 */
