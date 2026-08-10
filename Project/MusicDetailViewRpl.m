@@ -5,6 +5,7 @@
 #import "AlertViewManager.h"
 #import "BFCodec.h"
 #import "EditDataManager.h"
+#import "EditFileListViewDeleteController.h"
 #import "ImageCache.h"
 #import "ImageLoading.h"
 #import "JcfDownloadPageNavController.h"
@@ -93,6 +94,10 @@ static const NSTimeInterval kExtendCrossFadeDuration = 0.3; // @ghidraAddress 0x
 static const CGFloat kEditTextDimmedAlpha = 0.5;          // fmov, 0.5
 static const NSTimeInterval kResetTextFadeDuration = 0.1; // @ghidraAddress 0x28f290
 static const NSInteger kEditDownloadFlag = 1;
+
+// The pad edit-file delete list is presented as a 300x400 popover.
+static const double kEditPopoverWidth = 300.0;  // @ghidraAddress 0x28f2d0
+static const double kEditPopoverHeight = 400.0; // @ghidraAddress 0x28f2e0
 
 // The rating images, indexed by SequenceRank (E, D, C, B, A, S, SS, SSS), and the score/level glyph
 // and mini-dot resource-name formats, all with the Ripples suffix.
@@ -1278,6 +1283,50 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
     if (!decelerate) {
         MusicDetailViewRplSettleScrollPage(self);
     }
+}
+
+/** @ghidraAddress 0x137588 */
+- (void)editPopoverOpen {
+    [self loadListRelease];
+    [self.controller unenableCoverTap];
+    EditDataManager *manager = [EditDataManager sharedManager];
+    if (!self.isPad) {
+        // The phone shows the edit-file list in a full nav controller.
+        NSMutableArray *files = [manager getFileInfoList:self.info.tuneID];
+        NSString *lastEdit = [manager getLastEditFileName:(int)self.info.tuneID];
+        self.jcfMan = [[JcfManageNavController alloc] init:self fileList:files selName:lastEdit];
+        [self.jcfMan setTuneID:self.info.tuneID];
+        [self.jcfMan setShareFlg:(self.controller.sharePlayManager != nil)];
+        [self.controller presentViewController:self.jcfMan animated:YES completion:nil];
+        [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
+        return;
+    }
+    // The pad shows a 300x400 delete-list, presented as a popover pointing up from the extend
+    // difficulty button, or modally when not on a pad after all.
+    if (self.pFileListView != nil) {
+        return;
+    }
+    NSMutableArray *files = [manager getFileInfoList:self.info.tuneID];
+    self.pFileListView = [[EditFileListViewDeleteController alloc]
+        initWithSize:CGSizeMake(kEditPopoverWidth, kEditPopoverHeight)];
+    [self.pFileListView setTuneID:self.info.tuneID];
+    [self.pFileListView setFileList:files];
+    [self.pFileListView setDelegate:self];
+    [self.pFileListView setTargetFileName:[manager getLastEditFileName:(int)self.info.tuneID]];
+    [self.pFileListView setIsFirst:self.isFirstSelect];
+    [self.pFileListView setIsShared:(self.controller.sharePlayManager != nil)];
+    if (!self.isPad) {
+        [self.controller presentViewController:self.pFileListView animated:YES completion:nil];
+    } else {
+        [self.pFileListView setModalPresentationStyle:UIModalPresentationPopover];
+        UIPopoverPresentationController *popover = self.pFileListView.popoverPresentationController;
+        [popover setDelegate:self];
+        [popover setPermittedArrowDirections:UIPopoverArrowDirectionDown];
+        [popover setSourceView:self.scrollView];
+        [popover setSourceRect:btnDiff[kExtendButtonIndex].frame];
+        [self.controller presentViewController:self.pFileListView animated:YES completion:nil];
+    }
+    [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
 }
 
 /** @ghidraAddress 0x137378 */
