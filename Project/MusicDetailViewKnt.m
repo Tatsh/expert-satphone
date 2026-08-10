@@ -44,6 +44,12 @@ static NSString *const kPrefDifficultyKey = @"PrefDifficulty";
 // The scroll button fades out across an eighth of the half-width scroll span.
 static const float kScrollFadeSpanFraction = 0.125f;
 
+// An unselected difficulty button dims to this alpha and shrinks to this scale; the selected one is
+// shown full and unscaled.
+static const CGFloat kDiffButtonDimAlpha = 0.4;  // @ghidraAddress 0x28f2c0
+static const CGFloat kDiffButtonDimScale = 0.95; // @ghidraAddress 0x28f6e0
+enum { kDiffButtonCount = 3, kExtendButtonIndex = 3 };
+
 // The level image is shown behind the fourth (extend) difficulty's level-number view.
 enum { kExtendLevelNumIndex = 3 };
 
@@ -405,6 +411,25 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
             (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
         [self changeDifficulty:difficulty];
     }
+}
+
+/** @ghidraAddress 0x19c16c */
+- (void)changeDifficulty:(int)difficulty {
+    // The three base-difficulty buttons: the selected one is full and unscaled, the others dim and
+    // shrink. The extend button (index 3) is always shown full.
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        if (i == difficulty) {
+            [btnDiff[i] setAlpha:1.0];
+            [btnDiff[i] setTransform:CGAffineTransformIdentity];
+        } else {
+            [btnDiff[i] setAlpha:kDiffButtonDimAlpha];
+            [btnDiff[i]
+                setTransform:CGAffineTransformMakeScale(kDiffButtonDimScale, kDiffButtonDimScale)];
+        }
+    }
+    [btnDiff[kExtendButtonIndex] setAlpha:1.0];
+    [btnDiff[kExtendButtonIndex] setTransform:CGAffineTransformIdentity];
+    [self infoChange:difficulty];
 }
 
 /** @ghidraAddress 0x1a1058 */
