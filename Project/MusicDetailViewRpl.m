@@ -68,6 +68,18 @@ static const CGFloat kEditButtonShrinkScale = 0.1;         // @ghidraAddress 0x2
 static const NSTimeInterval kEditTransitionDuration = 0.6; // @ghidraAddress 0x28f288
 static const NSTimeInterval kEditInputLockDuration = 0.7;  // @ghidraAddress 0x28f2a0
 
+// The high-score text base X (per idiom), the extend-mode nudge added before it slides home, and
+// the score-text centre Y (per idiom). Toggling extend mode plays the Knit theme's left cue (the
+// binary reuses that resource here) and animates over this duration, locking input for a beat.
+static const double kHighscoreBaseXPad = 45.0;             // @ghidraAddress 0x28f1e0
+static const double kHighscoreBaseXPhone = 30.0;           // fmov d1, 30.0
+static const double kHighscoreCenterXNudge = 40.0;         // @ghidraAddress 0x28f1f8
+static const double kHighscoreCenterYPad = -8.0;           // fmov, -8.0
+static const double kHighscoreCenterYPhone = -6.0;         // fmov, -6.0
+static const NSTimeInterval kExtendModeAnimDuration = 0.3; // @ghidraAddress 0x28f260
+static const NSTimeInterval kExtendModeInputLock = 0.4;    // @ghidraAddress 0x28f2c0
+static NSString *const kExtendModeSound = @"SD_KNT_MUSIC_LEFT";
+
 // The host share-play button's background image.
 static NSString *const kHostButtonImage = @"menu_button_host_rpl";
 
@@ -543,6 +555,42 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x13913c */
+- (void)changeExtendMode {
+    if (self.info.extendID != 0) {
+        int difficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        if (self.extendInfo != nil && (self.extendInfo.extendFlag & (1 << difficulty)) != 0) {
+            // Flip the app-wide extend toggle, re-lay the extend info, and reposition the score
+            // board for the new mode.
+            [JubeatAppDelegate.appDelegate setExtendFlag:!JubeatAppDelegate.appDelegate.isExtend];
+            [[AudioManager sharedManager] playSeResFile:kExtendModeSound inDirectory:nil];
+            [self changeExtend:difficulty];
+
+            double baseX = self.isPad ? kHighscoreBaseXPad : kHighscoreBaseXPhone;
+            double centerY = self.isPad ? kHighscoreCenterYPad : kHighscoreCenterYPhone;
+            [highscoreTextView setCenter:CGPointMake(baseX + kHighscoreCenterXNudge, centerY)];
+            [highscoreBoardView setAlpha:0.0];
+            [NSUserDefaults.standardUserDefaults setInteger:difficulty forKey:kPrefDifficultyKey];
+
+            [UIView animateWithDuration:kExtendModeAnimDuration
+                             animations:^{
+                               /** @ghidraAddress 0x13949c */
+                               [self changeDifficulty:difficulty];
+                               double bx = self.isPad ? kHighscoreBaseXPad : kHighscoreBaseXPhone;
+                               double cy =
+                                   self.isPad ? kHighscoreCenterYPad : kHighscoreCenterYPhone;
+                               [self->highscoreTextView setCenter:CGPointMake(bx, cy)];
+                               [self->highscoreBoardView setAlpha:1.0];
+                             }];
+        }
+    }
+    // Input is briefly locked out while the mode change settles.
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kExtendModeInputLock];
 }
 
 /** @ghidraAddress 0x131ffc */

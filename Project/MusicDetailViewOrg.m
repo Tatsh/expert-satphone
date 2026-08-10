@@ -71,6 +71,21 @@ static const CGFloat kEditButtonShrinkScale = 0.1;         // @ghidraAddress 0x2
 static const NSTimeInterval kEditTransitionDuration = 0.6; // @ghidraAddress 0x28f288
 static const NSTimeInterval kEditInputLockDuration = 0.7;  // @ghidraAddress 0x28f2a0
 
+// The high-score board's home centre X (per idiom), the extend-mode slide offset subtracted from it
+// before it slides home (per idiom), and its centre Y (per idiom). Toggling extend mode plays the
+// Knit theme's left cue (the binary reuses that resource here) and animates over this duration,
+// locking input for a beat.
+static const double kHighscoreBoardXPad = 400.0;           // @ghidraAddress 0x28f2e0
+static const double kHighscoreBoardXRetina = 230.0;        // @ghidraAddress 0x28f670
+static const double kHighscoreBoardXNonRetina = 220.0;     // @ghidraAddress 0x28f430
+static const double kHighscoreBoardSlidePad = 20.0;        // fmov, 20.0
+static const double kHighscoreBoardSlidePhone = 10.0;      // fmov, 10.0
+static const double kHighscoreBoardYPad = 220.0;           // @ghidraAddress 0x28f430
+static const double kHighscoreBoardYPhone = 104.0;         // @ghidraAddress 0x28f678
+static const NSTimeInterval kExtendModeAnimDuration = 0.3; // @ghidraAddress 0x28f260
+static const NSTimeInterval kExtendModeInputLock = 0.4;    // @ghidraAddress 0x28f2c0
+static NSString *const kExtendModeSound = @"SD_KNT_MUSIC_LEFT";
+
 // The host share-play button's background image.
 static NSString *const kHostButtonImage = @"menu_button_host";
 
@@ -506,6 +521,46 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x5ef1c */
+- (void)changeExtendMode {
+    if (self.info.extendID != 0) {
+        int difficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        if (self.extendInfo != nil && (self.extendInfo.extendFlag & (1 << difficulty)) != 0) {
+            // Flip the app-wide extend toggle, re-lay the extend info, and slide the score board in
+            // from an offset for the new mode.
+            [JubeatAppDelegate.appDelegate setExtendFlag:!JubeatAppDelegate.appDelegate.isExtend];
+            [[AudioManager sharedManager] playSeResFile:kExtendModeSound inDirectory:nil];
+            [self changeExtend:difficulty];
+
+            double homeX = self.isPad ?
+                               kHighscoreBoardXPad :
+                               (self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
+            double slide = self.isPad ? kHighscoreBoardSlidePad : kHighscoreBoardSlidePhone;
+            double y = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+            [highscoreBoardView setCenter:CGPointMake(homeX - slide, y)];
+            [highscoreBoardView setAlpha:0.0];
+            [NSUserDefaults.standardUserDefaults setInteger:difficulty forKey:kPrefDifficultyKey];
+
+            [UIView animateWithDuration:kExtendModeAnimDuration
+                             animations:^{
+                               /** @ghidraAddress 0x5f2c4 */
+                               [self changeDifficulty:difficulty];
+                               double hx = self.isPad ? kHighscoreBoardXPad :
+                                                        (self.isRetina ? kHighscoreBoardXRetina :
+                                                                         kHighscoreBoardXNonRetina);
+                               double hy = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+                               [self->highscoreBoardView setCenter:CGPointMake(hx, hy)];
+                               [self->highscoreBoardView setAlpha:1.0];
+                             }];
+        }
+    }
+    // Input is briefly locked out while the mode change settles.
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kExtendModeInputLock];
 }
 
 /** @ghidraAddress 0x57bc8 */
