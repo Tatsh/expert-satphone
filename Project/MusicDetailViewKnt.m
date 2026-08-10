@@ -17,6 +17,7 @@
 #import "LatelyJcfListManager.h"
 #import "MusicSelectViewController.h"
 #import "Sequence.h"
+#import "SharePlayManager.h"
 #import "TuneInfo.h"
 #import "cipher_keys.h"
 
@@ -168,6 +169,15 @@ static const char kDigitZero = '0';
 // The extend-icon crossfade runs over three tenths of a second.
 static const NSTimeInterval kExtendCrossFadeDuration = 0.3; // @ghidraAddress 0x28f260
 
+// The client's message while it waits for the host to start the shared play.
+static NSString *const kWaitingForHostKey = @"Waiting for host to start";
+
+// Starting play shrinks the unselected difficulty buttons to a tenth over six tenths of a second,
+// then re-enables input seven tenths of a second in.
+static const CGFloat kStartPlayShrinkScale = 0.1;               // @ghidraAddress 0x28f2b8
+static const NSTimeInterval kStartPlayTransitionDuration = 0.6; // @ghidraAddress 0x28f288
+static const NSTimeInterval kStartPlayInputLockDuration = 0.7;  // @ghidraAddress 0x28f2a0
+
 // The pad edit-file popover is 300x400 points.
 static const double kEditPopoverWidth = 300.0;  // @ghidraAddress 0x28f2d0
 static const double kEditPopoverHeight = 400.0; // @ghidraAddress 0x28f2e0
@@ -182,6 +192,19 @@ static inline char MusicDetailViewKntLevelIndex(int level) {
         return (char)(level - 1);
     }
     return 9;
+}
+
+// Dims and shrinks every base difficulty button except the selected one, used when play starts.
+// The extend button (index 3) is left untouched.
+static inline void MusicDetailViewKntDimUnselectedButtons(MusicDetailViewKnt *self, int selected) {
+    CATransform3D shrink =
+        CATransform3DMakeScale(kStartPlayShrinkScale, kStartPlayShrinkScale, 1.0);
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        if (i != selected) {
+            [self->btnDiff[i] setAlpha:0.0];
+            self->btnDiff[i].layer.transform = shrink;
+        }
+    }
 }
 
 // Pre-seeds one difficulty row's extend marks before the crossfade: reveals the extend and
@@ -935,6 +958,58 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
     [levelNumView[kExtendLevelNumIndex] setAlpha:1.0];
     [self.controller dismissViewControllerAnimated:YES completion:nil];
     [self.controller enableCoverTap];
+}
+
+/** @ghidraAddress 0x19ee70 */
+- (void)pushButtonStartPlay:(nullable id)sender {
+    if (!self.buttonStartPlay.isEnabled) {
+        return;
+    }
+    self.isStarted = YES;
+    double width = self.scrollView.frame.size.width;
+    int page = self.editPage;
+    [self.scrollView setScrollEnabled:NO];
+    [self.scrollView setContentOffset:CGPointMake(width * (double)page, 0.0) animated:YES];
+    int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    SharePlayManager *shareManager = self.controller.sharePlayManager;
+    BOOL isHost = (shareManager != nil) && self.controller.sharePlayManager.isHost;
+    [[AudioManager sharedManager] playSeResFile:kEditSelectSound inDirectory:nil];
+    [self.controller showButtonMarker:NO];
+    if (isHost) {
+        [self.controller willStartPlay];
+    }
+    [self.buttonStartPlay setEnabled:NO];
+
+    __weak MusicDetailViewKnt *weakSelf = self;
+    BOOL hasShareManager = (shareManager != nil);
+    [UIView animateWithDuration:kStartPlayTransitionDuration
+        delay:0.0
+        options:UIViewAnimationOptionBeginFromCurrentState
+        animations:^{
+          /** @ghidraAddress 0x19f304 */
+          MusicDetailViewKntDimUnselectedButtons(self, difficulty);
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x19f5a4 */
+          if (!hasShareManager) {
+              [weakSelf.controller startPlay:weakSelf.info];
+          } else if (!isHost) {
+              [weakSelf.labelShareMessage
+                  setText:[NSBundle.mainBundle localizedStringForKey:kWaitingForHostKey
+                                                               value:@""
+                                                               table:nil]];
+              [weakSelf.controller.sharePlayManager sendClientReady];
+              [weakSelf setIsSharedStartable:NO];
+          } else {
+              [weakSelf.controller.sharePlayManager sendSelectStart];
+              [weakSelf.controller startPlay:weakSelf.info];
+          }
+        }];
+
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kStartPlayInputLockDuration];
 }
 
 /** @ghidraAddress 0x19aca4 */
