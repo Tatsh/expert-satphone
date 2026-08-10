@@ -11,6 +11,7 @@
 #import "JubeatAppDelegate.h"
 #import "LatelyJcfListManager.h"
 #import "MusicSelectViewController.h"
+#import "Sequence.h"
 #import "TuneInfo.h"
 
 // The Ripples theme resource names for the start-button image variants and the edit/close sounds.
@@ -51,6 +52,26 @@ static const double kDiffButtonWidthPhone = 78.0;  // @ghidraAddress 0x28f5f0
 static const double kDiffButtonHeightPad = 138.0;  // @ghidraAddress 0x2924c8
 static const double kDiffButtonHeightPhone = 76.0; // @ghidraAddress 0x292488
 
+// The seven high-score digits render with a right-justified %7d through highscoreNumImg; a perfect
+// score shows the excellent image instead of a rank.
+enum {
+    kHighscoreDigitCount = 7,
+    kExcellentScore = 1000000,
+    kDigitGlyphCount = 10,
+};
+static const char kDigitZero = '0';
+
+// A chart level maps to a zero-based level-image index: below 2 -> first image, 10+ -> last of ten.
+static inline char MusicDetailViewRplLevelIndex(int level) {
+    if (level < 2) {
+        return 0;
+    }
+    if (level < 10) {
+        return (char)(level - 1);
+    }
+    return 9;
+}
+
 @implementation MusicDetailViewRpl
 
 /** @ghidraAddress 0x12ad40 */
@@ -85,6 +106,56 @@ static const double kDiffButtonHeightPhone = 76.0; // @ghidraAddress 0x292488
 
 /** @ghidraAddress 0x1366a0 */
 - (void)scrollViewWillBeginDragging:(nullable UIScrollView *)scrollView {
+}
+
+/** @ghidraAddress 0x12f0dc */
+- (void)setInfo:(nullable TuneInfo *)info score:(nullable id)score {
+    [super setInfo:info score:score];
+    if (info == nil) {
+        return;
+    }
+    self.levelBas = MusicDetailViewRplLevelIndex(info.lvBas);
+    self.levelAdv = MusicDetailViewRplLevelIndex(info.lvAdv);
+    self.levelExt = MusicDetailViewRplLevelIndex(info.lvExt);
+    [self.buttonLink setEnabled:(info.iTunesURL != nil)];
+    [self.buttonLink setHidden:(info.iTunesURL == nil)];
+    [self.btnRecommendTwitter setHidden:NO];
+    [self.btnRecommendFacebook setHidden:NO];
+    [levelNumView[0] setImage:levelNumImg[self.levelBas]];
+    [levelNumView[1] setImage:levelNumImg[self.levelAdv]];
+    [levelNumView[2] setImage:levelNumImg[self.levelExt]];
+    [levelNumView[kExtendButtonIndex] setImage:levelNumImg[self.levelExt]];
+    [levelNumView[kExtendButtonIndex] setAlpha:0.0];
+    [self resetScore];
+    [self putScore:score];
+    [self loadContentFromPath:info.filePath orData:nil];
+    [self loadEditFile];
+    [self resetTextField:(int)info.tuneID isFirst:YES];
+    [self editMusicBar];
+}
+
+/** @ghidraAddress 0x1316b4 */
+- (void)setScoreBoard:(int)score fullcombo:(BOOL)fullcombo {
+    char digits[8] = {
+        kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, 0};
+    if (score < 0) {
+        [ratingView setImage:nil];
+        [comboView setImage:nil];
+    } else if (score < kExcellentScore) {
+        SequenceRank rank = [Sequence rankOfPoint:score];
+        [ratingView setImage:ratingImg[rank]];
+        [comboView setImage:(fullcombo ? fullcomboImg : nil)];
+        snprintf(digits, sizeof(digits), "%7d", score);
+    } else {
+        [ratingView setImage:nil];
+        [comboView setImage:excellentImg];
+        snprintf(digits, sizeof(digits), "%7d", score);
+    }
+    for (int i = 0; i < kHighscoreDigitCount; ++i) {
+        int glyph = digits[i] - kDigitZero;
+        UIImage *image = ((unsigned int)glyph < kDigitGlyphCount) ? highscoreNumImg[glyph] : nil;
+        [highscoreNumView[i] setImage:image];
+    }
 }
 
 /** @ghidraAddress 0x12dc84 */
