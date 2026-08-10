@@ -432,6 +432,32 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
                        (double)(int)((double)scrollY + (double)buttonY));
 }
 
+/** @ghidraAddress 0x137378 */
+- (void)pushInfoEdit:(nullable id)sender {
+    if (![self checkDownloadFile] && self.isPad) {
+        [[AudioManager sharedManager] playSeResFile:kMusicRightSound inDirectory:nil];
+        self.pEditModalView = [[EditModalView alloc] initWithType:0];
+        [self.pEditModalView setEditDelegate:self];
+        self.isEditInfoOpen = YES;
+        [self.controller presentViewController:self.pEditModalView animated:YES completion:nil];
+        [self.controller unenableCoverTap];
+    }
+}
+
+/** @ghidraAddress 0x137024 */
+- (void)editModalViewClose:(nullable id)sender {
+    [[AudioManager sharedManager] playSeResFile:kMusicLeftSound inDirectory:nil];
+    NSMutableDictionary *editorInfo = [[EditDataManager sharedManager] getEditorInfo];
+    [editTxt[0] setText:editorInfo[@"fumenName"]];
+    [editTxt[1] setText:editorInfo[@"editorName"]];
+    [editTxt[2] setText:editorInfo[@"comment"]];
+    int level = [editorInfo[@"level"] intValue];
+    [levelNumView[kExtendButtonIndex] setImage:levelNumImg[level]];
+    [levelNumView[kExtendButtonIndex] setAlpha:1.0];
+    [self.controller dismissViewControllerAnimated:YES completion:nil];
+    [self.controller enableCoverTap];
+}
+
 /** @ghidraAddress 0x138ecc */
 - (nullable id)getStartImage {
     if (![JubeatAppDelegate.appDelegate isRandom]) {

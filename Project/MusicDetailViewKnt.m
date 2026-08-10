@@ -1100,7 +1100,7 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
 
 /** @ghidraAddress 0x1a19c8 */
 - (void)editModalViewClose:(nullable id)sender {
-    [[AudioManager sharedManager] playSeResFile:kMusicRightSound inDirectory:nil];
+    [[AudioManager sharedManager] playSeResFile:kMusicLeftSound inDirectory:nil];
     NSMutableDictionary *editorInfo = [[EditDataManager sharedManager] getEditorInfo];
     [editTxt[0] setText:editorInfo[@"fumenName"]];
     [editTxt[1] setText:editorInfo[@"editorName"]];

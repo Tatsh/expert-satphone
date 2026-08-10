@@ -55,6 +55,12 @@ enum {
 };
 static const char kDigitZero = '0';
 
+// The extend level image lives at difficulty-table row 4, column 4 of the level-number views.
+enum {
+    kExtendLevelNumIndex = 3,
+    kExtendLevelRow = 4,
+};
+
 @implementation MusicDetailViewOrg
 
 /** @ghidraAddress 0x502bc */
@@ -365,6 +371,34 @@ static const char kDigitZero = '0';
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x5d1b4 */
+- (void)pushInfoEdit:(nullable id)sender {
+    if (![self checkDownloadFile] && self.isPad) {
+        [[AudioManager sharedManager] playSeResFile:kMusicRightSound inDirectory:nil];
+        self.pEditModalView = [[EditModalView alloc] initWithType:0];
+        [self.pEditModalView setEditDelegate:self];
+        self.isEditInfoOpen = YES;
+        [self.controller presentViewController:self.pEditModalView animated:YES completion:nil];
+        [self.controller unenableCoverTap];
+    }
+}
+
+/** @ghidraAddress 0x5ce5c */
+- (void)editModalViewClose:(nullable id)sender {
+    [[AudioManager sharedManager] playSeResFile:kMusicLeftSound inDirectory:nil];
+    NSMutableDictionary *editorInfo = [[EditDataManager sharedManager] getEditorInfo];
+    [editTxt[0] setText:editorInfo[@"fumenName"]];
+    [editTxt[1] setText:editorInfo[@"editorName"]];
+    [editTxt[2] setText:editorInfo[@"comment"]];
+    int level = [editorInfo[@"level"] intValue];
+    // The classic theme keeps level images in a per-difficulty table; the extend slot uses the
+    // extend row.
+    [levelNumView[kExtendLevelNumIndex] setImage:levelNumImg[kExtendLevelRow][level]];
+    [levelNumView[kExtendLevelNumIndex] setAlpha:1.0];
+    [self.controller dismissViewControllerAnimated:YES completion:nil];
+    [self.controller enableCoverTap];
 }
 
 /** @ghidraAddress 0x5ecac */
