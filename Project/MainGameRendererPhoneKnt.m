@@ -1396,6 +1396,137 @@ drawDigits:
     }
 }
 
+/** @ghidraAddress 0x18fc64 */
+- (void)renderFullcombo:(int)frame isResult:(BOOL)isResult {
+    static const double kBannerX = 4.0;        // fixed origin.x of every full-combo quad
+    static const double kTopRestY = 200.0;     // @ghidraAddress 0x28f400
+    static const double kBottomRestY = 440.0;  // @ghidraAddress 0x292f50
+    static const double kWordStartY = 280.0;   // @ghidraAddress 0x28f658
+    static const float kWordSettleY = 246.0f;  // @ghidraAddress 0x2934b8
+    static const float kBurstPeakScale = 1.4f; // @ghidraAddress 0x292af0
+    static const NSString *const kSeResultFullcombo =
+        @"SD_KNT_RESULT_FULLCOMBO"; // @ghidraAddress 0x2df860
+    static const NSString *const kSeVoiceFullcombo =
+        @"SD_KNT_CV_FULLCOMBO"; // @ghidraAddress 0x2df880
+    static const NSUInteger kBannerSprite = 0x1b;
+    static const NSUInteger kWordSprite = 0x1c;
+    static const float kBannerAlpha = 0.5f;
+
+    // The full-combo flourish is skipped entirely when the score is being backed up.
+    if (self.scoreBackup) {
+        return;
+    }
+
+    // On the result screen the animation is offset 150 frames past the play-time entry, so the two
+    // callers share one timeline; the play-time path clamps at frame 150.
+    int nFrame = isResult ? (frame + 0x96) : (frame > 0x96 ? 0x96 : frame);
+    if (nFrame > 0xa0) {
+        return;
+    }
+
+    // The full-combo jingle and voice play once, two frames in.
+    if (nFrame == 2) {
+        [[AudioManager sharedManager] playSeResFile:(NSString *)kSeResultFullcombo inDirectory:nil];
+        [[AudioManager sharedManager] playSeResFile:(NSString *)kSeVoiceFullcombo inDirectory:nil];
+    }
+
+    // Both banner halves and the word overlay are cut from front-atlas sprite 0x1b.
+    CGRect banner = [self.texFront spriteAtIndex:kBannerSprite];
+    double bannerW = banner.size.width;
+    double bannerH = banner.size.height;
+
+    // The resting positions all shift down by the four-inch game-area margin on a four-inch phone.
+    double topRestY = kTopRestY;
+    double bottomRestY = kBottomRestY;
+    double wordStartY = kWordStartY;
+    float wordSettleY = kWordSettleY;
+    if (self.is4Inch) {
+        int margin = [self buttonMarginForScreen40];
+        topRestY = (double)(margin + 0xc8);     // margin + 200
+        bottomRestY = (double)(margin + 0x1b8); // margin + 440
+        wordStartY = (double)(margin + 0x118);  // margin + 280
+        wordSettleY = (float)(margin + 0xf6);   // margin + 246
+    }
+    int wordTravel = (int)(wordStartY - topRestY); // always 80
+    float topInitY = (float)(topRestY - bannerH * 0.5);
+    float bottomInitY = (float)(bottomRestY - bannerH * 0.5);
+
+    if (nFrame >= 0x96) {
+        // The result-screen exit: the two halves fade out and slide together over 10 frames.
+        int exitFrame = nFrame - 0x96;
+        float fade = InterpolateFloatByFrame(1.0f, 0.0f, exitFrame, 0, 10);
+        float slide = InterpolateFloatByFrame(0.0f, (float)wordTravel, exitFrame, 0, 10);
+        [self.texFront drawSprite:kBannerSprite
+                          atPoint:CGPointMake(kBannerX, (double)(topInitY + slide))
+                        transform:0
+                            alpha:fade];
+        [self.texFront drawSprite:kBannerSprite
+                          atPoint:CGPointMake(kBannerX, (double)(bottomInitY - slide))
+                        transform:0
+                            alpha:fade];
+        return;
+    }
+
+    // The play-time flourish: both halves start together one travel below the top rest, then slide
+    // to their own rest positions over their windows.
+    float slideFrom = (float)(topRestY - (double)wordTravel);
+    float topHalfY = InterpolateFloatByFrame(slideFrom, topInitY, nFrame, 0, 6);
+    float bottomHalfY = InterpolateFloatByFrame(slideFrom, bottomInitY, nFrame, 0, 0x18);
+
+    // Frames 29..37 punch a scaling ghost of each half in behind them.
+    if (nFrame > 0x1c && nFrame - 0x1c < 10) {
+        unsigned int burst = nFrame - 0x1c;
+        float burstScale = InterpolateFloatByFrame(1.0f, kBurstPeakScale, burst, 0, 5);
+        if (burst >= 6) {
+            burstScale = InterpolateFloatByFrame(kBurstPeakScale, 1.0f, burst, 5, 10);
+        }
+        double scaledH = (double)(float)(bannerH * (double)burstScale);
+        float inset = (float)((bannerH - scaledH) * 0.5);
+        [self.texFront drawSprite:kWordSprite
+                           inRect:CGRectMake(kBannerX, (double)(topHalfY + inset), bannerW, scaledH)
+                        transform:0
+                            alpha:kBannerAlpha];
+        [self.texFront
+            drawSprite:kWordSprite
+                inRect:CGRectMake(kBannerX, (double)(bottomHalfY + inset), bannerW, scaledH)
+             transform:0
+                 alpha:kBannerAlpha];
+    }
+
+    [self.texFront drawSprite:kBannerSprite atPoint:CGPointMake(kBannerX, (double)topHalfY)];
+    [self.texFront drawSprite:kBannerSprite atPoint:CGPointMake(kBannerX, (double)bottomHalfY)];
+
+    // Past frame 23 only the halves show; up to it the word overlay bounce-scales in over them.
+    if (nFrame > 0x17) {
+        return;
+    }
+    float wordY = InterpolateFloatByFrame(slideFrom, wordSettleY, nFrame, 0, 6);
+    if (nFrame > 6) {
+        wordY = InterpolateFloatByFrame(wordSettleY, bottomInitY, nFrame, 6, 0x18);
+    }
+
+    float wordScale;
+    if (nFrame - 6 < 6) {
+        wordScale = InterpolateFloatByFrame(1.0f, 3.0f, nFrame - 6, 0, 6);
+    } else {
+        wordScale = InterpolateFloatByFrame(3.0f, 1.0f, nFrame - 6, 6, 0x12);
+    }
+
+    if (nFrame > 5) {
+        double scaledH = (double)(float)(bannerH * (double)wordScale);
+        float inset = (float)((bannerH - scaledH) * 0.5);
+        [self.texFront drawSprite:kWordSprite
+                           inRect:CGRectMake(kBannerX, (double)(wordY + inset), bannerW, scaledH)
+                        transform:0
+                            alpha:kBannerAlpha];
+    } else {
+        [self.texFront drawSprite:kWordSprite
+                          atPoint:CGPointMake(kBannerX, (double)wordY)
+                        transform:0
+                            alpha:kBannerAlpha];
+    }
+}
+
 /** @ghidraAddress 0x18c74c */
 - (void)renderMarker {
     static const int kCellPitch = 0x50;            // 80

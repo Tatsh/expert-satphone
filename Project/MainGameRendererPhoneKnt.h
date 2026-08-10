@@ -239,12 +239,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderReadyGo;
 
 /**
- * @brief Draws the full-combo celebration animation.
- * @param rank The tune's rank or animation frame base.
- * @param isResult Whether the result screen is being shown.
+ * @brief Draws the full-combo celebration banner and word.
+ * @param frame The animation frame; the result-screen path adds 150 to it.
+ * @param isResult Whether the banner is being shown on the result screen.
  * @ghidraAddress 0x18fc64
  */
-- (void)renderFullcombo:(int)rank isResult:(BOOL)isResult;
+- (void)renderFullcombo:(int)frame isResult:(BOOL)isResult;
 
 /**
  * @brief Draws the finish transition.
