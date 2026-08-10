@@ -85,6 +85,9 @@ static NSString *const kExtendModeSound = @"SD_KNT_MUSIC_LEFT";
 static const double kShareLabelDropOffset = 6.0;              // fmov, 6.0
 static const NSTimeInterval kShareProgressAnimDuration = 0.3; // @ghidraAddress 0x28f260
 
+// The extend marks crossfade over this duration when the extend mode changes.
+static const NSTimeInterval kExtendCrossFadeDuration = 0.3; // @ghidraAddress 0x28f260
+
 // The rating images, indexed by SequenceRank (E, D, C, B, A, S, SS, SSS), and the score/level glyph
 // and mini-dot resource-name formats, all with the Ripples suffix.
 static NSString *const kRatingImageNames[] = {@"msc_rate_e_rpl",
@@ -331,6 +334,52 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
                   action:@selector(selectDiff:)
         forControlEvents:UIControlEventTouchUpInside];
     return button;
+}
+
+/** @ghidraAddress 0x1303d0 */
+- (void)changeExtend:(int)difficulty {
+    BOOL isExtend = JubeatAppDelegate.appDelegate.isExtend;
+    // Every difficulty's hold and extend marks start hidden.
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        [holdMark[i] setHidden:YES];
+        [extendMark[i] setHidden:YES];
+        [extendOnMark[i] setHidden:YES];
+    }
+    if (self.extendInfo != nil) {
+        // Reveal each difficulty that carries an extend chart, pre-seeding its marks to the current
+        // extend state so the crossfade animates a real transition; the level numbers fade in from
+        // zero. The crossfade target is the extend-on mark only when toggling extend off.
+        float mix = 0.0f;
+        for (int i = 0; i < kDiffButtonCount; ++i) {
+            if ((self.extendInfo.extendFlag & (1 << i)) != 0) {
+                [extendMark[i] setHidden:NO];
+                [extendOnMark[i] setHidden:NO];
+                if (isExtend) {
+                    [extendMark[i] setAlpha:1.0];
+                    [extendOnMark[i] setAlpha:0.0];
+                    mix = 1.0f;
+                } else {
+                    [extendMark[i] setAlpha:0.0];
+                    [extendOnMark[i] setAlpha:1.0];
+                }
+                [holdMark[i] setAlpha:0.0];
+            }
+            [levelNumView[i] setAlpha:0.0];
+        }
+
+        __weak MusicDetailViewRpl *weakSelf = self;
+        [UIView animateWithDuration:kExtendCrossFadeDuration
+                         animations:^{
+                           /** @ghidraAddress 0x130958 */
+                           for (int i = 0; i < kDiffButtonCount; ++i) {
+                               [weakSelf->levelNumView[i] setAlpha:1.0];
+                               [weakSelf->extendMark[i] setAlpha:(1.0f - mix)];
+                               [weakSelf->extendOnMark[i] setAlpha:mix];
+                               [weakSelf->holdMark[i] setAlpha:1.0];
+                           }
+                         }];
+    }
+    [self infoChange:difficulty];
 }
 
 /** @ghidraAddress 0x131a48 */
