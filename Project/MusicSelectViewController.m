@@ -4,6 +4,7 @@
 #import "BFCodec.h"
 #import "ChallengeModeRootView.h"
 #import "Downloader.h"
+#import "EditorIDManager.h"
 #import "JcfDownloadPageNavController.h"
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
@@ -11,6 +12,7 @@
 #import "MarkerSelectView.h"
 #import "MusicDetailView.h"
 #import "MusicListView.h"
+#import "MusicPlaylistManager.h"
 #import "MusicPlaylistViewController.h"
 #import "MusicSelectBottomView.h"
 #import "MusicShareView.h"
@@ -20,7 +22,9 @@
 #import "PurchaseManager.h"
 #import "PushNotificationView.h"
 #import "RootViewController.h"
+#import "RotatableNavigationController.h"
 #import "SharePlayManager.h"
+#import "StoreUtil.h"
 #import "TuneInfo.h"
 #import "cipher_keys.h"
 
@@ -54,6 +58,13 @@ static NSString *const kPrefStoreUpdateTimeKey = @"PrefStoreUpdateTime";
 
 // The last-played tune id preference, used to bias the shuffle away from an immediate repeat.
 static NSString *const kPrefLastPlayedIDKey = @"PrefLastPlayedID";
+
+// The remembered playlist identifier and level-playlist flag preferences, and the new-info request
+// URL query format.
+static NSString *const kPrefLastPlaylistKey = @"PrefLastPlaylist";
+static NSString *const kPrefPlayListLevelKey = @"PrefPlayListLevel";
+static NSString *const kNewInfoUserIDFormat = @"&userid=%@";
+static NSString *const kNewInfoURLConcatFormat = @"%@%@";
 
 // The marker-select view is a square (500 on the pad, 250 on the phone) hidden above the top of the
 // screen, its width taken from a per-idiom pool value, sitting at this z-position.
@@ -815,6 +826,31 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     }
 }
 
+/** @ghidraAddress 0x272ac */
+- (void)tapPlaylists:(nullable id)sender {
+    [self setEnableGesture:YES];
+    playlistViewCtrl = [[MusicPlaylistViewController alloc] initWithStyle:UITableViewStylePlain];
+    [playlistViewCtrl setListMode:MusicPlaylistListModePlaylists];
+    [playlistViewCtrl setPlaylistManager:playlistManager];
+    [playlistViewCtrl setDelegate:self];
+    playlistNavCtrl =
+        [[RotatableNavigationController alloc] initWithRootViewController:playlistViewCtrl];
+    if (!isPad) {
+        [self presentViewController:playlistNavCtrl animated:YES completion:nil];
+        bOpenModal = YES;
+    } else {
+        // The pad presents it as a popover pointing up from the bottom bar's playlist button.
+        [playlistNavCtrl setModalPresentationStyle:UIModalPresentationPopover];
+        UIPopoverPresentationController *popover = playlistNavCtrl.popoverPresentationController;
+        [popover setDelegate:self];
+        [popover setPermittedArrowDirections:UIPopoverArrowDirectionDown];
+        [popover setSourceView:self.view];
+        [popover setSourceRect:[bottomView getPlayListBtnRect]];
+        [self presentViewController:playlistNavCtrl animated:YES completion:nil];
+    }
+    [self musicShuffleDisable];
+}
+
 /** @ghidraAddress 0x26f98 */
 - (void)turnToStore:(nullable id)params {
     storeParams = params;
@@ -1021,6 +1057,31 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     return unique;
 }
 
+/** @ghidraAddress 0x367f0 */
+- (void)exeSearchPickUp {
+    // The app-wide search string reflects the current query (nil when empty).
+    if (searchArray.count == 0) {
+        [JubeatAppDelegate.appDelegate setSearchString:nil];
+    } else {
+        [JubeatAppDelegate.appDelegate setSearchString:searchBox.text];
+    }
+    // Resolve the list selection: a remembered named playlist by index, or a built-in sentinel.
+    NSUInteger listType =
+        [playlistManager indexOfPlaylistWithIdentifier:[NSUserDefaults.standardUserDefaults
+                                                           stringForKey:kPrefLastPlaylistKey]];
+    if (listType == NSNotFound) {
+        if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefPlayListLevelKey] == 0) {
+            listType = (playListIndex == -1) ? (NSUInteger)kPlaylistSelectionNotPlayed :
+                                               (NSUInteger)kPlaylistSelectionDefault;
+        } else {
+            listType = (NSUInteger)kPlaylistSelectionLevel;
+        }
+    }
+    NSUInteger lastPlayed =
+        [NSUserDefaults.standardUserDefaults integerForKey:kPrefLastPlayedIDKey];
+    [self changeMusicListView:(NSInteger)listType musicID:lastPlayed];
+}
+
 /** @ghidraAddress 0x369f8 */
 - (void)searchBar:(nullable UISearchBar *)searchBar textDidChange:(nullable NSString *)searchText {
     backUpString = [NSString stringWithString:searchText];
@@ -1030,6 +1091,27 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 }
 
 #pragma mark - Store info
+
+/** @ghidraAddress 0x27d54 */
+- (void)requestNewInfo {
+    if (infoDownloader != nil) {
+        [infoDownloader cancel];
+        infoDownloader = nil;
+    }
+    storeUpdateTime = nil;
+    NSURL *url = [StoreUtil storeNewInfoURL];
+    // A logged-in editor appends its id to the request URL.
+    if (EditorIDManager.isExistEditorID) {
+        NSString *key = [EditorIDManager getKeyString:[EditorIDManager getEditorIDKey]];
+        NSString *query = [NSString stringWithFormat:kNewInfoUserIDFormat, key];
+        url = [NSURL
+            URLWithString:[NSString
+                              stringWithFormat:kNewInfoURLConcatFormat, url.absoluteString, query]];
+    }
+    infoDownloader = [[Downloader alloc] initWithURL:url delegate:self];
+    [infoDownloader setTag:0];
+    [infoDownloader startDownloading];
+}
 
 /** @ghidraAddress 0x271ec */
 - (void)stopStoreInfo {
