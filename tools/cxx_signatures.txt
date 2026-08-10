@@ -745,3 +745,5 @@
 0x151950	(^void)(void)
 0x1519a8	(^void)(void)
 0x151a00	(^void)(void)
+0x19052c	(^void)(void)
+0x190614	(^void)(void)

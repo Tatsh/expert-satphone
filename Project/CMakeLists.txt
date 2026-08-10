@@ -142,6 +142,7 @@ target_sources(jubeat PRIVATE
     MainGameRendererPad.m
     MainGameRendererPadRpl.m
     MainGameRendererPhone.m
+    MainGameRendererPhoneKnt.m
     MainGameRendererPhoneRpl.m
     MarkerDownloadManager.m
     MarkerDownloadTask.m
@@ -471,6 +472,7 @@ target_sources(jubeat PRIVATE
     MainGameRendererPad.h
     MainGameRendererPadRpl.h
     MainGameRendererPhone.h
+    MainGameRendererPhoneKnt.h
     MainGameRendererPhoneRpl.h
     MarkerDownloadManager.h
     MarkerDownloadTask.h
