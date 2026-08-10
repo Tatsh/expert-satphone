@@ -157,6 +157,32 @@ static const double kUserTagInsetPhone = 6.0; // fmov d0, 6.0
 static const double kUserTagTopPad = 22.0;    // fmov d1, 22.0
 static const double kUserTagTopPhone = 12.0;  // fmov d0, 12.0
 
+// The rating images, indexed by SequenceRank (E, D, C, B, A, S, SS, SSS).
+static NSString *const kRatingImageNames[] = {@"msc_rate_e_knt",
+                                              @"msc_rate_d_knt",
+                                              @"msc_rate_c_knt",
+                                              @"msc_rate_b_knt",
+                                              @"msc_rate_a_knt",
+                                              @"msc_rate_s_knt",
+                                              @"msc_rate_ss_knt",
+                                              @"msc_rate_sss_knt"};
+
+// The high-score digit and level number image name formats; the level number is 1-based.
+static NSString *const kHighscoreDigitFormat = @"msc_high_score_%d_knt";
+static NSString *const kLevelNumberFormat = @"lv_%02d_knt";
+enum { kLevelImageCount = 10 };
+
+// The four music-bar bars, each resizable with per-idiom cap insets, and the mini-dot grid format.
+static NSString *const kMusicBarNames[] = {
+    @"mini_bar_b_knt", @"mini_bar_a_knt", @"mini_bar_e_knt", @"mini_bar_o_knt"};
+static NSString *const kMiniDotFormat = @"mini_dot_%d_%d_knt";
+static const CGFloat kMusicBarCapInsetPad = 48.0;   // @ghidraAddress 0x28f450
+static const CGFloat kMusicBarCapInsetPhone = 32.0; // @ghidraAddress 0x28f458
+
+// The full-combo and excellent mark images.
+static NSString *const kFullcomboImageName = @"msc_fullcombo_knt";
+static NSString *const kExcellentImageName = @"msc_excellent_knt";
+
 // The seven high-score digits are rendered with a right-justified %7d and mapped through
 // highscoreNumImg; the score board's rating uses the excellent image at a perfect score.
 enum {
@@ -1144,6 +1170,40 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
         [self.controller presentViewController:self.pFileListView animated:YES completion:nil];
     }
     [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
+}
+
+/** @ghidraAddress 0x198750 */
+- (void)loadImages {
+    @autoreleasepool {
+        for (int i = 0; i < (int)(sizeof(kRatingImageNames) / sizeof(kRatingImageNames[0])); ++i) {
+            ratingImg[i] = LoadScaledPngImage(kRatingImageNames[i]);
+        }
+        for (int i = 0; i < kLevelImageCount; ++i) {
+            highscoreNumImg[i] =
+                LoadScaledPngImage([NSString stringWithFormat:kHighscoreDigitFormat, i]);
+            levelNumImg[i] =
+                LoadScaledPngImage([NSString stringWithFormat:kLevelNumberFormat, i + 1]);
+        }
+
+        // The music-bar bars stretch from a resizable image with per-idiom cap insets.
+        CGFloat capInset = self.isPad ? kMusicBarCapInsetPad : kMusicBarCapInsetPhone;
+        UIEdgeInsets insets = UIEdgeInsetsMake(0, capInset, 0, capInset);
+        for (int i = 0; i < (int)(sizeof(kMusicBarNames) / sizeof(kMusicBarNames[0])); ++i) {
+            mbarBarImg[i] =
+                [LoadScaledPngImage(kMusicBarNames[i]) resizableImageWithCapInsets:insets];
+        }
+
+        // The mini-dot grid: four rows of eight, named by (row, 1-based column).
+        for (int row = 0; row < 4; ++row) {
+            for (int col = 0; col < kMusicBarDotSpriteCount; ++col) {
+                mbarDotImg[row][col] =
+                    LoadScaledPngImage([NSString stringWithFormat:kMiniDotFormat, row, col + 1]);
+            }
+        }
+
+        fullcomboImg = LoadScaledPngImage(kFullcomboImageName);
+        excellentImg = LoadScaledPngImage(kExcellentImageName);
+    }
 }
 
 /** @ghidraAddress 0x19917c */
