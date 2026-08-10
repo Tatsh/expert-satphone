@@ -61,6 +61,41 @@ enum {
 };
 static const char kDigitZero = '0';
 
+// The scroll page and preferred difficulty persist across sessions under these preference keys.
+static NSString *const kPrefEditSelectKey = @"PrefEditSelect";
+static NSString *const kPrefDifficultyKey = @"PrefDifficulty";
+
+// The three scroll-settled delegate callbacks share this tail: it snaps the settled page,
+// re-derives the hold flag from the current difficulty's hold mark (except on the edit page),
+// refreshes the start button, records the page, and applies either the difficulty (snapping a stale
+// extreme back to basic) on the detail page or the edit music bar on the edit page.
+static inline void MusicDetailViewRplSettleScrollPage(MusicDetailViewRpl *self) {
+    [self setEnableButton:YES];
+    double width = self.scrollView.frame.size.width;
+    int page = (int)((width * 0.5 + self.scrollView.contentOffset.x) / width);
+    self.editPage = page;
+    int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    BOOL holdHidden = self->holdMark[difficulty].isHidden;
+    [JubeatAppDelegate.appDelegate setHoldFlag:(page != 1) && !holdHidden];
+    [self refreshStartButton];
+    if (self.isStarted) {
+        return;
+    }
+    [NSUserDefaults.standardUserDefaults setInteger:page forKey:kPrefEditSelectKey];
+    if (page == 0) {
+        int detailDifficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        if (detailDifficulty > 2) {
+            [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefDifficultyKey];
+            detailDifficulty = 0;
+        }
+        [self changeDifficulty:detailDifficulty];
+    } else {
+        [self editMusicBar];
+    }
+    [self setStartButtonEnable];
+}
+
 // A chart level maps to a zero-based level-image index: below 2 -> first image, 10+ -> last of ten.
 static inline char MusicDetailViewRplLevelIndex(int level) {
     if (level < 2) {
@@ -77,6 +112,12 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
 /** @ghidraAddress 0x12ad40 */
 + (Class)layerClass {
     return [CAGradientLayer class];
+}
+
+/** @ghidraAddress 0x13884c */
+- (void)dealloc {
+    // Empty in the binary too: the only instruction is the super call, and the class has a
+    // .cxx_destruct, so that call is what ARC emits.
 }
 
 /** @ghidraAddress 0x135630 */
@@ -430,6 +471,26 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x136780 */
+- (void)scrollViewDidEndScrollingAnimation:(nullable UIScrollView *)scrollView {
+    [detailScrollButton[0] setAlpha:1.0];
+    [detailScrollButton[1] setAlpha:1.0];
+    MusicDetailViewRplSettleScrollPage(self);
+}
+
+/** @ghidraAddress 0x136a80 */
+- (void)scrollViewDidEndDecelerating:(nullable UIScrollView *)scrollView {
+    MusicDetailViewRplSettleScrollPage(self);
+}
+
+/** @ghidraAddress 0x136d54 */
+- (void)scrollViewDidEndDragging:(nullable UIScrollView *)scrollView
+                  willDecelerate:(BOOL)decelerate {
+    if (!decelerate) {
+        MusicDetailViewRplSettleScrollPage(self);
+    }
 }
 
 /** @ghidraAddress 0x137378 */
