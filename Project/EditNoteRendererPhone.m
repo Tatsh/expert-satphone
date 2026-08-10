@@ -18,12 +18,12 @@
 #import "neEngineBridge.h"
 
 // The render-state values the phone renderer dispatches on.
-typedef NS_ENUM(unsigned int, EditNotePhoneState) {
-    EditNotePhoneStatePreStart = 1, /*!< The pre-start intro. */
-    EditNotePhoneStateReady = 2,    /*!< The ready/go countdown before play. */
-    EditNotePhoneStatePlaying = 3,  /*!< Active play. */
-    EditNotePhoneStateFinish = 4,   /*!< The finish transition. */
-    EditNotePhoneStateResult = 5,   /*!< The result screen. */
+enum {
+    EditNotePhoneStatePreStart = 1, // The pre-start intro.
+    EditNotePhoneStateReady = 2,    // The ready/go countdown before play.
+    EditNotePhoneStatePlaying = 3,  // Active play.
+    EditNotePhoneStateFinish = 4,   // The finish transition.
+    EditNotePhoneStateResult = 5,   // The result screen.
 };
 
 // The sub-state value that marks the play session as finished.

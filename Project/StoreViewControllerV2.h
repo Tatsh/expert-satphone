@@ -375,11 +375,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotate;
 
 /**
- * @ghidraAddress 0xf8e74
- */
-- (void)dealloc;
-
-/**
  * @brief The parameters that seed the initial pack, genre, or campaign to open.
  * @ghidraAddress 0xf8eac (getter)
  * @ghidraAddress 0xf8ebc (setter)

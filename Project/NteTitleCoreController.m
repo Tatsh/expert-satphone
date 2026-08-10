@@ -862,7 +862,6 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
         [sePlayer terminate];
         sePlayer = nil;
     }
-    [super dealloc];
 }
 
 #pragma mark - Scene transition

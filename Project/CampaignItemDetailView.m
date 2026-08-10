@@ -309,7 +309,6 @@ static const int kSampleAlertTag = 4;
                                                 object:nil];
     [infoDownloader cancel];
     [sampleDownloader cancel];
-    [super dealloc]; // ARC: retained for provenance; the compiler removes the explicit call.
 }
 
 #pragma mark - Button state

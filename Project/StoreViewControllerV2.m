@@ -291,11 +291,6 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
     return YES;
 }
 
-/** @ghidraAddress 0xf8e74 */
-- (void)dealloc {
-    [super dealloc];
-}
-
 #pragma mark - Startup
 
 /** @ghidraAddress 0xf1f88 */
