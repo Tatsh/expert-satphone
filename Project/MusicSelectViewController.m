@@ -29,6 +29,8 @@ static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
 
 @implementation MusicSelectViewController
 
+@synthesize sharePlayManager = _sharePlayManager;
+
 #pragma mark - View lifecycle
 
 /** @ghidraAddress 0x31e40 */
@@ -519,6 +521,28 @@ static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
 /** @ghidraAddress 0x30b88 */
 - (void)sharePlayManager:(nullable id)manager lostHostID:(nullable id)hostID {
     [shareClientView removeHostTmp:hostID];
+}
+
+#pragma mark - Music list
+
+/** @ghidraAddress 0x2a004 */
+- (nullable id)musicInfoForIndex:(NSUInteger)index {
+    // Prefer the current playlist; without one, index the full tune array.
+    if (arrayCurrentPlaylist == nil) {
+        if (index < arrayAllTune.count) {
+            return arrayAllTune[index];
+        }
+    } else if (index < arrayCurrentPlaylist.count) {
+        return arrayCurrentPlaylist[index];
+    }
+    return nil;
+}
+
+#pragma mark - Game Center
+
+/** @ghidraAddress 0x2d260 */
+- (void)gameCenterStateChanged:(nullable id)sender {
+    [btnLeaderboard setEnabled:GKLocalPlayer.localPlayer.isAuthenticated];
 }
 
 @end
