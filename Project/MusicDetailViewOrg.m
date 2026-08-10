@@ -117,6 +117,11 @@ static NSString *const kPrefEditSelectKey = @"PrefEditSelect";
 static NSString *const kContentArtwork = @"artwork_s";
 static NSString *const kContentNameW = @"name_w";
 static NSString *const kContentSeqBasic = @"seq_bas";
+// The packed archive stores the full-size artwork under "artwork" and the small one under
+// "artwork_s"; both content archives skip a 16-byte trailer.
+static NSString *const kArchiveArtworkFull = @"artwork";
+static NSString *const kArchiveArtworkSmall = @"artwork_s";
+static const NSUInteger kContentArchiveTail = 16;
 static NSString *const kContentSeqAdvanced = @"seq_adv";
 static NSString *const kContentSeqExtreme = @"seq_ext";
 static const double kReflectionFractionPad = 0.3; // @ghidraAddress 0x28f248
@@ -741,6 +746,73 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
     [Sequence getMusicBarData:extendMbarDots[kExtendMbarExtremeRow] raw:seqExt];
 
     // A settled detail page re-applies the preferred difficulty once the bars are loaded.
+    if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey] == 0) {
+        int difficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        [self changeDifficulty:difficulty];
+    }
+}
+
+/** @ghidraAddress 0x544f0 */
+- (void)loadContentFromPath:(nullable NSString *)path orData:(nullable NSData *)data {
+    // The packed content comes from a file (skipping the 16-byte trailer) or, failing that, from an
+    // in-memory range covering all but the trailer.
+    KUnzip *archive = nil;
+    if (path != nil) {
+        archive = [[KUnzip alloc] initWithPath:path tail:kContentArchiveTail];
+    }
+    if (archive == nil) {
+        if (data.length < kContentArchiveTail + 1) {
+            return;
+        }
+        archive = [[KUnzip alloc] initWithData:data
+                                         range:NSMakeRange(0, data.length - kContentArchiveTail)];
+        if (archive == nil) {
+            return;
+        }
+    }
+
+    BFCodec *codec = [[BFCodec alloc] init];
+    NSData *cipherKey = GetBgmCipherKey();
+    [codec cipherInit:cipherKey];
+
+    // The artwork: full-size on the pad and retina phone, small on the non-retina phone.
+    NSString *artworkKey =
+        (self.isPad || self.isRetina) ? kArchiveArtworkFull : kArchiveArtworkSmall;
+    NSMutableData *artworkData = [archive uncompress:artworkKey];
+    [codec decipher:artworkData];
+    UIImage *artwork = [UIImage imageWithData:artworkData];
+    if (artwork != nil) {
+        [self.artworkView setImage:artwork];
+        double fraction = self.isPad ? kReflectionFractionPad : g_dAnimDuration020;
+        int reflectionHeight = (int)(artwork.size.height * fraction);
+        [self.reflectionArtworkView setImage:CreateReflectedImage(artwork, reflectionHeight)];
+    }
+
+    [codec cipherInit:cipherKey];
+    NSMutableData *nameData = [archive uncompress:kContentNameW];
+    [codec decipher:nameData];
+    UIImage *nameImage = [UIImage imageWithData:nameData];
+    if (nameImage != nil) {
+        [self.tuneNameView setImage:nameImage];
+    }
+
+    [codec cipherInit:cipherKey];
+    NSMutableData *seqBas = [archive uncompress:kContentSeqBasic];
+    [codec decipher:seqBas];
+    [Sequence getMusicBarData:mbarDots[kMbarBasicRow] raw:seqBas];
+
+    [codec cipherInit:cipherKey];
+    NSMutableData *seqAdv = [archive uncompress:kContentSeqAdvanced];
+    [codec decipher:seqAdv];
+    [Sequence getMusicBarData:mbarDots[kMbarAdvancedRow] raw:seqAdv];
+
+    [codec cipherInit:cipherKey];
+    NSMutableData *seqExt = [archive uncompress:kContentSeqExtreme];
+    [codec decipher:seqExt];
+    [Sequence getMusicBarData:mbarDots[kMbarExtremeRow] raw:seqExt];
+
+    // On the detail page, re-apply the preferred difficulty once the charts are loaded.
     if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey] == 0) {
         int difficulty =
             (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
