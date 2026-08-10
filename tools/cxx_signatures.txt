@@ -737,3 +737,5 @@
 0x109830	(^void)(void)
 0x109888	(^void)(void)
 0x1098e0	(^void)(void)
+0x11f640	(^void)(void)
+0x11f728	(^void)(void)

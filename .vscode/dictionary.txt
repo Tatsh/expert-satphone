@@ -25,6 +25,7 @@ Numer
 OBJCXX
 Prerendered
 Restorepurchases
+Rollup
 Screenview
 Unfetched
 VARS
@@ -434,6 +435,7 @@ rgba
 ripgreprc
 rivalrank
 rodata
+rollup
 roundf
 rtti
 rturl
