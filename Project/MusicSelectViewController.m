@@ -59,6 +59,11 @@ static const NSTimeInterval kChallengeCoverFadeDuration = 0.3; // @ghidraAddress
 // The store update-time preference records the newest seen store timestamp.
 static NSString *const kPrefStoreUpdateTimeKey = @"PrefStoreUpdateTime";
 
+// The scratch (challenge) content update id preference; the challenge-new badge hides once the seen
+// id catches up. The BGM fades out over this duration when launching challenge mode.
+static NSString *const kPrefScratchUpdateIDKey = @"PrefScratchUpdateID";
+static const double kChallengeBgmFadeOut = 0.5; // fmov, 0.5
+
 // The last-played tune id preference, used to bias the shuffle away from an immediate repeat.
 static NSString *const kPrefLastPlayedIDKey = @"PrefLastPlayedID";
 
@@ -1054,6 +1059,30 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     }
 }
 
+#pragma mark - Scroll paging
+
+/** @ghidraAddress 0x39078 */
+- (void)scrollFromPageNum:(int)pageNum bAnim:(BOOL)animated {
+    if (scrollBg == nil) {
+        return;
+    }
+    int width = (int)scrollBg.frame.size.width;
+    int quotient = (scrollPageNum != 0) ? pageNum / scrollPageNum : 0;
+    int target = pageNum - quotient * scrollPageNum;
+    int current = (int)(scrollBg.contentOffset.x / (double)width);
+    // On the wrap boundary the target stays on the trailing clone page.
+    int dest = (current != scrollPageNum - 1 || target != 0) ? target : scrollPageNum;
+    // Jump the looped scroll view to the matching real page without animation before the animated
+    // move, so paging past either end wraps seamlessly.
+    if (current == scrollPageNum && dest == 1) {
+        [scrollBg setContentOffset:CGPointMake(0.0, 0.0)];
+    }
+    if (current == 0 && dest == scrollPageNum - 1) {
+        [scrollBg setContentOffset:CGPointMake((double)(scrollPageNum * width), 0.0)];
+    }
+    [scrollBg setContentOffset:CGPointMake((double)(dest * width), 0.0) animated:animated];
+}
+
 #pragma mark - Search
 
 /** @ghidraAddress 0x35a9c */
@@ -1319,6 +1348,26 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
                                                     musicData:shareMusicData];
     self.sharePlayManager = nil;
     shareMusicData = nil;
+    [self setEnableGesture:NO];
+}
+
+/** @ghidraAddress 0x28ccc */
+- (void)launchChallengeMode {
+    if ([indicatorTimer isValid]) {
+        [indicatorTimer invalidate];
+        indicatorTimer = nil;
+    }
+    if (!bLaunchCMode) {
+        [[AudioManager sharedManager] fadeoutBgm:kChallengeBgmFadeOut];
+    }
+    [challengeModeView enterChallengeView:YES];
+    // Once the current scratch content id has been seen, hide the challenge-new badge.
+    int scratchID = currentScratchID;
+    if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefScratchUpdateIDKey] < scratchID) {
+        [NSUserDefaults.standardUserDefaults setInteger:scratchID forKey:kPrefScratchUpdateIDKey];
+        [NSUserDefaults.standardUserDefaults synchronize];
+        [imgChallengeNew setHidden:YES];
+    }
     [self setEnableGesture:NO];
 }
 
