@@ -117,6 +117,10 @@ static const CGFloat kEditButtonShrinkScale = 0.1;         // @ghidraAddress 0x2
 static const NSTimeInterval kEditTransitionDuration = 0.6; // @ghidraAddress 0x28f288
 static const NSTimeInterval kEditInputLockDuration = 0.7;  // @ghidraAddress 0x28f2a0
 
+// The upload sheet fades out on this (negative, as the binary stores it) duration when the upload
+// ends.
+static const NSTimeInterval kUploadEndFadeDuration = -0.2; // @ghidraAddress 0x28e050
+
 // The seven high-score digits are rendered with a right-justified %7d and mapped through
 // highscoreNumImg; the score board's rating uses the excellent image at a perfect score.
 enum {
@@ -423,6 +427,24 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
     [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
                                             withObject:nil
                                             afterDelay:kEditInputLockDuration];
+}
+
+/** @ghidraAddress 0x1a3690 */
+- (void)uploadEnd:(nullable id)sender {
+    __weak UIView *weakCover = topcover;
+    __weak JcfUpLoadView *weakUpload = upLoadView;
+    // The binary passes a negative fade duration here; kept as-is.
+    [UIView animateWithDuration:kUploadEndFadeDuration
+        animations:^{
+          /** @ghidraAddress 0x1a3834 */
+          [weakUpload setAlpha:0.0];
+          [weakCover setAlpha:0.0];
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x1a38fc */
+          [self removeUploadView];
+        }];
+    [self.controller enableCoverTap];
 }
 
 /** @ghidraAddress 0x19b3d0 */
