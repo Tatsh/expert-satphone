@@ -157,6 +157,9 @@ enum {
 };
 static const char kDigitZero = '0';
 
+// The extend-icon crossfade runs over three tenths of a second.
+static const NSTimeInterval kExtendCrossFadeDuration = 0.3; // @ghidraAddress 0x28f260
+
 // A chart level is stored as a zero-based level-image index: an unset level (below 2) maps to the
 // first image, and any level of 10 or more clamps to the last of the ten level images.
 static inline char MusicDetailViewKntLevelIndex(int level) {
@@ -167,6 +170,19 @@ static inline char MusicDetailViewKntLevelIndex(int level) {
         return (char)(level - 1);
     }
     return 9;
+}
+
+// Pre-seeds one difficulty row's extend marks before the crossfade: reveals the extend and
+// extend-on marks and sets their starting alphas (the target mark full, the other transparent),
+// then zeroes the hold mark. Used by changeExtend: for each difficulty that carries an extend
+// chart, with extendOnTarget YES when the app is in extend mode.
+static inline void
+MusicDetailViewKntSeedExtendRow(MusicDetailViewKnt *self, int row, BOOL extendOnTarget) {
+    [self->extendMark[row] setHidden:NO];
+    [self->extendOnMark[row] setHidden:NO];
+    [self->extendMark[row] setAlpha:(extendOnTarget ? 0.0 : 1.0)];
+    [self->extendOnMark[row] setAlpha:(extendOnTarget ? 1.0 : 0.0)];
+    [self->holdMark[row] setAlpha:0.0];
 }
 
 // The three scroll-settled delegate callbacks share this tail: it snaps the settled page,
@@ -907,6 +923,45 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
     [levelNumView[kExtendLevelNumIndex] setAlpha:1.0];
     [self.controller dismissViewControllerAnimated:YES completion:nil];
     [self.controller enableCoverTap];
+}
+
+/** @ghidraAddress 0x19aca4 */
+- (void)changeExtend:(int)difficulty {
+    BOOL isExtend = JubeatAppDelegate.appDelegate.isExtend;
+    // Every difficulty's hold and extend marks start hidden.
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        [holdMark[i] setHidden:YES];
+        [extendMark[i] setHidden:YES];
+        [extendOnMark[i] setHidden:YES];
+    }
+    if (self.extendInfo != nil) {
+        // Reveal each difficulty that carries an extend chart, pre-seeding its marks so the
+        // crossfade animates a real transition; the level numbers fade in from zero.
+        float mix = 0.0f;
+        unsigned int extendFlag = self.extendInfo.extendFlag;
+        for (int i = 0; i < kDiffButtonCount; ++i) {
+            if ((extendFlag & (1 << i)) != 0) {
+                MusicDetailViewKntSeedExtendRow(self, i, isExtend);
+                if (isExtend) {
+                    mix = 1.0f;
+                }
+            }
+            [levelNumView[i] setAlpha:0.0];
+        }
+
+        __weak MusicDetailViewKnt *weakSelf = self;
+        [UIView animateWithDuration:kExtendCrossFadeDuration
+                         animations:^{
+                           /** @ghidraAddress 0x19b22c */
+                           for (int i = 0; i < kDiffButtonCount; ++i) {
+                               [weakSelf->levelNumView[i] setAlpha:1.0];
+                               [weakSelf->extendMark[i] setAlpha:(1.0f - mix)];
+                               [weakSelf->extendOnMark[i] setAlpha:mix];
+                               [weakSelf->holdMark[i] setAlpha:1.0];
+                           }
+                         }];
+    }
+    [self infoChange:difficulty];
 }
 
 /** @ghidraAddress 0x19c72c */
