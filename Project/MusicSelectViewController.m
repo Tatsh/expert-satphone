@@ -27,6 +27,7 @@
 #import "PushNotificationView.h"
 #import "RootViewController.h"
 #import "RotatableNavigationController.h"
+#import "ScoreRecord.h"
 #import "SharePlayManager.h"
 #import "StoreUtil.h"
 #import "TuneInfo.h"
@@ -114,6 +115,9 @@ static NSString *const kInfoV2EntryName = @"infov2";
 static NSString *const kInfoEntryName = @"info";
 static const NSUInteger kTuneInfoArchiveTail = 16;
 static const NSUInteger kTuneInfoV3HeaderLength = 4;
+
+// A tune's own archive stores its BGM under this member (ciphered with the BGM key).
+static NSString *const kTuneBgmEntryName = @"index";
 
 // The custom-BGM archive member (ciphered with the BGM key, skipping the 16-byte trailer), the
 // default menu BGM resource suffix, and the store-balloon animation key.
@@ -1102,6 +1106,36 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 
 #pragma mark - Edit and shuffle
 
+/** @ghidraAddress 0x2ea1c */
+- (void)startPlay:(nullable id)tune {
+    [self stopStoreInfo];
+    [musicListView releaseArtworks];
+    [[AudioManager sharedManager] fadeoutBgm:1.0];
+    // A non-host share client does not overwrite the last-played id.
+    if (self.sharePlayManager == nil || self.sharePlayManager.isHost) {
+        [NSUserDefaults.standardUserDefaults setInteger:((TuneInfo *)tune).tuneID
+                                                 forKey:kPrefLastPlayedIDKey];
+    }
+    NSInteger editPage = [NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey];
+    NSInteger difficulty = [NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    // Off the edit page and in extend mode, play the extend chart when the tune carries one for the
+    // current difficulty; otherwise play the base tune.
+    TuneInfo *playTune = tune;
+    if (((TuneInfo *)tune).extendID != 0 && editPage != 1 &&
+        JubeatAppDelegate.appDelegate.isExtend) {
+        TuneInfo *extend = dictAllExtendTune[@(((TuneInfo *)tune).extendID)];
+        if (extend != nil && (extend.extendFlag & (1 << difficulty)) != 0) {
+            playTune = extend;
+        }
+    }
+    [JubeatAppDelegate.appDelegate.rootViewCtrl startMainGame:playTune
+                                                 shareManager:self.sharePlayManager
+                                                    musicData:shareMusicData];
+    self.sharePlayManager = nil;
+    shareMusicData = nil;
+    [self setEnableGesture:NO];
+}
+
 /** @ghidraAddress 0x2ee04 */
 - (void)startEdit:(nullable id)tune {
     [self stopStoreInfo];
@@ -1960,6 +1994,36 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
         }
     }
     return kPlaylistSelectionDefault;
+}
+
+/** @ghidraAddress 0x352ac */
+- (BOOL)changeMusicData:(nullable id)tune {
+    // Load the tune's base info and score into the detail view.
+    ScoreRecord *record = [ScoreRecord recordForTuneID:((TuneInfo *)tune).tuneID];
+    [musicDetailView setInfo:tune score:record];
+    // Load the extend chart when the tune has one whose file is present; otherwise clear it.
+    if (((TuneInfo *)tune).extendID != 0 &&
+        [StoreUtil existMusicFile:((TuneInfo *)tune).extendID]) {
+        TuneInfo *extend = dictAllExtendTune[@(((TuneInfo *)tune).extendID)];
+        ScoreRecord *extendRecord = [ScoreRecord recordForTuneID:((TuneInfo *)tune).extendID];
+        [musicDetailView setExtendInfo:extend score:extendRecord];
+    } else {
+        [musicDetailView setExtendInfo:nil score:nil];
+    }
+    [musicDetailView
+        infoChange:(int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey]];
+    // Load and start the tune's own BGM if its archive carries one.
+    KUnzip *archive = [[KUnzip alloc] initWithPath:((TuneInfo *)tune).filePath
+                                              tail:kTuneInfoArchiveTail];
+    NSMutableData *bgm = [archive uncompress:kTuneBgmEntryName];
+    if (bgm != nil) {
+        BFCodec *codec = [[BFCodec alloc] init];
+        [codec cipherInit:GetBgmCipherKey()];
+        [codec decipher:bgm];
+        [[AudioManager sharedManager] loadBgmData:bgm];
+        [[AudioManager sharedManager] startBgm:YES fadeTime:0.0];
+    }
+    return YES;
 }
 
 /** @ghidraAddress 0x20d74 */

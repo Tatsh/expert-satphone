@@ -72,6 +72,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable id)score;
 
 /**
+ * @brief Refreshes the score board, music bar, hold marks, and level images for the shown
+ *        difficulty and chart. Overridden per theme.
+ * @param difficulty The difficulty index to show.
+ */
+- (void)infoChange:(int)difficulty;
+
+/**
  * @brief Empty in this build.
  * @ghidraAddress 0x127810
  */
