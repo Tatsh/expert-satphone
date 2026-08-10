@@ -5,6 +5,7 @@
 #import "AlertViewManager.h"
 #import "EditDataManager.h"
 #import "ImageCache.h"
+#import "ImageLoading.h"
 #import "JcfDownloadPageNavController.h"
 #import "JcfManageNavController.h"
 #import "JubeatAppDelegate.h"
@@ -37,6 +38,12 @@ enum {
 
 // The scroll button fades out across an eighth of the half-width scroll span.
 static const float kScrollFadeSpanFraction = 0.125f;
+
+// The classic difficulty button's fixed square frame: 160 on the pad, 80 on the retina phone, and
+// 74 on the non-retina phone.
+static const double kDiffButtonSizePad = 160.0;      // @ghidraAddress 0x28f438
+static const double kDiffButtonSizeRetina = 80.0;    // @ghidraAddress 0x28f3f8
+static const double kDiffButtonSizeNonRetina = 74.0; // @ghidraAddress 0x28f6f8
 
 @implementation MusicDetailViewOrg
 
@@ -72,6 +79,40 @@ static const float kScrollFadeSpanFraction = 0.125f;
 
 /** @ghidraAddress 0x5c4fc */
 - (void)scrollViewWillBeginDragging:(nullable UIScrollView *)scrollView {
+}
+
+/** @ghidraAddress 0x537b0 */
+- (nullable UIButton *)diffButton:(nullable NSString *)imageName {
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    double size = self.isPad ? kDiffButtonSizePad :
+                               (self.isRetina ? kDiffButtonSizeRetina : kDiffButtonSizeNonRetina);
+    [button setFrame:CGRectMake(0.0, 0.0, size, size)];
+    [button setImage:LoadScaledPngImage(imageName) forState:UIControlStateNormal];
+    [button setExclusiveTouch:YES];
+    [button setAdjustsImageWhenHighlighted:NO];
+    [button setAdjustsImageWhenDisabled:NO];
+    [button addTarget:self
+                  action:@selector(selectDiff:)
+        forControlEvents:UIControlEventTouchUpInside];
+    return button;
+}
+
+/** @ghidraAddress 0x58ab8 */
+- (void)setStartButtonEnable {
+    if (self.editPage == 1) {
+        int notesNum = [[EditDataManager sharedManager].getEditorInfo[@"notesNum"] intValue];
+        [uploadBtn setEnabled:[self checkEnableUpload]];
+        [editBtn setEnabled:[self checkEnableEdit]];
+        [infoBtn setEnabled:[self checkEnableInfoChange]];
+        if (notesNum == 0) {
+            [self.buttonStartPlay setEnabled:NO];
+            return;
+        }
+    }
+    [self.buttonStartPlay setEnabled:YES];
+    if (self.controller.sharePlayManager != nil && !self.isSharedStartable) {
+        [self.buttonStartPlay setEnabled:NO];
+    }
 }
 
 /** @ghidraAddress 0x58938 */

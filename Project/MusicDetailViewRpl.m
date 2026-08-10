@@ -5,6 +5,7 @@
 #import "AlertViewManager.h"
 #import "EditDataManager.h"
 #import "ImageCache.h"
+#import "ImageLoading.h"
 #import "JcfDownloadPageNavController.h"
 #import "JcfManageNavController.h"
 #import "JubeatAppDelegate.h"
@@ -37,6 +38,18 @@ enum {
 
 // The scroll button fades out across an eighth of the half-width scroll span.
 static const float kScrollFadeSpanFraction = 0.125f;
+
+// An unselected difficulty button dims to this alpha and shrinks to this scale on the Ripples
+// theme.
+static const CGFloat kDiffButtonDimAlpha = 0.5;  // fmov 0x3fe0000000000000
+static const CGFloat kDiffButtonDimScale = 0.95; // @ghidraAddress 0x28f6e0
+enum { kDiffButtonCount = 3, kExtendButtonIndex = 3 };
+
+// The difficulty button's fixed frame size, per idiom.
+static const double kDiffButtonWidthPad = 142.0;   // @ghidraAddress 0x292e88
+static const double kDiffButtonWidthPhone = 78.0;  // @ghidraAddress 0x28f5f0
+static const double kDiffButtonHeightPad = 138.0;  // @ghidraAddress 0x2924c8
+static const double kDiffButtonHeightPhone = 76.0; // @ghidraAddress 0x292488
 
 @implementation MusicDetailViewRpl
 
@@ -72,6 +85,59 @@ static const float kScrollFadeSpanFraction = 0.125f;
 
 /** @ghidraAddress 0x1366a0 */
 - (void)scrollViewWillBeginDragging:(nullable UIScrollView *)scrollView {
+}
+
+/** @ghidraAddress 0x12dc84 */
+- (nullable UIButton *)diffButton:(nullable NSString *)imageName {
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    double width = self.isPad ? kDiffButtonWidthPad : kDiffButtonWidthPhone;
+    double height = self.isPad ? kDiffButtonHeightPad : kDiffButtonHeightPhone;
+    [button setFrame:CGRectMake(0.0, 0.0, width, height)];
+    [button setImage:LoadScaledPngImage(imageName) forState:UIControlStateNormal];
+    [button setExclusiveTouch:YES];
+    [button setAdjustsImageWhenHighlighted:NO];
+    [button setAdjustsImageWhenDisabled:NO];
+    [button addTarget:self
+                  action:@selector(selectDiff:)
+        forControlEvents:UIControlEventTouchUpInside];
+    return button;
+}
+
+/** @ghidraAddress 0x131a48 */
+- (void)changeDifficulty:(int)difficulty {
+    // The selected base button is full and unscaled; the other two dim and shrink; the extend
+    // button is always full.
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        if (i == difficulty) {
+            [btnDiff[i] setAlpha:1.0];
+            [btnDiff[i] setTransform:CGAffineTransformIdentity];
+        } else {
+            [btnDiff[i] setAlpha:kDiffButtonDimAlpha];
+            [btnDiff[i]
+                setTransform:CGAffineTransformMakeScale(kDiffButtonDimScale, kDiffButtonDimScale)];
+        }
+    }
+    [btnDiff[kExtendButtonIndex] setAlpha:1.0];
+    [btnDiff[kExtendButtonIndex] setTransform:CGAffineTransformIdentity];
+    [self infoChange:difficulty];
+}
+
+/** @ghidraAddress 0x132ed4 */
+- (void)setStartButtonEnable {
+    if (self.editPage == 1) {
+        int notesNum = [[EditDataManager sharedManager].getEditorInfo[@"notesNum"] intValue];
+        [uploadBtn setEnabled:[self checkEnableUpload]];
+        [editBtn setEnabled:[self checkEnableEdit]];
+        [infoBtn setEnabled:[self checkEnableInfoChange]];
+        if (notesNum == 0) {
+            [self.buttonStartPlay setEnabled:NO];
+            return;
+        }
+    }
+    [self.buttonStartPlay setEnabled:YES];
+    if (self.controller.sharePlayManager != nil && !self.isSharedStartable) {
+        [self.buttonStartPlay setEnabled:NO];
+    }
 }
 
 /** @ghidraAddress 0x132d54 */

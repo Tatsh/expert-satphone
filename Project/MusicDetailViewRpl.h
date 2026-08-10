@@ -76,11 +76,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Builds a difficulty button.
- * @param diffButton The diffButton argument.
- * @return The result.
+ * @param imageName The base name of the button's scaled PNG image.
+ * @return The configured button.
  * @ghidraAddress 0x12dc84
  */
-- (nullable id)diffButton:(nullable id)diffButton;
+- (nullable UIButton *)diffButton:(nullable NSString *)imageName;
 
 /**
  * @brief Loads the theme image assets.
