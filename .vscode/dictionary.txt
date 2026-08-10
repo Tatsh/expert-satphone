@@ -23,6 +23,7 @@ OBJCXX
 Prerendered
 Restorepurchases
 Screenview
+Unfetched
 VARS
 Wblock
 Wcomma
@@ -48,6 +49,8 @@ actived
 additionitem
 adid
 adrp
+agx
+allranking
 analyzer
 analyzer's
 angjp
