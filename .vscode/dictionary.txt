@@ -530,6 +530,7 @@ verifing
 vermette's
 voidpf
 vtable
+warc
 wblock
 wcomma
 wconditional

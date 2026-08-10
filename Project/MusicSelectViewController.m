@@ -60,11 +60,26 @@ static NSString *const kPrefChallengeRestoreEndKey = @"PrefChallengeRestoreEnd";
 static const int kRestoreCompleteAlertTag = 3;
 
 // Turning to the store while a consume receipt is pending records this verify-purchase type and
-// shows the verify dialog; a completed purchase reports the shared success message.
+// shows the verify dialog; a completed purchase reports the shared success message. The
+// challenge-info download path uses the other pending type.
 static const int kVerifyPurchaseTypeStore = 2;
+static const int kVerifyPurchaseTypeChallenge = 1;
 static NSString *const kPurchaseSuccessMessage = @"購入処理が完了しました";
 static NSString *const kSettingsTapSoundSuffix = @"MUSIC_RIGHT";
 static NSString *const kVerifyProcessingMessage = @"処理中...";
+static NSString *const kRestoreProcessingMessage = @"復元中...";
+
+// The alert-select dictionary carries the tapped alert's tag and button index under these keys; the
+// tags select the challenge-info download, the restore, the store/challenge retry, or a share
+// cancel.
+static NSString *const kAlertTagKey = @"Tag";
+static NSString *const kAlertButtonMessageKey = @"btnMessage";
+enum {
+    kAlertTagShareCancel = 0,
+    kAlertTagRetry = 1,
+    kAlertTagRestore = 2,
+    kAlertTagChallengeInfo = 3,
+};
 
 // The main BGM start voice cue, and the fixed music cues used when closing the web view or opening
 // the notification (the binary hardcodes the Knit-theme resources for these).
@@ -80,6 +95,21 @@ enum {
     kPlaylistSelectionNotPlayed = -1,
     kPlaylistSelectionDefault = -2,
 };
+
+// A tune counts as a hold chart when its own hold flag is set or its extend chart (looked up by
+// extendID) has a hold flag.
+static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tune) {
+    if (tune.holdFlag != 0) {
+        return YES;
+    }
+    if (tune.extendID != 0) {
+        TuneInfo *extend = self->dictAllExtendTune[@(tune.extendID)];
+        if (extend.holdFlag != 0) {
+            return YES;
+        }
+    }
+    return NO;
+}
 
 @implementation MusicSelectViewController
 
@@ -769,6 +799,35 @@ enum {
                              }];
 }
 
+#pragma mark - Playlist arrays
+
+/** @ghidraAddress 0x21e34 */
+- (void)createArrayHold {
+    if (arrayHoldList != nil) {
+        arrayHoldList = nil;
+    }
+    arrayHoldList = [[NSMutableArray alloc] init];
+    for (TuneInfo *tune in arrayAllTune) {
+        if (MusicSelectTuneIsHold(self, tune)) {
+            [arrayHoldList addObject:tune];
+        }
+    }
+}
+
+/** @ghidraAddress 0x22014 */
+- (void)createArrayNotHold {
+    // The binary tests arrayNotHoldList for the reset but clears arrayHoldList; kept as-is.
+    if (arrayNotHoldList != nil) {
+        arrayHoldList = nil;
+    }
+    arrayNotHoldList = [[NSMutableArray alloc] init];
+    for (TuneInfo *tune in arrayAllTune) {
+        if (!MusicSelectTuneIsHold(self, tune)) {
+            [arrayNotHoldList addObject:tune];
+        }
+    }
+}
+
 #pragma mark - Search
 
 /** @ghidraAddress 0x35944 */
@@ -975,6 +1034,37 @@ enum {
                      }];
 }
 
+/** @ghidraAddress 0x2ff94 */
+- (void)alertSelect:(nullable id)alert {
+    // Each tag selects an action performed by the shared tail; the restore and cancel paths return
+    // early instead.
+    int tag = [alert[kAlertTagKey] intValue];
+    SEL action = @selector(downloadChallengeInfo);
+    if (tag != kAlertTagChallengeInfo) {
+        if (tag == kAlertTagRestore) {
+            // The restore is confirmed only when the user tapped the affirmative button.
+            if ([alert[kAlertButtonMessageKey] intValue] != 0) {
+                [self showVerifyDialog:kRestoreProcessingMessage];
+                [[PurchaseManager sharedManager] setDelegate:self];
+                [[PurchaseManager sharedManager] beginRestore];
+                return;
+            }
+            action = @selector(hideChallengeCoverView);
+        } else if (tag != kAlertTagRetry) {
+            [self cancelShare:NO];
+            return;
+        } else if (verifyPurchaseType == kVerifyPurchaseTypeStore) {
+            action = @selector(turnToStore);
+        } else if (verifyPurchaseType != kVerifyPurchaseTypeChallenge) {
+            return;
+        }
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    [self performSelector:action];
+#pragma clang diagnostic pop
+}
+
 /** @ghidraAddress 0x38618 */
 - (void)errorIDDownload:(nullable id)sender msgStr:(nullable NSString *)message {
     if (message == nil || [message isEqualToString:@""]) {
@@ -1018,6 +1108,54 @@ enum {
         infoDownloader = nil;
         [self challengeModeEnable:NO];
     }
+}
+
+/** @ghidraAddress 0x3880c */
+- (void)agreementError:(nullable id)view msgStr:(nullable NSString *)message {
+    if (message == nil || [message isEqualToString:@""]) {
+        message = [NSBundle.mainBundle localizedStringForKey:@"NetworkErrorMsg"
+                                                       value:@""
+                                                       table:nil];
+    }
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:nil
+                                            tag:0
+                                          title:@""
+                                            msg:message
+                                         cancel:[NSBundle.mainBundle localizedStringForKey:@"OK"
+                                                                                     value:@""
+                                                                                     table:nil]
+                                        btnText:nil
+                                           show:YES];
+    [view removeFromSuperview];
+    [self hideChallengeCoverView];
+}
+
+/** @ghidraAddress 0x38434 */
+- (void)purchaseFailed:(nullable id)productID error:(nullable NSError *)error {
+    [[PurchaseManager sharedManager] setDelegate:nil];
+    // A network failure (code 1) shows the error and then hides the challenge cover; any other
+    // failure re-requests the challenge info. Either way the verify dialog is hidden last.
+    SEL action = @selector(downloadChallengeInfo);
+    if (error.code == 1) {
+        [[AlertViewManager sharedManager]
+            makeAlert:0
+             delegate:nil
+                  tag:0
+                title:@""
+                  msg:[NSBundle.mainBundle localizedStringForKey:@"NetworkErrorMsg"
+                                                           value:@""
+                                                           table:nil]
+               cancel:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
+              btnText:nil
+                 show:YES];
+        action = @selector(hideChallengeCoverView);
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    [self performSelector:action];
+#pragma clang diagnostic pop
+    [self hideVerifyDialog];
 }
 
 /** @ghidraAddress 0x38af4 */
