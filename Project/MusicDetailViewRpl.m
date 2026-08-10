@@ -80,6 +80,11 @@ static const NSTimeInterval kExtendModeAnimDuration = 0.3; // @ghidraAddress 0x2
 static const NSTimeInterval kExtendModeInputLock = 0.4;    // @ghidraAddress 0x28f2c0
 static NSString *const kExtendModeSound = @"SD_KNT_MUSIC_LEFT";
 
+// The share-message label drops by this many points while the share progress shows, animated over
+// this duration.
+static const double kShareLabelDropOffset = 6.0;              // fmov, 6.0
+static const NSTimeInterval kShareProgressAnimDuration = 0.3; // @ghidraAddress 0x28f260
+
 // The host share-play button's background image.
 static NSString *const kHostButtonImage = @"menu_button_host_rpl";
 
@@ -560,6 +565,48 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x133f18 */
+- (void)showDataProgress:(BOOL)show animated:(BOOL)animated {
+    CGAffineTransform labelDrop = CGAffineTransformMakeTranslation(0.0, kShareLabelDropOffset);
+    if (!animated) {
+        if (show) {
+            [self.shareDataProgress setHidden:NO];
+            [self.shareDataProgress setAlpha:1.0];
+            [self.shareDataProgress setProgress:0.0];
+            [self.labelShareMessage setTransform:labelDrop];
+        } else {
+            [self.shareDataProgress setHidden:YES];
+            [self.shareDataProgress setAlpha:0.0];
+            [self.labelShareMessage setTransform:CGAffineTransformIdentity];
+        }
+        return;
+    }
+
+    __weak MusicDetailViewRpl *weakSelf = self;
+    if (show) {
+        [self.shareDataProgress setHidden:NO];
+        [self.shareDataProgress setAlpha:0.0];
+        [self.shareDataProgress setProgress:0.0];
+        [UIView animateWithDuration:kShareProgressAnimDuration
+                         animations:^{
+                           /** @ghidraAddress 0x1342f4 */
+                           [weakSelf.shareDataProgress setAlpha:1.0];
+                           [weakSelf.labelShareMessage setTransform:labelDrop];
+                         }];
+    } else {
+        [UIView animateWithDuration:kShareProgressAnimDuration
+            animations:^{
+              /** @ghidraAddress 0x1343d8 */
+              [weakSelf.shareDataProgress setAlpha:0.0];
+              [weakSelf.labelShareMessage setTransform:CGAffineTransformIdentity];
+            }
+            completion:^(BOOL finished) {
+              /** @ghidraAddress 0x1344b8 */
+              [weakSelf.shareDataProgress setHidden:YES];
+            }];
+    }
 }
 
 /** @ghidraAddress 0x13913c */
