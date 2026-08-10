@@ -1,5 +1,6 @@
 #import "MusicSelectViewController.h"
 
+#import "JubeatAppDelegate.h"
 #import "MarkerSelectView.h"
 #import "MusicDetailView.h"
 #import "MusicListView.h"
@@ -257,6 +258,80 @@ static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
         [musicListView hideAllPlaylistAction];
     }
     return YES;
+}
+
+/** @ghidraAddress 0x27634 */
+- (void)popoverPresentationControllerDidDismissPopover:
+    (nullable UIPopoverPresentationController *)popoverPresentationController {
+    playlistViewCtrl = nil;
+    playlistNavCtrl = nil;
+    [self JcfDownLoad];
+    [self musicShuffleEnable];
+}
+
+#pragma mark - Cover tap and download view
+
+/** @ghidraAddress 0x32c00 */
+- (void)unenableCoverTap {
+    [coverView setGestureRecognizers:nil];
+    if (searchArray == nil) {
+        [self showButtonMarker:NO];
+    }
+    [self musicShuffleDisable];
+}
+
+/** @ghidraAddress 0x32c68 */
+- (void)enableCoverTap {
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:musicDetailView
+                                                                          action:@selector(close)];
+    [coverView addGestureRecognizer:tap];
+    if (searchArray == nil) {
+        [self showButtonMarker:YES];
+    }
+    [self musicShuffleEnable];
+}
+
+/** @ghidraAddress 0x3301c */
+- (void)removeDownloadView {
+    [jcfDownloadView removeFromSuperview];
+    jcfDownloadView = nil;
+    [coverView setHidden:YES];
+    [self enableCoverTap];
+}
+
+#pragma mark - Jcf download
+
+/** @ghidraAddress 0x32fa0 */
+- (void)JcfDownLoad {
+    [self JcfDownLoad:JubeatAppDelegate.appDelegate.jcfDownloadID];
+}
+
+#pragma mark - Search
+
+/** @ghidraAddress 0x36720 */
+- (void)handleSwipe:(nullable UISwipeGestureRecognizer *)recognizer {
+    // A downward swipe pulls the search box in; a rightward swipe pushes it away.
+    if (recognizer.direction == UISwipeGestureRecognizerDirectionDown) {
+        [self pullSearchBox];
+    } else if (recognizer.direction == UISwipeGestureRecognizerDirectionRight) {
+        [self pushSearchBox];
+    }
+}
+
+/** @ghidraAddress 0x36780 */
+- (void)tapSearchCancel:(nullable id)sender {
+    [self setEnableGesture:YES];
+    [searchBox setText:@""];
+    backUpString = @"";
+    [self pushSearchBox];
+}
+
+#pragma mark - Host select
+
+/** @ghidraAddress 0x31b30 */
+- (void)sharePlayManagerHostSelectStart:(nullable id)manager {
+    willStart = YES;
+    [self startPlay:musicDetailView.info];
 }
 
 #pragma mark - Share play
