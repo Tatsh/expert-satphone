@@ -111,6 +111,12 @@ static const NSTimeInterval kHostShareCancelFadeDuration = 0.3; // @ghidraAddres
 static const int kRandViewSlideOffset = 10;
 static const NSTimeInterval kRandViewToggleDuration = 0.3; // @ghidraAddress 0x28f260
 
+// Entering the editor dims and shrinks the difficulty buttons to a tenth over six tenths of a
+// second, then re-enables input seven tenths of a second in.
+static const CGFloat kEditButtonShrinkScale = 0.1;         // @ghidraAddress 0x28f2b8
+static const NSTimeInterval kEditTransitionDuration = 0.6; // @ghidraAddress 0x28f288
+static const NSTimeInterval kEditInputLockDuration = 0.7;  // @ghidraAddress 0x28f2a0
+
 // The seven high-score digits are rendered with a right-justified %7d and mapped through
 // highscoreNumImg; the score board's rating uses the excellent image at a perfect score.
 enum {
@@ -386,6 +392,37 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
         UIImage *image = ((unsigned int)glyph < kDigitGlyphCount) ? highscoreNumImg[glyph] : nil;
         [highscoreNumView[i] setImage:image];
     }
+}
+
+/** @ghidraAddress 0x19fff0 */
+- (void)editStart {
+    [[AudioManager sharedManager] playSeResFile:kEditSelectSound inDirectory:nil];
+    [self.controller showButtonMarker:NO];
+    [self.buttonStartPlay setEnabled:NO];
+
+    __weak MusicDetailViewKnt *weakSelf = self;
+    [UIView animateWithDuration:kEditTransitionDuration
+        delay:0.0
+        options:UIViewAnimationOptionBeginFromCurrentState
+        animations:^{
+          /** @ghidraAddress 0x1a0220 */
+          CATransform3D shrink =
+              CATransform3DMakeScale(kEditButtonShrinkScale, kEditButtonShrinkScale, 1.0);
+          for (int i = 0; i < kDiffButtonCount; ++i) {
+              [self->btnDiff[i] setAlpha:0.0];
+              self->btnDiff[i].layer.transform = shrink;
+          }
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x1a03bc */
+          [weakSelf.controller startEdit:weakSelf.info];
+        }];
+
+    // Input is ignored through the transition and re-enabled a beat after it ends.
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kEditInputLockDuration];
 }
 
 /** @ghidraAddress 0x19b3d0 */
