@@ -149,6 +149,13 @@ static NSString *const kDifficultyVoiceCues[] = {
 static const NSTimeInterval kSelectDiffInputLock = 0.4;       // @ghidraAddress 0x28f268
 static const NSTimeInterval kSelectDiffExtendInputLock = 0.3; // @ghidraAddress 0x28f260
 
+// The download-lamp pulse timing: after a half-second delay each lamp pulses to double height and
+// fades out over a half second.
+static const NSTimeInterval kLampPulseDuration = 0.5; // fmov d0, 0.5
+static const NSTimeInterval kLampPulseDelay = 0.5;    // fmov d1, 0.5
+static const CGFloat kLampPulseHeightScale = 2.0;     // fmov d1, 2.0
+static const NSInteger kJcfDownloadSelectPending = 1;
+
 // The share-message label drops six points to make room for the progress bar; the show/hide
 // animates over three tenths of a second.
 static const double kShareLabelDropOffset = 6.0;              // fmov d1, 6.0
@@ -257,6 +264,24 @@ static inline void MusicDetailViewKntRepositionHighscore(MusicDetailViewKnt *sel
         centerY = kHighscoreCenterYPhone;
     }
     [self->highscoreTextView setCenter:CGPointMake(baseX + kHighscoreCenterXNudge, centerY)];
+}
+
+// Sets the difficulty buttons for a selected difficulty: the selected base button and the extend
+// button are shown full and unscaled, the other two base buttons are dimmed and shrunk. Shared by
+// changeDifficulty: and show:.
+static inline void MusicDetailViewKntSetDifficultyButtons(MusicDetailViewKnt *self, int selected) {
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        if (i == selected) {
+            [self->btnDiff[i] setAlpha:1.0];
+            [self->btnDiff[i] setTransform:CGAffineTransformIdentity];
+        } else {
+            [self->btnDiff[i] setAlpha:kDiffButtonDimAlpha];
+            [self->btnDiff[i]
+                setTransform:CGAffineTransformMakeScale(kDiffButtonDimScale, kDiffButtonDimScale)];
+        }
+    }
+    [self->btnDiff[kExtendButtonIndex] setAlpha:1.0];
+    [self->btnDiff[kExtendButtonIndex] setTransform:CGAffineTransformIdentity];
 }
 
 // Dims and shrinks every base difficulty button except the selected one, used when play starts.
@@ -570,6 +595,79 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
     [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
                                             withObject:nil
                                             afterDelay:kEditInputLockDuration];
+}
+
+/** @ghidraAddress 0x19d8d4 */
+- (void)show:(BOOL)show {
+    self.isShared = show;
+    int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    MusicDetailViewKntSetDifficultyButtons(self, difficulty);
+    [self.controller resetWillStart];
+
+    // The start button and share prompt differ between the solo and host-share presentations.
+    UIImage *startImage;
+    UIImage *hostImage;
+    if (!show) {
+        startImage = [self getSingleImage];
+        hostImage = [[ImageCache sharedCache] getResPNG:kHostButtonImage];
+        [self.labelShareMessage setHidden:YES];
+        [self.shareDataProgress setHidden:YES];
+    } else {
+        startImage = [self getStartImage];
+        hostImage = [[ImageCache sharedCache] getResPNG:kHostShareStartImage];
+        [self.labelShareMessage setText:@""];
+        [self.labelShareMessage setAlpha:1.0];
+        [self.labelShareMessage setHidden:NO];
+        [self.buttonLink setHidden:YES];
+        [self.btnRecommendTwitter setHidden:YES];
+        [self.btnRecommendFacebook setHidden:YES];
+        self.isSharedStartable = YES;
+    }
+    [self.buttonStartPlay setBackgroundImage:startImage forState:UIControlStateNormal];
+    [self.buttonHostSharePlay setBackgroundImage:hostImage forState:UIControlStateNormal];
+    [self setStartButtonEnable];
+    self.isStarted = NO;
+
+    // Restore the difficulty scroll to the remembered edit page (clamped to the detail/edit pair).
+    self.editPage = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey];
+    if (self.editPage > 1) {
+        self.editPage = 1;
+    }
+    double width = self.scrollView.frame.size.width;
+    [self.scrollView setContentOffset:CGPointMake(width * (double)self.editPage, 0.0) animated:NO];
+    [self.scrollView setScrollEnabled:YES];
+    [detailScrollButton[0] setAlpha:1.0];
+    detailScrollButton[0].layer.transform = CATransform3DMakeScale(1.0, 1.0, 1.0);
+    [detailScrollButton[1] setAlpha:1.0];
+    detailScrollButton[1].layer.transform = CATransform3DMakeScale(1.0, 1.0, 1.0);
+
+    // A pending download selection pulses the scroll and difficulty-button lamps.
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:kPrefJcfDownloadSelectKey] intValue] ==
+        kJcfDownloadSelectPending) {
+        __weak UIView *weakScrollLamp = scrollLamp;
+        __weak UIView *weakDiffLamp = diffBtnLamp;
+        [UIView animateWithDuration:kLampPulseDuration
+                              delay:kLampPulseDelay
+                            options:UIViewAnimationOptionRepeat
+                         animations:^{
+                           /** @ghidraAddress 0x19e28c */
+                           [weakScrollLamp setAlpha:0.0];
+                           [weakScrollLamp
+                               setTransform:CGAffineTransformMakeScale(1.0, kLampPulseHeightScale)];
+                         }
+                         completion:nil];
+        [UIView animateWithDuration:kLampPulseDuration
+                              delay:kLampPulseDelay
+                            options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse
+                         animations:^{
+                           /** @ghidraAddress 0x19e338 */
+                           [weakDiffLamp setAlpha:0.0];
+                           [weakDiffLamp
+                               setTransform:CGAffineTransformMakeScale(1.0, kLampPulseHeightScale)];
+                         }
+                         completion:nil];
+    }
+    [self infoChange:difficulty];
 }
 
 /** @ghidraAddress 0x19e864 */
@@ -963,20 +1061,9 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
 
 /** @ghidraAddress 0x19c16c */
 - (void)changeDifficulty:(int)difficulty {
-    // The three base-difficulty buttons: the selected one is full and unscaled, the others dim and
-    // shrink. The extend button (index 3) is always shown full.
-    for (int i = 0; i < kDiffButtonCount; ++i) {
-        if (i == difficulty) {
-            [btnDiff[i] setAlpha:1.0];
-            [btnDiff[i] setTransform:CGAffineTransformIdentity];
-        } else {
-            [btnDiff[i] setAlpha:kDiffButtonDimAlpha];
-            [btnDiff[i]
-                setTransform:CGAffineTransformMakeScale(kDiffButtonDimScale, kDiffButtonDimScale)];
-        }
-    }
-    [btnDiff[kExtendButtonIndex] setAlpha:1.0];
-    [btnDiff[kExtendButtonIndex] setTransform:CGAffineTransformIdentity];
+    // The selected base button and the extend button are full; the other two base buttons dim and
+    // shrink.
+    MusicDetailViewKntSetDifficultyButtons(self, difficulty);
     [self infoChange:difficulty];
 }
 
