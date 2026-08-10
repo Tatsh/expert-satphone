@@ -152,6 +152,64 @@ static const double kTitleSwitchFadeDuration = 1.5;
 - (void)enterAnimationStart;
 @end
 
+// De-inlined from -openStore: and -endStore:. Installs the perspective sublayer transform on the
+// root view's layer and returns the depth used for the two child layers' anchor points. The depth
+// is minus half the root view's height; the perspective term goes into the identity matrix's m34
+// slot before it is translated back by that depth.
+static inline CGFloat RootViewControllerInstallStoreSublayerTransform(RootViewController *self) {
+    CGFloat depth = self.view.bounds.size.height * -0.5;
+    CATransform3D perspective = CATransform3DIdentity;
+    perspective.m34 = kStorePerspectiveM34;
+    self.view.layer.sublayerTransform = CATransform3DTranslate(perspective, 0, 0, depth);
+    return depth;
+}
+
+// De-inlined. The binary emits this same three-message teardown five times, at 0x1a95a0, 0x1a965c,
+// 0x1a970c, 0x1a990c, and 0x1a9c68. Nilling the ivar stays at the call site because each copy
+// clears a different one.
+static inline void RootViewControllerDetachChildViewController(UIViewController *controller) {
+    [controller willMoveToParentViewController:nil];
+    [controller.view removeFromSuperview];
+    [controller removeFromParentViewController];
+}
+
+// De-inlined. Emitted twice, at 0x1a9604 and 0x1a96c0, with identical bodies. Theme 2 delegates to
+// -createKnitTitleViewController, which assigns titleViewCtrl itself; the other two allocate here.
+// Note the fallback is the original skin, so an out-of-range theme lands there rather than failing.
+static inline void RootViewControllerCreateTitleViewControllerForTheme(RootViewController *self,
+                                                                       JubeatTheme theme) {
+    if (theme == JubeatThemeKnit) {
+        [self createKnitTitleViewController];
+        return;
+    }
+    if (theme == JubeatThemeReflecBeatPlus) {
+        self->titleViewCtrl = [[TitleViewControllerRpl alloc] init];
+        return;
+    }
+    self->titleViewCtrl = [[TitleViewControllerOrg alloc] init];
+}
+
+// De-inlined from the two title routes: install the freshly built title screen and start it.
+static inline void RootViewControllerInstallTitleViewController(RootViewController *self) {
+    [self addChildViewController:self->titleViewCtrl];
+    [self->titleViewCtrl didMoveToParentViewController:self];
+    [self.view insertSubview:self->titleViewCtrl.view belowSubview:self->fadeView];
+    [self->titleViewCtrl start];
+}
+
+// De-inlined from the tail at 0x1a9a94: fade the black cover back out over durationOut, and hand
+// off to -fadeinAnimStop:finished:context:, which is what re-enables input.
+static inline void RootViewControllerBeginFadeInForAnimation(RootViewController *self,
+                                                             NSString *animationID) {
+    [UIView beginAnimations:animationID context:nullptr];
+    [UIView setAnimationCurve:UIViewAnimationCurveLinear];
+    [UIView setAnimationDuration:self->durationOut];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(fadeinAnimStop:finished:context:)];
+    self->fadeView.alpha = 0.0;
+    [UIView commitAnimations];
+}
+
 @implementation RootViewController
 
 #pragma mark - Construction
@@ -202,62 +260,6 @@ static const double kTitleSwitchFadeDuration = 1.5;
 }
 
 #pragma mark - Transition helpers
-
-// De-inlined from -openStore: and -endStore:. Installs the perspective sublayer transform on the
-// root view's layer and returns the depth used for the two child layers' anchor points. The depth
-// is minus half the root view's height; the perspective term goes into the identity matrix's m34
-// slot before it is translated back by that depth.
-- (CGFloat)installStoreSublayerTransform {
-    CGFloat depth = self.view.bounds.size.height * -0.5;
-    CATransform3D perspective = CATransform3DIdentity;
-    perspective.m34 = kStorePerspectiveM34;
-    self.view.layer.sublayerTransform = CATransform3DTranslate(perspective, 0, 0, depth);
-    return depth;
-}
-
-// De-inlined. The binary emits this same three-message teardown five times, at 0x1a95a0, 0x1a965c,
-// 0x1a970c, 0x1a990c, and 0x1a9c68. Nilling the ivar stays at the call site because each copy
-// clears a different one.
-- (void)detachChildViewController:(UIViewController *)controller {
-    [controller willMoveToParentViewController:nil];
-    [controller.view removeFromSuperview];
-    [controller removeFromParentViewController];
-}
-
-// De-inlined. Emitted twice, at 0x1a9604 and 0x1a96c0, with identical bodies. Theme 2 delegates to
-// -createKnitTitleViewController, which assigns titleViewCtrl itself; the other two allocate here.
-// Note the fallback is the original skin, so an out-of-range theme lands there rather than failing.
-- (void)createTitleViewControllerForTheme:(JubeatTheme)theme {
-    if (theme == JubeatThemeKnit) {
-        [self createKnitTitleViewController];
-        return;
-    }
-    if (theme == JubeatThemeReflecBeatPlus) {
-        titleViewCtrl = [[TitleViewControllerRpl alloc] init];
-        return;
-    }
-    titleViewCtrl = [[TitleViewControllerOrg alloc] init];
-}
-
-// De-inlined from the two title routes: install the freshly built title screen and start it.
-- (void)installTitleViewController {
-    [self addChildViewController:titleViewCtrl];
-    [titleViewCtrl didMoveToParentViewController:self];
-    [self.view insertSubview:titleViewCtrl.view belowSubview:fadeView];
-    [titleViewCtrl start];
-}
-
-// De-inlined from the tail at 0x1a9a94: fade the black cover back out over durationOut, and hand
-// off to -fadeinAnimStop:finished:context:, which is what re-enables input.
-- (void)beginFadeInForAnimation:(NSString *)animationID {
-    [UIView beginAnimations:animationID context:nullptr];
-    [UIView setAnimationCurve:UIViewAnimationCurveLinear];
-    [UIView setAnimationDuration:durationOut];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDidStopSelector:@selector(fadeinAnimStop:finished:context:)];
-    fadeView.alpha = 0.0;
-    [UIView commitAnimations];
-}
 
 // The class-method calls to UIView below are the pre-iOS-4 begin/commit animation API, deprecated
 // in 2010 and never removed. They are not a reconstruction artefact: the receiver resolves to
@@ -335,21 +337,21 @@ static const double kTitleSwitchFadeDuration = 1.5;
     if ([animationID isEqualToString:kTitleAnimationName]) {
         // Logo to title. The logo screen gets no stop message before teardown, unlike the title and
         // music-select screens below.
-        [self detachChildViewController:logoViewCtrl];
+        RootViewControllerDetachChildViewController(logoViewCtrl);
         logoViewCtrl = nil;
-        [self createTitleViewControllerForTheme:theme];
-        [self installTitleViewController];
+        RootViewControllerCreateTitleViewControllerForTheme(self, theme);
+        RootViewControllerInstallTitleViewController(self);
     } else if ([animationID isEqualToString:kChangeThemeAnimationName]) {
         // Music select back to title under a new skin.
         [musicSelectViewCtrl stopStoreInfo];
-        [self detachChildViewController:musicSelectViewCtrl];
+        RootViewControllerDetachChildViewController(musicSelectViewCtrl);
         musicSelectViewCtrl = nil;
-        [self createTitleViewControllerForTheme:theme];
-        [self installTitleViewController];
+        RootViewControllerCreateTitleViewControllerForTheme(self, theme);
+        RootViewControllerInstallTitleViewController(self);
     } else if ([animationID isEqualToString:kSelectAnimationName]) {
         // Title to music select.
         [titleViewCtrl stopAnimation];
-        [self detachChildViewController:titleViewCtrl];
+        RootViewControllerDetachChildViewController(titleViewCtrl);
         titleViewCtrl = nil;
         musicSelectViewCtrl = [[MusicSelectViewController alloc] init];
         [self addChildViewController:musicSelectViewCtrl];
@@ -358,7 +360,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
         [musicSelectViewCtrl startMainBgm];
     } else if ([animationID isEqualToString:kStartGameAnimationName]) {
         // Music select into gameplay. gameViewCtrl is built elsewhere; this only reveals it.
-        [self detachChildViewController:musicSelectViewCtrl];
+        RootViewControllerDetachChildViewController(musicSelectViewCtrl);
         musicSelectViewCtrl = nil;
         [self.view insertSubview:gameViewCtrl.view belowSubview:fadeView];
         [gameViewCtrl loadResources];
@@ -383,7 +385,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
         }
     } else if ([animationID isEqualToString:kStartEditAnimationName]) {
         // Music select into the note editor.
-        [self detachChildViewController:musicSelectViewCtrl];
+        RootViewControllerDetachChildViewController(musicSelectViewCtrl);
         musicSelectViewCtrl = nil;
         [self.view insertSubview:editViewCtrl.view belowSubview:fadeView];
         [editViewCtrl loadResources];
@@ -411,7 +413,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
         [self titleSwitch];
     }
     // Every arm, and an animation name matching none of them, converges here.
-    [self beginFadeInForAnimation:animationID];
+    RootViewControllerBeginFadeInForAnimation(self, animationID);
 }
 
 /** @ghidraAddress 0x1a9fec */
@@ -488,7 +490,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
     [AudioManager.sharedManager fadeoutBgm:1.0];
 
     // Perspective on the root layer; both children share the same anchor-point depth.
-    CGFloat depth = [self installStoreSublayerTransform];
+    CGFloat depth = RootViewControllerInstallStoreSublayerTransform(self);
 
     // Music select starts flat and facing the player.
     musicSelectViewCtrl.view.layer.transform = CATransform3DIdentity;
@@ -530,7 +532,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
     [AudioManager.sharedManager stopBgm];
     [storeViewCtrl storeClose];
 
-    CGFloat depth = [self installStoreSublayerTransform];
+    CGFloat depth = RootViewControllerInstallStoreSublayerTransform(self);
 
     // The store starts flat and facing the player.
     storeViewCtrl.view.layer.transform = CATransform3DIdentity;
@@ -578,7 +580,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
     storeViewCtrl.view.layer.anchorPointZ = 0.0;
 
     // Music select goes away entirely once the store is up.
-    [self detachChildViewController:musicSelectViewCtrl];
+    RootViewControllerDetachChildViewController(musicSelectViewCtrl);
     musicSelectViewCtrl = nil;
 
     [storeViewCtrl loadInitialStoreInfo];
@@ -596,7 +598,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
     self.view.layer.sublayerTransform = CATransform3DIdentity;
     storeViewCtrl.view.layer.shouldRasterize = NO;
 
-    [self detachChildViewController:storeViewCtrl];
+    RootViewControllerDetachChildViewController(storeViewCtrl);
     storeViewCtrl = nil;
 
     musicSelectViewCtrl.view.layer.anchorPointZ = 0.0;
@@ -633,7 +635,7 @@ static const double kTitleSwitchFadeDuration = 1.5;
     if ([titleViewCtrl isKindOfClass:TitleViewControllerNte.class]) {
         [titleViewCtrl stopAnimation];
     }
-    [self detachChildViewController:titleViewCtrl];
+    RootViewControllerDetachChildViewController(titleViewCtrl);
     titleViewCtrl = nil;
 
     // Always the knit screen, whatever was there before: this transition only ever switches towards

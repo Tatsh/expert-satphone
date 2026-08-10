@@ -45,8 +45,9 @@ static NSString *const kStopImageName = @"stop.png";
 static NSString *const kTimeZeroText = @" 00:00";
 static NSString *const kTimeFormat = @"-%02d:%02d";
 
-// The shared 0.20-second animation duration global, defined elsewhere in the binary.
-extern const double g_dAnimDuration020;
+// The 0.20-second animation duration is a __const literal-pool slot, not an exported global; the
+// binary loads it inline at each use.
+static const double kAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 
 // The menu overlay states stored in _menuStatus.
 typedef enum {
@@ -72,124 +73,10 @@ static const CGFloat kErrorFontScale = 0.0625;
 // The streaming-error overlay's grey level and alpha (read from __const at 0x28e080 for alpha).
 static const CGFloat kErrorOverlayAlpha = 0.8;
 
-@implementation VideoView
-
-#pragma mark - Lifecycle
-
-/** @ghidraAddress 0x227104 */
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
-    if (self) {
-        self.backgroundColor = UIColor.clearColor;
-        self.opaque = NO;
-        self.autoresizingMask =
-            UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleWidth |
-            UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin |
-            UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
-        self.contentMode = UIViewContentModeScaleAspectFit;
-    }
-    return self;
-}
-
-/** @ghidraAddress 0x2271e0 */
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    if (self.playerLayer) {
-        self.playerLayer.frame = self.bounds;
-    }
-    if (self.gradationTopView) {
-        [self.gradationTopView setNeedsDisplay];
-    }
-    if (self.gradationButtomView) {
-        [self.gradationButtomView setNeedsDisplay];
-    }
-}
-
-/** @ghidraAddress 0x2272a0 */
-- (void)setAutoPlay {
-    self.autoPlayFlg = YES;
-}
-
-#pragma mark - Loading
-
-/** @ghidraAddress 0x2272b4 */
-- (void)setMovieUrl:(NSString *)movieUrl
-          posterUrl:(NSString *)posterUrl
-      movieVoiceFlg:(NSString *)movieVoiceFlg {
-    [self streamingTimeoutWatch];
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-      /** @ghidraAddress 0x2273e0 */
-      if (![RecommendAdCache getMoviePlayerIcon]) {
-          if (self.delegate && [self.delegate respondsToSelector:@selector(closeNotice:)]) {
-              [self.delegate closeNotice:self];
-          }
-          return;
-      }
-      NSString *fileName = [ApplilinkUtilities getFileNameFromPath:movieUrl];
-      NSString *cachePath =
-          [[ApplilinkFile getCacheDataPath] stringByAppendingPathComponent:fileName];
-      NSURL *url;
-      if ([NSFileManager.defaultManager fileExistsAtPath:cachePath]) {
-          url = [NSURL fileURLWithPath:cachePath];
-      } else {
-          if (self.autoPlayFlg) {
-              // Not cached and set to auto-play: report the error and create no player.
-              if (self.delegate &&
-                  [self.delegate respondsToSelector:@selector(movieAutoStartError)]) {
-                  [self.delegate movieAutoStartError];
-              }
-              return;
-          }
-          url = [NSURL URLWithString:movieUrl];
-      }
-      self.playerItem = [[AVPlayerItem alloc] initWithURL:url];
-      [self.playerItem addObserver:self
-                        forKeyPath:kKeyPathStatus
-                           options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
-                           context:nullptr];
-      [self.playerItem addObserver:self
-                        forKeyPath:kKeyPathPlaybackBufferEmpty
-                           options:NSKeyValueObservingOptionNew
-                           context:nullptr];
-      [self.playerItem addObserver:self
-                        forKeyPath:kKeyPathPlaybackLikelyToKeepUp
-                           options:NSKeyValueObservingOptionNew
-                           context:nullptr];
-      [NSNotificationCenter.defaultCenter addObserver:self
-                                             selector:@selector(playerDidPlayToEndTime:)
-                                                 name:AVPlayerItemDidPlayToEndTimeNotification
-                                               object:self.playerItem];
-      self.player = [AVPlayer playerWithPlayerItem:self.playerItem];
-      BOOL soundOn = [movieVoiceFlg isEqualToString:kMovieVoiceOnFlag];
-      if (soundOn) {
-          [self.player setVolume:1.0f];
-      } else {
-          // The binary leaves the muted-path setVolume: argument in its zeroed register: 0.0f.
-          [self.player setVolume:0.0f];
-      }
-      [self.player setMuted:!soundOn];
-      self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
-      [self.playerLayer addObserver:self
-                         forKeyPath:kKeyPathReadyForDisplay
-                            options:NSKeyValueObservingOptionNew
-                            context:nullptr];
-      self.playerLayer.frame = self.bounds;
-      self.playerLayer.videoGravity = AVLayerVideoGravityResizeAspect;
-      self.playerLayer.position =
-          CGPointMake(CGRectGetWidth(self.bounds) * 0.5, CGRectGetHeight(self.bounds) * 0.5);
-      self.playerLayer.anchorPoint = CGPointMake(0.5, 0.5);
-      self.playerLayer.contentsGravity = kCAGravityCenter;
-      dispatch_async(dispatch_get_main_queue(), ^{
-        /** @ghidraAddress 0x2279c0 */
-        [self buildPlayerChromeWithPosterUrl:posterUrl movieVoiceFlg:movieVoiceFlg];
-      });
-    });
-}
-
 // Main-queue body that builds the whole on-screen chrome (menu overlay, gradients, buttons, and
 // time label). De-inlined from Block_VideoViewBuildPlayerChrome @ 0x2279c0.
-- (void)buildPlayerChromeWithPosterUrl:(NSString *)posterUrl
-                         movieVoiceFlg:(NSString *)movieVoiceFlg {
+static inline void
+VideoViewBuildPlayerChrome(VideoView *self, NSString *posterUrl, NSString *movieVoiceFlg) {
     [self.layer addSublayer:self.playerLayer];
     NSString *resourcePath = [ApplilinkFile getResourcePath];
     CGRect screen = UIScreen.mainScreen.bounds;
@@ -393,6 +280,181 @@ static const CGFloat kErrorOverlayAlpha = 0.8;
             [self.delegate movieSoundUse];
         }
     }
+}
+
+// Builds the translucent overlay with the two localised error-message labels. De-inlined from
+// Block_VideoViewShowStreamingErrorOverlay @ 0x22aac0.
+static inline void VideoViewShowStreamingErrorOverlay(VideoView *self) {
+    self.playButton.hidden = YES;
+    // Font sized from the short side of the menu view.
+    CGFloat shortSide = CGRectGetWidth(self.memuView.frame);
+    if (CGRectGetHeight(self.memuView.frame) < shortSide) {
+        shortSide = CGRectGetHeight(self.memuView.frame);
+    }
+    CGFloat fontSize = shortSide * kErrorFontScale;
+
+    UIView *overlay = [[UIView alloc] initWithFrame:self.memuView.frame];
+    overlay.autoresizingMask =
+        UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleWidth |
+        UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin |
+        UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+    // The binary builds this grey via colorWithRed:green:blue:alpha: with 0.2 components and 0.8
+    // alpha (0.2 reuses the kAnimDuration020 constant for the RGB channels).
+    overlay.backgroundColor = [UIColor colorWithRed:kAnimDuration020
+                                              green:kAnimDuration020
+                                               blue:kAnimDuration020
+                                              alpha:kErrorOverlayAlpha];
+    [self.memuView addSubview:overlay];
+
+    CGFloat quarter = (CGFloat)(CGRectGetHeight(overlay.frame) * 0.25f);
+    CGFloat labelX = (CGFloat)(fontSize / 10.0f);
+    CGFloat labelWidth = (CGFloat)((fontSize / 10.0f) * 8.0f);
+
+    UILabel *label1 =
+        [[UILabel alloc] initWithFrame:CGRectMake(labelX, quarter, labelWidth, quarter)];
+    label1.autoresizingMask =
+        UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleWidth |
+        UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin |
+        UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+    label1.font = [UIFont boldSystemFontOfSize:fontSize];
+    label1.numberOfLines = 1;
+    label1.adjustsFontSizeToFitWidth = YES;
+    label1.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+    label1.textAlignment = NSTextAlignmentCenter;
+    label1.textColor = UIColor.whiteColor;
+    label1.backgroundColor = UIColor.clearColor;
+    label1.text = [ApplilinkMessage localizedMessage:kStreamingErrorMessageKey1];
+    [overlay addSubview:label1];
+
+    UILabel *label2 =
+        [[UILabel alloc] initWithFrame:CGRectMake(labelX, quarter + quarter, labelWidth, quarter)];
+    label2.autoresizingMask =
+        UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleWidth |
+        UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin |
+        UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+    label2.font = [UIFont boldSystemFontOfSize:fontSize];
+    label2.numberOfLines = 1;
+    label2.adjustsFontSizeToFitWidth = YES;
+    label2.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
+    label2.textAlignment = NSTextAlignmentCenter;
+    label2.textColor = UIColor.whiteColor;
+    label2.backgroundColor = UIColor.clearColor;
+    label2.text = [ApplilinkMessage localizedMessage:kStreamingErrorMessageKey2];
+    [overlay addSubview:label2];
+}
+
+@implementation VideoView
+
+#pragma mark - Lifecycle
+
+/** @ghidraAddress 0x227104 */
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = UIColor.clearColor;
+        self.opaque = NO;
+        self.autoresizingMask =
+            UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleWidth |
+            UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin |
+            UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
+        self.contentMode = UIViewContentModeScaleAspectFit;
+    }
+    return self;
+}
+
+/** @ghidraAddress 0x2271e0 */
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    if (self.playerLayer) {
+        self.playerLayer.frame = self.bounds;
+    }
+    if (self.gradationTopView) {
+        [self.gradationTopView setNeedsDisplay];
+    }
+    if (self.gradationButtomView) {
+        [self.gradationButtomView setNeedsDisplay];
+    }
+}
+
+/** @ghidraAddress 0x2272a0 */
+- (void)setAutoPlay {
+    self.autoPlayFlg = YES;
+}
+
+#pragma mark - Loading
+
+/** @ghidraAddress 0x2272b4 */
+- (void)setMovieUrl:(NSString *)movieUrl
+          posterUrl:(NSString *)posterUrl
+      movieVoiceFlg:(NSString *)movieVoiceFlg {
+    [self streamingTimeoutWatch];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+      /** @ghidraAddress 0x2273e0 */
+      if (![RecommendAdCache getMoviePlayerIcon]) {
+          if (self.delegate && [self.delegate respondsToSelector:@selector(closeNotice:)]) {
+              [self.delegate closeNotice:self];
+          }
+          return;
+      }
+      NSString *fileName = [ApplilinkUtilities getFileNameFromPath:movieUrl];
+      NSString *cachePath =
+          [[ApplilinkFile getCacheDataPath] stringByAppendingPathComponent:fileName];
+      NSURL *url;
+      if ([NSFileManager.defaultManager fileExistsAtPath:cachePath]) {
+          url = [NSURL fileURLWithPath:cachePath];
+      } else {
+          if (self.autoPlayFlg) {
+              // Not cached and set to auto-play: report the error and create no player.
+              if (self.delegate &&
+                  [self.delegate respondsToSelector:@selector(movieAutoStartError)]) {
+                  [self.delegate movieAutoStartError];
+              }
+              return;
+          }
+          url = [NSURL URLWithString:movieUrl];
+      }
+      self.playerItem = [[AVPlayerItem alloc] initWithURL:url];
+      [self.playerItem addObserver:self
+                        forKeyPath:kKeyPathStatus
+                           options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
+                           context:nullptr];
+      [self.playerItem addObserver:self
+                        forKeyPath:kKeyPathPlaybackBufferEmpty
+                           options:NSKeyValueObservingOptionNew
+                           context:nullptr];
+      [self.playerItem addObserver:self
+                        forKeyPath:kKeyPathPlaybackLikelyToKeepUp
+                           options:NSKeyValueObservingOptionNew
+                           context:nullptr];
+      [NSNotificationCenter.defaultCenter addObserver:self
+                                             selector:@selector(playerDidPlayToEndTime:)
+                                                 name:AVPlayerItemDidPlayToEndTimeNotification
+                                               object:self.playerItem];
+      self.player = [AVPlayer playerWithPlayerItem:self.playerItem];
+      BOOL soundOn = [movieVoiceFlg isEqualToString:kMovieVoiceOnFlag];
+      if (soundOn) {
+          [self.player setVolume:1.0f];
+      } else {
+          // The binary leaves the muted-path setVolume: argument in its zeroed register: 0.0f.
+          [self.player setVolume:0.0f];
+      }
+      [self.player setMuted:!soundOn];
+      self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+      [self.playerLayer addObserver:self
+                         forKeyPath:kKeyPathReadyForDisplay
+                            options:NSKeyValueObservingOptionNew
+                            context:nullptr];
+      self.playerLayer.frame = self.bounds;
+      self.playerLayer.videoGravity = AVLayerVideoGravityResizeAspect;
+      self.playerLayer.position =
+          CGPointMake(CGRectGetWidth(self.bounds) * 0.5, CGRectGetHeight(self.bounds) * 0.5);
+      self.playerLayer.anchorPoint = CGPointMake(0.5, 0.5);
+      self.playerLayer.contentsGravity = kCAGravityCenter;
+      dispatch_async(dispatch_get_main_queue(), ^{
+        /** @ghidraAddress 0x2279c0 */
+        VideoViewBuildPlayerChrome(self, posterUrl, movieVoiceFlg);
+      });
+    });
 }
 
 /** @ghidraAddress 0x228c6c */
@@ -712,7 +774,7 @@ static const CGFloat kErrorOverlayAlpha = 0.8;
     if (self.menuStatus == VideoViewMenuStatusHidden) {
         self.menuStatus = VideoViewMenuStatusAnimating;
         self.memuView.hidden = NO;
-        [UIView animateWithDuration:g_dAnimDuration020
+        [UIView animateWithDuration:kAnimDuration020
             delay:0
             options:0
             animations:^{
@@ -736,7 +798,7 @@ static const CGFloat kErrorOverlayAlpha = 0.8;
     if (self.menuStatus == VideoViewMenuStatusHidden) {
         self.menuStatus = VideoViewMenuStatusAnimating;
         self.memuView.hidden = NO;
-        [UIView animateWithDuration:g_dAnimDuration020
+        [UIView animateWithDuration:kAnimDuration020
                               delay:0
                             options:0
                          animations:^{
@@ -759,7 +821,7 @@ static const CGFloat kErrorOverlayAlpha = 0.8;
                                                    object:nil];
         if (self.menuStatus == VideoViewMenuStatusShown) {
             self.menuStatus = VideoViewMenuStatusAnimating;
-            [UIView animateWithDuration:g_dAnimDuration020
+            [UIView animateWithDuration:kAnimDuration020
                 delay:0
                 options:0
                 animations:^{
@@ -805,70 +867,9 @@ static const CGFloat kErrorOverlayAlpha = 0.8;
         self.errorFlg = YES;
         dispatch_async(dispatch_get_main_queue(), ^{
           /** @ghidraAddress 0x22aac0 */
-          [self showStreamingErrorOverlay];
+          VideoViewShowStreamingErrorOverlay(self);
         });
     }
-}
-
-// Builds the translucent overlay with the two localised error-message labels. De-inlined from
-// Block_VideoViewShowStreamingErrorOverlay @ 0x22aac0.
-- (void)showStreamingErrorOverlay {
-    self.playButton.hidden = YES;
-    // Font sized from the short side of the menu view.
-    CGFloat shortSide = CGRectGetWidth(self.memuView.frame);
-    if (CGRectGetHeight(self.memuView.frame) < shortSide) {
-        shortSide = CGRectGetHeight(self.memuView.frame);
-    }
-    CGFloat fontSize = shortSide * kErrorFontScale;
-
-    UIView *overlay = [[UIView alloc] initWithFrame:self.memuView.frame];
-    overlay.autoresizingMask =
-        UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
-    // The binary builds this grey via colorWithRed:green:blue:alpha: with 0.2 components and 0.8
-    // alpha (0.2 reuses the g_dAnimDuration020 constant for the RGB channels).
-    overlay.backgroundColor = [UIColor colorWithRed:g_dAnimDuration020
-                                              green:g_dAnimDuration020
-                                               blue:g_dAnimDuration020
-                                              alpha:kErrorOverlayAlpha];
-    [self.memuView addSubview:overlay];
-
-    CGFloat quarter = (CGFloat)(CGRectGetHeight(overlay.frame) * 0.25f);
-    CGFloat labelX = (CGFloat)(fontSize / 10.0f);
-    CGFloat labelWidth = (CGFloat)((fontSize / 10.0f) * 8.0f);
-
-    UILabel *label1 =
-        [[UILabel alloc] initWithFrame:CGRectMake(labelX, quarter, labelWidth, quarter)];
-    label1.autoresizingMask =
-        UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
-    label1.font = [UIFont boldSystemFontOfSize:fontSize];
-    label1.numberOfLines = 1;
-    label1.adjustsFontSizeToFitWidth = YES;
-    label1.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-    label1.textAlignment = NSTextAlignmentCenter;
-    label1.textColor = UIColor.whiteColor;
-    label1.backgroundColor = UIColor.clearColor;
-    label1.text = [ApplilinkMessage localizedMessage:kStreamingErrorMessageKey1];
-    [overlay addSubview:label1];
-
-    UILabel *label2 =
-        [[UILabel alloc] initWithFrame:CGRectMake(labelX, quarter + quarter, labelWidth, quarter)];
-    label2.autoresizingMask =
-        UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
-    label2.font = [UIFont boldSystemFontOfSize:fontSize];
-    label2.numberOfLines = 1;
-    label2.adjustsFontSizeToFitWidth = YES;
-    label2.baselineAdjustment = UIBaselineAdjustmentAlignCenters;
-    label2.textAlignment = NSTextAlignmentCenter;
-    label2.textColor = UIColor.whiteColor;
-    label2.backgroundColor = UIColor.clearColor;
-    label2.text = [ApplilinkMessage localizedMessage:kStreamingErrorMessageKey2];
-    [overlay addSubview:label2];
 }
 
 #pragma mark - Store lifecycle notices (empty stubs in the binary)

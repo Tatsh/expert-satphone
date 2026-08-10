@@ -29,6 +29,11 @@ static const int kMaxValidScore = 999999;
 // The music list is fetched in chunks of this many tunes.
 static const NSUInteger kFetchChunkSize = 15;
 
+// The managed object context every fetch runs against.
+static inline NSManagedObjectContext *ScoreRecordContext(void) {
+    return [ScoreRecordManager sharedManager].managedObjectContext;
+}
+
 @implementation ScoreRecord
 
 @dynamic tuneID, fcBas, fcAdv, fcExt, mbBas, mbAdv, mbExt, scoBas, scoAdv, scoExt, lastPlayDate,
@@ -36,14 +41,9 @@ static const NSUInteger kFetchChunkSize = 15;
 
 #pragma mark - Fetching
 
-// The managed object context every fetch runs against.
-+ (NSManagedObjectContext *)context {
-    return [ScoreRecordManager sharedManager].managedObjectContext;
-}
-
 /** @ghidraAddress 0x9bc90 */
 + (ScoreRecord *)recordForTuneID:(unsigned int)tuneID {
-    NSManagedObjectContext *context = [self context];
+    NSManagedObjectContext *context = ScoreRecordContext();
     NSFetchRequest *request = [[NSFetchRequest alloc] init];
     request.entity = [NSEntityDescription entityForName:kEntityName inManagedObjectContext:context];
     request.predicate = [NSPredicate predicateWithFormat:kPredicateTuneIDEquals, tuneID];
@@ -56,7 +56,7 @@ static const NSUInteger kFetchChunkSize = 15;
 
 /** @ghidraAddress 0x9be20 */
 + (NSArray<ScoreRecord *> *)recordsForTuneIDs:(NSArray *)tuneIDs {
-    NSManagedObjectContext *context = [self context];
+    NSManagedObjectContext *context = ScoreRecordContext();
     NSFetchRequest *request = [[NSFetchRequest alloc] init];
     request.entity = [NSEntityDescription entityForName:kEntityName inManagedObjectContext:context];
     request.predicate = [NSPredicate predicateWithFormat:kPredicateTuneIDIn, tuneIDs];
@@ -65,7 +65,7 @@ static const NSUInteger kFetchChunkSize = 15;
 
 /** @ghidraAddress 0x9bf94 */
 + (NSArray<ScoreRecord *> *)allRecords {
-    NSManagedObjectContext *context = [self context];
+    NSManagedObjectContext *context = ScoreRecordContext();
     NSFetchRequest *request = [[NSFetchRequest alloc] init];
     request.entity = [NSEntityDescription entityForName:kEntityName inManagedObjectContext:context];
     return [context executeFetchRequest:request error:nil];
@@ -76,8 +76,9 @@ static const NSUInteger kFetchChunkSize = 15;
 /** @ghidraAddress 0x9c098 */
 + (ScoreRecord *)createRecordWithTuneID:(unsigned int)tuneID {
     unsigned char blob[kMarkerBlobLength] = {0};
-    ScoreRecord *record = [NSEntityDescription insertNewObjectForEntityForName:kEntityName
-                                                        inManagedObjectContext:[self context]];
+    ScoreRecord *record =
+        [NSEntityDescription insertNewObjectForEntityForName:kEntityName
+                                      inManagedObjectContext:ScoreRecordContext()];
     record.tuneID = @(tuneID);
     record.mbBas = [NSData dataWithBytes:blob length:kMarkerBlobLength];
     record.mbAdv = [NSData dataWithBytes:blob length:kMarkerBlobLength];
@@ -167,7 +168,7 @@ static NSInteger ClampScore(int score) {
 
 /** @ghidraAddress 0x9cb8c */
 + (NSInteger)totalScore {
-    NSManagedObjectContext *context = [self context];
+    NSManagedObjectContext *context = ScoreRecordContext();
     NSEntityDescription *entity = [NSEntityDescription entityForName:kEntityName
                                               inManagedObjectContext:context];
     NSArray *listMusicID = [StoreMusicListManager sharedManager].listMusicID;

@@ -33,6 +33,11 @@ static const CGFloat kGenreTitleMinimumScaleFactor = 0.6; // @ghidraAddress 0x28
 // The downloaded artwork fades in over this interval; the pooled double at 0x28e040.
 static const NSTimeInterval kGenreArtworkFadeDuration = 0.2; // @ghidraAddress 0x28e040
 
+// The fallback border colour used until a genre supplies its own.
+static inline UIColor *StoreGenreBannerViewFallbackBorderColor(void) {
+    return [UIColor colorWithRed:0 green:kGenreBorderGreen blue:1 alpha:1];
+}
+
 @implementation StoreGenreBannerView {
     BOOL isPad;                   // +0x8
     UIImageView *genreShadowView; // +0x10
@@ -44,11 +49,6 @@ static const NSTimeInterval kGenreArtworkFadeDuration = 0.2; // @ghidraAddress 0
 }
 
 @synthesize delegate = _delegate;
-
-// The fallback border colour used until a genre supplies its own.
-- (UIColor *)fallbackBorderColor {
-    return [UIColor colorWithRed:0 green:kGenreBorderGreen blue:1 alpha:1];
-}
 
 #pragma mark - Construction
 
@@ -115,7 +115,7 @@ static const NSTimeInterval kGenreArtworkFadeDuration = 0.2; // @ghidraAddress 0
     NSString *imageURL = info.genreImageURL;
 
     // The border colour is the genre's own if it has one, otherwise the fallback blue.
-    borderColor = info.genreColor ? info.genreColor : [self fallbackBorderColor];
+    borderColor = info.genreColor ? info.genreColor : StoreGenreBannerViewFallbackBorderColor();
     genreBtn.layer.borderColor = borderColor.CGColor;
 
     // A genre with a non-empty artwork URL starts (or restarts) a fetch through the shared
@@ -142,7 +142,7 @@ static const NSTimeInterval kGenreArtworkFadeDuration = 0.2; // @ghidraAddress 0
 - (void)setSelectColor:(BOOL)selected {
     // Selected: a blue border on a clear background with no shadow. Unselected: the genre's own
     // border colour, a clear background, and a black shadow.
-    UIColor *borderCol = [self fallbackBorderColor];
+    UIColor *borderCol = StoreGenreBannerViewFallbackBorderColor();
     UIColor *backgroundCol = UIColor.clearColor;
     UIColor *shadowCol = UIColor.clearColor;
     if (!selected) {

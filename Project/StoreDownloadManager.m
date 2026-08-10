@@ -42,19 +42,41 @@ static NSString *const kTuneInfoIDKey = @"ID";
 // The trailing MD5 digest length appended to each downloaded pack.
 static const NSUInteger kDigestLength = 16;
 
-@interface StoreDownloadManager () <DownloaderDelegate>
-- (void)startTaskAtIndex:(unsigned int)index;
-- (void)notifyStartTask;
-- (void)notifyFailed;
-@end
-
-@implementation StoreDownloadManager {
+@interface StoreDownloadManager () <DownloaderDelegate> {
     BOOL isStarted;             // +0x8
     NSArray *tasks;             // +0x10
     Downloader *fileDownloader; // +0x18
     __weak id delegate;         // +0x20
     unsigned int _currentIndex; // +0x28
 }
+@end
+
+// Tells the delegate a task started.
+static inline void StoreDownloadManagerNotifyStartTask(StoreDownloadManager *self) {
+    if ([self->delegate respondsToSelector:@selector(downloadManagerStartTask:)]) {
+        [self->delegate performSelector:@selector(downloadManagerStartTask:) withObject:self];
+    }
+}
+
+// Reports a failure to the delegate.
+static inline void StoreDownloadManagerNotifyFailed(StoreDownloadManager *self) {
+    if ([self->delegate respondsToSelector:@selector(downloadManagerFailed:)]) {
+        [self->delegate performSelector:@selector(downloadManagerFailed:) withObject:self];
+    }
+}
+
+// Starts a download for the task at the given index through a fresh Downloader. Folded from the two
+// identical blocks in -start and -downloaderFinished:.
+static inline void StoreDownloadManagerStartTaskAtIndex(StoreDownloadManager *self,
+                                                        unsigned int index) {
+    StoreDownloadTask *task = self->tasks[index];
+    NSURL *url = [NSURL URLWithString:task.sourceURL];
+    self->fileDownloader = [[Downloader alloc] initWithURL:url delegate:self];
+    [self->fileDownloader startDownloading];
+    StoreDownloadManagerNotifyStartTask(self);
+}
+
+@implementation StoreDownloadManager
 
 @synthesize currentIndex = _currentIndex;
 
@@ -132,37 +154,13 @@ static const NSUInteger kDigestLength = 16;
 
 #pragma mark - Lifecycle
 
-// Tells the delegate a task started.
-- (void)notifyStartTask {
-    if ([delegate respondsToSelector:@selector(downloadManagerStartTask:)]) {
-        [delegate performSelector:@selector(downloadManagerStartTask:) withObject:self];
-    }
-}
-
-// Reports a failure to the delegate.
-- (void)notifyFailed {
-    if ([delegate respondsToSelector:@selector(downloadManagerFailed:)]) {
-        [delegate performSelector:@selector(downloadManagerFailed:) withObject:self];
-    }
-}
-
-// Starts a download for the task at the given index through a fresh Downloader. Folded from the two
-// identical blocks in -start and -downloaderFinished:.
-- (void)startTaskAtIndex:(unsigned int)index {
-    StoreDownloadTask *task = tasks[index];
-    NSURL *url = [NSURL URLWithString:task.sourceURL];
-    fileDownloader = [[Downloader alloc] initWithURL:url delegate:self];
-    [fileDownloader startDownloading];
-    [self notifyStartTask];
-}
-
 /** @ghidraAddress 0xd7db0 */
 - (void)start {
     if (isStarted) {
         return;
     }
     self.currentIndex = 0;
-    [self startTaskAtIndex:0];
+    StoreDownloadManagerStartTaskAtIndex(self, 0);
     isStarted = YES;
 }
 
@@ -180,7 +178,7 @@ static const NSUInteger kDigestLength = 16;
     // The pack must carry at least its trailing MD5 digest.
     if (data.length <= kDigestLength) {
         fileDownloader = nil;
-        [self notifyFailed];
+        StoreDownloadManagerNotifyFailed(self);
         return;
     }
     unsigned char digest[16];
@@ -188,7 +186,7 @@ static const NSUInteger kDigestLength = 16;
     BOOL ok = VerifyMd5Digest(data.bytes, (int)data.length - kDigestLength, digest);
     fileDownloader = nil;
     if (!ok) {
-        [self notifyFailed];
+        StoreDownloadManagerNotifyFailed(self);
         return;
     }
 
@@ -211,7 +209,7 @@ static const NSUInteger kDigestLength = 16;
     // Advance to the next task, or report completion.
     self.currentIndex = self.currentIndex + 1;
     if (self.currentIndex < tasks.count) {
-        [self startTaskAtIndex:self.currentIndex];
+        StoreDownloadManagerStartTaskAtIndex(self, self.currentIndex);
     } else if ([delegate respondsToSelector:@selector(downloadManagerCompleted:)]) {
         [delegate performSelector:@selector(downloadManagerCompleted:) withObject:self];
     }
@@ -227,7 +225,7 @@ static const NSUInteger kDigestLength = 16;
 /** @ghidraAddress 0xd8654 */
 - (void)downloaderError:(id)downloader {
     fileDownloader = nil;
-    [self notifyFailed];
+    StoreDownloadManagerNotifyFailed(self);
 }
 
 @end

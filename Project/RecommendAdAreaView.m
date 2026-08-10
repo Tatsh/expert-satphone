@@ -113,11 +113,12 @@ static NSString *const kRecommendAdAreaViewPrefixAppliIdTo = @"appli_id_to=";
 // Redeclared writable so the class can assign it internally; publicly read-only.
 @property(nonatomic, strong, readwrite, nullable) NSString *impressionId;
 
-// URL-decode the tail of a query component after stripping its leading key prefix.
-- (nullable NSString *)decodedValueFrom:(nonnull NSString *)component
-                            stripPrefix:(nonnull NSString *)prefix;
-
 @end
+
+// URL-decode the tail of a query component after stripping its leading key prefix.
+static inline NSString *RecommendAdAreaViewDecodedValueFrom(NSString *component, NSString *prefix) {
+    return [NSStringURLEncoding URLDecodedString:[component substringFromIndex:prefix.length]];
+}
 
 @implementation RecommendAdAreaView
 
@@ -356,10 +357,6 @@ static NSString *const kRecommendAdAreaViewPrefixAppliIdTo = @"appli_id_to=";
 
 #pragma mark - Advert-tap redirect
 
-- (NSString *)decodedValueFrom:(NSString *)component stripPrefix:(NSString *)prefix {
-    return [NSStringURLEncoding URLDecodedString:[component substringFromIndex:prefix.length]];
-}
-
 /** @ghidraAddress 0x273194 */
 - (int)redirectWithRequest:(NSURLRequest *)request {
     NSURL *url = request.URL;
@@ -409,58 +406,60 @@ static NSString *const kRecommendAdAreaViewPrefixAppliIdTo = @"appli_id_to=";
     NSArray *components = [query componentsSeparatedByString:kRecommendAdAreaViewQuerySeparator];
     for (NSString *component in components) {
         if ([component rangeOfString:kRecommendAdAreaViewKeyDefaultScheme].location != NSNotFound) {
-            defaultScheme = [self decodedValueFrom:component
-                                       stripPrefix:kRecommendAdAreaViewPrefixDefaultScheme];
+            defaultScheme = RecommendAdAreaViewDecodedValueFrom(
+                component, kRecommendAdAreaViewPrefixDefaultScheme);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyAdType].location != NSNotFound) {
-            adType = [self decodedValueFrom:component stripPrefix:kRecommendAdAreaViewPrefixAdType];
+            adType =
+                RecommendAdAreaViewDecodedValueFrom(component, kRecommendAdAreaViewPrefixAdType);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyAdModel].location !=
                    NSNotFound) {
-            adModel = [self decodedValueFrom:component
-                                 stripPrefix:kRecommendAdAreaViewPrefixAdModel];
+            adModel =
+                RecommendAdAreaViewDecodedValueFrom(component, kRecommendAdAreaViewPrefixAdModel);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyAdLocation].location !=
                    NSNotFound) {
             // Yes, the binary parses ad_location and then reads the _adLocation ivar at the call
             // sites below, so the decoded value is discarded.
-            (void)[self decodedValueFrom:component
-                             stripPrefix:kRecommendAdAreaViewPrefixAdLocation];
+            (void)RecommendAdAreaViewDecodedValueFrom(component,
+                                                      kRecommendAdAreaViewPrefixAdLocation);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyAdIdFrom].location !=
                    NSNotFound) {
-            adIdFrom = [self decodedValueFrom:component
-                                  stripPrefix:kRecommendAdAreaViewPrefixAdIdFrom];
+            adIdFrom =
+                RecommendAdAreaViewDecodedValueFrom(component, kRecommendAdAreaViewPrefixAdIdFrom);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyAdIdTo].location != NSNotFound) {
-            adIdTo = [self decodedValueFrom:component stripPrefix:kRecommendAdAreaViewPrefixAdIdTo];
+            adIdTo =
+                RecommendAdAreaViewDecodedValueFrom(component, kRecommendAdAreaViewPrefixAdIdTo);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyCountryCode].location !=
                    NSNotFound) {
-            countryCode = [self decodedValueFrom:component
-                                     stripPrefix:kRecommendAdAreaViewPrefixCountryCode];
+            countryCode = RecommendAdAreaViewDecodedValueFrom(
+                component, kRecommendAdAreaViewPrefixCountryCode);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyCategoryId].location !=
                    NSNotFound) {
-            categoryId = [self decodedValueFrom:component
-                                    stripPrefix:kRecommendAdAreaViewPrefixCategoryId];
+            categoryId = RecommendAdAreaViewDecodedValueFrom(component,
+                                                             kRecommendAdAreaViewPrefixCategoryId);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyCreativeId].location !=
                    NSNotFound) {
-            creativeId = [self decodedValueFrom:component
-                                    stripPrefix:kRecommendAdAreaViewPrefixCreativeId];
+            creativeId = RecommendAdAreaViewDecodedValueFrom(component,
+                                                             kRecommendAdAreaViewPrefixCreativeId);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyIncentiveType].location !=
                    NSNotFound) {
-            incentiveType = [self decodedValueFrom:component
-                                       stripPrefix:kRecommendAdAreaViewPrefixIncentiveType];
+            incentiveType = RecommendAdAreaViewDecodedValueFrom(
+                component, kRecommendAdAreaViewPrefixIncentiveType);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyInstallFlg].location !=
                    NSNotFound) {
-            installFlg = [self decodedValueFrom:component
-                                    stripPrefix:kRecommendAdAreaViewPrefixInstallFlg];
+            installFlg = RecommendAdAreaViewDecodedValueFrom(component,
+                                                             kRecommendAdAreaViewPrefixInstallFlg);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyDisplayNumber].location !=
                    NSNotFound) {
-            displayNumber = [self decodedValueFrom:component
-                                       stripPrefix:kRecommendAdAreaViewPrefixDisplayNumber];
+            displayNumber = RecommendAdAreaViewDecodedValueFrom(
+                component, kRecommendAdAreaViewPrefixDisplayNumber);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyStoreId].location !=
                    NSNotFound) {
-            storeId = [self decodedValueFrom:component
-                                 stripPrefix:kRecommendAdAreaViewPrefixStoreId];
+            storeId =
+                RecommendAdAreaViewDecodedValueFrom(component, kRecommendAdAreaViewPrefixStoreId);
         } else if ([component rangeOfString:kRecommendAdAreaViewKeyAppliIdTo].location !=
                    NSNotFound) {
-            appliIdTo = [self decodedValueFrom:component
-                                   stripPrefix:kRecommendAdAreaViewPrefixAppliIdTo];
+            appliIdTo =
+                RecommendAdAreaViewDecodedValueFrom(component, kRecommendAdAreaViewPrefixAppliIdTo);
         }
     }
 

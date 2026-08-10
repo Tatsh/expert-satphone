@@ -62,6 +62,341 @@ enum { kDebugTextGlyphCap = 0x200, kDebugFontFirstGlyph = 0x20 };
 @interface EditNoteRendererPhone ()
 @end
 
+// Builds the knit beat-background texture, its sprite table, and its colour variant blits.
+// De-inlined from 0x20ec38.
+static inline void EditNoteRendererPhoneLoadBeatBgTexture(EditNoteRendererPhone *self,
+                                                          BFCodec *codec,
+                                                          NSData *cipherKey) {
+    if (self.texBeatBg) {
+        return;
+    }
+    self.texBeatBg = [[Texture2D alloc] initWithData:nullptr
+                                         pixelFormat:Texture2DPixelFormatRGBA8888
+                                           pixelSize:0x800];
+    NSString *plist = [NSBundle.mainBundle pathForResource:@"game_beatbg_knt_tex_pn2"
+                                                    ofType:@"plist"];
+    [self.texBeatBg setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
+    LoadTextureSubImageFromEncryptedTex(
+        self.texBeatBg, @"game_beatbg_knt_tex_1_pn2", codec, CGPointMake(0.0, 318.0));
+    // The knit colour variant is chosen from a user default, clamped to the three shipped colours.
+    NSInteger colorKnit = [NSUserDefaults.standardUserDefaults integerForKey:@"PrefColorKnit"];
+    if (colorKnit > 3) {
+        colorKnit = 0;
+    }
+    NSString *path1 = [NSBundle.mainBundle
+        pathForResource:[NSString stringWithFormat:@"game_bg_knt_%d_1", (int)colorKnit]
+                 ofType:@"png"];
+    if (path1) {
+        UIImage *image = [[UIImage alloc] initWithContentsOfFile:path1];
+        [self.texBeatBg setSubImage:image inRect:[self.texBeatBg spriteAtIndex:9]];
+    }
+    NSString *path2 = [NSBundle.mainBundle
+        pathForResource:[NSString stringWithFormat:@"game_bg_knt_%d_2", (int)colorKnit]
+                 ofType:@"png"];
+    if (path2) {
+        UIImage *image = [[UIImage alloc] initWithContentsOfFile:path2];
+        [self.texBeatBg setSubImage:image inRect:[self.texBeatBg spriteAtIndex:10]];
+    }
+    self.texBeatBg.isScale2x = self->isRetina;
+}
+
+// Unzips the note-marker frames from the marker archive and blits them into the marker atlas: two
+// banks of twenty-four "ma" frames, then four banks of sixteen "h" hold frames. De-inlined from
+// 0x20f7e8.
+static inline void EditNoteRendererPhoneLoadMarkersFromArchive(EditNoteRendererPhone *self,
+                                                               EditRendererConf *conf,
+                                                               BFCodec *codec,
+                                                               NSData *cipherKey) {
+    // The base sprite index for each of the four "h" hold banks.
+    static const int kHoldBankBase[] = {0x18, 0x28, 0x38, 0x48};
+    NSString *markerPath = [MarkerManager getMarkerPath:conf.markerID];
+    KUnzip *unzip = [[KUnzip alloc] initWithPath:markerPath];
+    for (int pass = 0; pass < 2; ++pass) {
+        @autoreleasepool {
+            for (unsigned int i = 0; i < 0x18; ++i) {
+                [codec cipherInit:cipherKey];
+                NSString *name = [NSString stringWithFormat:@"ma%02d", i];
+                NSMutableData *data = [unzip uncompress:name];
+                UIImage *image = CreateImageFromEncryptedData(codec, data);
+                if (image) {
+                    [self.texMarker setSubImage:image inRect:[self.texMarker spriteAtIndex:i]];
+                }
+            }
+        }
+    }
+    for (int bank = 0; bank < 4; ++bank) {
+        @autoreleasepool {
+            for (int i = 0; i < kGridPanelCount; ++i) {
+                [codec cipherInit:cipherKey];
+                NSString *name = [NSString stringWithFormat:@"h%d%02d", bank, i];
+                NSMutableData *data = [unzip uncompress:name];
+                UIImage *image = CreateImageFromEncryptedData(codec, data);
+                if (image) {
+                    unsigned int spriteIndex = (unsigned int)(i + kHoldBankBase[bank]);
+                    [self.texMarker setSubImage:image
+                                         inRect:[self.texMarker spriteAtIndex:spriteIndex]];
+                }
+            }
+        }
+    }
+}
+
+// Rebuilds the front atlas: sprite sheet, level and mark blits, the note markers unzipped from the
+// marker archive, and the jacket artwork and index images. De-inlined from 0x20f220.
+static inline void EditNoteRendererPhoneBuildFrontTexture(EditNoteRendererPhone *self,
+                                                          EditRendererConf *conf,
+                                                          UIImage *artwork,
+                                                          UIImage *index,
+                                                          BFCodec *codec,
+                                                          NSData *cipherKey) {
+    if (self.texFront) {
+        self.texFront = nil;
+    }
+    self.texFront = [[Texture2D alloc] initWithData:nullptr
+                                        pixelFormat:Texture2DPixelFormatRGBA8888
+                                          pixelSize:0x800];
+    NSString *plist = [NSBundle.mainBundle pathForResource:@"game_front_knt_tex_pn2"
+                                                    ofType:@"plist"];
+    [self.texFront setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
+    [codec cipherInit:cipherKey];
+    LoadTextureSubImageFromEncryptedTex(
+        self.texFront, @"game_front_knt_tex_1_pn2", codec, CGPointMake(0.0, 0.0));
+    [codec cipherInit:cipherKey];
+    LoadTextureSubImageFromEncryptedTex(
+        self.texFront, @"game_front_knt_tex_2_pn2", codec, CGPointMake(0.0, 960.0));
+    // The level word, the start mark, and the end mark are blitted at the origin of their sprites.
+    NSString *levelName = [NSString stringWithFormat:@"game_lv_%d_knt", conf.level];
+    LoadTextureSubImageFromResource(
+        self.texFront, levelName, [self.texFront spriteAtIndex:0x12].origin);
+    LoadTextureSubImageFromResource(
+        self.texFront, @"game_start_mark_knt_pn2", [self.texFront spriteAtIndex:3].origin);
+    LoadTextureSubImageFromResource(
+        self.texFront, @"game_end_mark_knt_pn2", [self.texFront spriteAtIndex:4].origin);
+    EditNoteRendererPhoneLoadMarkersFromArchive(self, conf, codec, cipherKey);
+    [self.texFront setSubImage:artwork
+                        inRect:[self.texFront spriteAtIndex:kFrontSpriteJacketFrame]];
+    if (index) {
+        CGRect frame = [self.texFront spriteAtIndex:0xc];
+        CGSize size = index.size;
+        // Height preserves the index image's aspect ratio within the frame's width.
+        [self.texFront setSubImage:index
+                            inRect:CGRectMake(frame.origin.x,
+                                              frame.origin.y,
+                                              frame.size.width,
+                                              (frame.size.width * size.height) / size.width)];
+    }
+    self.texFront.isScale2x = self->isRetina;
+}
+
+// Draws the "READY" letters: a per-letter settle-out during frames 0x15..0x31, or a together
+// drop-in during the later frames. De-inlined from 0x211198.
+static inline void EditNoteRendererPhoneRenderReadyGoReady(EditNoteRendererPhone *self) {
+    // The spread-out x-positions of the five settle-out letters, in points.
+    static const float kReadyLetterX[] = {-88.5f, -45.0f, 0.0f, 48.5f, 91.5f};
+    // The drop-in target x-positions of the five letters, in points.
+    static const double kReadyDropX[] = {71.5, 115.0, 160.0, 208.5, 251.5};
+    CGRect sprite = [self.texReady0 spriteAtIndex:0];
+    double halfWidth = sprite.size.width * 0.5;
+    if ((unsigned int)(self->frame - 0x15) < 0x1d) {
+        // Settle-out: the five letters slide from their spread-out positions to centre, one at a
+        // time, over the frames after 0x14.
+        float baseHeight = (float)sprite.size.height;
+        for (long letter = 4; letter >= 0; --letter) {
+            if (letter <= (long)(int)self->frame - 0x14) {
+                unsigned int startFrame = (unsigned int)letter;
+                unsigned int current = (unsigned int)((long)(int)self->frame - 0x14);
+                float slide =
+                    InterpolateFloatByFrame(baseHeight, 0.0f, current, startFrame, startFrame + 8);
+                float letterAlpha =
+                    InterpolateFloatByFrame(0.0f, 1.0f, current, startFrame, startFrame + 8);
+                double letterX = (double)(kReadyLetterX[letter] + 160.0f) - halfWidth;
+                double letterY = (double)(50.0f - slide);
+                [self.texReady0 drawSprite:(NSUInteger)letter
+                                   atPoint:CGPointMake(letterX, letterY)
+                                 transform:0
+                                     alpha:letterAlpha];
+            }
+        }
+    } else {
+        // Drop-in: the five letters fall in together over frames 0x32 onward.
+        (void)[self.texReady0 spriteAtIndex:0];
+        float dropY = InterpolateFloatByFrame(
+            0.0f, (float)((sprite.size.height * -2.0) + 335.0), self->frame - 0x32, 0, 10);
+        double letterY = (double)(dropY + 50.0f);
+        float letterAlpha = InterpolateFloatByFrame(1.0f, 0.0f, self->frame - 0x32, 9, 0xf);
+        for (NSInteger letter = 4; letter >= 0; --letter) {
+            [self.texReady0 drawSprite:(NSUInteger)letter
+                               atPoint:CGPointMake(kReadyDropX[letter] - halfWidth, letterY)
+                             transform:0
+                                 alpha:letterAlpha];
+        }
+    }
+}
+
+// Draws the two "GO" halves: a swell-in during frames 0x38..0x3e, or a shrink-out during frames
+// 0x3f..0x4a. De-inlined from 0x2114d0.
+static inline void EditNoteRendererPhoneRenderReadyGoGo(EditNoteRendererPhone *self) {
+    unsigned int f = self->frame;
+    if ((unsigned int)(f - 0x38) < 7) {
+        CGRect sprite = [self.texReady1 spriteAtIndex:0];
+        double halfWidth = sprite.size.width * 0.5;
+        double halfHeight = sprite.size.height * 0.5;
+        float scaleAlpha = InterpolateFloatByFrame(0.0f, 1.0f, f - 0x37, 0, 4);
+        float swellHeight =
+            InterpolateFloatByFrame(0.0f, (float)sprite.size.height, f - 0x37, 0, 8);
+        double topY = 385.0 - sprite.size.height;
+        double topAnchorY = topY + halfHeight;
+        double swellY = 385.0 - (double)swellHeight;
+        double swellAnchorY = halfHeight + swellY;
+        double leftX = 76.0 - halfWidth;
+        double rightX = 244.0 - halfWidth;
+        [self.texReady1 drawSprite:2
+                           atPoint:CGPointMake(leftX, topY)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(halfWidth + leftX, topAnchorY)
+                         transform:0
+                             alpha:1.0f];
+        [self.texReady1 drawSprite:0
+                           atPoint:CGPointMake(leftX, swellY)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(halfWidth + leftX, swellAnchorY)
+                         transform:0
+                             alpha:scaleAlpha];
+        [self.texReady1 drawSprite:3
+                           atPoint:CGPointMake(rightX, topY)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(halfWidth + rightX, topAnchorY)
+                         transform:0
+                             alpha:1.0f];
+        [self.texReady1 drawSprite:1
+                           atPoint:CGPointMake(rightX, swellY)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(halfWidth + rightX, swellAnchorY)
+                         transform:0
+                             alpha:scaleAlpha];
+    } else if (f <= 0x4a) {
+        CGRect sprite = [self.texReady1 spriteAtIndex:0];
+        double halfWidth = sprite.size.width * 0.5;
+        double halfHeight = sprite.size.height * 0.5;
+        float outAlpha = InterpolateFloatByFrame(1.0f, 0.0f, f - 0x3f, 0, 8);
+        float shrinkHeight =
+            InterpolateFloatByFrame((float)sprite.size.height, (float)halfHeight, f - 0x3f, 0, 8);
+        double topY = 385.0 - (double)shrinkHeight;
+        double anchorY = halfHeight + topY;
+        double leftX = 76.0 - halfWidth;
+        double rightX = 244.0 - halfWidth;
+        [self.texReady1 drawSprite:0
+                           atPoint:CGPointMake(leftX, topY)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(halfWidth + leftX, anchorY)
+                         transform:0
+                             alpha:outAlpha];
+        [self.texReady1 drawSprite:1
+                           atPoint:CGPointMake(rightX, topY)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(halfWidth + rightX, anchorY)
+                         transform:0
+                             alpha:outAlpha];
+    }
+}
+
+// Plays the ready and go sounds on their frames and finishes the countdown sub-state. De-inlined
+// from 0x211830.
+static inline void EditNoteRendererPhoneRenderReadyGoAudio(EditNoteRendererPhone *self) {
+    if (self->frame == 0x14) {
+        [AudioManager.sharedManager playSeResFile:@"SD_KNT_CV_READY" inDirectory:nil];
+    }
+    if (self->frame == 0x3b) {
+        [AudioManager.sharedManager playSePlayer:self.sePlayerGo];
+        self.sePlayerGo = nil;
+    }
+    if (self->frame >= 0x4b) {
+        self.subState = kEditNotePhoneEndSubState;
+    }
+}
+
+// The full-combo slide-in, squash, and lead-in sweep (frames before 0x96). De-inlined from
+// 0x211adc.
+static inline void EditNoteRendererPhoneRenderFullcomboIn(
+    EditNoteRendererPhone *self, unsigned int current, CGRect banner, float restX, float startX) {
+    double span = banner.size.height;
+    float topX = InterpolateFloatByFrame(120.0f, restX, current, 0, 6);
+    float bottomX = InterpolateFloatByFrame(120.0f, startX, current, 0, 0x18);
+    // The squash: the banner briefly widens then settles between frames 0x1c and 0x25.
+    if ((int)current > 0x1c && (int)(current - 0x1c) < 10) {
+        unsigned int squashFrame = current - 0x1c;
+        float squash = InterpolateFloatByFrame(1.0f, 1.399999976158142f, squashFrame, 0, 5);
+        if ((int)squashFrame > 5) {
+            squash = InterpolateFloatByFrame(1.399999976158142f, 1.0f, squashFrame, 5, 10);
+        }
+        double squashedW = (double)(float)(span * (double)squash);
+        float inset = (float)((span - squashedW) * 0.5);
+        [self.texFront
+            drawSprite:kFrontSpriteFullcomboSquash
+                inRect:CGRectMake(4.0, (double)(topX + inset), banner.size.width, squashedW)
+             transform:0
+                 alpha:0.5f];
+        [self.texFront
+            drawSprite:kFrontSpriteFullcomboSquash
+                inRect:CGRectMake(4.0, (double)(bottomX + inset), banner.size.width, squashedW)
+             transform:0
+                 alpha:0.5f];
+    }
+    [self.texFront drawSprite:kFrontSpriteFullcombo atPoint:CGPointMake(4.0, (double)topX)];
+    [self.texFront drawSprite:kFrontSpriteFullcombo atPoint:CGPointMake(4.0, (double)bottomX)];
+    if ((int)current > 0x17) {
+        return;
+    }
+    // The lead-in banner sweep, with a bounce, over the first 0x18 frames.
+    float sweepX = InterpolateFloatByFrame(120.0f, 246.0f, current, 0, 6);
+    unsigned int afterSix = current - 6;
+    if (afterSix != 0 && (int)current > 5) {
+        sweepX = InterpolateFloatByFrame(246.0f, startX, current, 6, 0x18);
+    }
+    float bounce;
+    if ((int)afterSix < 6) {
+        bounce = InterpolateFloatByFrame(1.0f, 3.0f, afterSix, 0, 6);
+    } else {
+        bounce = InterpolateFloatByFrame(3.0f, 1.0f, afterSix, 6, 0x12);
+    }
+    if ((int)current > 5) {
+        double bouncedW = (double)(float)(span * (double)bounce);
+        float inset = (float)((span - bouncedW) * 0.5);
+        [self.texFront
+            drawSprite:kFrontSpriteFullcomboSquash
+                inRect:CGRectMake(4.0, (double)(sweepX + inset), banner.size.width, bouncedW)
+             transform:0
+                 alpha:0.5f];
+    } else {
+        [self.texFront drawSprite:kFrontSpriteFullcomboSquash
+                          atPoint:CGPointMake(4.0, (double)sweepX)
+                        transform:0
+                            alpha:0.5f];
+    }
+}
+
+// The full-combo fade-out: the two halves drift apart and fade (frames 0x96 and later). De-inlined
+// from 0x211d08.
+static inline void EditNoteRendererPhoneRenderFullcomboOut(
+    EditNoteRendererPhone *self, unsigned int current, CGRect banner, float restX, float startX) {
+    float fade = InterpolateFloatByFrame(1.0f, 0.0f, current - 0x96, 0, 10);
+    float drift = InterpolateFloatByFrame(0.0f, 80.0f, current - 0x96, 0, 10);
+    [self.texFront drawSprite:kFrontSpriteFullcombo
+                      atPoint:CGPointMake(4.0, (double)(restX + drift))
+                    transform:0
+                        alpha:fade];
+    [self.texFront drawSprite:kFrontSpriteFullcombo
+                      atPoint:CGPointMake(4.0, (double)(startX - drift))
+                    transform:0
+                        alpha:fade];
+}
+
 @implementation EditNoteRendererPhone
 
 #pragma mark - Lifecycle
@@ -102,7 +437,7 @@ enum { kDebugTextGlyphCap = 0x200, kDebugFontFirstGlyph = 0x20 };
         self.texDebugFont = CreateTexture2DFromPngResource(@"debugfont");
     }
     [codec cipherInit:cipherKey];
-    [self loadBeatBgTexture:codec cipherKey:cipherKey];
+    EditNoteRendererPhoneLoadBeatBgTexture(self, codec, cipherKey);
     if (!self.texReady0) {
         [codec cipherInit:cipherKey];
         self.texReady0 = CreateTexture2DFromEncryptedTexResource(@"game_ready_knt_0_tex", codec);
@@ -126,137 +461,8 @@ enum { kDebugTextGlyphCap = 0x200, kDebugFontFirstGlyph = 0x20 };
         conf.tuneID == self.rendererConf.tuneID) {
         return;
     }
-    [self buildFrontTexture:conf artwork:artwork index:index codec:codec cipherKey:cipherKey];
+    EditNoteRendererPhoneBuildFrontTexture(self, conf, artwork, index, codec, cipherKey);
     self.rendererConf = conf;
-}
-
-/**
- * @brief Builds the knit beat-background texture, its sprite table, and its colour variant blits.
- * @ghidraAddress 0x20ec38
- */
-- (void)loadBeatBgTexture:(BFCodec *)codec cipherKey:(NSData *)cipherKey {
-    if (self.texBeatBg) {
-        return;
-    }
-    self.texBeatBg = [[Texture2D alloc] initWithData:nullptr
-                                         pixelFormat:Texture2DPixelFormatRGBA8888
-                                           pixelSize:0x800];
-    NSString *plist = [NSBundle.mainBundle pathForResource:@"game_beatbg_knt_tex_pn2"
-                                                    ofType:@"plist"];
-    [self.texBeatBg setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
-    LoadTextureSubImageFromEncryptedTex(
-        self.texBeatBg, @"game_beatbg_knt_tex_1_pn2", codec, CGPointMake(0.0, 318.0));
-    // The knit colour variant is chosen from a user default, clamped to the three shipped colours.
-    NSInteger colorKnit = [NSUserDefaults.standardUserDefaults integerForKey:@"PrefColorKnit"];
-    if (colorKnit > 3) {
-        colorKnit = 0;
-    }
-    NSString *path1 = [NSBundle.mainBundle
-        pathForResource:[NSString stringWithFormat:@"game_bg_knt_%d_1", (int)colorKnit]
-                 ofType:@"png"];
-    if (path1) {
-        UIImage *image = [[UIImage alloc] initWithContentsOfFile:path1];
-        [self.texBeatBg setSubImage:image inRect:[self.texBeatBg spriteAtIndex:9]];
-    }
-    NSString *path2 = [NSBundle.mainBundle
-        pathForResource:[NSString stringWithFormat:@"game_bg_knt_%d_2", (int)colorKnit]
-                 ofType:@"png"];
-    if (path2) {
-        UIImage *image = [[UIImage alloc] initWithContentsOfFile:path2];
-        [self.texBeatBg setSubImage:image inRect:[self.texBeatBg spriteAtIndex:10]];
-    }
-    self.texBeatBg.isScale2x = isRetina;
-}
-
-/**
- * @brief Rebuilds the front atlas: sprite sheet, level and mark blits, the note markers unzipped
- *        from the marker archive, and the jacket artwork and index images.
- * @ghidraAddress 0x20f220
- */
-- (void)buildFrontTexture:(EditRendererConf *)conf
-                  artwork:(UIImage *)artwork
-                    index:(UIImage *)index
-                    codec:(BFCodec *)codec
-                cipherKey:(NSData *)cipherKey {
-    if (self.texFront) {
-        self.texFront = nil;
-    }
-    self.texFront = [[Texture2D alloc] initWithData:nullptr
-                                        pixelFormat:Texture2DPixelFormatRGBA8888
-                                          pixelSize:0x800];
-    NSString *plist = [NSBundle.mainBundle pathForResource:@"game_front_knt_tex_pn2"
-                                                    ofType:@"plist"];
-    [self.texFront setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
-    [codec cipherInit:cipherKey];
-    LoadTextureSubImageFromEncryptedTex(
-        self.texFront, @"game_front_knt_tex_1_pn2", codec, CGPointMake(0.0, 0.0));
-    [codec cipherInit:cipherKey];
-    LoadTextureSubImageFromEncryptedTex(
-        self.texFront, @"game_front_knt_tex_2_pn2", codec, CGPointMake(0.0, 960.0));
-    // The level word, the start mark, and the end mark are blitted at the origin of their sprites.
-    NSString *levelName = [NSString stringWithFormat:@"game_lv_%d_knt", conf.level];
-    LoadTextureSubImageFromResource(
-        self.texFront, levelName, [self.texFront spriteAtIndex:0x12].origin);
-    LoadTextureSubImageFromResource(
-        self.texFront, @"game_start_mark_knt_pn2", [self.texFront spriteAtIndex:3].origin);
-    LoadTextureSubImageFromResource(
-        self.texFront, @"game_end_mark_knt_pn2", [self.texFront spriteAtIndex:4].origin);
-    [self loadMarkersFromArchive:conf codec:codec cipherKey:cipherKey];
-    [self.texFront setSubImage:artwork
-                        inRect:[self.texFront spriteAtIndex:kFrontSpriteJacketFrame]];
-    if (index) {
-        CGRect frame = [self.texFront spriteAtIndex:0xc];
-        CGSize size = index.size;
-        // Height preserves the index image's aspect ratio within the frame's width.
-        [self.texFront setSubImage:index
-                            inRect:CGRectMake(frame.origin.x,
-                                              frame.origin.y,
-                                              frame.size.width,
-                                              (frame.size.width * size.height) / size.width)];
-    }
-    self.texFront.isScale2x = isRetina;
-}
-
-/**
- * @brief Unzips the note-marker frames from the marker archive and blits them into the marker
- *        atlas: two banks of twenty-four "ma" frames, then four banks of sixteen "h" hold frames.
- * @ghidraAddress 0x20f7e8
- */
-- (void)loadMarkersFromArchive:(EditRendererConf *)conf
-                         codec:(BFCodec *)codec
-                     cipherKey:(NSData *)cipherKey {
-    // The base sprite index for each of the four "h" hold banks.
-    static const int kHoldBankBase[] = {0x18, 0x28, 0x38, 0x48};
-    NSString *markerPath = [MarkerManager getMarkerPath:conf.markerID];
-    KUnzip *unzip = [[KUnzip alloc] initWithPath:markerPath];
-    for (int pass = 0; pass < 2; ++pass) {
-        @autoreleasepool {
-            for (unsigned int i = 0; i < 0x18; ++i) {
-                [codec cipherInit:cipherKey];
-                NSString *name = [NSString stringWithFormat:@"ma%02d", i];
-                NSMutableData *data = [unzip uncompress:name];
-                UIImage *image = CreateImageFromEncryptedData(codec, data);
-                if (image) {
-                    [self.texMarker setSubImage:image inRect:[self.texMarker spriteAtIndex:i]];
-                }
-            }
-        }
-    }
-    for (int bank = 0; bank < 4; ++bank) {
-        @autoreleasepool {
-            for (int i = 0; i < kGridPanelCount; ++i) {
-                [codec cipherInit:cipherKey];
-                NSString *name = [NSString stringWithFormat:@"h%d%02d", bank, i];
-                NSMutableData *data = [unzip uncompress:name];
-                UIImage *image = CreateImageFromEncryptedData(codec, data);
-                if (image) {
-                    unsigned int spriteIndex = (unsigned int)(i + kHoldBankBase[bank]);
-                    [self.texMarker setSubImage:image
-                                         inRect:[self.texMarker spriteAtIndex:spriteIndex]];
-                }
-            }
-        }
-    }
 }
 
 #pragma mark - Play lifecycle
@@ -601,150 +807,9 @@ enum { kDebugTextGlyphCap = 0x200, kDebugFontFirstGlyph = 0x20 };
 
 /** @ghidraAddress 0x21114c */
 - (void)renderReadyGo {
-    [self renderReadyGoReady];
-    [self renderReadyGoGo];
-    [self renderReadyGoAudio];
-}
-
-/**
- * @brief Draws the "READY" letters: a per-letter settle-out during frames 0x15..0x31, or a
- *        together drop-in during the later frames.
- * @ghidraAddress 0x211198
- */
-- (void)renderReadyGoReady {
-    // The spread-out x-positions of the five settle-out letters, in points.
-    static const float kReadyLetterX[] = {-88.5f, -45.0f, 0.0f, 48.5f, 91.5f};
-    // The drop-in target x-positions of the five letters, in points.
-    static const double kReadyDropX[] = {71.5, 115.0, 160.0, 208.5, 251.5};
-    CGRect sprite = [self.texReady0 spriteAtIndex:0];
-    double halfWidth = sprite.size.width * 0.5;
-    if ((unsigned int)(frame - 0x15) < 0x1d) {
-        // Settle-out: the five letters slide from their spread-out positions to centre, one at a
-        // time, over the frames after 0x14.
-        float baseHeight = (float)sprite.size.height;
-        for (long letter = 4; letter >= 0; --letter) {
-            if (letter <= (long)(int)frame - 0x14) {
-                unsigned int startFrame = (unsigned int)letter;
-                unsigned int current = (unsigned int)((long)(int)frame - 0x14);
-                float slide =
-                    InterpolateFloatByFrame(baseHeight, 0.0f, current, startFrame, startFrame + 8);
-                float letterAlpha =
-                    InterpolateFloatByFrame(0.0f, 1.0f, current, startFrame, startFrame + 8);
-                double letterX = (double)(kReadyLetterX[letter] + 160.0f) - halfWidth;
-                double letterY = (double)(50.0f - slide);
-                [self.texReady0 drawSprite:(NSUInteger)letter
-                                   atPoint:CGPointMake(letterX, letterY)
-                                 transform:0
-                                     alpha:letterAlpha];
-            }
-        }
-    } else {
-        // Drop-in: the five letters fall in together over frames 0x32 onward.
-        (void)[self.texReady0 spriteAtIndex:0];
-        float dropY = InterpolateFloatByFrame(
-            0.0f, (float)((sprite.size.height * -2.0) + 335.0), frame - 0x32, 0, 10);
-        double letterY = (double)(dropY + 50.0f);
-        float letterAlpha = InterpolateFloatByFrame(1.0f, 0.0f, frame - 0x32, 9, 0xf);
-        for (NSInteger letter = 4; letter >= 0; --letter) {
-            [self.texReady0 drawSprite:(NSUInteger)letter
-                               atPoint:CGPointMake(kReadyDropX[letter] - halfWidth, letterY)
-                             transform:0
-                                 alpha:letterAlpha];
-        }
-    }
-}
-
-/**
- * @brief Draws the two "GO" halves: a swell-in during frames 0x38..0x3e, or a shrink-out during
- *        frames 0x3f..0x4a.
- * @ghidraAddress 0x2114d0
- */
-- (void)renderReadyGoGo {
-    unsigned int f = frame;
-    if ((unsigned int)(f - 0x38) < 7) {
-        CGRect sprite = [self.texReady1 spriteAtIndex:0];
-        double halfWidth = sprite.size.width * 0.5;
-        double halfHeight = sprite.size.height * 0.5;
-        float scaleAlpha = InterpolateFloatByFrame(0.0f, 1.0f, f - 0x37, 0, 4);
-        float swellHeight =
-            InterpolateFloatByFrame(0.0f, (float)sprite.size.height, f - 0x37, 0, 8);
-        double topY = 385.0 - sprite.size.height;
-        double topAnchorY = topY + halfHeight;
-        double swellY = 385.0 - (double)swellHeight;
-        double swellAnchorY = halfHeight + swellY;
-        double leftX = 76.0 - halfWidth;
-        double rightX = 244.0 - halfWidth;
-        [self.texReady1 drawSprite:2
-                           atPoint:CGPointMake(leftX, topY)
-                             scale:1.0f
-                            rotate:0.0f
-                            anchor:CGPointMake(halfWidth + leftX, topAnchorY)
-                         transform:0
-                             alpha:1.0f];
-        [self.texReady1 drawSprite:0
-                           atPoint:CGPointMake(leftX, swellY)
-                             scale:1.0f
-                            rotate:0.0f
-                            anchor:CGPointMake(halfWidth + leftX, swellAnchorY)
-                         transform:0
-                             alpha:scaleAlpha];
-        [self.texReady1 drawSprite:3
-                           atPoint:CGPointMake(rightX, topY)
-                             scale:1.0f
-                            rotate:0.0f
-                            anchor:CGPointMake(halfWidth + rightX, topAnchorY)
-                         transform:0
-                             alpha:1.0f];
-        [self.texReady1 drawSprite:1
-                           atPoint:CGPointMake(rightX, swellY)
-                             scale:1.0f
-                            rotate:0.0f
-                            anchor:CGPointMake(halfWidth + rightX, swellAnchorY)
-                         transform:0
-                             alpha:scaleAlpha];
-    } else if (f <= 0x4a) {
-        CGRect sprite = [self.texReady1 spriteAtIndex:0];
-        double halfWidth = sprite.size.width * 0.5;
-        double halfHeight = sprite.size.height * 0.5;
-        float outAlpha = InterpolateFloatByFrame(1.0f, 0.0f, f - 0x3f, 0, 8);
-        float shrinkHeight =
-            InterpolateFloatByFrame((float)sprite.size.height, (float)halfHeight, f - 0x3f, 0, 8);
-        double topY = 385.0 - (double)shrinkHeight;
-        double anchorY = halfHeight + topY;
-        double leftX = 76.0 - halfWidth;
-        double rightX = 244.0 - halfWidth;
-        [self.texReady1 drawSprite:0
-                           atPoint:CGPointMake(leftX, topY)
-                             scale:1.0f
-                            rotate:0.0f
-                            anchor:CGPointMake(halfWidth + leftX, anchorY)
-                         transform:0
-                             alpha:outAlpha];
-        [self.texReady1 drawSprite:1
-                           atPoint:CGPointMake(rightX, topY)
-                             scale:1.0f
-                            rotate:0.0f
-                            anchor:CGPointMake(halfWidth + rightX, anchorY)
-                         transform:0
-                             alpha:outAlpha];
-    }
-}
-
-/**
- * @brief Plays the ready and go sounds on their frames and finishes the countdown sub-state.
- * @ghidraAddress 0x211830
- */
-- (void)renderReadyGoAudio {
-    if (frame == 0x14) {
-        [AudioManager.sharedManager playSeResFile:@"SD_KNT_CV_READY" inDirectory:nil];
-    }
-    if (frame == 0x3b) {
-        [AudioManager.sharedManager playSePlayer:self.sePlayerGo];
-        self.sePlayerGo = nil;
-    }
-    if (frame >= 0x4b) {
-        self.subState = kEditNotePhoneEndSubState;
-    }
+    EditNoteRendererPhoneRenderReadyGoReady(self);
+    EditNoteRendererPhoneRenderReadyGoGo(self);
+    EditNoteRendererPhoneRenderReadyGoAudio(self);
 }
 
 /** @ghidraAddress 0x211978 */
@@ -768,94 +833,10 @@ enum { kDebugTextGlyphCap = 0x200, kDebugFontFirstGlyph = 0x20 };
     float restX = (float)(200.0 - halfSpan);
     float startX = (float)(440.0 - halfSpan);
     if ((int)current < 0x96) {
-        [self renderFullcomboIn:current banner:banner restX:restX startX:startX];
+        EditNoteRendererPhoneRenderFullcomboIn(self, current, banner, restX, startX);
     } else {
-        [self renderFullcomboOut:current banner:banner restX:restX startX:startX];
+        EditNoteRendererPhoneRenderFullcomboOut(self, current, banner, restX, startX);
     }
-}
-
-/**
- * @brief The full-combo slide-in, squash, and lead-in sweep (frames before 0x96).
- * @ghidraAddress 0x211adc
- */
-- (void)renderFullcomboIn:(unsigned int)current
-                   banner:(CGRect)banner
-                    restX:(float)restX
-                   startX:(float)startX {
-    double span = banner.size.height;
-    float topX = InterpolateFloatByFrame(120.0f, restX, current, 0, 6);
-    float bottomX = InterpolateFloatByFrame(120.0f, startX, current, 0, 0x18);
-    // The squash: the banner briefly widens then settles between frames 0x1c and 0x25.
-    if ((int)current > 0x1c && (int)(current - 0x1c) < 10) {
-        unsigned int squashFrame = current - 0x1c;
-        float squash = InterpolateFloatByFrame(1.0f, 1.399999976158142f, squashFrame, 0, 5);
-        if ((int)squashFrame > 5) {
-            squash = InterpolateFloatByFrame(1.399999976158142f, 1.0f, squashFrame, 5, 10);
-        }
-        double squashedW = (double)(float)(span * (double)squash);
-        float inset = (float)((span - squashedW) * 0.5);
-        [self.texFront
-            drawSprite:kFrontSpriteFullcomboSquash
-                inRect:CGRectMake(4.0, (double)(topX + inset), banner.size.width, squashedW)
-             transform:0
-                 alpha:0.5f];
-        [self.texFront
-            drawSprite:kFrontSpriteFullcomboSquash
-                inRect:CGRectMake(4.0, (double)(bottomX + inset), banner.size.width, squashedW)
-             transform:0
-                 alpha:0.5f];
-    }
-    [self.texFront drawSprite:kFrontSpriteFullcombo atPoint:CGPointMake(4.0, (double)topX)];
-    [self.texFront drawSprite:kFrontSpriteFullcombo atPoint:CGPointMake(4.0, (double)bottomX)];
-    if ((int)current > 0x17) {
-        return;
-    }
-    // The lead-in banner sweep, with a bounce, over the first 0x18 frames.
-    float sweepX = InterpolateFloatByFrame(120.0f, 246.0f, current, 0, 6);
-    unsigned int afterSix = current - 6;
-    if (afterSix != 0 && (int)current > 5) {
-        sweepX = InterpolateFloatByFrame(246.0f, startX, current, 6, 0x18);
-    }
-    float bounce;
-    if ((int)afterSix < 6) {
-        bounce = InterpolateFloatByFrame(1.0f, 3.0f, afterSix, 0, 6);
-    } else {
-        bounce = InterpolateFloatByFrame(3.0f, 1.0f, afterSix, 6, 0x12);
-    }
-    if ((int)current > 5) {
-        double bouncedW = (double)(float)(span * (double)bounce);
-        float inset = (float)((span - bouncedW) * 0.5);
-        [self.texFront
-            drawSprite:kFrontSpriteFullcomboSquash
-                inRect:CGRectMake(4.0, (double)(sweepX + inset), banner.size.width, bouncedW)
-             transform:0
-                 alpha:0.5f];
-    } else {
-        [self.texFront drawSprite:kFrontSpriteFullcomboSquash
-                          atPoint:CGPointMake(4.0, (double)sweepX)
-                        transform:0
-                            alpha:0.5f];
-    }
-}
-
-/**
- * @brief The full-combo fade-out: the two halves drift apart and fade (frames 0x96 and later).
- * @ghidraAddress 0x211d08
- */
-- (void)renderFullcomboOut:(unsigned int)current
-                    banner:(CGRect)banner
-                     restX:(float)restX
-                    startX:(float)startX {
-    float fade = InterpolateFloatByFrame(1.0f, 0.0f, current - 0x96, 0, 10);
-    float drift = InterpolateFloatByFrame(0.0f, 80.0f, current - 0x96, 0, 10);
-    [self.texFront drawSprite:kFrontSpriteFullcombo
-                      atPoint:CGPointMake(4.0, (double)(restX + drift))
-                    transform:0
-                        alpha:fade];
-    [self.texFront drawSprite:kFrontSpriteFullcombo
-                      atPoint:CGPointMake(4.0, (double)(startX - drift))
-                    transform:0
-                        alpha:fade];
 }
 
 /** @ghidraAddress 0x211ea0 */

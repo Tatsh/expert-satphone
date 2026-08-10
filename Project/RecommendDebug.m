@@ -72,48 +72,11 @@ static NSString *const kAdTypeMovie = @"3";
 static NSString *const kMovieUrl = @"https://sandbox.applilink.jp/img/video/wscs_2m.mp4";
 static NSString *const kMoviePosterUrl = @"https://sandbox.applilink.jp/img/popup/wsc_main_bg2.png";
 
-@implementation RecommendDebug
-
-#pragma mark - Canned lists
-
-/** @ghidraAddress 0x248764 */
-+ (NSArray<NSDictionary *> *)adModelSettingList {
-    return @[
-        @{kAdModelKey : @"1", kAdLocationKey : kAdLocationTop, kAdTypeKey : @"1"},
-        @{kAdModelKey : @"4", kAdLocationKey : kAdLocationTop, kAdTypeKey : @"4"},
-        @{kAdModelKey : @"5", kAdLocationKey : kAdLocationTop, kAdTypeKey : @"5"},
-        @{kAdModelKey : @"100", kAdLocationKey : kAdLocationTop, kAdTypeKey : @"2"},
-        @{kAdModelKey : @"101", kAdLocationKey : kAdLocationTop, kAdTypeKey : @"3"},
-    ];
-}
-
-/** @ghidraAddress 0x2489d4 */
-+ (NSArray<NSDictionary *> *)bannerDisplayStatusList {
-    return @[
-        @{kAdModelKey : @"1", kStatusKey : @"1"},
-        @{kAdModelKey : @"4", kStatusKey : @"1"},
-        @{kAdModelKey : @"5", kStatusKey : @"1"},
-        @{kAdModelKey : @"100", kStatusKey : @"1"},
-        @{kAdModelKey : @"101", kStatusKey : @"1"},
-    ];
-}
-
-/** @ghidraAddress 0x248bdc */
-+ (NSArray<NSDictionary *> *)bannerList {
-    // The banner list carries the install flag as the string @"0".
-    return [self adRecordsWithAdType:kAdTypeBanner installFlg:@"0"];
-}
-
-/** @ghidraAddress 0x24a284 */
-+ (NSArray<NSDictionary *> *)iconList {
-    // The icon list carries the install flag as the number @0.
-    return [self adRecordsWithAdType:kAdTypeIcon installFlg:@0];
-}
-
 // Builds the six sandbox advert records that back both bannerList and iconList. The two lists are
 // identical apart from the ad_type value and the type of the install-flag object, so the binary's
 // two large builder methods are recovered as one parameterised helper.
-+ (NSArray<NSDictionary *> *)adRecordsWithAdType:(NSString *)adType installFlg:(id)installFlg {
+static inline NSArray<NSDictionary *> *RecommendDebugAdRecordsWithAdType(NSString *adType,
+                                                                         id installFlg) {
     NSString *const suffixes[] = {@"A", @"B", @"C", @"D", @"E", @"F"};
     NSString *const adIds[] = {@"10241", @"10242", @"10243", @"10244", @"10245", @"10246"};
     NSString *const appliIds[] = {@"89999", @"89997", @"89996", @"89995", @"89994", @"89993"};
@@ -168,6 +131,44 @@ static NSString *const kMoviePosterUrl = @"https://sandbox.applilink.jp/img/popu
         }];
     }
     return records;
+}
+
+@implementation RecommendDebug
+
+#pragma mark - Canned lists
+
+/** @ghidraAddress 0x248764 */
++ (NSArray<NSDictionary *> *)adModelSettingList {
+    return @[
+        @{kAdModelKey : @"1", kAdLocationKey : kAdLocationTop, kAdTypeKey : @"1"},
+        @{kAdModelKey : @"4", kAdLocationKey : kAdLocationTop, kAdTypeKey : @"4"},
+        @{kAdModelKey : @"5", kAdLocationKey : kAdLocationTop, kAdTypeKey : @"5"},
+        @{kAdModelKey : @"100", kAdLocationKey : kAdLocationTop, kAdTypeKey : @"2"},
+        @{kAdModelKey : @"101", kAdLocationKey : kAdLocationTop, kAdTypeKey : @"3"},
+    ];
+}
+
+/** @ghidraAddress 0x2489d4 */
++ (NSArray<NSDictionary *> *)bannerDisplayStatusList {
+    return @[
+        @{kAdModelKey : @"1", kStatusKey : @"1"},
+        @{kAdModelKey : @"4", kStatusKey : @"1"},
+        @{kAdModelKey : @"5", kStatusKey : @"1"},
+        @{kAdModelKey : @"100", kStatusKey : @"1"},
+        @{kAdModelKey : @"101", kStatusKey : @"1"},
+    ];
+}
+
+/** @ghidraAddress 0x248bdc */
++ (NSArray<NSDictionary *> *)bannerList {
+    // The banner list carries the install flag as the string @"0".
+    return RecommendDebugAdRecordsWithAdType(kAdTypeBanner, @"0");
+}
+
+/** @ghidraAddress 0x24a284 */
++ (NSArray<NSDictionary *> *)iconList {
+    // The icon list carries the install flag as the number @0.
+    return RecommendDebugAdRecordsWithAdType(kAdTypeIcon, @0);
 }
 
 /** @ghidraAddress 0x24b9e8 */

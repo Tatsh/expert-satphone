@@ -132,11 +132,8 @@ enum {
     kApplilinkErrorInterstitialSpecInvalid = 0x40b,
 };
 
-@implementation RecommendAdData
-
-#pragma mark - Archived payload accessors
-
-+ (nullable id)unarchivedAllAdDataObjectForKey:(NSString *)key {
+// Look up a sub-object of the archived allAdData blob by its fully qualified key.
+static inline id RecommendAdDataUnarchivedAllAdDataObjectForKey(NSString *key) {
     NSData *data = [NSUserDefaults.standardUserDefaults dataForKey:kAllAdDataKey];
     if (data == nil) {
         return nil;
@@ -144,26 +141,45 @@ enum {
     return [NSKeyedUnarchiver unarchiveObjectWithData:data][key];
 }
 
+// Copy a source dictionary into a mutable record, escaping literal newlines in each string value.
+static inline NSMutableDictionary *
+RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
+    NSMutableDictionary *record = [NSMutableDictionary dictionaryWithCapacity:source.count];
+    for (id key in source.allKeys) {
+        id value = source[key];
+        if ([value isKindOfClass:NSString.class]) {
+            value = [value stringByReplacingOccurrencesOfString:kNewlineCharacter
+                                                     withString:kNewlineEscape];
+        }
+        record[key] = value;
+    }
+    return record;
+}
+
+@implementation RecommendAdData
+
+#pragma mark - Archived payload accessors
+
 + (nullable NSArray *)getBannerDisplayStatusList {
     if (RecommendDebug.getDebugMode) {
         return RecommendDebug.bannerDisplayStatusList;
     }
-    return [self unarchivedAllAdDataObjectForKey:kBannerDisplayStatusListKey];
+    return RecommendAdDataUnarchivedAllAdDataObjectForKey(kBannerDisplayStatusListKey);
 }
 
 + (nullable NSArray *)getAdModelSettingList {
     if (RecommendDebug.getDebugMode) {
         return RecommendDebug.adModelSettingList;
     }
-    return [self unarchivedAllAdDataObjectForKey:kAdModelSettingListKey];
+    return RecommendAdDataUnarchivedAllAdDataObjectForKey(kAdModelSettingListKey);
 }
 
 + (nullable NSArray *)getAdList {
-    return [self unarchivedAllAdDataObjectForKey:kAdListKey];
+    return RecommendAdDataUnarchivedAllAdDataObjectForKey(kAdListKey);
 }
 
 + (nullable NSArray *)getSelfList {
-    return [self unarchivedAllAdDataObjectForKey:kSelfListKey];
+    return RecommendAdDataUnarchivedAllAdDataObjectForKey(kSelfListKey);
 }
 
 + (nullable NSData *)getResponseNsData {
@@ -171,7 +187,7 @@ enum {
 }
 
 + (nullable NSDictionary *)getInterstitialSpecList {
-    return [self unarchivedAllAdDataObjectForKey:kInterstitialSpecListKey];
+    return RecommendAdDataUnarchivedAllAdDataObjectForKey(kInterstitialSpecListKey);
 }
 
 #pragma mark - Narrowed record lookups
@@ -234,27 +250,13 @@ enum {
 
 #pragma mark - Application list builders
 
-// Copy a source dictionary into a mutable record, escaping literal newlines in each string value.
-+ (NSMutableDictionary *)mutableRecordEscapingNewlines:(NSDictionary *)source {
-    NSMutableDictionary *record = [NSMutableDictionary dictionaryWithCapacity:source.count];
-    for (id key in source.allKeys) {
-        id value = source[key];
-        if ([value isKindOfClass:NSString.class]) {
-            value = [value stringByReplacingOccurrencesOfString:kNewlineCharacter
-                                                     withString:kNewlineEscape];
-        }
-        record[key] = value;
-    }
-    return record;
-}
-
 + (nullable NSArray *)getAppBannerList {
     NSMutableArray *result = [NSMutableArray array];
     NSDictionary *bannerData = [self getLotteryBannerData];
     if (bannerData.count == 0) {
         return nil;
     }
-    NSMutableDictionary *record = [self mutableRecordEscapingNewlines:bannerData];
+    NSMutableDictionary *record = RecommendAdDataMutableRecordEscapingNewlines(bannerData);
     record[kInstallFlgKey] = [self getInstallFlgWithAdData:record];
     NSArray *urlList = record[kBannerUrlListKey];
     id bannerUrl = record[kBannerUrlKey];
@@ -278,7 +280,7 @@ enum {
 + (nullable NSArray *)getAppIconList {
     NSMutableArray *result = [NSMutableArray array];
     for (NSDictionary *iconData in [self getLotteryIconData]) {
-        NSMutableDictionary *record = [self mutableRecordEscapingNewlines:iconData];
+        NSMutableDictionary *record = RecommendAdDataMutableRecordEscapingNewlines(iconData);
         record[kInstallFlgKey] = [self getInstallFlgWithAdData:record];
         NSArray *urlList = record[kBannerIconUrlListKey];
         id iconUrl = record[kBannerIconUrlKey];
@@ -302,7 +304,7 @@ enum {
     if (interstitialData.count == 0) {
         return nil;
     }
-    NSMutableDictionary *record = [self mutableRecordEscapingNewlines:interstitialData];
+    NSMutableDictionary *record = RecommendAdDataMutableRecordEscapingNewlines(interstitialData);
     BOOL isMovie = [self checkMovieWithAdData:record];
     id creativeUrl;
     if (isMovie) {
@@ -812,7 +814,7 @@ enum {
         if (![candidate isKindOfClass:NSString.class] || ![candidate isEqualToString:movieUrl]) {
             continue;
         }
-        NSMutableDictionary *result = [self mutableRecordEscapingNewlines:record];
+        NSMutableDictionary *result = RecommendAdDataMutableRecordEscapingNewlines(record);
         result[kInstallFlgKey] = [self getInstallFlgWithAdData:result];
         return result;
     }

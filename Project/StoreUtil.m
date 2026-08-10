@@ -40,16 +40,34 @@ static const char *const kStoreResponseSalt =
 // The signature is the leading 64 hex characters of the response.
 static const NSUInteger kStoreResponseSignatureLength = 0x40;
 
-@interface StoreUtil ()
 // De-inlined: wraps a path in "https://agx.s.konaminet.jp<path>" and builds the NSURL. The binary
 // emits this two-format-call, alloc/initWithString: sequence inline in each URL builder.
-+ (nullable NSURL *)storeURLForPath:(NSString *)path;
+static inline NSURL *StoreUtilURLForPath(NSString *path) {
+    NSString *urlString = [NSString stringWithFormat:kStoreURLFormat, kStoreHost, path];
+    return [[NSURL alloc] initWithString:urlString];
+}
+
 // De-inlined: appends the client-info query fragment to a mutable path and wraps it. The
 // query-carrying URL builders share this tail.
-+ (nullable NSURL *)storeURLForPathWithClientInfo:(NSMutableString *)path;
-// De-inlined: the shared policy/store URL builder keyed by a user-defaults version value.
-+ (nullable NSURL *)policyStoreURLWithVersionDefaultsKey:(NSString *)defaultsKey;
-@end
+static inline NSURL *StoreUtilURLForPathWithClientInfo(NSMutableString *path) {
+    [path appendString:[StoreUtil queryStringForDictionary:JubeatAppDelegate.clientInfo]];
+    return StoreUtilURLForPath(path);
+}
+
+// De-inlined: builds the policy/store URL with a {version, target} query where the version value is
+// read from the given user-defaults key (or "" when absent). Shared by the two policy-store URLs.
+static inline NSURL *StoreUtilPolicyStoreURLWithVersionDefaultsKey(NSString *defaultsKey) {
+    NSMutableString *path = [NSMutableString
+        stringWithFormat:@"%s/policy/store/?target=%s", kStoreCGIPath, kStoreRegion];
+    NSString *version = [NSUserDefaults.standardUserDefaults objectForKey:defaultsKey];
+    if (!version) {
+        version = @"";
+    }
+    NSDictionary *params =
+        @{@"version" : version, @"target" : [NSString stringWithFormat:@"%s", kStoreRegion]};
+    [path appendString:[StoreUtil queryStringForDictionary:params]];
+    return StoreUtilURLForPath(path);
+}
 
 @implementation StoreUtil
 
@@ -93,22 +111,12 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
 
 #pragma mark - URLs
 
-+ (NSURL *)storeURLForPath:(NSString *)path {
-    NSString *urlString = [NSString stringWithFormat:kStoreURLFormat, kStoreHost, path];
-    return [[NSURL alloc] initWithString:urlString];
-}
-
-+ (NSURL *)storeURLForPathWithClientInfo:(NSMutableString *)path {
-    [path appendString:[self queryStringForDictionary:JubeatAppDelegate.clientInfo]];
-    return [self storeURLForPath:path];
-}
-
 /** @ghidraAddress 0xba318 */
 + (NSURL *)storeNewInfoURL {
     // Builds "/agx/main/cgi/new/?target=JP" plus the client-info query, under the store host.
     NSMutableString *path =
         [NSMutableString stringWithFormat:kStoreNewInfoPathFormat, kStoreCGIPath, kStoreRegion];
-    return [self storeURLForPathWithClientInfo:path];
+    return StoreUtilURLForPathWithClientInfo(path);
 }
 
 /** @ghidraAddress 0xb9a2c */
@@ -122,7 +130,7 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
     if (genre != 0) {
         [path appendFormat:@"&genre=%d", genre];
     }
-    return [self storeURLForPathWithClientInfo:path];
+    return StoreUtilURLForPathWithClientInfo(path);
 }
 
 /** @ghidraAddress 0xb9ba0 */
@@ -139,7 +147,7 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
     if (useGenre != 0) {
         [path appendFormat:@"&genre=%d", kRecommendGenres[rand() % 10]];
     }
-    return [self storeURLForPathWithClientInfo:path];
+    return StoreUtilURLForPathWithClientInfo(path);
 }
 
 /** @ghidraAddress 0xb9d48 */
@@ -155,7 +163,7 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
       /** @ghidraAddress 0xb9eac */
       [path appendFormat:(index == 0 ? @"%d" : @",%d"), packID.unsignedIntValue];
     }];
-    return [self storeURLForPath:path];
+    return StoreUtilURLForPath(path);
 }
 
 /** @ghidraAddress 0xb9f28 */
@@ -165,7 +173,7 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
                                           kStoreCGIPath,
                                           kStoreRegion,
                                           packID];
-    return [self storeURLForPathWithClientInfo:path];
+    return StoreUtilURLForPathWithClientInfo(path);
 }
 
 /** @ghidraAddress 0xba078 */
@@ -175,7 +183,7 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
                                           kStoreCGIPath,
                                           kStoreRegion,
                                           packID];
-    return [self storeURLForPathWithClientInfo:path];
+    return StoreUtilURLForPathWithClientInfo(path);
 }
 
 /** @ghidraAddress 0xba1c8 */
@@ -185,7 +193,7 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
                                           kStoreCGIPath,
                                           kStoreRegion,
                                           musicID];
-    return [self storeURLForPathWithClientInfo:path];
+    return StoreUtilURLForPathWithClientInfo(path);
 }
 
 /** @ghidraAddress 0xba48c */
@@ -196,7 +204,7 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
                                    kStoreCGIPath,
                                    kStoreRegion,
                                    key];
-    return [self storeURLForPath:path];
+    return StoreUtilURLForPath(path);
 }
 
 /** @ghidraAddress 0xba56c */
@@ -218,32 +226,32 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
 /** @ghidraAddress 0xba578 */
 + (NSURL *)campaignListURL {
     NSString *path = [NSString stringWithFormat:@"%s/campaign/list/index.jsp", kStoreCGIPath];
-    return [self storeURLForPath:path];
+    return StoreUtilURLForPath(path);
 }
 
 /** @ghidraAddress 0xba64c */
 + (NSURL *)campaignSerialCheckURL {
     NSString *path = [NSString stringWithFormat:@"%s/campaign/verify/index.jsp", kStoreCGIPath];
-    return [self storeURLForPath:path];
+    return StoreUtilURLForPath(path);
 }
 
 /** @ghidraAddress 0xba720 */
 + (NSURL *)campaignItemURL {
     NSString *path = [NSString stringWithFormat:@"%s/campaign/fetch/index.jsp", kStoreCGIPath];
-    return [self storeURLForPath:path];
+    return StoreUtilURLForPath(path);
 }
 
 /** @ghidraAddress 0xba7f4 */
 + (NSURL *)knitColorURL {
     NSString *path = [NSString stringWithFormat:@"%s/knit/change_color/index.jsp", kStoreCGIPath];
-    return [self storeURLForPath:path];
+    return StoreUtilURLForPath(path);
 }
 
 /** @ghidraAddress 0xba8c8 */
 + (NSURL *)markerListURL {
     NSString *path =
         [NSString stringWithFormat:@"%s/check_marker/?target=%s", kStoreCGIPath, kStoreRegion];
-    return [self storeURLForPath:path];
+    return StoreUtilURLForPath(path);
 }
 
 /** @ghidraAddress 0xbb3bc */
@@ -253,14 +261,14 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
                                           kStoreCGIPath,
                                           kStoreRegion,
                                           musicID];
-    return [self storeURLForPathWithClientInfo:path];
+    return StoreUtilURLForPathWithClientInfo(path);
 }
 
 /** @ghidraAddress 0xbb50c */
 + (NSURL *)startNewsURL {
     NSString *path =
         [NSString stringWithFormat:@"%s/startup/?target=%s", kStoreCGIPath, kStoreRegion];
-    return [self storeURLForPath:path];
+    return StoreUtilURLForPath(path);
 }
 
 /** @ghidraAddress 0xbb5e8 */
@@ -271,29 +279,14 @@ static const NSUInteger kStoreResponseSignatureLength = 0x40;
     return [[NSURL alloc] initWithString:urlString];
 }
 
-// De-inlined: builds the policy/store URL with a {version, target} query where the version value is
-// read from the given user-defaults key (or "" when absent). Shared by the two policy-store URLs.
-+ (NSURL *)policyStoreURLWithVersionDefaultsKey:(NSString *)defaultsKey {
-    NSMutableString *path = [NSMutableString
-        stringWithFormat:@"%s/policy/store/?target=%s", kStoreCGIPath, kStoreRegion];
-    NSString *version = [NSUserDefaults.standardUserDefaults objectForKey:defaultsKey];
-    if (!version) {
-        version = @"";
-    }
-    NSDictionary *params =
-        @{@"version" : version, @"target" : [NSString stringWithFormat:@"%s", kStoreRegion]};
-    [path appendString:[self queryStringForDictionary:params]];
-    return [self storeURLForPath:path];
-}
-
 /** @ghidraAddress 0xbb67c */
 + (NSURL *)storeUserPolicyURL {
-    return [self policyStoreURLWithVersionDefaultsKey:@"PrefStoreAgreeLicenseVersion"];
+    return StoreUtilPolicyStoreURLWithVersionDefaultsKey(@"PrefStoreAgreeLicenseVersion");
 }
 
 /** @ghidraAddress 0xbb8b8 */
 + (NSURL *)storeExtendListURL {
-    return [self policyStoreURLWithVersionDefaultsKey:@"PrefExtendListLastUpdate"];
+    return StoreUtilPolicyStoreURLWithVersionDefaultsKey(@"PrefExtendListLastUpdate");
 }
 
 #pragma mark - Identifier maps

@@ -7,47 +7,8 @@
 #import "ApplilinkUdid.h"
 #import "ApplilinkUtilities.h"
 #import "ApplilinkViewManager.h"
-
-// The applilink collaborators this view talks to. ApplilinkCore's reconstructed header is a stub
-// that does not yet declare the members used here, and RecommendCore and RecommendWebAPI are not
-// reconstructed at all, so they are declared as forward categories/classes. The advert-list
-// delegate protocol ApplilinkViewDelegate has no reconstructed definition either; only the one
-// selector this view sends is declared. See TYPES_PENDING.md.
-@interface ApplilinkCore (Recommend)
-+ (nullable UIWindow *)mainWindow;
-+ (void)toDelegateDidAppear:(nullable ApplilinkParameters *)appParam delegate:(nullable id)delegate;
-+ (void)toDelegateDidDisappear:(nullable ApplilinkParameters *)appParam
-                      delegate:(nullable id)delegate;
-+ (void)toDelegateFailLoadWithError:(nullable NSError *)error
-                           appParam:(nullable ApplilinkParameters *)appParam
-                           delegate:(nullable id)delegate;
-+ (void)toDelegateFailLinkWithError:(nullable NSError *)error
-                           appParam:(nullable ApplilinkParameters *)appParam
-                           delegate:(nullable id)delegate;
-@end
-
-@protocol ApplilinkViewDelegate <NSObject>
-@optional
-- (void)appListDidStart;
-@end
-
-@interface RecommendCore : NSObject
-+ (instancetype)sharedInstance;
-- (void)startSessionWithCallback:(nullable void (^)(NSError *_Nullable error))callback;
-- (void)appliListCacheWithCallBack:(nullable void (^)(NSArray *_Nullable list,
-                                                      NSError *_Nullable error))callback;
-- (BOOL)isInstalledAppliWithScheme:(nullable NSString *)scheme;
-- (int)redirectWithRequest:(nullable NSURLRequest *)request;
-@end
-
-@interface RecommendWebAPI : NSObject
-+ (void)getBannerDetailWithAdModel:(int)adModel
-                          callback:
-                              (nullable void (^)(int status, NSError *_Nullable error))callback;
-+ (void)appliListWithParameters:(nullable NSDictionary *)parameters
-                       callBack:(nullable void (^)(NSArray *_Nullable list,
-                                                   NSError *_Nullable error))callback;
-@end
+#import "RecommendCore.h"
+#import "RecommendWebAPI.h"
 
 // Applilink error codes reported through appListFailLoadWithError:.
 enum {
@@ -120,6 +81,104 @@ static const NSTimeInterval kRecommendAdWebViewTimeout = 30.0;
 
 // The ad-request parameter dictionary's initial capacity.
 static const NSUInteger kRecommendAdWebViewParamCapacity = 5;
+
+// Stage 5 (terminal) of loadRequest for adModel 5, de-inlined from the appliListWithParameters:
+// callBack: block at 0x246054. Loads the external advert page if the server returned a non-empty
+// list.
+static inline void RecommendAdWebViewLoadExternalAdPage(RecommendAdWebView *self,
+                                                        NSArray *appliList,
+                                                        NSDictionary *parameters,
+                                                        NSError *error) {
+    if (error != nil) {
+        self.loadComplete = YES;
+        [self appListFailLoadWithError:error];
+        return;
+    }
+    if (self.cancelFlg) {
+        self.loadComplete = YES;
+        [self appListFailLoadWithError:
+                  [ApplilinkNetworkError
+                      localizedApplilinkErrorWithCode:kRecommendAdWebViewErrorLoadCancelled]];
+        return;
+    }
+    // Only the list's emptiness is tested; its contents are consumed server-side.
+    if (appliList != nil && appliList.count != 0) {
+        self.loadComplete = YES;
+        NSString *url =
+            [ApplilinkConsts.baseUrlSsl stringByAppendingString:kRecommendAdWebViewExternalAdPath];
+        [self loadRequestWithURL:url parameters:parameters];
+        return;
+    }
+    self.loadComplete = YES;
+    [self
+        appListFailLoadWithError:[ApplilinkNetworkError
+                                     localizedApplilinkErrorWithCode:kRecommendAdWebViewErrorNoAd]];
+}
+
+// Stage 4 of loadRequest, de-inlined from the appliListCacheWithCallBack: block at 0x245a2c. Works
+// out which advertised apps are already installed, builds the ad-request parameter dictionary, and
+// dispatches the final load.
+static inline void RecommendAdWebViewBuildAdRequestParameters(RecommendAdWebView *self,
+                                                              NSArray *appliList,
+                                                              NSError *error) {
+    if (error != nil) {
+        self.loadComplete = YES;
+        [self appListFailLoadWithError:error];
+        return;
+    }
+    if (self.cancelFlg) {
+        self.loadComplete = YES;
+        [self appListFailLoadWithError:
+                  [ApplilinkNetworkError
+                      localizedApplilinkErrorWithCode:kRecommendAdWebViewErrorLoadCancelled]];
+        return;
+    }
+    NSMutableArray *installedAdIds = [[NSMutableArray alloc] init];
+    for (id entry in appliList) {
+        if (![entry isKindOfClass:[NSDictionary class]]) {
+            continue;
+        }
+        id scheme = entry[kRecommendAdWebViewEntryDefaultScheme];
+        id adId = entry[kRecommendAdWebViewEntryAdId];
+        if (![scheme isKindOfClass:[NSString class]]) {
+            continue;
+        }
+        if ([[RecommendCore sharedInstance] isInstalledAppliWithScheme:scheme] && adId != nil) {
+            [installedAdIds addObject:adId];
+        }
+    }
+    NSMutableDictionary *parameters =
+        [NSMutableDictionary dictionaryWithCapacity:kRecommendAdWebViewParamCapacity];
+    [parameters setValue:kRecommendAdWebViewParamIsSdkValue forKey:kRecommendAdWebViewParamIsSdk];
+    if (self.adLocation != nil) {
+        [parameters setValue:self.adLocation forKey:kRecommendAdWebViewParamAdLocation];
+    }
+    if (self.adModel != 0) {
+        [parameters setValue:[NSString stringWithFormat:@"%d", self.adModel]
+                      forKey:kRecommendAdWebViewParamAdModel];
+    }
+    if (self.verticalAlign != 0) {
+        [parameters setValue:[NSString stringWithFormat:@"%d", self.verticalAlign]
+                      forKey:kRecommendAdWebViewParamVerticalAlign];
+    }
+    if (installedAdIds.count != 0) {
+        parameters[kRecommendAdWebViewParamInstallAdIdList] = installedAdIds;
+    }
+    if (self.adModel == kRecommendAdWebViewAdModelExternalList) {
+        RecommendAdWebView *blockSelf = self;
+        [RecommendWebAPI appliListWithParameters:parameters
+                                        callBack:^(id externalList, NSError *listError) {
+                                          /** @ghidraAddress 0x246054 */
+                                          RecommendAdWebViewLoadExternalAdPage(
+                                              blockSelf, externalList, parameters, listError);
+                                        }];
+    } else {
+        self.loadComplete = YES;
+        NSString *url =
+            [ApplilinkConsts.baseUrlSsl stringByAppendingString:kRecommendAdWebViewExternalAdPath];
+        [self loadRequestWithURL:url parameters:parameters];
+    }
+}
 
 @implementation RecommendAdWebView
 
@@ -261,7 +320,7 @@ static const NSUInteger kRecommendAdWebViewParamCapacity = 5;
         }
         [RecommendWebAPI
             getBannerDetailWithAdModel:blockSelf.adModel
-                              callback:^(int status, NSError *detailError) {
+                              callback:^(NSInteger status, NSError *detailError) {
                                 /** @ghidraAddress 0x245884 */
                                 if (detailError != nil) {
                                     blockSelf.loadComplete = YES;
@@ -285,112 +344,15 @@ static const NSUInteger kRecommendAdWebViewParamCapacity = 5;
                                     return;
                                 }
                                 [[RecommendCore sharedInstance]
-                                    appliListCacheWithCallBack:^(NSArray *appliList,
+                                    appliListCacheWithCallBack:^(id appliList,
                                                                  NSError *cacheError) {
                                       /** @ghidraAddress 0x245a2c */
-                                      [blockSelf buildAdRequestParametersWithList:appliList
-                                                                            error:cacheError];
+                                      RecommendAdWebViewBuildAdRequestParameters(
+                                          blockSelf, appliList, cacheError);
                                     }];
                               }];
       }];
     });
-}
-
-// Stage 4 of loadRequest, de-inlined from the appliListCacheWithCallBack: block at 0x245a2c. Works
-// out which advertised apps are already installed, builds the ad-request parameter dictionary, and
-// dispatches the final load.
-- (void)buildAdRequestParametersWithList:(nullable NSArray *)appliList
-                                   error:(nullable NSError *)error {
-    if (error != nil) {
-        _loadComplete = YES;
-        [self appListFailLoadWithError:error];
-        return;
-    }
-    if (_cancelFlg) {
-        _loadComplete = YES;
-        [self appListFailLoadWithError:
-                  [ApplilinkNetworkError
-                      localizedApplilinkErrorWithCode:kRecommendAdWebViewErrorLoadCancelled]];
-        return;
-    }
-    NSMutableArray *installedAdIds = [[NSMutableArray alloc] init];
-    for (id entry in appliList) {
-        if (![entry isKindOfClass:[NSDictionary class]]) {
-            continue;
-        }
-        id scheme = entry[kRecommendAdWebViewEntryDefaultScheme];
-        id adId = entry[kRecommendAdWebViewEntryAdId];
-        if (![scheme isKindOfClass:[NSString class]]) {
-            continue;
-        }
-        if ([[RecommendCore sharedInstance] isInstalledAppliWithScheme:scheme] && adId != nil) {
-            [installedAdIds addObject:adId];
-        }
-    }
-    NSMutableDictionary *parameters =
-        [NSMutableDictionary dictionaryWithCapacity:kRecommendAdWebViewParamCapacity];
-    [parameters setValue:kRecommendAdWebViewParamIsSdkValue forKey:kRecommendAdWebViewParamIsSdk];
-    if (_adLocation != nil) {
-        [parameters setValue:_adLocation forKey:kRecommendAdWebViewParamAdLocation];
-    }
-    if (_adModel != 0) {
-        [parameters setValue:[NSString stringWithFormat:@"%d", _adModel]
-                      forKey:kRecommendAdWebViewParamAdModel];
-    }
-    if (_verticalAlign != 0) {
-        [parameters setValue:[NSString stringWithFormat:@"%d", _verticalAlign]
-                      forKey:kRecommendAdWebViewParamVerticalAlign];
-    }
-    if (installedAdIds.count != 0) {
-        parameters[kRecommendAdWebViewParamInstallAdIdList] = installedAdIds;
-    }
-    if (_adModel == kRecommendAdWebViewAdModelExternalList) {
-        RecommendAdWebView *blockSelf = self;
-        [RecommendWebAPI appliListWithParameters:parameters
-                                        callBack:^(NSArray *externalList, NSError *listError) {
-                                          /** @ghidraAddress 0x246054 */
-                                          [blockSelf loadExternalAdPageWithList:externalList
-                                                                     parameters:parameters
-                                                                          error:listError];
-                                        }];
-    } else {
-        _loadComplete = YES;
-        NSString *url =
-            [ApplilinkConsts.baseUrlSsl stringByAppendingString:kRecommendAdWebViewExternalAdPath];
-        [self loadRequestWithURL:url parameters:parameters];
-    }
-}
-
-// Stage 5 (terminal) of loadRequest for adModel 5, de-inlined from the appliListWithParameters:
-// callBack: block at 0x246054. Loads the external advert page if the server returned a non-empty
-// list.
-- (void)loadExternalAdPageWithList:(nullable NSArray *)appliList
-                        parameters:(nullable NSDictionary *)parameters
-                             error:(nullable NSError *)error {
-    if (error != nil) {
-        _loadComplete = YES;
-        [self appListFailLoadWithError:error];
-        return;
-    }
-    if (_cancelFlg) {
-        _loadComplete = YES;
-        [self appListFailLoadWithError:
-                  [ApplilinkNetworkError
-                      localizedApplilinkErrorWithCode:kRecommendAdWebViewErrorLoadCancelled]];
-        return;
-    }
-    // Only the list's emptiness is tested; its contents are consumed server-side.
-    if (appliList != nil && appliList.count != 0) {
-        _loadComplete = YES;
-        NSString *url =
-            [ApplilinkConsts.baseUrlSsl stringByAppendingString:kRecommendAdWebViewExternalAdPath];
-        [self loadRequestWithURL:url parameters:parameters];
-        return;
-    }
-    _loadComplete = YES;
-    [self
-        appListFailLoadWithError:[ApplilinkNetworkError
-                                     localizedApplilinkErrorWithCode:kRecommendAdWebViewErrorNoAd]];
 }
 
 /** @ghidraAddress 0x2462b8 */

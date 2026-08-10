@@ -123,29 +123,15 @@ static const NSTimeInterval kRecommendWebAPIAdDetailCacheExpiry = 600.0;
 // NSURLErrorTimedOut, recognised on the login timeout retry path.
 static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
 
-@interface RecommendWebAPI ()
-
-// Maps the response error code and kind onto an ApplilinkNetworkError. This de-inlines the shared
-// error dispatch that the binary duplicates across the response handlers.
-+ (NSError *)errorForResponse:(id)response errorCode:(int)errorCode kind:(id)kind;
-
 // Builds the generic malformed-response error the binary raises on every response it cannot parse.
-+ (NSError *)malformedErrorForResponse:(id)response;
-
-// Maps a login-status response's error code and kind onto an ApplilinkNetworkError.
-+ (NSError *)loginErrorForResponse:(id)response;
-
-@end
-
-@implementation RecommendWebAPI
-
-+ (NSError *)malformedErrorForResponse:(id)response {
+static inline NSError *RecommendWebAPIMalformedErrorForResponse(id response) {
     return
         [ApplilinkNetworkError localizedApplilinkErrorWithCode:kRecommendWebAPINetworkErrorMalformed
                                                       userInfo:response];
 }
 
-+ (NSError *)loginErrorForResponse:(id)response {
+// Maps a login-status response's error code and kind onto an ApplilinkNetworkError.
+static inline NSError *RecommendWebAPILoginErrorForResponse(id response) {
     if ([response[kRecommendWebAPIKeyErrorCode] intValue] ==
         kRecommendWebAPIErrorCodeLoginRequired) {
         return [ApplilinkNetworkError
@@ -157,10 +143,12 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
             localizedApplilinkErrorWithCode:kRecommendWebAPINetworkErrorParameter
                                    userInfo:response];
     }
-    return [self malformedErrorForResponse:response];
+    return RecommendWebAPIMalformedErrorForResponse(response);
 }
 
-+ (NSError *)errorForResponse:(id)response errorCode:(int)errorCode kind:(id)kind {
+// Maps the response error code and kind onto an ApplilinkNetworkError. This de-inlines the shared
+// error dispatch that the binary duplicates across the response handlers.
+static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCode, id kind) {
     if (errorCode == kRecommendWebAPIErrorCodeGeneric) {
         return [ApplilinkNetworkError
             localizedApplilinkErrorWithCode:kRecommendWebAPINetworkErrorGeneric
@@ -185,6 +173,8 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
         [ApplilinkNetworkError localizedApplilinkErrorWithCode:kRecommendWebAPINetworkErrorMalformed
                                                       userInfo:response];
 }
+
+@implementation RecommendWebAPI
 
 #pragma mark - Login
 
@@ -213,12 +203,12 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           /** @ghidraAddress 0x261320 */
           (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(NO, NO, error);
               return;
           }
           if (![response[kRecommendWebAPIKeyStatus] boolValue]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(NO, NO, error);
               return;
           }
@@ -264,7 +254,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           /** @ghidraAddress 0x261854 */
           (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(error);
               return;
           }
@@ -274,7 +264,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
               callback(nil);
               return;
           }
-          callback([self loginErrorForResponse:response]);
+          callback(RecommendWebAPILoginErrorForResponse(response));
         }
         failedBlock:^(id request, NSError *error) {
           /** @ghidraAddress 0x261ad4 */
@@ -324,7 +314,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           /** @ghidraAddress 0x261ef8 */
           (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(nil, nil, error);
               return;
           }
@@ -361,7 +351,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
               callback(categoryId, countryCode, nil);
               return;
           }
-          NSError *error = [self malformedErrorForResponse:response];
+          NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(nil, nil, error);
         }
         failedBlock:^(id request, NSError *error) {
@@ -389,7 +379,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           /** @ghidraAddress 0x2624f4 */
           (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(nil, error);
               return;
           }
@@ -438,7 +428,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
                   localizedApplilinkErrorWithCode:kRecommendWebAPINetworkErrorParameter
                                          userInfo:response];
           } else {
-              error = [self malformedErrorForResponse:response];
+              error = RecommendWebAPIMalformedErrorForResponse(response);
           }
           callback(nil, error);
         }
@@ -469,7 +459,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           /** @ghidraAddress 0x262bc8 */
           (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callBack(nil, error);
               return;
           }
@@ -483,7 +473,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
               callBack(response[kRecommendWebAPIKeyList], nil);
               return;
           }
-          NSError *error = [self errorForResponse:response errorCode:errorCode kind:kind];
+          NSError *error = RecommendWebAPIErrorForResponse(response, errorCode, kind);
           callBack(nil, error);
         }
         failedBlock:^(id request, NSError *error) {
@@ -543,10 +533,9 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           }
           int errorCode = [response[kRecommendWebAPIKeyErrorCode] intValue];
           // This handler tests the authorization sentinel before the generic one, the reverse of
-          // the sibling list handlers; errorForResponse: reaches the same mapping either way.
-          NSError *error = [self errorForResponse:response
-                                        errorCode:errorCode
-                                             kind:response[kRecommendWebAPIKeyKind]];
+          // the sibling list handlers; the shared error mapping reaches the same result either way.
+          NSError *error = RecommendWebAPIErrorForResponse(
+              response, errorCode, response[kRecommendWebAPIKeyKind]);
           callback(error);
         }
         failedBlock:^(id request, NSError *error) {
@@ -583,7 +572,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           /** @ghidraAddress 0x2638e4 */
           (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(0, error);
               return;
           }
@@ -614,7 +603,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
               callback(status, nil);
               return;
           }
-          NSError *error = [self malformedErrorForResponse:response];
+          NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(0, error);
         }
         failedBlock:^(id request, NSError *error) {
@@ -650,7 +639,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           /** @ghidraAddress 0x263f10 */
           (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(error);
               return;
           }
@@ -663,7 +652,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
               callback(nil);
               return;
           }
-          NSError *error = [self malformedErrorForResponse:response];
+          NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(error);
         }
         failedBlock:^(id request, NSError *error) {
@@ -701,7 +690,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           /** @ghidraAddress 0x2643a8 */
           (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(0, error);
               return;
           }
@@ -713,7 +702,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
               callback(status, nil);
               return;
           }
-          NSError *error = [self malformedErrorForResponse:response];
+          NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(0, error);
         }
         failedBlock:^(id request, NSError *error) {
@@ -768,7 +757,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
               callback(status, nil);
               return;
           }
-          NSError *error = [self malformedErrorForResponse:response];
+          NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(status, error);
         }
         failedBlock:^(id request, NSError *error) {
@@ -875,7 +864,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
               callback(response[kRecommendWebAPIKeyLocation], nil);
               return;
           }
-          NSError *error = [self malformedErrorForResponse:response];
+          NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(nil, error);
         }
         failedBlock:^(id request, NSError *error) {
@@ -909,7 +898,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           /** @ghidraAddress 0x265b88 */
           (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(error);
               return;
           }
@@ -922,7 +911,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
               callback(nil);
               return;
           }
-          NSError *error = [self malformedErrorForResponse:response];
+          NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(error);
         }
         failedBlock:^(id request, NSError *error) {
@@ -949,7 +938,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           /** @ghidraAddress 0x265ed4 */
           (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(nil, error);
               return;
           }
@@ -964,7 +953,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
               callback(response, nil);
               return;
           }
-          NSError *error = [self errorForResponse:response errorCode:errorCode kind:kind];
+          NSError *error = RecommendWebAPIErrorForResponse(response, errorCode, kind);
           callback(nil, error);
         }
         failedBlock:^(id request, NSError *error) {
@@ -993,7 +982,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
           /** @ghidraAddress 0x2663d4 */
           (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
-              NSError *error = [self malformedErrorForResponse:response];
+              NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(error);
               return;
           }
@@ -1004,7 +993,7 @@ static const NSInteger kRecommendWebAPIURLErrorTimedOut = -1001;
               callback(nil);
               return;
           }
-          NSError *error = [self malformedErrorForResponse:response];
+          NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(error);
         }
         failedBlock:^(id request, NSError *error) {

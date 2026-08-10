@@ -49,6 +49,34 @@ static NSData *sSessionResponse = nil;
 - (nullable NSURLRequest *)getSessionRequest;
 @end
 
+// De-inlined from the two 0x18b5x arms: re-open the session against getSessionRequest and resume a
+// fresh data task on the main queue, parking the original request in tmpRequest.
+static inline void SessionDownloaderReopenSessionAndRetry(SessionDownloader *self) {
+    self->tmpRequest = self->request;
+    self->request = nil;
+    self->request = [self getSessionRequest];
+    self->session =
+        [NSURLSession sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration
+                                      delegate:self
+                                 delegateQueue:NSOperationQueue.mainQueue];
+    self->sessionTask = [self->session dataTaskWithRequest:self->request];
+    [self->sessionTask resume];
+    self->data = nil;
+}
+
+// De-inlined from the retry-cap arm: rebuild the original signed request and resume it.
+static inline void SessionDownloaderRetryOriginalRequest(SessionDownloader *self) {
+    self->tmpRequest = nil;
+    self->request = [self createPostRequest:self->requestURL postData:self->requestData];
+    self->session =
+        [NSURLSession sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration
+                                      delegate:self
+                                 delegateQueue:NSOperationQueue.mainQueue];
+    self->sessionTask = [self->session dataTaskWithRequest:self->request];
+    [self->sessionTask resume];
+    self->data = nil;
+}
+
 @implementation SessionDownloader
 
 @synthesize apiTag = _apiTag; // _apiTag at ivar-offset global 0x34aa84
@@ -249,12 +277,12 @@ static NSData *sSessionResponse = nil;
             int code = status.intValue;
             if ((unsigned int)(code - kSessionStaleStatusFirst) < 3) {
                 // A stale session: re-open it and retry this request unconditionally.
-                [self reopenSessionAndRetry];
+                SessionDownloaderReopenSessionAndRetry(self);
                 return;
             }
             if (code == kSessionStaleStatusReopenTag) {
                 if (self.apiTag == kApiTagSession2 || self.apiTag == kApiTagSession3) {
-                    [self reopenSessionAndRetry];
+                    SessionDownloaderReopenSessionAndRetry(self);
                     return;
                 }
                 // Otherwise cache this session response for the short-circuit in -startDownloading.
@@ -263,7 +291,7 @@ static NSData *sSessionResponse = nil;
             } else if (code != kSessionNoRetryStatus && tmpRequest) {
                 // Any other error retries the original request up to five times.
                 if (retryCnt < kSessionMaxRetries) {
-                    [self retryOriginalRequest];
+                    SessionDownloaderRetryOriginalRequest(self);
                 } else if ([delegate respondsToSelector:@selector(downloaderError:)]) {
                     [delegate performSelector:@selector(downloaderError:) withObject:self];
                 }
@@ -276,36 +304,6 @@ static NSData *sSessionResponse = nil;
     if (callback && [delegate respondsToSelector:callback]) {
         [delegate performSelector:callback withObject:self];
     }
-}
-
-#pragma mark - Retry helpers
-
-// De-inlined from the two 0x18b5x arms: re-open the session against getSessionRequest and resume a
-// fresh data task on the main queue, parking the original request in tmpRequest.
-- (void)reopenSessionAndRetry {
-    tmpRequest = request;
-    request = nil;
-    request = [self getSessionRequest];
-    session =
-        [NSURLSession sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration
-                                      delegate:self
-                                 delegateQueue:NSOperationQueue.mainQueue];
-    sessionTask = [session dataTaskWithRequest:request];
-    [sessionTask resume];
-    data = nil;
-}
-
-// De-inlined from the retry-cap arm: rebuild the original signed request and resume it.
-- (void)retryOriginalRequest {
-    tmpRequest = nil;
-    request = [self createPostRequest:requestURL postData:requestData];
-    session =
-        [NSURLSession sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration
-                                      delegate:self
-                                 delegateQueue:NSOperationQueue.mainQueue];
-    sessionTask = [session dataTaskWithRequest:request];
-    [sessionTask resume];
-    data = nil;
 }
 
 @end
