@@ -27,6 +27,15 @@ static const double kMenuBgmResumeFade = 0.2; // @ghidraAddress 0x28e040
 static NSString *const kStoreTapSoundKey = @"OK";
 static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
 
+// The built-in playlist selections map to these sentinel indices in the playlist view controller.
+enum {
+    kPlaylistSelectionLevel = -10,
+    kPlaylistSelectionHold = -11,
+    kPlaylistSelectionNotHold = -12,
+    kPlaylistSelectionNotPlayed = -1,
+    kPlaylistSelectionDefault = -2,
+};
+
 @implementation MusicSelectViewController
 
 @synthesize sharePlayManager = _sharePlayManager;
@@ -523,6 +532,15 @@ static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
     [shareClientView removeHostTmp:hostID];
 }
 
+/** @ghidraAddress 0x30484 */
+- (void)sharePlayManagerAllClientReady:(nullable id)manager {
+    [musicDetailView.labelShareMessage
+        setText:[NSBundle.mainBundle localizedStringForKey:@"Ready to start" value:@"" table:nil]];
+    [musicDetailView.buttonStartPlay setEnabled:YES];
+    [musicDetailView setIsSharedStartable:YES];
+    [musicDetailView setStartButtonEnable];
+}
+
 /** @ghidraAddress 0x30280 */
 - (void)sharePlayManager:(nullable id)manager receiveExistMusicData:(BOOL)exist {
     // Only when the client lacks the music does the host show the sending-data prompt.
@@ -533,6 +551,45 @@ static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
         setText:[NSBundle.mainBundle localizedStringForKey:@"Sending music data"
                                                      value:@""
                                                      table:nil]];
+}
+
+#pragma mark - Sound and store navigation
+
+/** @ghidraAddress 0x20c84 */
+- (nullable id)soundName:(nullable id)suffix {
+    // The sound-effect name carries the current theme's prefix.
+    switch (JubeatAppDelegate.appDelegate.currentTheme) {
+    case JubeatThemeReflecBeatPlus:
+        return [NSString stringWithFormat:@"SD_RPL_%@", suffix];
+    case JubeatThemeKnit:
+        return [NSString stringWithFormat:@"SD_KNT_%@", suffix];
+    default:
+        return [NSString stringWithFormat:@"SD_%@", suffix];
+    }
+}
+
+/** @ghidraAddress 0x26b30 */
+- (void)turnToGenreOpen:(nullable id)sender {
+    [self turnToStore:@{@"genre" : sender}];
+}
+
+/** @ghidraAddress 0x26bf8 */
+- (void)turnToPackPurchase:(nullable id)sender {
+    [self turnToStore:@{@"pack" : sender}];
+}
+
+/** @ghidraAddress 0x26cc0 */
+- (void)turnToCampaignDetail:(nullable id)sender {
+    [self turnToStore:@{@"campaign" : sender}];
+}
+
+/** @ghidraAddress 0x33374 */
+- (void)moveStore:(nullable id)store packID:(nullable NSString *)packID {
+    [self dismissViewControllerAnimated:YES
+                             completion:^{
+                               /** @ghidraAddress 0x33428 */
+                               [self turnToPackPurchase:packID];
+                             }];
 }
 
 #pragma mark - Search
@@ -561,6 +618,19 @@ static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
         [infoBannerTimer invalidate];
         infoBannerTimer = nil;
     }
+}
+
+#pragma mark - Settings
+
+/** @ghidraAddress 0x2d160 */
+- (void)settingsNavViewClose:(nullable id)sender {
+    [[AudioManager sharedManager] playSeResFile:[self soundName:@"MUSIC_LEFT"] inDirectory:nil];
+    [self dismissViewControllerAnimated:YES completion:nil];
+    bOpenModal = NO;
+    bOpenSetting = NO;
+    [self musicShuffleEnable];
+    [self setSearchEnable:YES];
+    [notificationView startNotification];
 }
 
 #pragma mark - Popover and challenge mode
@@ -592,6 +662,32 @@ static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
 }
 
 #pragma mark - Music list
+
+/** @ghidraAddress 0x2ae28 */
+- (NSInteger)musicPlaylistViewControllerCurrentSelection:(nullable id)controller {
+    // The built-in playlists map to sentinel selection indices; a manager playlist maps to its
+    // index, and anything else (or none) is the default.
+    id source = currentPlaylistSource;
+    if (source == arrayNotPlayedTune) {
+        return kPlaylistSelectionNotPlayed;
+    }
+    if (source == arrayHoldList) {
+        return kPlaylistSelectionHold;
+    }
+    if (source == arrayNotHoldList) {
+        return kPlaylistSelectionNotHold;
+    }
+    if (source == arrayLevelList) {
+        return kPlaylistSelectionLevel;
+    }
+    if (source != nil) {
+        NSUInteger index = [playlistManager indexOfPlaylist:source];
+        if (index != NSNotFound) {
+            return (NSInteger)index;
+        }
+    }
+    return kPlaylistSelectionDefault;
+}
 
 /** @ghidraAddress 0x2a004 */
 - (nullable id)musicInfoForIndex:(NSUInteger)index {
