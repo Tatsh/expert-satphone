@@ -261,6 +261,7 @@ movide
 moview
 movk
 msel
+msub
 mulist
 multipeer
 musicbar
