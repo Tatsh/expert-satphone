@@ -4,6 +4,7 @@
 #import "Downloader.h"
 #import "KUnzip.h"
 #import "LabUtilities.h"
+#import "NSDictionary+PropertyList.h"
 #import "StoreDownloadTask.h"
 #import "StoreMusicListManager.h"
 
@@ -20,12 +21,6 @@ FOUNDATION_EXTERN NSData *_Nullable CreateTuneInfoCipherKey(void);
 // TYPES_PENDING.md.
 @interface Sequence : NSObject
 + (unsigned int)checkExistHoldMarkerFlag:(nullable KUnzip *)unzip;
-@end
-
-// Apple's private property-list deserialiser category, as the binary calls it. See
-// TYPES_PENDING.md.
-@interface NSDictionary (PropertyList)
-+ (nullable NSDictionary *)dictionaryFromPropertyListData:(nullable NSData *)data;
 @end
 
 // The tune-info archive entries, tried newest-first.

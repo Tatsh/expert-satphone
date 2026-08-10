@@ -6,6 +6,7 @@
 #import "Downloader.h"
 #import "JcfDownloadPageNavController.h"
 #import "JubeatAppDelegate.h"
+#import "KUnzip.h"
 #import "LabUtilities.h"
 #import "MarkerSelectView.h"
 #import "MusicDetailView.h"
@@ -14,11 +15,14 @@
 #import "MusicSelectBottomView.h"
 #import "MusicShareView.h"
 #import "MusicView.h"
+#import "NSDictionary+PropertyList.h"
 #import "NotificationPageNavController.h"
 #import "PurchaseManager.h"
 #import "PushNotificationView.h"
 #import "RootViewController.h"
+#import "SharePlayManager.h"
 #import "TuneInfo.h"
+#import "cipher_keys.h"
 
 // Landscape-left and landscape-right make up the supported orientation mask.
 static const UIInterfaceOrientationMask kSupportedOrientations =
@@ -59,6 +63,15 @@ static const CGFloat kMarkerSelectZPosition = 3500.0; // @ghidraAddress 0x28f1e8
 // Encoded strings decode as UTF-8.
 static const NSStringEncoding kLabURLEncoding = NSUTF8StringEncoding;
 static NSString *const kPrefJubeatLabURLKey = @"PrefjubeatLabURL";
+
+// The tune-info archive members, tried newest-first; the v3 payload is ciphered with the tune-info
+// key and carries a four-byte header, the older members with the BGM key. Each archive skips a
+// 16-byte trailer.
+static NSString *const kInfoV3EntryName = @"infov3";
+static NSString *const kInfoV2EntryName = @"infov2";
+static NSString *const kInfoEntryName = @"info";
+static const NSUInteger kTuneInfoArchiveTail = 16;
+static const NSUInteger kTuneInfoV3HeaderLength = 4;
 
 // Completing a challenge-purchase restore records this marker under the restore-end preference and
 // shows the completion alert (tag 3).
@@ -655,6 +668,37 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
                                                                           value:@""
                                                                           table:nil],
                                      self.sharePlayManager.partnerScreenName]];
+}
+
+/** @ghidraAddress 0x2effc */
+- (void)startHostShare:(nullable id)musicInfo filePath:(nullable id)filePath {
+    NSString *screenName = JubeatAppDelegate.appDelegate.gameCenterName;
+    [musicDetailView setIsSharedStartable:NO];
+    self.sharePlayManager = [[SharePlayManager alloc] initWithScreenName:screenName];
+    [self.sharePlayManager setDelegate:self];
+    [self.sharePlayManager startHostModeWithMusicInfo:musicInfo filePath:filePath];
+    [self musicShuffleDisable];
+}
+
+/** @ghidraAddress 0x3073c */
+- (void)sharePlayManager:(nullable id)manager disconnectClient:(nullable id)client {
+    // A host that has started drops the session; otherwise the host is told a client disconnected.
+    if (willStart) {
+        [self.sharePlayManager disconnect];
+        self.sharePlayManager = nil;
+        return;
+    }
+    [[AlertViewManager sharedManager]
+        makeAlert:0
+         delegate:self
+              tag:0
+            title:[NSBundle.mainBundle localizedStringForKey:@"Error" value:@"" table:nil]
+              msg:[NSBundle.mainBundle localizedStringForKey:@"SessionDisconnectedFromClientMessage"
+                                                       value:@""
+                                                       table:nil]
+           cancel:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
+          btnText:nil
+             show:YES];
 }
 
 /** @ghidraAddress 0x30960 */
@@ -1325,6 +1369,36 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
         }
     }
     return kPlaylistSelectionDefault;
+}
+
+/** @ghidraAddress 0x20d74 */
+- (nullable id)getTuneInfo:(nullable id)path {
+    KUnzip *archive = [[KUnzip alloc] initWithPath:path tail:kTuneInfoArchiveTail];
+    if (archive == nil) {
+        return nil;
+    }
+    // The v3 member is ciphered with the tune-info key and carries a four-byte header.
+    NSMutableData *v3 = [archive uncompress:kInfoV3EntryName];
+    if (v3 != nil) {
+        BFCodec *codec = [[BFCodec alloc] init];
+        [codec cipherInit:CreateTuneInfoCipherKey()];
+        [codec decipher:v3];
+        NSData *body = [v3 subdataWithRange:NSMakeRange(kTuneInfoV3HeaderLength,
+                                                        v3.length - kTuneInfoV3HeaderLength)];
+        return [NSDictionary dictionaryFromPropertyListData:body];
+    }
+    // The older members use the BGM key and no header.
+    NSMutableData *legacy = [archive uncompress:kInfoV2EntryName];
+    if (legacy == nil) {
+        legacy = [archive uncompress:kInfoEntryName];
+        if (legacy == nil) {
+            return nil;
+        }
+    }
+    BFCodec *codec = [[BFCodec alloc] init];
+    [codec cipherInit:GetBgmCipherKey()];
+    [codec decipher:legacy];
+    return [NSDictionary dictionaryFromPropertyListData:legacy];
 }
 
 /** @ghidraAddress 0x2a0b0 */

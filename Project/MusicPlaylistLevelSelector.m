@@ -4,15 +4,11 @@
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "LabUtilities.h"
+#import "NSDictionary+PropertyList.h"
 #import "StoreMusicListManager.h"
 #import "StoreUtil.h"
 #import "TuneInfo.h"
 #import "cipher_keys.h"
-
-// Apple's private property-list deserialiser category, as the binary calls it.
-@interface NSDictionary (PropertyList)
-+ (nullable NSDictionary *)dictionaryFromPropertyListData:(nullable NSData *)data;
-@end
 
 // The number of difficulty levels listed, one through ten.
 static const NSInteger kLevelCount = 10;
