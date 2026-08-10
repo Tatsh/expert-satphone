@@ -17,6 +17,7 @@
 #import "NotificationPageNavController.h"
 #import "PurchaseManager.h"
 #import "PushNotificationView.h"
+#import "RootViewController.h"
 #import "TuneInfo.h"
 
 // Landscape-left and landscape-right make up the supported orientation mask.
@@ -40,6 +41,12 @@ static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
 
 // The challenge-mode root view sits on top of the menu at this layer z-position.
 static const CGFloat kChallengeRootViewZPosition = 4000.0; // @ghidraAddress 0x28f238
+
+// The challenge cover fades out over this duration.
+static const NSTimeInterval kChallengeCoverFadeDuration = 0.3; // @ghidraAddress 0x28f260
+
+// The store update-time preference records the newest seen store timestamp.
+static NSString *const kPrefStoreUpdateTimeKey = @"PrefStoreUpdateTime";
 
 // The marker-select view is a square (500 on the pad, 250 on the phone) hidden above the top of the
 // screen, its width taken from a per-idiom pool value, sitting at this z-position.
@@ -650,6 +657,28 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
                                      self.sharePlayManager.partnerScreenName]];
 }
 
+/** @ghidraAddress 0x30960 */
+- (void)sharePlayManagerDisconnect:(nullable id)manager {
+    // A host that has already started simply drops the session; otherwise the client is told the
+    // host disconnected.
+    if (willStart) {
+        [self.sharePlayManager disconnect];
+        self.sharePlayManager = nil;
+        return;
+    }
+    [[AlertViewManager sharedManager]
+        makeAlert:0
+         delegate:self
+              tag:0
+            title:[NSBundle.mainBundle localizedStringForKey:@"Error" value:@"" table:nil]
+              msg:[NSBundle.mainBundle localizedStringForKey:@"SessionDisconnectedFromHostMessage"
+                                                       value:@""
+                                                       table:nil]
+           cancel:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
+          btnText:nil
+             show:YES];
+}
+
 /** @ghidraAddress 0x305a0 */
 - (void)sharePlayManagerConnectFailed:(nullable id)manager {
     [[AlertViewManager sharedManager]
@@ -698,6 +727,33 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 }
 
 #pragma mark - Sound and store navigation
+
+/** @ghidraAddress 0x26d88 */
+- (void)turnToStore {
+    [notificationView stopNotification];
+    id params = storeParams;
+    storeParams = nil;
+    if (bOpenSearchBox) {
+        [searchBox setText:[NSString stringWithString:backUpString]];
+        bOpenSearchBox = NO;
+        [self pushSearchBox];
+    }
+    [self popoverClose];
+    [self stopStoreInfo];
+    [musicListView releaseArtworks];
+    [JubeatAppDelegate.appDelegate.rootViewCtrl openStore:params];
+    // Record the newest store update time seen (numeric comparison), persisting it when newer.
+    if (storeUpdateTime != nil) {
+        NSString *stored =
+            [NSUserDefaults.standardUserDefaults stringForKey:kPrefStoreUpdateTimeKey];
+        if (stored == nil || [stored compare:storeUpdateTime
+                                     options:NSNumericSearch] == NSOrderedAscending) {
+            [NSUserDefaults.standardUserDefaults setObject:storeUpdateTime
+                                                    forKey:kPrefStoreUpdateTimeKey];
+            [NSUserDefaults.standardUserDefaults synchronize];
+        }
+    }
+}
 
 /** @ghidraAddress 0x20c84 */
 - (nullable id)soundName:(nullable id)suffix {
@@ -830,6 +886,15 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 
 #pragma mark - Search
 
+/** @ghidraAddress 0x35cb8 */
+- (void)setSearchEnable:(BOOL)enable {
+    // The swipe recognisers are enabled only when a music detail is not open and the caller asks.
+    BOOL on = !bOpenMusicDetail && enable;
+    for (UIGestureRecognizer *recognizer in arraySwipeRecognizer) {
+        [recognizer setEnabled:on];
+    }
+}
+
 /** @ghidraAddress 0x35944 */
 - (nullable id)getSearchArray:(nullable NSString *)searchString {
     // Normalise kana and width (twice each, matching the binary), split on spaces, de-duplicate via
@@ -958,6 +1023,29 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
         bOpenModal = NO;
         [self musicShuffleEnable];
     }
+}
+
+/** @ghidraAddress 0x37c78 */
+- (void)hideChallengeCoverView {
+    if ([indicatorTimer isValid]) {
+        [indicatorTimer invalidate];
+        indicatorTimer = nil;
+    }
+    bOpenChallenge = NO;
+    __weak UIView *weakCover = challengeCoverView;
+    [UIView animateWithDuration:kChallengeCoverFadeDuration
+        delay:0.0
+        options:UIViewAnimationOptionBeginFromCurrentState |
+                UIViewAnimationOptionAllowAnimatedContent
+        animations:^{
+          /** @ghidraAddress 0x37df8 */
+          [weakCover setAlpha:0.0];
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x37e44 */
+          [weakCover removeFromSuperview];
+          challengeCoverView = nil;
+        }];
 }
 
 /** @ghidraAddress 0x36da0 */
