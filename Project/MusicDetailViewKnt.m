@@ -229,6 +229,9 @@ static const NSTimeInterval kStartPlayInputLockDuration = 0.7;  // @ghidraAddres
 static const double kEditPopoverWidth = 300.0;  // @ghidraAddress 0x28f2d0
 static const double kEditPopoverHeight = 400.0; // @ghidraAddress 0x28f2e0
 
+// A music bar must carry at least 30 bytes of dot-resource data to be shown.
+static const NSUInteger kMbarMinimumLength = 30;
+
 // A chart level is stored as a zero-based level-image index: an unset level (below 2) maps to the
 // first image, and any level of 10 or more clamps to the last of the ten level images.
 static inline char MusicDetailViewKntLevelIndex(int level) {
@@ -1117,6 +1120,86 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
     [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
                                             withObject:nil
                                             afterDelay:kStartPlayInputLockDuration];
+}
+
+/** @ghidraAddress 0x199e88 */
+- (void)infoChange:(int)difficulty {
+    // Whether the shown difficulty is displaying its extend chart.
+    BOOL showExtend = JubeatAppDelegate.appDelegate.isExtend && self.extendInfo != nil &&
+                      (self.extendInfo.extendFlag & (1 << difficulty)) != 0;
+
+    char resource[32] = {0};
+    if (self.editPage == 0) {
+        // Pick the score, full-combo flag, and music bar for the shown difficulty and chart.
+        int score = -1;
+        BOOL fullcombo = NO;
+        NSData *mbar = nil;
+        switch (difficulty) {
+        case 0:
+            score = showExtend ? self.extendScoreBas : self.scoreBas;
+            fullcombo = showExtend ? self.extendFullComboBas : self.fullComboBas;
+            mbar = showExtend ? self.extendMbarBas : self.mbarBas;
+            break;
+        case 1:
+            score = showExtend ? self.extendScoreAdv : self.scoreAdv;
+            fullcombo = showExtend ? self.extendFullComboAdv : self.fullComboAdv;
+            mbar = showExtend ? self.extendMbarAdv : self.mbarAdv;
+            break;
+        case 2:
+            score = showExtend ? self.extendScoreExt : self.scoreExt;
+            fullcombo = showExtend ? self.extendFullComboExt : self.fullComboExt;
+            mbar = showExtend ? self.extendMbarExt : self.mbarExt;
+            break;
+        default:
+            break;
+        }
+        if (mbar.length >= kMbarMinimumLength) {
+            [mbar getBytes:resource length:kMbarMinimumLength];
+        }
+        [self setScoreBoard:score fullcombo:fullcombo];
+
+        // Fill the 120 dot views from the difficulty's dot map (base or extend) and the resource.
+        [mbarBarView setImage:mbarBarImg[difficulty]];
+        char *dotMap = showExtend ? extendMbarDots[difficulty] : mbarDots[difficulty];
+        for (int i = 0; i < kMusicBarDotCount; ++i) {
+            int sprite = ((dotMap[i >> 1] >> ((i & 1) * 4)) & 0xf) - 1;
+            UIImage *image = nil;
+            if ((unsigned int)sprite < kMusicBarDotSpriteCount) {
+                int row = (resource[i >> 2] >> ((i & 3) * 2)) & 3;
+                image = mbarDotImg[row][sprite];
+            }
+            [mbarDotView[i] setImage:image];
+        }
+    }
+
+    // Reveal the hold marks for the difficulties that carry a hold chart in the shown mode.
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        BOOL isExtend = JubeatAppDelegate.appDelegate.isExtend;
+        TuneInfo *source = self.info;
+        if (isExtend && (self.extendInfo.extendFlag & (1 << i)) != 0) {
+            source = self.extendInfo;
+        }
+        if ((source.holdFlag & (1 << i)) != 0) {
+            [holdMark[i] setHidden:NO];
+        }
+    }
+
+    // Update each difficulty's level image from the base or extend level, per chart shown.
+    char levels[] = {self.levelBas, self.levelAdv, self.levelExt};
+    char extendLevels[] = {self.extendLevelBas, self.extendLevelAdv, self.extendLevelExt};
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        BOOL isExtend = JubeatAppDelegate.appDelegate.isExtend;
+        char level = levels[i];
+        if (isExtend && (self.extendInfo.extendFlag & (1 << i)) != 0) {
+            level = extendLevels[i];
+        }
+        [levelNumView[i] setImage:levelNumImg[level]];
+    }
+
+    // The current difficulty's hold mark drives the app hold flag (except on the edit page).
+    BOOL holdHidden = holdMark[difficulty].isHidden;
+    [JubeatAppDelegate.appDelegate setHoldFlag:(self.editPage != 1) && !holdHidden];
+    [self refreshStartButton];
 }
 
 /** @ghidraAddress 0x19b4bc */
