@@ -55,6 +55,11 @@ enum {
 };
 static const char kDigitZero = '0';
 
+// The preferred-difficulty preference selects which difficulty's light pair the blink animation
+// plays on, keyed by this animation name.
+static NSString *const kPrefDifficultyKey = @"PrefDifficulty";
+static NSString *const kBlinkAnimationKey = @"AnimBlinkNormal";
+
 // The extend level image lives at difficulty-table row 4, column 4 of the level-number views.
 enum {
     kExtendLevelNumIndex = 3,
@@ -371,6 +376,20 @@ enum {
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x59ff0 */
+- (void)activateAnim:(BOOL)activate {
+    int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    if (activate) {
+        [lightView[difficulty][0].layer addAnimation:lightBlinkAnim forKey:kBlinkAnimationKey];
+        [lightView[difficulty][1].layer addAnimation:lightBlinkAnim forKey:kBlinkAnimationKey];
+        return;
+    }
+    [lightView[difficulty][0].layer removeAnimationForKey:kBlinkAnimationKey];
+    [lightView[difficulty][0] setAlpha:1.0];
+    [lightView[difficulty][1].layer removeAnimationForKey:kBlinkAnimationKey];
+    [lightView[difficulty][1] setAlpha:1.0];
 }
 
 /** @ghidraAddress 0x5d1b4 */
