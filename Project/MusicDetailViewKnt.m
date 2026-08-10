@@ -18,6 +18,9 @@
 #import "TuneInfo.h"
 #import "cipher_keys.h"
 
+// The shared 0.2 animation-duration double, reused here as the phone reflection-height fraction.
+extern const double g_dAnimDuration020; // @ghidraAddress 0x28f240 (0.2)
+
 // The edit-select confirmation sound played when the edit entry is chosen from the file list.
 static NSString *const kEditSelectSound = @"SD_KNT_OK";
 
@@ -73,12 +76,33 @@ static NSString *const kExtendSeqAdvanced = @"seq_adv";
 static NSString *const kExtendSeqExtreme = @"seq_ext";
 static const NSUInteger kExtendArchiveTail = 16;
 
-// Each difficulty's extend music-bar row is 60 bytes wide within extendMbarDots[3][60].
+// Each difficulty's extend music-bar row is 60 bytes wide within extendMbarDots[3][60]; the base
+// music bars share the same three-row layout in mbarDots.
 enum {
-    kExtendMbarBasicRow = 0,
-    kExtendMbarAdvancedRow = 1,
-    kExtendMbarExtremeRow = 2,
+    kMbarBasicRow = 0,
+    kMbarAdvancedRow = 1,
+    kMbarExtremeRow = 2,
 };
+
+// The packed content-dictionary keys for the artwork, the tune-name plate, and the three charts.
+static NSString *const kContentArtwork = @"artwork_s";
+static NSString *const kContentNameB = @"name_b";
+static NSString *const kContentSeqBasic = @"seq_bas";
+static NSString *const kContentSeqAdvanced = @"seq_adv";
+static NSString *const kContentSeqExtreme = @"seq_ext";
+
+// The reflection image's height is this fraction of the artwork's on the pad idiom; the phone uses
+// the shared 0.2 fraction.
+static const double kReflectionFractionPad = 0.3; // @ghidraAddress 0x28f248
+
+// The seven high-score digits are rendered with a right-justified %7d and mapped through
+// highscoreNumImg; the score board's rating uses the excellent image at a perfect score.
+enum {
+    kHighscoreDigitCount = 7,
+    kExcellentScore = 1000000,
+    kDigitGlyphCount = 10,
+};
+static const char kDigitZero = '0';
 
 // The three scroll-settled delegate callbacks share this tail: it snaps the settled page,
 // re-derives the hold flag from the current difficulty's hold mark (except on the edit page),
@@ -133,6 +157,54 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
                   action:@selector(selectDiff:)
         forControlEvents:UIControlEventTouchUpInside];
     return button;
+}
+
+/** @ghidraAddress 0x198de8 */
+- (void)loadContentFromDictionary:(nullable NSDictionary *)dict {
+    UIImage *artwork = [UIImage imageWithData:dict[kContentArtwork]];
+    if (artwork != nil) {
+        [self.artworkView setImage:artwork];
+        double fraction = self.isPad ? kReflectionFractionPad : g_dAnimDuration020;
+        int reflectionHeight = (int)(artwork.size.height * fraction);
+        [self.reflectionArtworkView setImage:CreateReflectedImage(artwork, reflectionHeight)];
+    }
+    UIImage *nameImage = [UIImage imageWithData:dict[kContentNameB]];
+    if (nameImage != nil) {
+        [self.tuneNameView setImage:nameImage];
+    }
+    if (dict[kContentSeqBasic] != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarBasicRow] raw:dict[kContentSeqBasic]];
+    }
+    if (dict[kContentSeqAdvanced] != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarAdvancedRow] raw:dict[kContentSeqAdvanced]];
+    }
+    if (dict[kContentSeqExtreme] != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarExtremeRow] raw:dict[kContentSeqExtreme]];
+    }
+}
+
+/** @ghidraAddress 0x19bdd8 */
+- (void)setScoreBoard:(int)score fullcombo:(BOOL)fullcombo {
+    char digits[8] = {
+        kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, 0};
+    if (score < 0) {
+        [ratingView setImage:nil];
+        [comboView setImage:nil];
+    } else if (score < kExcellentScore) {
+        SequenceRank rank = [Sequence rankOfPoint:score];
+        [ratingView setImage:ratingImg[rank]];
+        [comboView setImage:(fullcombo ? fullcomboImg : nil)];
+        snprintf(digits, sizeof(digits), "%7d", score);
+    } else {
+        [ratingView setImage:nil];
+        [comboView setImage:excellentImg];
+        snprintf(digits, sizeof(digits), "%7d", score);
+    }
+    for (int i = 0; i < kHighscoreDigitCount; ++i) {
+        int glyph = digits[i] - kDigitZero;
+        UIImage *image = ((unsigned int)glyph < kDigitGlyphCount) ? highscoreNumImg[glyph] : nil;
+        [highscoreNumView[i] setImage:image];
+    }
 }
 
 /** @ghidraAddress 0x19b3d0 */
