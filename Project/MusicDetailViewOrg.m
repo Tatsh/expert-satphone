@@ -160,6 +160,17 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self) 
     [self setStartButtonEnable];
 }
 
+// A chart level maps to a zero-based level-image index: below 2 -> first image, 10+ -> last of ten.
+static inline char MusicDetailViewOrgLevelIndex(int level) {
+    if (level < 2) {
+        return 0;
+    }
+    if (level < 10) {
+        return (char)(level - 1);
+    }
+    return 9;
+}
+
 @implementation MusicDetailViewOrg
 
 /** @ghidraAddress 0x502bc */
@@ -476,6 +487,38 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self) 
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x55bbc */
+- (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable id)score {
+    [super setExtendInfo:info score:score];
+    [self loadExtendMusicBar:info.filePath];
+
+    // Every hold and extend mark starts hidden across the three difficulties.
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        [holdMark[i] setHidden:YES];
+        [extendMark[i] setHidden:YES];
+        [extendOnMark[i] setHidden:YES];
+    }
+
+    self.extendLevelBas = MusicDetailViewOrgLevelIndex(info.lvBas);
+    self.extendLevelAdv = MusicDetailViewOrgLevelIndex(info.lvAdv);
+    self.extendLevelExt = MusicDetailViewOrgLevelIndex(info.lvExt);
+
+    // Each difficulty that carries an extend chart (a set bit of extendFlag) reveals its extend and
+    // extend-on marks, showing whichever matches the current extend mode.
+    if (info != nil) {
+        BOOL extendOn = JubeatAppDelegate.appDelegate.isExtend;
+        for (int i = 0; i < kDiffButtonCount; ++i) {
+            if ((info.extendFlag >> i) & 1) {
+                [extendMark[i] setHidden:extendOn];
+                [extendOnMark[i] setHidden:!extendOn];
+            }
+        }
+    }
+    if (score != nil) {
+        [self putExtendScore:score];
+    }
 }
 
 /** @ghidraAddress 0x5aefc */

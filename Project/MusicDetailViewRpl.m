@@ -530,6 +530,38 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
                        (double)(int)((double)scrollY + (double)buttonY));
 }
 
+/** @ghidraAddress 0x12ff1c */
+- (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable id)score {
+    [super setExtendInfo:info score:score];
+    [self loadExtendMusicBar:info.filePath];
+
+    // Every hold and extend mark starts hidden across the three difficulties.
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        [holdMark[i] setHidden:YES];
+        [extendMark[i] setHidden:YES];
+        [extendOnMark[i] setHidden:YES];
+    }
+
+    self.extendLevelBas = MusicDetailViewRplLevelIndex(info.lvBas);
+    self.extendLevelAdv = MusicDetailViewRplLevelIndex(info.lvAdv);
+    self.extendLevelExt = MusicDetailViewRplLevelIndex(info.lvExt);
+
+    // Each difficulty that carries an extend chart (a set bit of extendFlag) reveals its extend and
+    // extend-on marks, showing whichever matches the current extend mode.
+    if (info != nil) {
+        BOOL extendOn = JubeatAppDelegate.appDelegate.isExtend;
+        for (int i = 0; i < kDiffButtonCount; ++i) {
+            if ((info.extendFlag >> i) & 1) {
+                [extendMark[i] setHidden:extendOn];
+                [extendOnMark[i] setHidden:!extendOn];
+            }
+        }
+    }
+    if (score != nil) {
+        [self putExtendScore:score];
+    }
+}
+
 /** @ghidraAddress 0x1350a0 */
 - (void)uploadStart {
     [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
