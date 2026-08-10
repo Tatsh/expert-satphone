@@ -10,6 +10,7 @@
 #import "ImageLoading.h"
 #import "JcfDownloadPageNavController.h"
 #import "JcfManageNavController.h"
+#import "JcfUpLoadView.h"
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "LatelyJcfListManager.h"
@@ -94,6 +95,10 @@ static NSString *const kContentSeqExtreme = @"seq_ext";
 // The reflection image's height is this fraction of the artwork's on the pad idiom; the phone uses
 // the shared 0.2 fraction.
 static const double kReflectionFractionPad = 0.3; // @ghidraAddress 0x28f248
+
+// The upload sheet's dimming cover is translucent black; both fade in over a fifth of a second.
+static const CGFloat kUploadCoverScrimAlpha = 0.3;     // @ghidraAddress 0x28f248
+static const NSTimeInterval kUploadFadeDuration = 0.2; // @ghidraAddress 0x28e040
 
 // The seven high-score digits are rendered with a right-justified %7d and mapped through
 // highscoreNumImg; the score board's rating uses the excellent image at a perfect score.
@@ -211,6 +216,37 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
     if (score != nil) {
         [self putExtendScore:score];
     }
+}
+
+/** @ghidraAddress 0x19fa54 */
+- (void)uploadStart {
+    [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
+
+    // The dimming cover fills the card, translucent black, and starts transparent.
+    topcover = [[UIView alloc] initWithFrame:self.bounds];
+    [topcover setCenter:CGPointMake(self.bounds.size.width * 0.5, self.bounds.size.height * 0.5)];
+    [topcover setOpaque:NO];
+    [topcover setBackgroundColor:[UIColor colorWithWhite:0 alpha:kUploadCoverScrimAlpha]];
+
+    // The upload sheet is built from the current custom chart data and centred over the card.
+    NSData *customData = [[EditDataManager sharedManager] getCurrentCustomData];
+    upLoadView = [[JcfUpLoadView alloc] initWithData:customData delegate:self ctrl:self.controller];
+    [upLoadView setCenter:CGPointMake(self.frame.size.width * 0.5, self.frame.size.height * 0.5)];
+    [topcover setAlpha:0.0];
+    [upLoadView setAlpha:0.0];
+    [self addSubview:topcover];
+    [self addSubview:upLoadView];
+
+    __weak UIView *weakCover = topcover;
+    __weak JcfUpLoadView *weakUpload = upLoadView;
+    [UIView animateWithDuration:kUploadFadeDuration
+                     animations:^{
+                       /** @ghidraAddress 0x19fe28 */
+                       [weakUpload setAlpha:1.0];
+                       [weakCover setAlpha:1.0];
+                     }
+                     completion:nil];
+    [self.controller unenableCoverTap];
 }
 
 /** @ghidraAddress 0x198628 */
