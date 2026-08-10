@@ -52,6 +52,9 @@ static const NSTimeInterval kChallengeCoverFadeDuration = 0.3; // @ghidraAddress
 // The store update-time preference records the newest seen store timestamp.
 static NSString *const kPrefStoreUpdateTimeKey = @"PrefStoreUpdateTime";
 
+// The last-played tune id preference, used to bias the shuffle away from an immediate repeat.
+static NSString *const kPrefLastPlayedIDKey = @"PrefLastPlayedID";
+
 // The marker-select view is a square (500 on the pad, 250 on the phone) hidden above the top of the
 // screen, its width taken from a per-idiom pool value, sitting at this z-position.
 static const CGFloat kMarkerSelectSizePad = 500.0;    // fmov via w, 500
@@ -928,7 +931,67 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     }
 }
 
+#pragma mark - Edit and shuffle
+
+/** @ghidraAddress 0x2ee04 */
+- (void)startEdit:(nullable id)tune {
+    [self stopStoreInfo];
+    [musicListView releaseArtworks];
+    [[AudioManager sharedManager] fadeoutBgm:1.0];
+    // A non-host share client does not overwrite the last-played id.
+    if (self.sharePlayManager == nil || self.sharePlayManager.isHost) {
+        [NSUserDefaults.standardUserDefaults setInteger:((TuneInfo *)tune).tuneID
+                                                 forKey:kPrefLastPlayedIDKey];
+    }
+    [JubeatAppDelegate.appDelegate.rootViewCtrl startEditNote:tune
+                                                    musicData:shareMusicData
+                                                      jcfName:nil];
+    self.sharePlayManager = nil;
+    shareMusicData = nil;
+    [self setEnableGesture:NO];
+}
+
+/** @ghidraAddress 0x35628 */
+- (void)setRandomSelect {
+    NSArray<TuneInfo *> *list = arrayCurrentPlaylist ?: arrayAllTune;
+    if (list.count == 0 || !bEnableShuffle) {
+        return;
+    }
+    int lastPlayed = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefLastPlayedIDKey];
+    unsigned int count = (unsigned int)list.count;
+    unsigned int index = arc4random() % count;
+    TuneInfo *tune = list[index];
+    // If the random pick repeats the last-played tune, step on by a second random offset.
+    if ((int)tune.tuneID == lastPlayed) {
+        index = (index + (unsigned int)rand()) % count;
+        tune = list[index];
+    }
+    [NSUserDefaults.standardUserDefaults setInteger:tune.tuneID forKey:kPrefLastPlayedIDKey];
+    if (!bOpenMusicDetail) {
+        [self startOpenDetailPanel];
+    } else if (list.count != 1 && !bSuffleAnim) {
+        [self shuffleAnimation:tune];
+    }
+}
+
 #pragma mark - Search
+
+/** @ghidraAddress 0x35a9c */
+- (BOOL)searchStringChanged:(nullable id)searchString {
+    // Recompute the search terms; the query changed when the term count differs or any new term is
+    // absent from the previous set.
+    NSArray *previous = [NSArray arrayWithArray:searchArray];
+    searchArray = [NSMutableArray arrayWithArray:[self getSearchArray:searchString]];
+    if (previous.count != searchArray.count) {
+        return YES;
+    }
+    for (id term in previous) {
+        if (![searchArray containsObject:term]) {
+            return YES;
+        }
+    }
+    return NO;
+}
 
 /** @ghidraAddress 0x35cb8 */
 - (void)setSearchEnable:(BOOL)enable {
