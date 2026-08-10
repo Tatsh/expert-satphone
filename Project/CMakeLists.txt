@@ -169,6 +169,7 @@ target_sources(jubeat PRIVATE
     MusicPlaylistManager.m
     MusicPlaylistViewController.m
     MusicSelectBottomView.m
+    MusicSelectViewController.m
     MusicShareView.m
     MusicView.m
     NSData+Base64.m
