@@ -104,6 +104,18 @@ enum {
 };
 static const char kDigitZero = '0';
 
+// A chart level is stored as a zero-based level-image index: an unset level (below 2) maps to the
+// first image, and any level of 10 or more clamps to the last of the ten level images.
+static inline char MusicDetailViewKntLevelIndex(int level) {
+    if (level < 2) {
+        return 0;
+    }
+    if (level < 10) {
+        return (char)(level - 1);
+    }
+    return 9;
+}
+
 // The three scroll-settled delegate callbacks share this tail: it snaps the settled page,
 // re-derives the hold flag from the current difficulty's hold mark (except on the edit page),
 // refreshes the start button, records the page, and applies either the difficulty (snapping a stale
@@ -142,6 +154,63 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
 /** @ghidraAddress 0x1955c4 */
 + (Class)layerClass {
     return [CAGradientLayer class];
+}
+
+/** @ghidraAddress 0x1999dc */
+- (void)setInfo:(nullable TuneInfo *)info score:(nullable id)score {
+    [super setInfo:info score:score];
+    [[EditDataManager sharedManager] clearEditData];
+    if (info == nil) {
+        return;
+    }
+    self.levelBas = MusicDetailViewKntLevelIndex(info.lvBas);
+    self.levelAdv = MusicDetailViewKntLevelIndex(info.lvAdv);
+    self.levelExt = MusicDetailViewKntLevelIndex(info.lvExt);
+    [self.buttonLink setEnabled:(info.iTunesURL != nil)];
+    [self.buttonLink setHidden:(info.iTunesURL == nil)];
+    [self.btnRecommendTwitter setHidden:NO];
+    [self.btnRecommendFacebook setHidden:NO];
+    [levelNumView[0] setImage:levelNumImg[self.levelBas]];
+    [levelNumView[1] setImage:levelNumImg[self.levelAdv]];
+    [levelNumView[2] setImage:levelNumImg[self.levelExt]];
+    [levelNumView[kExtendLevelNumIndex] setImage:levelNumImg[self.levelExt]];
+    [levelNumView[kExtendLevelNumIndex] setAlpha:0.0];
+    [self resetScore];
+    [self putScore:score];
+    [self loadContentFromPath:info.filePath orData:nil];
+    [self loadEditFile];
+    [self resetTextField:(int)info.tuneID isFirst:YES];
+    if (self.editPage != 0) {
+        [self editMusicBar];
+    }
+}
+
+/** @ghidraAddress 0x19a7f0 */
+- (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable id)score {
+    [super setExtendInfo:info score:score];
+    [self loadExtendMusicBar:info.filePath];
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        [holdMark[i] setHidden:YES];
+        [extendMark[i] setHidden:YES];
+        [extendOnMark[i] setHidden:YES];
+    }
+    self.extendLevelBas = MusicDetailViewKntLevelIndex(info.lvBas);
+    self.extendLevelAdv = MusicDetailViewKntLevelIndex(info.lvAdv);
+    self.extendLevelExt = MusicDetailViewKntLevelIndex(info.lvExt);
+    if (info != nil) {
+        // Each difficulty that carries an extend chart shows the on/off extend mark according to
+        // the app's extend toggle.
+        for (int i = 0; i < kDiffButtonCount; ++i) {
+            if ((info.extendFlag & (1 << i)) != 0) {
+                BOOL extendOn = JubeatAppDelegate.appDelegate.isExtend;
+                [extendMark[i] setHidden:extendOn];
+                [extendOnMark[i] setHidden:!extendOn];
+            }
+        }
+    }
+    if (score != nil) {
+        [self putExtendScore:score];
+    }
 }
 
 /** @ghidraAddress 0x198628 */
