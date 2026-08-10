@@ -106,6 +106,11 @@ static const NSTimeInterval kUploadFadeDuration = 0.2; // @ghidraAddress 0x28e04
 // The host-share prompt fades out over three tenths of a second when the share is cancelled.
 static const NSTimeInterval kHostShareCancelFadeDuration = 0.3; // @ghidraAddress 0x28f260
 
+// The random-select marker slides up ten points out of view when the random flag turns off; the
+// toggle animates over three tenths of a second.
+static const int kRandViewSlideOffset = 10;
+static const NSTimeInterval kRandViewToggleDuration = 0.3; // @ghidraAddress 0x28f260
+
 // The seven high-score digits are rendered with a right-justified %7d and mapped through
 // highscoreNumImg; the score board's rating uses the excellent image at a perfect score.
 enum {
@@ -222,6 +227,45 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
     if (score != nil) {
         [self putExtendScore:score];
     }
+}
+
+/** @ghidraAddress 0x1a0bb4 */
+- (void)refreshStartButton {
+    BOOL randomOn = JubeatAppDelegate.appDelegate.isRandom && !JubeatAppDelegate.appDelegate.isHold;
+    if (randomOn == bRandomBak) {
+        return;
+    }
+    bRandomBak = randomOn;
+
+    // The start button shows the single-play image, or the start image when host-sharing; its
+    // enabled state is preserved across the image swap.
+    UIImage *image = self.isShared ? [self getStartImage] : [self getSingleImage];
+    BOOL wasEnabled = self.buttonStartPlay.isEnabled;
+    [self.buttonStartPlay setEnabled:YES];
+    [self.buttonStartPlay setBackgroundImage:image forState:UIControlStateNormal];
+    [self.buttonStartPlay setEnabled:wasEnabled];
+
+    // The random marker rests in place when random is on and slides up out of view when off.
+    if (randomOn) {
+        [self.randView
+            setTransform:CGAffineTransformMakeTranslation(0.0, -(double)kRandViewSlideOffset)];
+    } else {
+        [self.randView setTransform:CGAffineTransformIdentity];
+    }
+
+    __weak MusicDetailViewKnt *weakSelf = self;
+    [UIView animateWithDuration:kRandViewToggleDuration
+                     animations:^{
+                       /** @ghidraAddress 0x1a0f18 */
+                       [weakSelf.randView setAlpha:(randomOn ? 1.0 : 0.0)];
+                       if (randomOn) {
+                           [weakSelf.randView setTransform:CGAffineTransformIdentity];
+                       } else {
+                           [weakSelf.randView setTransform:CGAffineTransformMakeTranslation(
+                                                               0.0, -(double)kRandViewSlideOffset)];
+                       }
+                     }
+                     completion:nil];
 }
 
 /** @ghidraAddress 0x19e384 */
