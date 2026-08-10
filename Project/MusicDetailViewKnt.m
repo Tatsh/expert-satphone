@@ -36,6 +36,12 @@ static NSString *const kSingleButtonImage = @"menu_button_single_knt";
 // The preferred-difficulty user default; a value above extreme (2) is snapped back to basic (0).
 static NSString *const kPrefDifficultyKey = @"PrefDifficulty";
 
+// The scroll button fades out across an eighth of the half-width scroll span.
+static const float kScrollFadeSpanFraction = 0.125f;
+
+// The level image is shown behind the fourth (extend) difficulty's level-number view.
+enum { kExtendLevelNumIndex = 3 };
+
 // The music bar holds 120 dot views; each dot's sprite comes from a 4-bit nibble in the dot map and
 // its image row from a 2-bit value in the resource map.
 enum {
@@ -294,6 +300,31 @@ static const NSInteger kJcfDownloadSelectDownload = 2;
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x1a1058 */
+- (void)scrollViewDidScroll:(nullable UIScrollView *)scrollView {
+    float offsetX = (float)scrollView.contentOffset.x;
+    float half = (float)(scrollView.contentSize.width * 0.5);
+    float denom = half * kScrollFadeSpanFraction;
+    float leftFade = MIN(offsetX / denom, 1.0f);
+    [detailScrollButton[0] setAlpha:(double)(1.0f - leftFade)];
+    float rightFade = MIN((half - offsetX) / denom, 1.0f);
+    [detailScrollButton[1] setAlpha:(double)(1.0f - rightFade)];
+}
+
+/** @ghidraAddress 0x1a19c8 */
+- (void)editModalViewClose:(nullable id)sender {
+    [[AudioManager sharedManager] playSeResFile:kMusicRightSound inDirectory:nil];
+    NSMutableDictionary *editorInfo = [[EditDataManager sharedManager] getEditorInfo];
+    [editTxt[0] setText:editorInfo[@"fumenName"]];
+    [editTxt[1] setText:editorInfo[@"editorName"]];
+    [editTxt[2] setText:editorInfo[@"comment"]];
+    int level = [editorInfo[@"level"] intValue];
+    [levelNumView[kExtendLevelNumIndex] setImage:levelNumImg[level]];
+    [levelNumView[kExtendLevelNumIndex] setAlpha:1.0];
+    [self.controller dismissViewControllerAnimated:YES completion:nil];
+    [self.controller enableCoverTap];
 }
 
 /** @ghidraAddress 0x19c3d0 */
