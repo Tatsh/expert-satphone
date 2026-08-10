@@ -306,6 +306,7 @@ musicbar
 musiccache
 musicinfo
 musiclistfree
+musicselect
 mypy
 myrank
 nagatanien

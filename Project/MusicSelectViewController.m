@@ -1,5 +1,6 @@
 #import "MusicSelectViewController.h"
 
+#import "ChallengeModeRootView.h"
 #import "JubeatAppDelegate.h"
 #import "MarkerSelectView.h"
 #import "MusicDetailView.h"
@@ -8,6 +9,7 @@
 #import "MusicSelectBottomView.h"
 #import "MusicShareView.h"
 #import "MusicView.h"
+#import "NotificationPageNavController.h"
 #import "PurchaseManager.h"
 #import "PushNotificationView.h"
 #import "TuneInfo.h"
@@ -26,6 +28,15 @@ static const double kMenuBgmResumeFade = 0.2; // @ghidraAddress 0x28e040
 // The store-tap and challenge-tap sounds are looked up by these sound keys.
 static NSString *const kStoreTapSoundKey = @"OK";
 static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
+
+// The challenge-mode root view sits on top of the menu at this layer z-position.
+static const CGFloat kChallengeRootViewZPosition = 4000.0; // @ghidraAddress 0x28f238
+
+// The main BGM start voice cue, and the fixed music cues used when closing the web view or opening
+// the notification (the binary hardcodes the Knit-theme resources for these).
+static NSString *const kMainBgmVoiceSuffix = @"CV_MUSICSELECT";
+static NSString *const kWebViewCloseSound = @"SD_KNT_MUSIC_LEFT";
+static NSString *const kNotificationOpenSound = @"SD_KNT_MUSIC_RIGHT";
 
 // The built-in playlist selections map to these sentinel indices in the playlist view controller.
 enum {
@@ -553,6 +564,26 @@ enum {
                                                      table:nil]];
 }
 
+#pragma mark - BGM
+
+/** @ghidraAddress 0x274f8 */
+- (void)tapBgmSwitch:(nullable id)sender {
+    BOOL on = [NSUserDefaults.standardUserDefaults boolForKey:kPrefCustomBgmOnKey];
+    [NSUserDefaults.standardUserDefaults setBool:!on forKey:kPrefCustomBgmOnKey];
+    [NSUserDefaults.standardUserDefaults synchronize];
+    [self setupMainBgm];
+}
+
+/** @ghidraAddress 0x282a4 */
+- (void)startMainBgm {
+    if (JubeatAppDelegate.appDelegate.bChallengeMode) {
+        return;
+    }
+    [self setupMainBgm];
+    [[AudioManager sharedManager] playSeResFile:[self soundName:kMainBgmVoiceSuffix]
+                                    inDirectory:nil];
+}
+
 #pragma mark - Sound and store navigation
 
 /** @ghidraAddress 0x20c84 */
@@ -634,6 +665,46 @@ enum {
 }
 
 #pragma mark - Popover and challenge mode
+
+/** @ghidraAddress 0x370ac */
+- (void)makeChallengeRootView {
+    if (challengeModeView != nil) {
+        [challengeModeView removeFromSuperview];
+        challengeModeView = nil;
+    }
+    challengeModeView = [[ChallengeModeRootView alloc] init];
+    [challengeModeView setController:self];
+    challengeModeView.layer.zPosition = kChallengeRootViewZPosition;
+    [self.view addSubview:challengeModeView];
+}
+
+/** @ghidraAddress 0x3433c */
+- (void)customWebViewClose:(nullable id)webView seqIndex:(nullable id)seqIndex {
+    [[AudioManager sharedManager] playSeResFile:kWebViewCloseSound inDirectory:nil];
+    [self dismissViewControllerAnimated:YES
+                             completion:^{
+                               /** @ghidraAddress 0x34428 */
+                               [self JcfDownLoad];
+                             }];
+    bOpenModal = NO;
+    [self musicShuffleEnable];
+    [self setSearchEnable:YES];
+}
+
+/** @ghidraAddress 0x34448 */
+- (void)notificationDisp {
+    if (JubeatAppDelegate.appDelegate.notificationURL == nil) {
+        return;
+    }
+    if (notificationViewController != nil) {
+        notificationViewController = nil;
+    }
+    notificationViewController = [[NotificationPageNavController alloc] init:self];
+    [self presentViewController:notificationViewController animated:YES completion:nil];
+    bOpenInfo = YES;
+    bOpenModal = YES;
+    [[AudioManager sharedManager] playSeResFile:kNotificationOpenSound inDirectory:nil];
+}
 
 /** @ghidraAddress 0x338c0 */
 - (void)popoverClose {
