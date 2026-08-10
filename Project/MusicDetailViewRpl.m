@@ -85,6 +85,30 @@ static NSString *const kExtendModeSound = @"SD_KNT_MUSIC_LEFT";
 static const double kShareLabelDropOffset = 6.0;              // fmov, 6.0
 static const NSTimeInterval kShareProgressAnimDuration = 0.3; // @ghidraAddress 0x28f260
 
+// The rating images, indexed by SequenceRank (E, D, C, B, A, S, SS, SSS), and the score/level glyph
+// and mini-dot resource-name formats, all with the Ripples suffix.
+static NSString *const kRatingImageNames[] = {@"msc_rate_e_rpl",
+                                              @"msc_rate_d_rpl",
+                                              @"msc_rate_c_rpl",
+                                              @"msc_rate_b_rpl",
+                                              @"msc_rate_a_rpl",
+                                              @"msc_rate_s_rpl",
+                                              @"msc_rate_ss_rpl",
+                                              @"msc_rate_sss_rpl"};
+static NSString *const kHighscoreDigitFormat = @"msc_high_score_%d_rpl";
+static NSString *const kLevelNumberFormat = @"lv_%02d_rpl";
+static NSString *const kMiniDotFormat = @"mini_dot_%d_%d_rpl";
+enum { kLevelImageCount = 10 };
+
+// The four music-bar bars stretch from resizable images with per-idiom cap insets.
+static NSString *const kMusicBarNames[] = {
+    @"mini_bar_b_rpl", @"mini_bar_a_rpl", @"mini_bar_e_rpl", @"mini_bar_o_rpl"};
+static const CGFloat kMusicBarCapInsetPad = 48.0;   // @ghidraAddress 0x28f450
+static const CGFloat kMusicBarCapInsetPhone = 32.0; // @ghidraAddress 0x28f458
+
+static NSString *const kFullcomboImageName = @"msc_fullcombo_rpl";
+static NSString *const kExcellentImageName = @"msc_excellent_rpl";
+
 // The host share-play button's background image.
 static NSString *const kHostButtonImage = @"menu_button_host_rpl";
 
@@ -696,6 +720,40 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
         double x = btnDiff[kExtendButtonIndex].frame.size.width - badge.size.width - inset;
         [userTagIcon setFrame:CGRectMake(x, top, badge.size.width, badge.size.height)];
         [btnDiff[kExtendButtonIndex] addSubview:userTagIcon];
+    }
+}
+
+/** @ghidraAddress 0x12ddf4 */
+- (void)loadImages {
+    @autoreleasepool {
+        for (int i = 0; i < (int)(sizeof(kRatingImageNames) / sizeof(kRatingImageNames[0])); ++i) {
+            ratingImg[i] = LoadScaledPngImage(kRatingImageNames[i]);
+        }
+        for (int i = 0; i < kLevelImageCount; ++i) {
+            highscoreNumImg[i] =
+                LoadScaledPngImage([NSString stringWithFormat:kHighscoreDigitFormat, i]);
+            levelNumImg[i] =
+                LoadScaledPngImage([NSString stringWithFormat:kLevelNumberFormat, i + 1]);
+        }
+
+        // The music-bar bars stretch from a resizable image with per-idiom cap insets.
+        CGFloat capInset = self.isPad ? kMusicBarCapInsetPad : kMusicBarCapInsetPhone;
+        UIEdgeInsets insets = UIEdgeInsetsMake(0, capInset, 0, capInset);
+        for (int i = 0; i < (int)(sizeof(kMusicBarNames) / sizeof(kMusicBarNames[0])); ++i) {
+            mbarBarImg[i] =
+                [LoadScaledPngImage(kMusicBarNames[i]) resizableImageWithCapInsets:insets];
+        }
+
+        // The mini-dot grid: four rows of eight, named by (row, 1-based column).
+        for (int row = 0; row < 4; ++row) {
+            for (int col = 0; col < kMusicBarDotSpriteCount; ++col) {
+                mbarDotImg[row][col] =
+                    LoadScaledPngImage([NSString stringWithFormat:kMiniDotFormat, row, col + 1]);
+            }
+        }
+
+        fullcomboImg = LoadScaledPngImage(kFullcomboImageName);
+        excellentImg = LoadScaledPngImage(kExcellentImageName);
     }
 }
 

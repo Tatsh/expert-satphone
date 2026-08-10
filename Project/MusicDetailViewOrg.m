@@ -91,6 +91,37 @@ static NSString *const kExtendModeSound = @"SD_KNT_MUSIC_LEFT";
 static const double kShareLabelDropOffset = 6.0;              // fmov, 6.0
 static const NSTimeInterval kShareProgressAnimDuration = 0.3; // @ghidraAddress 0x28f260
 
+// The rating images, indexed by SequenceRank (E, D, C, B, A, S, SS, SSS) plus the excellent image.
+static NSString *const kRatingImageNames[] = {@"msc_rate_e",
+                                              @"msc_rate_d",
+                                              @"msc_rate_c",
+                                              @"msc_rate_b",
+                                              @"msc_rate_a",
+                                              @"msc_rate_s",
+                                              @"msc_rate_ss",
+                                              @"msc_rate_sss",
+                                              @"msc_rate_exc"};
+static NSString *const kHighscoreDigitFormat = @"msc_high_score_%d";
+
+// The classic theme keeps a five-row level-glyph table, one row per difficulty word, each ten
+// columns wide; the level-word labels sit alongside.
+static NSString *const kLevelNumberFormats[] = {
+    @"lv_b_%02d", @"lv_a_%02d", @"lv_e_%02d", @"lv_x_%02d", @"lv_o_%02d"};
+static NSString *const kLevelTextNames[] = {
+    @"word_level_b", @"word_level_a", @"word_level_e", @"word_level_x"};
+static NSString *const kMiniDotFormat = @"mini_dot_%d_%d";
+enum {
+    kLevelImageCount = 10,
+    kLevelWordRowCount = 5,
+};
+
+// The four music-bar bars stretch from resizable images with a single cap inset.
+static NSString *const kMusicBarNames[] = {
+    @"mini_bar_b", @"mini_bar_a", @"mini_bar_e", @"mini_bar_o"};
+static const CGFloat kMusicBarCapInset = 40.0; // @ghidraAddress 0x28f1f8
+
+static NSString *const kFullcomboImageName = @"msc_fullcombo_1";
+
 // The host share-play button's background image.
 static NSString *const kHostButtonImage = @"menu_button_host";
 
@@ -797,6 +828,47 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
         int difficulty =
             (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
         [self changeDifficulty:difficulty];
+    }
+}
+
+/** @ghidraAddress 0x53958 */
+- (void)loadImages {
+    @autoreleasepool {
+        for (int i = 0; i < (int)(sizeof(kRatingImageNames) / sizeof(kRatingImageNames[0])); ++i) {
+            ratingImg[i] = LoadScaledPngImage(kRatingImageNames[i]);
+        }
+
+        // Each column loads the shared score glyph and the five per-difficulty level glyphs.
+        for (int i = 0; i < kLevelImageCount; ++i) {
+            highscoreNumImg[i] =
+                LoadScaledPngImage([NSString stringWithFormat:kHighscoreDigitFormat, i]);
+            for (int row = 0; row < kLevelWordRowCount; ++row) {
+                levelNumImg[row][i] =
+                    LoadScaledPngImage([NSString stringWithFormat:kLevelNumberFormats[row], i + 1]);
+            }
+        }
+
+        for (int i = 0; i < (int)(sizeof(kLevelTextNames) / sizeof(kLevelTextNames[0])); ++i) {
+            levelTextImg[i] = LoadScaledPngImage(kLevelTextNames[i]);
+        }
+
+        // The music-bar bars stretch from a resizable image with a single cap inset.
+        UIEdgeInsets insets = UIEdgeInsetsMake(0, kMusicBarCapInset, 0, kMusicBarCapInset);
+        for (int i = 0; i < (int)(sizeof(kMusicBarNames) / sizeof(kMusicBarNames[0])); ++i) {
+            mbarBarImg[i] =
+                [LoadScaledPngImage(kMusicBarNames[i]) resizableImageWithCapInsets:insets];
+        }
+
+        // The mini-dot grid: four rows of eight, named by (row, 1-based column).
+        for (int row = 0; row < 4; ++row) {
+            for (int col = 0; col < kMusicBarDotSpriteCount; ++col) {
+                mbarDotImg[row][col] =
+                    LoadScaledPngImage([NSString stringWithFormat:kMiniDotFormat, row, col + 1]);
+            }
+        }
+
+        // The classic theme has no separate excellent image.
+        fullcomboImg = LoadScaledPngImage(kFullcomboImageName);
     }
 }
 
