@@ -11,6 +11,7 @@
 #import "JubeatAppDelegate.h"
 #import "LatelyJcfListManager.h"
 #import "MusicSelectViewController.h"
+#import "Sequence.h"
 #import "TuneInfo.h"
 
 // The classic theme resource names for the start-button image variants and the edit/close sounds.
@@ -44,6 +45,15 @@ static const float kScrollFadeSpanFraction = 0.125f;
 static const double kDiffButtonSizePad = 160.0;      // @ghidraAddress 0x28f438
 static const double kDiffButtonSizeRetina = 80.0;    // @ghidraAddress 0x28f3f8
 static const double kDiffButtonSizeNonRetina = 74.0; // @ghidraAddress 0x28f6f8
+
+// The seven high-score digits render with a right-justified %7d through highscoreNumImg; the score
+// is clamped to the perfect score.
+enum {
+    kHighscoreDigitCount = 7,
+    kExcellentScore = 1000000,
+    kDigitGlyphCount = 10,
+};
+static const char kDigitZero = '0';
 
 @implementation MusicDetailViewOrg
 
@@ -79,6 +89,27 @@ static const double kDiffButtonSizeNonRetina = 74.0; // @ghidraAddress 0x28f6f8
 
 /** @ghidraAddress 0x5c4fc */
 - (void)scrollViewWillBeginDragging:(nullable UIScrollView *)scrollView {
+}
+
+/** @ghidraAddress 0x57170 */
+- (void)setScoreBoard:(int)score fullcombo:(BOOL)fullcombo {
+    // The classic theme clamps the score to the perfect score and shows only the rating and the
+    // seven score digits (no combo/full-combo mark).
+    int clamped = (score < kExcellentScore) ? score : kExcellentScore;
+    char digits[8] = {
+        kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, 0};
+    if (clamped < 0) {
+        [ratingView setImage:nil];
+    } else {
+        snprintf(digits, sizeof(digits), "%7d", clamped);
+        SequenceRank rank = [Sequence rankOfPoint:clamped];
+        [ratingView setImage:ratingImg[rank]];
+    }
+    for (int i = 0; i < kHighscoreDigitCount; ++i) {
+        int glyph = digits[i] - kDigitZero;
+        UIImage *image = ((unsigned int)glyph < kDigitGlyphCount) ? highscoreNumImg[glyph] : nil;
+        [highscoreNumView[i] setImage:image];
+    }
 }
 
 /** @ghidraAddress 0x537b0 */
