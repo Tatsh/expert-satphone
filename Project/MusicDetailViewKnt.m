@@ -5,6 +5,7 @@
 #import "AlertViewManager.h"
 #import "BFCodec.h"
 #import "EditDataManager.h"
+#import "EditFileListViewDeleteController.h"
 #import "EditModalView.h"
 #import "ImageCache.h"
 #import "ImageLoading.h"
@@ -159,6 +160,10 @@ static const char kDigitZero = '0';
 
 // The extend-icon crossfade runs over three tenths of a second.
 static const NSTimeInterval kExtendCrossFadeDuration = 0.3; // @ghidraAddress 0x28f260
+
+// The pad edit-file popover is 300x400 points.
+static const double kEditPopoverWidth = 300.0;  // @ghidraAddress 0x28f2d0
+static const double kEditPopoverHeight = 400.0; // @ghidraAddress 0x28f2e0
 
 // A chart level is stored as a zero-based level-image index: an unset level (below 2) maps to the
 // first image, and any level of 10 or more clamps to the last of the ten level images.
@@ -962,6 +967,49 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
                          }];
     }
     [self infoChange:difficulty];
+}
+
+/** @ghidraAddress 0x1a201c */
+- (void)editPopoverOpen {
+    [self loadListRelease];
+    [self.controller unenableCoverTap];
+    EditDataManager *manager = [EditDataManager sharedManager];
+    if (!self.isPad) {
+        // The phone shows the edit-file list in a full nav controller.
+        NSMutableArray *files = [manager getFileInfoList:self.info.tuneID];
+        NSString *lastEdit = [manager getLastEditFileName:(int)self.info.tuneID];
+        self.jcfMan = [[JcfManageNavController alloc] init:self fileList:files selName:lastEdit];
+        [self.jcfMan setTuneID:self.info.tuneID];
+        [self.jcfMan setShareFlg:(self.controller.sharePlayManager != nil)];
+        [self.controller presentViewController:self.jcfMan animated:YES completion:nil];
+        [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
+        return;
+    }
+    // The pad shows a 300x400 delete-list, presented as a popover pointing up from the extend
+    // difficulty button, or modally when not on a pad after all.
+    if (self.pFileListView != nil) {
+        return;
+    }
+    NSMutableArray *files = [manager getFileInfoList:self.info.tuneID];
+    self.pFileListView = [[EditFileListViewDeleteController alloc]
+        initWithSize:CGSizeMake(kEditPopoverWidth, kEditPopoverHeight)];
+    [self.pFileListView setFileList:files];
+    [self.pFileListView setDelegate:self];
+    [self.pFileListView setTargetFileName:[manager getLastEditFileName:(int)self.info.tuneID]];
+    [self.pFileListView setIsFirst:self.isFirstSelect];
+    [self.pFileListView setIsShared:(self.controller.sharePlayManager != nil)];
+    if (!self.isPad) {
+        [self.controller presentViewController:self.pFileListView animated:YES completion:nil];
+    } else {
+        [self.pFileListView setModalPresentationStyle:UIModalPresentationPopover];
+        UIPopoverPresentationController *popover = self.pFileListView.popoverPresentationController;
+        [popover setDelegate:self];
+        [popover setPermittedArrowDirections:UIPopoverArrowDirectionDown];
+        [popover setSourceView:self.scrollView];
+        [popover setSourceRect:btnDiff[kExtendButtonIndex].frame];
+        [self.controller presentViewController:self.pFileListView animated:YES completion:nil];
+    }
+    [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
 }
 
 /** @ghidraAddress 0x19c72c */
