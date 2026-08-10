@@ -3,6 +3,7 @@
 #import "AlertViewManager.h"
 #import "BFCodec.h"
 #import "ChallengeModeRootView.h"
+#import "Downloader.h"
 #import "JcfDownloadPageNavController.h"
 #import "JubeatAppDelegate.h"
 #import "LabUtilities.h"
@@ -764,6 +765,25 @@ enum {
 
 #pragma mark - Search
 
+/** @ghidraAddress 0x35944 */
+- (nullable id)getSearchArray:(nullable NSString *)searchString {
+    // Normalise kana and width (twice each, matching the binary), split on spaces, de-duplicate via
+    // a set, and drop empty terms.
+    NSMutableString *normalised = [searchString mutableCopy];
+    CFStringTransform(
+        (CFMutableStringRef)normalised, NULL, kCFStringTransformHiraganaKatakana, false);
+    CFStringTransform(
+        (CFMutableStringRef)normalised, NULL, kCFStringTransformFullwidthHalfwidth, false);
+    CFStringTransform(
+        (CFMutableStringRef)normalised, NULL, kCFStringTransformHiraganaKatakana, false);
+    CFStringTransform(
+        (CFMutableStringRef)normalised, NULL, kCFStringTransformFullwidthHalfwidth, false);
+    NSArray *terms = [normalised componentsSeparatedByString:@" "];
+    NSMutableArray *unique = [NSMutableArray arrayWithArray:[NSSet setWithArray:terms].allObjects];
+    [unique removeObject:@""];
+    return unique;
+}
+
 /** @ghidraAddress 0x369f8 */
 - (void)searchBar:(nullable UISearchBar *)searchBar textDidChange:(nullable NSString *)searchText {
     backUpString = [NSString stringWithString:searchText];
@@ -947,6 +967,51 @@ enum {
                        /** @ghidraAddress 0x36c48 */
                        [weakTutorial setAlpha:0.0];
                      }];
+}
+
+/** @ghidraAddress 0x38618 */
+- (void)errorIDDownload:(nullable id)sender msgStr:(nullable NSString *)message {
+    if (message == nil || [message isEqualToString:@""]) {
+        message = [NSBundle.mainBundle localizedStringForKey:@"NetworkErrorMsg"
+                                                       value:@""
+                                                       table:nil];
+    }
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:nil
+                                            tag:0
+                                          title:@""
+                                            msg:message
+                                         cancel:[NSBundle.mainBundle localizedStringForKey:@"OK"
+                                                                                     value:@""
+                                                                                     table:nil]
+                                        btnText:nil
+                                           show:YES];
+    idManager = nil;
+    [self hideChallengeCoverView];
+}
+
+/** @ghidraAddress 0x29df8 */
+- (void)downloaderError:(nullable id)downloader {
+    int tag = ((Downloader *)downloader).tag;
+    if ((unsigned int)(tag - 1) < 3) {
+        [self hideChallengeCoverView];
+        [[AlertViewManager sharedManager]
+            makeAlert:0
+             delegate:nil
+                  tag:0
+                title:@""
+                  msg:[NSBundle.mainBundle localizedStringForKey:@"ServerErrorMsg"
+                                                           value:@""
+                                                           table:nil]
+               cancel:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
+              btnText:nil
+                 show:YES];
+        return;
+    }
+    if (tag == 0) {
+        infoDownloader = nil;
+        [self challengeModeEnable:NO];
+    }
 }
 
 /** @ghidraAddress 0x3830c */

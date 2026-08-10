@@ -167,6 +167,7 @@ ftell
 ftrivial
 fukuda
 fullcombo
+fullwidth
 fumen
 fwrite
 ghidra
@@ -178,6 +179,7 @@ goodjob
 goshima
 graphviz
 haku
+halfwidth
 handoff
 harada
 hidetoshi
