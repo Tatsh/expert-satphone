@@ -194,6 +194,7 @@ ivar
 ivar's
 ivars
 iwyu
+japanrank
 jbtchallenge
 jbtgift
 jbtstore
@@ -272,6 +273,7 @@ musiccache
 musicinfo
 musiclistfree
 mypy
+myrank
 nagatanien
 natsumi
 nbobhfs
@@ -363,6 +365,7 @@ renderbuffers
 revoinf
 rgba
 ripgreprc
+rivalrank
 rodata
 roundf
 rtti
@@ -443,6 +446,7 @@ thema
 theos
 tokusho
 topcover
+toprank
 totalscore
 totalscorephone
 tweened
