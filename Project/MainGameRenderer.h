@@ -6,7 +6,7 @@
  *
  * The superclass is @c NSObject, taken from the @c [NSObject init] chain-up in @c -init at
  * 0xf6b4. This is the abstract base of the renderer family: @c MainGameRendererPad ,
- * @c MainGameRendererPhone , their replay (@c ...Rpl ) and Konami-theme (@c ...Knt ) variants, and
+ * @c MainGameRendererPhone , their ripples (@c ...Rpl ) and knit-theme (@c ...Knt ) variants, and
  * the edit-note renderers all derive from it. Almost every drawing and layout method here is an
  * empty or constant-returning override point that a concrete subclass fills in per device idiom and
  * theme, so the base carries the shared state (the protected combo, marker, and hold-marker ivars

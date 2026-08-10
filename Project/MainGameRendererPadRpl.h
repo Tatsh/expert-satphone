@@ -1,6 +1,6 @@
 /** @file
- * The iPad Replay-theme in-game renderer: the concrete @c MainGameRenderer subclass that draws a
- * play session with the "Replay" (rpl) theme skin on the pad idiom.
+ * The iPad Ripples-theme in-game renderer: the concrete @c MainGameRenderer subclass that draws a
+ * play session with the "Ripples" (rpl) theme skin on the pad idiom.
  *
  * Reconstructed from Ghidra program Jubeat (class MainGameRendererPadRpl, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -9,7 +9,7 @@
  * @c [MainGameRenderer init] at 0x10011945c, and this class declares its own @c frame ,
  * @c subStateChangeFrame , and @c markerDir ivars, which would collide with @c MainGameRendererPad
  * were it a subclass of it. It fills in every drawing and layout override point that
- * @c MainGameRenderer leaves empty for the Replay theme: it loads the theme's atlas textures
+ * @c MainGameRenderer leaves empty for the Ripples theme: it loads the theme's atlas textures
  * (@c game_front_rpl_tex , @c game_combo_rpl_tex , @c game_marker_tex , @c game_hold_marker_tex ,
  * @c game_ready_rpl_0_tex , @c game_ready_rpl_1_tex , @c game_result_rpl_tex , and the debug-font
  * glyph sheet), draws the rippling background of bouncing sprites, the 4x4 marker grid and hold
@@ -33,7 +33,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The pad Replay-theme in-game renderer.
+ * @brief The pad Ripples-theme in-game renderer.
  */
 @interface MainGameRendererPadRpl : MainGameRenderer {
 @protected
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Textures
 
 /**
- * @brief Loads the pad Replay-theme session atlases: the two ready textures, front, combo, marker,
+ * @brief Loads the pad Ripples-theme session atlases: the two ready textures, front, combo, marker,
  *        hold-marker, and debug-font textures, and builds the hold-marker sub-renderer and the
  *        upper-background ripple pool. The selector spelling @c loadTexure: (a missing "t") is the
  *        binary's own.

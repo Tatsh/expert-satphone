@@ -49,8 +49,8 @@
 // and 0 (the default) is the standard theme.
 enum {
     kGameThemeDefault = 0, // The standard theme.
-    kGameThemeRpl = 1,     // The REFLEC BEAT theme.
-    kGameThemeKnt = 2,     // The Konami theme.
+    kGameThemeRpl = 1,     // The ripples theme.
+    kGameThemeKnt = 2,     // The knit theme.
 };
 
 // The renderer play-state values read from and written to the renderer's -state.
@@ -999,7 +999,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
     JubeatAppDelegate *appDelegate = [JubeatAppDelegate appDelegate];
     RendererConf *conf = [[RendererConf alloc] init];
 
-    // Naga-Cora (Konami theme) without Hinabita gets an extra option renderer over the view.
+    // Naga-Cora (knit theme) without Hinabita gets an extra option renderer over the view.
     if (appDelegate.currentTheme == kGameThemeKnt &&
         [[JubeatAppDelegate appDelegate] isNagaCoraMode] &&
         ![[JubeatAppDelegate appDelegate] isHinabitaMode] && self->nteRender == nil) {

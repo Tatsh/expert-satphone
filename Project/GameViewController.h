@@ -7,8 +7,8 @@
  * The superclass is @c UIViewController : every @c super call in the class (init, loadView, the
  * lifecycle hooks, and dealloc) targets @c UIViewController . The controller owns the OpenGL view
  * ( @c EAGLView ) and, per device idiom and current theme, one of the @c MainGameRenderer family
- * ( @c MainGameRendererPad / @c MainGameRendererPhone and their @c ...Rpl replay and @c ...Knt
- * Konami-theme variants), the note-judgement @c Sequence , the per-frame @c CADisplayLink driving
+ * ( @c MainGameRendererPad / @c MainGameRendererPhone and their @c ...Rpl ripples and @c ...Knt
+ * knit-theme variants), the note-judgement @c Sequence , the per-frame @c CADisplayLink driving
  * @c loop: , the pause overlay ( @c GamePauseView ), and the local-multiplayer session manager
  * ( @c SharePlayManager ). It records and replays touch "ghosts", uploads challenge scores, drives
  * the good-job / Twitter share buttons, and hosts the jubeat-lab pack-ID search overlay.
