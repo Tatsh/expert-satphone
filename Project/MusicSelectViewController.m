@@ -1,9 +1,11 @@
 #import "MusicSelectViewController.h"
 
 #import "AlertViewManager.h"
+#import "BFCodec.h"
 #import "ChallengeModeRootView.h"
 #import "JcfDownloadPageNavController.h"
 #import "JubeatAppDelegate.h"
+#import "LabUtilities.h"
 #import "MarkerSelectView.h"
 #import "MusicDetailView.h"
 #import "MusicListView.h"
@@ -37,6 +39,18 @@ static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
 
 // The challenge-mode root view sits on top of the menu at this layer z-position.
 static const CGFloat kChallengeRootViewZPosition = 4000.0; // @ghidraAddress 0x28f238
+
+// The marker-select view is a square (500 on the pad, 250 on the phone) hidden above the top of the
+// screen, its width taken from a per-idiom pool value, sitting at this z-position.
+static const CGFloat kMarkerSelectSizePad = 500.0;    // fmov via w, 500
+static const CGFloat kMarkerSelectSizePhone = 250.0;  // fmov via w, 250
+static const CGFloat kMarkerSelectWidthPad = 400.0;   // @ghidraAddress 0x28f308
+static const CGFloat kMarkerSelectWidthPhone = 200.0; // @ghidraAddress 0x28f300
+static const CGFloat kMarkerSelectZPosition = 3500.0; // @ghidraAddress 0x28f1e8
+
+// Encoded strings decode as UTF-8.
+static const NSStringEncoding kLabURLEncoding = NSUTF8StringEncoding;
+static NSString *const kPrefJubeatLabURLKey = @"PrefjubeatLabURL";
 
 // Turning to the store while a consume receipt is pending records this verify-purchase type and
 // shows the verify dialog; a completed purchase reports the shared success message.
@@ -689,6 +703,56 @@ enum {
     [self turnToStore:@{@"campaign" : sender}];
 }
 
+/** @ghidraAddress 0x27098 */
+- (void)clickPackInfomation:(nullable id)sender {
+    [self dismissViewControllerAnimated:YES
+                             completion:^{
+                               /** @ghidraAddress 0x27188 */
+                               [self turnToStore:sender];
+                             }];
+    bOpenModal = NO;
+    bOpenInfo = NO;
+    [self musicShuffleEnable];
+    [self setSearchEnable:YES];
+}
+
+/** @ghidraAddress 0x2d2e0 */
+- (void)tapLeaderboard:(nullable id)sender {
+    [self setEnableGesture:YES];
+    if (!GKLocalPlayer.localPlayer.isAuthenticated) {
+        return;
+    }
+    [[AudioManager sharedManager] playSeResFile:[self soundName:kSettingsTapSoundSuffix]
+                                    inDirectory:nil];
+    GKGameCenterViewController *gc = [[GKGameCenterViewController alloc] init];
+    [gc setLeaderboardIdentifier:JubeatAppDelegate.appDelegate.totalScoreLeaderboardCategory];
+    [gc setGameCenterDelegate:self];
+    [self presentViewController:gc animated:YES completion:nil];
+    bOpenModal = YES;
+    [self musicShuffleDisable];
+    [self setSearchEnable:NO];
+}
+
+/** @ghidraAddress 0x34584 */
+- (BOOL)checkLabURL {
+    NSData *encoded = [NSUserDefaults.standardUserDefaults objectForKey:kPrefJubeatLabURLKey];
+    if (encoded != nil) {
+        NSMutableData *data = [NSMutableData dataWithData:encoded];
+        BFCodec *codec = [[BFCodec alloc] init];
+        [codec cipherInit:CreateLabUrlCipherKey()];
+        [codec decipher:data];
+        if (data != nil) {
+            jubeatLabURL = [[NSString alloc] initWithData:data encoding:kLabURLEncoding];
+            if (jubeatLabURL != nil) {
+                return YES;
+            }
+        }
+    }
+    jubeatLabURL = nil;
+    [NSUserDefaults.standardUserDefaults removeObjectForKey:kPrefJubeatLabURLKey];
+    return NO;
+}
+
 /** @ghidraAddress 0x33374 */
 - (void)moveStore:(nullable id)store packID:(nullable NSString *)packID {
     [self dismissViewControllerAnimated:YES
@@ -926,6 +990,33 @@ enum {
         }
     }
     return kPlaylistSelectionDefault;
+}
+
+/** @ghidraAddress 0x2a0b0 */
+- (int)musicIndexForTuneID:(int)tuneID {
+    NSArray<TuneInfo *> *list = arrayCurrentPlaylist ?: arrayAllTune;
+    for (NSUInteger i = 0; i < list.count; ++i) {
+        if ((int)list[i].tuneID == tuneID) {
+            return (int)i;
+        }
+    }
+    return -1;
+}
+
+/** @ghidraAddress 0x26998 */
+- (void)reloadMarkerSelectView {
+    if (markerSelectView.superview != nil) {
+        [markerSelectView removeFromSuperview];
+    }
+    markerSelectView = nil;
+    CGFloat size = isPad ? kMarkerSelectSizePad : kMarkerSelectSizePhone;
+    CGFloat width = isPad ? kMarkerSelectWidthPad : kMarkerSelectWidthPhone;
+    markerSelectView = [[MarkerSelectView alloc] initWithFrame:CGRectMake(0, -size, width, size)];
+    [markerSelectView setDelegate:self];
+    [markerSelectView setHidden:YES];
+    isMarkerSelectOpen = NO;
+    markerSelectView.layer.zPosition = kMarkerSelectZPosition;
+    [self.view insertSubview:markerSelectView aboveSubview:btnMarker];
 }
 
 /** @ghidraAddress 0x2a004 */
