@@ -1578,6 +1578,52 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     [self setEnableGesture:NO];
 }
 
+#pragma mark - URL scheme
+
+/** @ghidraAddress 0x3348c */
+- (void)schemeMoveStore {
+    // Close the marker-select overlay if it is open, restoring the covered view and marker button.
+    if (isMarkerSelectOpen) {
+        UIView *cover = (musicDetailView.superview == nil) ? coverView : musicDetailView.coverView;
+        [cover setAlpha:1.0];
+        [markerSelectView close];
+        markerSelectView.transform = CGAffineTransformIdentity;
+        btnMarker.transform = CGAffineTransformIdentity;
+        [cover setAlpha:1.0];
+        if (musicDetailView.superview != nil) {
+            [musicDetailView activateAnim:YES];
+        }
+        [cover setHidden:YES];
+        [markerSelectView setHidden:YES];
+        [musicDetailView setHidden:YES];
+        isMarkerSelectOpen = NO;
+        [self musicShuffleEnable];
+        [self setSearchEnable:YES];
+    }
+    // Dismiss any open modal.
+    if (bOpenModal) {
+        [self dismissViewControllerAnimated:NO completion:nil];
+        bOpenModal = NO;
+        [self musicShuffleEnable];
+        [self setSearchEnable:YES];
+    }
+    if (selectedMusicView != nil) {
+        [musicDetailView closePopWindow];
+    }
+    // Open whichever store target the URL scheme recorded, then clear it.
+    JubeatAppDelegate *appDelegate = JubeatAppDelegate.appDelegate;
+    if (appDelegate.storePackID != nil) {
+        [self turnToPackPurchase:appDelegate.storePackID];
+        [appDelegate resetDownloadPackID];
+    } else if (appDelegate.storeCampaignID != nil) {
+        [self turnToCampaignDetail:appDelegate.storeCampaignID];
+        [appDelegate resetCampaignID];
+    } else if (appDelegate.storeGenreID != nil) {
+        [self turnToGenreOpen:appDelegate.storeGenreID];
+        [appDelegate resetDownloadGenreID];
+    }
+}
+
 #pragma mark - Playlist actions
 
 /** @ghidraAddress 0x2cbfc */
