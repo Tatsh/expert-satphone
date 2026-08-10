@@ -733,3 +733,7 @@
 0x1acc0	(^void)(BOOL)
 0x1aed0	(^void)(void)
 0x1af98	(^void)(BOOL)
+0x10a0f0	(^void)(void)
+0x109830	(^void)(void)
+0x109888	(^void)(void)
+0x1098e0	(^void)(void)

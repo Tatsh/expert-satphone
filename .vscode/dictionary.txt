@@ -21,6 +21,7 @@ MAINPAGE
 MDFILE
 NONLOCALIZED
 NSCFERROR
+Numer
 OBJCXX
 Prerendered
 Restorepurchases
@@ -186,6 +187,7 @@ ferror
 filefunc
 filehandle
 floorf
+fminf
 fmla
 fmov
 fmul
