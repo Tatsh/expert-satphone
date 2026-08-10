@@ -5,6 +5,7 @@ accela
 accum
 achive
 actived
+additionitem
 adid
 adrp
 angjp
@@ -331,6 +332,7 @@ prefjubeat
 prevrank
 proc
 prodlist
+purchasability
 pushbtn
 pycache
 pyinstaller
