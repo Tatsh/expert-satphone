@@ -1,11 +1,21 @@
 #import "MusicSelectViewController.h"
 
+#import "MarkerSelectView.h"
+#import "MusicDetailView.h"
 #import "MusicListView.h"
+#import "MusicPlaylistViewController.h"
 #import "MusicShareView.h"
+#import "MusicView.h"
+#import "PushNotificationView.h"
+#import "TuneInfo.h"
 
 // Landscape-left and landscape-right make up the supported orientation mask.
 static const UIInterfaceOrientationMask kSupportedOrientations =
     UIInterfaceOrientationMaskLandscapeLeft | UIInterfaceOrientationMaskLandscapeRight;
+
+// The custom-BGM selection preferences: the chosen tune's id and whether the custom BGM is on.
+static NSString *const kPrefCustomBgmIDKey = @"PrefCustomBgmID";
+static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
 
 @implementation MusicSelectViewController
 
@@ -48,6 +58,40 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 - (unsigned int)numberOfMusic {
     NSArray *list = arrayCurrentPlaylist ?: arrayAllTune;
     return (unsigned int)list.count;
+}
+
+/** @ghidraAddress 0x36cb0 */
+- (void)updateMusicList {
+    [self refreshMusicList];
+    [musicListView updateViews];
+    [markerSelectView updateMarkerList];
+}
+
+/** @ghidraAddress 0x33330 */
+- (void)downloadEnd:(nullable id)sender musicID:(nullable id)musicID {
+    [musicListView addDownloadMark:[musicID intValue]];
+}
+
+/** @ghidraAddress 0x329d4 */
+- (void)markerSelectChanged:(nullable id)sender {
+    [btnMarkerImg setImage:[markerSelectView getCurrentBanner]];
+}
+
+/** @ghidraAddress 0x2ca38 */
+- (void)musicViewSelectBgmAction:(nullable id)musicView {
+    // Re-tapping the current custom-BGM tune clears the preference; any other tune sets it.
+    unsigned int tuneID = ((MusicView *)musicView).tuneInfo.tuneID;
+    NSInteger current = [NSUserDefaults.standardUserDefaults integerForKey:kPrefCustomBgmIDKey];
+    if (tuneID == current) {
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:kPrefCustomBgmIDKey];
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:kPrefCustomBgmOnKey];
+    } else {
+        [NSUserDefaults.standardUserDefaults setInteger:tuneID forKey:kPrefCustomBgmIDKey];
+        [NSUserDefaults.standardUserDefaults setBool:YES forKey:kPrefCustomBgmOnKey];
+    }
+    [NSUserDefaults.standardUserDefaults synchronize];
+    [self setupMainBgm];
+    [musicListView refreshTextColor];
 }
 
 /** @ghidraAddress 0x2a298 */
@@ -186,6 +230,35 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
     verifyDialog = nil;
 }
 
+#pragma mark - Notifications and challenge
+
+/** @ghidraAddress 0x27cf8 */
+- (void)pushNotificate {
+    // A queued notification banner shows only when no modal, detail, settings, or challenge screen
+    // is open.
+    if (!bOpenChallenge && !bOpenMusicDetail && !bOpenSetting && !bOpenModal) {
+        [notificationView startNotification];
+    }
+}
+
+/** @ghidraAddress 0x37c24 */
+- (void)loadTimeOver:(nullable id)sender {
+    [indicatorTimer invalidate];
+    indicatorTimer = nil;
+    [indicatorChallenge startAnimating];
+}
+
+#pragma mark - Popover
+
+/** @ghidraAddress 0x275dc */
+- (BOOL)popoverPresentationControllerShouldDismissPopover:
+    (nullable UIPopoverPresentationController *)popoverPresentationController {
+    if (playlistViewCtrl.listMode == MusicPlaylistListModeAddToPlaylist) {
+        [musicListView hideAllPlaylistAction];
+    }
+    return YES;
+}
+
 #pragma mark - Share play
 
 /** @ghidraAddress 0x30480 */
@@ -195,6 +268,11 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 /** @ghidraAddress 0x30948 */
 - (void)sharePlayManagerConnectHost:(nullable id)manager {
     [shareClientView changeClientModeConnected];
+}
+
+/** @ghidraAddress 0x31818 */
+- (void)sharePlayManager:(nullable id)manager receiveProgress:(float)progress {
+    [musicDetailView.shareDataProgress setProgress:progress];
 }
 
 /** @ghidraAddress 0x30b6c */
