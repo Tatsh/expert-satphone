@@ -80,6 +80,7 @@ static NSString *const kPrefLastPlayedIDKey = @"PrefLastPlayedID";
 // URL query format.
 static NSString *const kPrefLastPlaylistKey = @"PrefLastPlaylist";
 static NSString *const kPrefPlayListLevelKey = @"PrefPlayListLevel";
+static NSString *const kPrefPlayListHoldKey = @"PrefPlayListHold";
 static NSString *const kNewInfoUserIDFormat = @"&userid=%@";
 static NSString *const kNewInfoURLConcatFormat = @"%@%@";
 
@@ -2084,6 +2085,79 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
         }
     }
     return kPlaylistSelectionDefault;
+}
+
+/** @ghidraAddress 0x2a9e4 */
+- (void)musicPlaylistViewController:(nullable id)controller
+                   playlistSelected:(NSInteger)selection
+                    selectedMusicID:(NSUInteger)musicID {
+    // In add-to-playlist mode a real playlist index adds the music and the picker's actions hide.
+    if (((MusicPlaylistViewController *)controller).listMode != MusicPlaylistListModePlaylists) {
+        if (((MusicPlaylistViewController *)controller).listMode ==
+            MusicPlaylistListModeAddToPlaylist) {
+            if (selection >= 0 && (NSUInteger)selection < playlistManager.numberOfPlaylists) {
+                [playlistManager addMusic:musicID toPlaylistAtIndex:selection];
+                [playlistManager synchronize];
+            }
+            [musicListView hideAllPlaylistAction];
+        }
+        [self dismissViewControllerAnimated:YES completion:nil];
+        [self musicShuffleEnable];
+        [self setSearchEnable:YES];
+        return;
+    }
+
+    // Browse mode: the built-in filters use sentinel indices; a real index is a saved playlist.
+    BOOL builtIn =
+        (selection == kPlaylistSelectionNotPlayed || selection == kPlaylistSelectionDefault ||
+         selection == kPlaylistSelectionLevel || selection == kPlaylistSelectionHold ||
+         selection == kPlaylistSelectionNotHold);
+    if (builtIn) {
+        [self changeMusicListView:selection musicID:0];
+        if (selection != kPlaylistSelectionLevel) {
+            [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefPlayListLevelKey];
+        }
+    } else {
+        if (selection < 0 || (NSUInteger)selection >= playlistManager.numberOfPlaylists) {
+            [self dismissViewControllerAnimated:YES completion:nil];
+            [self musicShuffleEnable];
+            [self setSearchEnable:YES];
+            return;
+        }
+        [self changeMusicListView:selection musicID:0];
+        [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefPlayListLevelKey];
+    }
+
+    // Record the selection: the hold filters set the hold flag, the others clear the remembered
+    // playlist, and a real index stores that playlist's identifier.
+    switch (selection) {
+    case kPlaylistSelectionNotHold:
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:kPrefLastPlaylistKey];
+        [NSUserDefaults.standardUserDefaults setInteger:2 forKey:kPrefPlayListHoldKey];
+        break;
+    case kPlaylistSelectionHold:
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:kPrefLastPlaylistKey];
+        [NSUserDefaults.standardUserDefaults setInteger:1 forKey:kPrefPlayListHoldKey];
+        break;
+    case kPlaylistSelectionLevel:
+        [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefPlayListHoldKey];
+        break;
+    case kPlaylistSelectionDefault:
+    case kPlaylistSelectionNotPlayed:
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:kPrefLastPlaylistKey];
+        break;
+    default:
+        if (selection >= 0) {
+            [NSUserDefaults.standardUserDefaults
+                setObject:[playlistManager identifierOfPlaylistAtIndex:selection]
+                   forKey:kPrefLastPlaylistKey];
+        }
+        break;
+    }
+    [bottomView playlistButtonChanged:selection];
+    [self dismissViewControllerAnimated:YES completion:nil];
+    [self musicShuffleEnable];
+    [self setSearchEnable:YES];
 }
 
 /** @ghidraAddress 0x352ac */
