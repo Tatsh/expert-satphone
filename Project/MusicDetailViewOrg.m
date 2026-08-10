@@ -160,6 +160,25 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self) 
     [self setStartButtonEnable];
 }
 
+// The edit music bar uses the fourth (index 3) bar background image and reads 60 bytes of simple
+// edit data.
+enum { kEditMbarBackgroundImage = 3 };
+static const NSUInteger kEditMbarDataLength = 60;
+
+// A downloaded edit's author badge, indexed by the userTag field.
+static NSString *const kUserTagIconNames[] = {
+    @"list_icon_user_blank", @"icon_user_staff", @"icon_user_artist"};
+
+// The user-tag badge origin, per idiom (pad, retina phone, non-retina phone). Unlike the other
+// themes the classic theme places the badge at a fixed origin rather than inset from the button's
+// right edge.
+static const double kUserTagXPad = 15.0;       // fmov d0, 15.0
+static const double kUserTagXRetina = 10.0;    // fmov d1, 10.0
+static const double kUserTagXNonRetina = 3.0;  // fmov d0, 3.0
+static const double kUserTagYPad = 40.0;       // @ghidraAddress 0x28f1f8
+static const double kUserTagYRetina = 20.0;    // fmov d1, 20.0
+static const double kUserTagYNonRetina = 19.0; // fmov d0, 19.0
+
 // A chart level maps to a zero-based level-image index: below 2 -> first image, 10+ -> last of ten.
 static inline char MusicDetailViewOrgLevelIndex(int level) {
     if (level < 2) {
@@ -487,6 +506,61 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x57bc8 */
+- (void)editMusicBar {
+    if (self.editPage == 0) {
+        return;
+    }
+    EditDataManager *manager = [EditDataManager sharedManager];
+    NSString *lastEdit = [manager getLastEditFileName:(int)self.info.tuneID];
+    [mbarBarView setImage:mbarBarImg[kEditMbarBackgroundImage]];
+    if (userTagIcon != nil) {
+        [userTagIcon removeFromSuperview];
+        userTagIcon = nil;
+    }
+    if (lastEdit == nil) {
+        [self setMusicBarDot:nullptr mbarRes:nullptr];
+        [ratingView setImage:nil];
+        [comboView setImage:nil];
+        [self setScoreBoard:-1 fullcombo:NO];
+        return;
+    }
+
+    // The edit music bar comes from the simple edit data (60 bytes) with no resource overlay.
+    char dots[64] = {0};
+    NSData *musicBar = [manager getEditSimpleData][@"musicBar"];
+    [musicBar getBytes:dots length:kEditMbarDataLength];
+    [self setMusicBarDot:dots mbarRes:nullptr];
+
+    // The score board reflects the edit's own best score and full-combo flag, if scored.
+    NSMutableDictionary *scoreData = [manager getScoreData];
+    int score = -1;
+    BOOL fullcombo = NO;
+    if (scoreData == nil) {
+        [ratingView setImage:nil];
+        [comboView setImage:nil];
+    } else {
+        score = [scoreData[@"bestScore"] intValue];
+        fullcombo = [scoreData[@"fullcomboFlg"] boolValue];
+    }
+    [self setScoreBoard:score fullcombo:fullcombo];
+
+    // A downloaded edit shows its author's user-tag badge at a per-idiom fixed origin on the extend
+    // button.
+    NSMutableDictionary *editorInfo = [manager getEditorInfo];
+    if (manager.bIsDownload) {
+        int userTag = [editorInfo[@"userTag"] intValue];
+        UIImage *badge = LoadScaledPngImage(kUserTagIconNames[userTag]);
+        userTagIcon = [[UIImageView alloc] initWithImage:badge];
+        double x =
+            self.isPad ? kUserTagXPad : (self.isRetina ? kUserTagXRetina : kUserTagXNonRetina);
+        double y =
+            self.isPad ? kUserTagYPad : (self.isRetina ? kUserTagYRetina : kUserTagYNonRetina);
+        [userTagIcon setFrame:CGRectMake(x, y, badge.size.width, badge.size.height)];
+        [btnDiff[kExtendButtonIndex] addSubview:userTagIcon];
+    }
 }
 
 /** @ghidraAddress 0x55bbc */
