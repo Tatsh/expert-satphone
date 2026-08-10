@@ -95,6 +95,23 @@ static const NSTimeInterval kShareProgressAnimDuration = 0.3; // @ghidraAddress 
 // The extend marks crossfade over this duration when the extend mode changes.
 static const NSTimeInterval kExtendCrossFadeDuration = 0.3; // @ghidraAddress 0x28f260
 
+// The per-difficulty voice cues, the input-lock durations, and the high-score board's dimmed alpha
+// while a difficulty change slides it in.
+static NSString *const kDifficultyVoiceCues[] = {
+    @"SD_CV_BASIC", @"SD_CV_ADVANCED", @"SD_CV_EXTREME"};
+static const NSTimeInterval kSelectDiffInputLock = 0.4;       // @ghidraAddress 0x28f268
+static const NSTimeInterval kSelectDiffExtendInputLock = 0.4; // @ghidraAddress 0x28f2c0
+static const CGFloat kHighscoreBoardDimAlpha = 0.3;           // @ghidraAddress 0x28f248
+
+// Repositions the high-score board view to its idiom home centre.
+static inline void MusicDetailViewOrgRepositionHighscoreBoard(MusicDetailViewOrg *self) {
+    double homeX = self.isPad ?
+                       kHighscoreBoardXPad :
+                       (self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
+    double y = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+    [self->highscoreBoardView setCenter:CGPointMake(homeX, y)];
+}
+
 // With no edit loaded the three edit text fields dim to this alpha; the edit buttons fade in over
 // this duration; a dlFlag of this value marks a downloaded edit.
 static const CGFloat kEditTextDimmedAlpha = 0.5;          // fmov, 0.5
@@ -687,6 +704,99 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
         [infoBtn setAdjustsImageWhenHighlighted:YES];
         [infoBtn setAdjustsImageWhenDisabled:YES];
     }
+}
+
+/** @ghidraAddress 0x56850 */
+- (void)selectDiff:(nullable id)sender {
+    if (self.isStarted) {
+        return;
+    }
+    int current = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+
+    // Identify which difficulty button was tapped; the edit button (index 3) opens the edit
+    // popover.
+    NSString *voiceCue;
+    int tapped;
+    if (btnDiff[0] == sender) {
+        voiceCue = kDifficultyVoiceCues[0];
+        tapped = 0;
+    } else if (btnDiff[1] == sender) {
+        voiceCue = kDifficultyVoiceCues[1];
+        tapped = 1;
+    } else if (btnDiff[2] == sender) {
+        voiceCue = kDifficultyVoiceCues[2];
+        tapped = 2;
+    } else if (btnDiff[kExtendLevelNumIndex] == sender) {
+        // The edit button: on the first download selection, hide the lamps and remember the choice.
+        if ([[NSUserDefaults.standardUserDefaults objectForKey:kPrefJcfDownloadSelectKey]
+                intValue] == 1) {
+            [NSUserDefaults.standardUserDefaults setInteger:kJcfDownloadSelectDownload
+                                                     forKey:kPrefJcfDownloadSelectKey];
+            [scrollLamp setHidden:YES];
+            [diffBtnLamp setHidden:YES];
+        }
+        [self editPopoverOpen];
+        [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                                withObject:nil
+                                                afterDelay:0.0];
+        return;
+    } else {
+        return;
+    }
+
+    __weak MusicDetailViewOrg *weakSelf = self;
+    if (current == tapped) {
+        // Re-tapping the current difficulty toggles the extend chart when the tune has one; the
+        // high-score board slides in from an offset.
+        NSTimeInterval inputLock = kSelectDiffInputLock;
+        if (self.info.extendID != 0 && self.extendInfo != nil &&
+            (self.extendInfo.extendFlag & (1 << current)) != 0) {
+            [JubeatAppDelegate.appDelegate setExtendFlag:!JubeatAppDelegate.appDelegate.isExtend];
+            [[AudioManager sharedManager] playSeResFile:kExtendModeSound inDirectory:nil];
+            [self changeExtend:current];
+            double homeX = self.isPad ?
+                               kHighscoreBoardXPad :
+                               (self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
+            double slide = self.isPad ? kHighscoreBoardSlidePad : kHighscoreBoardSlidePhone;
+            double y = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+            [highscoreBoardView setCenter:CGPointMake(homeX - slide, y)];
+            [highscoreBoardView setAlpha:0.0];
+            [NSUserDefaults.standardUserDefaults setInteger:current forKey:kPrefDifficultyKey];
+            [UIView animateWithDuration:kExtendModeAnimDuration
+                             animations:^{
+                               /** @ghidraAddress 0x570a4 */
+                               [weakSelf changeDifficulty:current];
+                               MusicDetailViewOrgRepositionHighscoreBoard(weakSelf);
+                               [weakSelf->highscoreBoardView setAlpha:1.0];
+                             }];
+            inputLock = kSelectDiffExtendInputLock;
+        }
+        [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                                withObject:nil
+                                                afterDelay:inputLock];
+        return;
+    }
+
+    // A different difficulty: slide the high-score board out (dimmed), play the voice cue, persist
+    // the choice, and slide it back in.
+    double homeX = self.isPad ?
+                       kHighscoreBoardXPad :
+                       (self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
+    double slide = self.isPad ? kHighscoreBoardSlidePad : kHighscoreBoardSlidePhone;
+    double y = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+    [highscoreBoardView setCenter:CGPointMake(homeX - slide, y)];
+    [highscoreBoardView setAlpha:kHighscoreBoardDimAlpha];
+    [[AudioManager sharedManager] playSeResFile:voiceCue inDirectory:nil];
+    [NSUserDefaults.standardUserDefaults setInteger:tapped forKey:kPrefDifficultyKey];
+    [UIView animateWithDuration:kExtendModeAnimDuration
+                     animations:^{
+                       /** @ghidraAddress 0x57054 */
+                       [weakSelf changeDifficulty:tapped];
+                     }];
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kSelectDiffInputLock];
 }
 
 /** @ghidraAddress 0x56070 */

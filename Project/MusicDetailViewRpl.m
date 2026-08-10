@@ -233,6 +233,37 @@ static const double kUserTagInsetPhone = 10.0; // fmov d0, 10.0
 static const double kUserTagTopPad = 22.0;     // fmov d1, 22.0
 static const double kUserTagTopPhone = 12.0;   // fmov d1, 12.0
 
+// The high-score board's home centre (per idiom) and the extend-toggle slide offset subtracted from
+// its X before it slides home, plus the per-difficulty voice cues and the input-lock durations.
+static const double kHighscoreBoardXPad = 420.0;       // @ghidraAddress 0x292538
+static const double kHighscoreBoardXRetina = 215.0;    // @ghidraAddress 0x292e68
+static const double kHighscoreBoardXNonRetina = 210.0; // @ghidraAddress 0x28f200
+static const double kHighscoreBoardSlidePad = 20.0;    // fmov, 20.0
+static const double kHighscoreBoardSlidePhone = 10.0;  // fmov, 10.0
+static const double kHighscoreBoardYPad = 240.0;       // @ghidraAddress 0x291bf0
+static const double kHighscoreBoardYPhone = 120.0;     // @ghidraAddress 0x28f210
+static NSString *const kDifficultyVoiceCues[] = {
+    @"SD_RPL_CV_BASIC", @"SD_RPL_CV_ADVANCED", @"SD_RPL_CV_EXTREME"};
+static const NSTimeInterval kSelectDiffInputLock = 0.4;       // @ghidraAddress 0x28f268
+static const NSTimeInterval kSelectDiffExtendInputLock = 0.4; // @ghidraAddress 0x28f2c0
+
+// Repositions the high-score text view for the current idiom (a shared reposition used by the
+// difficulty-select path).
+static inline void MusicDetailViewRplRepositionHighscoreText(MusicDetailViewRpl *self) {
+    double baseX = self.isPad ? kHighscoreBaseXPad : kHighscoreBaseXPhone;
+    double centerY = self.isPad ? kHighscoreCenterYPad : kHighscoreCenterYPhone;
+    [self->highscoreTextView setCenter:CGPointMake(baseX + kHighscoreCenterXNudge, centerY)];
+}
+
+// Repositions the high-score board view to its idiom home centre.
+static inline void MusicDetailViewRplRepositionHighscoreBoard(MusicDetailViewRpl *self) {
+    double homeX = self.isPad ?
+                       kHighscoreBoardXPad :
+                       (self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
+    double y = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+    [self->highscoreBoardView setCenter:CGPointMake(homeX, y)];
+}
+
 // A chart level maps to a zero-based level-image index: below 2 -> first image, 10+ -> last of ten.
 static inline char MusicDetailViewRplLevelIndex(int level) {
     if (level < 2) {
@@ -414,6 +445,96 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
         [infoBtn setAdjustsImageWhenHighlighted:YES];
         [infoBtn setAdjustsImageWhenDisabled:YES];
     }
+}
+
+/** @ghidraAddress 0x130dc0 */
+- (void)selectDiff:(nullable id)sender {
+    if (self.isStarted) {
+        return;
+    }
+    int current = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+
+    // Identify which difficulty button was tapped; the edit button (index 3) opens the edit
+    // popover.
+    NSString *voiceCue;
+    int tapped;
+    if (btnDiff[0] == sender) {
+        voiceCue = kDifficultyVoiceCues[0];
+        tapped = 0;
+    } else if (btnDiff[1] == sender) {
+        voiceCue = kDifficultyVoiceCues[1];
+        tapped = 1;
+    } else if (btnDiff[2] == sender) {
+        voiceCue = kDifficultyVoiceCues[2];
+        tapped = 2;
+    } else if (btnDiff[kExtendButtonIndex] == sender) {
+        // The edit button: on the first download selection, hide the lamps and remember the choice.
+        if ([[NSUserDefaults.standardUserDefaults objectForKey:kPrefJcfDownloadSelectKey]
+                intValue] == 1) {
+            [NSUserDefaults.standardUserDefaults setInteger:kJcfDownloadSelectDownload
+                                                     forKey:kPrefJcfDownloadSelectKey];
+            [scrollLamp setHidden:YES];
+            [diffBtnLamp setHidden:YES];
+        }
+        [self editPopoverOpen];
+        [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                                withObject:nil
+                                                afterDelay:0.0];
+        return;
+    } else {
+        return;
+    }
+
+    __weak MusicDetailViewRpl *weakSelf = self;
+    if (current == tapped) {
+        // Re-tapping the current difficulty toggles the extend chart when the tune has one; the
+        // high-score board slides in from an offset.
+        NSTimeInterval inputLock = kSelectDiffInputLock;
+        if (self.info.extendID != 0 && self.extendInfo != nil &&
+            (self.extendInfo.extendFlag & (1 << current)) != 0) {
+            [JubeatAppDelegate.appDelegate setExtendFlag:!JubeatAppDelegate.appDelegate.isExtend];
+            [[AudioManager sharedManager] playSeResFile:kExtendModeSound inDirectory:nil];
+            [self changeExtend:current];
+            double homeX = self.isPad ?
+                               kHighscoreBoardXPad :
+                               (self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
+            double slide = self.isPad ? kHighscoreBoardSlidePad : kHighscoreBoardSlidePhone;
+            double y = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+            [highscoreBoardView setCenter:CGPointMake(homeX - slide, y)];
+            [highscoreBoardView setAlpha:0.0];
+            [NSUserDefaults.standardUserDefaults setInteger:current forKey:kPrefDifficultyKey];
+            [UIView animateWithDuration:kExtendModeAnimDuration
+                             animations:^{
+                               /** @ghidraAddress 0x1315e4 */
+                               [weakSelf changeDifficulty:current];
+                               MusicDetailViewRplRepositionHighscoreBoard(weakSelf);
+                               [weakSelf->highscoreBoardView setAlpha:1.0];
+                             }];
+            inputLock = kSelectDiffExtendInputLock;
+        }
+        [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                                withObject:nil
+                                                afterDelay:inputLock];
+        return;
+    }
+
+    // A different difficulty: reposition the high-score text, play the voice cue, persist the
+    // choice, and slide the text into place.
+    MusicDetailViewRplRepositionHighscoreText(self);
+    [highscoreBoardView setAlpha:0.0];
+    [[AudioManager sharedManager] playSeResFile:voiceCue inDirectory:nil];
+    [NSUserDefaults.standardUserDefaults setInteger:tapped forKey:kPrefDifficultyKey];
+    [UIView animateWithDuration:kExtendModeAnimDuration
+                     animations:^{
+                       /** @ghidraAddress 0x13153c */
+                       [weakSelf changeDifficulty:tapped];
+                       MusicDetailViewRplRepositionHighscoreText(weakSelf);
+                       [weakSelf->highscoreBoardView setAlpha:1.0];
+                     }];
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kSelectDiffInputLock];
 }
 
 /** @ghidraAddress 0x1303d0 */
