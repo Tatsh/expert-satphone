@@ -97,6 +97,15 @@ static NSString *const kPrefJubeatLabURLKey = @"PrefjubeatLabURL";
 // A received share payload appends a 16-byte MD5 digest over the preceding music data.
 static const NSUInteger kShareMusicDigestLength = 16;
 
+// The challenge-connect response carries a status code and an optional error message under these
+// keys; two status codes are handled specially (an update prompt and a no-open-scratch message).
+static NSString *const kChallengeStatusKey = @"status";
+static NSString *const kChallengeErrorMessageKey = @"err_message";
+static const int kChallengeStatusUpdateRequired = 100011;
+static const int kChallengeStatusNoScratch = 205103;
+static NSString *const kChallengeNoScratchMessage =
+    @"現在開催されているチャレンジスクラッチは存在しません";
+
 // The tune-info archive members, tried newest-first; the v3 payload is ciphered with the tune-info
 // key and carries a four-byte header, the older members with the BGM key. Each archive skips a
 // 16-byte trailer.
@@ -1735,6 +1744,48 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     [self performSelector:action];
 #pragma clang diagnostic pop
+}
+
+/** @ghidraAddress 0x28e84 */
+- (void)challengeConnectError:(nullable id)response {
+    int status = [response[kChallengeStatusKey] intValue];
+    if (response[kChallengeStatusKey] != nil) {
+        if (status == kChallengeStatusUpdateRequired) {
+            [self hideChallengeCoverView];
+            [[AlertViewManager sharedManager] showUpdateAlert];
+            return;
+        }
+        if (status == kChallengeStatusNoScratch) {
+            NSString *message = response[kChallengeErrorMessageKey] ?: kChallengeNoScratchMessage;
+            [self hideChallengeCoverView];
+            [[AlertViewManager sharedManager]
+                makeAlert:0
+                 delegate:nil
+                      tag:0
+                    title:@""
+                      msg:message
+                   cancel:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
+                  btnText:nil
+                     show:YES];
+            return;
+        }
+    }
+    // Any other status shows the generic server-error message, overridden by the response's own.
+    NSString *message = response[kChallengeErrorMessageKey] ?:
+                            [NSBundle.mainBundle localizedStringForKey:@"ServerErrorMsg"
+                                                                 value:@""
+                                                                 table:nil];
+    [self hideChallengeCoverView];
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:nil
+                                            tag:0
+                                          title:@""
+                                            msg:message
+                                         cancel:[NSBundle.mainBundle localizedStringForKey:@"OK"
+                                                                                     value:@""
+                                                                                     table:nil]
+                                        btnText:nil
+                                           show:YES];
 }
 
 /** @ghidraAddress 0x38618 */
