@@ -42,6 +42,9 @@ static NSString *const kStartButtonImage = @"menu_button_start_knt";
 static NSString *const kRandomButtonImage = @"menu_button_random_knt";
 static NSString *const kSingleButtonImage = @"menu_button_single_knt";
 
+// The host-share button's restored background image after a cancelled host share.
+static NSString *const kHostButtonImage = @"menu_button_host_knt";
+
 // The preferred-difficulty user default; a value above extreme (2) is snapped back to basic (0).
 static NSString *const kPrefDifficultyKey = @"PrefDifficulty";
 
@@ -99,6 +102,9 @@ static const double kReflectionFractionPad = 0.3; // @ghidraAddress 0x28f248
 // The upload sheet's dimming cover is translucent black; both fade in over a fifth of a second.
 static const CGFloat kUploadCoverScrimAlpha = 0.3;     // @ghidraAddress 0x28f248
 static const NSTimeInterval kUploadFadeDuration = 0.2; // @ghidraAddress 0x28e040
+
+// The host-share prompt fades out over three tenths of a second when the share is cancelled.
+static const NSTimeInterval kHostShareCancelFadeDuration = 0.3; // @ghidraAddress 0x28f260
 
 // The seven high-score digits are rendered with a right-justified %7d and mapped through
 // highscoreNumImg; the score board's rating uses the excellent image at a perfect score.
@@ -216,6 +222,32 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
     if (score != nil) {
         [self putExtendScore:score];
     }
+}
+
+/** @ghidraAddress 0x19e384 */
+- (void)hostShareCancelled {
+    [self.buttonHostSharePlay
+        setBackgroundImage:[[ImageCache sharedCache] getResPNG:kHostButtonImage]
+                  forState:UIControlStateNormal];
+    [self.buttonStartPlay setEnabled:YES];
+    [self setStartButtonEnable];
+    [self.buttonStartPlay setBackgroundImage:[self getSingleImage] forState:UIControlStateNormal];
+    [self.buttonLink setEnabled:YES];
+    [self.btnRecommendTwitter setEnabled:YES];
+    [self.btnRecommendFacebook setEnabled:YES];
+
+    __weak MusicDetailViewKnt *weakSelf = self;
+    [UIView animateWithDuration:kHostShareCancelFadeDuration
+        animations:^{
+          /** @ghidraAddress 0x19e68c */
+          [weakSelf.labelShareMessage setAlpha:0.0];
+          [weakSelf.buttonHostSharePlay setEnabled:NO];
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x19e778 */
+          [weakSelf.labelShareMessage setHidden:YES];
+          [weakSelf.buttonHostSharePlay setEnabled:YES];
+        }];
 }
 
 /** @ghidraAddress 0x19fa54 */

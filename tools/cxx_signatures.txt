@@ -749,3 +749,5 @@
 0x190614	(^void)(void)
 0x1a1cc8	(^void)(void)
 0x19fe28	(^void)(void)
+0x19e68c	(^void)(void)
+0x19e778	(^void)(BOOL)
