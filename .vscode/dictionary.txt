@@ -3,6 +3,7 @@ APPL
 ASSETCATALOG
 ATSYNC
 BUGPRONE
+DBUILD
 DEADCODE
 DEADSTORES
 Decription
@@ -205,6 +206,7 @@ glext
 gltypes
 glubyte
 goshima
+graphviz
 haku
 handoff
 harada
