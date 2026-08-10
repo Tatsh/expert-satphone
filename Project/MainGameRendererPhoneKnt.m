@@ -1408,8 +1408,8 @@ drawDigits:
         @"SD_KNT_RESULT_FULLCOMBO"; // @ghidraAddress 0x2df860
     static const NSString *const kSeVoiceFullcombo =
         @"SD_KNT_CV_FULLCOMBO"; // @ghidraAddress 0x2df880
-    static const NSUInteger kBannerSprite = 0x1b;
-    static const NSUInteger kWordSprite = 0x1c;
+    static const NSUInteger kBannerSprite = 27;
+    static const NSUInteger kWordSprite = 28;
     static const float kBannerAlpha = 0.5f;
 
     // The full-combo flourish is skipped entirely when the score is being backed up.
@@ -1419,8 +1419,8 @@ drawDigits:
 
     // On the result screen the animation is offset 150 frames past the play-time entry, so the two
     // callers share one timeline; the play-time path clamps at frame 150.
-    int nFrame = isResult ? (frame + 0x96) : (frame > 0x96 ? 0x96 : frame);
-    if (nFrame > 0xa0) {
+    int nFrame = isResult ? (frame + 150) : (frame > 150 ? 150 : frame);
+    if (nFrame > 160) {
         return;
     }
 
@@ -1430,7 +1430,7 @@ drawDigits:
         [[AudioManager sharedManager] playSeResFile:(NSString *)kSeVoiceFullcombo inDirectory:nil];
     }
 
-    // Both banner halves and the word overlay are cut from front-atlas sprite 0x1b.
+    // Both banner halves and the word overlay are cut from front-atlas sprite 27.
     CGRect banner = [self.texFront spriteAtIndex:kBannerSprite];
     double bannerW = banner.size.width;
     double bannerH = banner.size.height;
@@ -1442,18 +1442,18 @@ drawDigits:
     float wordSettleY = kWordSettleY;
     if (self.is4Inch) {
         int margin = [self buttonMarginForScreen40];
-        topRestY = (double)(margin + 0xc8);     // margin + 200
-        bottomRestY = (double)(margin + 0x1b8); // margin + 440
-        wordStartY = (double)(margin + 0x118);  // margin + 280
-        wordSettleY = (float)(margin + 0xf6);   // margin + 246
+        topRestY = (double)(margin + 200);
+        bottomRestY = (double)(margin + 440);
+        wordStartY = (double)(margin + 280);
+        wordSettleY = (float)(margin + 246);
     }
     int wordTravel = (int)(wordStartY - topRestY); // always 80
     float topInitY = (float)(topRestY - bannerH * 0.5);
     float bottomInitY = (float)(bottomRestY - bannerH * 0.5);
 
-    if (nFrame >= 0x96) {
+    if (nFrame >= 150) {
         // The result-screen exit: the two halves fade out and slide together over 10 frames.
-        int exitFrame = nFrame - 0x96;
+        int exitFrame = nFrame - 150;
         float fade = InterpolateFloatByFrame(1.0f, 0.0f, exitFrame, 0, 10);
         float slide = InterpolateFloatByFrame(0.0f, (float)wordTravel, exitFrame, 0, 10);
         [self.texFront drawSprite:kBannerSprite
@@ -1471,11 +1471,11 @@ drawDigits:
     // to their own rest positions over their windows.
     float slideFrom = (float)(topRestY - (double)wordTravel);
     float topHalfY = InterpolateFloatByFrame(slideFrom, topInitY, nFrame, 0, 6);
-    float bottomHalfY = InterpolateFloatByFrame(slideFrom, bottomInitY, nFrame, 0, 0x18);
+    float bottomHalfY = InterpolateFloatByFrame(slideFrom, bottomInitY, nFrame, 0, 24);
 
     // Frames 29..37 punch a scaling ghost of each half in behind them.
-    if (nFrame > 0x1c && nFrame - 0x1c < 10) {
-        unsigned int burst = nFrame - 0x1c;
+    if (nFrame > 28 && nFrame - 28 < 10) {
+        unsigned int burst = nFrame - 28;
         float burstScale = InterpolateFloatByFrame(1.0f, kBurstPeakScale, burst, 0, 5);
         if (burst >= 6) {
             burstScale = InterpolateFloatByFrame(kBurstPeakScale, 1.0f, burst, 5, 10);
@@ -1497,19 +1497,19 @@ drawDigits:
     [self.texFront drawSprite:kBannerSprite atPoint:CGPointMake(kBannerX, (double)bottomHalfY)];
 
     // Past frame 23 only the halves show; up to it the word overlay bounce-scales in over them.
-    if (nFrame > 0x17) {
+    if (nFrame > 23) {
         return;
     }
     float wordY = InterpolateFloatByFrame(slideFrom, wordSettleY, nFrame, 0, 6);
     if (nFrame > 6) {
-        wordY = InterpolateFloatByFrame(wordSettleY, bottomInitY, nFrame, 6, 0x18);
+        wordY = InterpolateFloatByFrame(wordSettleY, bottomInitY, nFrame, 6, 24);
     }
 
     float wordScale;
     if (nFrame - 6 < 6) {
         wordScale = InterpolateFloatByFrame(1.0f, 3.0f, nFrame - 6, 0, 6);
     } else {
-        wordScale = InterpolateFloatByFrame(3.0f, 1.0f, nFrame - 6, 6, 0x12);
+        wordScale = InterpolateFloatByFrame(3.0f, 1.0f, nFrame - 6, 6, 18);
     }
 
     if (nFrame > 5) {
@@ -1524,6 +1524,150 @@ drawDigits:
                           atPoint:CGPointMake(kBannerX, (double)wordY)
                         transform:0
                             alpha:kBannerAlpha];
+    }
+}
+
+/** @ghidraAddress 0x18f3d4 */
+- (void)renderReadyGo {
+    /** @ghidraAddress 0x2938e4 */
+    static const float kReadyGlyphX[] = {-88.5f, -45.0f, 0.0f, 48.5f, 91.5f};
+    static const float kReadyCentreX = 160.0f; // @ghidraAddress 0x28e014
+    static const float kReadyYDefault = 50.6f; // @ghidraAddress 0x2934b0
+    static const float kGoYDefault = 385.0f;   // @ghidraAddress 0x2934b4
+    // The READY exit X positions, indexed by glyph sprite: 71.5, 115.0, 160.0, 208.5, 251.5, from
+    // @ghidraAddress 0x293540, 0x293538, 0x28f438, 0x293530, 0x293528.
+    static const double kReadyExitX[] = {71.5, 115.0, 160.0, 208.5, 251.5};
+    static const double kGoLeftX = 76.0;                        // @ghidraAddress 0x292488
+    static const double kGoRightX = 244.0;                      // @ghidraAddress 0x28fab0
+    static const NSString *const kSeReady = @"SD_KNT_CV_READY"; // @ghidraAddress 0x2df840
+    static const NSUInteger kProbeSprite = 0;
+    enum { kReadyGlyphCount = 5 };
+
+    // The READY line's Y and the GO line's Y both shift down by the four-inch game-area margin.
+    int readyY;
+    int goY;
+    if (self.is4Inch) {
+        readyY = (int)((float)[self buttonMarginForScreen40] + kReadyYDefault);
+        goY = (int)((float)[self buttonMarginForScreen40] + kGoYDefault);
+    } else {
+        readyY = (int)kReadyYDefault;
+        goY = (int)kGoYDefault;
+    }
+
+    // "READY?" is five glyph sprites (texReady0 sprites 0..4); sprite 0 sizes them all.
+    int f = (int)frame;
+    CGRect readyGlyph = [self.texReady0 spriteAtIndex:kProbeSprite];
+    double readyHalfW = readyGlyph.size.width * 0.5;
+    float readyGlyphH = (float)readyGlyph.size.height;
+    if ((unsigned int)(f - 21) < 29) {
+        // The entrance (frames 21..49): each glyph drops in and fades in over its own 8-frame
+        // window, staggered by its index, drawn last-to-first so earlier glyphs sit on top.
+        int stagger = f - 20;
+        for (int i = kReadyGlyphCount - 1; i >= 0; --i) {
+            if (stagger < i) {
+                continue;
+            }
+            float rise = InterpolateFloatByFrame(readyGlyphH, 0.0f, stagger, i, i + 8);
+            float alpha = InterpolateFloatByFrame(0.0f, 1.0f, stagger, i, i + 8);
+            double x = (double)(kReadyGlyphX[i] + kReadyCentreX) - readyHalfW;
+            [self.texReady0 drawSprite:(NSUInteger)i
+                               atPoint:CGPointMake(x, (double)((float)readyY - rise))
+                             transform:0
+                                 alpha:alpha];
+        }
+    } else {
+        // The exit (frames 50..): the whole line rises towards the GO line, overshooting by twice
+        // the glyph height, and fades out over frames 59..65.
+        float rise = InterpolateFloatByFrame(
+            0.0f, (float)((double)(goY - readyY) + (double)readyGlyphH * -2.0), f - 50, 0, 10);
+        double y = (double)((float)readyY + rise);
+        float alpha = InterpolateFloatByFrame(1.0f, 0.0f, f - 50, 9, 15);
+        for (int i = kReadyGlyphCount - 1; i >= 0; --i) {
+            [self.texReady0 drawSprite:(NSUInteger)i
+                               atPoint:CGPointMake(kReadyExitX[i] - readyHalfW, y)
+                             transform:0
+                                 alpha:alpha];
+        }
+    }
+
+    // "GO!" is four glyph sprites in texReady1 (a static top pair 2,3 and a rising pair 0,1);
+    // sprite 0 sizes them all. Each glyph rotates about its own centre.
+    unsigned int gf = frame;
+    CGRect goGlyph = [self.texReady1 spriteAtIndex:kProbeSprite];
+    double goHalfW = goGlyph.size.width * 0.5;
+    float goGlyphH = (float)goGlyph.size.height;
+    double goHalfH = (double)goGlyphH * 0.5;
+    if (gf - 56 < 7) {
+        // The entrance (frames 56..62): the top pair holds while the rising pair drops in from the
+        // top line and fades in.
+        float alpha = InterpolateFloatByFrame(0.0f, 1.0f, gf - 55, 0, 4);
+        float spread = InterpolateFloatByFrame(0.0f, goGlyphH, gf - 55, 0, 8);
+        double topY = (double)goY - (double)goGlyphH;
+        double riseY = (double)goY - (double)spread;
+        double leftX = kGoLeftX - goHalfW;
+        double rightX = kGoRightX - goHalfW;
+        [self.texReady1 drawSprite:2
+                           atPoint:CGPointMake(leftX, topY)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(goHalfW + leftX, topY + goHalfH)
+                         transform:0
+                             alpha:1.0f];
+        [self.texReady1 drawSprite:0
+                           atPoint:CGPointMake(leftX, riseY)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(goHalfW + leftX, riseY + goHalfH)
+                         transform:0
+                             alpha:alpha];
+        [self.texReady1 drawSprite:3
+                           atPoint:CGPointMake(rightX, topY)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(goHalfW + rightX, topY + goHalfH)
+                         transform:0
+                             alpha:1.0f];
+        [self.texReady1 drawSprite:1
+                           atPoint:CGPointMake(rightX, riseY)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(goHalfW + rightX, riseY + goHalfH)
+                         transform:0
+                             alpha:alpha];
+    } else if (gf <= 74) {
+        // The exit (frames 63..74): the remaining pair shrinks towards half height and fades out.
+        float alpha = InterpolateFloatByFrame(1.0f, 0.0f, gf - 63, 0, 8);
+        float shrink = InterpolateFloatByFrame(goGlyphH, goGlyphH * 0.5f, gf - 63, 0, 8);
+        double y = (double)goY - (double)shrink;
+        double leftX = kGoLeftX - goHalfW;
+        double rightX = kGoRightX - goHalfW;
+        [self.texReady1 drawSprite:0
+                           atPoint:CGPointMake(leftX, y)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(goHalfW + leftX, y + goHalfH)
+                         transform:0
+                             alpha:alpha];
+        [self.texReady1 drawSprite:1
+                           atPoint:CGPointMake(rightX, y)
+                             scale:1.0f
+                            rotate:0.0f
+                            anchor:CGPointMake(goHalfW + rightX, y + goHalfH)
+                         transform:0
+                             alpha:alpha];
+    }
+
+    // The ready cue plays at frame 20; at frame 59 the go voice fires and is cleared. Past frame 74
+    // the countdown finishes and the play sub-state begins.
+    if (frame == 20) {
+        [[AudioManager sharedManager] playSeResFile:(NSString *)kSeReady inDirectory:nil];
+    }
+    if (frame == 59) {
+        [[AudioManager sharedManager] playSePlayer:self.sePlayerGo];
+        self.sePlayerGo = nil;
+    }
+    if (frame >= 75) {
+        [self setSubState:kMainGamePhoneKntEndSubState];
     }
 }
 
