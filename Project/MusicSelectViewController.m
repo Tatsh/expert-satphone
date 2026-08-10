@@ -64,6 +64,20 @@ enum {
 
 @synthesize sharePlayManager = _sharePlayManager;
 
+#pragma mark - Lifecycle
+
+/** @ghidraAddress 0x38f04 */
+- (void)dealloc {
+    [NSNotificationCenter.defaultCenter removeObserver:self];
+    [infoDownloader cancel];
+    [infoBannerTimer invalidate];
+    if (challengeModeView != nil) {
+        [challengeModeView removeFromSuperview];
+        challengeModeView = nil;
+    }
+    // [super dealloc] is compiler-emitted (ARC).
+}
+
 #pragma mark - View lifecycle
 
 /** @ghidraAddress 0x31e40 */
@@ -563,6 +577,41 @@ enum {
     [musicDetailView.buttonStartPlay setEnabled:YES];
     [musicDetailView setIsSharedStartable:YES];
     [musicDetailView setStartButtonEnable];
+}
+
+/** @ghidraAddress 0x30140 */
+- (void)sharePlayManagerConnectClient:(nullable id)manager {
+    [musicDetailView.labelShareMessage
+        setText:[NSString
+                    stringWithFormat:[NSBundle.mainBundle localizedStringForKey:@"Connected to %@"
+                                                                          value:@""
+                                                                          table:nil],
+                                     self.sharePlayManager.partnerScreenName]];
+}
+
+/** @ghidraAddress 0x30340 */
+- (void)sharePlayManagerSuccessSendMusicData:(nullable id)manager {
+    [musicDetailView.labelShareMessage
+        setText:[NSString
+                    stringWithFormat:[NSBundle.mainBundle localizedStringForKey:@"Connected to %@"
+                                                                          value:@""
+                                                                          table:nil],
+                                     self.sharePlayManager.partnerScreenName]];
+}
+
+/** @ghidraAddress 0x305a0 */
+- (void)sharePlayManagerConnectFailed:(nullable id)manager {
+    [[AlertViewManager sharedManager]
+        makeAlert:0
+         delegate:self
+              tag:0
+            title:[NSBundle.mainBundle localizedStringForKey:@"Error" value:@"" table:nil]
+              msg:[NSBundle.mainBundle localizedStringForKey:@"SessionConnectErrorMessage"
+                                                       value:@""
+                                                       table:nil]
+           cancel:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
+          btnText:nil
+             show:YES];
 }
 
 /** @ghidraAddress 0x30280 */
