@@ -52,6 +52,10 @@ static const NSTimeInterval kUploadEndFadeDuration = -0.2; // @ghidraAddress 0x2
 // Cancelling a host share fades the share-message label out over this duration.
 static const NSTimeInterval kHostShareCancelFadeDuration = 0.1; // @ghidraAddress 0x28f290
 
+// The random marker slides up by this many points out of view and toggles over this duration.
+static const int kRandViewSlideOffset = 10;
+static const NSTimeInterval kRandViewToggleDuration = 0.3; // @ghidraAddress 0x28f260
+
 // The host share-play button's background image.
 static NSString *const kHostButtonImage = @"menu_button_host";
 
@@ -524,6 +528,45 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self) 
             (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
         [self changeDifficulty:difficulty];
     }
+}
+
+/** @ghidraAddress 0x5c05c */
+- (void)refreshStartButton {
+    BOOL randomOn = JubeatAppDelegate.appDelegate.isRandom && !JubeatAppDelegate.appDelegate.isHold;
+    if (randomOn == bRandomBak) {
+        return;
+    }
+    bRandomBak = randomOn;
+
+    // The start button shows the single-play image, or the start image when host-sharing; its
+    // enabled state is preserved across the image swap.
+    UIImage *image = self.isShared ? [self getStartImage] : [self getSingleImage];
+    BOOL wasEnabled = self.buttonStartPlay.isEnabled;
+    [self.buttonStartPlay setEnabled:YES];
+    [self.buttonStartPlay setBackgroundImage:image forState:UIControlStateNormal];
+    [self.buttonStartPlay setEnabled:wasEnabled];
+
+    // The random marker rests in place when random is on and slides up out of view when off.
+    if (randomOn) {
+        [self.randView
+            setTransform:CGAffineTransformMakeTranslation(0.0, -(double)kRandViewSlideOffset)];
+    } else {
+        [self.randView setTransform:CGAffineTransformIdentity];
+    }
+
+    __weak MusicDetailViewOrg *weakSelf = self;
+    [UIView animateWithDuration:kRandViewToggleDuration
+                     animations:^{
+                       /** @ghidraAddress 0x5c3c0 */
+                       [weakSelf.randView setAlpha:(randomOn ? 1.0 : 0.0)];
+                       if (randomOn) {
+                           [weakSelf.randView setTransform:CGAffineTransformIdentity];
+                       } else {
+                           [weakSelf.randView setTransform:CGAffineTransformMakeTranslation(
+                                                               0.0, -(double)kRandViewSlideOffset)];
+                       }
+                     }
+                     completion:nil];
 }
 
 /** @ghidraAddress 0x59668 */
