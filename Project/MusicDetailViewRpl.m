@@ -92,6 +92,13 @@ static const NSTimeInterval kExtendCrossFadeDuration = 0.3; // @ghidraAddress 0x
 // A music bar carries at least 30 bytes of resource map for the 120 dots.
 static const NSUInteger kMbarMinimumLength = 30;
 
+// A pending download selection pulses the scroll and difficulty-button lamps: alpha to zero and a
+// vertical stretch, repeating over this duration after this delay.
+static const NSTimeInterval kLampPulseDuration = 0.5; // fmov, 0.5
+static const NSTimeInterval kLampPulseDelay = 0.5;    // fmov, 0.5
+static const CGFloat kLampPulseHeightScale = 2.0;     // fmov, 2.0
+static const NSInteger kJcfDownloadSelectPending = 1;
+
 // With no edit loaded the three edit text fields dim to this alpha; the edit buttons fade in over
 // this duration; a dlFlag of this value marks a downloaded edit.
 static const CGFloat kEditTextDimmedAlpha = 0.5;          // fmov, 0.5
@@ -538,6 +545,95 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
     [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
                                             withObject:nil
                                             afterDelay:kSelectDiffInputLock];
+}
+
+/** @ghidraAddress 0x133130 */
+- (void)show:(BOOL)show {
+    self.isShared = show;
+    int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    // The selected base button is full and unscaled; the other two dim and shrink; the extend
+    // button is always full.
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        if (i == difficulty) {
+            [btnDiff[i] setAlpha:1.0];
+            [btnDiff[i] setTransform:CGAffineTransformIdentity];
+        } else {
+            [btnDiff[i] setAlpha:kDiffButtonDimAlpha];
+            [btnDiff[i]
+                setTransform:CGAffineTransformMakeScale(kDiffButtonDimScale, kDiffButtonDimScale)];
+        }
+    }
+    [btnDiff[kExtendButtonIndex] setAlpha:1.0];
+    [btnDiff[kExtendButtonIndex] setTransform:CGAffineTransformIdentity];
+    [self.controller resetWillStart];
+
+    // The start button and share prompt differ between the solo and host-share presentations.
+    UIImage *startImage;
+    UIImage *hostImage;
+    if (!show) {
+        startImage = [self getSingleImage];
+        hostImage = [[ImageCache sharedCache] getResPNG:kHostButtonImage];
+        [self.labelShareMessage setHidden:YES];
+        [self.shareDataProgress setHidden:YES];
+    } else {
+        startImage = [self getStartImage];
+        hostImage = [[ImageCache sharedCache] getResPNG:kCancelButtonImage];
+        [self.labelShareMessage setText:@""];
+        [self.labelShareMessage setAlpha:1.0];
+        [self.labelShareMessage setHidden:NO];
+        [self.buttonLink setHidden:YES];
+        [self.btnRecommendTwitter setHidden:YES];
+        [self.btnRecommendFacebook setHidden:YES];
+        self.isSharedStartable = YES;
+    }
+    [self.buttonStartPlay setBackgroundImage:startImage forState:UIControlStateNormal];
+    [self.buttonHostSharePlay setBackgroundImage:hostImage forState:UIControlStateNormal];
+    [self setStartButtonEnable];
+    self.isStarted = NO;
+
+    // Restore the difficulty scroll to the remembered edit page (clamped to the detail/edit pair).
+    self.editPage = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey];
+    if (self.editPage > 1) {
+        self.editPage = 1;
+    }
+    double width = self.scrollView.frame.size.width;
+    [self.scrollView setContentOffset:CGPointMake(width * (double)self.editPage, 0.0) animated:NO];
+    [self.scrollView setScrollEnabled:YES];
+    [detailScrollButton[0] setAlpha:1.0];
+    detailScrollButton[0].layer.transform = CATransform3DMakeScale(1.0, 1.0, 1.0);
+    [detailScrollButton[1] setAlpha:1.0];
+    detailScrollButton[1].layer.transform = CATransform3DMakeScale(1.0, 1.0, 1.0);
+
+    // A pending download selection pulses the scroll and difficulty-button lamps.
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:kPrefJcfDownloadSelectKey] intValue] ==
+        kJcfDownloadSelectPending) {
+        __weak UIView *weakScrollLamp = scrollLamp;
+        __weak UIView *weakDiffLamp = diffBtnLamp;
+        [UIView animateWithDuration:kLampPulseDuration
+                              delay:kLampPulseDelay
+                            options:UIViewAnimationOptionRepeat |
+                                    UIViewAnimationOptionAllowUserInteraction
+                         animations:^{
+                           /** @ghidraAddress 0x133aa4 */
+                           [weakScrollLamp setAlpha:0.0];
+                           [weakScrollLamp
+                               setTransform:CGAffineTransformMakeScale(1.0, kLampPulseHeightScale)];
+                         }
+                         completion:nil];
+        [UIView animateWithDuration:kLampPulseDuration
+                              delay:kLampPulseDelay
+                            options:UIViewAnimationOptionRepeat |
+                                    UIViewAnimationOptionAllowUserInteraction |
+                                    UIViewAnimationOptionAutoreverse
+                         animations:^{
+                           /** @ghidraAddress 0x133b50 */
+                           [weakDiffLamp setAlpha:0.0];
+                           [weakDiffLamp
+                               setTransform:CGAffineTransformMakeScale(1.0, kLampPulseHeightScale)];
+                         }
+                         completion:nil];
+    }
+    [self infoChange:difficulty];
 }
 
 /** @ghidraAddress 0x12f538 */
