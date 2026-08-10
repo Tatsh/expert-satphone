@@ -63,6 +63,7 @@ target_sources(jubeat PRIVATE
     ChallengeMissionSheet.m
     ChallengeMissionSheetCell.m
     ChallengeMissionTerms.m
+    ChallengeModeRootView.m
     ChallengeNameSettingView.m
     ChallengePresentListView.m
     ChallengePresentListViewCell.m
@@ -111,6 +112,7 @@ target_sources(jubeat PRIVATE
     FrameLockView.m
     GameNetworkUtil.m
     GamePauseView.m
+    GameViewController.m
     GenrePagingScrollView.m
     GradationView.m
     HoldMarkerRender.m
@@ -137,6 +139,9 @@ target_sources(jubeat PRIVATE
     LicenseAgreementView.m
     LogoViewController.m
     MainGameRenderer.m
+    MainGameRendererPad.m
+    MainGameRendererPadRpl.m
+    MainGameRendererPhone.m
     MarkerDownloadManager.m
     MarkerDownloadTask.m
     MarkerDownloadView.m
@@ -188,6 +193,7 @@ target_sources(jubeat PRIVATE
     RecommendWebAPI.m
     RecommendWebView.m
     RecommendWebViewController.m
+    RendererConf.m
     ResultItemChance.m
     ResultTweet.m
     RewardCheck.m
@@ -384,6 +390,7 @@ target_sources(jubeat PRIVATE
     ChallengeMissionSheet.h
     ChallengeMissionSheetCell.h
     ChallengeMissionTerms.h
+    ChallengeModeRootView.h
     ChallengeNameSettingView.h
     ChallengePresentListView.h
     ChallengePresentListViewCell.h
@@ -433,6 +440,7 @@ target_sources(jubeat PRIVATE
     FrameLockView.h
     GameNetworkUtil.h
     GamePauseView.h
+    GameViewController.h
     GenrePagingScrollView.h
     GradationView.h
     HoldMarkerRender.h
@@ -459,6 +467,9 @@ target_sources(jubeat PRIVATE
     LicenseAgreementView.h
     LogoViewController.h
     MainGameRenderer.h
+    MainGameRendererPad.h
+    MainGameRendererPadRpl.h
+    MainGameRendererPhone.h
     MarkerDownloadManager.h
     MarkerDownloadTask.h
     MarkerDownloadView.h
@@ -511,6 +522,7 @@ target_sources(jubeat PRIVATE
     RecommendWebAPI.h
     RecommendWebView.h
     RecommendWebViewController.h
+    RendererConf.h
     ResultItemChance.h
     ResultTweet.h
     RewardCheck.h
