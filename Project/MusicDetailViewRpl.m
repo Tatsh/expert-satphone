@@ -482,6 +482,25 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
     }
 }
 
+/** @ghidraAddress 0x130bb0 */
+- (void)difficultyChangeAnimation {
+    int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    // Nudge the high-score text to the right and zero the board, then slide both home while the
+    // difficulty change applies inside the animation.
+    double baseX = self.isPad ? kHighscoreBaseXPad : kHighscoreBaseXPhone;
+    double centerY = self.isPad ? kHighscoreCenterYPad : kHighscoreCenterYPhone;
+    [highscoreTextView setCenter:CGPointMake(baseX + kHighscoreCenterXNudge, centerY)];
+    [highscoreBoardView setAlpha:0.0];
+    __weak MusicDetailViewRpl *weakSelf = self;
+    [UIView animateWithDuration:kExtendModeAnimDuration
+                     animations:^{
+                       /** @ghidraAddress 0x130d18 */
+                       [weakSelf changeDifficulty:difficulty];
+                       MusicDetailViewRplRepositionHighscoreText(weakSelf);
+                       [weakSelf->highscoreBoardView setAlpha:1.0];
+                     }];
+}
+
 /** @ghidraAddress 0x130dc0 */
 - (void)selectDiff:(nullable id)sender {
     if (self.isStarted) {

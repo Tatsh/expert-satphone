@@ -106,8 +106,14 @@ static const NSTimeInterval kLampPulseDelay = 0.5;    // fmov, 0.5
 static const CGFloat kLampPulseHeightScale = 2.0;     // fmov, 2.0
 static const NSInteger kJcfDownloadSelectPending = 1;
 
-// The four difficulty buttons (three selectable plus the extend slot).
-enum { kDiffButtonSlotCount = 4 };
+// The four difficulty buttons (three selectable plus the extend slot). An unselected difficulty
+// dims to this alpha; its level glyphs come from the "off" table row/word (index 3).
+enum {
+    kDiffButtonSlotCount = 4,
+    kLevelOffRow = 3,
+    kLevelOffWordIndex = 3,
+};
+static const CGFloat kDiffButtonUnselectedAlpha = 0.6; // @ghidraAddress 0x28f230
 
 // Starting play shrinks the unselected buttons over this duration and locks input for a beat; a
 // client waiting for the host shows this prompt. The selected difficulty's light views pulse with a
@@ -749,6 +755,39 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
         [infoBtn setAdjustsImageWhenHighlighted:YES];
         [infoBtn setAdjustsImageWhenDisabled:YES];
     }
+}
+
+/** @ghidraAddress 0x5749c */
+- (void)changeDifficulty:(int)difficulty {
+    char levels[] = {self.levelBas, self.levelAdv, self.levelExt};
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        char level = levels[i];
+        if (i == difficulty) {
+            // The selected difficulty is shown full, its light pair blinks, and its own level word
+            // and number glyphs appear.
+            [btnDiff[i] setAlpha:1.0];
+            [diffTextView[i] setAlpha:1.0];
+            [lightView[i][0].layer addAnimation:lightBlinkAnim forKey:kBlinkAnimationKey];
+            [lightView[i][1].layer addAnimation:lightBlinkAnim forKey:kBlinkAnimationKey];
+            [levelTextView[i] setImage:levelTextImg[i]];
+            [levelNumView[i] setImage:levelNumImg[i][level]];
+        } else {
+            // The others dim, hide their difficulty text, stop their light blink, and show the
+            // "off" level word and number glyphs.
+            [btnDiff[i] setAlpha:kDiffButtonUnselectedAlpha];
+            [diffTextView[i] setAlpha:0.0];
+            [lightView[i][0].layer removeAnimationForKey:kBlinkAnimationKey];
+            [lightView[i][1].layer removeAnimationForKey:kBlinkAnimationKey];
+            [lightView[i][0] setAlpha:0.0];
+            [lightView[i][1] setAlpha:0.0];
+            [levelTextView[i] setImage:levelTextImg[kLevelOffWordIndex]];
+            [levelNumView[i] setImage:levelNumImg[kLevelOffRow][level]];
+        }
+    }
+    // The extend button is always full and unscaled.
+    [btnDiff[kExtendLevelNumIndex] setAlpha:1.0];
+    [btnDiff[kExtendLevelNumIndex] setTransform:CGAffineTransformIdentity];
+    [self infoChange:difficulty];
 }
 
 /** @ghidraAddress 0x56850 */
@@ -1490,6 +1529,31 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
             (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
         [self changeDifficulty:difficulty];
     }
+}
+
+/** @ghidraAddress 0x54dac */
+- (void)setInfo:(nullable TuneInfo *)info score:(nullable id)score {
+    [super setInfo:info score:score];
+    if (info == nil) {
+        return;
+    }
+    self.levelBas = MusicDetailViewOrgLevelIndex(info.lvBas);
+    self.levelAdv = MusicDetailViewOrgLevelIndex(info.lvAdv);
+    self.levelExt = MusicDetailViewOrgLevelIndex(info.lvExt);
+    [self.buttonLink setEnabled:(info.iTunesURL != nil)];
+    [self.buttonLink setHidden:(info.iTunesURL == nil)];
+    [self.btnRecommendTwitter setHidden:NO];
+    [self.btnRecommendFacebook setHidden:NO];
+    // The base level images come from the "off" difficulty-word row until a difficulty is selected.
+    [levelNumView[0] setImage:levelNumImg[kLevelOffRow][self.levelBas]];
+    [levelNumView[1] setImage:levelNumImg[kLevelOffRow][self.levelAdv]];
+    [levelNumView[2] setImage:levelNumImg[kLevelOffRow][self.levelExt]];
+    [self resetScore];
+    [self putScore:score];
+    [self loadContentFromPath:info.filePath orData:nil];
+    [self loadEditFile];
+    [self resetTextField:(int)info.tuneID isFirst:YES];
+    [self editMusicBar];
 }
 
 /** @ghidraAddress 0x5415c */
