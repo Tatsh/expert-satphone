@@ -5,7 +5,11 @@
 #import "AlertViewManager.h"
 #import "EditDataManager.h"
 #import "EditModalView.h"
+#import "ImageCache.h"
 #import "JcfDownloadPageNavController.h"
+#import "JcfManageNavController.h"
+#import "JubeatAppDelegate.h"
+#import "LatelyJcfListManager.h"
 #import "MusicSelectViewController.h"
 #import "TuneInfo.h"
 
@@ -19,6 +23,18 @@ static NSString *const kDownloadFinishedMessage = @"ダウンロード終わり"
 // The web-view close and info-edit confirmation sounds.
 static NSString *const kMusicLeftSound = @"SD_KNT_MUSIC_LEFT";
 static NSString *const kMusicRightSound = @"SD_KNT_MUSIC_RIGHT";
+
+// The difficulty scroll-change sound.
+static NSString *const kMusicSelectSound = @"SD_KNT_MUSIC_SELECT";
+
+// The start-button images: the plain start button, the random-select variant, and the single-play
+// variant, chosen from the app's random and hold flags.
+static NSString *const kStartButtonImage = @"menu_button_start_knt";
+static NSString *const kRandomButtonImage = @"menu_button_random_knt";
+static NSString *const kSingleButtonImage = @"menu_button_single_knt";
+
+// The preferred-difficulty user default; a value above extreme (2) is snapped back to basic (0).
+static NSString *const kPrefDifficultyKey = @"PrefDifficulty";
 
 // The music bar holds 120 dot views; each dot's sprite comes from a 4-bit nibble in the dot map and
 // its image row from a 2-bit value in the resource map.
@@ -278,6 +294,86 @@ static const NSInteger kJcfDownloadSelectDownload = 2;
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x19c3d0 */
+- (void)scrollChange:(nullable id)sender {
+    if (self.isStarted) {
+        return;
+    }
+    double width = self.scrollView.frame.size.width;
+    double offsetX = self.scrollView.contentOffset.x;
+    int page = (int)floor((width * 0.5 + offsetX) / width);
+    double snapX = (page != 0) ? 0.0 : (double)(int)width;
+    [self.scrollView setContentOffset:CGPointMake(snapX, 0.0) animated:YES];
+    [self setEnableButton:NO];
+    if (page == 1) {
+        int difficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        if (difficulty > 2) {
+            [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefDifficultyKey];
+            difficulty = 0;
+        }
+        [self changeDifficulty:difficulty];
+    } else {
+        [self editMusicBar];
+    }
+    [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
+    [self setStartButtonEnable];
+}
+
+/** @ghidraAddress 0x1a29e8 */
+- (void)editFileListViewSelectItem:(int)index {
+    if (index < 0) {
+        return;
+    }
+    NSMutableArray<NSMutableDictionary *> *files =
+        [[EditDataManager sharedManager] getFileInfoList:self.info.tuneID];
+    [self selectEditFile:files[index][@"fileName"]];
+    [self loadEditFile];
+    [self resetTextField:(int)self.info.tuneID isFirst:NO];
+    [self.controller dismissViewControllerAnimated:YES completion:nil];
+    [self editMusicBar];
+    [self setStartButtonEnable];
+    [[AudioManager sharedManager] playSeResFile:kEditSelectSound inDirectory:nil];
+    [self.controller enableCoverTap];
+}
+
+/** @ghidraAddress 0x1a33d8 */
+- (void)downloadEnd:(nullable id)sender {
+    if (!self.isPad && self.jcfMan != nil) {
+        [self loadEditFile];
+        NSMutableArray<NSMutableDictionary *> *files =
+            [[EditDataManager sharedManager] getFileInfoList:self.info.tuneID];
+        [self.jcfMan reloadList:files];
+        [self resetTextField:(int)self.info.tuneID isFirst:NO];
+        [self setStartButtonEnable];
+    }
+    [self editMusicBar];
+    NSString *owner = [NSString stringWithFormat:@"%d", self.info.tuneID];
+    [[LatelyJcfListManager sharedManager] removeJcfOwner:owner];
+}
+
+/** @ghidraAddress 0x1a391c */
+- (nullable id)getStartImage {
+    if (![JubeatAppDelegate.appDelegate isRandom]) {
+        return [[ImageCache sharedCache] getResPNG:kStartButtonImage];
+    }
+    if ([JubeatAppDelegate.appDelegate isHold]) {
+        return [[ImageCache sharedCache] getResPNG:kStartButtonImage];
+    }
+    return [[ImageCache sharedCache] getResPNG:kRandomButtonImage];
+}
+
+/** @ghidraAddress 0x1a3a54 */
+- (nullable id)getSingleImage {
+    if (![JubeatAppDelegate.appDelegate isRandom]) {
+        return [[ImageCache sharedCache] getResPNG:kSingleButtonImage];
+    }
+    if ([JubeatAppDelegate.appDelegate isHold]) {
+        return [[ImageCache sharedCache] getResPNG:kSingleButtonImage];
+    }
+    return [[ImageCache sharedCache] getResPNG:kRandomButtonImage];
 }
 
 /** @ghidraAddress 0x1a3610 */
