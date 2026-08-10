@@ -53,6 +53,42 @@ enum {
 static NSString *const kPrefJcfDownloadSelectKey = @"PrefJcfDownloadSelect";
 static const NSInteger kJcfDownloadSelectDownload = 2;
 
+// The edit-selection preference records the page the difficulty scroll settled on.
+static NSString *const kPrefEditSelectKey = @"PrefEditSelect";
+
+// The three scroll-settled delegate callbacks share this tail: it snaps the settled page,
+// re-derives the hold flag from the current difficulty's hold mark (except on the edit page),
+// refreshes the start button, records the page, and applies either the difficulty (snapping a stale
+// extreme back to basic) on the detail page or the edit music bar on the edit page.
+static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) {
+    [self setEnableButton:YES];
+    double width = self.scrollView.frame.size.width;
+    int page = (int)((width * 0.5 + self.scrollView.contentOffset.x) / width);
+    self.editPage = page;
+    int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    BOOL holdHidden = self->holdMark[difficulty].isHidden;
+    [JubeatAppDelegate.appDelegate setHoldFlag:(page != 1) && !holdHidden];
+    [self refreshStartButton];
+    if (self.isStarted) {
+        return;
+    }
+    [NSUserDefaults.standardUserDefaults setInteger:page forKey:kPrefEditSelectKey];
+    if (page == 0) {
+        int detailDifficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        if (detailDifficulty > 2) {
+            if (!self.isStarted) {
+                [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefDifficultyKey];
+            }
+            detailDifficulty = 0;
+        }
+        [self changeDifficulty:detailDifficulty];
+    } else {
+        [self editMusicBar];
+    }
+    [self setStartButtonEnable];
+}
+
 @implementation MusicDetailViewKnt
 
 /** @ghidraAddress 0x1955c4 */
@@ -311,6 +347,26 @@ static const NSInteger kJcfDownloadSelectDownload = 2;
     [detailScrollButton[0] setAlpha:(double)(1.0f - leftFade)];
     float rightFade = MIN((half - offsetX) / denom, 1.0f);
     [detailScrollButton[1] setAlpha:(double)(1.0f - rightFade)];
+}
+
+/** @ghidraAddress 0x1a1134 */
+- (void)scrollViewDidEndScrollingAnimation:(nullable UIScrollView *)scrollView {
+    [detailScrollButton[0] setAlpha:1.0];
+    [detailScrollButton[1] setAlpha:1.0];
+    MusicDetailViewKntSettleScrollPage(self);
+}
+
+/** @ghidraAddress 0x1a1434 */
+- (void)scrollViewDidEndDecelerating:(nullable UIScrollView *)scrollView {
+    MusicDetailViewKntSettleScrollPage(self);
+}
+
+/** @ghidraAddress 0x1a16f8 */
+- (void)scrollViewDidEndDragging:(nullable UIScrollView *)scrollView
+                  willDecelerate:(BOOL)decelerate {
+    if (!decelerate) {
+        MusicDetailViewKntSettleScrollPage(self);
+    }
 }
 
 /** @ghidraAddress 0x1a19c8 */
