@@ -27,6 +27,10 @@ static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
 // The menu BGM resumes with a one-fifth-second fade in when the app comes back to the foreground.
 static const double kMenuBgmResumeFade = 0.2; // @ghidraAddress 0x28e040
 
+// The extend-mode tutorial overlay fades out over this (negative, as the binary passes it)
+// duration when the mode changes.
+static const NSTimeInterval kExtendTutorialFadeDuration = -0.2; // @ghidraAddress 0x28e050
+
 // The store-tap and challenge-tap sounds are looked up by these sound keys.
 static NSString *const kStoreTapSoundKey = @"OK";
 static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
@@ -786,6 +790,50 @@ enum {
     bOpenModal = YES;
     [self musicShuffleDisable];
     [self setSearchEnable:NO];
+}
+
+/** @ghidraAddress 0x32e34 */
+- (void)JcfDownLoadTopPage {
+    if (jubeatLabURL == nil) {
+        return;
+    }
+    [JubeatAppDelegate.appDelegate resetDownLoadIndex];
+    if (jcfDLPageViewController != nil) {
+        jcfDLPageViewController = nil;
+    }
+    jcfDLPageViewController = [[JcfDownloadPageNavController alloc] initWithURL:jubeatLabURL
+                                                                       delegate:self];
+    [self presentViewController:jcfDLPageViewController animated:YES completion:nil];
+    bOpenModal = YES;
+    [self musicShuffleDisable];
+    [searchBox resignFirstResponder];
+    [self setSearchEnable:NO];
+    [[AudioManager sharedManager] playSeResFile:kNotificationOpenSound inDirectory:nil];
+}
+
+/** @ghidraAddress 0x2d4a8 */
+- (void)gameCenterViewControllerDidFinish:(nullable id)controller {
+    [[AudioManager sharedManager] playSeResFile:[self soundName:@"MUSIC_LEFT"] inDirectory:nil];
+    [self dismissViewControllerAnimated:YES
+                             completion:^{
+                               /** @ghidraAddress 0x2d5c8 */
+                               [self JcfDownLoad];
+                             }];
+    bOpenModal = NO;
+    [self musicShuffleEnable];
+    [self setSearchEnable:YES];
+}
+
+/** @ghidraAddress 0x36b4c */
+- (void)tapChangeMode:(nullable id)sender {
+    [musicDetailView changeExtendMode];
+    __weak UIView *weakTutorial = extendTutorialView;
+    // The binary passes a negative fade duration here; kept as-is.
+    [UIView animateWithDuration:kExtendTutorialFadeDuration
+                     animations:^{
+                       /** @ghidraAddress 0x36c48 */
+                       [weakTutorial setAlpha:0.0];
+                     }];
 }
 
 /** @ghidraAddress 0x3830c */
