@@ -1578,6 +1578,50 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     [self setEnableGesture:NO];
 }
 
+#pragma mark - Playlist actions
+
+/** @ghidraAddress 0x2cbfc */
+- (void)musicViewPlaylistAction:(nullable id)view {
+    MusicView *musicView = view;
+    // On a built-in playlist source, open the add-to-playlist picker; on a named playlist, remove
+    // the tune from it.
+    id source = currentPlaylistSource;
+    if (source == nil || source == arrayNotPlayedTune || source == arrayLevelList ||
+        source == arrayHoldList || source == arrayNotHoldList) {
+        playlistViewCtrl =
+            [[MusicPlaylistViewController alloc] initWithStyle:UITableViewStylePlain];
+        [playlistViewCtrl setListMode:MusicPlaylistListModeAddToPlaylist];
+        [playlistViewCtrl setSelectedMusicID:musicView.tuneInfo.tuneID];
+        [playlistViewCtrl setPlaylistManager:playlistManager];
+        [playlistViewCtrl setDelegate:self];
+        playlistNavCtrl =
+            [[RotatableNavigationController alloc] initWithRootViewController:playlistViewCtrl];
+        if (!isPad) {
+            [self presentViewController:playlistNavCtrl animated:YES completion:nil];
+            bOpenModal = YES;
+        } else {
+            [playlistNavCtrl setModalPresentationStyle:UIModalPresentationPopover];
+            UIPopoverPresentationController *popover =
+                playlistNavCtrl.popoverPresentationController;
+            [popover setDelegate:self];
+            [popover setPermittedArrowDirections:UIPopoverArrowDirectionUp |
+                                                 UIPopoverArrowDirectionDown];
+            [popover setSourceView:musicView];
+            [popover setSourceRect:musicView.btnPlaylistAction.frame];
+            [self presentViewController:playlistNavCtrl animated:YES completion:nil];
+        }
+        [self musicShuffleDisable];
+    } else {
+        NSUInteger index = [playlistManager indexOfPlaylist:source];
+        if (index != NSNotFound) {
+            [playlistManager removeMusic:musicView.tuneInfo.tuneID fromPlaylistAtIndex:index];
+            [playlistManager synchronize];
+            [arrayCurrentPlaylist removeObjectIdenticalTo:musicView.tuneInfo];
+            [musicListView removeMusicView:musicView];
+        }
+    }
+}
+
 /** @ghidraAddress 0x370ac */
 - (void)makeChallengeRootView {
     if (challengeModeView != nil) {
