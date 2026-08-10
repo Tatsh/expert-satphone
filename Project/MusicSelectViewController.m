@@ -7,6 +7,7 @@
 #import "Downloader.h"
 #import "EditorIDManager.h"
 #import "JcfDownloadPageNavController.h"
+#import "JcfDownloadView.h"
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "LabUtilities.h"
@@ -110,6 +111,10 @@ static NSString *const kStoreBalloonAnimationKey = @"STORE_BALLOON_ANIM";
 // The main BGM starts with this fade, and the store balloon fades out over the same duration.
 static const NSTimeInterval kMainBgmStartFade = 0.3;         // @ghidraAddress 0x28f260
 static const NSTimeInterval kStoreBalloonFadeDuration = 0.3; // @ghidraAddress 0x28f260
+
+// The JCF download view and its cover fade out over this (negative, as the binary passes it)
+// duration when the download completes.
+static const NSTimeInterval kJcfDownloadEndFadeDuration = -0.2; // @ghidraAddress 0x28e050
 
 // Completing a challenge-purchase restore records this marker under the restore-end preference and
 // shows the completion alert (tag 3).
@@ -1127,6 +1132,27 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 
 #pragma mark - Search
 
+/** @ghidraAddress 0x221fc */
+- (BOOL)matchTitle:(nullable id)tune {
+    // Every search term must appear (case-insensitively) in at least one of the tune's search
+    // strings, looked up by tune id. No terms matches everything.
+    NSArray<NSString *> *strings = searchDictionary[@(((TuneInfo *)tune).tuneID)];
+    for (NSString *term in searchArray) {
+        BOOL matched = NO;
+        for (NSString *candidate in strings) {
+            if (candidate != nil &&
+                [candidate rangeOfString:term options:NSCaseInsensitiveSearch].location !=
+                    NSNotFound) {
+                matched = YES;
+            }
+        }
+        if (!matched) {
+            return NO;
+        }
+    }
+    return YES;
+}
+
 /** @ghidraAddress 0x35a9c */
 - (BOOL)searchStringChanged:(nullable id)searchString {
     // Recompute the search terms; the query changed when the term count differs or any new term is
@@ -1503,6 +1529,25 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 }
 
 #pragma mark - JCF download and purchases
+
+/** @ghidraAddress 0x33084 */
+- (void)jcfDownloadEnd:(nullable id)sender {
+    __weak UIView *weakCover = coverView;
+    __weak JcfDownloadView *weakDownload = jcfDownloadView;
+    [musicListView addDownloadMark:[jcfDownloadView getDownloadMusicID]];
+    // The binary passes a negative fade duration here; kept as-is.
+    [UIView animateWithDuration:kJcfDownloadEndFadeDuration
+        animations:^{
+          /** @ghidraAddress 0x33248 */
+          [weakCover setAlpha:0.0];
+          [weakDownload setAlpha:0.0];
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x33310 */
+          [self removeDownloadView];
+        }];
+    [self setSearchEnable:YES];
+}
 
 /** @ghidraAddress 0x32d10 */
 - (void)JcfDownLoad:(nullable id)sequenceID {
