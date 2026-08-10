@@ -775,3 +775,7 @@
 0x138eac	(^void)(BOOL)
 0x5ebc4	(^void)(void)
 0x5ec8c	(^void)(BOOL)
+0x133e40	(^void)(void)
+0x133eac	(^void)(BOOL)
+0x5990c	(^void)(void)
+0x59978	(^void)(BOOL)

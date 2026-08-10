@@ -44,6 +44,12 @@ static const float kScrollFadeSpanFraction = 0.125f;
 // The upload sheet fades out over this (negative, as the binary passes it) duration.
 static const NSTimeInterval kUploadEndFadeDuration = -0.2; // @ghidraAddress 0x28e050
 
+// Cancelling a host share fades the share-message label out over this duration.
+static const NSTimeInterval kHostShareCancelFadeDuration = 0.1; // @ghidraAddress 0x28f290
+
+// The host share-play button's background image.
+static NSString *const kHostButtonImage = @"menu_button_host";
+
 // The classic difficulty button's fixed square frame: 160 on the pad, 80 on the retina phone, and
 // 74 on the non-retina phone.
 static const double kDiffButtonSizePad = 160.0;      // @ghidraAddress 0x28f438
@@ -420,6 +426,29 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self) 
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x59668 */
+- (void)hostShareCancelled {
+    [self.buttonHostSharePlay
+        setBackgroundImage:[[ImageCache sharedCache] getResPNG:kHostButtonImage]
+                  forState:UIControlStateNormal];
+    [self setStartButtonEnable];
+    [self.buttonStartPlay setBackgroundImage:[self getSingleImage] forState:UIControlStateNormal];
+    [self.buttonLink setEnabled:YES];
+    [self.btnRecommendTwitter setEnabled:YES];
+    [self.btnRecommendFacebook setEnabled:YES];
+
+    __weak MusicDetailViewOrg *weakSelf = self;
+    [UIView animateWithDuration:kHostShareCancelFadeDuration
+        animations:^{
+          /** @ghidraAddress 0x5990c */
+          [weakSelf.labelShareMessage setAlpha:0.0];
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x59978 */
+          [weakSelf.labelShareMessage setHidden:YES];
+        }];
 }
 
 /** @ghidraAddress 0x5ea20 */

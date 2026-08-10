@@ -44,6 +44,12 @@ static const float kScrollFadeSpanFraction = 0.125f;
 // The upload sheet fades out over this (negative, as the binary passes it) duration.
 static const NSTimeInterval kUploadEndFadeDuration = -0.2; // @ghidraAddress 0x28e050
 
+// Cancelling a host share fades the share-message label out over this duration.
+static const NSTimeInterval kHostShareCancelFadeDuration = 0.1; // @ghidraAddress 0x28f290
+
+// The host share-play button's background image.
+static NSString *const kHostButtonImage = @"menu_button_host_rpl";
+
 // An unselected difficulty button dims to this alpha and shrinks to this scale on the Ripples
 // theme.
 static const CGFloat kDiffButtonDimAlpha = 0.5;  // fmov 0x3fe0000000000000
@@ -475,6 +481,29 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x133b9c */
+- (void)hostShareCancelled {
+    [self.buttonHostSharePlay
+        setBackgroundImage:[[ImageCache sharedCache] getResPNG:kHostButtonImage]
+                  forState:UIControlStateNormal];
+    [self setStartButtonEnable];
+    [self.buttonStartPlay setBackgroundImage:[self getSingleImage] forState:UIControlStateNormal];
+    [self.buttonLink setEnabled:YES];
+    [self.btnRecommendTwitter setEnabled:YES];
+    [self.btnRecommendFacebook setEnabled:YES];
+
+    __weak MusicDetailViewRpl *weakSelf = self;
+    [UIView animateWithDuration:kHostShareCancelFadeDuration
+        animations:^{
+          /** @ghidraAddress 0x133e40 */
+          [weakSelf.labelShareMessage setAlpha:0.0];
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x133eac */
+          [weakSelf.labelShareMessage setHidden:YES];
+        }];
 }
 
 /** @ghidraAddress 0x138c40 */
