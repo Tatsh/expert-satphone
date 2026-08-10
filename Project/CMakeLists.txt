@@ -446,6 +446,7 @@ target_sources(jubeat PRIVATE
     GenrePagingScrollView.h
     GradationView.h
     HoldMarkerRender.h
+    HostClass.h
     ImageCache.h
     ImageDownloader.h
     ImageLoading.h
@@ -470,6 +471,7 @@ target_sources(jubeat PRIVATE
     LogoViewController.h
     MainGameRenderer.h
     MainGameRendererPad.h
+    MainGameRendererPadKnt.h
     MainGameRendererPadRpl.h
     MainGameRendererPhone.h
     MainGameRendererPhoneKnt.h
@@ -488,6 +490,9 @@ target_sources(jubeat PRIVATE
     MissionDetailMessageView.h
     MissionRewardDownloadView.h
     MusicDetailView.h
+    MusicDetailViewKnt.h
+    MusicDetailViewOrg.h
+    MusicDetailViewRpl.h
     MusicListCollectionLayout.h
     MusicListScroll.h
     MusicListView.h
@@ -562,6 +567,7 @@ target_sources(jubeat PRIVATE
     SettingsEditorPageViewController.h
     SettingsHowtoViewController.h
     SettingsInquiryViewController.h
+    SettingsMapItem.h
     SettingsMapViewController.h
     SettingsNavController.h
     SettingsPolicyViewController.h
