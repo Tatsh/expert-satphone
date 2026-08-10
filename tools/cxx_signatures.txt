@@ -708,3 +708,7 @@
 0x6fcf0	(^void)(BOOL)
 0x6fe2c	(^void)(void)
 0x6fe78	(^void)(BOOL)
+0x110ed4	(^void)(void)
+0x110f2c	(^void)(void)
+0x110f84	(^void)(void)
+0x111724	(^void)(void)

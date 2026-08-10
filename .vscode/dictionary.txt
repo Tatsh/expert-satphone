@@ -7,6 +7,7 @@ DBUILD
 DEADCODE
 DEADSTORES
 Decription
+Denom
 Doxyfile
 FLOATLOOPCOUNTER
 Hina
@@ -512,6 +513,7 @@ toprank
 totalscore
 totalscorephone
 tweened
+tweening
 ubfiz
 udid
 udids
