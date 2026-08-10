@@ -29,6 +29,8 @@
 #import "TuneInfo.h"
 #import "cipher_keys.h"
 
+extern const double g_dAnimDuration020; // @ghidraAddress 0x28f240 (0.2)
+
 // Landscape-left and landscape-right make up the supported orientation mask.
 static const UIInterfaceOrientationMask kSupportedOrientations =
     UIInterfaceOrientationMaskLandscapeLeft | UIInterfaceOrientationMaskLandscapeRight;
@@ -1197,6 +1199,87 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     [self musicShuffleEnable];
     [self setSearchEnable:YES];
     [notificationView startNotification];
+}
+
+#pragma mark - Cover view
+
+/** @ghidraAddress 0x2a2b8 */
+- (void)showCoverView:(nullable id)appendViews addGesture:(nullable id)gesture {
+    if (bOpenDelegateCover) {
+        return;
+    }
+    bOpenDelegateCover = YES;
+    if (!bOpenSearchBox) {
+        [self showButtonMarker:NO];
+    }
+    [self setSearchEnable:NO];
+    [self musicShuffleDisable];
+    [coverView setHidden:NO];
+    [coverView setAlpha:0.0];
+    if (appendViews != nil) {
+        // Tear down any previous appended cover views and add the new ones.
+        if (appendCoverView != nil) {
+            for (NSUInteger i = 0; i < appendCoverView.count; ++i) {
+                [appendCoverView[i] removeFromSuperview];
+            }
+            appendCoverView = nil;
+        }
+        appendCoverView = appendViews;
+        for (NSUInteger i = 0; i < ((NSArray *)appendViews).count; ++i) {
+            [coverView addSubview:appendViews[i]];
+        }
+    }
+    if (gesture != nil) {
+        if (appendCoverGesture != nil) {
+            [coverView removeGestureRecognizer:appendCoverGesture];
+            appendCoverGesture = nil;
+        }
+        appendCoverGesture = gesture;
+        [coverView addGestureRecognizer:gesture];
+    }
+    __weak UIView *weakCover = coverView;
+    [UIView animateWithDuration:g_dAnimDuration020
+                          delay:0.0
+                        options:UIViewAnimationOptionBeginFromCurrentState |
+                                UIViewAnimationOptionAllowAnimatedContent
+                     animations:^{
+                       /** @ghidraAddress 0x2a600 */
+                       [weakCover setAlpha:1.0];
+                     }
+                     completion:nil];
+}
+
+/** @ghidraAddress 0x2a650 */
+- (void)hiddenCoverView {
+    if (!bOpenDelegateCover) {
+        return;
+    }
+    bOpenDelegateCover = NO;
+    if (!bOpenSearchBox) {
+        [self showButtonMarker:YES];
+    }
+    [self setSearchEnable:YES];
+    [self musicShuffleEnable];
+    [coverView setAlpha:1.0];
+    __weak UIView *weakCover = coverView;
+    [UIView animateWithDuration:g_dAnimDuration020
+        delay:0.0
+        options:UIViewAnimationOptionBeginFromCurrentState |
+                UIViewAnimationOptionAllowAnimatedContent
+        animations:^{
+          /** @ghidraAddress 0x2a7fc */
+          [weakCover setAlpha:0.0];
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x2a848 */
+          [weakCover setHidden:YES];
+          if (appendCoverView != nil) {
+              for (NSUInteger i = 0; i < appendCoverView.count; ++i) {
+                  [appendCoverView[i] removeFromSuperview];
+              }
+              appendCoverView = nil;
+          }
+        }];
 }
 
 #pragma mark - Store balloon
