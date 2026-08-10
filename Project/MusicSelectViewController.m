@@ -2,6 +2,7 @@
 
 #import "AlertViewManager.h"
 #import "BFCodec.h"
+#import "BalloonView.h"
 #import "ChallengeModeRootView.h"
 #import "Downloader.h"
 #import "EditorIDManager.h"
@@ -86,6 +87,16 @@ static NSString *const kInfoV2EntryName = @"infov2";
 static NSString *const kInfoEntryName = @"info";
 static const NSUInteger kTuneInfoArchiveTail = 16;
 static const NSUInteger kTuneInfoV3HeaderLength = 4;
+
+// The custom-BGM archive member (ciphered with the BGM key, skipping the 16-byte trailer), the
+// default menu BGM resource suffix, and the store-balloon animation key.
+static NSString *const kCustomBgmEntryName = @"bgm";
+static NSString *const kMenuBgmSoundSuffix = @"BGM_MENU";
+static NSString *const kStoreBalloonAnimationKey = @"STORE_BALLOON_ANIM";
+
+// The main BGM starts with this fade, and the store balloon fades out over the same duration.
+static const NSTimeInterval kMainBgmStartFade = 0.3;         // @ghidraAddress 0x28f260
+static const NSTimeInterval kStoreBalloonFadeDuration = 0.3; // @ghidraAddress 0x28f260
 
 // Completing a challenge-purchase restore records this marker under the restore-end preference and
 // shows the completion alert (tag 3).
@@ -766,6 +777,37 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 
 #pragma mark - BGM
 
+/** @ghidraAddress 0x27f70 */
+- (void)setupMainBgm {
+    AudioManager *audio = [AudioManager sharedManager];
+    int customID = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefCustomBgmIDKey];
+    BOOL customOn = [NSUserDefaults.standardUserDefaults boolForKey:kPrefCustomBgmOnKey];
+    BOOL loaded = NO;
+    if (customID != 0 && customOn) {
+        // Find the chosen custom-BGM tune and load its deciphered bgm archive member.
+        TuneInfo *tune = nil;
+        for (TuneInfo *candidate in arrayAllTune) {
+            if ((int)candidate.tuneID == customID) {
+                tune = candidate;
+            }
+        }
+        KUnzip *archive = [[KUnzip alloc] initWithPath:tune.filePath tail:kTuneInfoArchiveTail];
+        if (archive != nil) {
+            NSMutableData *bgm = [archive uncompress:kCustomBgmEntryName];
+            if (bgm != nil) {
+                BFCodec *codec = [[BFCodec alloc] init];
+                [codec cipherInit:GetBgmCipherKey()];
+                [codec decipher:bgm];
+                loaded = [audio loadBgmData:bgm];
+            }
+        }
+    }
+    if (!loaded) {
+        [audio loadBgmResAAC:[self soundName:kMenuBgmSoundSuffix] inDirectory:nil];
+    }
+    [audio startBgm:YES fadeTime:kMainBgmStartFade];
+}
+
 /** @ghidraAddress 0x274f8 */
 - (void)tapBgmSwitch:(nullable id)sender {
     BOOL on = [NSUserDefaults.standardUserDefaults boolForKey:kPrefCustomBgmOnKey];
@@ -1157,7 +1199,45 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     [notificationView startNotification];
 }
 
+#pragma mark - Store balloon
+
+/** @ghidraAddress 0x28ac4 */
+- (void)hideStoreBalloon {
+    if (balloonView == nil || balloonView.isHidden) {
+        return;
+    }
+    [balloonView setUserInteractionEnabled:NO];
+    __weak BalloonView *weakBalloon = balloonView;
+    [UIView animateWithDuration:kStoreBalloonFadeDuration
+        animations:^{
+          /** @ghidraAddress 0x28c10 */
+          [weakBalloon setAlpha:0.0];
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x28c5c */
+          [weakBalloon.layer removeAnimationForKey:kStoreBalloonAnimationKey];
+        }];
+}
+
 #pragma mark - Popover and challenge mode
+
+/** @ghidraAddress 0x36e5c */
+- (void)challengeMusicStart:(nullable id)tune diff:(int)difficulty {
+    [self stopStoreInfo];
+    [JubeatAppDelegate.appDelegate setChallengeMusic:((TuneInfo *)tune).tuneID diff:difficulty];
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kStartPlayInputLockDuration];
+    [musicListView releaseArtworks];
+    [[AudioManager sharedManager] fadeoutBgm:1.0];
+    [JubeatAppDelegate.appDelegate.rootViewCtrl startMainGame:tune
+                                                 shareManager:self.sharePlayManager
+                                                    musicData:shareMusicData];
+    self.sharePlayManager = nil;
+    shareMusicData = nil;
+    [self setEnableGesture:NO];
+}
 
 /** @ghidraAddress 0x370ac */
 - (void)makeChallengeRootView {
