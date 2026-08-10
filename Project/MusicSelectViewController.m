@@ -53,6 +53,12 @@ static const CGFloat kMarkerSelectZPosition = 3500.0; // @ghidraAddress 0x28f1e8
 static const NSStringEncoding kLabURLEncoding = NSUTF8StringEncoding;
 static NSString *const kPrefJubeatLabURLKey = @"PrefjubeatLabURL";
 
+// Completing a challenge-purchase restore records this marker under the restore-end preference and
+// shows the completion alert (tag 3).
+static NSString *const kRestoreCompleteMarker = @"Restore Complete";
+static NSString *const kPrefChallengeRestoreEndKey = @"PrefChallengeRestoreEnd";
+static const int kRestoreCompleteAlertTag = 3;
+
 // Turning to the store while a consume receipt is pending records this verify-purchase type and
 // shows the verify dialog; a completed purchase reports the shared success message.
 static const int kVerifyPurchaseTypeStore = 2;
@@ -1012,6 +1018,44 @@ enum {
         infoDownloader = nil;
         [self challengeModeEnable:NO];
     }
+}
+
+/** @ghidraAddress 0x38af4 */
+- (void)restoreNothing {
+    [NSUserDefaults.standardUserDefaults setObject:kRestoreCompleteMarker
+                                            forKey:kPrefChallengeRestoreEndKey];
+    [[PurchaseManager sharedManager] setDelegate:nil];
+    [self hideVerifyDialog];
+    [[AlertViewManager sharedManager]
+        makeAlert:0
+         delegate:self
+              tag:kRestoreCompleteAlertTag
+            title:@""
+              msg:[NSBundle.mainBundle localizedStringForKey:@"RestoreCompleteTitle"
+                                                       value:@""
+                                                       table:nil]
+           cancel:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
+          btnText:nil
+             show:YES];
+}
+
+/** @ghidraAddress 0x38cfc */
+- (void)restoreSucceeded {
+    [NSUserDefaults.standardUserDefaults setObject:kRestoreCompleteMarker
+                                            forKey:kPrefChallengeRestoreEndKey];
+    [[PurchaseManager sharedManager] setDelegate:nil];
+    [self hideVerifyDialog];
+    [[AlertViewManager sharedManager]
+        makeAlert:0
+         delegate:self
+              tag:kRestoreCompleteAlertTag
+            title:@""
+              msg:[NSBundle.mainBundle localizedStringForKey:@"RestoreCompleteTitle"
+                                                       value:@""
+                                                       table:nil]
+           cancel:[NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil]
+          btnText:nil
+             show:YES];
 }
 
 /** @ghidraAddress 0x3830c */
