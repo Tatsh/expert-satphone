@@ -9,6 +9,7 @@ DEADSTORES
 Decription
 Denom
 Doxyfile
+EEFMN
 FLOATLOOPCOUNTER
 Hina
 INCOMP
@@ -154,6 +155,7 @@ descript
 deserialisation
 deserialiser
 deserialises
+dflt
 dialog
 dialog's
 dios
@@ -209,6 +211,7 @@ gles
 glext
 gltypes
 glubyte
+goodjob
 goshima
 graphviz
 haku
