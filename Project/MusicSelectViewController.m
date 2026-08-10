@@ -7,6 +7,7 @@
 #import "MusicPlaylistViewController.h"
 #import "MusicShareView.h"
 #import "MusicView.h"
+#import "PurchaseManager.h"
 #import "PushNotificationView.h"
 #import "TuneInfo.h"
 
@@ -17,6 +18,12 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 // The custom-BGM selection preferences: the chosen tune's id and whether the custom BGM is on.
 static NSString *const kPrefCustomBgmIDKey = @"PrefCustomBgmID";
 static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
+
+// The menu BGM resumes with a one-fifth-second fade in when the app comes back to the foreground.
+static const double kMenuBgmResumeFade = 0.2; // @ghidraAddress 0x28e040
+
+// The store-tap sound is looked up by the "OK" sound key.
+static NSString *const kStoreTapSoundKey = @"OK";
 
 @implementation MusicSelectViewController
 
@@ -46,6 +53,16 @@ static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
 /** @ghidraAddress 0x32ba8 */
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
+}
+
+/** @ghidraAddress 0x31da4 */
+- (void)appResumed:(nullable id)notification {
+    [markerSelectView resumeAnimation];
+    if (mainBgmSuspended) {
+        [[AudioManager sharedManager] startBgm:YES fadeTime:kMenuBgmResumeFade];
+        mainBgmSuspended = NO;
+    }
+    [self requestNewInfo];
 }
 
 #pragma mark - Music list
@@ -93,6 +110,11 @@ static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
     [NSUserDefaults.standardUserDefaults synchronize];
     [self setupMainBgm];
     [musicListView refreshTextColor];
+}
+
+/** @ghidraAddress 0x2a228 */
+- (nullable id)extendMusicInfoForMusicID:(unsigned int)musicID {
+    return dictAllExtendTune[@(musicID)];
 }
 
 /** @ghidraAddress 0x2a298 */
@@ -231,6 +253,44 @@ static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
     verifyDialog = nil;
 }
 
+/** @ghidraAddress 0x32a34 */
+- (void)tapStore:(nullable id)sender {
+    [self setEnableGesture:YES];
+    [[AudioManager sharedManager] playSeResFile:[self soundName:kStoreTapSoundKey] inDirectory:nil];
+    [self turnToStore:nil];
+}
+
+/** @ghidraAddress 0x387d0 */
+- (void)successIDDownload:(nullable id)sender {
+    idManager = nil;
+    [self downloadChallengeInfo];
+}
+
+/** @ghidraAddress 0x389e4 */
+- (void)agreementSuccess:(nullable id)sender {
+    checkPolicy = YES;
+    [self downloadChallengeInfo];
+    [sender removeFromSuperview];
+}
+
+/** @ghidraAddress 0x38a88 */
+- (void)restoreFailed:(nullable id)sender {
+    [self hideChallengeCoverView];
+    PurchaseManager.sharedManager.delegate = nil;
+    [self hideVerifyDialog];
+}
+
+/** @ghidraAddress 0x38fe8 */
+- (void)scrollOffset:(float)offset {
+    if (scrollBg == nil) {
+        return;
+    }
+    int page = (scrollPageNum - 1) * (int)scrollBg.frame.size.width;
+    int clamped = (offset < 0) ? 0 : (int)offset;
+    int column = (page != 0) ? (clamped / page) : 0;
+    [scrollBg setContentOffset:CGPointMake((double)(clamped - column * page), 0.0)];
+}
+
 #pragma mark - Notifications and challenge
 
 /** @ghidraAddress 0x27cf8 */
@@ -324,6 +384,14 @@ static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
     [searchBox setText:@""];
     backUpString = @"";
     [self pushSearchBox];
+}
+
+/** @ghidraAddress 0x36aa8 */
+- (void)searchBarSearchButtonClicked:(nullable UISearchBar *)searchBar {
+    if ([self searchStringChanged:searchBar.text]) {
+        [self exeSearchPickUp];
+    }
+    [searchBox resignFirstResponder];
 }
 
 #pragma mark - Host select
