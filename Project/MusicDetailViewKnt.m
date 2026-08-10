@@ -5,6 +5,7 @@
 #import "AlertViewManager.h"
 #import "EditDataManager.h"
 #import "EditModalView.h"
+#import "JcfDownloadPageNavController.h"
 #import "MusicSelectViewController.h"
 #import "TuneInfo.h"
 
@@ -25,6 +26,10 @@ enum {
     kMusicBarDotCount = 120,
     kMusicBarDotSpriteCount = 8,
 };
+
+// The download-selection preference remembers that the download entry was chosen (value 2).
+static NSString *const kPrefJcfDownloadSelectKey = @"PrefJcfDownloadSelect";
+static const NSInteger kJcfDownloadSelectDownload = 2;
 
 @implementation MusicDetailViewKnt
 
@@ -134,6 +139,72 @@ enum {
                                          cancel:ok
                                         btnText:nil
                                            show:YES];
+}
+
+/** @ghidraAddress 0x19d4f8 */
+- (void)setEnableButton:(BOOL)enable {
+    [btnDiff[0] setEnabled:enable];
+    [btnDiff[1] setEnabled:enable];
+    [btnDiff[2] setEnabled:enable];
+    [btnDiff[3] setEnabled:enable];
+    [infoBtn setEnabled:enable];
+    [uploadBtn setEnabled:enable];
+    [editBtn setEnabled:enable];
+    [detailScrollButton[0] setEnabled:enable];
+    [detailScrollButton[1] setEnabled:enable];
+    if (enable) {
+        [infoBtn setEnabled:[self checkEnableInfoChange]];
+        [uploadBtn setEnabled:[self checkEnableUpload]];
+        [editBtn setEnabled:[self checkEnableEdit]];
+    }
+}
+
+/** @ghidraAddress 0x19f870 */
+- (void)editFileListViewSelectDownload {
+    [[AudioManager sharedManager] playSeResFile:kMusicRightSound inDirectory:nil];
+    [NSUserDefaults.standardUserDefaults setInteger:kJcfDownloadSelectDownload
+                                             forKey:kPrefJcfDownloadSelectKey];
+    [self.controller dismissViewControllerAnimated:self.isPad completion:nil];
+    self.jcfDownloadPage = [[JcfDownloadPageNavController alloc] initWithMusicID:self.info.tuneID
+                                                                        delegate:self];
+    [self.controller presentViewController:self.jcfDownloadPage animated:YES completion:nil];
+}
+
+/** @ghidraAddress 0x1a1c2c */
+- (void)selectUpdate:(nullable id)sender {
+    [self.controller dismissViewControllerAnimated:YES
+                                        completion:^{
+                                          /** @ghidraAddress 0x1a1cc8 */
+                                          [self uploadStart];
+                                        }];
+}
+
+/** @ghidraAddress 0x1a285c */
+- (void)editFileListViewSelectNewFile {
+    [NSUserDefaults.standardUserDefaults setInteger:kJcfDownloadSelectDownload
+                                             forKey:kPrefJcfDownloadSelectKey];
+    [self selectEditFile:@""];
+    [self resetTextField:(int)self.info.tuneID isFirst:NO];
+    [[EditDataManager sharedManager] resetEditorInfo];
+    [self.controller dismissViewControllerAnimated:YES completion:nil];
+    [self editMusicBar];
+    [self editStart];
+    [[AudioManager sharedManager] playSeResFile:kEditSelectSound inDirectory:nil];
+}
+
+/** @ghidraAddress 0x1a2c3c */
+- (void)editFileListViewDeleteFile:(nullable id)fileName {
+    EditDataManager *manager = [EditDataManager sharedManager];
+    NSString *lastEdit = [manager getLastEditFileName:(int)self.info.tuneID];
+    NSString *path =
+        [[manager getDirectoryPath:(int)self.info.tuneID] stringByAppendingPathComponent:fileName];
+    [manager deleteJCF:path];
+    if ([lastEdit isEqualToString:fileName]) {
+        [manager clearEditData];
+        [self editMusicBar];
+        [self resetTextField:(int)self.info.tuneID isFirst:NO];
+        [self setStartButtonEnable];
+    }
 }
 
 /** @ghidraAddress 0x19c608 */
