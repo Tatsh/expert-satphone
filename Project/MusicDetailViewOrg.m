@@ -14,6 +14,8 @@
 #import "Sequence.h"
 #import "TuneInfo.h"
 
+extern const double g_dAnimDuration020; // @ghidraAddress 0x28f240 (0.2)
+
 // The classic theme resource names for the start-button image variants and the edit/close sounds.
 static NSString *const kStartButtonImage = @"menu_button_start";
 static NSString *const kRandomButtonImage = @"menu_button_random";
@@ -72,6 +74,20 @@ static NSString *const kBlinkAnimationKey = @"AnimBlinkNormal";
 
 // The scroll page persists across sessions under this preference key.
 static NSString *const kPrefEditSelectKey = @"PrefEditSelect";
+
+// The packed-content dictionary keys and the reflection height fraction (of the artwork height) on
+// the pad. The classic theme stores the tune name under name_w (white), unlike the other themes.
+static NSString *const kContentArtwork = @"artwork_s";
+static NSString *const kContentNameW = @"name_w";
+static NSString *const kContentSeqBasic = @"seq_bas";
+static NSString *const kContentSeqAdvanced = @"seq_adv";
+static NSString *const kContentSeqExtreme = @"seq_ext";
+static const double kReflectionFractionPad = 0.3; // @ghidraAddress 0x28f248
+enum {
+    kMbarBasicRow = 0,
+    kMbarAdvancedRow = 1,
+    kMbarExtremeRow = 2,
+};
 
 // The extend level image lives at difficulty-table row 4, column 4 of the level-number views.
 enum {
@@ -426,6 +442,37 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self) 
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x5415c */
+- (void)loadContentFromDictionary:(nullable NSDictionary *)dict {
+    UIImage *artwork = [UIImage imageWithData:dict[kContentArtwork]];
+    if (artwork != nil) {
+        [self.artworkView setImage:artwork];
+        double fraction = self.isPad ? kReflectionFractionPad : g_dAnimDuration020;
+        int reflectionHeight = (int)(artwork.size.height * fraction);
+        [self.reflectionArtworkView setImage:CreateReflectedImage(artwork, reflectionHeight)];
+    }
+    UIImage *nameImage = [UIImage imageWithData:dict[kContentNameW]];
+    if (nameImage != nil) {
+        [self.tuneNameView setImage:nameImage];
+    }
+    if (dict[kContentSeqBasic] != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarBasicRow] raw:dict[kContentSeqBasic]];
+    }
+    if (dict[kContentSeqAdvanced] != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarAdvancedRow] raw:dict[kContentSeqAdvanced]];
+    }
+    if (dict[kContentSeqExtreme] != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarExtremeRow] raw:dict[kContentSeqExtreme]];
+    }
+    // On the detail page (edit page 0) the classic theme re-applies the preferred difficulty once
+    // the bars are loaded.
+    if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey] == 0) {
+        int difficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        [self changeDifficulty:difficulty];
+    }
 }
 
 /** @ghidraAddress 0x59668 */

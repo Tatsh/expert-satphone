@@ -14,6 +14,8 @@
 #import "Sequence.h"
 #import "TuneInfo.h"
 
+extern const double g_dAnimDuration020; // @ghidraAddress 0x28f240 (0.2)
+
 // The Ripples theme resource names for the start-button image variants and the edit/close sounds.
 static NSString *const kStartButtonImage = @"menu_button_start_rpl";
 static NSString *const kRandomButtonImage = @"menu_button_random_rpl";
@@ -74,6 +76,20 @@ static const char kDigitZero = '0';
 // The scroll page and preferred difficulty persist across sessions under these preference keys.
 static NSString *const kPrefEditSelectKey = @"PrefEditSelect";
 static NSString *const kPrefDifficultyKey = @"PrefDifficulty";
+
+// The packed-content dictionary keys and the reflection height fraction (of the artwork height) on
+// the pad.
+static NSString *const kContentArtwork = @"artwork_s";
+static NSString *const kContentNameB = @"name_b";
+static NSString *const kContentSeqBasic = @"seq_bas";
+static NSString *const kContentSeqAdvanced = @"seq_adv";
+static NSString *const kContentSeqExtreme = @"seq_ext";
+static const double kReflectionFractionPad = 0.3; // @ghidraAddress 0x28f248
+enum {
+    kMbarBasicRow = 0,
+    kMbarAdvancedRow = 1,
+    kMbarExtremeRow = 2,
+};
 
 // The three scroll-settled delegate callbacks share this tail: it snaps the settled page,
 // re-derives the hold flag from the current difficulty's hold mark (except on the edit page),
@@ -481,6 +497,37 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x12e48c */
+- (void)loadContentFromDictionary:(nullable NSDictionary *)dict {
+    UIImage *artwork = [UIImage imageWithData:dict[kContentArtwork]];
+    if (artwork != nil) {
+        [self.artworkView setImage:artwork];
+        double fraction = self.isPad ? kReflectionFractionPad : g_dAnimDuration020;
+        int reflectionHeight = (int)(artwork.size.height * fraction);
+        [self.reflectionArtworkView setImage:CreateReflectedImage(artwork, reflectionHeight)];
+    }
+    UIImage *nameImage = [UIImage imageWithData:dict[kContentNameB]];
+    if (nameImage != nil) {
+        [self.tuneNameView setImage:nameImage];
+    }
+    if (dict[kContentSeqBasic] != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarBasicRow] raw:dict[kContentSeqBasic]];
+    }
+    if (dict[kContentSeqAdvanced] != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarAdvancedRow] raw:dict[kContentSeqAdvanced]];
+    }
+    if (dict[kContentSeqExtreme] != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarExtremeRow] raw:dict[kContentSeqExtreme]];
+    }
+    // On the detail page (edit page 0) the Ripples theme re-applies the preferred difficulty once
+    // the bars are loaded.
+    if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey] == 0) {
+        int difficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        [self changeDifficulty:difficulty];
+    }
 }
 
 /** @ghidraAddress 0x133b9c */
