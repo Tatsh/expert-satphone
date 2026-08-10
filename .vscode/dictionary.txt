@@ -1,5 +1,6 @@
 Decription
 Interstitia
+Restorepurchases
 Screenview
 accela
 accum
@@ -126,6 +127,7 @@ fclose
 fcmp
 fcsel
 fcvt
+fcvtms
 fcvtzs
 fdiv
 ferror
@@ -466,6 +468,7 @@ undraft
 undrafted
 unhighlightable
 unichar
+unpurchasable
 unrecovered
 unretained
 unrotated
