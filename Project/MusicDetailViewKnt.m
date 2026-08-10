@@ -137,6 +137,17 @@ static const NSTimeInterval kExtendModeInputLock = 0.4;    // @ghidraAddress 0x2
 static const double kShareLabelDropOffset = 6.0;              // fmov d1, 6.0
 static const NSTimeInterval kShareProgressAnimDuration = 0.3; // @ghidraAddress 0x28f260
 
+// The edit music bar uses the fourth music-bar image, its dot data spans 60 bytes, and its
+// user-tag badge (blank/staff/artist) sits inset from the extend button's right edge.
+enum { kEditMbarBackgroundImage = 3 };
+static const NSUInteger kEditMbarDataLength = 60;
+static NSString *const kUserTagIconNames[] = {
+    @"list_icon_user_blank", @"icon_user_staff", @"icon_user_artist"};
+static const double kUserTagInsetPad = 10.0;  // fmov d0, 10.0
+static const double kUserTagInsetPhone = 6.0; // fmov d0, 6.0
+static const double kUserTagTopPad = 22.0;    // fmov d1, 22.0
+static const double kUserTagTopPhone = 12.0;  // fmov d0, 12.0
+
 // The seven high-score digits are rendered with a right-justified %7d and mapped through
 // highscoreNumImg; the score board's rating uses the excellent image at a perfect score.
 enum {
@@ -896,6 +907,60 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
     [levelNumView[kExtendLevelNumIndex] setAlpha:1.0];
     [self.controller dismissViewControllerAnimated:YES completion:nil];
     [self.controller enableCoverTap];
+}
+
+/** @ghidraAddress 0x19c72c */
+- (void)editMusicBar {
+    if (self.editPage == 0) {
+        return;
+    }
+    EditDataManager *manager = [EditDataManager sharedManager];
+    NSString *lastEdit = [manager getLastEditFileName:(int)self.info.tuneID];
+    [mbarBarView setImage:mbarBarImg[kEditMbarBackgroundImage]];
+    if (userTagIcon != nil) {
+        [userTagIcon removeFromSuperview];
+        userTagIcon = nil;
+    }
+    if (lastEdit == nil) {
+        [self setMusicBarDot:nullptr mbarRes:nullptr];
+        [ratingView setImage:nil];
+        [comboView setImage:nil];
+        [self setScoreBoard:-1 fullcombo:NO];
+        return;
+    }
+
+    // The edit music bar comes from the simple edit data (60 bytes) with no resource overlay.
+    char dots[64] = {0};
+    NSData *musicBar = [manager getEditSimpleData][@"musicBar"];
+    [musicBar getBytes:dots length:kEditMbarDataLength];
+    [self setMusicBarDot:dots mbarRes:nullptr];
+
+    // The score board reflects the edit's own best score and full-combo flag, if scored.
+    NSMutableDictionary *scoreData = [manager getScoreData];
+    int score = -1;
+    BOOL fullcombo = NO;
+    if (scoreData == nil) {
+        [ratingView setImage:nil];
+        [comboView setImage:nil];
+    } else {
+        score = [scoreData[@"bestScore"] intValue];
+        fullcombo = [scoreData[@"fullcomboFlg"] boolValue];
+    }
+    [self setScoreBoard:score fullcombo:fullcombo];
+
+    // A downloaded edit shows its author's user-tag badge, inset from the extend button's right
+    // edge.
+    NSMutableDictionary *editorInfo = [manager getEditorInfo];
+    if (manager.bIsDownload) {
+        int userTag = [editorInfo[@"userTag"] intValue];
+        UIImage *badge = LoadScaledPngImage(kUserTagIconNames[userTag]);
+        userTagIcon = [[UIImageView alloc] initWithImage:badge];
+        double inset = self.isPad ? kUserTagInsetPad : kUserTagInsetPhone;
+        double top = self.isPad ? kUserTagTopPad : kUserTagTopPhone;
+        double x = btnDiff[kExtendButtonIndex].frame.size.width - badge.size.width - inset;
+        [userTagIcon setFrame:CGRectMake(x, top, badge.size.width, badge.size.height)];
+        [btnDiff[kExtendButtonIndex] addSubview:userTagIcon];
+    }
 }
 
 /** @ghidraAddress 0x19c3d0 */
