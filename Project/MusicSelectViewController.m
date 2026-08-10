@@ -13,6 +13,7 @@
 #import "LabUtilities.h"
 #import "MarkerManager.h"
 #import "MarkerSelectView.h"
+#import "Md5Utilities.h"
 #import "MusicDetailView.h"
 #import "MusicListView.h"
 #import "MusicPlaylistManager.h"
@@ -92,6 +93,9 @@ static const CGFloat kMarkerSelectZPosition = 3500.0; // @ghidraAddress 0x28f1e8
 // Encoded strings decode as UTF-8.
 static const NSStringEncoding kLabURLEncoding = NSUTF8StringEncoding;
 static NSString *const kPrefJubeatLabURLKey = @"PrefjubeatLabURL";
+
+// A received share payload appends a 16-byte MD5 digest over the preceding music data.
+static const NSUInteger kShareMusicDigestLength = 16;
 
 // The tune-info archive members, tried newest-first; the v3 payload is ciphered with the tune-info
 // key and carries a four-byte header, the older members with the BGM key. Each archive skips a
@@ -713,6 +717,33 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     [musicDetailView.buttonStartPlay setEnabled:YES];
     [musicDetailView setIsSharedStartable:YES];
     [musicDetailView setStartButtonEnable];
+}
+
+/** @ghidraAddress 0x31874 */
+- (BOOL)sharePlayManager:(nullable id)manager musicDataReceived:(nullable id)musicData {
+    // The payload carries a trailing MD5 digest over the music bytes; reject a mismatch.
+    NSData *data = musicData;
+    if (data.length > kShareMusicDigestLength) {
+        unsigned char digest[16];
+        [data getBytes:digest
+                 range:NSMakeRange(data.length - kShareMusicDigestLength, kShareMusicDigestLength)];
+        if (VerifyMd5Digest(data.bytes, (int)data.length - (int)kShareMusicDigestLength, digest)) {
+            [musicDetailView loadContentFromPath:nil orData:data];
+            shareMusicData = data;
+            [musicDetailView.buttonStartPlay setEnabled:YES];
+            [musicDetailView setIsSharedStartable:YES];
+            [musicDetailView setStartButtonEnable];
+            [musicDetailView.labelShareMessage
+                setText:[NSString stringWithFormat:[NSBundle.mainBundle
+                                                       localizedStringForKey:@"Connected to %@"
+                                                                       value:@""
+                                                                       table:nil],
+                                                   self.sharePlayManager.partnerScreenName]];
+            [musicDetailView showDataProgress:NO animated:YES];
+            return YES;
+        }
+    }
+    return NO;
 }
 
 /** @ghidraAddress 0x30140 */
