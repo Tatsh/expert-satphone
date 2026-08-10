@@ -125,8 +125,13 @@ static const CGFloat kMusicBarCapInset = 40.0; // @ghidraAddress 0x28f1f8
 
 static NSString *const kFullcomboImageName = @"msc_fullcombo_1";
 
-// The host share-play button's background image.
+// The host share-play button's background image, and the cancel image, waiting prompt, cancel cue,
+// and fade duration used when starting or stopping a host share.
 static NSString *const kHostButtonImage = @"menu_button_host";
+static NSString *const kCancelButtonImage = @"menu_button_cancel";
+static NSString *const kWaitingForClientKey = @"Waiting for client";
+static NSString *const kHostShareCancelSound = @"SD_SKIP";
+static const NSTimeInterval kHostShareStartFadeDuration = 0.3; // @ghidraAddress 0x28f260
 
 // The classic difficulty button's fixed square frame: 160 on the pad, 80 on the retina phone, and
 // 74 on the non-retina phone.
@@ -780,6 +785,51 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
     if (score != nil) {
         [self putExtendScore:score];
     }
+}
+
+/** @ghidraAddress 0x5b914 */
+- (void)pushButtonShare:(nullable id)sender {
+    if (self.controller.sharePlayManager == nil) {
+        // Begin hosting a share: swap the host button to a cancel image, lock the play and social
+        // buttons, show the waiting prompt, and hand the packed chart to the controller.
+        [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
+        if (self.info != nil && self.info.filePath != nil) {
+            [self.buttonHostSharePlay
+                setBackgroundImage:[[ImageCache sharedCache] getResPNG:kCancelButtonImage]
+                          forState:UIControlStateNormal];
+            [self.buttonStartPlay setEnabled:NO];
+            [self.buttonStartPlay setBackgroundImage:[self getStartImage]
+                                            forState:UIControlStateNormal];
+            [self.buttonLink setEnabled:NO];
+            [self.btnRecommendTwitter setEnabled:NO];
+            [self.btnRecommendFacebook setEnabled:NO];
+            [self.labelShareMessage setHidden:NO];
+            [self.labelShareMessage setAlpha:0.0];
+            [self.labelShareMessage
+                setText:[NSBundle.mainBundle localizedStringForKey:kWaitingForClientKey
+                                                             value:@""
+                                                             table:nil]];
+
+            __weak MusicDetailViewOrg *weakSelf = self;
+            [UIView animateWithDuration:kHostShareStartFadeDuration
+                animations:^{
+                  /** @ghidraAddress 0x5bf18 */
+                  [weakSelf.labelShareMessage setAlpha:1.0];
+                  [weakSelf.buttonHostSharePlay setEnabled:NO];
+                }
+                completion:^(BOOL finished) {
+                  /** @ghidraAddress 0x5c004 */
+                  [weakSelf.buttonHostSharePlay setEnabled:YES];
+                }];
+            [self.controller startHostShare:[self infoDictForShare] filePath:self.info.filePath];
+        }
+    } else {
+        // Already sharing: cancel it.
+        [[AudioManager sharedManager] playSeResFile:kHostShareCancelSound inDirectory:nil];
+        [self.controller cancelShare:NO];
+        [self setIsSharedStartable:NO];
+    }
+    [self setEnableButton:YES];
 }
 
 /** @ghidraAddress 0x5aefc */
