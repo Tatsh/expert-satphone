@@ -523,6 +523,74 @@ static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
     [shareClientView removeHostTmp:hostID];
 }
 
+/** @ghidraAddress 0x30280 */
+- (void)sharePlayManager:(nullable id)manager receiveExistMusicData:(BOOL)exist {
+    // Only when the client lacks the music does the host show the sending-data prompt.
+    if (exist) {
+        return;
+    }
+    [musicDetailView.labelShareMessage
+        setText:[NSBundle.mainBundle localizedStringForKey:@"Sending music data"
+                                                     value:@""
+                                                     table:nil]];
+}
+
+#pragma mark - Search
+
+/** @ghidraAddress 0x369f8 */
+- (void)searchBar:(nullable UISearchBar *)searchBar textDidChange:(nullable NSString *)searchText {
+    backUpString = [NSString stringWithString:searchText];
+    if ([self searchStringChanged:searchText]) {
+        [self exeSearchPickUp];
+    }
+}
+
+#pragma mark - Store info
+
+/** @ghidraAddress 0x271ec */
+- (void)stopStoreInfo {
+    if (infoDownloader != nil) {
+        [infoDownloader cancel];
+        infoDownloader = nil;
+    }
+    if (challengeInfoDownloader != nil) {
+        [challengeInfoDownloader cancel];
+        challengeInfoDownloader = nil;
+    }
+    if (infoBannerTimer != nil) {
+        [infoBannerTimer invalidate];
+        infoBannerTimer = nil;
+    }
+}
+
+#pragma mark - Popover and challenge mode
+
+/** @ghidraAddress 0x338c0 */
+- (void)popoverClose {
+    if (isPad) {
+        [self dismissViewControllerAnimated:NO completion:nil];
+    }
+    if (bOpenModal) {
+        if (bOpenSetting) {
+            [settingsNavCtrl settingClose];
+        }
+        [self dismissViewControllerAnimated:NO completion:nil];
+        bOpenModal = NO;
+        [self musicShuffleEnable];
+    }
+}
+
+/** @ghidraAddress 0x36da0 */
+- (void)challengeModeClose {
+    [self setupMainBgm];
+    [challengeModeView removeFromSuperview];
+    challengeModeView = nil;
+    [JubeatAppDelegate.appDelegate setChallengeMode:NO];
+    [self hideChallengeCoverView];
+    [self setSearchEnable:YES];
+    [notificationView startNotification];
+}
+
 #pragma mark - Music list
 
 /** @ghidraAddress 0x2a004 */
