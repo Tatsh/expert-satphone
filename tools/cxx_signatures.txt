@@ -813,3 +813,7 @@
 0x133b50	(^void)(void)
 0x59570	(^void)(void)
 0x5961c	(^void)(void)
+0x1349a0	(^void)(void)
+0x134c40	(^void)(BOOL)
+0x5a894	(^void)(void)
+0x5aa9c	(^void)(BOOL)

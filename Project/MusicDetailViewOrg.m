@@ -17,6 +17,7 @@
 #import "LatelyJcfListManager.h"
 #import "MusicSelectViewController.h"
 #import "Sequence.h"
+#import "SharePlayManager.h"
 #import "TuneInfo.h"
 
 extern const double g_dAnimDuration020; // @ghidraAddress 0x28f240 (0.2)
@@ -107,6 +108,37 @@ static const NSInteger kJcfDownloadSelectPending = 1;
 
 // The four difficulty buttons (three selectable plus the extend slot).
 enum { kDiffButtonSlotCount = 4 };
+
+// Starting play shrinks the unselected buttons over this duration and locks input for a beat; a
+// client waiting for the host shows this prompt. The selected difficulty's light views pulse with a
+// fast opacity blink (1.0 -> 0.1 and back, 20 repeats, 0.08s each) under this key.
+static NSString *const kWaitingForHostKey = @"Waiting for host to start";
+static const NSTimeInterval kStartPlayTransitionDuration = 0.6; // @ghidraAddress 0x28f288
+static const NSTimeInterval kStartPlayInputLockDuration = 0.7;  // @ghidraAddress 0x28f2a0
+static const CGFloat kStartPlayShrinkScale = 0.1;               // @ghidraAddress 0x28f2b8
+static NSString *const kBlinkFastAnimationKey = @"AnimBlinkFast";
+static const CFTimeInterval kLightBlinkDuration = 0.08; // @ghidraAddress 0x28f700
+static const float kLightBlinkFromOpacity = 1.0f;       // fmov, 1.0
+static const float kLightBlinkToOpacity = 0.1f;         // @ghidraAddress 0x28f70c
+static const float kLightBlinkRepeatCount = 20.0f;      // fmov, 20.0
+
+// Scales out and fades every difficulty button except the selected one, plus both scroll buttons,
+// when starting play.
+static inline void MusicDetailViewOrgShrinkUnselectedButtons(MusicDetailViewOrg *self,
+                                                             int selected) {
+    CATransform3D shrink =
+        CATransform3DMakeScale(kStartPlayShrinkScale, kStartPlayShrinkScale, 1.0);
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        if (i != selected) {
+            [self->btnDiff[i] setAlpha:0.0];
+            self->btnDiff[i].layer.transform = shrink;
+        }
+    }
+    [self->detailScrollButton[0] setAlpha:0.0];
+    self->detailScrollButton[0].layer.transform = shrink;
+    [self->detailScrollButton[1] setAlpha:0.0];
+    self->detailScrollButton[1].layer.transform = shrink;
+}
 
 // The per-difficulty voice cues, the input-lock durations, and the high-score board's dimmed alpha
 // while a difficulty change slides it in.
@@ -810,6 +842,72 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
     [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
                                             withObject:nil
                                             afterDelay:kSelectDiffInputLock];
+}
+
+/** @ghidraAddress 0x5a1c0 */
+- (void)pushButtonStartPlay:(nullable id)sender {
+    if (!self.buttonStartPlay.isEnabled) {
+        return;
+    }
+    self.isStarted = YES;
+    double width = self.scrollView.frame.size.width;
+    int page = self.editPage;
+    [self.scrollView setScrollEnabled:NO];
+    [self.scrollView setContentOffset:CGPointMake(width * (double)page, 0.0) animated:YES];
+    int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    SharePlayManager *shareManager = self.controller.sharePlayManager;
+    BOOL isHost = (shareManager != nil) && self.controller.sharePlayManager.isHost;
+    [[AudioManager sharedManager] playSeResFile:kEditSelectSound inDirectory:nil];
+    [self.controller showButtonMarker:NO];
+    if (isHost) {
+        [self.controller willStartPlay];
+    }
+    [self.buttonStartPlay setEnabled:NO];
+
+    // The selected difficulty's two light views swap their slow blink for a fast opacity pulse.
+    CABasicAnimation *blink = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    [blink setDuration:kLightBlinkDuration];
+    [blink setFromValue:@(kLightBlinkFromOpacity)];
+    [blink setToValue:@(kLightBlinkToOpacity)];
+    [blink setAutoreverses:YES];
+    [blink setRepeatCount:kLightBlinkRepeatCount];
+    [blink setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear]];
+    [blink setRemovedOnCompletion:NO];
+    [lightView[difficulty][0].layer removeAnimationForKey:kBlinkAnimationKey];
+    [lightView[difficulty][0].layer addAnimation:blink forKey:kBlinkFastAnimationKey];
+    [lightView[difficulty][1].layer removeAnimationForKey:kBlinkAnimationKey];
+    [lightView[difficulty][1].layer addAnimation:blink forKey:kBlinkFastAnimationKey];
+
+    __weak MusicDetailViewOrg *weakSelf = self;
+    BOOL hasShareManager = (shareManager != nil);
+    [UIView animateWithDuration:kStartPlayTransitionDuration
+        delay:0.0
+        options:UIViewAnimationOptionBeginFromCurrentState
+        animations:^{
+          /** @ghidraAddress 0x5a894 */
+          MusicDetailViewOrgShrinkUnselectedButtons(self, difficulty);
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x5aa9c */
+          if (!hasShareManager) {
+              [weakSelf.controller startPlay:weakSelf.info];
+          } else if (!isHost) {
+              [weakSelf.labelShareMessage
+                  setText:[NSBundle.mainBundle localizedStringForKey:kWaitingForHostKey
+                                                               value:@""
+                                                               table:nil]];
+              [weakSelf.controller.sharePlayManager sendClientReady];
+              [weakSelf setIsSharedStartable:NO];
+          } else {
+              [weakSelf.controller.sharePlayManager sendSelectStart];
+              [weakSelf.controller startPlay:weakSelf.info];
+          }
+        }];
+
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kStartPlayInputLockDuration];
 }
 
 /** @ghidraAddress 0x58d14 */

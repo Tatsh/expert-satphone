@@ -17,6 +17,7 @@
 #import "LatelyJcfListManager.h"
 #import "MusicSelectViewController.h"
 #import "Sequence.h"
+#import "SharePlayManager.h"
 #import "TuneInfo.h"
 
 extern const double g_dAnimDuration020; // @ghidraAddress 0x28f240 (0.2)
@@ -98,6 +99,30 @@ static const NSTimeInterval kLampPulseDuration = 0.5; // fmov, 0.5
 static const NSTimeInterval kLampPulseDelay = 0.5;    // fmov, 0.5
 static const CGFloat kLampPulseHeightScale = 2.0;     // fmov, 2.0
 static const NSInteger kJcfDownloadSelectPending = 1;
+
+// Starting play shrinks the unselected buttons over this duration and locks input for a beat; a
+// client waiting for the host shows this prompt.
+static NSString *const kWaitingForHostKey = @"Waiting for host to start";
+static const NSTimeInterval kStartPlayTransitionDuration = 0.6; // @ghidraAddress 0x28f288
+static const NSTimeInterval kStartPlayInputLockDuration = 0.7;  // @ghidraAddress 0x28f2a0
+
+// Scales out and fades every difficulty button except the selected one, plus both scroll buttons,
+// when starting play.
+static inline void MusicDetailViewRplScaleOutUnselectedButtons(MusicDetailViewRpl *self,
+                                                               int selected) {
+    CATransform3D shrink =
+        CATransform3DMakeScale(kEditButtonShrinkScale, kEditButtonShrinkScale, 1.0);
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        if (i != selected) {
+            [self->btnDiff[i] setAlpha:0.0];
+            self->btnDiff[i].layer.transform = shrink;
+        }
+    }
+    [self->detailScrollButton[0] setAlpha:0.0];
+    self->detailScrollButton[0].layer.transform = shrink;
+    [self->detailScrollButton[1] setAlpha:0.0];
+    self->detailScrollButton[1].layer.transform = shrink;
+}
 
 // With no edit loaded the three edit text fields dim to this alpha; the edit buttons fade in over
 // this duration; a dlFlag of this value marks a downloaded edit.
@@ -545,6 +570,58 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
     [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
                                             withObject:nil
                                             afterDelay:kSelectDiffInputLock];
+}
+
+/** @ghidraAddress 0x134524 */
+- (void)pushButtonStartPlay:(nullable id)sender {
+    if (!self.buttonStartPlay.isEnabled) {
+        return;
+    }
+    self.isStarted = YES;
+    double width = self.scrollView.frame.size.width;
+    int page = self.editPage;
+    [self.scrollView setScrollEnabled:NO];
+    [self.scrollView setContentOffset:CGPointMake(width * (double)page, 0.0) animated:YES];
+    int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    SharePlayManager *shareManager = self.controller.sharePlayManager;
+    BOOL isHost = (shareManager != nil) && self.controller.sharePlayManager.isHost;
+    [[AudioManager sharedManager] playSeResFile:kEditSelectSound inDirectory:nil];
+    [self.controller showButtonMarker:NO];
+    if (isHost) {
+        [self.controller willStartPlay];
+    }
+    [self.buttonStartPlay setEnabled:NO];
+
+    __weak MusicDetailViewRpl *weakSelf = self;
+    BOOL hasShareManager = (shareManager != nil);
+    [UIView animateWithDuration:kStartPlayTransitionDuration
+        delay:0.0
+        options:UIViewAnimationOptionBeginFromCurrentState
+        animations:^{
+          /** @ghidraAddress 0x1349a0 */
+          MusicDetailViewRplScaleOutUnselectedButtons(self, difficulty);
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x134c40 */
+          if (!hasShareManager) {
+              [weakSelf.controller startPlay:weakSelf.info];
+          } else if (!isHost) {
+              [weakSelf.labelShareMessage
+                  setText:[NSBundle.mainBundle localizedStringForKey:kWaitingForHostKey
+                                                               value:@""
+                                                               table:nil]];
+              [weakSelf.controller.sharePlayManager sendClientReady];
+              [weakSelf setIsSharedStartable:NO];
+          } else {
+              [weakSelf.controller.sharePlayManager sendSelectStart];
+              [weakSelf.controller startPlay:weakSelf.info];
+          }
+        }];
+
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kStartPlayInputLockDuration];
 }
 
 /** @ghidraAddress 0x133130 */
