@@ -88,6 +88,12 @@ static const NSTimeInterval kShareProgressAnimDuration = 0.3; // @ghidraAddress 
 // The extend marks crossfade over this duration when the extend mode changes.
 static const NSTimeInterval kExtendCrossFadeDuration = 0.3; // @ghidraAddress 0x28f260
 
+// With no edit loaded the three edit text fields dim to this alpha; the edit buttons fade in over
+// this duration; a dlFlag of this value marks a downloaded edit.
+static const CGFloat kEditTextDimmedAlpha = 0.5;          // fmov, 0.5
+static const NSTimeInterval kResetTextFadeDuration = 0.1; // @ghidraAddress 0x28f290
+static const NSInteger kEditDownloadFlag = 1;
+
 // The rating images, indexed by SequenceRank (E, D, C, B, A, S, SS, SSS), and the score/level glyph
 // and mini-dot resource-name formats, all with the Ripples suffix.
 static NSString *const kRatingImageNames[] = {@"msc_rate_e_rpl",
@@ -339,6 +345,70 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
                   action:@selector(selectDiff:)
         forControlEvents:UIControlEventTouchUpInside];
     return button;
+}
+
+/** @ghidraAddress 0x132508 */
+- (void)resetTextField:(int)index isFirst:(BOOL)isFirst {
+    EditDataManager *manager = [EditDataManager sharedManager];
+    NSString *lastEdit = [manager getLastEditFileName:index];
+    self.isFirstSelect = YES;
+    __weak UIButton *weakInfo = infoBtn;
+    __weak UIButton *weakUpload = uploadBtn;
+    __weak UIButton *weakEdit = editBtn;
+    if (lastEdit == nil) {
+        // No edit loaded: blank and dim the three text fields, hide the extend level image, and
+        // fade the edit buttons in.
+        [editTxt[0] setText:@""];
+        [editTxt[0] setAlpha:kEditTextDimmedAlpha];
+        [editTxt[1] setText:@""];
+        [editTxt[1] setAlpha:kEditTextDimmedAlpha];
+        [editTxt[2] setText:@""];
+        [editTxt[2] setAlpha:kEditTextDimmedAlpha];
+        [levelNumView[kExtendButtonIndex] setAlpha:0.0];
+        [manager clearEditData];
+        [self setStartButtonEnable];
+        [UIView animateWithDuration:kResetTextFadeDuration
+                         animations:^{
+                           /** @ghidraAddress 0x132c50 */
+                           [weakInfo setAlpha:1.0];
+                           [weakUpload setAlpha:1.0];
+                           [weakEdit setAlpha:1.0];
+                         }
+                         completion:nil];
+        return;
+    }
+
+    // An edit is loaded: show the fields fully, fade the edit buttons in, fill the fields from the
+    // editor info, set the extend level image, and toggle the info button's tap feedback on the
+    // download flag.
+    self.isFirstSelect = NO;
+    [self setStartButtonEnable];
+    [editTxt[0] setAlpha:1.0];
+    [editTxt[1] setAlpha:1.0];
+    [editTxt[2] setAlpha:1.0];
+    NSMutableDictionary *editorInfo = [manager getEditorInfo];
+    int dlFlag = [editorInfo[@"dlFlag"] intValue];
+    [UIView animateWithDuration:kResetTextFadeDuration
+                     animations:^{
+                       /** @ghidraAddress 0x132b48 */
+                       [weakInfo setAlpha:1.0];
+                       [weakUpload setAlpha:1.0];
+                       [weakEdit setAlpha:1.0];
+                     }
+                     completion:nil];
+    [editTxt[0] setText:editorInfo[@"fumenName"]];
+    [editTxt[1] setText:editorInfo[@"editorName"]];
+    [editTxt[2] setText:editorInfo[@"comment"]];
+    int level = [editorInfo[@"level"] intValue];
+    [levelNumView[kExtendButtonIndex] setImage:levelNumImg[level]];
+    [levelNumView[kExtendButtonIndex] setAlpha:1.0];
+    if (dlFlag == kEditDownloadFlag) {
+        [infoBtn setAdjustsImageWhenHighlighted:NO];
+        [infoBtn setAdjustsImageWhenDisabled:NO];
+    } else {
+        [infoBtn setAdjustsImageWhenHighlighted:YES];
+        [infoBtn setAdjustsImageWhenDisabled:YES];
+    }
 }
 
 /** @ghidraAddress 0x1303d0 */
