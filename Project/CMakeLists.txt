@@ -158,6 +158,7 @@ target_sources(jubeat PRIVATE
     MissionDetailMessageView.m
     MissionRewardDownloadView.m
     MusicDetailView.m
+    MusicDetailViewKnt.m
     MusicListCollectionLayout.mm
     MusicListScroll.m
     MusicListView.m
