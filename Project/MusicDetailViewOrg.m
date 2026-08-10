@@ -3,12 +3,15 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "AlertViewManager.h"
+#import "BFCodec.h"
 #import "EditDataManager.h"
 #import "ImageCache.h"
 #import "ImageLoading.h"
 #import "JcfDownloadPageNavController.h"
 #import "JcfManageNavController.h"
 #import "JubeatAppDelegate.h"
+#import "KUnzip.h"
+#import "LabUtilities.h"
 #import "LatelyJcfListManager.h"
 #import "MusicSelectViewController.h"
 #import "Sequence.h"
@@ -87,6 +90,18 @@ enum {
     kMbarBasicRow = 0,
     kMbarAdvancedRow = 1,
     kMbarExtremeRow = 2,
+};
+
+// The extend music-bar archive stores each difficulty's sequence under these member names and skips
+// a 16-byte trailer; the three deciphered bars fill the extendMbarDots rows.
+static NSString *const kExtendSeqBasic = @"seq_bas";
+static NSString *const kExtendSeqAdvanced = @"seq_adv";
+static NSString *const kExtendSeqExtreme = @"seq_ext";
+static const NSUInteger kExtendArchiveTail = 16;
+enum {
+    kExtendMbarBasicRow = 0,
+    kExtendMbarAdvancedRow = 1,
+    kExtendMbarExtremeRow = 2,
 };
 
 // The extend level image lives at difficulty-table row 4, column 4 of the level-number views.
@@ -442,6 +457,42 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self) 
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x54ad8 */
+- (void)loadExtendMusicBar:(nullable NSString *)path {
+    BFCodec *codec = [[BFCodec alloc] init];
+    NSData *cipherKey = GetBgmCipherKey();
+    [codec cipherInit:cipherKey];
+    if (path == nil) {
+        return;
+    }
+    KUnzip *archive = [[KUnzip alloc] initWithPath:path tail:kExtendArchiveTail];
+    if (archive == nil) {
+        return;
+    }
+
+    [codec cipherInit:cipherKey];
+    NSMutableData *seqBas = [archive uncompress:kExtendSeqBasic];
+    [codec decipher:seqBas];
+    [Sequence getMusicBarData:extendMbarDots[kExtendMbarBasicRow] raw:seqBas];
+
+    [codec cipherInit:cipherKey];
+    NSMutableData *seqAdv = [archive uncompress:kExtendSeqAdvanced];
+    [codec decipher:seqAdv];
+    [Sequence getMusicBarData:extendMbarDots[kExtendMbarAdvancedRow] raw:seqAdv];
+
+    [codec cipherInit:cipherKey];
+    NSMutableData *seqExt = [archive uncompress:kExtendSeqExtreme];
+    [codec decipher:seqExt];
+    [Sequence getMusicBarData:extendMbarDots[kExtendMbarExtremeRow] raw:seqExt];
+
+    // A settled detail page re-applies the preferred difficulty once the bars are loaded.
+    if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey] == 0) {
+        int difficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        [self changeDifficulty:difficulty];
+    }
 }
 
 /** @ghidraAddress 0x5415c */
