@@ -21,6 +21,7 @@ static NSString *const kSingleButtonImage = @"menu_button_single";
 static NSString *const kEditSelectSound = @"SD_OK";
 static NSString *const kMusicLeftSound = @"SD_MUSIC_LEFT";
 static NSString *const kMusicRightSound = @"SD_MUSIC_RIGHT";
+static NSString *const kMusicSelectSound = @"SD_MUSIC_SELECT";
 
 // The download-selection preference remembers that the download entry was chosen (value 2).
 static NSString *const kPrefJcfDownloadSelectKey = @"PrefJcfDownloadSelect";
@@ -39,6 +40,9 @@ enum {
 
 // The scroll button fades out across an eighth of the half-width scroll span.
 static const float kScrollFadeSpanFraction = 0.125f;
+
+// The upload sheet fades out over this (negative, as the binary passes it) duration.
+static const NSTimeInterval kUploadEndFadeDuration = -0.2; // @ghidraAddress 0x28e050
 
 // The classic difficulty button's fixed square frame: 160 on the pad, 80 on the retina phone, and
 // 74 on the non-retina phone.
@@ -416,6 +420,50 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self) 
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x5ea20 */
+- (void)uploadEnd:(nullable id)sender {
+    __weak UIView *weakCover = topcover;
+    __weak JcfUpLoadView *weakUpload = upLoadView;
+    // The binary passes a negative fade duration here; kept as-is.
+    [UIView animateWithDuration:kUploadEndFadeDuration
+        animations:^{
+          /** @ghidraAddress 0x5ebc4 */
+          [weakCover setAlpha:0.0];
+          [weakUpload setAlpha:0.0];
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x5ec8c */
+          [self removeUploadView];
+        }];
+    [self.controller enableCoverTap];
+}
+
+/** @ghidraAddress 0x5786c */
+- (void)scrollChange:(nullable id)sender {
+    if (self.isStarted) {
+        return;
+    }
+    double width = self.scrollView.frame.size.width;
+    double offsetX = self.scrollView.contentOffset.x;
+    int page = (int)floor((width * 0.5 + offsetX) / width);
+    double snapX = (page != 0) ? 0.0 : (double)(int)width;
+    [self.scrollView setContentOffset:CGPointMake(snapX, 0.0) animated:YES];
+    [self setEnableButton:NO];
+    if (page == 1) {
+        int difficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        if (difficulty > 2) {
+            [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefDifficultyKey];
+            difficulty = 0;
+        }
+        [self changeDifficulty:difficulty];
+    } else {
+        [self editMusicBar];
+    }
+    [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
+    [self setStartButtonEnable];
 }
 
 /** @ghidraAddress 0x5c5dc */
