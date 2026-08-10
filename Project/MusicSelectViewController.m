@@ -5,6 +5,7 @@
 #import "MusicDetailView.h"
 #import "MusicListView.h"
 #import "MusicPlaylistViewController.h"
+#import "MusicSelectBottomView.h"
 #import "MusicShareView.h"
 #import "MusicView.h"
 #import "PurchaseManager.h"
@@ -22,8 +23,9 @@ static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
 // The menu BGM resumes with a one-fifth-second fade in when the app comes back to the foreground.
 static const double kMenuBgmResumeFade = 0.2; // @ghidraAddress 0x28e040
 
-// The store-tap sound is looked up by the "OK" sound key.
+// The store-tap and challenge-tap sounds are looked up by these sound keys.
 static NSString *const kStoreTapSoundKey = @"OK";
+static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
 
 @implementation MusicSelectViewController
 
@@ -55,6 +57,29 @@ static NSString *const kStoreTapSoundKey = @"OK";
     [super viewDidDisappear:animated];
 }
 
+/** @ghidraAddress 0x31b98 */
+- (void)appSuspended:(nullable id)notification {
+    [self hiddenCoverView];
+    [markerSelectView pauseAnimation];
+    [self stopStoreInfo];
+    [bottomView animStop];
+    [imgStoreNew.layer removeAllAnimations];
+    [imgStoreNew setHidden:YES];
+    [btnChallenge.titleLabel.layer removeAllAnimations];
+    [imgChallengeNew.layer removeAllAnimations];
+    [imgChallengeNew setHidden:YES];
+    // A live share session is torn down: the host that has started disconnects, otherwise the
+    // pending share is cancelled.
+    if (self.sharePlayManager != nil) {
+        if (willStart) {
+            [self.sharePlayManager disconnect];
+            self.sharePlayManager = nil;
+        } else {
+            [self cancelShare:YES];
+        }
+    }
+}
+
 /** @ghidraAddress 0x31da4 */
 - (void)appResumed:(nullable id)notification {
     [markerSelectView resumeAnimation];
@@ -76,6 +101,20 @@ static NSString *const kStoreTapSoundKey = @"OK";
 - (unsigned int)numberOfMusic {
     NSArray *list = arrayCurrentPlaylist ?: arrayAllTune;
     return (unsigned int)list.count;
+}
+
+/** @ghidraAddress 0x2aeec */
+- (void)musicPlaylistViewControllerWillClosed:(nullable id)controller {
+    if (playlistViewCtrl.listMode == MusicPlaylistListModeAddToPlaylist) {
+        [musicListView hideAllPlaylistAction];
+    }
+    playlistViewCtrl = nil;
+    playlistNavCtrl = nil;
+    [self dismissViewControllerAnimated:YES
+                             completion:^{
+                             }];
+    bOpenModal = NO;
+    [self musicShuffleEnable];
 }
 
 /** @ghidraAddress 0x36cb0 */
@@ -152,6 +191,13 @@ static NSString *const kStoreTapSoundKey = @"OK";
     return YES;
 }
 
+/** @ghidraAddress 0x35854 */
+- (BOOL)checkShakeEvent:(nullable id)event {
+    // A shake counts only while shuffle is enabled and the event is a motion-shake.
+    return bEnableShuffle && ((UIEvent *)event).type == UIEventTypeMotion &&
+           ((UIEvent *)event).subtype == UIEventSubtypeMotionShake;
+}
+
 /** @ghidraAddress 0x358dc */
 - (void)motionBegan:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event {
     [self checkShakeEvent:event];
@@ -181,9 +227,29 @@ static NSString *const kStoreTapSoundKey = @"OK";
     [self setEnableGesture:YES];
 }
 
+/** @ghidraAddress 0x347ac */
+- (void)setEnableGesture:(BOOL)enable {
+    // Gestures (and shuffle and search) stay off during a share session.
+    BOOL on = (self.sharePlayManager == nil) && enable;
+    bEnableShuffle = on;
+    [self setSearchEnable:on];
+}
+
 /** @ghidraAddress 0x2ca20 */
 - (void)musicViewPressed:(nullable id)sender {
     [musicListView hideAllPlaylistAction];
+}
+
+/** @ghidraAddress 0x2cfac */
+- (NSUInteger)musicViewGetPlaylistActionType:(nullable id)musicView {
+    // The not-played, level, hold, and not-hold system lists offer no add/remove action; a real
+    // user playlist reports action type 1.
+    id source = currentPlaylistSource;
+    if (source == nil || source == arrayNotPlayedTune || source == arrayLevelList ||
+        source == arrayHoldList || source == arrayNotHoldList) {
+        return 0;
+    }
+    return 1;
 }
 
 /** @ghidraAddress 0x36c94 */
@@ -251,6 +317,27 @@ static NSString *const kStoreTapSoundKey = @"OK";
 - (void)hideVerifyDialog {
     [verifyDialog removeFromSuperview];
     verifyDialog = nil;
+}
+
+/** @ghidraAddress 0x36d04 */
+- (void)tapChallengeMode:(nullable id)sender {
+    [[AudioManager sharedManager] playSeResFile:[self soundName:kChallengeTapSoundKey]
+                                    inDirectory:nil];
+    [self downloadChallengeInfo];
+}
+
+/** @ghidraAddress 0x27694 */
+- (void)tapStoreInfo:(nullable id)info {
+    [self setEnableGesture:YES];
+    if (info != nil) {
+        // A store-info entry that carries no challenge marker opens the store; otherwise it starts
+        // the challenge download.
+        if (((NSDictionary *)info)[@"challenge"] == nil) {
+            [self turnToStore:info];
+        } else {
+            [self downloadChallengeInfo];
+        }
+    }
 }
 
 /** @ghidraAddress 0x32a34 */
@@ -403,6 +490,12 @@ static NSString *const kStoreTapSoundKey = @"OK";
 }
 
 #pragma mark - Share play
+
+/** @ghidraAddress 0x2ff10 */
+- (void)shareHostSelected:(nullable id)host {
+    [self.sharePlayManager sendConnectRequest:host];
+    [shareClientView changeClientModeConnecting];
+}
 
 /** @ghidraAddress 0x30480 */
 - (void)sharePlayManagerFailedSendMusicData:(nullable id)manager {
