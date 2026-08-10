@@ -9,6 +9,57 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 
 @implementation MusicSelectViewController
 
+#pragma mark - View lifecycle
+
+/** @ghidraAddress 0x31e40 */
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+}
+
+/** @ghidraAddress 0x32ae4 */
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+}
+
+/** @ghidraAddress 0x32b1c */
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self becomeFirstResponder];
+}
+
+/** @ghidraAddress 0x32b70 */
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+}
+
+/** @ghidraAddress 0x32ba8 */
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+}
+
+#pragma mark - Music list
+
+/** @ghidraAddress 0x22984 */
+- (void)changeMusicListView:(NSInteger)listType musicID:(NSUInteger)musicID {
+    [self changeMusicListView:listType musicID:musicID isFirst:NO];
+}
+
+/** @ghidraAddress 0x29fbc */
+- (unsigned int)numberOfMusic {
+    NSArray *list = arrayCurrentPlaylist ?: arrayAllTune;
+    return (unsigned int)list.count;
+}
+
+/** @ghidraAddress 0x2a298 */
+- (nullable id)addMusicArray {
+    return arrayAddList;
+}
+
+/** @ghidraAddress 0x2a2a8 */
+- (nullable id)removeMusicArray {
+    return arrayDeleteList;
+}
+
 #pragma mark - Rotation
 
 /** @ghidraAddress 0x32be0 */
@@ -44,6 +95,13 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
     [self checkShakeEvent:event];
 }
 
+/** @ghidraAddress 0x358fc */
+- (void)motionEnded:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event {
+    if ([self checkShakeEvent:event]) {
+        [self setRandomSelect];
+    }
+}
+
 #pragma mark - Buttons
 
 /** @ghidraAddress 0x3478c */
@@ -73,6 +131,19 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
     willStart = NO;
 }
 
+/** @ghidraAddress 0x2e9f8 */
+- (void)willStartPlay {
+    willStart = YES;
+}
+
+/** @ghidraAddress 0x34810 */
+- (void)musicShuffleEnable {
+    // Shuffle stays disabled while a share-play session is active.
+    if (self.sharePlayManager == nil) {
+        bEnableShuffle = YES;
+    }
+}
+
 /** @ghidraAddress 0x3485c */
 - (void)musicShuffleDisable {
     bEnableShuffle = NO;
@@ -93,6 +164,26 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 /** @ghidraAddress 0x36b30 */
 - (void)searchBar:(nullable UISearchBar *)searchBar
     selectedScopeButtonIndexDidChange:(NSInteger)selectedScope {
+}
+
+#pragma mark - Lab, challenge, and store
+
+/** @ghidraAddress 0x34754 */
+- (void)tapJubeatLab:(nullable id)sender {
+    [self setEnableGesture:YES];
+    [self JcfDownLoadTopPage];
+}
+
+/** @ghidraAddress 0x38a50 */
+- (void)agreementFailed:(nullable id)sender {
+    [sender removeFromSuperview];
+    [self hideChallengeCoverView];
+}
+
+/** @ghidraAddress 0x382d0 */
+- (void)hideVerifyDialog {
+    [verifyDialog removeFromSuperview];
+    verifyDialog = nil;
 }
 
 #pragma mark - Share play
