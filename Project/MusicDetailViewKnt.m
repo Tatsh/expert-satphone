@@ -3,15 +3,19 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "AlertViewManager.h"
+#import "BFCodec.h"
 #import "EditDataManager.h"
 #import "EditModalView.h"
 #import "ImageCache.h"
 #import "JcfDownloadPageNavController.h"
 #import "JcfManageNavController.h"
 #import "JubeatAppDelegate.h"
+#import "KUnzip.h"
 #import "LatelyJcfListManager.h"
 #import "MusicSelectViewController.h"
+#import "Sequence.h"
 #import "TuneInfo.h"
+#import "cipher_keys.h"
 
 // The edit-select confirmation sound played when the edit entry is chosen from the file list.
 static NSString *const kEditSelectSound = @"SD_KNT_OK";
@@ -55,6 +59,19 @@ static const NSInteger kJcfDownloadSelectDownload = 2;
 
 // The edit-selection preference records the page the difficulty scroll settled on.
 static NSString *const kPrefEditSelectKey = @"PrefEditSelect";
+
+// The packed extend-chart sequence entries and the archive trailer length.
+static NSString *const kExtendSeqBasic = @"seq_bas";
+static NSString *const kExtendSeqAdvanced = @"seq_adv";
+static NSString *const kExtendSeqExtreme = @"seq_ext";
+static const NSUInteger kExtendArchiveTail = 16;
+
+// Each difficulty's extend music-bar row is 60 bytes wide within extendMbarDots[3][60].
+enum {
+    kExtendMbarBasicRow = 0,
+    kExtendMbarAdvancedRow = 1,
+    kExtendMbarExtremeRow = 2,
+};
 
 // The three scroll-settled delegate callbacks share this tail: it snaps the settled page,
 // re-derives the hold flag from the current difficulty's hold mark (except on the edit page),
@@ -336,6 +353,42 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x199708 */
+- (void)loadExtendMusicBar:(nullable NSString *)path {
+    BFCodec *codec = [[BFCodec alloc] init];
+    NSData *cipherKey = GetBgmCipherKey();
+    [codec cipherInit:cipherKey];
+    if (path == nil) {
+        return;
+    }
+    KUnzip *archive = [[KUnzip alloc] initWithPath:path tail:kExtendArchiveTail];
+    if (archive == nil) {
+        return;
+    }
+
+    [codec cipherInit:cipherKey];
+    NSMutableData *seqBas = [archive uncompress:kExtendSeqBasic];
+    [codec decipher:seqBas];
+    [Sequence getMusicBarData:extendMbarDots[kExtendMbarBasicRow] raw:seqBas];
+
+    [codec cipherInit:cipherKey];
+    NSMutableData *seqAdv = [archive uncompress:kExtendSeqAdvanced];
+    [codec decipher:seqAdv];
+    [Sequence getMusicBarData:extendMbarDots[kExtendMbarAdvancedRow] raw:seqAdv];
+
+    [codec cipherInit:cipherKey];
+    NSMutableData *seqExt = [archive uncompress:kExtendSeqExtreme];
+    [codec decipher:seqExt];
+    [Sequence getMusicBarData:extendMbarDots[kExtendMbarExtremeRow] raw:seqExt];
+
+    // A settled detail page re-applies the preferred difficulty once the bars are loaded.
+    if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey] == 0) {
+        int difficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        [self changeDifficulty:difficulty];
+    }
 }
 
 /** @ghidraAddress 0x1a1058 */

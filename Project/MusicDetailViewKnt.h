@@ -106,11 +106,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadContentFromPath:(nullable NSString *)path orData:(nullable NSData *)data;
 
 /**
- * @brief Loads the extend-chart music bar.
- * @param data The data argument.
+ * @brief Loads the extend-chart music bars by decrypting the packed sequence archive at a path.
+ * @param path The extend-chart archive path.
  * @ghidraAddress 0x199708
  */
-- (void)loadExtendMusicBar:(nullable NSData *)data;
+- (void)loadExtendMusicBar:(nullable NSString *)path;
 
 /**
  * @brief Stores the base-chart tune and score, then lays the card out.
