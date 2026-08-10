@@ -77,12 +77,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Builds a difficulty button.
- * @param diffButton The diffButton argument.
- * @return The result.
+ * @brief Builds a difficulty button sized to a scaled image and wired to @c -selectDiff: .
+ * @param imageName The base name of the button's scaled PNG image.
+ * @return The configured button.
  * @ghidraAddress 0x198628
  */
-- (nullable id)diffButton:(nullable id)diffButton;
+- (nullable UIButton *)diffButton:(nullable NSString *)imageName;
 
 /**
  * @brief Loads the theme image assets.

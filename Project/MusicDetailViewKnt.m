@@ -7,6 +7,7 @@
 #import "EditDataManager.h"
 #import "EditModalView.h"
 #import "ImageCache.h"
+#import "ImageLoading.h"
 #import "JcfDownloadPageNavController.h"
 #import "JcfManageNavController.h"
 #import "JubeatAppDelegate.h"
@@ -111,6 +112,21 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
 /** @ghidraAddress 0x1955c4 */
 + (Class)layerClass {
     return [CAGradientLayer class];
+}
+
+/** @ghidraAddress 0x198628 */
+- (nullable UIButton *)diffButton:(nullable NSString *)imageName {
+    UIImage *image = LoadScaledPngImage(imageName);
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    [button setFrame:CGRectMake(0.0, 0.0, image.size.width, image.size.height)];
+    [button setImage:image forState:UIControlStateNormal];
+    [button setExclusiveTouch:YES];
+    [button setAdjustsImageWhenHighlighted:NO];
+    [button setAdjustsImageWhenDisabled:NO];
+    [button addTarget:self
+                  action:@selector(selectDiff:)
+        forControlEvents:UIControlEventTouchUpInside];
+    return button;
 }
 
 /** @ghidraAddress 0x19b3d0 */
