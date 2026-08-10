@@ -77,8 +77,31 @@ static const CGFloat kInputHalf = 0.5;
     NSMutableDictionary *idBackup; // +0x38
     // _parentCtrl (weak) at +0x40 is synthesised.
 }
-- (void)showReplaceDoneLabel;
 @end
+
+// De-inlined from the success completion block at 0xd1558: build the "migration complete" label
+// inside the background and fade it in. Not a binary selector — the block body reconstructed as a
+// helper.
+static inline void InheritCodeInputViewShowReplaceDoneLabel(InheritCodeInputView *self) {
+    CGFloat labelX = (self->bgView.frame.size.width + kInputContentXDelta) * kInputHalf;
+    self->replaceText = [[UILabel alloc] initWithFrame:CGRectMake(labelX,
+                                                                  kInputReplaceLabelY,
+                                                                  kInputContentWidth,
+                                                                  kInputReplaceLabelHeight)];
+    self->replaceText.text = kInputReplaceDoneText;
+    self->replaceText.textAlignment = NSTextAlignmentCenter;
+    self->replaceText.alpha = 0;
+    [self->bgView addSubview:self->replaceText];
+    __weak UILabel *weakLabel = self->replaceText;
+    [UIView animateWithDuration:kInputFadeDuration
+                          delay:0
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:^{
+                       /** @ghidraAddress 0xd1650 */
+                       weakLabel.alpha = 1.0;
+                     }
+                     completion:nil];
+}
 
 @implementation InheritCodeInputView
 
@@ -224,7 +247,7 @@ static const CGFloat kInputHalf = 0.5;
                 }
                 completion:^(BOOL finished) {
                   /** @ghidraAddress 0xd1558 */
-                  [weakSelf showReplaceDoneLabel];
+                  InheritCodeInputViewShowReplaceDoneLabel(weakSelf);
                 }];
         } else {
             // A failed migration reports the server's message, or a generic failure.
@@ -320,32 +343,6 @@ static const CGFloat kInputHalf = 0.5;
                                       btnText:nil
                                          show:YES
                                viewController:self.parentCtrl];
-}
-
-#pragma mark - Helpers
-
-// De-inlined from the success completion block at 0xd1558: build the "migration complete" label
-// inside the background and fade it in. Not a binary selector — the block body reconstructed as a
-// helper.
-- (void)showReplaceDoneLabel {
-    CGFloat labelX = (bgView.frame.size.width + kInputContentXDelta) * kInputHalf;
-    replaceText = [[UILabel alloc] initWithFrame:CGRectMake(labelX,
-                                                            kInputReplaceLabelY,
-                                                            kInputContentWidth,
-                                                            kInputReplaceLabelHeight)];
-    replaceText.text = kInputReplaceDoneText;
-    replaceText.textAlignment = NSTextAlignmentCenter;
-    replaceText.alpha = 0;
-    [bgView addSubview:replaceText];
-    __weak UILabel *weakLabel = replaceText;
-    [UIView animateWithDuration:kInputFadeDuration
-                          delay:0
-                        options:UIViewAnimationOptionCurveLinear
-                     animations:^{
-                       /** @ghidraAddress 0xd1650 */
-                       weakLabel.alpha = 1.0;
-                     }
-                     completion:nil];
 }
 
 @end

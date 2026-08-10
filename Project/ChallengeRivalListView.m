@@ -69,16 +69,122 @@ static const int kListPosYPhone = 0x19;
 static const int kListPosYErrorPad = 0x3c;
 static const int kListPosYErrorPhone = 0x1e;
 
-@interface ChallengeRivalListView () <AlertViewManagerDelegate, DownloaderDelegate>
-@end
-
-@implementation ChallengeRivalListView {
+@interface ChallengeRivalListView () <AlertViewManagerDelegate, DownloaderDelegate> {
     ChallengeListView *rivalListView; // +0x8
     NSArray *rivalNameList;           // +0x10
     NSArray *rivalIDList;             // +0x18
     int selectRivalIndex;             // +0x20
     CGRect listRect;                  // +0x28
 }
+@end
+
+// Presents the shared alert with an empty title and a localised OK button.
+static inline void ChallengeRivalListViewShowPlainAlert(ChallengeRivalListView *self,
+                                                        id delegate,
+                                                        int tag,
+                                                        NSString *msg) {
+    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:delegate
+                                            tag:tag
+                                          title:@""
+                                            msg:msg
+                                         cancel:ok
+                                        btnText:nil
+                                           show:YES];
+}
+
+// Builds the rival table over the modal's frame at the given list y position and seeds it with the
+// current names.
+static inline void ChallengeRivalListViewBuildListView(ChallengeRivalListView *self, int listPosY) {
+    self->rivalListView = [[ChallengeListView alloc] initWithFrame:self.frame listPosY:listPosY];
+    [self->rivalListView setADelegate:self];
+    [self->rivalListView setTitleImage:LoadScaledPngImage(kTitleImageName) animation:NO];
+    [self->rivalListView setListArray:self->rivalNameList];
+    [self addSubview:self->rivalListView];
+}
+
+// The remove response: on success confirm and drop the removed name/id pair; otherwise show the
+// failure.
+static inline void ChallengeRivalListViewHandleRemoveResponse(ChallengeRivalListView *self,
+                                                              NSDictionary *json,
+                                                              int status) {
+    if (status == kStatusOK) {
+        NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
+        [[AlertViewManager sharedManager] makeAlert:0
+                                           delegate:nil
+                                                tag:3
+                                              title:@""
+                                                msg:kRemovedMessage
+                                             cancel:ok
+                                            btnText:nil
+                                               show:YES];
+        NSMutableArray *names = [NSMutableArray arrayWithArray:self->rivalNameList];
+        NSMutableArray *ids = [NSMutableArray arrayWithArray:self->rivalIDList];
+        [names removeObjectAtIndex:self->selectRivalIndex];
+        [ids removeObjectAtIndex:self->selectRivalIndex];
+        self->rivalNameList = [NSArray arrayWithArray:names];
+        self->rivalIDList = [NSArray arrayWithArray:ids];
+        [self->rivalListView setListArray:self->rivalNameList];
+        return;
+    }
+
+    NSString *msg = json[kResponseErrorMessageKey];
+    if (!msg) {
+        msg = kRemoveFailedMessage;
+    }
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:nil
+                                            tag:0
+                                          title:@""
+                                            msg:msg
+                                         cancel:kYesButtonTitle
+                                        btnText:nil
+                                           show:YES];
+}
+
+// The list-load response: split each rival record into parallel name and id arrays and build the
+// table; on failure show the error and still build an empty table lower down.
+static inline void ChallengeRivalListViewHandleListLoadResponse(ChallengeRivalListView *self,
+                                                                NSDictionary *json,
+                                                                int status,
+                                                                BOOL isPad) {
+    if (status == kStatusOK) {
+        NSArray *rivals = [NSArray arrayWithArray:json[kRivalArrayKey]];
+        NSMutableArray *ids = [[NSMutableArray alloc] init];
+        NSMutableArray *names = [[NSMutableArray alloc] init];
+        for (NSUInteger i = 0; i < rivals.count; ++i) {
+            [names addObject:rivals[i][0]];
+            [ids addObject:rivals[i][1]];
+        }
+        self->rivalNameList = [NSArray arrayWithArray:names];
+        self->rivalIDList = [NSArray arrayWithArray:ids];
+        ChallengeRivalListViewBuildListView(self, isPad ? kListPosYPad : kListPosYPhone);
+        return;
+    }
+
+    NSString *msg = json[kResponseErrorMessageKey];
+    if (!msg) {
+        msg = [NSBundle.mainBundle localizedStringForKey:@"ServerErrorMsg" value:@"" table:nil];
+    }
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:nil
+                                            tag:0
+                                          title:@""
+                                            msg:msg
+                                         cancel:kYesButtonTitle
+                                        btnText:nil
+                                           show:YES];
+    // The failure still builds a list view with no names, sitting lower on the screen.
+    self->rivalListView =
+        [[ChallengeListView alloc] initWithFrame:self.frame
+                                        listPosY:isPad ? kListPosYErrorPad : kListPosYErrorPhone];
+    [self->rivalListView setADelegate:self];
+    [self->rivalListView setTitleImage:LoadScaledPngImage(kTitleImageName) animation:NO];
+    [self addSubview:self->rivalListView];
+}
+
+@implementation ChallengeRivalListView
 
 @synthesize aDelegate = _aDelegate;
 
@@ -141,29 +247,6 @@ static const int kListPosYErrorPhone = 0x1e;
 
 #pragma mark - DownloaderDelegate
 
-// Presents the shared alert with an empty title and a localised OK button.
-- (void)showPlainAlertWithDelegate:(nullable id)delegate tag:(int)tag message:(NSString *)msg {
-    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
-    [[AlertViewManager sharedManager] makeAlert:0
-                                       delegate:delegate
-                                            tag:tag
-                                          title:@""
-                                            msg:msg
-                                         cancel:ok
-                                        btnText:nil
-                                           show:YES];
-}
-
-// Builds the rival table over the modal's frame at the given list y position and seeds it with the
-// current names.
-- (void)buildListViewWithPosY:(int)listPosY {
-    rivalListView = [[ChallengeListView alloc] initWithFrame:self.frame listPosY:listPosY];
-    [rivalListView setADelegate:self];
-    [rivalListView setTitleImage:LoadScaledPngImage(kTitleImageName) animation:NO];
-    [rivalListView setListArray:rivalNameList];
-    [self addSubview:rivalListView];
-}
-
 /** @ghidraAddress 0xda284 */
 - (void)downloaderFinished:(id)downloader {
     BOOL isPad = [JubeatAppDelegate appDelegate].isPad;
@@ -178,7 +261,7 @@ static const int kListPosYErrorPhone = 0x1e;
                                                            value:@""
                                                            table:nil];
             }
-            [self showPlainAlertWithDelegate:self tag:kSessionErrorAlertTag message:msg];
+            ChallengeRivalListViewShowPlainAlert(self, self, kSessionErrorAlertTag, msg);
             return;
         }
         if (status == kStatusUpdateRequired) {
@@ -189,85 +272,10 @@ static const int kListPosYErrorPhone = 0x1e;
 
     int tag = [downloader tag];
     if (tag == kTagRemove) {
-        [self handleRemoveResponse:json status:status];
+        ChallengeRivalListViewHandleRemoveResponse(self, json, status);
     } else if (tag == kTagListLoad) {
-        [self handleListLoadResponse:json status:status isPad:isPad];
+        ChallengeRivalListViewHandleListLoadResponse(self, json, status, isPad);
     }
-}
-
-// The remove response: on success confirm and drop the removed name/id pair; otherwise show the
-// failure.
-- (void)handleRemoveResponse:(NSDictionary *)json status:(int)status {
-    if (status == kStatusOK) {
-        NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
-        [[AlertViewManager sharedManager] makeAlert:0
-                                           delegate:nil
-                                                tag:3
-                                              title:@""
-                                                msg:kRemovedMessage
-                                             cancel:ok
-                                            btnText:nil
-                                               show:YES];
-        NSMutableArray *names = [NSMutableArray arrayWithArray:rivalNameList];
-        NSMutableArray *ids = [NSMutableArray arrayWithArray:rivalIDList];
-        [names removeObjectAtIndex:selectRivalIndex];
-        [ids removeObjectAtIndex:selectRivalIndex];
-        rivalNameList = [NSArray arrayWithArray:names];
-        rivalIDList = [NSArray arrayWithArray:ids];
-        [rivalListView setListArray:rivalNameList];
-        return;
-    }
-
-    NSString *msg = json[kResponseErrorMessageKey];
-    if (!msg) {
-        msg = kRemoveFailedMessage;
-    }
-    [[AlertViewManager sharedManager] makeAlert:0
-                                       delegate:nil
-                                            tag:0
-                                          title:@""
-                                            msg:msg
-                                         cancel:kYesButtonTitle
-                                        btnText:nil
-                                           show:YES];
-}
-
-// The list-load response: split each rival record into parallel name and id arrays and build the
-// table; on failure show the error and still build an empty table lower down.
-- (void)handleListLoadResponse:(NSDictionary *)json status:(int)status isPad:(BOOL)isPad {
-    if (status == kStatusOK) {
-        NSArray *rivals = [NSArray arrayWithArray:json[kRivalArrayKey]];
-        NSMutableArray *ids = [[NSMutableArray alloc] init];
-        NSMutableArray *names = [[NSMutableArray alloc] init];
-        for (NSUInteger i = 0; i < rivals.count; ++i) {
-            [names addObject:rivals[i][0]];
-            [ids addObject:rivals[i][1]];
-        }
-        rivalNameList = [NSArray arrayWithArray:names];
-        rivalIDList = [NSArray arrayWithArray:ids];
-        [self buildListViewWithPosY:isPad ? kListPosYPad : kListPosYPhone];
-        return;
-    }
-
-    NSString *msg = json[kResponseErrorMessageKey];
-    if (!msg) {
-        msg = [NSBundle.mainBundle localizedStringForKey:@"ServerErrorMsg" value:@"" table:nil];
-    }
-    [[AlertViewManager sharedManager] makeAlert:0
-                                       delegate:nil
-                                            tag:0
-                                          title:@""
-                                            msg:msg
-                                         cancel:kYesButtonTitle
-                                        btnText:nil
-                                           show:YES];
-    // The failure still builds a list view with no names, sitting lower on the screen.
-    rivalListView =
-        [[ChallengeListView alloc] initWithFrame:self.frame
-                                        listPosY:isPad ? kListPosYErrorPad : kListPosYErrorPhone];
-    [rivalListView setADelegate:self];
-    [rivalListView setTitleImage:LoadScaledPngImage(kTitleImageName) animation:NO];
-    [self addSubview:rivalListView];
 }
 
 /** @ghidraAddress 0xdac68 */
@@ -276,7 +284,7 @@ static const int kListPosYErrorPhone = 0x1e;
                                                          value:@""
                                                          table:nil];
     (void)[downloader tag]; // Read but unused, as in the binary.
-    [self showPlainAlertWithDelegate:nil tag:3 message:msg];
+    ChallengeRivalListViewShowPlainAlert(self, nil, 3, msg);
 }
 
 #pragma mark - AlertViewManagerDelegate

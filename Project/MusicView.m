@@ -96,7 +96,310 @@ static const CGFloat kButtonPressScale = 0.5;
     NSMutableArray *adRankFcArray;
     NSMutableArray *adRankBgChipArray;
 }
+- (CGPoint)centerArtworkImg;
 @end
+
+// Builds the extreme, advanced, and basic rank stacks bottom-to-top, then the three full-combo
+// markers. Each difficulty's frame overlay (rankBgOrg), hold-marker overlay (rankBgHld), rank
+// background (rankBg), rank letter (rankImg), advertised-rank background (adRankBg), and
+// advertised-rank letter (adRankImg) are laid out from the pooled column-type tables. This
+// de-inlines the giant repeated block that dominates the shipped initialiser.
+static inline void MusicViewBuildRankStacks(MusicView *self, int colType, double scale) {
+    // The rank-word and frame basenames take a theme suffix: "_rpl" for the ripples theme, "_knt"
+    // for the knit theme, and nothing for the original theme.
+    NSString *suffix;
+    switch (JubeatAppDelegate.appDelegate.currentTheme) {
+    case JubeatThemeReflecBeatPlus:
+        suffix = @"_rpl";
+        break;
+    case JubeatThemeKnit:
+        suffix = @"_knt";
+        break;
+    default:
+        suffix = @"";
+        break;
+    }
+    NSString *nameBas = [NSString stringWithFormat:@"rank_basic%@", suffix];
+    NSString *nameAdv = [NSString stringWithFormat:@"rank_advanced%@", suffix];
+    NSString *nameExt = [NSString stringWithFormat:@"rank_extreme%@", suffix];
+
+    self->rankBgArray = [[NSMutableArray alloc] init];
+    self->rankImgArray = [[NSMutableArray alloc] init];
+    self->rankFcArray = [[NSMutableArray alloc] init];
+    self.rankBgChipArray = [[NSMutableArray alloc] init];
+    self->adRankBgChipArray = [[NSMutableArray alloc] init];
+    self->adRankBgArray = [[NSMutableArray alloc] init];
+    self->adRankImgArray = [[NSMutableArray alloc] init];
+    self->adRankFcArray = [[NSMutableArray alloc] init];
+
+    // On iPad the artwork-relative widths are used as-is (scale factor 1.0 inside the stack); on
+    // phones the whole stack is scaled by the cell scale.
+    const double stackScale = self->isPad ? 1.0 : scale;
+    const int *firstY = self->isPad ? kRankFirstYByColTypePad : kRankFirstYByColTypePhone;
+    const int *stepY = self->isPad ? kRankStepYByColTypePad : kRankStepYByColTypePhone;
+    // The rank background and frame overlay share one horizontal base: scale * (isPad ? 180 : 80).
+    // The advertised-rank background and the hold overlay instead use scale * scale * (isPad ? 20 :
+    // 0).
+    const double baseX = scale * kRankBaseXByIsPad[self->isPad ? 1 : 0];
+    const double hldX = (double)(float)(scale * scale * (self->isPad ? kRankChipHldScale : 0.0f));
+
+    // --- Extreme ---
+    int y = firstY[colType];
+    UIImage *imgExt = [[ImageCache sharedCache] getResPNG:nameExt];
+    self.rankBgExt = [[UIImageView alloc] initWithImage:imgExt];
+    self.rankBgExt.frame = CGRectMake(
+        baseX, (double)y, stackScale * imgExt.size.width, stackScale * imgExt.size.height);
+    self.rankImgExt = [[UIImageView alloc]
+        initWithFrame:CGRectMake(
+                          0, 0, stackScale * imgExt.size.width, stackScale * imgExt.size.height)];
+    [self->rankBgArray addObject:self.rankBgExt];
+    [self->rankImgArray addObject:self.rankImgExt];
+
+    self.adRankBgExt = [[UIImageView alloc] initWithImage:imgExt];
+    self.adRankBgExt.frame = CGRectMake(
+        hldX, (double)y, stackScale * imgExt.size.width, stackScale * imgExt.size.height);
+    self.adRankImgExt = [[UIImageView alloc]
+        initWithFrame:CGRectMake(
+                          0, 0, stackScale * imgExt.size.width, stackScale * imgExt.size.height)];
+    [self->adRankBgArray addObject:self.adRankBgExt];
+    [self->adRankImgArray addObject:self.adRankImgExt];
+
+    NSString *nameFrmExt = [NSString stringWithFormat:@"rank_frm_ext%@", suffix];
+    UIImage *frmExt = [[ImageCache sharedCache] getResPNG:nameFrmExt];
+    self.rankBgOrgExt = [[UIImageView alloc] initWithImage:frmExt];
+    self.rankBgOrgExt.frame = CGRectMake(
+        baseX, (double)y, stackScale * frmExt.size.width, stackScale * frmExt.size.height);
+    UIImage *frmExtHld = [[ImageCache sharedCache] getResPNG:nameFrmExt];
+    self.rankBgHldExt = [[UIImageView alloc] initWithImage:frmExtHld];
+    self.rankBgHldExt.frame = CGRectMake(
+        hldX, (double)y, stackScale * frmExtHld.size.width, stackScale * frmExtHld.size.height);
+    [self.rankBgChipArray addObject:self.rankBgOrgExt];
+    [self.rankBgChipArray addObject:self.rankBgHldExt];
+    [self->adRankBgChipArray addObject:self.rankBgHldExt];
+
+    // --- Advanced ---
+    y += stepY[colType];
+    UIImage *imgAdv = [[ImageCache sharedCache] getResPNG:nameAdv];
+    self.rankBgAdv = [[UIImageView alloc] initWithImage:imgAdv];
+    self.rankBgAdv.frame = CGRectMake(
+        baseX, (double)y, stackScale * imgAdv.size.width, stackScale * imgAdv.size.height);
+    self.rankImgAdv = [[UIImageView alloc]
+        initWithFrame:CGRectMake(
+                          0, 0, stackScale * imgAdv.size.width, stackScale * imgAdv.size.height)];
+    [self->rankBgArray addObject:self.rankBgAdv];
+    [self->rankImgArray addObject:self.rankImgAdv];
+
+    self.adRankBgAdv = [[UIImageView alloc] initWithImage:imgAdv];
+    self.adRankBgAdv.frame = CGRectMake(
+        hldX, (double)y, stackScale * imgAdv.size.width, stackScale * imgAdv.size.height);
+    self.adRankImgAdv = [[UIImageView alloc]
+        initWithFrame:CGRectMake(
+                          0, 0, stackScale * imgAdv.size.width, stackScale * imgAdv.size.height)];
+    [self->adRankBgArray addObject:self.adRankBgAdv];
+    [self->adRankImgArray addObject:self.adRankImgAdv];
+
+    NSString *nameFrmAdv = [NSString stringWithFormat:@"rank_frm_adv%@", suffix];
+    UIImage *frmAdv = [[ImageCache sharedCache] getResPNG:nameFrmAdv];
+    self.rankBgOrgAdv = [[UIImageView alloc] initWithImage:frmAdv];
+    self.rankBgOrgAdv.frame = CGRectMake(
+        baseX, (double)y, stackScale * frmAdv.size.width, stackScale * frmAdv.size.height);
+    UIImage *frmAdvHld = [[ImageCache sharedCache] getResPNG:nameFrmAdv];
+    self.rankBgHldAdv = [[UIImageView alloc] initWithImage:frmAdvHld];
+    self.rankBgHldAdv.frame = CGRectMake(
+        hldX, (double)y, stackScale * frmAdvHld.size.width, stackScale * frmAdvHld.size.height);
+    [self.rankBgChipArray addObject:self.rankBgOrgAdv];
+    [self.rankBgChipArray addObject:self.rankBgHldAdv];
+    [self->adRankBgChipArray addObject:self.rankBgHldAdv];
+
+    // --- Basic ---
+    y += stepY[colType];
+    UIImage *imgBas = [[ImageCache sharedCache] getResPNG:nameBas];
+    self.rankBgBas = [[UIImageView alloc] initWithImage:imgBas];
+    self.rankBgBas.frame = CGRectMake(
+        baseX, (double)y, stackScale * imgBas.size.width, stackScale * imgBas.size.height);
+    self.rankImgBas = [[UIImageView alloc]
+        initWithFrame:CGRectMake(
+                          0, 0, stackScale * imgBas.size.width, stackScale * imgBas.size.height)];
+    [self->rankBgArray addObject:self.rankBgBas];
+    [self->rankImgArray addObject:self.rankImgBas];
+
+    self.adRankBgBas = [[UIImageView alloc] initWithImage:imgBas];
+    self.adRankBgBas.frame = CGRectMake(
+        hldX, (double)y, stackScale * imgBas.size.width, stackScale * imgBas.size.height);
+    self.adRankImgBas = [[UIImageView alloc]
+        initWithFrame:CGRectMake(
+                          0, 0, stackScale * imgBas.size.width, stackScale * imgBas.size.height)];
+    [self->adRankBgArray addObject:self.adRankBgBas];
+    [self->adRankImgArray addObject:self.adRankImgBas];
+
+    NSString *nameFrmBas = [NSString stringWithFormat:@"rank_frm_bas%@", suffix];
+    UIImage *frmBas = [[ImageCache sharedCache] getResPNG:nameFrmBas];
+    self.rankBgOrgBas = [[UIImageView alloc] initWithImage:frmBas];
+    self.rankBgOrgBas.frame = CGRectMake(
+        baseX, (double)y, stackScale * frmBas.size.width, stackScale * frmBas.size.height);
+    UIImage *frmBasHld = [[ImageCache sharedCache] getResPNG:nameFrmBas];
+    self.rankBgHldBas = [[UIImageView alloc] initWithImage:frmBasHld];
+    self.rankBgHldBas.frame = CGRectMake(
+        hldX, (double)y, stackScale * frmBasHld.size.width, stackScale * frmBasHld.size.height);
+    [self.rankBgChipArray addObject:self.rankBgOrgBas];
+    [self.rankBgChipArray addObject:self.rankBgHldBas];
+    [self->adRankBgChipArray addObject:self.rankBgHldBas];
+
+    // --- Full-combo markers, all pinned off-screen top-left at -2*scale until a score arrives ---
+    UIImage *full = [[ImageCache sharedCache] getResPNG:@"rank_full"];
+    const CGRect fcFrame = CGRectMake(scale * kRankFcOffset,
+                                      scale * kRankFcOffset,
+                                      stackScale * full.size.width,
+                                      stackScale * full.size.height);
+    self.rankFcExt = [[UIImageView alloc] initWithImage:full];
+    self.rankFcExt.frame = fcFrame;
+    self.rankFcAdv = [[UIImageView alloc] initWithImage:full];
+    self.rankFcAdv.frame = fcFrame;
+    self.rankFcBas = [[UIImageView alloc] initWithImage:full];
+    self.rankFcBas.frame = fcFrame;
+    [self->rankFcArray addObject:self.rankFcExt];
+    [self->rankFcArray addObject:self.rankFcAdv];
+    [self->rankFcArray addObject:self.rankFcBas];
+
+    self.adRankFcExt = [[UIImageView alloc] initWithImage:full];
+    self.adRankFcExt.frame = fcFrame;
+    self.adRankFcAdv = [[UIImageView alloc] initWithImage:full];
+    self.adRankFcAdv.frame = fcFrame;
+    self.adRankFcBas = [[UIImageView alloc] initWithImage:full];
+    self.adRankFcBas.frame = fcFrame;
+    [self->adRankFcArray addObject:self.adRankFcExt];
+    [self->adRankFcArray addObject:self.adRankFcAdv];
+    [self->adRankFcArray addObject:self.adRankFcBas];
+}
+
+// Builds the playlist and BGM-select buttons over the artwork's top-right corner, disabled and
+// hidden until a long-press reveals them.
+static inline void MusicViewBuildActionButtons(MusicView *self, double scale) {
+    const double edge = scale * kActionButtonSize;
+    self.btnPlaylistAction = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.btnPlaylistAction.exclusiveTouch = YES;
+    const CGRect artFrame = self.imgView.frame;
+    self.btnPlaylistAction.frame = CGRectMake(artFrame.origin.x - scale * kPlaylistButtonInset,
+                                              artFrame.origin.y - scale * kPlaylistButtonInset,
+                                              edge,
+                                              edge);
+    [self.btnPlaylistAction addTarget:self
+                               action:@selector(tapPlaylistAction:)
+                     forControlEvents:UIControlEventTouchUpInside];
+    self.btnPlaylistAction.hidden = YES;
+    self.btnPlaylistAction.contentMode = UIViewContentModeScaleAspectFit;
+    self.btnPlaylistAction.adjustsImageWhenDisabled = NO;
+
+    self.btnBgmSelect = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.btnBgmSelect.exclusiveTouch = YES;
+    const CGRect artFrame2 = self.imgView.frame;
+    self.btnBgmSelect.frame =
+        CGRectMake((artFrame2.origin.x + artFrame2.size.width) - scale * kBgmButtonInset,
+                   (artFrame2.origin.y + artFrame2.size.height) - scale * kBgmButtonInset,
+                   edge,
+                   edge);
+    [self.btnBgmSelect addTarget:self
+                          action:@selector(tapBgmSelect:)
+                forControlEvents:UIControlEventTouchUpInside];
+    self.btnBgmSelect.hidden = YES;
+    self.btnBgmSelect.contentMode = UIViewContentModeScaleAspectFit;
+    self.btnBgmSelect.adjustsImageWhenDisabled = NO;
+}
+
+// Installs every subview in the shipped order: artwork, labels, the frame/hold chip overlays, the
+// advertised-rank full-combo markers and letters nested inside their backgrounds, the
+// advertised-rank backgrounds, then the rank full-combo markers and letters nested inside their
+// backgrounds, the rank backgrounds, and finally the two buttons.
+static inline void MusicViewInstallSubviews(MusicView *self) {
+    [self addSubview:self.imgView];
+    [self addSubview:self.nameLabel];
+    [self addSubview:self.artistNameLabel];
+    for (UIView *chip in self.rankBgChipArray) {
+        [self addSubview:chip];
+    }
+    [self.adRankBgBas addSubview:self.adRankFcBas];
+    [self.adRankBgAdv addSubview:self.adRankFcAdv];
+    [self.adRankBgExt addSubview:self.adRankFcExt];
+    [self.adRankBgBas addSubview:self.adRankImgBas];
+    [self.adRankBgAdv addSubview:self.adRankImgAdv];
+    [self.adRankBgExt addSubview:self.adRankImgExt];
+    [self addSubview:self.adRankBgBas];
+    [self addSubview:self.adRankBgAdv];
+    [self addSubview:self.adRankBgExt];
+    [self.rankBgBas addSubview:self.rankFcBas];
+    [self.rankBgAdv addSubview:self.rankFcAdv];
+    [self.rankBgExt addSubview:self.rankFcExt];
+    [self.rankBgBas addSubview:self.rankImgBas];
+    [self.rankBgAdv addSubview:self.rankImgAdv];
+    [self.rankBgExt addSubview:self.rankImgExt];
+    [self addSubview:self.rankBgBas];
+    [self addSubview:self.rankBgAdv];
+    [self addSubview:self.rankBgExt];
+    [self addSubview:self.btnPlaylistAction];
+    [self addSubview:self.btnBgmSelect];
+}
+
+// Builds the artwork image view: black, aspect-scaled, with a subtle perspective transform and a
+// one-point layer border (the colour is applied by the caller after the theme is known), and
+// installs it via the setter.
+static inline void
+MusicViewBuildArtworkImageView(MusicView *self, double scale, double artworkSize) {
+    const double edge = scale * artworkSize;
+    self.imgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, edge, edge)];
+    self.imgView.opaque = NO;
+    self.imgView.backgroundColor = UIColor.blackColor;
+    self.imgView.contentMode = UIViewContentModeScaleAspectFit;
+    self.imgView.center = [self centerArtworkImg];
+    // A subtle perspective transform: the identity with m34 set.
+    CATransform3D transform = CATransform3DIdentity;
+    transform.m34 = kArtworkPerspectiveM34;
+    self.imgView.layer.transform = transform;
+    self.imgView.layer.doubleSided = NO;
+    self.imgView.layer.borderWidth = kArtworkBorderWidth;
+    self.imgView.userInteractionEnabled = YES;
+    self.imgView.exclusiveTouch = YES;
+}
+
+// Builds the name label, and on iPad the artist label, at their column-type baselines and installs
+// them via the setters.
+static inline void MusicViewBuildLabels(MusicView *self,
+                                        double scale,
+                                        double artworkSize,
+                                        int colType,
+                                        double labelWidth,
+                                        UIColor *textColor) {
+    const CGFloat nameHeight = self->isPad ? kNameLabelHeightPad : kNameLabelHeightPhone;
+    self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelWidth, nameHeight)];
+    self.nameLabel.opaque = NO;
+    self.nameLabel.backgroundColor = UIColor.clearColor;
+    self.nameLabel.font = [UIFont
+        fontWithName:(!self->isPad && !self->isPhoneRetina) ? @"Helvetica" : @"Helvetica-Bold"
+                size:self->isPad ? kNameFontSizePad : kNameFontSizePhone];
+    self.nameLabel.textColor = textColor;
+    self.nameLabel.textAlignment = NSTextAlignmentCenter;
+    self.nameLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+    self.nameLabel.contentMode = UIViewContentModeScaleToFill;
+    const int *nameY = self->isPad ? kNameLabelYByColTypePad : kNameLabelYByColTypePhone;
+    self.nameLabel.center =
+        CGPointMake((double)((float)scale * (float)self->defaultWidth * 0.5f),
+                    (double)((int)nameHeight >> 1) + scale * artworkSize + (double)nameY[colType]);
+    if (self->isPad) {
+        self.artistNameLabel =
+            [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelWidth, kArtistLabelHeightPad)];
+        self.artistNameLabel.opaque = NO;
+        self.artistNameLabel.backgroundColor = UIColor.clearColor;
+        self.artistNameLabel.font =
+            [UIFont fontWithName:@"Helvetica"
+                            size:self->isPad ? kArtistFontSizePad : kArtistFontSizePhone];
+        self.artistNameLabel.textColor = textColor;
+        self.artistNameLabel.textAlignment = NSTextAlignmentCenter;
+        self.artistNameLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+        self.artistNameLabel.contentMode = UIViewContentModeScaleToFill;
+        self.artistNameLabel.center = CGPointMake(
+            (double)((float)scale * (float)self->defaultWidth * 0.5f),
+            scale * artworkSize + (double)kArtistLabelYByColType[colType] + kArtistLabelExtraGap);
+    }
+}
 
 @implementation MusicView
 
@@ -127,7 +430,7 @@ static const CGFloat kButtonPressScale = 0.5;
         isPhoneRetina = JubeatAppDelegate.appDelegate.isPhoneRetina;
         is4Inch = JubeatAppDelegate.appDelegate.deviceType == JubeatDeviceTypePhoneRetina4Inch;
 
-        [self buildArtworkImageViewForScale:scale artworkSize:artwork_size];
+        MusicViewBuildArtworkImageView(self, scale, artwork_size);
 
         // The artwork border and label text colour both depend on the theme.
         UIColor *borderColor;
@@ -153,20 +456,16 @@ static const CGFloat kButtonPressScale = 0.5;
         }
         self.imgView.layer.borderColor = borderColor.CGColor;
 
-        [self buildLabelsForScale:scale
-                      artworkSize:artwork_size
-                          colType:colType
-                       labelWidth:labelWidth
-                        textColor:textColor];
+        MusicViewBuildLabels(self, scale, artwork_size, colType, labelWidth, textColor);
 
         // The theme is re-read here for effect only; the result is discarded.
         if (JubeatAppDelegate.appDelegate.currentTheme != JubeatThemeReflecBeatPlus) {
             (void)JubeatAppDelegate.appDelegate.currentTheme; // Yes, the binary discards this.
         }
 
-        [self buildRankStacksForColType:colType scale:scale];
-        [self buildActionButtonsForScale:scale];
-        [self installSubviews];
+        MusicViewBuildRankStacks(self, colType, scale);
+        MusicViewBuildActionButtons(self, scale);
+        MusicViewInstallSubviews(self);
 
         self.autoresizesSubviews = YES;
         self.autoresizingMask =
@@ -204,306 +503,6 @@ static const CGFloat kButtonPressScale = 0.5;
         [self.imgView addGestureRecognizer:press];
     }
     return self;
-}
-
-// Builds the extreme, advanced, and basic rank stacks bottom-to-top, then the three full-combo
-// markers. Each difficulty's frame overlay (rankBgOrg), hold-marker overlay (rankBgHld), rank
-// background (rankBg), rank letter (rankImg), advertised-rank background (adRankBg), and
-// advertised-rank letter (adRankImg) are laid out from the pooled column-type tables. This
-// de-inlines the giant repeated block that dominates the shipped initialiser.
-- (void)buildRankStacksForColType:(int)colType scale:(double)scale {
-    // The rank-word and frame basenames take a theme suffix: "_rpl" for the ripples theme, "_knt"
-    // for the knit theme, and nothing for the original theme.
-    NSString *suffix;
-    switch (JubeatAppDelegate.appDelegate.currentTheme) {
-    case JubeatThemeReflecBeatPlus:
-        suffix = @"_rpl";
-        break;
-    case JubeatThemeKnit:
-        suffix = @"_knt";
-        break;
-    default:
-        suffix = @"";
-        break;
-    }
-    NSString *nameBas = [NSString stringWithFormat:@"rank_basic%@", suffix];
-    NSString *nameAdv = [NSString stringWithFormat:@"rank_advanced%@", suffix];
-    NSString *nameExt = [NSString stringWithFormat:@"rank_extreme%@", suffix];
-
-    rankBgArray = [[NSMutableArray alloc] init];
-    rankImgArray = [[NSMutableArray alloc] init];
-    rankFcArray = [[NSMutableArray alloc] init];
-    self.rankBgChipArray = [[NSMutableArray alloc] init];
-    adRankBgChipArray = [[NSMutableArray alloc] init];
-    adRankBgArray = [[NSMutableArray alloc] init];
-    adRankImgArray = [[NSMutableArray alloc] init];
-    adRankFcArray = [[NSMutableArray alloc] init];
-
-    // On iPad the artwork-relative widths are used as-is (scale factor 1.0 inside the stack); on
-    // phones the whole stack is scaled by the cell scale.
-    const double stackScale = isPad ? 1.0 : scale;
-    const int *firstY = isPad ? kRankFirstYByColTypePad : kRankFirstYByColTypePhone;
-    const int *stepY = isPad ? kRankStepYByColTypePad : kRankStepYByColTypePhone;
-    // The rank background and frame overlay share one horizontal base: scale * (isPad ? 180 : 80).
-    // The advertised-rank background and the hold overlay instead use scale * scale * (isPad ? 20 :
-    // 0).
-    const double baseX = scale * kRankBaseXByIsPad[isPad ? 1 : 0];
-    const double hldX = (double)(float)(scale * scale * (isPad ? kRankChipHldScale : 0.0f));
-
-    // --- Extreme ---
-    int y = firstY[colType];
-    UIImage *imgExt = [[ImageCache sharedCache] getResPNG:nameExt];
-    self.rankBgExt = [[UIImageView alloc] initWithImage:imgExt];
-    self.rankBgExt.frame = CGRectMake(
-        baseX, (double)y, stackScale * imgExt.size.width, stackScale * imgExt.size.height);
-    self.rankImgExt = [[UIImageView alloc]
-        initWithFrame:CGRectMake(
-                          0, 0, stackScale * imgExt.size.width, stackScale * imgExt.size.height)];
-    [rankBgArray addObject:self.rankBgExt];
-    [rankImgArray addObject:self.rankImgExt];
-
-    self.adRankBgExt = [[UIImageView alloc] initWithImage:imgExt];
-    self.adRankBgExt.frame = CGRectMake(
-        hldX, (double)y, stackScale * imgExt.size.width, stackScale * imgExt.size.height);
-    self.adRankImgExt = [[UIImageView alloc]
-        initWithFrame:CGRectMake(
-                          0, 0, stackScale * imgExt.size.width, stackScale * imgExt.size.height)];
-    [adRankBgArray addObject:self.adRankBgExt];
-    [adRankImgArray addObject:self.adRankImgExt];
-
-    NSString *nameFrmExt = [NSString stringWithFormat:@"rank_frm_ext%@", suffix];
-    UIImage *frmExt = [[ImageCache sharedCache] getResPNG:nameFrmExt];
-    self.rankBgOrgExt = [[UIImageView alloc] initWithImage:frmExt];
-    self.rankBgOrgExt.frame = CGRectMake(
-        baseX, (double)y, stackScale * frmExt.size.width, stackScale * frmExt.size.height);
-    UIImage *frmExtHld = [[ImageCache sharedCache] getResPNG:nameFrmExt];
-    self.rankBgHldExt = [[UIImageView alloc] initWithImage:frmExtHld];
-    self.rankBgHldExt.frame = CGRectMake(
-        hldX, (double)y, stackScale * frmExtHld.size.width, stackScale * frmExtHld.size.height);
-    [self.rankBgChipArray addObject:self.rankBgOrgExt];
-    [self.rankBgChipArray addObject:self.rankBgHldExt];
-    [adRankBgChipArray addObject:self.rankBgHldExt];
-
-    // --- Advanced ---
-    y += stepY[colType];
-    UIImage *imgAdv = [[ImageCache sharedCache] getResPNG:nameAdv];
-    self.rankBgAdv = [[UIImageView alloc] initWithImage:imgAdv];
-    self.rankBgAdv.frame = CGRectMake(
-        baseX, (double)y, stackScale * imgAdv.size.width, stackScale * imgAdv.size.height);
-    self.rankImgAdv = [[UIImageView alloc]
-        initWithFrame:CGRectMake(
-                          0, 0, stackScale * imgAdv.size.width, stackScale * imgAdv.size.height)];
-    [rankBgArray addObject:self.rankBgAdv];
-    [rankImgArray addObject:self.rankImgAdv];
-
-    self.adRankBgAdv = [[UIImageView alloc] initWithImage:imgAdv];
-    self.adRankBgAdv.frame = CGRectMake(
-        hldX, (double)y, stackScale * imgAdv.size.width, stackScale * imgAdv.size.height);
-    self.adRankImgAdv = [[UIImageView alloc]
-        initWithFrame:CGRectMake(
-                          0, 0, stackScale * imgAdv.size.width, stackScale * imgAdv.size.height)];
-    [adRankBgArray addObject:self.adRankBgAdv];
-    [adRankImgArray addObject:self.adRankImgAdv];
-
-    NSString *nameFrmAdv = [NSString stringWithFormat:@"rank_frm_adv%@", suffix];
-    UIImage *frmAdv = [[ImageCache sharedCache] getResPNG:nameFrmAdv];
-    self.rankBgOrgAdv = [[UIImageView alloc] initWithImage:frmAdv];
-    self.rankBgOrgAdv.frame = CGRectMake(
-        baseX, (double)y, stackScale * frmAdv.size.width, stackScale * frmAdv.size.height);
-    UIImage *frmAdvHld = [[ImageCache sharedCache] getResPNG:nameFrmAdv];
-    self.rankBgHldAdv = [[UIImageView alloc] initWithImage:frmAdvHld];
-    self.rankBgHldAdv.frame = CGRectMake(
-        hldX, (double)y, stackScale * frmAdvHld.size.width, stackScale * frmAdvHld.size.height);
-    [self.rankBgChipArray addObject:self.rankBgOrgAdv];
-    [self.rankBgChipArray addObject:self.rankBgHldAdv];
-    [adRankBgChipArray addObject:self.rankBgHldAdv];
-
-    // --- Basic ---
-    y += stepY[colType];
-    UIImage *imgBas = [[ImageCache sharedCache] getResPNG:nameBas];
-    self.rankBgBas = [[UIImageView alloc] initWithImage:imgBas];
-    self.rankBgBas.frame = CGRectMake(
-        baseX, (double)y, stackScale * imgBas.size.width, stackScale * imgBas.size.height);
-    self.rankImgBas = [[UIImageView alloc]
-        initWithFrame:CGRectMake(
-                          0, 0, stackScale * imgBas.size.width, stackScale * imgBas.size.height)];
-    [rankBgArray addObject:self.rankBgBas];
-    [rankImgArray addObject:self.rankImgBas];
-
-    self.adRankBgBas = [[UIImageView alloc] initWithImage:imgBas];
-    self.adRankBgBas.frame = CGRectMake(
-        hldX, (double)y, stackScale * imgBas.size.width, stackScale * imgBas.size.height);
-    self.adRankImgBas = [[UIImageView alloc]
-        initWithFrame:CGRectMake(
-                          0, 0, stackScale * imgBas.size.width, stackScale * imgBas.size.height)];
-    [adRankBgArray addObject:self.adRankBgBas];
-    [adRankImgArray addObject:self.adRankImgBas];
-
-    NSString *nameFrmBas = [NSString stringWithFormat:@"rank_frm_bas%@", suffix];
-    UIImage *frmBas = [[ImageCache sharedCache] getResPNG:nameFrmBas];
-    self.rankBgOrgBas = [[UIImageView alloc] initWithImage:frmBas];
-    self.rankBgOrgBas.frame = CGRectMake(
-        baseX, (double)y, stackScale * frmBas.size.width, stackScale * frmBas.size.height);
-    UIImage *frmBasHld = [[ImageCache sharedCache] getResPNG:nameFrmBas];
-    self.rankBgHldBas = [[UIImageView alloc] initWithImage:frmBasHld];
-    self.rankBgHldBas.frame = CGRectMake(
-        hldX, (double)y, stackScale * frmBasHld.size.width, stackScale * frmBasHld.size.height);
-    [self.rankBgChipArray addObject:self.rankBgOrgBas];
-    [self.rankBgChipArray addObject:self.rankBgHldBas];
-    [adRankBgChipArray addObject:self.rankBgHldBas];
-
-    // --- Full-combo markers, all pinned off-screen top-left at -2*scale until a score arrives ---
-    UIImage *full = [[ImageCache sharedCache] getResPNG:@"rank_full"];
-    const CGRect fcFrame = CGRectMake(scale * kRankFcOffset,
-                                      scale * kRankFcOffset,
-                                      stackScale * full.size.width,
-                                      stackScale * full.size.height);
-    self.rankFcExt = [[UIImageView alloc] initWithImage:full];
-    self.rankFcExt.frame = fcFrame;
-    self.rankFcAdv = [[UIImageView alloc] initWithImage:full];
-    self.rankFcAdv.frame = fcFrame;
-    self.rankFcBas = [[UIImageView alloc] initWithImage:full];
-    self.rankFcBas.frame = fcFrame;
-    [rankFcArray addObject:self.rankFcExt];
-    [rankFcArray addObject:self.rankFcAdv];
-    [rankFcArray addObject:self.rankFcBas];
-
-    self.adRankFcExt = [[UIImageView alloc] initWithImage:full];
-    self.adRankFcExt.frame = fcFrame;
-    self.adRankFcAdv = [[UIImageView alloc] initWithImage:full];
-    self.adRankFcAdv.frame = fcFrame;
-    self.adRankFcBas = [[UIImageView alloc] initWithImage:full];
-    self.adRankFcBas.frame = fcFrame;
-    [adRankFcArray addObject:self.adRankFcExt];
-    [adRankFcArray addObject:self.adRankFcAdv];
-    [adRankFcArray addObject:self.adRankFcBas];
-}
-
-// Builds the playlist and BGM-select buttons over the artwork's top-right corner, disabled and
-// hidden until a long-press reveals them.
-- (void)buildActionButtonsForScale:(double)scale {
-    const double edge = scale * kActionButtonSize;
-    self.btnPlaylistAction = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.btnPlaylistAction.exclusiveTouch = YES;
-    const CGRect artFrame = self.imgView.frame;
-    self.btnPlaylistAction.frame = CGRectMake(artFrame.origin.x - scale * kPlaylistButtonInset,
-                                              artFrame.origin.y - scale * kPlaylistButtonInset,
-                                              edge,
-                                              edge);
-    [self.btnPlaylistAction addTarget:self
-                               action:@selector(tapPlaylistAction:)
-                     forControlEvents:UIControlEventTouchUpInside];
-    self.btnPlaylistAction.hidden = YES;
-    self.btnPlaylistAction.contentMode = UIViewContentModeScaleAspectFit;
-    self.btnPlaylistAction.adjustsImageWhenDisabled = NO;
-
-    self.btnBgmSelect = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.btnBgmSelect.exclusiveTouch = YES;
-    const CGRect artFrame2 = self.imgView.frame;
-    self.btnBgmSelect.frame =
-        CGRectMake((artFrame2.origin.x + artFrame2.size.width) - scale * kBgmButtonInset,
-                   (artFrame2.origin.y + artFrame2.size.height) - scale * kBgmButtonInset,
-                   edge,
-                   edge);
-    [self.btnBgmSelect addTarget:self
-                          action:@selector(tapBgmSelect:)
-                forControlEvents:UIControlEventTouchUpInside];
-    self.btnBgmSelect.hidden = YES;
-    self.btnBgmSelect.contentMode = UIViewContentModeScaleAspectFit;
-    self.btnBgmSelect.adjustsImageWhenDisabled = NO;
-}
-
-// Installs every subview in the shipped order: artwork, labels, the frame/hold chip overlays, the
-// advertised-rank full-combo markers and letters nested inside their backgrounds, the
-// advertised-rank backgrounds, then the rank full-combo markers and letters nested inside their
-// backgrounds, the rank backgrounds, and finally the two buttons.
-- (void)installSubviews {
-    [self addSubview:self.imgView];
-    [self addSubview:self.nameLabel];
-    [self addSubview:self.artistNameLabel];
-    for (UIView *chip in self.rankBgChipArray) {
-        [self addSubview:chip];
-    }
-    [self.adRankBgBas addSubview:self.adRankFcBas];
-    [self.adRankBgAdv addSubview:self.adRankFcAdv];
-    [self.adRankBgExt addSubview:self.adRankFcExt];
-    [self.adRankBgBas addSubview:self.adRankImgBas];
-    [self.adRankBgAdv addSubview:self.adRankImgAdv];
-    [self.adRankBgExt addSubview:self.adRankImgExt];
-    [self addSubview:self.adRankBgBas];
-    [self addSubview:self.adRankBgAdv];
-    [self addSubview:self.adRankBgExt];
-    [self.rankBgBas addSubview:self.rankFcBas];
-    [self.rankBgAdv addSubview:self.rankFcAdv];
-    [self.rankBgExt addSubview:self.rankFcExt];
-    [self.rankBgBas addSubview:self.rankImgBas];
-    [self.rankBgAdv addSubview:self.rankImgAdv];
-    [self.rankBgExt addSubview:self.rankImgExt];
-    [self addSubview:self.rankBgBas];
-    [self addSubview:self.rankBgAdv];
-    [self addSubview:self.rankBgExt];
-    [self addSubview:self.btnPlaylistAction];
-    [self addSubview:self.btnBgmSelect];
-}
-
-// Builds the artwork image view: black, aspect-scaled, with a subtle perspective transform and a
-// one-point layer border (the colour is applied by the caller after the theme is known), and
-// installs it via the setter.
-- (void)buildArtworkImageViewForScale:(double)scale artworkSize:(double)artworkSize {
-    const double edge = scale * artworkSize;
-    self.imgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, edge, edge)];
-    self.imgView.opaque = NO;
-    self.imgView.backgroundColor = UIColor.blackColor;
-    self.imgView.contentMode = UIViewContentModeScaleAspectFit;
-    self.imgView.center = [self centerArtworkImg];
-    // A subtle perspective transform: the identity with m34 set.
-    CATransform3D transform = CATransform3DIdentity;
-    transform.m34 = kArtworkPerspectiveM34;
-    self.imgView.layer.transform = transform;
-    self.imgView.layer.doubleSided = NO;
-    self.imgView.layer.borderWidth = kArtworkBorderWidth;
-    self.imgView.userInteractionEnabled = YES;
-    self.imgView.exclusiveTouch = YES;
-}
-
-// Builds the name label, and on iPad the artist label, at their column-type baselines and installs
-// them via the setters.
-- (void)buildLabelsForScale:(double)scale
-                artworkSize:(double)artworkSize
-                    colType:(int)colType
-                 labelWidth:(double)labelWidth
-                  textColor:(UIColor *)textColor {
-    const CGFloat nameHeight = isPad ? kNameLabelHeightPad : kNameLabelHeightPhone;
-    self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelWidth, nameHeight)];
-    self.nameLabel.opaque = NO;
-    self.nameLabel.backgroundColor = UIColor.clearColor;
-    self.nameLabel.font =
-        [UIFont fontWithName:(!isPad && !isPhoneRetina) ? @"Helvetica" : @"Helvetica-Bold"
-                        size:isPad ? kNameFontSizePad : kNameFontSizePhone];
-    self.nameLabel.textColor = textColor;
-    self.nameLabel.textAlignment = NSTextAlignmentCenter;
-    self.nameLabel.lineBreakMode = NSLineBreakByTruncatingTail;
-    self.nameLabel.contentMode = UIViewContentModeScaleToFill;
-    const int *nameY = isPad ? kNameLabelYByColTypePad : kNameLabelYByColTypePhone;
-    self.nameLabel.center =
-        CGPointMake((double)((float)scale * (float)defaultWidth * 0.5f),
-                    (double)((int)nameHeight >> 1) + scale * artworkSize + (double)nameY[colType]);
-    if (isPad) {
-        self.artistNameLabel =
-            [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelWidth, kArtistLabelHeightPad)];
-        self.artistNameLabel.opaque = NO;
-        self.artistNameLabel.backgroundColor = UIColor.clearColor;
-        self.artistNameLabel.font =
-            [UIFont fontWithName:@"Helvetica"
-                            size:isPad ? kArtistFontSizePad : kArtistFontSizePhone];
-        self.artistNameLabel.textColor = textColor;
-        self.artistNameLabel.textAlignment = NSTextAlignmentCenter;
-        self.artistNameLabel.lineBreakMode = NSLineBreakByTruncatingTail;
-        self.artistNameLabel.contentMode = UIViewContentModeScaleToFill;
-        self.artistNameLabel.center = CGPointMake(
-            (double)((float)scale * (float)defaultWidth * 0.5f),
-            scale * artworkSize + (double)kArtistLabelYByColType[colType] + kArtistLabelExtraGap);
-    }
 }
 
 #pragma mark - Colour

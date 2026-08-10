@@ -161,10 +161,7 @@ static const CGFloat kTitleAlpha = 0.5;
 @interface ChallengeRankingListView () <AlertViewManagerDelegate,
                                         DownloaderDelegate,
                                         UITableViewDataSource,
-                                        UITableViewDelegate>
-@end
-
-@implementation ChallengeRankingListView {
+                                        UITableViewDelegate> {
     UIView *bgView;                             // +0x8
     UIImageView *bgImageView;                   // +0x10
     UIImageView *titleView;                     // +0x18
@@ -220,6 +217,149 @@ static const CGFloat kTitleAlpha = 0.5;
     UILabel *rivalName;                         // +0x280
     NSString *selectedRivalID;                  // +0x288
 }
+- (void)buttonEnable:(BOOL)enable;
+- (void)switchRivalMessageView;
+@end
+
+// Shows the shared plain alert with the given tag, message, and a localised OK button.
+static inline void ChallengeRankingListViewShowPlainAlert(ChallengeRankingListView *self,
+                                                          id delegate,
+                                                          int tag,
+                                                          NSString *msg) {
+    NSString *ok = [NSBundle.mainBundle localizedStringForKey:kBundleKeyOK value:@"" table:nil];
+    [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
+                                       delegate:delegate
+                                            tag:tag
+                                          title:@""
+                                            msg:msg
+                                         cancel:ok
+                                        btnText:nil
+                                           show:YES];
+}
+
+// The rival add/remove response: on the "already registered" code and on success take the
+// dedicated paths, otherwise present the error.
+static inline void ChallengeRankingListViewHandleRivalRegisterResponse(
+    ChallengeRankingListView *self, NSDictionary *json, int status) {
+    if (status == kStatusAlreadyRegistered) {
+        NSString *ok = [NSBundle.mainBundle localizedStringForKey:kBundleKeyOK value:@"" table:nil];
+        [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
+                                           delegate:self
+                                                tag:kAlreadyRegisteredAlertTag
+                                              title:@""
+                                                msg:kMsgAlreadyRegistered
+                                             cancel:ok
+                                            btnText:nil
+                                               show:YES];
+        return;
+    }
+    if (status == kStatusOK) {
+        [self switchRivalMessageView];
+        return;
+    }
+    NSString *msg = json[kKeyErrorMessage];
+    if (!msg) {
+        msg = kMsgRegisterFailed;
+    }
+    NSString *ok = [NSBundle.mainBundle localizedStringForKey:kBundleKeyOK value:@"" table:nil];
+    [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
+                                       delegate:self
+                                            tag:kAddConfirmAlertTag
+                                          title:@""
+                                            msg:msg
+                                         cancel:ok
+                                        btnText:nil
+                                           show:YES];
+}
+
+// The ranking-page response: on success cache the rows and personal rank, notify the delegate,
+// find the player's own row, reload the table, and fade it in; on failure present the error.
+static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRankingListView *self,
+                                                                     NSDictionary *json,
+                                                                     int status) {
+    NSString *editorID = [EditorIDManager getKeyString:[EditorIDManager getEditorIDKey]];
+    if (status != kStatusOK) {
+        NSString *msg = json[kKeyErrorMessage];
+        if (!msg) {
+            msg = [NSBundle.mainBundle localizedStringForKey:kBundleKeyServerErrorMsg
+                                                       value:@""
+                                                       table:nil];
+        }
+        [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
+                                           delegate:nil
+                                                tag:kPlainAlertType
+                                              title:@""
+                                                msg:msg
+                                             cancel:kButtonYesText
+                                            btnText:nil
+                                               show:YES];
+        self->rankingDownloader = nil;
+        return;
+    }
+
+    // The head row's music name reflects the freshly updated tune, but only when this is the "all
+    // tunes" list and the response's scratch id matches ours.
+    id updated = json[kKeyUpdated];
+    if (self->musicID == kAllTunesMusicID &&
+        [self->targetScratchID isEqualToNumber:[ChallengeStatus sharedStatus].scratchID]) {
+        if (!updated) {
+            [self->musicNameText setText:self->musicDefName];
+        } else {
+            [self->musicNameText
+                setText:[NSString
+                            stringWithFormat:kMusicNameUpdatedFormat, self->musicName, updated]];
+        }
+    }
+
+    self->rankingList = json[kKeyRank];
+    self->rankingTotal = [json[kKeyTotal] intValue];
+    if (json[kKeyMyRank]) {
+        self->myRank = [json[kKeyMyRank] intValue];
+        if (!json[kKeyMyPosition]) {
+            self->myIndex = self->myRank;
+        } else {
+            self->myIndex = [json[kKeyMyPosition] intValue];
+        }
+        [[ChallengeStatus sharedStatus] updateMusicRanking:self->musicID
+                                                      diff:self->selectDifficulty
+                                                      rank:self->myRank
+                                                     index:self->myIndex];
+        if ([self.aDelegate respondsToSelector:@selector(changeRanking)]) {
+            [self.aDelegate performSelector:@selector(changeRanking)];
+        }
+    }
+
+    self->pickupSlot = -1;
+    for (NSUInteger i = 0; i < self->rankingList.count; ++i) {
+        if ([editorID isEqualToString:self->rankingList[i][kKeyUserID]]) {
+            self->pickupSlot = (int)i;
+            break;
+        }
+    }
+    [self->listView reloadData];
+    if (self->downloadIndicator != nil) {
+        [self->downloadIndicator stopAnimating];
+        self->downloadIndicator = nil;
+        __weak UITableView *weakListView = self->listView;
+        [UIView animateWithDuration:kFadeDuration
+            delay:0
+            options:kFadeOptions
+            animations:^{
+              /** @ghidraAddress 0x157c00 */
+              weakListView.alpha = 1.0;
+            }
+            completion:^(BOOL finished) {
+              /** @ghidraAddress 0x157c4c */
+              [self buttonEnable:YES];
+              self->isNext = [json[kKeyHasNext] boolValue];
+              [self->nextBtn setEnabled:(self->isNext != 0)];
+              [self->prevBtn setEnabled:(self->dispRank > 0x1d)];
+            }];
+    }
+    self->rankingDownloader = nil;
+}
+
+@implementation ChallengeRankingListView
 
 @synthesize aDelegate = _aDelegate;
 
@@ -693,19 +833,6 @@ static const CGFloat kTitleAlpha = 0.5;
 
 #pragma mark - DownloaderDelegate
 
-// Shows the shared plain alert with the given tag, message, and a localised OK button.
-- (void)showPlainAlertWithDelegate:(nullable id)delegate tag:(int)tag message:(NSString *)msg {
-    NSString *ok = [NSBundle.mainBundle localizedStringForKey:kBundleKeyOK value:@"" table:nil];
-    [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
-                                       delegate:delegate
-                                            tag:tag
-                                          title:@""
-                                            msg:msg
-                                         cancel:ok
-                                        btnText:nil
-                                           show:YES];
-}
-
 /** @ghidraAddress 0x157064 */
 - (void)downloaderFinished:(id)downloader {
     [[UIApplication sharedApplication] endIgnoringInteractionEvents];
@@ -720,7 +847,7 @@ static const CGFloat kTitleAlpha = 0.5;
             if (json[kKeyErrorMessage]) {
                 msg = json[kKeyErrorMessage];
             }
-            [self showPlainAlertWithDelegate:self tag:kSessionErrorAlertTag message:msg];
+            ChallengeRankingListViewShowPlainAlert(self, self, kSessionErrorAlertTag, msg);
             return;
         }
         if (status == kStatusUpdateRequired) {
@@ -735,128 +862,10 @@ static const CGFloat kTitleAlpha = 0.5;
 
     int tag = [downloader tag];
     if (tag == kTagRivalRegister) {
-        [self handleRivalRegisterResponse:json status:status];
+        ChallengeRankingListViewHandleRivalRegisterResponse(self, json, status);
     } else if (tag == kTagRankingLoad) {
-        [self handleRankingLoadResponse:json status:status];
+        ChallengeRankingListViewHandleRankingLoadResponse(self, json, status);
     }
-}
-
-// The rival add/remove response: on the "already registered" code and on success take the
-// dedicated paths, otherwise present the error.
-- (void)handleRivalRegisterResponse:(NSDictionary *)json status:(int)status {
-    if (status == kStatusAlreadyRegistered) {
-        NSString *ok = [NSBundle.mainBundle localizedStringForKey:kBundleKeyOK value:@"" table:nil];
-        [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
-                                           delegate:self
-                                                tag:kAlreadyRegisteredAlertTag
-                                              title:@""
-                                                msg:kMsgAlreadyRegistered
-                                             cancel:ok
-                                            btnText:nil
-                                               show:YES];
-        return;
-    }
-    if (status == kStatusOK) {
-        [self switchRivalMessageView];
-        return;
-    }
-    NSString *msg = json[kKeyErrorMessage];
-    if (!msg) {
-        msg = kMsgRegisterFailed;
-    }
-    NSString *ok = [NSBundle.mainBundle localizedStringForKey:kBundleKeyOK value:@"" table:nil];
-    [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
-                                       delegate:self
-                                            tag:kAddConfirmAlertTag
-                                          title:@""
-                                            msg:msg
-                                         cancel:ok
-                                        btnText:nil
-                                           show:YES];
-}
-
-// The ranking-page response: on success cache the rows and personal rank, notify the delegate,
-// find the player's own row, reload the table, and fade it in; on failure present the error.
-- (void)handleRankingLoadResponse:(NSDictionary *)json status:(int)status {
-    NSString *editorID = [EditorIDManager getKeyString:[EditorIDManager getEditorIDKey]];
-    if (status != kStatusOK) {
-        NSString *msg = json[kKeyErrorMessage];
-        if (!msg) {
-            msg = [NSBundle.mainBundle localizedStringForKey:kBundleKeyServerErrorMsg
-                                                       value:@""
-                                                       table:nil];
-        }
-        [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
-                                           delegate:nil
-                                                tag:kPlainAlertType
-                                              title:@""
-                                                msg:msg
-                                             cancel:kButtonYesText
-                                            btnText:nil
-                                               show:YES];
-        rankingDownloader = nil;
-        return;
-    }
-
-    // The head row's music name reflects the freshly updated tune, but only when this is the "all
-    // tunes" list and the response's scratch id matches ours.
-    id updated = json[kKeyUpdated];
-    if (musicID == kAllTunesMusicID &&
-        [targetScratchID isEqualToNumber:[ChallengeStatus sharedStatus].scratchID]) {
-        if (!updated) {
-            [musicNameText setText:musicDefName];
-        } else {
-            [musicNameText
-                setText:[NSString stringWithFormat:kMusicNameUpdatedFormat, musicName, updated]];
-        }
-    }
-
-    rankingList = json[kKeyRank];
-    rankingTotal = [json[kKeyTotal] intValue];
-    if (json[kKeyMyRank]) {
-        myRank = [json[kKeyMyRank] intValue];
-        if (!json[kKeyMyPosition]) {
-            myIndex = myRank;
-        } else {
-            myIndex = [json[kKeyMyPosition] intValue];
-        }
-        [[ChallengeStatus sharedStatus] updateMusicRanking:musicID
-                                                      diff:selectDifficulty
-                                                      rank:myRank
-                                                     index:myIndex];
-        if ([self.aDelegate respondsToSelector:@selector(changeRanking)]) {
-            [self.aDelegate performSelector:@selector(changeRanking)];
-        }
-    }
-
-    pickupSlot = -1;
-    for (NSUInteger i = 0; i < rankingList.count; ++i) {
-        if ([editorID isEqualToString:rankingList[i][kKeyUserID]]) {
-            pickupSlot = (int)i;
-            break;
-        }
-    }
-    [listView reloadData];
-    if (downloadIndicator != nil) {
-        [downloadIndicator stopAnimating];
-        downloadIndicator = nil;
-        __weak UITableView *weakListView = listView;
-        [UIView animateWithDuration:kFadeDuration
-            delay:0
-            options:kFadeOptions
-            animations:^{
-              /** @ghidraAddress 0x157c00 */
-              weakListView.alpha = 1.0;
-            }
-            completion:^(BOOL finished) {
-              /** @ghidraAddress 0x157c4c */
-              [self buttonEnable:YES];
-              self->isNext = [json[kKeyHasNext] boolValue];
-              [self->nextBtn setEnabled:(self->isNext != 0)];
-              [self->prevBtn setEnabled:(self->dispRank > 0x1d)];
-            }];
-    }
-    rankingDownloader = nil;
 }
 
 /** @ghidraAddress 0x157d90 */

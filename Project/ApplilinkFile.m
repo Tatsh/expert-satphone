@@ -19,6 +19,38 @@ static NSString *const kResourceDirectory = @"res";
 // The format used to name an HTML template file from its ad model and location.
 static NSString *const kTemplateFileNameFormat = @"%d_%@.html";
 
+// Shared body of +clearCacheBannerImage (0x238578) and +clearCacheData (0x23891c), which are
+// byte-for-byte identical apart from the directory each prunes. Ensures the directory exists, then
+// deletes every file in it older than kCacheMaxAge.
+static inline void ApplilinkFileClearCacheInDirectory(NSString *directory) {
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    BOOL isDirectory = NO;
+    NSError *error = nil;
+    if (![fileManager fileExistsAtPath:directory isDirectory:&isDirectory]) {
+        [fileManager createDirectoryAtPath:directory
+               withIntermediateDirectories:YES
+                                attributes:nil
+                                     error:&error];
+    }
+    NSArray<NSString *> *entries = [fileManager contentsOfDirectoryAtPath:directory error:&error];
+    for (NSString *entry in entries) {
+        NSString *fullPath = [directory stringByAppendingPathComponent:entry];
+        if (![fileManager fileExistsAtPath:fullPath]) {
+            continue;
+        }
+        NSError *attributesError = nil;
+        NSDictionary *attributes = [fileManager attributesOfItemAtPath:fullPath
+                                                                 error:&attributesError];
+        if (attributesError != nil) {
+            continue;
+        }
+        NSTimeInterval age = [NSDate.date timeIntervalSinceDate:attributes.fileModificationDate];
+        if (age > kCacheMaxAge) {
+            [fileManager removeItemAtPath:fullPath error:nil];
+        }
+    }
+}
+
 @implementation ApplilinkFile
 
 #pragma mark - Fetching
@@ -227,11 +259,11 @@ static NSString *const kTemplateFileNameFormat = @"%d_%@.html";
 #pragma mark - Cache pruning
 
 + (void)clearCacheBannerImage {
-    [self clearCacheInDirectory:[self getBannerCachePath]];
+    ApplilinkFileClearCacheInDirectory([self getBannerCachePath]);
 }
 
 + (void)clearCacheData {
-    [self clearCacheInDirectory:[self getCacheDataPath]];
+    ApplilinkFileClearCacheInDirectory([self getCacheDataPath]);
 }
 
 + (void)allClearCacheBannerImage {
@@ -243,40 +275,6 @@ static NSString *const kTemplateFileNameFormat = @"%d_%@.html";
         [fileManager removeItemAtPath:bannerCachePath error:&error];
     }
     [self createFolder];
-}
-
-#pragma mark - Private
-
-// Shared body of +clearCacheBannerImage (0x238578) and +clearCacheData (0x23891c), which are
-// byte-for-byte identical apart from the directory each prunes. Ensures the directory exists, then
-// deletes every file in it older than kCacheMaxAge.
-+ (void)clearCacheInDirectory:(NSString *)directory {
-    NSFileManager *fileManager = NSFileManager.defaultManager;
-    BOOL isDirectory = NO;
-    NSError *error = nil;
-    if (![fileManager fileExistsAtPath:directory isDirectory:&isDirectory]) {
-        [fileManager createDirectoryAtPath:directory
-               withIntermediateDirectories:YES
-                                attributes:nil
-                                     error:&error];
-    }
-    NSArray<NSString *> *entries = [fileManager contentsOfDirectoryAtPath:directory error:&error];
-    for (NSString *entry in entries) {
-        NSString *fullPath = [directory stringByAppendingPathComponent:entry];
-        if (![fileManager fileExistsAtPath:fullPath]) {
-            continue;
-        }
-        NSError *attributesError = nil;
-        NSDictionary *attributes = [fileManager attributesOfItemAtPath:fullPath
-                                                                 error:&attributesError];
-        if (attributesError != nil) {
-            continue;
-        }
-        NSTimeInterval age = [NSDate.date timeIntervalSinceDate:attributes.fileModificationDate];
-        if (age > kCacheMaxAge) {
-            [fileManager removeItemAtPath:fullPath error:nil];
-        }
-    }
 }
 
 @end

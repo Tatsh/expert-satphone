@@ -39,10 +39,21 @@ static const NSInteger kWebKitPluginError = 204;
 static const NSInteger kErrorNotConnected = -1009;
 static const NSInteger kErrorCannotFindHost = -1003;
 
-@interface ApplilinkWebView ()
-- (void)notifyClose;
-- (void)notifyRepeat;
-@end
+// The close/repeat delegate calls are emitted inline at several branches of
+// -webView:shouldStartLoadWithRequest:navigationType:; folded into helpers here.
+static inline void ApplilinkWebViewNotifyClose(ApplilinkWebView *self) {
+    id<SdkViewDelegate> delegate = self.sdkDelegate;
+    if (delegate && [delegate respondsToSelector:@selector(closeNotice:)]) {
+        [delegate closeNotice:self];
+    }
+}
+
+static inline void ApplilinkWebViewNotifyRepeat(ApplilinkWebView *self) {
+    id<SdkViewDelegate> delegate = self.sdkDelegate;
+    if (delegate && [delegate respondsToSelector:@selector(repeatNotice:)]) {
+        [delegate repeatNotice:self];
+    }
+}
 
 @implementation ApplilinkWebView {
     int _webViewStatus;                      // +0x70
@@ -139,7 +150,7 @@ static const NSInteger kErrorCannotFindHost = -1003;
     int action = [RecommendCore.sharedInstance redirectWithRequest:request];
     // A "7" from RecommendCore closes outright.
     if (action == kRedirectCloseAlt) {
-        [self notifyClose];
+        ApplilinkWebViewNotifyClose(self);
         return NO;
     }
 
@@ -148,21 +159,21 @@ static const NSInteger kErrorCannotFindHost = -1003;
     if (request) {
         NSString *url = request.URL.absoluteString;
         if ([url isEqualToString:kWebViewURLClose] || [url hasPrefix:kWebViewURLClosePrefix]) {
-            [self notifyClose];
+            ApplilinkWebViewNotifyClose(self);
             return NO;
         }
         if (!([url isEqualToString:kWebViewURLRepeat] || [url hasPrefix:kWebViewURLRepeatPrefix] ||
               [url isEqualToString:kWebViewURLMovie] || [url hasPrefix:kWebViewURLMoviePrefix])) {
             // An unrecognised URL: fall through to the action code below.
         } else {
-            [self notifyRepeat];
+            ApplilinkWebViewNotifyRepeat(self);
             return NO;
         }
     }
 
     switch (action) {
     case kRedirectClose:
-        [self notifyClose];
+        ApplilinkWebViewNotifyClose(self);
         return NO;
     case kRedirectAllow:
         return YES;
@@ -170,7 +181,7 @@ static const NSInteger kErrorCannotFindHost = -1003;
         [self storeAction];
         return NO;
     case kRedirectRepeat:
-        [self notifyRepeat];
+        ApplilinkWebViewNotifyRepeat(self);
         return NO;
     default:
         return NO;
@@ -183,22 +194,6 @@ static const NSInteger kErrorCannotFindHost = -1003;
 - (void)storeAction {
     if (_sdkDelegate && [_sdkDelegate respondsToSelector:@selector(storeNotice:)]) {
         [_sdkDelegate storeNotice:self];
-    }
-}
-
-#pragma mark - Delegate notifications
-
-// The close/repeat delegate calls are emitted inline at several branches of
-// -webView:shouldStartLoadWithRequest:navigationType:; folded into helpers here.
-- (void)notifyClose {
-    if (_sdkDelegate && [_sdkDelegate respondsToSelector:@selector(closeNotice:)]) {
-        [_sdkDelegate closeNotice:self];
-    }
-}
-
-- (void)notifyRepeat {
-    if (_sdkDelegate && [_sdkDelegate respondsToSelector:@selector(repeatNotice:)]) {
-        [_sdkDelegate repeatNotice:self];
     }
 }
 

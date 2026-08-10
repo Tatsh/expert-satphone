@@ -141,6 +141,290 @@ enum {
 }
 @end
 
+// The following build* helpers de-inline the one large shipped initialiser body; they carry no
+// @ghidraAddress of their own because they are all part of 0x3b314.
+
+static inline void MusicListViewBuildFlowLayout(MusicListView *self) {
+    self->flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    const double itemHeight =
+        self->isPad ? kItemHeightPad : kItemHeightPhoneByIs4Inch[self->is4Inch ? 1 : 0];
+    self->flowLayout.itemSize = CGSizeMake(kItemWidthByIsPad[self->isPad ? 1 : 0], itemHeight);
+    self->flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+
+    self->flowLayoutTable = [[NSMutableArray alloc] initWithCapacity:kLayoutTableCapacity];
+    for (int colType = 0; colType < kLayoutTableCapacity; ++colType) {
+        MusicListCollectionLayout *layout = [[MusicListCollectionLayout alloc] init];
+        [layout setColumnType:colType];
+        [self->flowLayoutTable addObject:layout];
+    }
+}
+
+static inline void MusicListViewBuildListView(MusicListView *self, double width, double height) {
+    self->listView =
+        [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, width, height)
+                           collectionViewLayout:self->flowLayoutTable[self->drawColumnType]];
+    self->listView.delegate = self;
+    self->listView.multipleTouchEnabled = NO;
+    self->listView.bouncesZoom = YES;
+    self->listView.backgroundColor = UIColor.clearColor;
+    self->listView.autoresizesSubviews = YES;
+    self->listView.autoresizingMask =
+        UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight; // 0x12
+    self->listView.pagingEnabled = YES;
+    self->listView.showsHorizontalScrollIndicator = NO;
+    [self->listView registerClass:[collectionCell class]
+        forCellWithReuseIdentifier:kCollectionCellReuseIdentifier];
+    self->listView.dataSource = self;
+}
+
+static inline void MusicListViewBuildScaleButtons(MusicListView *self, CGRect frame) {
+    const int baseSize = self->isPad ? kScaleButtonBaseSizePad : kScaleButtonBaseSizePhone;
+
+    UIImage *downImage = LoadScaledPngImage(kScaleDownImageName);
+    self->scaleDown = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self->scaleDown setImage:downImage forState:UIControlStateNormal];
+    const double downX =
+        (frame.size.width - kScaleDownInsetXByIsPad[self->isPad ? 1 : 0]) - (double)(baseSize >> 1);
+    const double downY = (frame.size.height - kScaleDownInsetY) - (double)(baseSize >> 1);
+    const double downW = (double)baseSize + downImage.size.width;
+    const double downH = (double)baseSize + downImage.size.height;
+    self->scaleDown.frame = CGRectMake(downX, downY, downW, downH);
+    self->scaleDown.imageEdgeInsets = UIEdgeInsetsZero;
+    [self->scaleDown addTarget:self
+                        action:@selector(pushScaleDown:)
+              forControlEvents:UIControlEventTouchUpInside];
+    [self->scaleDown addTarget:self
+                        action:@selector(btnTouchesBegan:)
+              forControlEvents:UIControlEventTouchDown];
+    [self->scaleDown addTarget:self
+                        action:@selector(btnTouchesCancel:)
+              forControlEvents:UIControlEventTouchCancel];
+    self->scaleDown.exclusiveTouch = YES;
+
+    UIImage *upImage = LoadScaledPngImage(kScaleUpImageName);
+    self->scaleUp = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self->scaleUp setImage:upImage forState:UIControlStateNormal];
+    const double upX = downX - kScaleUpExtraInsetXByIsPad[self->isPad ? 1 : 0];
+    self->scaleUp.frame = CGRectMake(upX, downY, downW, downH);
+    self->scaleUp.imageEdgeInsets = UIEdgeInsetsZero;
+    [self->scaleUp addTarget:self
+                      action:@selector(pushScaleUp:)
+            forControlEvents:UIControlEventTouchUpInside];
+    [self->scaleUp addTarget:self
+                      action:@selector(btnTouchesBegan:)
+            forControlEvents:UIControlEventTouchDown];
+    [self->scaleUp addTarget:self
+                      action:@selector(btnTouchesCancel:)
+            forControlEvents:UIControlEventTouchCancel];
+    self->scaleUp.exclusiveTouch = YES;
+
+    if (self->drawColumnType == 2) {
+        self->scaleDown.alpha = 0.0;
+    }
+    if (self->drawColumnType == 0) {
+        self->scaleUp.alpha = 0.0;
+    }
+}
+
+static inline void MusicListViewBuildPageLabelAndArrows(MusicListView *self) {
+    CGColorRef shadowColor = UIColor.blackColor.CGColor;
+
+    const double labelWidth = self->isPad ? kPageLabelWidthPad : kPageLabelWidthPhone;
+    const double labelHeight = kPageLabelHeightByIsPad[self->isPad ? 1 : 0];
+    const double listWidth = self->listView.frame.size.width;
+    self->labelPage = [[UILabel alloc]
+        initWithFrame:CGRectMake((listWidth - labelWidth) * 0.5, 0, labelWidth, labelHeight)];
+    self->labelPage.font = [UIFont
+        boldSystemFontOfSize:(self->isPad ? kFontSizePageLabelPad : kFontSizePageLabelPhone)];
+    self->labelPage.textAlignment = NSTextAlignmentCenter;
+    self->labelPage.textColor = [UIColor colorWithWhite:kPageLabelTextWhite alpha:1.0];
+    self->labelPage.backgroundColor = UIColor.clearColor;
+    self->labelPage.layer.shadowColor = shadowColor;
+    self->labelPage.layer.shadowRadius = kLabelShadowRadius;
+    self->labelPage.layer.shadowOpacity = kPageLabelShadowOpacity;
+    self->labelPage.layer.shadowOffset = CGSizeMake(0, 1.0);
+    self->labelPage.userInteractionEnabled = YES;
+    UILongPressGestureRecognizer *press =
+        [[UILongPressGestureRecognizer alloc] initWithTarget:self
+                                                      action:@selector(showPageSelector:)];
+    [self->labelPage addGestureRecognizer:press];
+
+    const double arrowWidth = self->isPad ? kPageArrowWidthPad : kPageArrowWidthPhone;
+    const double arrowHeight = self->isPad ? kPageArrowHeightPad : kPageArrowHeightPhone;
+    const double arrowYGap = self->isPad ? kPageArrowYGapPad : kPageArrowYGapPhone;
+
+    self->btnPageLeft = [UIButton buttonWithType:UIButtonTypeCustom];
+    const double leftX =
+        (self->labelPage.frame.origin.x - kPageArrowXInsetByIsPad[self->isPad ? 1 : 0]) +
+        kPageArrowXGap;
+    self->btnPageLeft.frame =
+        CGRectMake(leftX, kPageArrowXGap + arrowYGap, arrowWidth, arrowHeight);
+    self->btnPageLeft.backgroundColor = UIColor.clearColor;
+    [self->btnPageLeft setImage:LoadScaledPngImage(kPageLeftImageName)
+                       forState:UIControlStateNormal];
+    self->btnPageLeft.contentMode = UIViewContentModeScaleAspectFit;
+    self->btnPageLeft.layer.shadowColor = shadowColor;
+    self->btnPageLeft.layer.shadowRadius = kLabelShadowRadius;
+    self->btnPageLeft.layer.shadowOpacity = g_flKeyTime060;
+    self->btnPageLeft.layer.shadowOffset = CGSizeZero;
+    [self->btnPageLeft addTarget:self
+                          action:@selector(pushPageArrow:)
+                forControlEvents:UIControlEventTouchUpInside];
+    [self->btnPageLeft addTarget:self
+                          action:@selector(btnTouchesBegan:)
+                forControlEvents:UIControlEventTouchDown];
+    [self->btnPageLeft addTarget:self
+                          action:@selector(btnTouchesCancel:)
+                forControlEvents:UIControlEventTouchCancel];
+    self->btnPageLeft.exclusiveTouch = YES;
+
+    self->btnPageRight = [UIButton buttonWithType:UIButtonTypeCustom];
+    const double rightX =
+        (self->labelPage.frame.origin.x + self->labelPage.frame.size.width) + kPageRightXGap;
+    self->btnPageRight.frame =
+        CGRectMake(rightX, kPageRightXGap + arrowYGap, arrowWidth, arrowHeight);
+    self->btnPageRight.backgroundColor = UIColor.clearColor;
+    [self->btnPageRight setImage:LoadScaledPngImage(kPageRightImageName)
+                        forState:UIControlStateNormal];
+    self->btnPageRight.contentMode = UIViewContentModeScaleAspectFit;
+    self->btnPageRight.layer.shadowColor = shadowColor;
+    self->btnPageRight.layer.shadowRadius = kLabelShadowRadius;
+    self->btnPageRight.layer.shadowOpacity = g_flKeyTime060;
+    self->btnPageRight.layer.shadowOffset = CGSizeZero;
+    [self->btnPageRight addTarget:self
+                           action:@selector(pushPageArrow:)
+                 forControlEvents:UIControlEventTouchUpInside];
+    [self->btnPageRight addTarget:self
+                           action:@selector(btnTouchesBegan:)
+                 forControlEvents:UIControlEventTouchDown];
+    [self->btnPageRight addTarget:self
+                           action:@selector(btnTouchesCancel:)
+                 forControlEvents:UIControlEventTouchCancel];
+    self->btnPageRight.exclusiveTouch = YES;
+}
+
+static inline void MusicListViewBuildSliders(MusicListView *self) {
+    self->pageSliderCancel =
+        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageSliderHidden:)];
+
+    CGRect bounds = UIScreen.mainScreen.bounds;
+    const int sliderThickness = self->isPad ? kPageSliderThicknessPad : kPageSliderThicknessPhone;
+    const int sliderHeight = self->isPad ? kPageSliderHeightPad : kPageSliderHeightPhone;
+
+    self->pageSlider = [[UISlider alloc]
+        initWithFrame:CGRectMake((double)(sliderThickness >> 1),
+                                 bounds.size.height + ((float)sliderHeight * kPageSliderYFactor),
+                                 bounds.size.width - (double)sliderThickness,
+                                 (double)sliderHeight)];
+    [self->pageSlider addTarget:self
+                         action:@selector(sliderChange:)
+               forControlEvents:UIControlEventValueChanged];
+    [self->pageSlider addTarget:self
+                         action:@selector(sliderEnd:)
+               forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside |
+                                UIControlEventTouchCancel];
+
+    int half = (int)(bounds.size.width * 0.5);
+    if (half < 0) {
+        ++half;
+    }
+    self->alphaSlider = [[UISlider alloc]
+        initWithFrame:CGRectMake((bounds.size.width - (double)(half >> 1)) -
+                                     kAlphaSliderInsetXByIsPad[self->isPad ? 1 : 0],
+                                 bounds.size.width * 0.25 + (double)(sliderHeight << 1),
+                                 bounds.size.width * 0.5,
+                                 (double)sliderHeight)];
+    self->alphaSlider.transform = CGAffineTransformMakeRotation(kAlphaSliderRotation);
+    self->alphaSlider.minimumValue = 1.0f;
+    self->alphaSlider.maximumValue = kAlphaSliderMax;
+    self->alphaSlider.value = kAlphaSliderMax;
+    [self->alphaSlider addTarget:self
+                          action:@selector(alphaSliderChange:)
+                forControlEvents:UIControlEventValueChanged];
+    [self->alphaSlider addTarget:self
+                          action:@selector(alphaSliderEnd:)
+                forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside |
+                                 UIControlEventTouchCancel];
+}
+
+static inline void MusicListViewBuildNoMusicView(MusicListView *self) {
+    self->labelNoMusicMessage = [[UILabel alloc] initWithFrame:CGRectZero];
+    self->labelNoMusicMessage.numberOfLines = 0;
+    self->labelNoMusicMessage.lineBreakMode = NSLineBreakByWordWrapping;
+    self->labelNoMusicMessage.textAlignment = NSTextAlignmentLeft;
+    self->labelNoMusicMessage.userInteractionEnabled = NO;
+    self->labelNoMusicMessage.font =
+        [UIFont fontWithName:@"Helvetica-Bold"
+                        size:(self->isPad ? kFontSizeNoMusicPad : kFontSizeNoMusicPhone)];
+    self->labelNoMusicMessage.textColor = UIColor.whiteColor;
+    self->labelNoMusicMessage.opaque = NO;
+    self->labelNoMusicMessage.backgroundColor = UIColor.clearColor;
+
+    NSString *message = [NSBundle.mainBundle localizedStringForKey:@"NewPlaylistMessage"
+                                                             value:@""
+                                                             table:nil];
+    const CGSize boundSize = CGSizeMake(kNoMusicBoundWidthByIsPad[self->isPad ? 1 : 0],
+                                        kNoMusicBoundHeightByIsPad[self->isPad ? 1 : 0]);
+    CGRect textRect =
+        [message boundingRectWithSize:boundSize
+                              options:(NSStringDrawingUsesLineFragmentOrigin |
+                                       NSStringDrawingUsesFontLeading)
+                           attributes:@{NSFontAttributeName : self->labelNoMusicMessage.font}
+                              context:nil];
+    self->labelNoMusicMessage.frame = CGRectMake(
+        kNoMusicLabelOrigin, kNoMusicLabelOrigin, textRect.size.width, textRect.size.height);
+    self->labelNoMusicMessage.text = message;
+
+    self->viewNoMusicMessage =
+        [[UIView alloc] initWithFrame:CGRectMake(0,
+                                                 0,
+                                                 textRect.size.width + kNoMusicPadding,
+                                                 textRect.size.height + kNoMusicPadding)];
+    self->viewNoMusicMessage.opaque = NO;
+    self->viewNoMusicMessage.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.5];
+    self->viewNoMusicMessage.layer.cornerRadius = kNoMusicCornerRadius;
+    self->viewNoMusicMessage.center =
+        CGPointMake(self->listView.frame.size.width * 0.5, self->listView.frame.size.height * 0.5);
+    [self->viewNoMusicMessage addSubview:self->labelNoMusicMessage];
+}
+
+static inline void MusicListViewBuildBalloonView(MusicListView *self) {
+    const double balloonWidth = kBalloonWidthByIsPad[self->isPad ? 1 : 0];
+    const double arrowPosition = balloonWidth * 0.5;
+    self->bBalloonDisp = YES;
+
+    self->balloonView =
+        [[BalloonView alloc] initWithFrame:CGRectMake((kBalloonArrowWidth - arrowPosition),
+                                                      kBalloonOriginY,
+                                                      balloonWidth,
+                                                      kBalloonHeight)];
+    self->balloonView.layer.shadowColor = UIColor.blackColor.CGColor;
+    self->balloonView.layer.shadowRadius = kLabelShadowRadius;
+    self->balloonView.layer.shadowOpacity = kPageLabelShadowOpacity;
+    self->balloonView.layer.shadowOffset = CGSizeMake(0, 1.0);
+    [self->balloonView setArrowDirection:1];
+    [self->balloonView setArrowSize:CGSizeMake(kBalloonArrowWidth, kBalloonArrowHeight)];
+    [self->balloonView setArrowPosision:arrowPosition];
+    [self->balloonView setContentEdgeInsets:UIEdgeInsetsMake(kBalloonContentInset,
+                                                             kBalloonContentInset,
+                                                             kBalloonContentInset,
+                                                             kBalloonContentInset)];
+    self->balloonView.hidden = YES;
+    UITapGestureRecognizer *tap =
+        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideExplainBalloon)];
+    [self->balloonView addGestureRecognizer:tap];
+
+    UILabel *balloonLabel = [[UILabel alloc] initWithFrame:[self->balloonView contentRect]];
+    balloonLabel.opaque = NO;
+    balloonLabel.backgroundColor = UIColor.clearColor;
+    balloonLabel.textColor = UIColor.whiteColor;
+    balloonLabel.font = [UIFont boldSystemFontOfSize:kFontSizeBalloon];
+    balloonLabel.textAlignment = NSTextAlignmentCenter;
+    balloonLabel.numberOfLines = 0;
+    balloonLabel.text = @"ボタンでページ移動が可能です。";
+    [self->balloonView addSubview:balloonLabel];
+}
+
 @implementation MusicListView
 
 #pragma mark - Lifecycle
@@ -160,12 +444,12 @@ enum {
         drawColumnType = backColumnType;
         musicNumInPage = [self musicInPage:drawColumnType];
 
-        [self buildFlowLayout];
-        [self buildListViewWithWidth:frame.size.width height:listHeight];
-        [self buildScaleButtonsForFrame:frame];
-        [self buildPageLabelAndArrows];
-        [self buildSliders];
-        [self buildNoMusicView];
+        MusicListViewBuildFlowLayout(self);
+        MusicListViewBuildListView(self, frame.size.width, listHeight);
+        MusicListViewBuildScaleButtons(self, frame);
+        MusicListViewBuildPageLabelAndArrows(self);
+        MusicListViewBuildSliders(self);
+        MusicListViewBuildNoMusicView(self);
 
         artworkCache = [[NSCache alloc] init];
         [artworkCache setCountLimit:kArtworkCacheCountLimit];
@@ -181,285 +465,9 @@ enum {
 
         operationQueue = [[NSOperationQueue alloc] init];
 
-        [self buildBalloonView];
+        MusicListViewBuildBalloonView(self);
     }
     return self;
-}
-
-// The following build* helpers de-inline the one large shipped initialiser body; they carry no
-// @ghidraAddress of their own because they are all part of 0x3b314.
-
-- (void)buildFlowLayout {
-    flowLayout = [[UICollectionViewFlowLayout alloc] init];
-    const double itemHeight = isPad ? kItemHeightPad : kItemHeightPhoneByIs4Inch[is4Inch ? 1 : 0];
-    flowLayout.itemSize = CGSizeMake(kItemWidthByIsPad[isPad ? 1 : 0], itemHeight);
-    flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-
-    flowLayoutTable = [[NSMutableArray alloc] initWithCapacity:kLayoutTableCapacity];
-    for (int colType = 0; colType < kLayoutTableCapacity; ++colType) {
-        MusicListCollectionLayout *layout = [[MusicListCollectionLayout alloc] init];
-        [layout setColumnType:colType];
-        [flowLayoutTable addObject:layout];
-    }
-}
-
-- (void)buildListViewWithWidth:(double)width height:(double)height {
-    listView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, width, height)
-                                  collectionViewLayout:flowLayoutTable[drawColumnType]];
-    listView.delegate = self;
-    listView.multipleTouchEnabled = NO;
-    listView.bouncesZoom = YES;
-    listView.backgroundColor = UIColor.clearColor;
-    listView.autoresizesSubviews = YES;
-    listView.autoresizingMask =
-        UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight; // 0x12
-    listView.pagingEnabled = YES;
-    listView.showsHorizontalScrollIndicator = NO;
-    [listView registerClass:[collectionCell class]
-        forCellWithReuseIdentifier:kCollectionCellReuseIdentifier];
-    listView.dataSource = self;
-}
-
-- (void)buildScaleButtonsForFrame:(CGRect)frame {
-    const int baseSize = isPad ? kScaleButtonBaseSizePad : kScaleButtonBaseSizePhone;
-
-    UIImage *downImage = LoadScaledPngImage(kScaleDownImageName);
-    scaleDown = [UIButton buttonWithType:UIButtonTypeCustom];
-    [scaleDown setImage:downImage forState:UIControlStateNormal];
-    const double downX =
-        (frame.size.width - kScaleDownInsetXByIsPad[isPad ? 1 : 0]) - (double)(baseSize >> 1);
-    const double downY = (frame.size.height - kScaleDownInsetY) - (double)(baseSize >> 1);
-    const double downW = (double)baseSize + downImage.size.width;
-    const double downH = (double)baseSize + downImage.size.height;
-    scaleDown.frame = CGRectMake(downX, downY, downW, downH);
-    scaleDown.imageEdgeInsets = UIEdgeInsetsZero;
-    [scaleDown addTarget:self
-                  action:@selector(pushScaleDown:)
-        forControlEvents:UIControlEventTouchUpInside];
-    [scaleDown addTarget:self
-                  action:@selector(btnTouchesBegan:)
-        forControlEvents:UIControlEventTouchDown];
-    [scaleDown addTarget:self
-                  action:@selector(btnTouchesCancel:)
-        forControlEvents:UIControlEventTouchCancel];
-    scaleDown.exclusiveTouch = YES;
-
-    UIImage *upImage = LoadScaledPngImage(kScaleUpImageName);
-    scaleUp = [UIButton buttonWithType:UIButtonTypeCustom];
-    [scaleUp setImage:upImage forState:UIControlStateNormal];
-    const double upX = downX - kScaleUpExtraInsetXByIsPad[isPad ? 1 : 0];
-    scaleUp.frame = CGRectMake(upX, downY, downW, downH);
-    scaleUp.imageEdgeInsets = UIEdgeInsetsZero;
-    [scaleUp addTarget:self
-                  action:@selector(pushScaleUp:)
-        forControlEvents:UIControlEventTouchUpInside];
-    [scaleUp addTarget:self
-                  action:@selector(btnTouchesBegan:)
-        forControlEvents:UIControlEventTouchDown];
-    [scaleUp addTarget:self
-                  action:@selector(btnTouchesCancel:)
-        forControlEvents:UIControlEventTouchCancel];
-    scaleUp.exclusiveTouch = YES;
-
-    if (drawColumnType == 2) {
-        scaleDown.alpha = 0.0;
-    }
-    if (drawColumnType == 0) {
-        scaleUp.alpha = 0.0;
-    }
-}
-
-- (void)buildPageLabelAndArrows {
-    CGColorRef shadowColor = UIColor.blackColor.CGColor;
-
-    const double labelWidth = isPad ? kPageLabelWidthPad : kPageLabelWidthPhone;
-    const double labelHeight = kPageLabelHeightByIsPad[isPad ? 1 : 0];
-    const double listWidth = listView.frame.size.width;
-    labelPage = [[UILabel alloc]
-        initWithFrame:CGRectMake((listWidth - labelWidth) * 0.5, 0, labelWidth, labelHeight)];
-    labelPage.font =
-        [UIFont boldSystemFontOfSize:(isPad ? kFontSizePageLabelPad : kFontSizePageLabelPhone)];
-    labelPage.textAlignment = NSTextAlignmentCenter;
-    labelPage.textColor = [UIColor colorWithWhite:kPageLabelTextWhite alpha:1.0];
-    labelPage.backgroundColor = UIColor.clearColor;
-    labelPage.layer.shadowColor = shadowColor;
-    labelPage.layer.shadowRadius = kLabelShadowRadius;
-    labelPage.layer.shadowOpacity = kPageLabelShadowOpacity;
-    labelPage.layer.shadowOffset = CGSizeMake(0, 1.0);
-    labelPage.userInteractionEnabled = YES;
-    UILongPressGestureRecognizer *press =
-        [[UILongPressGestureRecognizer alloc] initWithTarget:self
-                                                      action:@selector(showPageSelector:)];
-    [labelPage addGestureRecognizer:press];
-
-    const double arrowWidth = isPad ? kPageArrowWidthPad : kPageArrowWidthPhone;
-    const double arrowHeight = isPad ? kPageArrowHeightPad : kPageArrowHeightPhone;
-    const double arrowYGap = isPad ? kPageArrowYGapPad : kPageArrowYGapPhone;
-
-    btnPageLeft = [UIButton buttonWithType:UIButtonTypeCustom];
-    const double leftX =
-        (labelPage.frame.origin.x - kPageArrowXInsetByIsPad[isPad ? 1 : 0]) + kPageArrowXGap;
-    btnPageLeft.frame = CGRectMake(leftX, kPageArrowXGap + arrowYGap, arrowWidth, arrowHeight);
-    btnPageLeft.backgroundColor = UIColor.clearColor;
-    [btnPageLeft setImage:LoadScaledPngImage(kPageLeftImageName) forState:UIControlStateNormal];
-    btnPageLeft.contentMode = UIViewContentModeScaleAspectFit;
-    btnPageLeft.layer.shadowColor = shadowColor;
-    btnPageLeft.layer.shadowRadius = kLabelShadowRadius;
-    btnPageLeft.layer.shadowOpacity = g_flKeyTime060;
-    btnPageLeft.layer.shadowOffset = CGSizeZero;
-    [btnPageLeft addTarget:self
-                    action:@selector(pushPageArrow:)
-          forControlEvents:UIControlEventTouchUpInside];
-    [btnPageLeft addTarget:self
-                    action:@selector(btnTouchesBegan:)
-          forControlEvents:UIControlEventTouchDown];
-    [btnPageLeft addTarget:self
-                    action:@selector(btnTouchesCancel:)
-          forControlEvents:UIControlEventTouchCancel];
-    btnPageLeft.exclusiveTouch = YES;
-
-    btnPageRight = [UIButton buttonWithType:UIButtonTypeCustom];
-    const double rightX = (labelPage.frame.origin.x + labelPage.frame.size.width) + kPageRightXGap;
-    btnPageRight.frame = CGRectMake(rightX, kPageRightXGap + arrowYGap, arrowWidth, arrowHeight);
-    btnPageRight.backgroundColor = UIColor.clearColor;
-    [btnPageRight setImage:LoadScaledPngImage(kPageRightImageName) forState:UIControlStateNormal];
-    btnPageRight.contentMode = UIViewContentModeScaleAspectFit;
-    btnPageRight.layer.shadowColor = shadowColor;
-    btnPageRight.layer.shadowRadius = kLabelShadowRadius;
-    btnPageRight.layer.shadowOpacity = g_flKeyTime060;
-    btnPageRight.layer.shadowOffset = CGSizeZero;
-    [btnPageRight addTarget:self
-                     action:@selector(pushPageArrow:)
-           forControlEvents:UIControlEventTouchUpInside];
-    [btnPageRight addTarget:self
-                     action:@selector(btnTouchesBegan:)
-           forControlEvents:UIControlEventTouchDown];
-    [btnPageRight addTarget:self
-                     action:@selector(btnTouchesCancel:)
-           forControlEvents:UIControlEventTouchCancel];
-    btnPageRight.exclusiveTouch = YES;
-}
-
-- (void)buildSliders {
-    pageSliderCancel = [[UITapGestureRecognizer alloc] initWithTarget:self
-                                                               action:@selector(pageSliderHidden:)];
-
-    CGRect bounds = UIScreen.mainScreen.bounds;
-    const int sliderThickness = isPad ? kPageSliderThicknessPad : kPageSliderThicknessPhone;
-    const int sliderHeight = isPad ? kPageSliderHeightPad : kPageSliderHeightPhone;
-
-    pageSlider = [[UISlider alloc]
-        initWithFrame:CGRectMake((double)(sliderThickness >> 1),
-                                 bounds.size.height + ((float)sliderHeight * kPageSliderYFactor),
-                                 bounds.size.width - (double)sliderThickness,
-                                 (double)sliderHeight)];
-    [pageSlider addTarget:self
-                   action:@selector(sliderChange:)
-         forControlEvents:UIControlEventValueChanged];
-    [pageSlider addTarget:self
-                   action:@selector(sliderEnd:)
-         forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside |
-                          UIControlEventTouchCancel];
-
-    int half = (int)(bounds.size.width * 0.5);
-    if (half < 0) {
-        ++half;
-    }
-    alphaSlider = [[UISlider alloc]
-        initWithFrame:CGRectMake((bounds.size.width - (double)(half >> 1)) -
-                                     kAlphaSliderInsetXByIsPad[isPad ? 1 : 0],
-                                 bounds.size.width * 0.25 + (double)(sliderHeight << 1),
-                                 bounds.size.width * 0.5,
-                                 (double)sliderHeight)];
-    alphaSlider.transform = CGAffineTransformMakeRotation(kAlphaSliderRotation);
-    alphaSlider.minimumValue = 1.0f;
-    alphaSlider.maximumValue = kAlphaSliderMax;
-    alphaSlider.value = kAlphaSliderMax;
-    [alphaSlider addTarget:self
-                    action:@selector(alphaSliderChange:)
-          forControlEvents:UIControlEventValueChanged];
-    [alphaSlider addTarget:self
-                    action:@selector(alphaSliderEnd:)
-          forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside |
-                           UIControlEventTouchCancel];
-}
-
-- (void)buildNoMusicView {
-    labelNoMusicMessage = [[UILabel alloc] initWithFrame:CGRectZero];
-    labelNoMusicMessage.numberOfLines = 0;
-    labelNoMusicMessage.lineBreakMode = NSLineBreakByWordWrapping;
-    labelNoMusicMessage.textAlignment = NSTextAlignmentLeft;
-    labelNoMusicMessage.userInteractionEnabled = NO;
-    labelNoMusicMessage.font =
-        [UIFont fontWithName:@"Helvetica-Bold"
-                        size:(isPad ? kFontSizeNoMusicPad : kFontSizeNoMusicPhone)];
-    labelNoMusicMessage.textColor = UIColor.whiteColor;
-    labelNoMusicMessage.opaque = NO;
-    labelNoMusicMessage.backgroundColor = UIColor.clearColor;
-
-    NSString *message = [NSBundle.mainBundle localizedStringForKey:@"NewPlaylistMessage"
-                                                             value:@""
-                                                             table:nil];
-    const CGSize boundSize = CGSizeMake(kNoMusicBoundWidthByIsPad[isPad ? 1 : 0],
-                                        kNoMusicBoundHeightByIsPad[isPad ? 1 : 0]);
-    CGRect textRect =
-        [message boundingRectWithSize:boundSize
-                              options:(NSStringDrawingUsesLineFragmentOrigin |
-                                       NSStringDrawingUsesFontLeading)
-                           attributes:@{NSFontAttributeName : labelNoMusicMessage.font}
-                              context:nil];
-    labelNoMusicMessage.frame = CGRectMake(
-        kNoMusicLabelOrigin, kNoMusicLabelOrigin, textRect.size.width, textRect.size.height);
-    labelNoMusicMessage.text = message;
-
-    viewNoMusicMessage =
-        [[UIView alloc] initWithFrame:CGRectMake(0,
-                                                 0,
-                                                 textRect.size.width + kNoMusicPadding,
-                                                 textRect.size.height + kNoMusicPadding)];
-    viewNoMusicMessage.opaque = NO;
-    viewNoMusicMessage.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.5];
-    viewNoMusicMessage.layer.cornerRadius = kNoMusicCornerRadius;
-    viewNoMusicMessage.center =
-        CGPointMake(listView.frame.size.width * 0.5, listView.frame.size.height * 0.5);
-    [viewNoMusicMessage addSubview:labelNoMusicMessage];
-}
-
-- (void)buildBalloonView {
-    const double balloonWidth = kBalloonWidthByIsPad[isPad ? 1 : 0];
-    const double arrowPosition = balloonWidth * 0.5;
-    bBalloonDisp = YES;
-
-    balloonView =
-        [[BalloonView alloc] initWithFrame:CGRectMake((kBalloonArrowWidth - arrowPosition),
-                                                      kBalloonOriginY,
-                                                      balloonWidth,
-                                                      kBalloonHeight)];
-    balloonView.layer.shadowColor = UIColor.blackColor.CGColor;
-    balloonView.layer.shadowRadius = kLabelShadowRadius;
-    balloonView.layer.shadowOpacity = kPageLabelShadowOpacity;
-    balloonView.layer.shadowOffset = CGSizeMake(0, 1.0);
-    [balloonView setArrowDirection:1];
-    [balloonView setArrowSize:CGSizeMake(kBalloonArrowWidth, kBalloonArrowHeight)];
-    [balloonView setArrowPosision:arrowPosition];
-    [balloonView setContentEdgeInsets:UIEdgeInsetsMake(kBalloonContentInset,
-                                                       kBalloonContentInset,
-                                                       kBalloonContentInset,
-                                                       kBalloonContentInset)];
-    balloonView.hidden = YES;
-    UITapGestureRecognizer *tap =
-        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideExplainBalloon)];
-    [balloonView addGestureRecognizer:tap];
-
-    UILabel *balloonLabel = [[UILabel alloc] initWithFrame:[balloonView contentRect]];
-    balloonLabel.opaque = NO;
-    balloonLabel.backgroundColor = UIColor.clearColor;
-    balloonLabel.textColor = UIColor.whiteColor;
-    balloonLabel.font = [UIFont boldSystemFontOfSize:kFontSizeBalloon];
-    balloonLabel.textAlignment = NSTextAlignmentCenter;
-    balloonLabel.numberOfLines = 0;
-    balloonLabel.text = @"ボタンでページ移動が可能です。";
-    [balloonView addSubview:balloonLabel];
 }
 
 /** @ghidraAddress 0x3ef10 */

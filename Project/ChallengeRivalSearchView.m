@@ -123,10 +123,7 @@ static const UIControlEvents kButtonEvent = UIControlEventTouchUpInside;
 
 @interface ChallengeRivalSearchView () <AlertViewManagerDelegate,
                                         ChallengeTextInputViewDelegate,
-                                        DownloaderDelegate>
-@end
-
-@implementation ChallengeRivalSearchView {
+                                        DownloaderDelegate> {
     ChallengeTextInputView *inputView; // +0x8
     NSString *targetID;                // +0x10
     NSString *targetName;              // +0x18
@@ -145,6 +142,85 @@ static const UIControlEvents kButtonEvent = UIControlEventTouchUpInside;
     UILabel *rivalID;                  // +0x98
     UILabel *rivalName;                // +0xa0
 }
+- (void)switchRivalMessageView;
+@end
+
+// The registration reply: on success animate to the confirmation state; otherwise show the failure.
+static inline void ChallengeRivalSearchViewHandleRegisterResponse(ChallengeRivalSearchView *self,
+                                                                  NSDictionary *json,
+                                                                  int status) {
+    if (status == kStatusOK) {
+        [self switchRivalMessageView];
+        return;
+    }
+    NSString *msg = json[kResponseErrorMessageKey];
+    if (!msg) {
+        msg = kRegisterFailedMessage;
+    }
+    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:self
+                                            tag:0
+                                          title:@""
+                                            msg:msg
+                                         cancel:ok
+                                        btnText:nil
+                                           show:YES];
+}
+
+// The search reply: on success with at least one match, record the rival and cross-fade from the
+// search box to the rival-add panel; otherwise show the "not found" message.
+static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSearchView *self,
+                                                                NSDictionary *json,
+                                                                int status) {
+    if (status == kStatusOK && [json[kResponseNameKey] count] != 0) {
+        (void)self->inputView.inputText; // Read but unused, as in the binary.
+        self->targetID = json[kResponseNameKey][0][0];
+        self->targetName = json[kResponseNameKey][0][1];
+        self->rivalID.text = self->targetID;
+        self->rivalName.text = self->targetName;
+        self->rivalAddView.alpha = 0;
+        [self addSubview:self->rivalAddView];
+
+        __weak UIView *weakSearchBox = self->searchBox;
+        __weak UIView *weakRivalAddView = self->rivalAddView;
+        [UIView animateWithDuration:kFadeDuration
+            delay:0
+            options:kFadeOptions
+            animations:^{
+              /** @ghidraAddress 0x168c90 */
+              weakSearchBox.alpha = 0;
+            }
+            completion:^(BOOL finished) {
+              /** @ghidraAddress 0x168cdc */
+              [UIView animateWithDuration:kFadeDuration
+                                    delay:0
+                                  options:kFadeOptions
+                               animations:^{
+                                 /** @ghidraAddress 0x168d8c */
+                                 weakRivalAddView.alpha = 1.0;
+                               }
+                               completion:nil];
+            }];
+        return;
+    }
+
+    NSString *msg = json[kResponseErrorMessageKey];
+    if (!msg) {
+        msg = kRivalNotFoundMessage;
+    }
+    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:nil
+                                            tag:0
+                                          title:@""
+                                            msg:msg
+                                         cancel:ok
+                                        btnText:nil
+                                           show:YES];
+}
+
+@implementation ChallengeRivalSearchView
 
 @synthesize aDelegate = _aDelegate;
 
@@ -487,81 +563,10 @@ static const UIControlEvents kButtonEvent = UIControlEventTouchUpInside;
 
     int tag = [downloader tag];
     if (tag == kTagRegister) {
-        [self handleRegisterResponse:json status:status];
+        ChallengeRivalSearchViewHandleRegisterResponse(self, json, status);
     } else if (tag == kTagSearch) {
-        [self handleSearchResponse:json status:status];
+        ChallengeRivalSearchViewHandleSearchResponse(self, json, status);
     }
-}
-
-// The registration reply: on success animate to the confirmation state; otherwise show the failure.
-- (void)handleRegisterResponse:(NSDictionary *)json status:(int)status {
-    if (status == kStatusOK) {
-        [self switchRivalMessageView];
-        return;
-    }
-    NSString *msg = json[kResponseErrorMessageKey];
-    if (!msg) {
-        msg = kRegisterFailedMessage;
-    }
-    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
-    [[AlertViewManager sharedManager] makeAlert:0
-                                       delegate:self
-                                            tag:0
-                                          title:@""
-                                            msg:msg
-                                         cancel:ok
-                                        btnText:nil
-                                           show:YES];
-}
-
-// The search reply: on success with at least one match, record the rival and cross-fade from the
-// search box to the rival-add panel; otherwise show the "not found" message.
-- (void)handleSearchResponse:(NSDictionary *)json status:(int)status {
-    if (status == kStatusOK && [json[kResponseNameKey] count] != 0) {
-        (void)inputView.inputText; // Read but unused, as in the binary.
-        targetID = json[kResponseNameKey][0][0];
-        targetName = json[kResponseNameKey][0][1];
-        rivalID.text = targetID;
-        rivalName.text = targetName;
-        rivalAddView.alpha = 0;
-        [self addSubview:rivalAddView];
-
-        __weak UIView *weakSearchBox = searchBox;
-        __weak UIView *weakRivalAddView = rivalAddView;
-        [UIView animateWithDuration:kFadeDuration
-            delay:0
-            options:kFadeOptions
-            animations:^{
-              /** @ghidraAddress 0x168c90 */
-              weakSearchBox.alpha = 0;
-            }
-            completion:^(BOOL finished) {
-              /** @ghidraAddress 0x168cdc */
-              [UIView animateWithDuration:kFadeDuration
-                                    delay:0
-                                  options:kFadeOptions
-                               animations:^{
-                                 /** @ghidraAddress 0x168d8c */
-                                 weakRivalAddView.alpha = 1.0;
-                               }
-                               completion:nil];
-            }];
-        return;
-    }
-
-    NSString *msg = json[kResponseErrorMessageKey];
-    if (!msg) {
-        msg = kRivalNotFoundMessage;
-    }
-    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
-    [[AlertViewManager sharedManager] makeAlert:0
-                                       delegate:nil
-                                            tag:0
-                                          title:@""
-                                            msg:msg
-                                         cancel:ok
-                                        btnText:nil
-                                           show:YES];
 }
 
 /** @ghidraAddress 0x168df0 */

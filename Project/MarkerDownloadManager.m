@@ -36,18 +36,36 @@ static NSString *const kMarkerInfoKeyBannerName = @"bannerName";
 // The trailing MD5 digest length appended to each downloaded pack.
 static const NSUInteger kMarkerDigestLength = 0x10;
 
-@interface MarkerDownloadManager ()
-- (void)startTaskAtIndex:(unsigned int)index;
-- (void)notifyFailed;
-@end
-
-@implementation MarkerDownloadManager {
+@interface MarkerDownloadManager () {
     BOOL isStarted;             // +0x8
     NSArray *tasks;             // +0x10
     Downloader *fileDownloader; // +0x18
     id delegate;                // +0x20 (assign)
     unsigned int _currentIndex; // +0x28
 }
+@end
+
+// Starts a download for the task at the given index through a fresh Downloader, then tells the
+// delegate a task started. Folded from the two identical blocks in -start and -downloaderFinished:.
+static inline void MarkerDownloadManagerStartTaskAtIndex(MarkerDownloadManager *self,
+                                                         unsigned int index) {
+    NSDictionary *task = self->tasks[index];
+    NSURL *url = [NSURL URLWithString:task[kMarkerTaskKeyItemURL]];
+    self->fileDownloader = [[Downloader alloc] initWithURL:url delegate:self];
+    [self->fileDownloader startDownloading];
+    if ([self->delegate respondsToSelector:@selector(downloadManagerStartTask:)]) {
+        [self->delegate performSelector:@selector(downloadManagerStartTask:) withObject:self];
+    }
+}
+
+// Reports a failure to the delegate.
+static inline void MarkerDownloadManagerNotifyFailed(MarkerDownloadManager *self) {
+    if ([self->delegate respondsToSelector:@selector(downloadManagerFailed:)]) {
+        [self->delegate performSelector:@selector(downloadManagerFailed:) withObject:self];
+    }
+}
+
+@implementation MarkerDownloadManager
 
 @synthesize currentIndex = _currentIndex;
 
@@ -93,18 +111,6 @@ static const NSUInteger kMarkerDigestLength = 0x10;
 
 #pragma mark - Lifecycle
 
-// Starts a download for the task at the given index through a fresh Downloader, then tells the
-// delegate a task started. Folded from the two identical blocks in -start and -downloaderFinished:.
-- (void)startTaskAtIndex:(unsigned int)index {
-    NSDictionary *task = tasks[index];
-    NSURL *url = [NSURL URLWithString:task[kMarkerTaskKeyItemURL]];
-    fileDownloader = [[Downloader alloc] initWithURL:url delegate:self];
-    [fileDownloader startDownloading];
-    if ([delegate respondsToSelector:@selector(downloadManagerStartTask:)]) {
-        [delegate performSelector:@selector(downloadManagerStartTask:) withObject:self];
-    }
-}
-
 /** @ghidraAddress 0x87268 */
 - (void)start {
     if (isStarted) {
@@ -129,20 +135,13 @@ static const NSUInteger kMarkerDigestLength = 0x10;
 
 #pragma mark - DownloaderDelegate
 
-// Reports a failure to the delegate.
-- (void)notifyFailed {
-    if ([delegate respondsToSelector:@selector(downloadManagerFailed:)]) {
-        [delegate performSelector:@selector(downloadManagerFailed:) withObject:self];
-    }
-}
-
 /** @ghidraAddress 0x87458 */
 - (void)downloaderFinished:(id)downloader {
     NSData *data = [fileDownloader getData];
     // The pack must carry at least its trailing MD5 digest.
     if (data.length <= kMarkerDigestLength) {
         fileDownloader = nil;
-        [self notifyFailed];
+        MarkerDownloadManagerNotifyFailed(self);
         return;
     }
     unsigned char digest[16];
@@ -151,7 +150,7 @@ static const NSUInteger kMarkerDigestLength = 0x10;
     BOOL ok = VerifyMd5Digest(data.bytes, (int)data.length - kMarkerDigestLength, digest);
     fileDownloader = nil;
     if (!ok) {
-        [self notifyFailed];
+        MarkerDownloadManagerNotifyFailed(self);
         return;
     }
 
@@ -175,7 +174,7 @@ static const NSUInteger kMarkerDigestLength = 0x10;
     // Advance to the next task, or report completion.
     self.currentIndex = self.currentIndex + 1;
     if (self.currentIndex < tasks.count) {
-        [self startTaskAtIndex:self.currentIndex];
+        MarkerDownloadManagerStartTaskAtIndex(self, self.currentIndex);
     } else if ([delegate respondsToSelector:@selector(downloadManagerCompleted:)]) {
         [delegate performSelector:@selector(downloadManagerCompleted:) withObject:self];
     }
@@ -191,7 +190,7 @@ static const NSUInteger kMarkerDigestLength = 0x10;
 /** @ghidraAddress 0x87ae0 */
 - (void)downloaderError:(id)downloader {
     fileDownloader = nil;
-    [self notifyFailed];
+    MarkerDownloadManagerNotifyFailed(self);
 }
 
 @end

@@ -12,6 +12,22 @@
 // PurchaseManager.
 static NSString *const kSessionDownloaderClassName = @"SessionDownloader";
 
+// The nine-argument alert call is identical in the error path and the failed-status path. Both send
+// makeAlert:delegate:tag:title:msg:cancel:btnText:show:viewController: with a nil delegate, a zero
+// tag, an empty title, no button text, and the parent controller. Verified at 0x3aa64 and 0x39f10.
+static inline void InheritCodePayViewShowAlertWithMessage(InheritCodePayView *self, NSString *msg) {
+    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:nil
+                                            tag:0
+                                          title:@""
+                                            msg:msg
+                                         cancel:ok
+                                        btnText:nil
+                                           show:YES
+                                 viewController:self.parentCtrl];
+}
+
 // The caution text and the button title are UTF-16 CFStrings in the binary; kept verbatim.
 static NSString *const kCautionText =
     @"引き継ぎコード入力後30日間は新しい引き継ぎコードを発行することはできません";
@@ -104,7 +120,7 @@ static NSString *const kUserIDTitleText = @"あなたのユーザーID";
         if (!msg) {
             msg = [NSBundle.mainBundle localizedStringForKey:@"ServerErrorMsg" value:@"" table:nil];
         }
-        [self _showAlertWithMessage:msg];
+        InheritCodePayViewShowAlertWithMessage(self, msg);
         return;
     }
 
@@ -192,25 +208,7 @@ static NSString *const kUserIDTitleText = @"あなたのユーザーID";
     NSString *msg = [NSBundle.mainBundle localizedStringForKey:@"ServerErrorMsg"
                                                          value:@""
                                                          table:nil];
-    [self _showAlertWithMessage:msg];
-}
-
-#pragma mark - Helpers
-
-// The nine-argument alert call is identical in the error path and the failed-status path. Both send
-// makeAlert:delegate:tag:title:msg:cancel:btnText:show:viewController: with a nil delegate, a zero
-// tag, an empty title, no button text, and the parent controller. Verified at 0x3aa64 and 0x39f10.
-- (void)_showAlertWithMessage:(NSString *)msg {
-    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
-    [[AlertViewManager sharedManager] makeAlert:0
-                                       delegate:nil
-                                            tag:0
-                                          title:@""
-                                            msg:msg
-                                         cancel:ok
-                                        btnText:nil
-                                           show:YES
-                                 viewController:self.parentCtrl];
+    InheritCodePayViewShowAlertWithMessage(self, msg);
 }
 
 @end

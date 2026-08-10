@@ -79,10 +79,7 @@ static const int kSessionErrorAlertTag = 9999;
 static const int kAcceptConfirmTag = 7;
 static const int kCoinOverflowConfirmTag = 4;
 
-@interface ChallengePresentView () <AlertViewManagerDelegate, DownloaderDelegate>
-@end
-
-@implementation ChallengePresentView {
+@interface ChallengePresentView () <AlertViewManagerDelegate, DownloaderDelegate> {
     ChallengePresentListView *presentListView; // +0x8
     NSArray *presentList;                      // +0x10
     int selectPresentIndex;                    // +0x18
@@ -90,6 +87,105 @@ static const int kCoinOverflowConfirmTag = 4;
     UILabel *titleLabel;                       // +0x28
     CGRect listRect;                           // +0x30
 }
+@end
+
+// Presents the shared alert with an empty title and a localised OK button.
+static inline void ChallengePresentViewShowPlainAlert(ChallengePresentView *self,
+                                                      id delegate,
+                                                      int tag,
+                                                      NSString *msg) {
+    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:delegate
+                                            tag:tag
+                                          title:@""
+                                            msg:msg
+                                         cancel:ok
+                                        btnText:nil
+                                           show:YES];
+}
+
+// The accept/decline response: on success show the message, record the present, refresh the
+// delegate, and drop the accepted row; otherwise show the coin-overflow prompt, the coin-limit
+// alert, or a generic failure.
+static inline void ChallengePresentViewHandleAcceptDeclineResponse(ChallengePresentView *self,
+                                                                   NSDictionary *json,
+                                                                   int status) {
+    NSString *msg = json[kResponseMessageKey];
+    if (status == kStatusOK) {
+        if (!msg) {
+            msg = kReceivedMessage;
+        }
+        ChallengePresentViewShowPlainAlert(self, nil, 3, msg);
+        [[ChallengeStatus sharedStatus] receivePresent:json];
+        if ([self.aDelegate respondsToSelector:@selector(refreshStatus)]) {
+            [self.aDelegate performSelector:@selector(refreshStatus)];
+        }
+        NSMutableArray *remaining = [NSMutableArray arrayWithArray:self->presentList];
+        [remaining removeObjectAtIndex:self->selectPresentIndex];
+        self->presentList = [NSArray arrayWithArray:remaining];
+        [self->presentListView setListArray:self->presentList];
+        [[ChallengeStatus sharedStatus] setPresentNum:(int)self->presentList.count];
+        return;
+    }
+
+    if (!msg) {
+        msg = json[kResponseErrorMessageKey];
+    }
+    if (status == kStatusCoinOverflow) {
+        // Ask again, allowing an override that resends with agree = YES.
+        if (!msg) {
+            msg = kCoinOverflowPromptMessage;
+        }
+        [[AlertViewManager sharedManager] makeAlert:0
+                                           delegate:self
+                                                tag:kCoinOverflowConfirmTag
+                                              title:@""
+                                                msg:msg
+                                             cancel:kNoButtonTitle
+                                            btnText:@[ kYesButtonTitle ]
+                                               show:YES];
+        return;
+    }
+    if (status == kStatusCoinLimit) {
+        if (!msg) {
+            msg = kCoinLimitReachedMessage;
+        }
+        ChallengePresentViewShowPlainAlert(self, nil, 3, msg);
+        return;
+    }
+    if (!msg) {
+        msg = kReceiveFailedMessage;
+    }
+    ChallengePresentViewShowPlainAlert(self, nil, 0, msg);
+}
+
+// The list-load response: on success build the table view over the modal's frame and seed it with
+// the presents; otherwise show the failure and close.
+static inline void ChallengePresentViewHandleListLoadResponse(ChallengePresentView *self,
+                                                              NSDictionary *json,
+                                                              int status) {
+    if (status == kStatusOK) {
+        self->presentList = [NSArray arrayWithArray:json[kPresentArrayKey]];
+        self->presentListView = [[ChallengePresentListView alloc] initWithFrame:self.frame];
+        [self->presentListView setADelegate:self];
+        [self->presentListView setListArray:self->presentList];
+        [self addSubview:self->presentListView];
+        [[ChallengeStatus sharedStatus] setPresentNum:(int)self->presentList.count];
+        return;
+    }
+
+    NSString *msg = json[kResponseErrorMessageKey];
+    if (!msg) {
+        msg = kListFetchFailedMessage;
+    }
+    ChallengePresentViewShowPlainAlert(self, nil, 0, msg);
+    if ([self.aDelegate respondsToSelector:@selector(closeMenu)]) {
+        [self.aDelegate performSelector:@selector(closeMenu)];
+    }
+}
+
+@implementation ChallengePresentView
 
 @synthesize aDelegate = _aDelegate;
 
@@ -152,19 +248,6 @@ static const int kCoinOverflowConfirmTag = 4;
 
 #pragma mark - DownloaderDelegate
 
-// Presents the shared alert with an empty title and a localised OK button.
-- (void)showPlainAlertWithDelegate:(nullable id)delegate tag:(int)tag message:(NSString *)msg {
-    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
-    [[AlertViewManager sharedManager] makeAlert:0
-                                       delegate:delegate
-                                            tag:tag
-                                          title:@""
-                                            msg:msg
-                                         cancel:ok
-                                        btnText:nil
-                                           show:YES];
-}
-
 /** @ghidraAddress 0x95604 */
 - (void)downloaderFinished:(id)downloader {
     NSDictionary *json = [downloader getDataInJSON];
@@ -179,7 +262,7 @@ static const int kCoinOverflowConfirmTag = 4;
                                                            value:@""
                                                            table:nil];
             }
-            [self showPlainAlertWithDelegate:self tag:kSessionErrorAlertTag message:msg];
+            ChallengePresentViewShowPlainAlert(self, self, kSessionErrorAlertTag, msg);
             return;
         }
         if (status == kStatusUpdateRequired) {
@@ -193,85 +276,9 @@ static const int kCoinOverflowConfirmTag = 4;
 
     int tag = [downloader tag];
     if (tag == kTagAcceptDecline) {
-        [self handleAcceptDeclineResponse:json status:status];
+        ChallengePresentViewHandleAcceptDeclineResponse(self, json, status);
     } else if (tag == kTagListLoad) {
-        [self handleListLoadResponse:json status:status];
-    }
-}
-
-// The accept/decline response: on success show the message, record the present, refresh the
-// delegate, and drop the accepted row; otherwise show the coin-overflow prompt, the coin-limit
-// alert, or a generic failure.
-- (void)handleAcceptDeclineResponse:(NSDictionary *)json status:(int)status {
-    NSString *msg = json[kResponseMessageKey];
-    if (status == kStatusOK) {
-        if (!msg) {
-            msg = kReceivedMessage;
-        }
-        [self showPlainAlertWithDelegate:nil tag:3 message:msg];
-        [[ChallengeStatus sharedStatus] receivePresent:json];
-        if ([self.aDelegate respondsToSelector:@selector(refreshStatus)]) {
-            [self.aDelegate performSelector:@selector(refreshStatus)];
-        }
-        NSMutableArray *remaining = [NSMutableArray arrayWithArray:presentList];
-        [remaining removeObjectAtIndex:selectPresentIndex];
-        presentList = [NSArray arrayWithArray:remaining];
-        [presentListView setListArray:presentList];
-        [[ChallengeStatus sharedStatus] setPresentNum:(int)presentList.count];
-        return;
-    }
-
-    if (!msg) {
-        msg = json[kResponseErrorMessageKey];
-    }
-    if (status == kStatusCoinOverflow) {
-        // Ask again, allowing an override that resends with agree = YES.
-        if (!msg) {
-            msg = kCoinOverflowPromptMessage;
-        }
-        [[AlertViewManager sharedManager] makeAlert:0
-                                           delegate:self
-                                                tag:kCoinOverflowConfirmTag
-                                              title:@""
-                                                msg:msg
-                                             cancel:kNoButtonTitle
-                                            btnText:@[ kYesButtonTitle ]
-                                               show:YES];
-        return;
-    }
-    if (status == kStatusCoinLimit) {
-        if (!msg) {
-            msg = kCoinLimitReachedMessage;
-        }
-        [self showPlainAlertWithDelegate:nil tag:3 message:msg];
-        return;
-    }
-    if (!msg) {
-        msg = kReceiveFailedMessage;
-    }
-    [self showPlainAlertWithDelegate:nil tag:0 message:msg];
-}
-
-// The list-load response: on success build the table view over the modal's frame and seed it with
-// the presents; otherwise show the failure and close.
-- (void)handleListLoadResponse:(NSDictionary *)json status:(int)status {
-    if (status == kStatusOK) {
-        presentList = [NSArray arrayWithArray:json[kPresentArrayKey]];
-        presentListView = [[ChallengePresentListView alloc] initWithFrame:self.frame];
-        [presentListView setADelegate:self];
-        [presentListView setListArray:presentList];
-        [self addSubview:presentListView];
-        [[ChallengeStatus sharedStatus] setPresentNum:(int)presentList.count];
-        return;
-    }
-
-    NSString *msg = json[kResponseErrorMessageKey];
-    if (!msg) {
-        msg = kListFetchFailedMessage;
-    }
-    [self showPlainAlertWithDelegate:nil tag:0 message:msg];
-    if ([self.aDelegate respondsToSelector:@selector(closeMenu)]) {
-        [self.aDelegate performSelector:@selector(closeMenu)];
+        ChallengePresentViewHandleListLoadResponse(self, json, status);
     }
 }
 
@@ -281,7 +288,7 @@ static const int kCoinOverflowConfirmTag = 4;
                                                          value:@""
                                                          table:nil];
     (void)[downloader tag]; // Read but unused, as in the binary.
-    [self showPlainAlertWithDelegate:nil tag:3 message:msg];
+    ChallengePresentViewShowPlainAlert(self, nil, 3, msg);
 }
 
 #pragma mark - AlertViewManagerDelegate

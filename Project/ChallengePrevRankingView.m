@@ -102,10 +102,7 @@ static const UIViewAnimationOptions kFadeOptions =
 @interface ChallengePrevRankingView () <ChallengePrevRankingListViewDelegate,
                                         ChallengeRankingListViewDelegate,
                                         AlertViewManagerDelegate,
-                                        DownloaderDelegate>
-@end
-
-@implementation ChallengePrevRankingView {
+                                        DownloaderDelegate> {
     ChallengePrevRankingListView *lineupListView; // +0x8
     ChallengeRankingListView *rankingListView;    // +0x10
     int scratchID;                                // +0x18
@@ -119,6 +116,68 @@ static const UIViewAnimationOptions kFadeOptions =
     NSMutableArray *imageDLTasks;                 // +0x70
     NSDictionary *currentDownload;                // +0x78
 }
+- (BOOL)checkArtworkDownload;
+- (void)imageDownload;
+- (void)showLineupList;
+@end
+
+// Writes the finished artwork to its cache path, drops the task, and either fetches the next task
+// or reveals the line-up list once the queue empties.
+static inline void ChallengePrevRankingViewStoreArtwork(ChallengePrevRankingView *self,
+                                                        id downloader) {
+    NSData *data = [downloader getData];
+    NSString *path =
+        [ScratchUtil imagePathForMusicID:[self->currentDownload[kRecordMusicIDKey] intValue]];
+    NSURL *url = [[NSURL alloc] initFileURLWithPath:path isDirectory:NO];
+    [data writeToURL:url atomically:YES];
+    ExcludeUrlFromICloudBackup(url);
+    [self->imageDLTasks removeObject:self->currentDownload];
+    if (self->imageDLTasks.count == 0) {
+        self->imageDLTasks = nil;
+        [self showLineupList];
+    } else {
+        [self imageDownload];
+    }
+}
+
+// Prepends the "all tunes" head row to the line-up, records the scratch identifier, and either
+// reveals the list or begins downloading the missing artwork.
+static inline void ChallengePrevRankingViewHandleListLoadResponse(ChallengePrevRankingView *self,
+                                                                  NSDictionary *json,
+                                                                  int status,
+                                                                  NSString *errMessage) {
+    if (status == kStatusOK) {
+        NSMutableArray *list = [json[kResponseMusicListKey] mutableCopy];
+        NSDictionary *head =
+            [NSDictionary dictionaryWithObjects:@[ @(kAllTunesMusicID), kAllTunesRowTitle ]
+                                        forKeys:@[ kRecordMusicIDKey, kRecordNameKey ]];
+        [list insertObject:head atIndex:0];
+        self->lineupList = [NSArray arrayWithArray:list];
+        self->scratchID = [json[kResponseScratchIDKey] intValue];
+        if ([self checkArtworkDownload]) {
+            [self showLineupList];
+        } else {
+            [self imageDownload];
+        }
+        return;
+    }
+
+    NSString *msg = errMessage;
+    if (!msg) {
+        msg = kListLoadFailedMessage;
+    }
+    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
+    [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
+                                       delegate:self
+                                            tag:kListLoadErrorAlertTag
+                                          title:@""
+                                            msg:msg
+                                         cancel:ok
+                                        btnText:nil
+                                           show:YES];
+}
+
+@implementation ChallengePrevRankingView
 
 @synthesize aDelegate = _aDelegate;
 
@@ -262,64 +321,10 @@ static const UIViewAnimationOptions kFadeOptions =
 
     int tag = [downloader tag];
     if (tag == kTagArtwork) {
-        [self storeArtworkFromDownloader:downloader];
+        ChallengePrevRankingViewStoreArtwork(self, downloader);
     } else if (tag == kTagListLoad) {
-        [self handleListLoadResponse:json status:status errMessage:errMessage];
+        ChallengePrevRankingViewHandleListLoadResponse(self, json, status, errMessage);
     }
-}
-
-// Writes the finished artwork to its cache path, drops the task, and either fetches the next task
-// or reveals the line-up list once the queue empties.
-- (void)storeArtworkFromDownloader:(id)downloader {
-    NSData *data = [downloader getData];
-    NSString *path =
-        [ScratchUtil imagePathForMusicID:[currentDownload[kRecordMusicIDKey] intValue]];
-    NSURL *url = [[NSURL alloc] initFileURLWithPath:path isDirectory:NO];
-    [data writeToURL:url atomically:YES];
-    ExcludeUrlFromICloudBackup(url);
-    [imageDLTasks removeObject:currentDownload];
-    if (imageDLTasks.count == 0) {
-        imageDLTasks = nil;
-        [self showLineupList];
-    } else {
-        [self imageDownload];
-    }
-}
-
-// Prepends the "all tunes" head row to the line-up, records the scratch identifier, and either
-// reveals the list or begins downloading the missing artwork.
-- (void)handleListLoadResponse:(NSDictionary *)json
-                        status:(int)status
-                    errMessage:(NSString *)errMessage {
-    if (status == kStatusOK) {
-        NSMutableArray *list = [json[kResponseMusicListKey] mutableCopy];
-        NSDictionary *head =
-            [NSDictionary dictionaryWithObjects:@[ @(kAllTunesMusicID), kAllTunesRowTitle ]
-                                        forKeys:@[ kRecordMusicIDKey, kRecordNameKey ]];
-        [list insertObject:head atIndex:0];
-        lineupList = [NSArray arrayWithArray:list];
-        scratchID = [json[kResponseScratchIDKey] intValue];
-        if ([self checkArtworkDownload]) {
-            [self showLineupList];
-        } else {
-            [self imageDownload];
-        }
-        return;
-    }
-
-    NSString *msg = errMessage;
-    if (!msg) {
-        msg = kListLoadFailedMessage;
-    }
-    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
-    [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
-                                       delegate:self
-                                            tag:kListLoadErrorAlertTag
-                                          title:@""
-                                            msg:msg
-                                         cancel:ok
-                                        btnText:nil
-                                           show:YES];
 }
 
 /** @ghidraAddress 0x14218c */

@@ -79,13 +79,33 @@ enum {
     kRetractAddLengthPhone = 0x28,
 };
 
-@implementation HoldMarkerRender {
+@interface HoldMarkerRender () {
     // Weak: the initialiser stores it with objc_storeWeak and the line renderer reads it back with
     // objc_loadWeakRetained. The ivar's encoding does not say so; only the calls do.
     __weak Texture2D *drawTex;
     BOOL isPad;
     int gameAreaDelay;
 }
+@end
+
+// Where a panel's top-left corner sits. Written out six times in the binary; folded here because
+// every copy is instruction-for-instruction the same.
+static inline CGPoint HoldMarkerRenderPanelOrigin(HoldMarkerRender *self, int panel) {
+    // The division is signed and rounds towards zero, which is what the +3-then-mask does. A
+    // negative panel index cannot arise from the caller, but the arithmetic allows for one.
+    int rounded = (panel < 0) ? panel + (kPanelsPerRow - 1) : panel;
+    int column = panel - (rounded & ~(kPanelsPerRow - 1));
+    int row = rounded >> 2;
+
+    int spacing = self->isPad ? kPanelSpacingPad : kPanelSpacingPhone;
+    int margin = self->isPad ? kPanelMarginPad : kPanelMarginPhone;
+    // The pad's grid starts at a constant; the phone's is pushed down by the play area's delay.
+    int top = self->isPad ? kGridTopPad : self->gameAreaDelay + kGridTopPhoneBase;
+
+    return CGPointMake(spacing * column + margin, spacing * row + margin + top);
+}
+
+@implementation HoldMarkerRender
 
 /** @ghidraAddress 0xe7e18 */
 - (instancetype)init:(Texture2D *)tex isPad:(BOOL)aIsPad gameAreaDelay:(int)aGameAreaDelay {
@@ -159,23 +179,6 @@ enum {
     }
 }
 
-// Where a panel's top-left corner sits. Written out six times in the binary; folded here because
-// every copy is instruction-for-instruction the same.
-- (CGPoint)panelOrigin:(int)panel {
-    // The division is signed and rounds towards zero, which is what the +3-then-mask does. A
-    // negative panel index cannot arise from the caller, but the arithmetic allows for one.
-    int rounded = (panel < 0) ? panel + (kPanelsPerRow - 1) : panel;
-    int column = panel - (rounded & ~(kPanelsPerRow - 1));
-    int row = rounded >> 2;
-
-    int spacing = isPad ? kPanelSpacingPad : kPanelSpacingPhone;
-    int margin = isPad ? kPanelMarginPad : kPanelMarginPhone;
-    // The pad's grid starts at a constant; the phone's is pushed down by the play area's delay.
-    int top = isPad ? kGridTopPad : gameAreaDelay + kGridTopPhoneBase;
-
-    return CGPointMake(spacing * column + margin, spacing * row + margin + top);
-}
-
 /** @ghidraAddress 0xe80a4 */
 - (void)renderHoldMarker:(HoldMarkerInfo)marker end:(int)end {
     if (marker.direction == kHoldStateNone) {
@@ -211,7 +214,7 @@ enum {
     float progress = (float)marker.end / (float)marker.state;
     int frame = marker.end / kFramesPerStep;
 
-    CGPoint markerOrigin = [self panelOrigin:end];
+    CGPoint markerOrigin = HoldMarkerRenderPanelOrigin(self, end);
     double spriteSize = isPad ? kPanelPitchPad : kPanelPitchPhone;
     CGRect markerRect = CGRectMake(markerOrigin.x, markerOrigin.y, spriteSize, spriteSize);
 
@@ -225,7 +228,7 @@ enum {
         return;
     }
 
-    CGPoint farOrigin = [self panelOrigin:end + panelDelta];
+    CGPoint farOrigin = HoldMarkerRenderPanelOrigin(self, end + panelDelta);
 
     if (marker.direction == kHoldStatePressed) {
         int tailFrame = (frame > kMaxFrame) ? kMaxFrame : frame;
