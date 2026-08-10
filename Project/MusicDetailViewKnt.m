@@ -121,6 +121,17 @@ static const NSTimeInterval kEditInputLockDuration = 0.7;  // @ghidraAddress 0x2
 // ends.
 static const NSTimeInterval kUploadEndFadeDuration = -0.2; // @ghidraAddress 0x28e050
 
+// The high-score text view's resting centre when the extend mode toggles: its x starts from a
+// per-idiom base plus 40 points and its y sits slightly above the origin.
+static const double kHighscoreBaseXPad = 56.0;             // @ghidraAddress 0x28f878
+static const double kHighscoreBaseXRetina = 30.0;          // fmov d0, 30.0
+static const double kHighscoreBaseXNonRetina = 33.0;       // @ghidraAddress 0x293328
+static const double kHighscoreCenterXNudge = 40.0;         // @ghidraAddress 0x28f1f8
+static const double kHighscoreCenterYPad = -7.0;           // fmov d0, -7.0
+static const double kHighscoreCenterYPhone = -6.0;         // fmov d0, -6.0
+static const NSTimeInterval kExtendModeAnimDuration = 0.3; // @ghidraAddress 0x28f260
+static const NSTimeInterval kExtendModeInputLock = 0.4;    // @ghidraAddress 0x28f2c0
+
 // The seven high-score digits are rendered with a right-justified %7d and mapped through
 // highscoreNumImg; the score board's rating uses the excellent image at a perfect score.
 enum {
@@ -427,6 +438,57 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
     [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
                                             withObject:nil
                                             afterDelay:kEditInputLockDuration];
+}
+
+/** @ghidraAddress 0x1a3b8c */
+- (void)changeExtendMode {
+    if (self.info.extendID != 0) {
+        int difficulty =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        if (self.extendInfo != nil && (self.extendInfo.extendFlag & (1 << difficulty)) != 0) {
+            // Flip the app-wide extend toggle, re-lay the extend info, and reposition the score
+            // board for the new mode.
+            [JubeatAppDelegate.appDelegate setExtendFlag:!JubeatAppDelegate.appDelegate.isExtend];
+            [[AudioManager sharedManager] playSeResFile:kMusicRightSound inDirectory:nil];
+            [self changeExtend:difficulty];
+
+            double baseX;
+            double centerY;
+            if (self.isPad) {
+                baseX = kHighscoreBaseXPad;
+                centerY = kHighscoreCenterYPad;
+            } else {
+                baseX = self.isRetina ? kHighscoreBaseXRetina : kHighscoreBaseXNonRetina;
+                centerY = kHighscoreCenterYPhone;
+            }
+            [highscoreTextView setCenter:CGPointMake(baseX + kHighscoreCenterXNudge, centerY)];
+            [highscoreBoardView setAlpha:0.0];
+            [NSUserDefaults.standardUserDefaults setInteger:difficulty forKey:kPrefDifficultyKey];
+
+            [UIView animateWithDuration:kExtendModeAnimDuration
+                             animations:^{
+                               /** @ghidraAddress 0x1a3f1c */
+                               [self changeDifficulty:difficulty];
+                               double bx;
+                               double cy;
+                               if (self.isPad) {
+                                   bx = kHighscoreBaseXPad;
+                                   cy = kHighscoreCenterYPad;
+                               } else {
+                                   bx = self.isRetina ? kHighscoreBaseXRetina :
+                                                        kHighscoreBaseXNonRetina;
+                                   cy = kHighscoreCenterYPhone;
+                               }
+                               [self->highscoreTextView
+                                   setCenter:CGPointMake(bx + kHighscoreCenterXNudge, cy)];
+                               [self->highscoreBoardView setAlpha:1.0];
+                             }];
+        }
+    }
+    // Input is briefly locked out while the mode change settles.
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kExtendModeInputLock];
 }
 
 /** @ghidraAddress 0x1a3690 */
