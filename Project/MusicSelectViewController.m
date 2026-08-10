@@ -1,6 +1,8 @@
 #import "MusicSelectViewController.h"
 
+#import "AlertViewManager.h"
 #import "ChallengeModeRootView.h"
+#import "JcfDownloadPageNavController.h"
 #import "JubeatAppDelegate.h"
 #import "MarkerSelectView.h"
 #import "MusicDetailView.h"
@@ -31,6 +33,13 @@ static NSString *const kChallengeTapSoundKey = @"MUSIC_SELECT";
 
 // The challenge-mode root view sits on top of the menu at this layer z-position.
 static const CGFloat kChallengeRootViewZPosition = 4000.0; // @ghidraAddress 0x28f238
+
+// Turning to the store while a consume receipt is pending records this verify-purchase type and
+// shows the verify dialog; a completed purchase reports the shared success message.
+static const int kVerifyPurchaseTypeStore = 2;
+static NSString *const kPurchaseSuccessMessage = @"購入処理が完了しました";
+static NSString *const kSettingsTapSoundSuffix = @"MUSIC_RIGHT";
+static NSString *const kVerifyProcessingMessage = @"処理中...";
 
 // The main BGM start voice cue, and the fixed music cues used when closing the web view or opening
 // the notification (the binary hardcodes the Knit-theme resources for these).
@@ -599,6 +608,19 @@ enum {
     }
 }
 
+/** @ghidraAddress 0x26f98 */
+- (void)turnToStore:(nullable id)params {
+    storeParams = params;
+    // A pending consume receipt must be verified first; otherwise the store opens immediately.
+    if ([[PurchaseManager sharedManager] verifyPendingConsumeReceipt]) {
+        [[PurchaseManager sharedManager] setDelegate:self];
+        verifyPurchaseType = kVerifyPurchaseTypeStore;
+        [self showVerifyDialog:kVerifyProcessingMessage];
+    } else {
+        [self turnToStore];
+    }
+}
+
 /** @ghidraAddress 0x26b30 */
 - (void)turnToGenreOpen:(nullable id)sender {
     [self turnToStore:@{@"genre" : sender}];
@@ -652,6 +674,21 @@ enum {
 }
 
 #pragma mark - Settings
+
+/** @ghidraAddress 0x2d030 */
+- (void)tapSettings:(nullable id)sender {
+    if (notificationView.isActive) {
+        [notificationView stopNotification];
+    }
+    [self setEnableGesture:YES];
+    [[AudioManager sharedManager] playSeResFile:[self soundName:kSettingsTapSoundSuffix]
+                                    inDirectory:nil];
+    [self presentViewController:settingsNavCtrl animated:YES completion:nil];
+    bOpenModal = YES;
+    bOpenSetting = YES;
+    [self musicShuffleDisable];
+    [self setSearchEnable:NO];
+}
 
 /** @ghidraAddress 0x2d160 */
 - (void)settingsNavViewClose:(nullable id)sender {
@@ -730,6 +767,40 @@ enum {
     [self hideChallengeCoverView];
     [self setSearchEnable:YES];
     [notificationView startNotification];
+}
+
+#pragma mark - JCF download and purchases
+
+/** @ghidraAddress 0x32d10 */
+- (void)JcfDownLoad:(nullable id)sequenceID {
+    if (sequenceID == nil) {
+        return;
+    }
+    [JubeatAppDelegate.appDelegate resetDownLoadIndex];
+    if (jcfDLPageViewController != nil) {
+        jcfDLPageViewController = nil;
+    }
+    jcfDLPageViewController = [[JcfDownloadPageNavController alloc] initWithSequenceID:sequenceID
+                                                                              delegate:self];
+    [self presentViewController:jcfDLPageViewController animated:YES completion:nil];
+    bOpenModal = YES;
+    [self musicShuffleDisable];
+    [self setSearchEnable:NO];
+}
+
+/** @ghidraAddress 0x3830c */
+- (void)purchaseSucceeded:(nullable id)sender {
+    [[PurchaseManager sharedManager] setDelegate:nil];
+    [[AlertViewManager sharedManager] makeAlert:0
+                                       delegate:self
+                                            tag:1
+                                          title:@""
+                                            msg:kPurchaseSuccessMessage
+                                         cancel:[NSBundle.mainBundle localizedStringForKey:@"OK"
+                                                                                     value:@""
+                                                                                     table:nil]
+                                        btnText:nil
+                                           show:YES];
 }
 
 #pragma mark - Music list
