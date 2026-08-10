@@ -116,6 +116,12 @@ static const NSTimeInterval kStoreBalloonFadeDuration = 0.3; // @ghidraAddress 0
 // duration when the download completes.
 static const NSTimeInterval kJcfDownloadEndFadeDuration = -0.2; // @ghidraAddress 0x28e050
 
+// Closing the search box slides it and its cancel button up by this offset over this duration,
+// playing the themed left cue.
+static const NSTimeInterval kSearchBoxSlideDuration = 0.1; // @ghidraAddress 0x28f290
+static const CGFloat kSearchBoxSlideOffset = -52.0;        // @ghidraAddress 0x28f228
+static NSString *const kSearchBoxCloseSoundSuffix = @"MUSIC_LEFT";
+
 // Completing a challenge-purchase restore records this marker under the restore-end preference and
 // shows the completion alert (tag 3).
 static NSString *const kRestoreCompleteMarker = @"Restore Complete";
@@ -158,6 +164,22 @@ enum {
     kPlaylistSelectionNotPlayed = -1,
     kPlaylistSelectionDefault = -2,
 };
+
+// A tune matches a level when any of its three chart levels equals it, or its extend chart (looked
+// up by extendID) has a matching level.
+static BOOL MusicSelectTuneHasLevel(MusicSelectViewController *self, TuneInfo *tune, int level) {
+    if ((int)tune.lvAdv == level || (int)tune.lvBas == level || (int)tune.lvExt == level) {
+        return YES;
+    }
+    if (tune.extendID != 0) {
+        TuneInfo *extend = self->dictAllExtendTune[@(tune.extendID)];
+        if ((int)extend.lvAdv == level || (int)extend.lvBas == level ||
+            (int)extend.lvExt == level) {
+            return YES;
+        }
+    }
+    return NO;
+}
 
 // A tune counts as a hold chart when its own hold flag is set or its extend chart (looked up by
 // extendID) has a hold flag.
@@ -1000,6 +1022,17 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 
 #pragma mark - Playlist arrays
 
+/** @ghidraAddress 0x21bbc */
+- (void)createArrayLevel:(int)level {
+    arrayLevelList = nil;
+    arrayLevelList = [[NSMutableArray alloc] init];
+    for (TuneInfo *tune in arrayAllTune) {
+        if (MusicSelectTuneHasLevel(self, tune, level)) {
+            [arrayLevelList addObject:tune];
+        }
+    }
+}
+
 /** @ghidraAddress 0x21e34 */
 - (void)createArrayHold {
     if (arrayHoldList != nil) {
@@ -1068,6 +1101,38 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     } else if (list.count != 1 && !bSuffleAnim) {
         [self shuffleAnimation:tune];
     }
+}
+
+#pragma mark - Search box
+
+/** @ghidraAddress 0x35dfc */
+- (void)pushSearchBox {
+    if (bOpenSearchBox) {
+        [searchBox setText:[NSString stringWithString:backUpString]];
+        [[AudioManager sharedManager] playSeResFile:[self soundName:kSearchBoxCloseSoundSuffix]
+                                        inDirectory:nil];
+    }
+    bOpenSearchBox = NO;
+    [self showButtonMarker:YES];
+    if (searchArray.count != 0) {
+        [searchArray removeAllObjects];
+        [self exeSearchPickUp];
+    }
+    [searchBox resignFirstResponder];
+    __weak UISearchBar *weakSearch = searchBox;
+    __weak UIButton *weakCancel = searchCancelBtn;
+    [UIView animateWithDuration:kSearchBoxSlideDuration
+                          delay:0.0
+                        options:UIViewAnimationOptionBeginFromCurrentState |
+                                UIViewAnimationOptionAllowAnimatedContent
+                     animations:^{
+                       /** @ghidraAddress 0x36068 */
+                       weakSearch.transform =
+                           CGAffineTransformMakeTranslation(0.0, kSearchBoxSlideOffset);
+                       weakCancel.transform =
+                           CGAffineTransformMakeTranslation(0.0, kSearchBoxSlideOffset);
+                     }
+                     completion:nil];
 }
 
 #pragma mark - Button marker

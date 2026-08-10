@@ -836,3 +836,4 @@
 0x2e994	(^void)(BOOL)
 0x33248	(^void)(void)
 0x33310	(^void)(BOOL)
+0x36068	(^void)(void)
