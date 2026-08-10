@@ -757,3 +757,6 @@
 0x1a3834	(^void)(void)
 0x1a38fc	(^void)(BOOL)
 0x1a3f1c	(^void)(void)
+0x19ec40	(^void)(void)
+0x19ed24	(^void)(void)
+0x19ee04	(^void)(BOOL)
