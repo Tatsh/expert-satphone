@@ -198,6 +198,12 @@ static const NSTimeInterval kExtendCrossFadeDuration = 0.3; // @ghidraAddress 0x
 // The client's message while it waits for the host to start the shared play.
 static NSString *const kWaitingForHostKey = @"Waiting for host to start";
 
+// The edit text fields sit at half opacity when no edit is loaded, full when one is; the buttons
+// fade over a tenth of a second. The download flag disables the info button's tap feedback.
+static const CGFloat kEditTextDimmedAlpha = 0.5;          // fmov d0, 0.5
+static const NSTimeInterval kResetTextFadeDuration = 0.1; // @ghidraAddress 0x28f290
+static const NSInteger kEditDownloadFlag = 1;
+
 // The host's message while it waits for a client to join, and the button imagery and cues for the
 // host-share start/cancel flow.
 static NSString *const kWaitingForClientKey = @"Waiting for client";
@@ -1170,6 +1176,70 @@ static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) 
         [self.controller presentViewController:self.pFileListView animated:YES completion:nil];
     }
     [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
+}
+
+/** @ghidraAddress 0x19cc38 */
+- (void)resetTextField:(int)index isFirst:(BOOL)isFirst {
+    EditDataManager *manager = [EditDataManager sharedManager];
+    NSString *lastEdit = [manager getLastEditFileName:index];
+    self.isFirstSelect = YES;
+    __weak UIButton *weakInfo = infoBtn;
+    __weak UIButton *weakUpload = uploadBtn;
+    __weak UIButton *weakEdit = editBtn;
+    if (lastEdit == nil) {
+        // No edit loaded: blank and dim the three text fields, hide the extend level image, and
+        // fade the edit buttons in.
+        [editTxt[0] setText:@""];
+        [editTxt[0] setAlpha:kEditTextDimmedAlpha];
+        [editTxt[1] setText:@""];
+        [editTxt[1] setAlpha:kEditTextDimmedAlpha];
+        [editTxt[2] setText:@""];
+        [editTxt[2] setAlpha:kEditTextDimmedAlpha];
+        [levelNumView[kExtendLevelNumIndex] setAlpha:0.0];
+        [manager clearEditData];
+        [self setStartButtonEnable];
+        [UIView animateWithDuration:kResetTextFadeDuration
+                         animations:^{
+                           /** @ghidraAddress 0x19d3f4 */
+                           [weakInfo setAlpha:1.0];
+                           [weakUpload setAlpha:1.0];
+                           [weakEdit setAlpha:1.0];
+                         }
+                         completion:nil];
+        return;
+    }
+
+    // An edit is loaded: show the fields fully, load its JCF, fill the fields from the editor info,
+    // set the extend level image, and toggle the info button's tap feedback on the download flag.
+    self.isFirstSelect = NO;
+    [self setStartButtonEnable];
+    [editTxt[0] setAlpha:1.0];
+    [editTxt[1] setAlpha:1.0];
+    [editTxt[2] setAlpha:1.0];
+    [manager loadJCF:[manager getLastEditFilePath:(int)self.info.tuneID]];
+    NSMutableDictionary *editorInfo = [manager getEditorInfo];
+    int dlFlag = [editorInfo[@"dlFlag"] intValue];
+    [UIView animateWithDuration:kResetTextFadeDuration
+                     animations:^{
+                       /** @ghidraAddress 0x19d2ec */
+                       [weakInfo setAlpha:1.0];
+                       [weakUpload setAlpha:1.0];
+                       [weakEdit setAlpha:1.0];
+                     }
+                     completion:nil];
+    [editTxt[0] setText:editorInfo[@"fumenName"]];
+    [editTxt[1] setText:editorInfo[@"editorName"]];
+    [editTxt[2] setText:editorInfo[@"comment"]];
+    int level = [editorInfo[@"level"] intValue];
+    [levelNumView[kExtendLevelNumIndex] setImage:levelNumImg[level]];
+    [levelNumView[kExtendLevelNumIndex] setAlpha:1.0];
+    if (dlFlag == kEditDownloadFlag) {
+        [infoBtn setAdjustsImageWhenHighlighted:NO];
+        [infoBtn setAdjustsImageWhenDisabled:NO];
+    } else {
+        [infoBtn setAdjustsImageWhenHighlighted:YES];
+        [infoBtn setAdjustsImageWhenDisabled:YES];
+    }
 }
 
 /** @ghidraAddress 0x198750 */
