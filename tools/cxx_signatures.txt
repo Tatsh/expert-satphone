@@ -655,3 +655,6 @@
 0x241bac	(^void)(void)
 0x241dd0	(^void)(void)
 0x1d1f88	(^void)(BOOL)
+0x186f8c	(^void)(void)
+0x187000	(^void)(BOOL)
+0x1887b0	(^void)(void)

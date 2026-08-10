@@ -1,4 +1,6 @@
 Decription
+Hina
+Interp
 Interstitia
 Restorepurchases
 Screenview
@@ -164,6 +166,7 @@ harada
 hidetoshi
 hideyuki
 highscore
+hina
 hinabita
 hiroyuki
 hitomi
@@ -448,6 +451,7 @@ texels
 texure
 thema
 theos
+titlelogo
 tokusho
 topcover
 toprank
