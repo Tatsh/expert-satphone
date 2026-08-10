@@ -140,6 +140,7 @@ target_sources(jubeat PRIVATE
     LogoViewController.m
     MainGameRenderer.m
     MainGameRendererPad.m
+    MainGameRendererPadKnt.m
     MainGameRendererPadRpl.m
     MainGameRendererPhone.m
     MainGameRendererPhoneKnt.m
