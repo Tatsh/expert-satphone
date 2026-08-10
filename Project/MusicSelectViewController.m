@@ -10,6 +10,7 @@
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "LabUtilities.h"
+#import "MarkerManager.h"
 #import "MarkerSelectView.h"
 #import "MusicDetailView.h"
 #import "MusicListView.h"
@@ -63,6 +64,11 @@ static NSString *const kPrefStoreUpdateTimeKey = @"PrefStoreUpdateTime";
 // id catches up. The BGM fades out over this duration when launching challenge mode.
 static NSString *const kPrefScratchUpdateIDKey = @"PrefScratchUpdateID";
 static const double kChallengeBgmFadeOut = 0.5; // fmov, 0.5
+
+// The marker button slides up out of view (or back) over this duration while the search box is
+// lifted to sit above it at this z-position.
+static const NSTimeInterval kButtonMarkerAnimDuration = 0.3; // @ghidraAddress 0x28f260
+static const CGFloat kSearchBoxRaisedZPosition = 4000.0;     // @ghidraAddress 0x28f238
 
 // The last-played tune id preference, used to bias the shuffle away from an immediate repeat.
 static NSString *const kPrefLastPlayedIDKey = @"PrefLastPlayedID";
@@ -1056,6 +1062,42 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
         [self startOpenDetailPanel];
     } else if (list.count != 1 && !bSuffleAnim) {
         [self shuffleAnimation:tune];
+    }
+}
+
+#pragma mark - Button marker
+
+/** @ghidraAddress 0x2e4fc */
+- (void)showButtonMarker:(BOOL)show {
+    __weak UIButton *weakMarker = btnMarker;
+    // The search box is lifted above the marker button for the transition.
+    searchBox.layer.zPosition = kSearchBoxRaisedZPosition;
+    if (!show) {
+        [btnMarker setEnabled:NO];
+        [UIView animateWithDuration:kButtonMarkerAnimDuration
+            animations:^{
+              /** @ghidraAddress 0x2e8e0 */
+              weakMarker.transform =
+                  CGAffineTransformMakeTranslation(0.0, -weakMarker.frame.size.height);
+            }
+            completion:^(BOOL finished) {
+              /** @ghidraAddress 0x2e994 */
+              self->searchBox.layer.zPosition = 0.0;
+            }];
+    } else {
+        [UIView animateWithDuration:kButtonMarkerAnimDuration
+            animations:^{
+              /** @ghidraAddress 0x2e744 */
+              weakMarker.transform = CGAffineTransformIdentity;
+            }
+            completion:^(BOOL finished) {
+              /** @ghidraAddress 0x2e7b4 */
+              self->searchBox.layer.zPosition = 0.0;
+              [weakMarker setEnabled:YES];
+              if (!MarkerManager.enableMarkerSelect) {
+                  [weakMarker setEnabled:NO];
+              }
+            }];
     }
 }
 

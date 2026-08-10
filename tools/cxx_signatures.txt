@@ -830,3 +830,7 @@
 0x2a600	(^void)(void)
 0x2a7fc	(^void)(void)
 0x2a848	(^void)(BOOL)
+0x2e744	(^void)(void)
+0x2e7b4	(^void)(BOOL)
+0x2e8e0	(^void)(void)
+0x2e994	(^void)(BOOL)
