@@ -120,6 +120,15 @@ static const NSUInteger kTuneInfoV3HeaderLength = 4;
 // A tune's own archive stores its BGM under this member (ciphered with the BGM key).
 static NSString *const kTuneBgmEntryName = @"index";
 
+// The join share view is a fixed size (pad 360x400, phone 300x360) centred on the screen and fades
+// in over this duration.
+static const CGFloat kJoinViewWidthPad = 360.0;          // @ghidraAddress 0x28f380
+static const CGFloat kJoinViewHeightPad = 400.0;         // @ghidraAddress 0x28f390
+static const CGFloat kJoinViewWidthPhone = 300.0;        // @ghidraAddress 0x28f388
+static const CGFloat kJoinViewHeightPhone = 360.0;       // @ghidraAddress 0x28f398
+static const NSTimeInterval kJoinViewFadeDuration = 0.2; // @ghidraAddress 0x28e040
+static NSString *const kJoinSoundSuffix = @"MUSIC_SELECT";
+
 // The custom-BGM archive member (ciphered with the BGM key, skipping the 16-byte trailer), the
 // default menu BGM resource suffix, and the store-balloon animation key.
 static NSString *const kCustomBgmEntryName = @"bgm";
@@ -909,6 +918,43 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     [self setupMainBgm];
     [[AudioManager sharedManager] playSeResFile:[self soundName:kMainBgmVoiceSuffix]
                                     inDirectory:nil];
+}
+
+#pragma mark - Share join
+
+/** @ghidraAddress 0x2f930 */
+- (void)pushBtnJoin:(nullable id)sender {
+    [[AudioManager sharedManager] playSeResFile:[self soundName:kJoinSoundSuffix] inDirectory:nil];
+    [self showButtonMarker:NO];
+    [coverView setHidden:NO];
+    [coverView setAlpha:0.0];
+    CGFloat width = isPad ? kJoinViewWidthPad : kJoinViewWidthPhone;
+    CGFloat height = isPad ? kJoinViewHeightPad : kJoinViewHeightPhone;
+    shareClientView = [[MusicShareView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+    [shareClientView
+        setCenter:CGPointMake(self.view.frame.size.width * 0.5, self.view.frame.size.height * 0.5)];
+    [shareClientView setController:self];
+    [shareClientView changeClientModeSearch];
+    [shareClientView setAlpha:0.0];
+    [self.view insertSubview:shareClientView aboveSubview:coverView];
+    self.sharePlayManager =
+        [[SharePlayManager alloc] initWithScreenName:JubeatAppDelegate.appDelegate.gameCenterName];
+    [self.sharePlayManager setDelegate:self];
+    __weak UIView *weakCover = coverView;
+    __weak MusicShareView *weakShare = shareClientView;
+    __weak SharePlayManager *weakManager = self.sharePlayManager;
+    [UIView animateWithDuration:kJoinViewFadeDuration
+        animations:^{
+          /** @ghidraAddress 0x2fdf4 */
+          [weakShare setAlpha:1.0];
+          [weakCover setAlpha:1.0];
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x2fec8 */
+          [weakManager startClient];
+        }];
+    [self musicShuffleDisable];
+    [self setSearchEnable:NO];
 }
 
 #pragma mark - Sound and store navigation
