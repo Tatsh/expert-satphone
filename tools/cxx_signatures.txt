@@ -785,3 +785,5 @@
 0x135a08	(^void)(BOOL)
 0x5b6c8	(^void)(void)
 0x5b864	(^void)(BOOL)
+0x135474	(^void)(void)
+0x5b2d0	(^void)(void)

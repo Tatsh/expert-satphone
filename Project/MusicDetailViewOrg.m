@@ -9,6 +9,7 @@
 #import "ImageLoading.h"
 #import "JcfDownloadPageNavController.h"
 #import "JcfManageNavController.h"
+#import "JcfUpLoadView.h"
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "LabUtilities.h"
@@ -48,6 +49,11 @@ static const float kScrollFadeSpanFraction = 0.125f;
 
 // The upload sheet fades out over this (negative, as the binary passes it) duration.
 static const NSTimeInterval kUploadEndFadeDuration = -0.2; // @ghidraAddress 0x28e050
+
+// The dimming cover behind the upload sheet is translucent black at this alpha and both fade in
+// over this duration.
+static const CGFloat kUploadCoverScrimAlpha = 0.3;     // @ghidraAddress 0x28f248
+static const NSTimeInterval kUploadFadeDuration = 0.2; // @ghidraAddress 0x28e040
 
 // Cancelling a host share fades the share-message label out over this duration.
 static const NSTimeInterval kHostShareCancelFadeDuration = 0.1; // @ghidraAddress 0x28f290
@@ -470,6 +476,37 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self) 
     int buttonY = (int)btnDiff[index].frame.origin.y;
     return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
                        (double)(int)((double)scrollY + (double)buttonY));
+}
+
+/** @ghidraAddress 0x5aefc */
+- (void)uploadStart {
+    [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
+
+    // The dimming cover fills the card, translucent black, and starts transparent.
+    topcover = [[UIView alloc] initWithFrame:self.bounds];
+    [topcover setCenter:CGPointMake(self.bounds.size.width * 0.5, self.bounds.size.height * 0.5)];
+    [topcover setOpaque:NO];
+    [topcover setBackgroundColor:[UIColor colorWithWhite:0 alpha:kUploadCoverScrimAlpha]];
+
+    // The upload sheet is built from the current custom chart data and centred over the card.
+    NSData *customData = [[EditDataManager sharedManager] getCurrentCustomData];
+    upLoadView = [[JcfUpLoadView alloc] initWithData:customData delegate:self ctrl:self.controller];
+    [upLoadView setCenter:CGPointMake(self.frame.size.width * 0.5, self.frame.size.height * 0.5)];
+    [topcover setAlpha:0.0];
+    [upLoadView setAlpha:0.0];
+    [self addSubview:topcover];
+    [self addSubview:upLoadView];
+
+    __weak UIView *weakCover = topcover;
+    __weak JcfUpLoadView *weakUpload = upLoadView;
+    [UIView animateWithDuration:kUploadFadeDuration
+                     animations:^{
+                       /** @ghidraAddress 0x5b2d0 */
+                       [weakCover setAlpha:1.0];
+                       [weakUpload setAlpha:1.0];
+                     }
+                     completion:nil];
+    [self.controller unenableCoverTap];
 }
 
 /** @ghidraAddress 0x5b498 */
