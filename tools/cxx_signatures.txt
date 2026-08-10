@@ -763,3 +763,5 @@
 0x19b22c	(^void)(void)
 0x19f304	(^void)(void)
 0x19f5a4	(^void)(BOOL)
+0x1a0a70	(^void)(void)
+0x1a0b5c	(^void)(BOOL)
