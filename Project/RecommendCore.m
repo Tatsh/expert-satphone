@@ -229,14 +229,16 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
 }
 
 /**
- * @ghidraAddress 0x268cac (dispatch_once body 0x268d24). Routes every allocation through a single
- * super-allocation so the class is a true singleton, and creates the serial queue used to
- * serialise its work. Unlike its three applilink-singleton twins, this one also resets
- * initializeFlg to 0 on the freshly allocated instance.
+ * @ghidraAddress 0x268cac
+ * @brief Routes every allocation through a single super-allocation so the class is a true
+ * singleton, and creates the serial queue used to serialise its work. Unlike its three
+ * applilink-singleton twins, this one also resets initializeFlg to 0 on the freshly allocated
+ * instance.
  */
 + (instancetype)allocWithZone:(NSZone *)zone {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+      /** @ghidraAddress 0x268d24 */
       g_hRecommendCoreQueue = dispatch_queue_create("RecommendCore", nil);
       if (g_pRecommendCoreShared == nil) {
           g_pRecommendCoreShared = [super allocWithZone:zone];

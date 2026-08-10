@@ -180,13 +180,14 @@ static dispatch_queue_t gRewardCoreQueue;
 }
 
 /**
- * @ghidraAddress 0x231374 (dispatch_once body Block_RewardCoreAllocSharedInstance at 0x2313ec).
- * Routes every allocation through a single super-allocation so the class is a true singleton, and
- * creates the serial queue used to serialise its work.
+ * @ghidraAddress 0x231374
+ * @brief Routes every allocation through a single super-allocation so the class is a true
+ * singleton, and creates the serial queue used to serialise its work.
  */
 + (instancetype)allocWithZone:(NSZone *)zone {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+      /** @ghidraAddress 0x2313ec */
       gRewardCoreQueue = dispatch_queue_create("RewardCore", nil);
       if (gRewardCoreInstance == nil) {
           gRewardCoreInstance = [super allocWithZone:zone];
@@ -196,8 +197,7 @@ static dispatch_queue_t gRewardCoreQueue;
     return gRewardCoreInstance;
 }
 
-// @ghidraAddress 0x2311a4 (init body dispatched onto a serial queue; Block_RewardCoreInitOnQueue at
-// 0x2312b0 calls [super init]).
+/** @ghidraAddress 0x2311a4 */
 - (instancetype)init {
     // The super-init runs synchronously on the serial queue, so every initialisation of the
     // singleton is serialised against its other work.

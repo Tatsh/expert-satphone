@@ -17,8 +17,9 @@
 #import "Texture2D.h"
 #import "UpperBGKnit.h"
 
-// A shared "never remove this animation" repeat count, defined elsewhere in the binary as 1e30.
-extern const float g_flRepeatForever1e30;
+// The "repeat forever" animation repeat count, 1e30. A __const literal-pool float, not an exported
+// global; the binary loads it inline.
+static const float kRepeatForever1e30 = 1e30f;
 
 // The reference width the non-iPad layout scale divides by, from the double at 0x10028f470.
 static const CGFloat kTitleReferenceWidth = 320.0;
@@ -443,7 +444,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
     anim.fromValue = @(0.1f); // 0x10028f70c
     anim.toValue = @(1.0f);
     anim.autoreverses = YES;
-    anim.repeatCount = g_flRepeatForever1e30;
+    anim.repeatCount = kRepeatForever1e30;
     anim.timingFunction =
         [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
     anim.removedOnCompletion = NO;
@@ -912,8 +913,6 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 
     __weak UIView *weakCover = coverView;
     __weak LicenseAgreementView *weakSheet = licenseAgree;
-    // The completion argument in the binary is the shared empty global block at 0x1002d0ca0
-    // (invoke 0x1d1f88), not a fresh literal, so no ghidraAddress tag belongs on it.
     [UIView animateWithDuration:0.2 // 0x10028e040
                      animations:^{
                        /** @ghidraAddress 0x1d1eb4 */
@@ -921,6 +920,9 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
                        weakSheet.alpha = 1.0;
                      }
                      completion:^(BOOL finished){
+                         // The binary's completion here is the shared empty global block (invoke
+                         // 0x1d1f88); it does nothing.
+                         /** @ghidraAddress 0x1d1f88 */
                      }];
 }
 

@@ -654,3 +654,4 @@
 0x241820	(^void)(BOOL, NSError *)
 0x241bac	(^void)(void)
 0x241dd0	(^void)(void)
+0x1d1f88	(^void)(BOOL)
