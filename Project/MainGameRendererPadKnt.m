@@ -135,6 +135,28 @@ static const unsigned int kStartMarkPulseEnd = 0x50;    // 80
 static const float kStartMarkSweepFrom = -100.0f;       // @ghidraAddress 0x2934a4
 static const float kStartMarkSweepTo = 100.0f;          // @ghidraAddress 0x28f4e0
 
+// The combo display: a combo-cut flash sprite that shrinks from 1.2 and fades in over eight frames
+// when the combo drops, then the combo digits (up to four) with a downward-rippling bounce driven
+// by the combo-effect frame, and a trailing "combo" word sprite. The digit glyph is its ASCII code
+// minus 0x2c; digits sit 0xba apart, the word 0xa2 past the last digit.
+static const unsigned int kComboMinToShow = 4; // the combo cut and digits need more than four
+static const unsigned int kComboCutFrames = 8;
+static const float kComboCutScaleFrom = 1.2000000476837158f; // @ghidraAddress 0x292aa8
+static const double kComboCutCentreX = 384.0;                // @ghidraAddress 0x292470
+static const float kComboCutY = 486.0f;                      // @ghidraAddress 0x293e5c
+static const double kComboCutAnchorY = 486.0;                // @ghidraAddress 0x2929c8
+static const NSUInteger kComboCutSprite = 1;
+static const unsigned int kComboEffectFrames = 10;
+static const unsigned int kComboMaxDigits = 4;
+static const int kComboDigitStride = 0xba; // 186
+static const int kComboDigitStartXBase = 0x300;
+static const double kComboDigitY = 486.0;          // @ghidraAddress 0x2929c8
+static const int kComboDigitYBase = 0x1e6;         // 486
+static const int kComboGlyphBias = -0x2c;          // ASCII digit to combo glyph sprite
+static const int kComboWordTrailingOffset = -0xa2; // -162, the word's x past the last digit
+static const double kComboWordY = 720.0;           // @ghidraAddress 0x2929d0
+static const NSUInteger kComboWordSprite = 0;
+
 // The origin of grid panel @p index within the Knit marker grid.
 static inline CGPoint MainGameRendererPadKntPanelOrigin(int index) {
     int x = (index % kMarkerGridColumns) * kMarkerPanelPitch | kMarkerPanelInset;
@@ -215,6 +237,109 @@ MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *s
 /** @ghidraAddress 0x202390 */
 - (CGRect)getMusicBarRect {
     return musicBarRect;
+}
+
+/** @ghidraAddress 0x20186c */
+- (void)renderCombo:(unsigned int)combo alpha:(float)alpha {
+    if (self.scoreBackup) {
+        return;
+    }
+    if (comboEffectFrame != 0) {
+        comboEffectFrame = comboEffectFrame - 1;
+    }
+    // A drop from a combo above four triggers the combo-cut flash.
+    if (combo < lastCombo && lastCombo > kComboMinToShow) {
+        comboCutFrame = kComboCutFrames;
+    } else if (comboCutFrame == 0) {
+        goto digits;
+    }
+    if (self.showCombo) {
+        CGSize cutSize = [self.texCombo spriteAtIndex:kComboCutSprite].size;
+        float scale =
+            InterpolateFloatByFrame(kComboCutScaleFrom, 1.0f, comboCutFrame, 0, kComboCutFrames);
+        float cutAlpha =
+            InterpolateFloatByFrame(0.0f, g_flKeyTime080, comboCutFrame, 0, kComboCutFrames);
+        double centreX = kComboCutCentreX - cutSize.width * 0.5;
+        [self.texCombo
+            drawSprite:kComboCutSprite
+               atPoint:CGPointMake(centreX - (cutSize.width * (double)scale - cutSize.width) * 0.5,
+                                   (double)kComboCutY -
+                                       (cutSize.height * (double)scale - cutSize.height) * 0.5)
+                 scale:scale
+                rotate:0
+                anchor:CGPointMake(centreX, kComboCutAnchorY)
+             transform:1
+                 alpha:cutAlpha];
+    }
+    comboCutFrame = comboCutFrame - 1;
+digits:
+    if (combo <= kComboMinToShow) {
+        lastCombo = combo;
+        return;
+    }
+    if (lastCombo < combo) {
+        comboEffectFrame = kComboEffectFrames;
+    }
+    char buf[5];
+    int length = snprintf(buf, sizeof(buf), "%d", combo);
+    if (length > 0) {
+        unsigned int digitCount = (unsigned int)(length < 5 ? length : kComboMaxDigits + 1);
+        if (digitCount > kComboMaxDigits) {
+            digitCount = kComboMaxDigits;
+        }
+        int startX = digitCount * -kComboDigitStride + kComboDigitStartXBase;
+        if (startX < 0) {
+            startX = (digitCount * -kComboDigitStride + kComboDigitStartXBase + 1) >> 1;
+        } else {
+            startX = startX >> 1;
+        }
+        int effectFrame = comboEffectFrame;
+        if (self.showCombo) {
+            if (digitCount - 1 < kComboMaxDigits) {
+                // A short combo: the digits ripple downward as the combo-effect frame passes them.
+                int clampedLen = (int)~combo;
+                clampedLen = (clampedLen > -5) ? clampedLen : -5;
+                int rippleHead = effectFrame - clampedLen;
+                int digitX = startX;
+                for (unsigned int i = 0; i < digitCount; ++i) {
+                    int bounce = 0;
+                    if (rippleHead - 0xb == (int)i) {
+                        bounce = -5;
+                    } else if (rippleHead - 0xc == (int)i) {
+                        bounce = -10;
+                    } else if (rippleHead - 0xd == (int)i) {
+                        bounce = -15;
+                    }
+                    if (i + 1 > digitCount) {
+                        bounce = 0;
+                    }
+                    [self.texCombo
+                        drawSprite:(NSUInteger)(buf[i] + kComboGlyphBias)
+                           atPoint:CGPointMake((double)digitX, (double)(bounce + kComboDigitYBase))
+                         transform:0
+                             alpha:alpha];
+                    digitX += kComboDigitStride;
+                }
+            } else {
+                int digitX = startX;
+                for (unsigned int i = 0; i < digitCount; ++i) {
+                    [self.texCombo drawSprite:(NSUInteger)(buf[i] + kComboGlyphBias)
+                                      atPoint:CGPointMake((double)digitX, kComboDigitY)
+                                    transform:0
+                                        alpha:alpha];
+                    digitX += kComboDigitStride;
+                }
+            }
+            [self.texCombo
+                drawSprite:kComboWordSprite
+                   atPoint:CGPointMake((double)((int)(startX + digitCount * kComboDigitStride) +
+                                                kComboWordTrailingOffset),
+                                       kComboWordY)
+                 transform:0
+                     alpha:alpha];
+        }
+    }
+    lastCombo = combo;
 }
 
 /** @ghidraAddress 0x200a40 */
