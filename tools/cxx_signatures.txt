@@ -951,3 +951,8 @@
 0x1098dc	(^void)(BOOL)
 0x109934	(^void)(BOOL)
 0x10a13c	(^void)(BOOL)
+0x121484	(^void)(BOOL)
+0x121c30	(^void)(BOOL)
+0x111770	(^void)(BOOL)
+0x152264	(^void)(BOOL)
+0x193ad4	(^void)(BOOL)

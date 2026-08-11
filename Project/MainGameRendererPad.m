@@ -2292,7 +2292,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
                                        [goodJob setAlpha:(double)alphaMax];
                                      }
                                      completion:^(BOOL finished){
-                                         /** @ghidraAddress 0x10a13c */
+                                         /** @ghidraAddress 0x109884 */
                                      }];
                 }
             }

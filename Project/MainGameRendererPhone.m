@@ -766,7 +766,9 @@ MainGameRendererPhoneRenderResultCurtain(MainGameRendererPhone *self, double sli
                        /** @ghidraAddress 0x111724 */
                        goodJobImage.alpha = 0.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x111770 */
+                     }];
 }
 
 #pragma mark - Layout override points

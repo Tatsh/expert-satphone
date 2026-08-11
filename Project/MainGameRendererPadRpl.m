@@ -555,7 +555,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                            [goodJob setAlpha:0.0f];
                          }
                          completion:^(BOOL finished){
-                             /** @ghidraAddress 0x1002cde50 */
+                             /** @ghidraAddress 0x121c30 */
                              // The completion block is the shared empty global block.
                          }];
     }
@@ -2674,7 +2674,9 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                        /** @ghidraAddress 0x121438 */
                                        [goodJob setAlpha:1.0f];
                                      }
-                                     completion:nil];
+                                     completion:^(BOOL finished){
+                                         /** @ghidraAddress 0x121484 */
+                                     }];
                 }
                 if (self.goodJobImage) {
                     __weak UIImageView *goodJob = self.goodJobImage;

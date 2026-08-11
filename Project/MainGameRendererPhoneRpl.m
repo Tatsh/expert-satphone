@@ -516,7 +516,9 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                        /** @ghidraAddress 0x152218 */
                        goodJob.alpha = 0.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x152264 */
+                     }];
 }
 
 /** @ghidraAddress 0x14d70c */

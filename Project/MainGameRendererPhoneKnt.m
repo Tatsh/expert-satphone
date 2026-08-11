@@ -692,7 +692,9 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
                        /** @ghidraAddress 0x193a88 */
                        goodJobImage.alpha = 0.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x193ad4 */
+                     }];
 }
 
 #pragma mark - Layout override points
