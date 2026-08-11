@@ -4,6 +4,7 @@
 #import "BFCodec.h"
 #import "BalloonView.h"
 #import "ChallengeModeRootView.h"
+#import "ChallengeStatus.h"
 #import "Downloader.h"
 #import "EditorIDManager.h"
 #import "JcfDownloadPageNavController.h"
@@ -11,6 +12,7 @@
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "LabUtilities.h"
+#import "LicenseAgreementView.h"
 #import "MarkerManager.h"
 #import "MarkerSelectView.h"
 #import "Md5Utilities.h"
@@ -28,6 +30,8 @@
 #import "RootViewController.h"
 #import "RotatableNavigationController.h"
 #import "ScoreRecord.h"
+#import "ScratchUtil.h"
+#import "SessionDownloader.h"
 #import "SharePlayManager.h"
 #import "StoreUtil.h"
 #import "TuneInfo.h"
@@ -160,6 +164,23 @@ static const int kRestoreCompleteAlertTag = 3;
 // challenge-info download path uses the other pending type.
 static const int kVerifyPurchaseTypeStore = 2;
 static const int kVerifyPurchaseTypeChallenge = 1;
+
+// The challenge-info download reads the current marker into the client-info payload, gates on the
+// challenge-policy agreement recorded under this defaults key, and requires the purchased packs to
+// have been restored before it will run.
+static NSString *const kPrefCurrentMarkerIDKey = @"PrefCurrentMarkerID";
+static NSString *const kClientInfoMarkerIDKey = @"markerID";
+static NSString *const kPrefAgreeChallengePolicyVersionKey = @"PrefAgreeChallengePolicyVersion";
+static NSString *const kChallengePolicyRestoreRequiredMessage =
+    @"チャレンジモードをプレイする前に、購入パックの復元を行う必要があります";
+
+// The challenge-info request's apiTag: a full initialise before the challenge state is loaded, or a
+// simple re-initialise once it already is. The downloader itself carries the challenge tag.
+enum {
+    kChallengeApiTagInitialize = 2,
+    kChallengeApiTagSimpleInitialize = 3,
+};
+static const int kChallengeInfoDownloaderTag = 1;
 static NSString *const kPurchaseSuccessMessage = @"購入処理が完了しました";
 static NSString *const kSettingsTapSoundSuffix = @"MUSIC_RIGHT";
 static NSString *const kVerifyProcessingMessage = @"処理中...";
@@ -1791,6 +1812,64 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
           [weakCover removeFromSuperview];
           challengeCoverView = nil;
         }];
+}
+
+/** @ghidraAddress 0x371a4 */
+- (void)downloadChallengeInfo {
+    if (notificationView.isActive) {
+        [notificationView stopNotification];
+    }
+    bLaunchCMode = JubeatAppDelegate.appDelegate.bChallengeMode;
+    [self showChallengeCoverView];
+    if (!EditorIDManager.isExistEditorID) {
+        idManager = [[EditorIDManager alloc] initWithDelegate:self];
+        return;
+    }
+    if ([PurchaseManager sharedManager].verifyPendingConsumeReceipt) {
+        // A consume receipt is still pending: verify it before the challenge info can be fetched.
+        verifyPurchaseType = kVerifyPurchaseTypeChallenge;
+        [[PurchaseManager sharedManager] setDelegate:self];
+        [self showVerifyDialog:kVerifyProcessingMessage];
+        return;
+    }
+    if (!checkPolicy) {
+        // The challenge policy has not yet been agreed: present the licence agreement over the
+        // cover, centred on the screen.
+        CGRect bounds = UIScreen.mainScreen.bounds;
+        LicenseAgreementView *agreementView =
+            [[LicenseAgreementView alloc] init:self keyString:kPrefAgreeChallengePolicyVersionKey];
+        agreementView.center = CGPointMake(bounds.size.width * 0.5, bounds.size.height * 0.5);
+        [challengeCoverView addSubview:agreementView];
+        return;
+    }
+    if ([NSUserDefaults.standardUserDefaults valueForKey:kPrefChallengeRestoreEndKey] == nil) {
+        // The purchased packs have not been restored yet, which challenge mode requires first.
+        [[AlertViewManager sharedManager]
+            makeAlert:0
+             delegate:self
+                  tag:kAlertTagRestore
+                title:@""
+                  msg:kChallengePolicyRestoreRequiredMessage
+               cancel:[NSBundle.mainBundle localizedStringForKey:@"Cancel" value:@"" table:nil]
+              btnText:@[ [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil] ]
+                 show:YES];
+        return;
+    }
+    NSMutableDictionary *postDictionary = [JubeatAppDelegate.clientInfo mutableCopy];
+    postDictionary[kClientInfoMarkerIDKey] =
+        [NSUserDefaults.standardUserDefaults objectForKey:kPrefCurrentMarkerIDKey];
+    NSURL *url = ScratchUtil.challengeInitializeURL;
+    if (ChallengeStatus.sharedStatus.bInitialized) {
+        url = ScratchUtil.challengeSimpleInitializeURL;
+    }
+    int apiTag = ChallengeStatus.sharedStatus.bInitialized ? kChallengeApiTagSimpleInitialize :
+                                                             kChallengeApiTagInitialize;
+    challengeInfoDownloader = [[SessionDownloader alloc] initWithURL:url
+                                                      postDictionary:postDictionary
+                                                            delegate:self];
+    [challengeInfoDownloader setTag:kChallengeInfoDownloaderTag];
+    challengeInfoDownloader.apiTag = apiTag;
+    [challengeInfoDownloader startDownloading];
 }
 
 /** @ghidraAddress 0x36da0 */
