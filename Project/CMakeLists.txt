@@ -116,6 +116,7 @@ target_sources(jubeat PRIVATE
     GenrePagingScrollView.m
     GradationView.m
     HoldMarkerRender.m
+    HostClass.m
     ImageCache.m
     ImageDownloader.m
     ImageLoading.m
@@ -236,6 +237,7 @@ target_sources(jubeat PRIVATE
     SettingsEditorPageViewController.m
     SettingsHowtoViewController.m
     SettingsInquiryViewController.m
+    SettingsMapItem.m
     SettingsMapViewController.m
     SettingsNavController.m
     SettingsPolicyViewController.m
