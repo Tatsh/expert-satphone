@@ -38,6 +38,7 @@
 #import "ScoreRecord.h"
 #import "ScoreRecordManager.h"
 #import "ScratchUtil.h"
+#import "SearchExpandEditor.h"
 #import "SessionDownloader.h"
 #import "SettingsNavController.h"
 #import "SharePlayManager.h"
@@ -93,6 +94,25 @@ static const NSUInteger kNotYetPlayedRecordCapacity = 16;
 static NSString *const kPrefFcCheckFlagV2Key = @"PrefFcCheckFlagV2";
 static NSString *const kStoreMusicIDKey = @"ID";
 static NSString *const kNotYetPlayedPredicateFormat = @"NOT (tuneID IN %@)";
+
+// The music catalogue is loaded from the bundled Music folder (built-in tunes named "<id>.jbt")
+// plus purchased and extend tunes on disk; a metadata cache under the caches directory records each
+// purchased tune's file size and timestamp so unchanged files skip a re-parse. Search terms are
+// normalised (spaces stripped, hiragana to katakana, fullwidth to halfwidth), and the playlists are
+// loaded from this document. The extend-music flag marks a tune as an extend chart.
+static const NSUInteger kMusicListInitialCapacity = 256;
+static const NSUInteger kMusicCacheInitialCapacity = 64;
+static NSString *const kBuiltinMusicResourceName = @"Music";
+static NSString *const kBuiltinMusicResourceType = @"";
+static NSString *const kBuiltinMusicFileFormat = @"%d.jbt";
+static NSString *const kMusicIDFormat = @"%d";
+static NSString *const kMusicCacheFileName = @"musiccache";
+static NSString *const kMusicCacheFileSizeKey = @"filesize";
+static NSString *const kMusicCacheTimestampKey = @"timestamp";
+static NSString *const kMusicExtendFlagKey = @"extendFlag";
+static NSString *const kPlaylistsFileName = @"playlists.plist";
+static NSString *const kSearchTermSpace = @" ";
+static NSString *const kSearchTermEmpty = @"";
 
 // Tapping a push notification posts a read-response to the scratch server carrying the editor id,
 // the notification's push id, and this "tapped" status, keyed under these names.
@@ -1698,6 +1718,162 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 #pragma mark - Playlist arrays
+
+/** @ghidraAddress 0x1f354 */
+- (void)refreshMusicList {
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSMutableArray<TuneInfo *> *allTunes =
+        [[NSMutableArray alloc] initWithCapacity:kMusicListInitialCapacity];
+    NSMutableArray<TuneInfo *> *extendTunes = [[NSMutableArray alloc] init];
+    // Built-in tunes ship in the bundle's Music folder as "<id>.jbt".
+    NSString *musicDir = [NSBundle.mainBundle pathForResource:kBuiltinMusicResourceName
+                                                       ofType:kBuiltinMusicResourceType];
+    if (musicDir != nil) {
+        for (NSNumber *musicID in StoreMusicListManager.sharedManager.builtinMusic) {
+            NSString *path = [musicDir
+                stringByAppendingPathComponent:[NSString stringWithFormat:kBuiltinMusicFileFormat,
+                                                                          musicID.intValue]];
+            BOOL isDirectory = NO;
+            if ([fileManager fileExistsAtPath:path isDirectory:&isDirectory] && !isDirectory) {
+                id info = [self getTuneInfo:path];
+                if (info != nil) {
+                    TuneInfo *tune = [[TuneInfo alloc] initWithfilePath:path dictionary:info];
+                    if (tune != nil && tune.tuneID == (unsigned int)musicID.intValue) {
+                        [allTunes addObject:tune];
+                    }
+                }
+            }
+        }
+    }
+    // Purchased and extend tunes live on disk; a metadata cache lets unchanged files skip a parse.
+    NSMutableArray *storeMusic =
+        [NSMutableArray arrayWithArray:StoreMusicListManager.sharedManager.purchasedMusic];
+    [storeMusic addObjectsFromArray:StoreMusicListManager.sharedManager.extendMusic];
+    NSArray *storeMusicList = [NSArray arrayWithArray:storeMusic];
+    NSString *cachePath =
+        [JubeatAppDelegate.appCachesDirectory stringByAppendingPathComponent:kMusicCacheFileName];
+    NSMutableDictionary *cache = nil;
+    BOOL cacheIsDirectory = NO;
+    if ([fileManager fileExistsAtPath:cachePath isDirectory:&cacheIsDirectory] &&
+        !cacheIsDirectory) {
+        cache = [[NSMutableDictionary alloc] initWithContentsOfFile:cachePath];
+    }
+    if (cache == nil) {
+        cache = [[NSMutableDictionary alloc] initWithCapacity:kMusicCacheInitialCapacity];
+    }
+    BOOL cacheDirty = NO;
+    for (NSDictionary *entry in storeMusicList) {
+        NSNumber *storeID = entry[kStoreMusicIDKey];
+        NSString *idKey = [NSString stringWithFormat:kMusicIDFormat, storeID.unsignedIntValue];
+        if (storeID == nil) {
+            continue;
+        }
+        // Extend charts are collected separately from ordinary purchased tunes.
+        NSMutableArray<TuneInfo *> *target =
+            [entry[kMusicExtendFlagKey] intValue] != 0 ? extendTunes : allTunes;
+        NSString *path = [StoreUtil filePathForMusicID:(int)storeID.unsignedIntValue];
+        BOOL isDirectory = NO;
+        if (![fileManager fileExistsAtPath:path isDirectory:&isDirectory] || isDirectory) {
+            continue;
+        }
+        NSDictionary *attributes = [fileManager attributesOfItemAtPath:path error:nil];
+        NSNumber *fileSize = attributes[NSFileSize];
+        NSDate *modificationDate = attributes[NSFileModificationDate];
+        NSDictionary *cached = cache[idKey];
+        if (cached != nil) {
+            // A cache hit whose recorded size and timestamp still match skips re-reading the file.
+            if ([cached[kMusicCacheFileSizeKey] isEqualToNumber:fileSize] &&
+                [cached[kMusicCacheTimestampKey] isEqualToDate:modificationDate]) {
+                TuneInfo *tune = [[TuneInfo alloc] initWithfilePath:path dictionary:cached];
+                if (tune != nil && tune.tuneID == storeID.unsignedIntValue) {
+                    [target addObject:tune];
+                }
+                continue;
+            }
+        }
+        id info = [self getTuneInfo:path];
+        if (info == nil) {
+            continue;
+        }
+        TuneInfo *tune = [[TuneInfo alloc] initWithfilePath:path dictionary:info];
+        if (tune == nil || tune.tuneID != storeID.unsignedIntValue) {
+            continue;
+        }
+        [target addObject:tune];
+        if (fileSize != nil && modificationDate != nil) {
+            NSMutableDictionary *record = [[NSMutableDictionary alloc] initWithDictionary:info];
+            record[kMusicCacheFileSizeKey] = fileSize;
+            record[kMusicCacheTimestampKey] = modificationDate;
+            cache[idKey] = [NSDictionary dictionaryWithDictionary:record];
+            cacheDirty = YES;
+        }
+    }
+    if (cacheDirty) {
+        [cache writeToFile:cachePath atomically:YES];
+    }
+    // Index the extend tunes by id for later extend-chart lookups.
+    NSMutableDictionary *extendByID =
+        [[NSMutableDictionary alloc] initWithCapacity:extendTunes.count];
+    for (TuneInfo *tune in extendTunes) {
+        extendByID[@(tune.tuneID)] = tune;
+    }
+    dictAllExtendTune = [NSDictionary dictionaryWithDictionary:extendByID];
+    [allTunes sortUsingSelector:@selector(compareYomi:)];
+    arrayAllTune = [[NSArray alloc] initWithArray:allTunes];
+    // Build the search dictionary: each tune's normalised name and artist, plus any expand-editor
+    // synonyms, keyed by tune id.
+    NSDictionary *expandDictionary = [[[SearchExpandEditor alloc] init] getDictionary];
+    searchDictionary = [[NSMutableDictionary alloc] init];
+    for (TuneInfo *tune in arrayAllTune) {
+        NSMutableString *name =
+            [[tune.name stringByReplacingOccurrencesOfString:kSearchTermSpace
+                                                  withString:kSearchTermEmpty] mutableCopy];
+        if (name == nil) {
+            name = [[NSMutableString alloc] initWithString:kSearchTermEmpty];
+        } else {
+            CFStringTransform(
+                (CFMutableStringRef)name, nullptr, kCFStringTransformHiraganaKatakana, false);
+            CFStringTransform(
+                (CFMutableStringRef)name, nullptr, kCFStringTransformFullwidthHalfwidth, false);
+        }
+        NSMutableString *artist =
+            [[tune.artist stringByReplacingOccurrencesOfString:kSearchTermSpace
+                                                    withString:kSearchTermEmpty] mutableCopy];
+        if (artist == nil) {
+            artist = [[NSMutableString alloc] initWithString:kSearchTermEmpty];
+        } else {
+            CFStringTransform(
+                (CFMutableStringRef)artist, nullptr, kCFStringTransformHiraganaKatakana, false);
+            CFStringTransform(
+                (CFMutableStringRef)artist, nullptr, kCFStringTransformFullwidthHalfwidth, false);
+        }
+        NSMutableArray<NSString *> *terms = [[NSMutableArray alloc] init];
+        [terms addObject:name];
+        [terms addObject:artist];
+        NSString *idKey = [NSString stringWithFormat:kMusicIDFormat, tune.tuneID];
+        if (expandDictionary != nil && expandDictionary[idKey] != nil) {
+            for (NSString *synonym in expandDictionary[idKey]) {
+                NSMutableString *term = [synonym mutableCopy];
+                CFStringTransform(
+                    (CFMutableStringRef)term, nullptr, kCFStringTransformHiraganaKatakana, false);
+                CFStringTransform(
+                    (CFMutableStringRef)term, nullptr, kCFStringTransformFullwidthHalfwidth, false);
+                [terms addObject:term];
+            }
+        }
+        searchDictionary[@(tune.tuneID)] = terms;
+    }
+    [self createArrayNotYetPlayed];
+    [self createArrayHold];
+    [self createArrayNotHold];
+    NSInteger level = [NSUserDefaults.standardUserDefaults integerForKey:kPrefPlayListLevelKey];
+    [self createArrayLevel:(int)(level != 0 ? level : 1)];
+    NSString *playlistsPath =
+        [JubeatAppDelegate.appDocumentsDirectory stringByAppendingPathComponent:kPlaylistsFileName];
+    playlistManager = [[MusicPlaylistManager alloc] initWithFile:playlistsPath];
+    currentPlaylistSource = nil;
+    arrayCurrentPlaylist = nil;
+}
 
 /** @ghidraAddress 0x20ff0 */
 - (void)createArrayNotYetPlayed {
