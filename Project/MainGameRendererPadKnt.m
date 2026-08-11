@@ -87,6 +87,19 @@ static const unsigned int kButtonGridPitch = 0xc0;
 static const unsigned int kButtonGridInsetX = 0x60;
 static const unsigned int kButtonGridTopY = 0x160;
 
+// The upper HUD layout for the pad Knit renderer: the tune-info block, music bar, live score, and
+// partner score, with the artwork sized at 160 points.
+static const double kUpperTuneInfoX = 18.0;        // fmov 18.0
+static const double kUpperTuneInfoY = 25.0;        // fmov 25.0
+static const double kUpperArtworkSize = 160.0;     // @ghidraAddress 0x28f438
+static const double kUpperMusicBarX = 8.0;         // fmov 8.0
+static const double kUpperMusicBarY = 208.0;       // @ghidraAddress 0x2929f0
+static const double kUpperScoreX = 412.0;          // @ghidraAddress 0x2929f8
+static const double kUpperScoreY = 138.0;          // @ghidraAddress 0x2924c8
+static const double kUpperPartnerScoreX = 516.0;   // @ghidraAddress 0x100292a00
+static const double kUpperPartnerScoreY = 80.0;    // @ghidraAddress 0x10028f3f8
+static const double kUpperPartnerScoreScale = 0.7; // @ghidraAddress 0x100291c98
+
 // The debug-text overlay lays glyphs out on a 12-point advance and a 20-point line height, capped
 // at 0x200 glyphs; each printable character maps to the font sprite at its ASCII code minus space.
 static const double kDebugGlyphAdvance = 12.0;
@@ -1644,6 +1657,31 @@ digits:
         tension = 0;
     }
     [self.upperBgKnt renderUpperBg:self.texWaveAr tension:tension isResult:isResult];
+}
+
+/** @ghidraAddress 0x202ad4 */
+- (void)renderUpper {
+    [self renderTuneInfo:CGPointMake(kUpperTuneInfoX, kUpperTuneInfoY)
+             artworkSize:kUpperArtworkSize
+                   alpha:1.0];
+    [self renderMusicBar:CGPointMake(kUpperMusicBarX, kUpperMusicBarY)
+                timeline:(self.state == kRenderStatePlay)
+                   alpha:1.0];
+    // The live score comes from the sequence's running point total, replaced by the backed-up
+    // final total while a replay result is held.
+    unsigned int score = 0;
+    if (self.sequence != nil) {
+        const ScoreData *scoreData = [self.sequence getScore];
+        score = (unsigned int)scoreData->point;
+    }
+    if (self.scoreBackup) {
+        score = (unsigned int)self.replayBackupScore.totalPoint;
+    }
+    [self renderScore:score atPoint:CGPointMake(kUpperScoreX, kUpperScoreY) alpha:1.0];
+    [self renderPartnerScore:self.partnerScore
+                     atPoint:CGPointMake(kUpperPartnerScoreX, kUpperPartnerScoreY)
+                       scale:kUpperPartnerScoreScale
+                       alpha:1.0];
 }
 
 /** @ghidraAddress 0x2023a8 */
