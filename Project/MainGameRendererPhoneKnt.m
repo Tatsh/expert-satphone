@@ -8,6 +8,7 @@
 
 #import "AudioManager.h"
 #import "BFCodec.h"
+#import "EAGLView.h"
 #import "EffectBgKnit.h"
 #import "HoldMarkerRender.h"
 #import "JubeatAppDelegate.h"

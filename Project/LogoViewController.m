@@ -5,6 +5,7 @@
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 #import "KnitColorManager.h"
+#import "RootViewController.h"
 #import "ScratchUtil.h"
 #import "StoreUtil.h"
 

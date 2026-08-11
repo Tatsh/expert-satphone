@@ -1,5 +1,6 @@
 #import "BGRipple.h"
 
+#import "Texture2D.h"
 #import "neEngineBridge.h"
 
 // The swell runs in two stages: up to 1.2 over the first eight frames, then back to 1.0 over the

@@ -13,6 +13,7 @@
 #import "MarkerDownloadView.h"
 #import "NteTitleOptionDropView.h"
 #import "NteTitleOptionView.h"
+#import "RootViewController.h"
 #import "SePlayer.h"
 #import "Texture2D.h"
 #import "UpperBGKnit.h"

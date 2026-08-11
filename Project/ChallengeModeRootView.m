@@ -18,6 +18,7 @@
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
 #import "SystemUtilities.h"
+#import "TuneInfo.h"
 
 // The 0.2 s animation duration is a __const literal-pool slot, not an exported global; the binary
 // loads it inline at each animation call. Two distinct pool slots both hold 0.2: 0x28f240 is used

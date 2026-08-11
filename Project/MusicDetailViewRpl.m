@@ -7,6 +7,7 @@
 #import "BFCodec.h"
 #import "EditDataManager.h"
 #import "EditFileListViewDeleteController.h"
+#import "EditModalView.h"
 #import "ImageCache.h"
 #import "ImageLoading.h"
 #import "JcfDownloadPageNavController.h"

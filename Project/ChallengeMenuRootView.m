@@ -1,11 +1,11 @@
 #import "ChallengeMenuRootView.h"
 
 #import "AudioManager.h"
+#import "ChallengePrevRankingView.h"
 #import "JubeatAppDelegate.h"
 
 // ChallengePrevRankingView is not yet reconstructed; its case in -createMenuView: is stubbed to
 // track the binary until its header lands.
-@class ChallengePrevRankingView;
 
 // Sub-view selectors passed to -createMenuView: and -enterMenuSelectedView:.
 typedef enum {

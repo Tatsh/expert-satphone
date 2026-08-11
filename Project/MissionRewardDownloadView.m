@@ -3,6 +3,7 @@
 #import "AlertViewManager.h"
 #import "AudioManager.h"
 #import "ChallengeMissionReward.h"
+#import "ChallengeModeRootView.h"
 #import "ChallengeStatus.h"
 #import "Downloader.h"
 #import "ImageLoading.h"

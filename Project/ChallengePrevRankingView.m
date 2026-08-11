@@ -1,6 +1,7 @@
 #import "ChallengePrevRankingView.h"
 
 #import "AlertViewManager.h"
+#import "ChallengeModeRootView.h"
 #import "ChallengePrevRankingListView.h"
 #import "ChallengeStatus.h"
 #import "Downloader.h"

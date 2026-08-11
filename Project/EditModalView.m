@@ -1,7 +1,8 @@
 #import "EditModalView.h"
 
+#import "EditModalTableViewController.h"
+
 // Not yet reconstructed: the table controller that holds the edit form's rows and upload button.
-@class EditModalTableViewController;
 
 // The edit-mode value that turns on uploading and hides the Cancel and Update bar-button items.
 static const int kEditTypeUpload = 1;

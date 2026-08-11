@@ -4,6 +4,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "ImageLoading.h"
+#import "MusicSelectViewController.h"
 #import "ShadowView.h"
 #import "StoreButton.h"
 

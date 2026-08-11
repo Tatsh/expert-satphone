@@ -3,6 +3,7 @@
 #import <UIKit/UIKit.h>
 
 #import "AudioManager.h"
+#import "EAGLView.h"
 #import "HoldMarkerRender.h"
 #import "JubeatAppDelegate.h"
 #import "RendererConf.h"

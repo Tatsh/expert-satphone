@@ -1,6 +1,7 @@
 #import "AlertViewManager.h"
 
 #import "JubeatAppDelegate.h"
+#import "RootViewController.h"
 
 // The App Store product page opened when the update alert's button is tapped.
 static NSString *const kAppStoreURL =

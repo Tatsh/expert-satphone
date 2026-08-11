@@ -11,6 +11,7 @@
 #import "JubeatAppDelegate.h"
 #import "LicenseAgreementView.h"
 #import "PurchaseManager.h"
+#import "RootViewController.h"
 #import "RotatableNavigationController.h"
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"

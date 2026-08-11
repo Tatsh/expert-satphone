@@ -1,6 +1,7 @@
 #import "ChallengeRivalSearchView.h"
 
 #import "AlertViewManager.h"
+#import "ChallengeModeRootView.h"
 #import "ChallengeStatus.h"
 #import "ChallengeTextInputView.h"
 #import "CopyableUiLabel.h"

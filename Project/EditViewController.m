@@ -17,6 +17,7 @@
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "LabUtilities.h"
+#import "RootViewController.h"
 #import "SePlayer.h"
 #import "TuneInfo.h"
 

@@ -1,5 +1,6 @@
 #import "EffectBgKnit.h"
 
+#import "Texture2D.h"
 #import "neEngineBridge.h"
 
 // The effect type that runs briefly; every other type runs the long duration.
