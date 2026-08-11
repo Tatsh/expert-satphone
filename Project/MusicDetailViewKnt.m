@@ -1041,7 +1041,9 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
                                                                0.0, -(double)kRandViewSlideOffset)];
                        }
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x1a1050 */
+                     }];
 }
 
 /** @ghidraAddress 0x19e384 */
@@ -1097,7 +1099,9 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
                        [weakUpload setAlpha:1.0];
                        [weakCover setAlpha:1.0];
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x19fefc */
+                     }];
     [self.controller unenableCoverTap];
 }
 

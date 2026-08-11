@@ -958,6 +958,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
                        [weakCover setAlpha:1.0];
                      }
                      completion:^(BOOL finished){
+                         /** @ghidraAddress 0x8eb04 */
                      }];
 }
 
@@ -970,6 +971,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
                        [weakCover setAlpha:0.0];
                      }
                      completion:^(BOOL finished){
+                         /** @ghidraAddress 0x8ec20 */
                      }];
 }
 

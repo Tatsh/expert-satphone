@@ -125,7 +125,11 @@ static const NSCalendarUnit kSvTimeCalendarUnits =
         SFSafariViewController *safari =
             [[SFSafariViewController alloc] initWithURL:[NSURL URLWithString:kKonamiURLString]];
         safari.modalPresentationCapturesStatusBarAppearance = YES;
-        [self presentViewController:safari animated:YES completion:nil];
+        [self presentViewController:safari
+                           animated:YES
+                         completion:^{
+                             /** @ghidraAddress 0x1e7c0 */
+                         }];
     }
     bEnableTap = (BOOL *)YES;
 }
@@ -170,7 +174,9 @@ static const NSCalendarUnit kSvTimeCalendarUnits =
                        weakCover.alpha = 1.0;
                        weakText.alpha = 1.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x1e6d8 */
+                     }];
 }
 
 /** @ghidraAddress 0x1e7c4 */
