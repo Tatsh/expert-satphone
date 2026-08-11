@@ -921,3 +921,8 @@
 0x1e6d8	(^void)(BOOL)
 0x8eb04	(^void)(BOOL)
 0x8ec20	(^void)(BOOL)
+0x168dd8	(^void)(BOOL)
+0x1694b8	(^void)(BOOL)
+0x169af0	(^void)(BOOL)
+0x169e68	(^void)(BOOL)
+0x16a2b4	(^void)(BOOL)

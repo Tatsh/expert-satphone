@@ -200,7 +200,9 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
                                  /** @ghidraAddress 0x168d8c */
                                  weakRivalAddView.alpha = 1.0;
                                }
-                               completion:nil];
+                               completion:^(BOOL finished){
+                                   /** @ghidraAddress 0x168dd8 */
+                               }];
             }];
         return;
     }
@@ -469,7 +471,9 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
                              /** @ghidraAddress 0x169aa4 */
                              weakAddMessage.alpha = 1.0;
                            }
-                           completion:nil];
+                           completion:^(BOOL finished){
+                               /** @ghidraAddress 0x169af0 */
+                           }];
         }];
 }
 
@@ -496,7 +500,9 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
                              /** @ghidraAddress 0x169e1c */
                              weakSearchBox.alpha = 1.0;
                            }
-                           completion:nil];
+                           completion:^(BOOL finished){
+                               /** @ghidraAddress 0x169e68 */
+                           }];
         }];
 }
 
@@ -524,7 +530,9 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
                              weakAddMessage.alpha = 1.0;
                              weakEndBtn.alpha = 1.0;
                            }
-                           completion:nil];
+                           completion:^(BOOL finished){
+                               /** @ghidraAddress 0x16a2b4 */
+                           }];
         }];
 }
 
@@ -620,7 +628,9 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
                              weakAddBtn.alpha = 1.0;
                              weakCancelBtn.alpha = 1.0;
                            }
-                           completion:nil];
+                           completion:^(BOOL finished){
+                               /** @ghidraAddress 0x1694b8 */
+                           }];
         }];
 }
 
