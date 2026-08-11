@@ -199,9 +199,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIShortTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x261320 */
-          (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
               NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(NO, NO, error);
@@ -215,9 +214,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           BOOL loginStatus = [response[kRecommendWebAPIKeyLoginStatus] boolValue];
           callback(loginStatus, userIdPresent, nil);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *error) {
           /** @ghidraAddress 0x2614e0 */
-          (void)request;
           // A 3-second timeout is reported as a successful negative answer, keeping the captured
           // user-id flag; every other failure drops the flag and forwards the error.
           if (error.code == kRecommendWebAPIURLErrorTimedOut) {
@@ -250,9 +248,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIStandardTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x261854 */
-          (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
               NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(error);
@@ -266,9 +263,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           }
           callback(RecommendWebAPILoginErrorForResponse(response));
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *error) {
           /** @ghidraAddress 0x261ad4 */
-          (void)request;
           callback(error);
         }];
 }
@@ -310,9 +306,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIStandardTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x261ef8 */
-          (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
               NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(nil, nil, error);
@@ -354,9 +349,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(nil, nil, error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *error) {
           /** @ghidraAddress 0x262348 */
-          (void)request;
           callback(nil, nil, error);
         }];
 }
@@ -375,9 +369,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIShortTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x2624f4 */
-          (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
               NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(nil, error);
@@ -432,10 +425,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           }
           callback(nil, error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x2629ac */
-          (void)request;
-          (void)error;
           // The binary forwards a single nil here and drops the transport error.
           callback(nil, nil);
         }];
@@ -455,9 +446,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIShortTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x262bc8 */
-          (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
               NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callBack(nil, error);
@@ -476,10 +466,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           NSError *error = RecommendWebAPIErrorForResponse(response, errorCode, kind);
           callBack(nil, error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x262f50 */
-          (void)request;
-          (void)error;
           // The binary forwards a single nil here and drops the transport error.
           callBack(nil, nil);
         }];
@@ -522,9 +510,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIStandardTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x2632fc */
-          (void)request;
           if ([response[kRecommendWebAPIKeyStatus] boolValue] &&
               [response[kRecommendWebAPIKeyErrorCode] intValue] ==
                   kRecommendWebAPISuccessSentinel) {
@@ -538,9 +525,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
               response, errorCode, response[kRecommendWebAPIKeyKind]);
           callback(error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *error) {
           /** @ghidraAddress 0x2635fc */
-          (void)request;
           callback(error);
         }];
 }
@@ -568,9 +554,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIStandardTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x2638e4 */
-          (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
               NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(0, error);
@@ -606,10 +591,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(0, error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x263c80 */
-          (void)request;
-          (void)error;
           callback(0, nil);
         }];
 }
@@ -635,9 +618,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIStandardTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x263f10 */
-          (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
               NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(error);
@@ -655,9 +637,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *error) {
           /** @ghidraAddress 0x2640bc */
-          (void)request;
           callback(error);
         }];
 }
@@ -686,9 +667,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIStandardTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x2643a8 */
-          (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
               NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(0, error);
@@ -705,10 +685,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(0, error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x26459c */
-          (void)request;
-          (void)error;
           callback(0, nil);
         }];
 }
@@ -741,9 +719,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIStandardTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x264964 */
-          (void)request;
           if ([response isKindOfClass:[NSDictionary class]] &&
               [response[kRecommendWebAPIKeyStatus] boolValue] &&
               [response[kRecommendWebAPIKeyErrorCode] intValue] ==
@@ -760,10 +737,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(status, error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x264c88 */
-          (void)request;
-          (void)error;
           // The binary forwards only the captured status dictionary here and drops the transport
           // error.
           callback(status, nil);
@@ -854,9 +829,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIStandardTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x2656f0 */
-          (void)request;
           if ([response isKindOfClass:[NSDictionary class]] &&
               [response[kRecommendWebAPIKeyStatus] boolValue] &&
               [response[kRecommendWebAPIKeyErrorCode] intValue] ==
@@ -867,10 +841,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(nil, error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x2658e8 */
-          (void)request;
-          (void)error;
           callback(nil, nil);
         }];
 }
@@ -894,9 +866,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIStandardTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x265b88 */
-          (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
               NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(error);
@@ -914,9 +885,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *error) {
           /** @ghidraAddress 0x265d34 */
-          (void)request;
           callback(error);
         }];
 }
@@ -934,9 +904,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIShortTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x265ed4 */
-          (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
               NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(nil, error);
@@ -956,10 +925,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           NSError *error = RecommendWebAPIErrorForResponse(response, errorCode, kind);
           callback(nil, error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x266234 */
-          (void)request;
-          (void)error;
           // The binary forwards a single nil here and drops the transport error.
           callback(nil, nil);
         }];
@@ -978,9 +945,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         cachePolicy:nil
         timeout:kRecommendWebAPIStandardTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x2663d4 */
-          (void)request;
           if (![response isKindOfClass:[NSDictionary class]]) {
               NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
               callback(error);
@@ -996,9 +962,8 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
           NSError *error = RecommendWebAPIMalformedErrorForResponse(response);
           callback(error);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *error) {
           /** @ghidraAddress 0x2665b8 */
-          (void)request;
           callback(error);
         }];
 }

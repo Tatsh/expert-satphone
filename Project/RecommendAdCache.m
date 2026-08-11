@@ -209,11 +209,10 @@ static NSData *g_pAllAdDataExpiryArchive = nil;
       // guarded.
       [ApplilinkFile clearCacheBannerImage];
       [ApplilinkFile clearCacheData];
-      [RecommendAdCache getAllAdDataWithCallBack:^(id _Nullable data,
+      [RecommendAdCache getAllAdDataWithCallBack:^(id _Nullable __attribute__((unused)) data,
                                                    NSError *_Nullable innerError) {
         /** @ghidraAddress 0x274eec */
         // The advert data has already been committed to RecommendAdData; this stage ignores it.
-        (void)data;
         if (innerError == nil) {
             dispatch_async(dispatch_get_global_queue(0, 0), ^{
               /** @ghidraAddress 0x274f5c */

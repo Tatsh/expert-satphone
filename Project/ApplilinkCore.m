@@ -201,11 +201,11 @@ static NSString *sPasteBoardUdidCache;      // 0x3542d8
         // the callback.
         env = [NSString stringWithString:kApplilinkDefaultEnv];
     }
-    [self appAuthSessionRegenerateWithBlock:^(NSError *_Nullable authError) {
+    [self appAuthSessionRegenerateWithBlock:^(NSError *_Nullable
+                                              __attribute__((unused)) authError) {
       /** @ghidraAddress 0x2422c8 */
       // The auth error is intentionally ignored: initialisation proceeds to the reward core
       // regardless of a session-regeneration failure.
-      (void)authError;
       [[RewardCore sharedInstance] startWithCallback:^(NSError *_Nullable rewardError) {
         /** @ghidraAddress 0x242370 */
         if (rewardError && callback) {
@@ -227,11 +227,11 @@ static NSString *sPasteBoardUdidCache;      // 0x3542d8
             }
             sInitializingFlg = NO;
             [[RecommendCore sharedInstance]
-                getAllAdStatusWithCallback:^(NSError *_Nullable adStatusError) {
+                getAllAdStatusWithCallback:^(NSError *_Nullable
+                                             __attribute__((unused)) adStatusError) {
                   /** @ghidraAddress 0x2425b8 */
                   // After the ad-status refresh, prefetch the installed-application list (its
                   // result is discarded — a warm-up of the appli-list cache).
-                  (void)adStatusError;
                   [[RecommendCore sharedInstance]
                       appliListWithCallBack:^(NSArray *_Nullable __attribute__((unused)) list,
                                               NSError *_Nullable __attribute__((unused)) listError){

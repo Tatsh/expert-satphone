@@ -144,9 +144,9 @@ static NSString *const kArchiveSeqBasMember = @"seq_bas";       // @ghidraAddres
 
 // The Game Center leaderboard-score reporting completion handler ignores its error.
 // @ghidraAddress 0x16eb0
-static void GameViewControllerReportScoreNoopHandler(NSError *_Nullable error) {
+static void GameViewControllerReportScoreNoopHandler(NSError *_Nullable
+                                                     __attribute__((unused)) error) {
     /** @ghidraAddress 0x16eb0 */
-    (void)error;
 }
 
 // The theme-prefixed sound-effect name formats consumed by -soundName:.
@@ -635,12 +635,11 @@ GameViewControllerReportTotalScore(GameViewController *__attribute__((unused)) s
     GKScore *score = [[GKScore alloc] initWithLeaderboardIdentifier:category];
     score.value = [ScoreRecord totalScore];
     [GKScore reportScores:@[ score ]
-        withCompletionHandler:^(NSError *_Nullable error) {
-          // This helper is inlined at several call sites, so the compiler emitted byte-identical
-          // twin copies of this empty error handler: 0x16084 and 0x16088.
-          /** @ghidraAddress 0x16084 */
-          /** @ghidraAddress 0x16088 */
-          (void)error;
+        withCompletionHandler:^(NSError *_Nullable __attribute__((unused)) error){
+            // This helper is inlined at several call sites, so the compiler emitted byte-identical
+            // twin copies of this empty error handler: 0x16084 and 0x16088.
+            /** @ghidraAddress 0x16084 */
+            /** @ghidraAddress 0x16088 */
         }];
 }
 

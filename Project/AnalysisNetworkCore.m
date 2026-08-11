@@ -115,9 +115,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
     [self postAnalysisDataWithActionType:kAnalysisActionTypeInitalize
         resultId:nil
         uesrId:nil
-        finishedBlock:^(id request, id result) {
+        finishedBlock:^(id __attribute__((unused)) request, id result) {
           /** @ghidraAddress 0x238f1c */
-          (void)request;
           NSDictionary *response = (NSDictionary *)result;
           if (AnalysisResponseIsSuccess(response)) {
               [[NSUserDefaults standardUserDefaults] setObject:now
@@ -129,10 +128,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric
                                                                  userInfo:response]);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x239124 */
-          (void)request;
-          (void)error;
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric]);
         }
         callback:callback];
@@ -149,9 +146,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
     [self postAnalysisDataWithActionType:kAnalysisActionTypeDau
         resultId:nil
         uesrId:userId
-        finishedBlock:^(id request, id result) {
+        finishedBlock:^(id __attribute__((unused)) request, id result) {
           /** @ghidraAddress 0x239344 */
-          (void)request;
           NSDictionary *response = (NSDictionary *)result;
           if (AnalysisResponseIsSuccess(response)) {
               [[NSUserDefaults standardUserDefaults] setObject:now
@@ -163,10 +159,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric
                                                                  userInfo:response]);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x23954c */
-          (void)request;
-          (void)error;
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric]);
         }
         callback:callback];
@@ -184,9 +178,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
     [self postAnalysisDataWithActionType:kAnalysisActionTypeResult
         resultId:resultId
         uesrId:userId
-        finishedBlock:^(id request, id result) {
+        finishedBlock:^(id __attribute__((unused)) request, id result) {
           /** @ghidraAddress 0x239760 */
-          (void)request;
           NSDictionary *response = (NSDictionary *)result;
           if (AnalysisResponseIsSuccess(response)) {
               callback(nil);
@@ -195,10 +188,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric
                                                                  userInfo:response]);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x2398a8 */
-          (void)request;
-          (void)error;
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric]);
         }
         callback:callback];
@@ -215,9 +206,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
     [self postAnalysisDataWithActionType:kAnalysisActionTypeSetUserID
         resultId:nil
         uesrId:userId
-        finishedBlock:^(id request, id result) {
+        finishedBlock:^(id __attribute__((unused)) request, id result) {
           /** @ghidraAddress 0x239aa0 */
-          (void)request;
           NSDictionary *response = (NSDictionary *)result;
           if (AnalysisResponseIsSuccess(response)) {
               callback(nil);
@@ -226,10 +216,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric
                                                                  userInfo:response]);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x239be8 */
-          (void)request;
-          (void)error;
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric]);
         }
         callback:callback];
@@ -295,9 +283,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
     [self postAnalysisDataWithActionType:kAnalysisActionTypeSetUserID
         resultId:nil
         uesrId:nil
-        finishedBlock:^(id request, id result) {
+        finishedBlock:^(id __attribute__((unused)) request, id result) {
           /** @ghidraAddress 0x23a144 */
-          (void)request;
           NSDictionary *response = (NSDictionary *)result;
           if (AnalysisResponseIsSuccess(response)) {
               callback(nil);
@@ -306,10 +293,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric
                                                                  userInfo:response]);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x23a28c */
-          (void)request;
-          (void)error;
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric]);
         }
         callback:callback];
@@ -363,9 +348,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
                        cachePolicy:nil
                            timeout:kAnalysisRequestTimeout
                              retry:NO
-                     finishedBlock:^(id request, id result) {
+                     finishedBlock:^(id __attribute__((unused)) request, id result) {
                        /** @ghidraAddress 0x23a658 */
-                       (void)request;
                        NSDictionary *response = (NSDictionary *)result;
                        if (!AnalysisResponseIsSuccess(response)) {
                            callback([ApplilinkNetworkError
@@ -442,9 +426,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
                                     cachePolicy:nil
                                         timeout:kAnalysisRequestTimeout
                                           retry:NO
-                                  finishedBlock:^(id request, id result) {
+                                  finishedBlock:^(id __attribute__((unused)) request, id result) {
                                     /** @ghidraAddress 0x23aee0 */
-                                    (void)request;
                                     NSDictionary *response = (NSDictionary *)result;
                                     if (AnalysisResponseIsSuccess(response)) {
                                         NSURL *openUrl =
@@ -498,9 +481,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
         cachePolicy:nil
         timeout:kAnalysisRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id result) {
+        finishedBlock:^(id __attribute__((unused)) request, id result) {
           /** @ghidraAddress 0x23b3dc */
-          (void)request;
           NSDictionary *response = (NSDictionary *)result;
           if (AnalysisResponseIsSuccess(response)) {
               // The callback here carries the server's URL string rather than an error.
@@ -509,10 +491,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
           }
           callback(nil);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x23b518 */
-          (void)request;
-          (void)error;
           // No error is constructed; the URL-carrying callback signals failure with nil.
           callback(nil);
         }];
@@ -568,9 +548,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
         cachePolicy:nil
         timeout:kAnalysisRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id result) {
+        finishedBlock:^(id __attribute__((unused)) request, id result) {
           /** @ghidraAddress 0x23b9b0 */
-          (void)request;
           NSDictionary *response = (NSDictionary *)result;
           if (AnalysisResponseIsSuccess(response)) {
               callback(nil);
@@ -579,10 +558,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric
                                                                  userInfo:response]);
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *__attribute__((unused)) error) {
           /** @ghidraAddress 0x23baf8 */
-          (void)request;
-          (void)error;
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kApplilinkErrorGeneric]);
         }];
 }
@@ -652,9 +629,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
                                     cachePolicy:nil
                                     timeout:kAnalysisRequestTimeout
                                     retry:NO
-                                    finishedBlock:^(id request, id result) {
+                                    finishedBlock:^(id __attribute__((unused)) request, id result) {
                                       /** @ghidraAddress 0x23c064 */
-                                      (void)request;
                                       NSDictionary *response = (NSDictionary *)result;
                                       if (AnalysisResponseIsSuccess(response)) {
                                           callback(nil);
@@ -664,10 +640,9 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
                                           localizedApplilinkErrorWithCode:kApplilinkErrorGeneric
                                                                  userInfo:response]);
                                     }
-                                    failedBlock:^(id request, NSError *failure) {
+                                    failedBlock:^(id __attribute__((unused)) request,
+                                                  NSError *__attribute__((unused)) failure) {
                                       /** @ghidraAddress 0x23c1ac */
-                                      (void)request;
-                                      (void)failure;
                                       callback([ApplilinkNetworkError
                                           localizedApplilinkErrorWithCode:kApplilinkErrorGeneric]);
                                     }];
@@ -750,9 +725,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
                                     cachePolicy:nil
                                     timeout:kAnalysisRequestTimeout
                                     retry:NO
-                                    finishedBlock:^(id request, id result) {
+                                    finishedBlock:^(id __attribute__((unused)) request, id result) {
                                       /** @ghidraAddress 0x23c75c */
-                                      (void)request;
                                       NSDictionary *response = (NSDictionary *)result;
                                       if (AnalysisResponseIsSuccess(response)) {
                                           callback(nil);
@@ -762,10 +736,9 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
                                           localizedApplilinkErrorWithCode:kApplilinkErrorGeneric
                                                                  userInfo:response]);
                                     }
-                                    failedBlock:^(id request, NSError *failure) {
+                                    failedBlock:^(id __attribute__((unused)) request,
+                                                  NSError *__attribute__((unused)) failure) {
                                       /** @ghidraAddress 0x23c8a4 */
-                                      (void)request;
-                                      (void)failure;
                                       callback([ApplilinkNetworkError
                                           localizedApplilinkErrorWithCode:kApplilinkErrorGeneric]);
                                     }];

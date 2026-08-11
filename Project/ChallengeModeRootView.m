@@ -348,16 +348,15 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
         __weak ChallengeNameSettingView *weakView = nameSettingView;
         nameSettingView.alpha = 0;
         [UIView animateWithDuration:kAnimDuration020Alt
-            delay:0
-            options:UIViewAnimationOptionCurveLinear
-            animations:^{
-              /** @ghidraAddress 0x69c78 */
-              weakView.alpha = 1.0;
-            }
-            completion:^(BOOL finished) {
-              /** @ghidraAddress 0x69cc4 */
-              (void)finished;
-            }];
+                              delay:0
+                            options:UIViewAnimationOptionCurveLinear
+                         animations:^{
+                           /** @ghidraAddress 0x69c78 */
+                           weakView.alpha = 1.0;
+                         }
+                         completion:^(BOOL __attribute__((unused)) finished){
+                             /** @ghidraAddress 0x69cc4 */
+                         }];
         return;
     }
     if (ChallengeStatus.sharedStatus.informationURL != nil) {
@@ -372,16 +371,15 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
         __weak ChallengeLoginInformationView *weakView = loginInformation;
         loginInformation.alpha = 0;
         [UIView animateWithDuration:kAnimDuration020Alt
-            delay:0
-            options:UIViewAnimationOptionCurveLinear
-            animations:^{
-              /** @ghidraAddress 0x69cc8 */
-              weakView.alpha = 1.0;
-            }
-            completion:^(BOOL finished) {
-              /** @ghidraAddress 0x69d14 */
-              (void)finished;
-            }];
+                              delay:0
+                            options:UIViewAnimationOptionCurveLinear
+                         animations:^{
+                           /** @ghidraAddress 0x69cc8 */
+                           weakView.alpha = 1.0;
+                         }
+                         completion:^(BOOL __attribute__((unused)) finished){
+                             /** @ghidraAddress 0x69d14 */
+                         }];
         [ChallengeStatus.sharedStatus saveInformationURL];
         return;
     }
@@ -397,16 +395,15 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
         __weak ChallengeLoginInformationView *weakView = loginInformation;
         loginInformation.alpha = 0;
         [UIView animateWithDuration:kAnimDuration020Alt
-            delay:0
-            options:UIViewAnimationOptionCurveLinear
-            animations:^{
-              /** @ghidraAddress 0x69d18 */
-              weakView.alpha = 1.0;
-            }
-            completion:^(BOOL finished) {
-              /** @ghidraAddress 0x69d64 */
-              (void)finished;
-            }];
+                              delay:0
+                            options:UIViewAnimationOptionCurveLinear
+                         animations:^{
+                           /** @ghidraAddress 0x69d18 */
+                           weakView.alpha = 1.0;
+                         }
+                         completion:^(BOOL __attribute__((unused)) finished){
+                             /** @ghidraAddress 0x69d64 */
+                         }];
         [ChallengeStatus.sharedStatus savePersionalInformationURL];
         return;
     }
@@ -433,17 +430,16 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
         [self addSubview:loginMessage];
         __weak ChallengeLoginMessageView *weakView = loginMessage;
         loginMessage.alpha = 0;
-        [UIView animateWithDuration:kAnimDuration020 // @ghidraAddress 0x28f240
-            delay:0.10000000149011612                // @ghidraAddress 0x28f2b8
-            options:UIViewAnimationOptionCurveLinear
-            animations:^{
-              /** @ghidraAddress 0x69db8 */
-              weakView.alpha = 1.0;
-            }
-            completion:^(BOOL finished) {
-              /** @ghidraAddress 0x69e04 */
-              (void)finished;
-            }];
+        [UIView animateWithDuration:kAnimDuration020    // @ghidraAddress 0x28f240
+                              delay:0.10000000149011612 // @ghidraAddress 0x28f2b8
+                            options:UIViewAnimationOptionCurveLinear
+                         animations:^{
+                           /** @ghidraAddress 0x69db8 */
+                           weakView.alpha = 1.0;
+                         }
+                         completion:^(BOOL __attribute__((unused)) finished){
+                             /** @ghidraAddress 0x69e04 */
+                         }];
         return;
     }
     // First time: seed the how-to URL default, then present the how-to sheet.
@@ -461,16 +457,15 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
     __weak ChallengeLoginInformationView *weakView = loginInformation;
     loginInformation.alpha = 0;
     [UIView animateWithDuration:kAnimDuration020Alt
-        delay:0
-        options:UIViewAnimationOptionCurveLinear
-        animations:^{
-          /** @ghidraAddress 0x69d68 */
-          weakView.alpha = 1.0;
-        }
-        completion:^(BOOL finished) {
-          /** @ghidraAddress 0x69db4 */
-          (void)finished;
-        }];
+                          delay:0
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:^{
+                       /** @ghidraAddress 0x69d68 */
+                       weakView.alpha = 1.0;
+                     }
+                     completion:^(BOOL __attribute__((unused)) finished){
+                         /** @ghidraAddress 0x69db4 */
+                     }];
 }
 
 - (BOOL)checkArtworkDownload {
@@ -535,9 +530,8 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
               /** @ghidraAddress 0x6a61c */
               self.transform = CGAffineTransformMakeTranslation(0, 0);
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x6a68c */
-              (void)finished;
               AudioManager *manager = AudioManager.sharedManager;
               [manager loadBgmResAAC:@"SD_BGM_SCRATCH" inDirectory:nil];
               [manager startBgm:YES fadeTime:2.0];
@@ -570,9 +564,8 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           self.transform =
               CGAffineTransformMakeTranslation(0, -UIScreen.mainScreen.bounds.size.height);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x6a940 */
-          (void)finished;
           [self.controller challengeModeClose];
         }];
 }
@@ -809,10 +802,9 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           weakDetailView.alpha = 1;
           weakDetailView.transform = CGAffineTransformMakeScale(1, 1);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x6beec */
           // Shared global no-op-style completion block.
-          (void)finished;
           [UIApplication.sharedApplication endIgnoringInteractionEvents];
         }];
 }
@@ -830,9 +822,8 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           weakDetailView.transform =
               CGAffineTransformMakeScale(kAnimDuration020Alt, kAnimDuration020Alt);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x6c114 */
-          (void)finished;
           [detailView removeFromSuperview];
           // The detail view is only removed; it is the selected panel that is released here.
           selectedView = nil;
@@ -854,9 +845,8 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           /** @ghidraAddress 0x6c370 */
           weakNameSettingView.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x6c3bc */
-          (void)finished;
           [nameSettingView removeFromSuperview];
           nameSettingView = nil;
           [self showLoginMessage];
@@ -958,17 +948,16 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
     [self addSubview:coverView];
     __weak UIView *weakCoverView = coverView;
     [UIView animateWithDuration:0.3
-        delay:0
-        options:UIViewAnimationOptionBeginFromCurrentState |
-                UIViewAnimationOptionAllowUserInteraction
-        animations:^{
-          /** @ghidraAddress 0x6cd9c */
-          weakCoverView.alpha = 1;
-        }
-        completion:^(BOOL finished) {
-          /** @ghidraAddress 0x6cde8 */
-          (void)finished;
-        }];
+                          delay:0
+                        options:UIViewAnimationOptionBeginFromCurrentState |
+                                UIViewAnimationOptionAllowUserInteraction
+                     animations:^{
+                       /** @ghidraAddress 0x6cd9c */
+                       weakCoverView.alpha = 1;
+                     }
+                     completion:^(BOOL __attribute__((unused)) finished){
+                         /** @ghidraAddress 0x6cde8 */
+                     }];
 }
 
 - (void)hideMenuCoverView {
@@ -981,9 +970,8 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           /** @ghidraAddress 0x6cf10 */
           weakCoverView.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x6cf5c */
-          (void)finished;
           [weakCoverView removeFromSuperview];
         }];
 }
@@ -993,17 +981,16 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
     [self addSubview:modalCoverView];
     __weak UIView *weakCoverView = modalCoverView;
     [UIView animateWithDuration:0.3
-        delay:0
-        options:UIViewAnimationOptionBeginFromCurrentState |
-                UIViewAnimationOptionAllowUserInteraction
-        animations:^{
-          /** @ghidraAddress 0x6d0a4 */
-          weakCoverView.alpha = 1;
-        }
-        completion:^(BOOL finished) {
-          /** @ghidraAddress 0x6d0f0 */
-          (void)finished;
-        }];
+                          delay:0
+                        options:UIViewAnimationOptionBeginFromCurrentState |
+                                UIViewAnimationOptionAllowUserInteraction
+                     animations:^{
+                       /** @ghidraAddress 0x6d0a4 */
+                       weakCoverView.alpha = 1;
+                     }
+                     completion:^(BOOL __attribute__((unused)) finished){
+                         /** @ghidraAddress 0x6d0f0 */
+                     }];
 }
 
 - (void)hideCoverView {
@@ -1016,9 +1003,8 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           /** @ghidraAddress 0x6d218 */
           weakCoverView.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x6d264 */
-          (void)finished;
           [weakCoverView removeFromSuperview];
         }];
 }
@@ -1033,17 +1019,16 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
     [self.modalDialog.buttonAbort setHidden:YES];
     __weak UIView *weakCoverView = modalCoverView;
     [UIView animateWithDuration:0.3
-        delay:0
-        options:UIViewAnimationOptionBeginFromCurrentState |
-                UIViewAnimationOptionAllowUserInteraction
-        animations:^{
-          /** @ghidraAddress 0x6d54c */
-          weakCoverView.alpha = 1;
-        }
-        completion:^(BOOL finished) {
-          /** @ghidraAddress 0x6d598 */
-          (void)finished;
-        }];
+                          delay:0
+                        options:UIViewAnimationOptionBeginFromCurrentState |
+                                UIViewAnimationOptionAllowUserInteraction
+                     animations:^{
+                       /** @ghidraAddress 0x6d54c */
+                       weakCoverView.alpha = 1;
+                     }
+                     completion:^(BOOL __attribute__((unused)) finished){
+                         /** @ghidraAddress 0x6d598 */
+                     }];
 }
 
 - (void)hidePurchaseDialog {
@@ -1059,9 +1044,8 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           /** @ghidraAddress 0x6d7ac */
           weakCoverView.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x6d7f8 */
-          (void)finished;
           [weakDialog.buttonAbort setHidden:NO];
           [weakDialog.indicatorView stopAnimating];
           [weakCoverView removeFromSuperview];
@@ -1090,9 +1074,8 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           /** @ghidraAddress 0x6dcd0 */
           weakCoverView.alpha = 1;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x6dd1c */
-          (void)finished;
           [weakDialog.buttonAbort setEnabled:YES];
         }];
 }
@@ -1110,9 +1093,8 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           /** @ghidraAddress 0x6df98 */
           weakCoverView.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x6dfe4 */
-          (void)finished;
           [weakDialog.indicatorView stopAnimating];
           [weakCoverView removeFromSuperview];
         }];
@@ -1509,17 +1491,16 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
     __weak CubePurchaseView *weakView = cubePurchaseView;
     cubePurchaseView.alpha = 0;
     [UIView animateWithDuration:kAnimDuration020 // @ghidraAddress 0x28f240
-        delay:0
-        options:UIViewAnimationOptionBeginFromCurrentState |
-                UIViewAnimationOptionAllowUserInteraction
-        animations:^{
-          /** @ghidraAddress 0x6fca4 */
-          weakView.alpha = 1.0;
-        }
-        completion:^(BOOL finished) {
-          /** @ghidraAddress 0x6fcf0 */
-          (void)finished;
-        }];
+                          delay:0
+                        options:UIViewAnimationOptionBeginFromCurrentState |
+                                UIViewAnimationOptionAllowUserInteraction
+                     animations:^{
+                       /** @ghidraAddress 0x6fca4 */
+                       weakView.alpha = 1.0;
+                     }
+                     completion:^(BOOL __attribute__((unused)) finished){
+                         /** @ghidraAddress 0x6fcf0 */
+                     }];
 }
 
 - (void)closeCubePurchase {
@@ -1535,9 +1516,8 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           /** @ghidraAddress 0x6fe2c */
           weakView.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x6fe78 */
-          (void)finished;
           [cubePurchaseView removeFromSuperview];
           cubePurchaseView = nil;
         }];
@@ -1767,17 +1747,16 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
     [self addSubview:rankingView];
     __weak ChallengeRankingListView *weakRankingView = rankingView;
     [UIView animateWithDuration:0.2 // @ghidraAddress 0x28f240
-        delay:0.1                   // @ghidraAddress 0x28f2b8
-        options:UIViewAnimationOptionBeginFromCurrentState |
-                UIViewAnimationOptionAllowUserInteraction
-        animations:^{
-          /** @ghidraAddress 0x71308 */
-          weakRankingView.alpha = 1;
-        }
-        completion:^(BOOL finished) {
-          /** @ghidraAddress 0x71354 */
-          (void)finished;
-        }];
+                          delay:0.1 // @ghidraAddress 0x28f2b8
+                        options:UIViewAnimationOptionBeginFromCurrentState |
+                                UIViewAnimationOptionAllowUserInteraction
+                     animations:^{
+                       /** @ghidraAddress 0x71308 */
+                       weakRankingView.alpha = 1;
+                     }
+                     completion:^(BOOL __attribute__((unused)) finished){
+                         /** @ghidraAddress 0x71354 */
+                     }];
 }
 
 - (void)openRanking {
@@ -1799,21 +1778,19 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           /** @ghidraAddress 0x715cc */
           weakDetailView.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x71618 */
-          (void)finished;
           [UIView animateWithDuration:0.2 // @ghidraAddress 0x28f240
-              delay:0.1                   // @ghidraAddress 0x28f2b8
-              options:UIViewAnimationOptionBeginFromCurrentState |
-                      UIViewAnimationOptionAllowUserInteraction
-              animations:^{
-                /** @ghidraAddress 0x716cc */
-                weakRankingView.alpha = 1;
-              }
-              completion:^(BOOL __attribute__((unused)) innerFinished) {
-                /** @ghidraAddress 0x71718 */
-                (void)finished;
-              }];
+                                delay:0.1 // @ghidraAddress 0x28f2b8
+                              options:UIViewAnimationOptionBeginFromCurrentState |
+                                      UIViewAnimationOptionAllowUserInteraction
+                           animations:^{
+                             /** @ghidraAddress 0x716cc */
+                             weakRankingView.alpha = 1;
+                           }
+                           completion:^(BOOL __attribute__((unused)) innerFinished){
+                               /** @ghidraAddress 0x71718 */
+                           }];
         }];
 }
 
@@ -1831,22 +1808,20 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
           /** @ghidraAddress 0x718bc */
           weakRankingView.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x71908 */
-          (void)finished;
           if (!bOpenTotalRank) {
               [UIView animateWithDuration:0.2 // @ghidraAddress 0x28f240
-                  delay:0.1                   // @ghidraAddress 0x28f2b8
-                  options:UIViewAnimationOptionBeginFromCurrentState |
-                          UIViewAnimationOptionAllowUserInteraction
-                  animations:^{
-                    /** @ghidraAddress 0x719e4 */
-                    weakDetailView.alpha = 1;
-                  }
-                  completion:^(BOOL __attribute__((unused)) innerFinished) {
-                    /** @ghidraAddress 0x71a30 */
-                    (void)finished;
-                  }];
+                                    delay:0.1 // @ghidraAddress 0x28f2b8
+                                  options:UIViewAnimationOptionBeginFromCurrentState |
+                                          UIViewAnimationOptionAllowUserInteraction
+                               animations:^{
+                                 /** @ghidraAddress 0x719e4 */
+                                 weakDetailView.alpha = 1;
+                               }
+                               completion:^(BOOL __attribute__((unused)) innerFinished){
+                                   /** @ghidraAddress 0x71a30 */
+                               }];
           }
           bOpenTotalRank = NO;
         }];

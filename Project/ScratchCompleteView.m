@@ -168,9 +168,8 @@ static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e
           /** @ghidraAddress 0x16f380 */
           weakSelf.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x16f3cc */
-          (void)finished;
           if ([weakSelf.aDelegate respondsToSelector:@selector(scratchCompleteViewDidClose:)]) {
               [weakSelf.aDelegate scratchCompleteViewDidClose:weakSelf];
           }

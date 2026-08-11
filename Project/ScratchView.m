@@ -336,16 +336,15 @@ static const CGFloat kIndicatorSide = 30.0; // fmov immediate at 0x1ae758
         __weak UIImageView *weakEffect = effectArtWork;
         effectArtWork.alpha = kEffectStartAlpha;
         [UIView animateWithDuration:g_dAnimDuration020
-            delay:kScratchAnimationDelay
-            options:kScratchAnimationOptions
-            animations:^{
-              /** @ghidraAddress 0x1af610 */
-              weakEffect.alpha = 0;
-            }
-            completion:^(BOOL finished) {
-              /** @ghidraAddress 0x1af65c */
-              (void)finished;
-            }];
+                              delay:kScratchAnimationDelay
+                            options:kScratchAnimationOptions
+                         animations:^{
+                           /** @ghidraAddress 0x1af610 */
+                           weakEffect.alpha = 0;
+                         }
+                         completion:^(BOOL __attribute__((unused)) finished){
+                             /** @ghidraAddress 0x1af65c */
+                         }];
     }
 }
 
@@ -393,16 +392,15 @@ static const CGFloat kIndicatorSide = 30.0; // fmov immediate at 0x1ae758
         for (int i = 0; i < kCoverCount; ++i) {
             __weak UIImageView *weakCover = scratchCoverView[i];
             [UIView animateWithDuration:g_dAnimDuration020
-                delay:kScratchAnimationDelay
-                options:kScratchAnimationOptions
-                animations:^{
-                  /** @ghidraAddress 0x1afc38 */
-                  weakCover.alpha = 0;
-                }
-                completion:^(BOOL finished) {
-                  /** @ghidraAddress 0x1afc84 */
-                  (void)finished;
-                }];
+                                  delay:kScratchAnimationDelay
+                                options:kScratchAnimationOptions
+                             animations:^{
+                               /** @ghidraAddress 0x1afc38 */
+                               weakCover.alpha = 0;
+                             }
+                             completion:^(BOOL __attribute__((unused)) finished){
+                                 /** @ghidraAddress 0x1afc84 */
+                             }];
         }
     }
     [self scratchEffect:animated];
@@ -428,28 +426,26 @@ static const CGFloat kIndicatorSide = 30.0; // fmov immediate at 0x1ae758
     __weak UIView *weakCover = enableCover;
     if (enable) {
         [UIView animateWithDuration:g_dAnimDuration020
-            delay:kScratchAnimationDelay
-            options:kScratchAnimationOptions
-            animations:^{
-              /** @ghidraAddress 0x1b0270 */
-              weakCover.alpha = 0;
-            }
-            completion:^(BOOL finished) {
-              /** @ghidraAddress 0x1b02bc */
-              (void)finished;
-            }];
+                              delay:kScratchAnimationDelay
+                            options:kScratchAnimationOptions
+                         animations:^{
+                           /** @ghidraAddress 0x1b0270 */
+                           weakCover.alpha = 0;
+                         }
+                         completion:^(BOOL __attribute__((unused)) finished){
+                             /** @ghidraAddress 0x1b02bc */
+                         }];
     } else {
         [UIView animateWithDuration:g_dAnimDuration020
-            delay:kScratchAnimationDelay
-            options:kScratchAnimationOptions
-            animations:^{
-              /** @ghidraAddress 0x1b02c0 */
-              weakCover.alpha = 1.0;
-            }
-            completion:^(BOOL finished) {
-              /** @ghidraAddress 0x1b030c */
-              (void)finished;
-            }];
+                              delay:kScratchAnimationDelay
+                            options:kScratchAnimationOptions
+                         animations:^{
+                           /** @ghidraAddress 0x1b02c0 */
+                           weakCover.alpha = 1.0;
+                         }
+                         completion:^(BOOL __attribute__((unused)) finished){
+                             /** @ghidraAddress 0x1b030c */
+                         }];
     }
 }
 

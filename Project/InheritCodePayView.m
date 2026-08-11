@@ -184,9 +184,8 @@ static NSString *const kUserIDTitleText = @"あなたのユーザーID";
           /** @ghidraAddress 0x3a7c4 */
           weakSendBtn.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x3a810 */
-          (void)finished;
           // The button is removed outright, then the panel fades in over 0.2s.
           [weakSendBtn removeFromSuperview];
           [UIView animateWithDuration:0.2
