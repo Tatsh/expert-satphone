@@ -17,6 +17,10 @@ static const double kReadyGoDuration = 2.5; // fmov 0x4004000000000000
 // The game area is offset 256 points down on the Knit pad renderer.
 static const double kGameAreaOffset = 256.0; // @ghidraAddress 0x28e030
 
+// The 0.8 combo-cut key time float pool slot, and the excellent panel draw size.
+static const float g_flKeyTime080 = 0.8f;    // @ghidraAddress 0x28f3c0
+static const double kExcPanelSpread = 192.0; // @ghidraAddress 0x28fa00
+
 // The result-screen button grid identities: the good-job, evaluate/tweet/store, and end buttons.
 enum {
     kGoodJobButtonID = 13,

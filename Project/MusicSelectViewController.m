@@ -3,6 +3,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "AlertViewManager.h"
+#import "AudioManager.h"
 #import "BFCodec.h"
 #import "BalloonView.h"
 #import "CJSONSerializer.h"
@@ -136,6 +137,9 @@ static const NSUInteger kPushStorePathComponentCount = 3;
 
 // The menu BGM resumes with a one-fifth-second fade in when the app comes back to the foreground.
 static const double kMenuBgmResumeFade = 0.2; // @ghidraAddress 0x28e040
+
+// The search box and its cancel button slide up 52 points out of view when no search is active.
+static const double g_dSlideOffsetYMinus52 = -52.0;
 
 // The extend-mode tutorial overlay fades out over this (negative, as the binary passes it)
 // duration when the mode changes.

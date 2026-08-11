@@ -46,6 +46,10 @@ enum { kFourInchGameTop = 0xa0 };
 // The default (non-four-inch) game-area offset, 160 points. @ghidraAddress 0x28f438
 static const double kGameAreaOffsetDefault = 160.0;
 
+// The 0.8 combo-cut key time and the 0.3 combo-fade base, both float pool slots.
+static const float g_flKeyTime080 = 0.8f; // @ghidraAddress 0x28f3c0
+static const float kComboFadeBase = 0.3f; // @ghidraAddress 0x28e0b0
+
 // The knit upper-background construction constants passed to -[UpperBGKnit initBg:...]. The bg
 // rectangle spans the full 320-point width with a per-idiom height; the wave-top and pulse-height
 // reach initBg as fmov immediates (prose-only). The wave baseline is 110 points by default and

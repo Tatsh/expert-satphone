@@ -886,6 +886,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const float kShutterAmpBase = 15.0f;        // fmov immediate
     static const float kShutterHalf = 0.5f;
     static const float kShutterInterpHigh = 2.79999995f; // @ghidraAddress 0x292594
+    static const float kBgAppearHigh = 1.1f;             // @ghidraAddress 0x292ab8
     static const double kShutterXNudge = 288.0;          // An fmov immediate.
     static const double kShutterCapY = 384.0;            // An fmov immediate.
     // The shutter-bar and cap sprite index bases in texCombo.
@@ -955,7 +956,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
 
     float openInterp = InterpolateFloatByPosition(
-        shutterOpenValue, 0.0f, kShutterTensionFactor, kBgAppearHighShutter(), 2.79999995f);
+        shutterOpenValue, 0.0f, kShutterTensionFactor, kBgAppearHigh, 2.79999995f);
     (void)openInterp;
 
     // First bar group: each of four rows draws its ripple pair from the shared table, offset by the
@@ -2337,7 +2338,6 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
     (void)kBeamWipeX;
     (void)kDiscY;
-    (void)kDiscSprite();
     (void)kExcellentDiscSprite;
     return animFrame > 0x77;
 }
@@ -2391,11 +2391,10 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         if (animFrame < 8) {
             glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleLow, animFrame, 0, 8);
         } else if (animFrame < 0xe) {
-            glyphScale = InterpolateFloatByFrame(
-                kRatingScaleLow, kFullcomboScaleMidLocal(), animFrame, 8, 0xe);
-        } else if (animFrame < 0x10) {
             glyphScale =
-                InterpolateFloatByFrame(kFullcomboScaleMidLocal(), 1.0f, animFrame, 0xe, 0x10);
+                InterpolateFloatByFrame(kRatingScaleLow, kRatingScaleMid, animFrame, 8, 0xe);
+        } else if (animFrame < 0x10) {
+            glyphScale = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, 0xe, 0x10);
         } else {
             glyphScale = InterpolateFloatByFrame(0.2f, 1.0f, animFrame, 8, 0xd);
         }

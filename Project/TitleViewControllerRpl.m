@@ -1,12 +1,17 @@
 #import "TitleViewControllerRpl.h"
 
+#import "ApplilinkNetwork.h"
 #import "AudioManager.h"
+#import "EditorIDManager.h"
+#import "ImageLoading.h"
+#import "JubeatAppDelegate.h"
 #import "LicenseAgreementView.h"
 #import "MarkerDownloadView.h"
 
 @implementation TitleViewControllerRpl {
     BOOL isPad;                            // offset global 0x34ae80
     int yHorizon;                          // offset global 0x34ae84
+    UIImageView *titleBgView;              // the ripple title background, mirroring the Org sibling
     UIImageView *jubeatLogoView;           // offset global 0x34ae88
     NSArray *arrayRippleLayer;             // offset global 0x34ae8c
     NSArray *arrayReflectedRippleLayer;    // offset global 0x34ae90

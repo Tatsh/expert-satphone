@@ -1,5 +1,9 @@
 #import "StoreMusicListManager.h"
 
+#import "BFCodec.h"
+#import "JubeatAppDelegate.h"
+#import "Md5Utilities.h"
+
 @implementation StoreMusicListManager {
     NSMutableArray *_arrayMusic;             // offset global 0x34a758
     NSMutableArray *_arrayExtendMusic;       // offset global 0x34a75c

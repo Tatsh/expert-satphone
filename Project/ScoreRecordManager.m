@@ -13,6 +13,12 @@ static NSString *const kStoreFileName = @"MusicScores.sqlite";
 
 @implementation ScoreRecordManager
 
+// The Core Data stack is lazily built by the getters below; synthesize their backing ivars since
+// each property is readonly with a hand-written getter.
+@synthesize managedObjectContext = _managedObjectContext;
+@synthesize managedObjectModel = _managedObjectModel;
+@synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
+
 /** @ghidraAddress 0x1716cc */
 + (ScoreRecordManager *)sharedManager {
     // The instance lives at 0x3541c0 and the token immediately after it at 0x3541c8, which is the

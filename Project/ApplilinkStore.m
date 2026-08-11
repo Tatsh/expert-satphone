@@ -1,5 +1,7 @@
 #import "ApplilinkStore.h"
 
+#import <UIKit/UIKit.h>
+
 #import "ApplilinkParameters.h"
 
 // The applilink view controller that owns the SKStoreProductViewController; not reconstructed in

@@ -53,6 +53,9 @@ typedef enum : NSInteger {
     BOOL bUnEnableTap;
 }
 
+// The list mode has a hand-written getter and setter, so synthesize its backing ivar explicitly.
+@synthesize listMode = _listMode;
+
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0x15ca34 */

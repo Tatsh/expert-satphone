@@ -15,6 +15,7 @@
 #import "JcfUpLoadView.h"
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
+#import "LabUtilities.h"
 #import "LatelyJcfListManager.h"
 #import "MusicSelectViewController.h"
 #import "Sequence.h"
@@ -82,6 +83,11 @@ static NSString *const kExtendSeqBasic = @"seq_bas";
 static NSString *const kExtendSeqAdvanced = @"seq_adv";
 static NSString *const kExtendSeqExtreme = @"seq_ext";
 static const NSUInteger kExtendArchiveTail = 16;
+enum {
+    kExtendMbarBasicRow = 0,
+    kExtendMbarAdvancedRow = 1,
+    kExtendMbarExtremeRow = 2,
+};
 
 // Each difficulty's extend music-bar row is 60 bytes wide within extendMbarDots[3][60]; the base
 // music bars share the same three-row layout in mbarDots.
@@ -1226,7 +1232,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
         [self.shareDataProgress setHidden:YES];
     } else {
         startImage = [self getStartImage];
-        hostImage = [[ImageCache sharedCache] getResPNG:kHostShareStartImage];
+        hostImage = [[ImageCache sharedCache] getResPNG:kCancelButtonImage];
         [self.labelShareMessage setText:@""];
         [self.labelShareMessage setAlpha:1.0];
         [self.labelShareMessage setHidden:NO];

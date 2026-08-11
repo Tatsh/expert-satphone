@@ -17,6 +17,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ * @brief The kind of item a campaign entry unlocks, as stored in @c itemType.
+ */
+typedef NS_ENUM(int, CampaignItemInfoItemType) {
+    CampaignItemInfoItemTypeTune = 0, /*!< A tune: must be in the catalogue and present on disc. */
+    CampaignItemInfoItemTypeMarker = 1, /*!< A marker: only has to be installed. */
+};
+
+/**
  * @brief A campaign item: an unlockable tune or marker with a rule for earning it.
  */
 @interface CampaignItemInfo : NSObject

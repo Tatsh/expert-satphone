@@ -107,6 +107,8 @@ static NSString *const kWaitingForHostKey = @"Waiting for host to start";
 static const NSTimeInterval kStartPlayTransitionDuration = 0.6; // @ghidraAddress 0x28f288
 static const NSTimeInterval kStartPlayInputLockDuration = 0.7;  // @ghidraAddress 0x28f2a0
 
+enum { kDiffButtonCount = 3, kExtendButtonIndex = 3 };
+
 // Scales out and fades every difficulty button except the selected one, plus both scroll buttons,
 // when starting play.
 static inline void MusicDetailViewRplScaleOutUnselectedButtons(UIButton *const *btnDiff,
@@ -172,7 +174,6 @@ static const NSTimeInterval kHostShareStartFadeDuration = 0.3; // @ghidraAddress
 // theme.
 static const CGFloat kDiffButtonDimAlpha = 0.5;  // fmov 0x3fe0000000000000
 static const CGFloat kDiffButtonDimScale = 0.95; // @ghidraAddress 0x28f6e0
-enum { kDiffButtonCount = 3, kExtendButtonIndex = 3 };
 
 // The difficulty button's fixed frame size, per idiom.
 static const double kDiffButtonWidthPad = 142.0;   // @ghidraAddress 0x292e88

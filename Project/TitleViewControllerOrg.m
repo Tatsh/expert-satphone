@@ -19,7 +19,8 @@
     UITapGestureRecognizer *tapRecognizer; // offset global 0x34ae70
     LicenseAgreementView *licenseAgree;    // offset global 0x34ae74
     UIView *coverView;                     // offset global 0x34ae78
-    // markerView at 0x34ae64 and idManager at 0x34ae7c are not touched by these methods.
+    MarkerDownloadView *markerView;        // offset global 0x34ae64
+    EditorIDManager *idManager;            // offset global 0x34ae7c
 }
 
 /** @ghidraAddress 0x13abb8 */
