@@ -2093,7 +2093,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 
     // Eight corner glyphs sweep in staggered by 6 frames each; the loop draws two mirrored corners
     // per iteration over four grid rows.
-    int cornerY = 0x60;
+    int cornerY = (int)kCornerBaseX;
     int rowFromTop = 0xf;
     for (int row = 0; row < 4; ++row) {
         if (animFrame >= 0) {

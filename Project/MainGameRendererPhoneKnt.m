@@ -1612,9 +1612,14 @@ drawDigits:
         return;
     }
 
-    // The bounce path: the three digits nearest the effect front are lifted -5, -10, -15.
-    int frontIndex = (int)(~(unsigned int)len < -5 ? ~(unsigned int)len : -5);
-    frontIndex = effectFrame - frontIndex;
+    // The bounce path: the three digits nearest the effect front are lifted -5, -10, -15. The
+    // effect front is measured back from the last digit (~len is -len-1), clamped no further than
+    // five past the end.
+    int frontOffset = ~len;
+    if (frontOffset <= -5) {
+        frontOffset = -5;
+    }
+    int frontIndex = effectFrame - frontOffset;
     int glyphX = startX;
     for (int i = 0; i < count; ++i) {
         int lift = 0;

@@ -345,8 +345,9 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
     SLComposeViewController *composer =
         [SLComposeViewController composeViewControllerForServiceType:service];
     [composer setInitialText:(text ? text : @"")];
-    // The shipped block encodes its argument as a BOOL rather than SLComposeViewControllerResult.
-    composer.completionHandler = ^(BOOL finished) {
+    // The shipped block reads its argument as a plain integer; typed here as the framework's
+    // SLComposeViewControllerResult.
+    composer.completionHandler = ^(SLComposeViewControllerResult result) {
       /** @ghidraAddress 0x1288cc */
       [self.controller dismissViewControllerAnimated:YES completion:nil];
     };
@@ -581,7 +582,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
     if (manager.bIsDownload || !self.isPad) {
         return NO;
     }
-    return manager.getEditorInfo[kEditorNotesNumKey].intValue != 0;
+    return [manager.getEditorInfo[kEditorNotesNumKey] intValue] != 0;
 }
 
 /** @ghidraAddress 0x129f20 */

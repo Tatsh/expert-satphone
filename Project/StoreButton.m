@@ -225,9 +225,12 @@ enum {
         UIColor *third = [self highlightColor:shaded factor:kGradientFactorThird];
         UIColor *fourth = [self highlightColor:shaded factor:kGradientFactorFourth];
 
-        CGColorRef stops[] = {first.CGColor, second.CGColor, third.CGColor, fourth.CGColor};
-        NSArray *colors = [NSArray arrayWithObjects:(__unsafe_unretained const id *)stops
-                                              count:kGradientStopCount];
+        NSArray *colors = @[
+            (__bridge id)first.CGColor,
+            (__bridge id)second.CGColor,
+            (__bridge id)third.CGColor,
+            (__bridge id)fourth.CGColor
+        ];
         CGFloat locations[] = {kGradientLocationFirst,
                                kGradientLocationSecond,
                                kGradientLocationThird,

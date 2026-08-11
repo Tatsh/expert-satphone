@@ -291,7 +291,7 @@ static NSString *const kSoundKntSlow = @"SD_KNT_CV_SLOW";
                     } else {
                         entryName = [NSString stringWithFormat:kFrameNameFormatHigh, index];
                     }
-                    NSData *entry = [archive uncompress:entryName];
+                    NSMutableData *entry = [archive uncompress:entryName];
                     [codec cipherInit:key];
                     image = CreateImageFromEncryptedData(codec, entry);
                     if (isPad) {

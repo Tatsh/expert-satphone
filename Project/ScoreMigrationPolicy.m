@@ -188,8 +188,9 @@ static const int kScoreAbsent = -1;
         [destination setValue:[sInstance valueForKey:kPerfectExtremeKey] forKey:kPerfectExtremeKey];
 
         // Re-digested from the migrated record, so the new store carries a digest over the
-        // recovered full-width scores.
-        [destination setValue:[ScoreRecord hashScore:destination] forKey:kChecksumKey];
+        // recovered full-width scores. The destination entity is a ScoreRecord.
+        [destination setValue:[ScoreRecord hashScore:(ScoreRecord *)destination]
+                       forKey:kChecksumKey];
     }
     return YES;
 }
