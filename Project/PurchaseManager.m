@@ -158,7 +158,7 @@ NSString *CreateRandomString(int length);
     if (!receipt) {
         return nil;
     }
-    NSString *nonce = CreateRandomString(0x10);
+    (void)CreateRandomString(0x10); // Yes, the binary generates this nonce and then discards it.
     NSMutableDictionary *dict =
         [[NSMutableDictionary alloc] initWithDictionary:JubeatAppDelegate.clientInfo];
     dict[@"receipt"] = receipt;
@@ -178,7 +178,7 @@ NSString *CreateRandomString(int length);
 }
 
 /** @ghidraAddress 0xb66ec */
-- (NSDictionary *)createVerifyPostData:(NSArray *)products {
+- (NSData *)createVerifyPostData:(NSArray *)products {
     NSData *receiptData = [NSData dataWithContentsOfURL:NSBundle.mainBundle.appStoreReceiptURL];
     NSString *receipt = [receiptData base64EncodedStringWithOptions:0];
     if (!receipt) {
@@ -207,7 +207,8 @@ NSString *CreateRandomString(int length);
     verifyData = [[NSMutableData alloc] initWithCapacity:0x1000];
     [verifyData appendBytes:"3fc9f6fe23460a7093aff11e4fa1f4b9omgker" length:0x20];
     [verifyData appendData:[nonce dataUsingEncoding:4]];
-    return dict;
+    // The binary returns the serialised payload, not the mutable dictionary it was built from.
+    return json;
 }
 
 /** @ghidraAddress 0xb6af0 */

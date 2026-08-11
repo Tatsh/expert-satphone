@@ -960,7 +960,7 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
                 templateInfo[slot][kEditorInfoNotesNumKey] = notes;
             }
 
-            NSData *bgm = [unzip uncompress:kArchiveSequenceMember];
+            NSMutableData *bgm = [unzip uncompress:kArchiveSequenceMember];
             if (bgm != nil) {
                 [codec cipherInit:key];
                 [codec decipher:bgm];
@@ -968,12 +968,12 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
                 music_duration = [[AudioManager sharedManager] bgmDuration];
             }
             [codec cipherInit:key];
-            NSData *artworkData = [unzip uncompress:kArchiveArtworkMember];
+            NSMutableData *artworkData = [unzip uncompress:kArchiveArtworkMember];
             if ((artworkData != nil) && [codec decipher:artworkData]) {
                 artwork = [[UIImage alloc] initWithData:artworkData];
             }
             [codec cipherInit:key];
-            NSData *nameData = [unzip uncompress:kArchiveNameMember];
+            NSMutableData *nameData = [unzip uncompress:kArchiveNameMember];
             if ((nameData != nil) && [codec decipher:nameData]) {
                 nameImage = [[UIImage alloc] initWithData:nameData];
             }

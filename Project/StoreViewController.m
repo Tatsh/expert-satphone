@@ -676,6 +676,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
         }
         message = [NSString
             stringWithFormat:kMessageDescriptionFormat, message, error.localizedDescription];
+        (void)title; // Yes, the binary computes this per-branch error title and then discards it.
     }
 
     PurchaseManager.sharedManager.delegate = nil;

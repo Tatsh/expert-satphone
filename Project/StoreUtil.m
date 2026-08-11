@@ -459,7 +459,7 @@ static NSString *const kStorePackProductPrefix = @"jubeat.pack";
 }
 
 /** @ghidraAddress 0xbb310 */
-+ (NSString *)filePathForMusicID:(unsigned int)musicID {
++ (NSString *)filePathForMusicID:(int)musicID {
     // "<documents>/%09d.jbt" — the path is returned whether or not the file exists.
     NSString *name = [[NSString alloc] initWithFormat:@"%09d.jbt", musicID];
     return [JubeatAppDelegate.appDocumentsDirectory stringByAppendingPathComponent:name];

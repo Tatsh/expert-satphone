@@ -233,7 +233,9 @@ static NSString *const kNotificationExpireKey = @"expire";
 /** @ghidraAddress 0x1cb380 */
 - (void)setScratchItem:(int)index dict:(NSDictionary *)dict {
     if (dict[kKeyMusicID]) {
-        [self.scratchInfoTable[index] init:dict];
+        ScratchInfo *info = self.scratchInfoTable[index];
+        (void)[info init:dict]; // The binary re-inits the existing entry in place and discards the
+                                // returned instance.
     }
 }
 
@@ -348,7 +350,9 @@ static NSString *const kNotificationExpireKey = @"expire";
     if (panels) {
         for (NSDictionary *panel in panels) {
             int position = [panel[kKeyPosition] intValue];
-            [table[position] init:panel];
+            ScratchInfo *info = table[position];
+            (void)[info init:panel]; // The binary re-inits the entry in place, discarding the
+                                     // returned instance.
         }
     }
     self.scratchInfoTable = [NSArray arrayWithArray:table];

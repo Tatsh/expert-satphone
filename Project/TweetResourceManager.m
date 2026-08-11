@@ -138,7 +138,7 @@ enum { kFrameTermTypeFree = 0, kFrameTermTypeInstallCount = 1 };
         kTermsTableKey : @[ @6 ],
         kFileNameKey : kKnitFrameName
     };
-    return [NSArray arrayWithArray:@[ defaultFrame, classicFrame, ripplesFrame, knitFrame ]];
+    return @[ defaultFrame, classicFrame, ripplesFrame, knitFrame ];
 }
 
 #pragma mark - Resource layout

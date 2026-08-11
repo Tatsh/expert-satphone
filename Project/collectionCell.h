@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief A cell that hosts one @c MusicView, sized for the device idiom.
  */
-@interface collectionCell : UIView
+@interface collectionCell : UICollectionViewCell
 
 /**
  * @brief Builds the hosted music view and installs it.

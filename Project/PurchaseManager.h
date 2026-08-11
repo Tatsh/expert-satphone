@@ -114,7 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The dictionary or nil.
  * @ghidraAddress 0xb66ec
  */
-- (nullable NSDictionary *)createVerifyPostData:(NSArray *)products;
+- (nullable NSData *)createVerifyPostData:(NSArray *)products;
 /**
  * @brief Create verify post dictionary with product prices.
  * @param products The products array.

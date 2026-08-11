@@ -12,6 +12,7 @@
 #import "StoreButton.h"
 #import "StoreMusicListManager.h"
 #import "StoreUtil.h"
+#import "TuneInfo.h"
 
 // The board is 320 wide and 360 tall on a pad, and 300 square otherwise.
 static const CGFloat kBoardWidthPad = 320.0;   // @ghidraAddress 0x28f470
@@ -154,10 +155,10 @@ static NSString *const kResponseKeyMessage = @"Message";
 }
 
 /** @ghidraAddress 0x1145d4 */
-- (instancetype)initWithID:(id)music
+- (instancetype)initWithID:(TuneInfo *)music
                       type:(NSString *)type
                   delegate:(id<SearchPackIDViewDelegate>)delegateArg {
-    return [self initWithTuneID:(unsigned int)[music tuneID] type:type delegate:delegateArg];
+    return [self initWithTuneID:music.tuneID type:type delegate:delegateArg];
 }
 
 /** @ghidraAddress 0x114684 */

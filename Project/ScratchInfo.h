@@ -22,6 +22,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic) BOOL bOpen;
 
 /**
+ * @brief The date this scratch track stops being playable.
+ * @ghidraAddress 0x1cabf0
+ */
+@property(nonatomic, strong, nullable) NSDate *endDate;
+
+/**
  * @brief Builds the track from a store dictionary, looking its details up in the challenge line-up.
  * @param dictionary The store dictionary (carries @c music_id ).
  * @return The initialised track.

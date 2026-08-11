@@ -20,6 +20,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SearchPackIDView;
+@class TuneInfo;
 
 /**
  * @brief What a @c SearchPackIDView tells its owner once the pack lookup settles.
@@ -83,14 +84,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds the modal for the tune carried by a music object and starts the pack lookup.
  *
- * Forwards to @c -initWithTuneID:type:delegate: after reading the object's @c -tuneID .
- * @param music The object whose @c -tuneID identifies the tune.
+ * Forwards to @c -initWithTuneID:type:delegate: after reading the tune's @c -tuneID .
+ * @param music The tune whose @c -tuneID identifies it.
  * @param type The social service type, or @c nil for a plain pack lookup.
  * @param delegate The object told the outcome; held weakly.
  * @return The initialised view.
  * @ghidraAddress 0x1145d4
  */
-- (instancetype)initWithID:(nullable id)music
+- (instancetype)initWithID:(nullable TuneInfo *)music
                       type:(nullable NSString *)type
                   delegate:(nullable id<SearchPackIDViewDelegate>)delegate;
 

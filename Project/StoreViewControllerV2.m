@@ -430,12 +430,12 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 - (void)startDownloadMusics:(int)packID {
     NSArray *musicInfos = purchasingPackInfo.musicInfos;
     for (StoreMusicInfo *info in musicInfos) {
-        [[StoreMusicListManager sharedManager] addMusic:(NSDictionary *)info];
+        [[StoreMusicListManager sharedManager] addMusic:info];
         if (info) {
-            [[StoreMusicListManager sharedManager] addMusic:(NSDictionary *)info];
+            [[StoreMusicListManager sharedManager] addMusic:info];
         }
         if (info.extendMusicID != 0) {
-            [[StoreMusicListManager sharedManager] addMusic:(NSDictionary *)[info getExtendInfo]];
+            [[StoreMusicListManager sharedManager] addMusic:[info getExtendInfo]];
         }
     }
     [[StoreMusicListManager sharedManager] saveMusicList];
@@ -483,10 +483,10 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
     NSArray *musicInfos = purchasingPackInfo.musicInfos;
     for (StoreMusicInfo *info in musicInfos) {
         if (info) {
-            [[StoreMusicListManager sharedManager] addMusic:(NSDictionary *)info];
+            [[StoreMusicListManager sharedManager] addMusic:info];
         }
         if (info.extendMusicID != 0) {
-            [[StoreMusicListManager sharedManager] addMusic:(NSDictionary *)[info getExtendInfo]];
+            [[StoreMusicListManager sharedManager] addMusic:[info getExtendInfo]];
         }
     }
     [[StoreMusicListManager sharedManager] saveMusicList];
