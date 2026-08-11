@@ -1543,7 +1543,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                        /** @ghidraAddress 0x38280 */
                        weakDialog.alpha = 1.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x382cc */
+                     }];
 }
 
 /** @ghidraAddress 0x36d04 */
@@ -2841,7 +2843,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                        weakCancel.transform =
                            CGAffineTransformMakeTranslation(0.0, kSearchBoxSlideOffset);
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x361b0 */
+                     }];
 }
 
 /** @ghidraAddress 0x361b4 */
@@ -3186,7 +3190,10 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 /** @ghidraAddress 0x2d160 */
 - (void)settingsNavViewClose:(nullable id)sender {
     [[AudioManager sharedManager] playSeResFile:[self soundName:@"MUSIC_LEFT"] inDirectory:nil];
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [self dismissViewControllerAnimated:YES
+                             completion:^{
+                                 /** @ghidraAddress 0x2d25c */
+                             }];
     bOpenModal = NO;
     bOpenSetting = NO;
     [self musicShuffleEnable];
@@ -3239,7 +3246,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                        /** @ghidraAddress 0x2a600 */
                        [weakCover setAlpha:1.0];
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x2a64c */
+                     }];
 }
 
 /** @ghidraAddress 0x2a650 */
@@ -3618,7 +3627,10 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     }
     // Dismiss any open modal.
     if (bOpenModal) {
-        [self dismissViewControllerAnimated:NO completion:nil];
+        [self dismissViewControllerAnimated:NO
+                                 completion:^{
+                                     /** @ghidraAddress 0x338bc */
+                                 }];
         bOpenModal = NO;
         [self musicShuffleEnable];
         [self setSearchEnable:YES];
@@ -3801,13 +3813,19 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 /** @ghidraAddress 0x338c0 */
 - (void)popoverClose {
     if (isPad) {
-        [self dismissViewControllerAnimated:NO completion:nil];
+        [self dismissViewControllerAnimated:NO
+                                 completion:^{
+                                     /** @ghidraAddress 0x33978 */
+                                 }];
     }
     if (bOpenModal) {
         if (bOpenSetting) {
             [settingsNavCtrl settingClose];
         }
-        [self dismissViewControllerAnimated:NO completion:nil];
+        [self dismissViewControllerAnimated:NO
+                                 completion:^{
+                                     /** @ghidraAddress 0x3397c */
+                                 }];
         bOpenModal = NO;
         [self musicShuffleEnable];
     }
@@ -3870,7 +3888,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                        /** @ghidraAddress 0x37bd4 */
                        weakCover.alpha = 1.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x37c20 */
+                     }];
 }
 
 /** @ghidraAddress 0x371a4 */
@@ -4016,6 +4036,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     if (isPad) {
         [self dismissViewControllerAnimated:NO
                                  completion:^{
+                                     /** @ghidraAddress 0x3401c */
                                  }];
     }
     if (bOpenModal) {
