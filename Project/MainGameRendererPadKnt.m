@@ -1,5 +1,7 @@
 #import "MainGameRendererPadKnt.h"
 
+#import "HoldMarkerRender.h"
+#import "JubeatAppDelegate.h"
 #import "RendererConf.h"
 #import "Sequence.h"
 #import "Texture2D.h"
@@ -86,6 +88,59 @@ static const float kMusicBarPlayHeadXOffset = 74.0f;                     // @ghi
 static const double kMusicBarPlayHeadY = 197.0;                          // @ghidraAddress 0x28f6b0
 enum { kMusicBarCellCount = 0x78 };
 
+// The 4x4 marker grid: each panel sits on a 192-point pitch inset 16 points, the rows pushed 256
+// points down. A marker's animation word packs a phase (low 12 bits) and a slot (next 3 bits); the
+// slot and phase pick a marker sprite. The first-marker start highlight fades in over the last
+// hundred sectors of its 150-sector approach; random mode reshuffles the marker's facing.
+static const int kMarkerPanelPitch = 0xc0;     // 192, per-panel grid pitch
+static const int kMarkerPanelInset = 0x10;     // 16, grid inset within each cell
+static const int kMarkerGridTopOffset = 0x100; // 256, rows pushed down
+static const int kMarkerGridColumns = 4;
+static const unsigned int kMarkerPhaseMask = 0xfff;
+static const unsigned int kMarkerSlotShift = 0xc;
+static const unsigned int kMarkerSlotMask = 7;
+static const unsigned int kMarkerPhaseSlot0Limit = 0xef;
+static const unsigned int kMarkerPhaseLimit = 0xa0;
+static const unsigned int kMarkerSlotLimit = 6;
+static const int kMarkerSpritePhaseDivisor = 10;
+static const int kMarkerSpriteSlot0Base = 4;
+static const int kMarkerSpriteSlotStride = 0x10;
+static const int kMarkerSpriteSlotBias = -4;
+static const int kMarkerDirModulo = 4;
+static const int kMarkerHighlightSector = 0x96; // 150
+static const int kMarkerFadeClampSectors = 100; // clamp to 1.0 at/after this many sectors
+static const float kMarkerFadeDivisor = 100.0f; // @ghidraAddress 0x28f4e0
+
+// The origin of grid panel @p index within the Knit marker grid.
+static inline CGPoint MainGameRendererPadKntPanelOrigin(int index) {
+    int x = (index % kMarkerGridColumns) * kMarkerPanelPitch | kMarkerPanelInset;
+    int y = ((index / kMarkerGridColumns) * kMarkerPanelPitch | kMarkerPanelInset) +
+            kMarkerGridTopOffset;
+    return CGPointMake((double)x, (double)y);
+}
+
+// Resolves a marker animation word into a texMarker sprite index, or returns NO when the panel has
+// no active marker to draw.
+static inline BOOL
+MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *sprite) {
+    if (slot == 0) {
+        if (phase > kMarkerPhaseSlot0Limit) {
+            return NO;
+        }
+        *sprite = (int)(phase / kMarkerSpritePhaseDivisor) + kMarkerSpriteSlot0Base;
+        return YES;
+    }
+    if (phase < kMarkerPhaseLimit && slot < kMarkerSlotLimit) {
+        int candidate = (int)(phase / kMarkerSpritePhaseDivisor) +
+                        (int)slot * kMarkerSpriteSlotStride + kMarkerSpriteSlotBias;
+        if (candidate >= 0) {
+            *sprite = candidate;
+            return YES;
+        }
+    }
+    return NO;
+}
+
 @implementation MainGameRendererPadKnt
 
 /** @ghidraAddress 0x206dcc */
@@ -136,6 +191,43 @@ enum { kMusicBarCellCount = 0x78 };
 /** @ghidraAddress 0x202390 */
 - (CGRect)getMusicBarRect {
     return musicBarRect;
+}
+
+/** @ghidraAddress 0x200db4 */
+- (void)renderMarker {
+    int sectorDelta = (int)[self.sequence firstMarkerSector] - (int)[self.sequence currentSector];
+    [self.sequence getMarkerState:self->markerState];
+    for (int i = 0; i < kMainGameGridPanelCount; ++i) {
+        unsigned int stateWord = (unsigned int)self->markerState[i];
+        unsigned int phase = stateWord & kMarkerPhaseMask;
+        unsigned int slot = (stateWord >> kMarkerSlotShift) & kMarkerSlotMask;
+        int sprite;
+        if (MainGameRendererPadKntMarkerSprite(phase, slot, &sprite)) {
+            CGPoint origin = MainGameRendererPadKntPanelOrigin(i);
+            [self.texMarker drawSprite:(NSUInteger)sprite
+                               atPoint:origin
+                             transform:(char)self->markerDir[i]
+                                 alpha:1.0f];
+        } else {
+            self->markerDir[i] = 0;
+            if ([JubeatAppDelegate.appDelegate isMarkerDirRandom]) {
+                self->markerDir[i] = rand() % kMarkerDirModulo;
+            }
+        }
+    }
+    [self.sequence getHoldMarkerState:self->holdState];
+    if (![self.rendererConf isStealth]) {
+        [self->holdMarkerRender renderHoldMarker:self->holdState];
+    }
+    if (sectorDelta > kMarkerHighlightSector) {
+        // The start marker fades in over the last hundred sectors of the approach.
+        int fadeSectors = sectorDelta - kMarkerHighlightSector;
+        float fade = 1.0f;
+        if (fadeSectors < kMarkerFadeClampSectors) {
+            fade = (float)fadeSectors / kMarkerFadeDivisor;
+        }
+        [self renderStartMark:fade];
+    }
 }
 
 /** @ghidraAddress 0x2023a8 */
