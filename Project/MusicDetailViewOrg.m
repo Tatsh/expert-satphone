@@ -130,20 +130,21 @@ static const float kLightBlinkRepeatCount = 20.0f;      // fmov, 20.0
 
 // Scales out and fades every difficulty button except the selected one, plus both scroll buttons,
 // when starting play.
-static inline void MusicDetailViewOrgShrinkUnselectedButtons(MusicDetailViewOrg *self,
+static inline void MusicDetailViewOrgShrinkUnselectedButtons(UIButton *const *btnDiff,
+                                                             UIButton *const *detailScrollButton,
                                                              int selected) {
     CATransform3D shrink =
         CATransform3DMakeScale(kStartPlayShrinkScale, kStartPlayShrinkScale, 1.0);
     for (int i = 0; i < kDiffButtonCount; ++i) {
         if (i != selected) {
-            [self->btnDiff[i] setAlpha:0.0];
-            self->btnDiff[i].layer.transform = shrink;
+            [btnDiff[i] setAlpha:0.0];
+            btnDiff[i].layer.transform = shrink;
         }
     }
-    [self->detailScrollButton[0] setAlpha:0.0];
-    self->detailScrollButton[0].layer.transform = shrink;
-    [self->detailScrollButton[1] setAlpha:0.0];
-    self->detailScrollButton[1].layer.transform = shrink;
+    [detailScrollButton[0] setAlpha:0.0];
+    detailScrollButton[0].layer.transform = shrink;
+    [detailScrollButton[1] setAlpha:0.0];
+    detailScrollButton[1].layer.transform = shrink;
 }
 
 // The per-difficulty voice cues, the input-lock durations, and the high-score board's dimmed alpha
@@ -155,12 +156,13 @@ static const NSTimeInterval kSelectDiffExtendInputLock = 0.4; // @ghidraAddress 
 static const CGFloat kHighscoreBoardDimAlpha = 0.3;           // @ghidraAddress 0x28f248
 
 // Repositions the high-score board view to its idiom home centre.
-static inline void MusicDetailViewOrgRepositionHighscoreBoard(MusicDetailViewOrg *self) {
+static inline void MusicDetailViewOrgRepositionHighscoreBoard(MusicDetailViewOrg *self,
+                                                              UIImageView *highscoreBoardView) {
     double homeX = self.isPad ?
                        kHighscoreBoardXPad :
                        (self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
     double y = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
-    [self->highscoreBoardView setCenter:CGPointMake(homeX, y)];
+    [highscoreBoardView setCenter:CGPointMake(homeX, y)];
 }
 
 // With no edit loaded the three edit text fields dim to this alpha; the edit buttons fade in over
@@ -276,13 +278,14 @@ enum {
 // re-derives the hold flag from the current difficulty's hold mark (except on the edit page),
 // refreshes the start button, records the page, and applies either the difficulty (snapping a stale
 // extreme back to basic) on the detail page or the edit music bar on the edit page.
-static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self) {
+static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self,
+                                                      UIImageView *const *holdMark) {
     [self setEnableButton:YES];
     double width = self.scrollView.frame.size.width;
     int page = (int)((width * 0.5 + self.scrollView.contentOffset.x) / width);
     self.editPage = page;
     int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
-    BOOL holdHidden = self->holdMark[difficulty].isHidden;
+    BOOL holdHidden = holdMark[difficulty].isHidden;
     [JubeatAppDelegate.appDelegate setHoldFlag:(page != 1) && !holdHidden];
     [self refreshStartButton];
     if (self.isStarted) {
@@ -457,56 +460,61 @@ static NSString *const kDiffLightNameFormat = @"msel_btn_light_%c";
 // word and level-number glyphs, and the two blink lights. All subview frames are within the
 // button's own coordinate system and are laid out three ways. The word glyph is omitted for the
 // fourth (edit) slot. @p center is the button's centre in the scroll view.
-static inline void
-MusicDetailViewOrgBuildDifficultyButton(MusicDetailViewOrg *self, int index, CGPoint center) {
+static inline void MusicDetailViewOrgBuildDifficultyButton(MusicDetailViewOrg *self,
+                                                           UIButton *__strong *btnDiff,
+                                                           UIImageView *__strong *diffTextView,
+                                                           UIImageView *__strong *levelTextView,
+                                                           UIImageView *__strong *levelNumView,
+                                                           UIImageView *__strong (*lightView)[2],
+                                                           int index,
+                                                           CGPoint center) {
     BOOL isPad = self.isPad;
     BOOL isRetina = self.isRetina;
     char letter = kDiffButtonLetters[index];
 
-    self->btnDiff[index] =
-        [self diffButton:[NSString stringWithFormat:kDiffButtonNameFormat, letter]];
+    btnDiff[index] = [self diffButton:[NSString stringWithFormat:kDiffButtonNameFormat, letter]];
 
     if (index != kExtendLevelNumIndex) {
         double textSize =
             isPad ? kDiffTextSizePad : (isRetina ? kDiffTextSizeRetina : kDiffTextSizeNonRetina);
         UIImage *wordImage =
             LoadScaledPngImage([NSString stringWithFormat:kDiffTextNameFormat, letter]);
-        self->diffTextView[index] = [[UIImageView alloc] initWithImage:wordImage];
-        [self->diffTextView[index] setFrame:CGRectMake(0.0, 0.0, textSize, textSize)];
-        [self->diffTextView[index] setAlpha:0.0];
-        [self->btnDiff[index] addSubview:self->diffTextView[index]];
+        diffTextView[index] = [[UIImageView alloc] initWithImage:wordImage];
+        [diffTextView[index] setFrame:CGRectMake(0.0, 0.0, textSize, textSize)];
+        [diffTextView[index] setAlpha:0.0];
+        [btnDiff[index] addSubview:diffTextView[index]];
 
         CGRect wordFrame = isPad    ? CGRectMake(26.0, 90.0, 78.0, 25.0) :
                            isRetina ? CGRectMake(13.0, 45.0, 39.0, 13.0) :
                                       CGRectMake(5.0, 41.0, 47.0, 15.0);
-        self->levelTextView[index] = [[UIImageView alloc] initWithFrame:wordFrame];
-        [self->btnDiff[index] addSubview:self->levelTextView[index]];
+        levelTextView[index] = [[UIImageView alloc] initWithFrame:wordFrame];
+        [btnDiff[index] addSubview:levelTextView[index]];
     }
 
     CGRect numFrame = isPad    ? CGRectMake(100.0, 90.0, 28.0, 25.0) :
                       isRetina ? CGRectMake(50.0, 45.0, 14.0, 13.0) :
                                  CGRectMake(50.0, 41.0, 17.0, 15.0);
-    self->levelNumView[index] = [[UIImageView alloc] initWithFrame:numFrame];
-    [self->btnDiff[index] addSubview:self->levelNumView[index]];
+    levelNumView[index] = [[UIImageView alloc] initWithFrame:numFrame];
+    [btnDiff[index] addSubview:levelNumView[index]];
 
     UIImage *lightImage =
         LoadScaledPngImage([NSString stringWithFormat:kDiffLightNameFormat, letter]);
     CGRect topLightFrame = isPad    ? CGRectMake(-2.0, 0.0, 80.0, 28.0) :
                            isRetina ? CGRectMake(-1.0, 0.0, 40.0, 14.0) :
                                       CGRectMake(-4.0, -3.0, 40.0, 14.0);
-    self->lightView[index][0] = [[UIImageView alloc] initWithImage:lightImage];
-    [self->lightView[index][0] setFrame:topLightFrame];
-    [self->btnDiff[index] addSubview:self->lightView[index][0]];
+    lightView[index][0] = [[UIImageView alloc] initWithImage:lightImage];
+    [lightView[index][0] setFrame:topLightFrame];
+    [btnDiff[index] addSubview:lightView[index][0]];
 
     CGRect bottomLightFrame = isPad    ? CGRectMake(81.0, 132.0, 80.0, 28.0) :
                               isRetina ? CGRectMake(40.5, 66.0, 40.0, 14.0) :
                                          CGRectMake(37.0, 63.0, 40.0, 14.0);
-    self->lightView[index][1] = [[UIImageView alloc] initWithImage:lightImage];
-    [self->lightView[index][1] setFrame:bottomLightFrame];
-    [self->btnDiff[index] addSubview:self->lightView[index][1]];
+    lightView[index][1] = [[UIImageView alloc] initWithImage:lightImage];
+    [lightView[index][1] setFrame:bottomLightFrame];
+    [btnDiff[index] addSubview:lightView[index][1]];
 
-    [self->btnDiff[index] setCenter:center];
-    [self.scrollView addSubview:self->btnDiff[index]];
+    [btnDiff[index] setCenter:center];
+    [self.scrollView addSubview:btnDiff[index]];
 }
 
 // The two scroll arrows on the difficulty page.
@@ -665,7 +673,14 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                              CGPointMake(width - diffEdge, diffCenterY),
                              CGPointMake(width + diffEdge, diffCenterY)};
     for (int i = 0; i < kDiffButtonSlotCount; ++i) {
-        MusicDetailViewOrgBuildDifficultyButton(self, i, diffCenters[i]);
+        MusicDetailViewOrgBuildDifficultyButton(self,
+                                                self->btnDiff,
+                                                self->diffTextView,
+                                                self->levelTextView,
+                                                self->levelNumView,
+                                                self->lightView,
+                                                i,
+                                                diffCenters[i]);
     }
 
     // The forever-blinking light animation, added to the first difficulty's two lights.
@@ -1510,12 +1525,13 @@ static const double kMarkHeight = 14.0;       // fmov, 14
             [highscoreBoardView setCenter:CGPointMake(homeX - slide, y)];
             [highscoreBoardView setAlpha:0.0];
             [NSUserDefaults.standardUserDefaults setInteger:current forKey:kPrefDifficultyKey];
+            UIImageView *boardView = highscoreBoardView;
             [UIView animateWithDuration:kExtendModeAnimDuration
                              animations:^{
                                /** @ghidraAddress 0x570a4 */
                                [weakSelf changeDifficulty:current];
-                               MusicDetailViewOrgRepositionHighscoreBoard(weakSelf);
-                               [weakSelf->highscoreBoardView setAlpha:1.0];
+                               MusicDetailViewOrgRepositionHighscoreBoard(weakSelf, boardView);
+                               [boardView setAlpha:1.0];
                              }];
             inputLock = kSelectDiffExtendInputLock;
         }
@@ -1587,7 +1603,8 @@ static const double kMarkHeight = 14.0;       // fmov, 14
         options:UIViewAnimationOptionBeginFromCurrentState
         animations:^{
           /** @ghidraAddress 0x5a894 */
-          MusicDetailViewOrgShrinkUnselectedButtons(self, difficulty);
+          MusicDetailViewOrgShrinkUnselectedButtons(
+              self->btnDiff, self->detailScrollButton, difficulty);
         }
         completion:^(BOOL finished) {
           /** @ghidraAddress 0x5aa9c */
@@ -2364,19 +2381,19 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 - (void)scrollViewDidEndScrollingAnimation:(nullable UIScrollView *)scrollView {
     [detailScrollButton[0] setAlpha:1.0];
     [detailScrollButton[1] setAlpha:1.0];
-    MusicDetailViewOrgSettleScrollPage(self);
+    MusicDetailViewOrgSettleScrollPage(self, self->holdMark);
 }
 
 /** @ghidraAddress 0x5c8c8 */
 - (void)scrollViewDidEndDecelerating:(nullable UIScrollView *)scrollView {
-    MusicDetailViewOrgSettleScrollPage(self);
+    MusicDetailViewOrgSettleScrollPage(self, self->holdMark);
 }
 
 /** @ghidraAddress 0x5cb8c */
 - (void)scrollViewDidEndDragging:(nullable UIScrollView *)scrollView
                   willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
-        MusicDetailViewOrgSettleScrollPage(self);
+        MusicDetailViewOrgSettleScrollPage(self, self->holdMark);
     }
 }
 

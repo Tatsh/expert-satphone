@@ -14,7 +14,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface Downloader () {
-@protected
+@public
     NSURLRequest *request;         // offset global 0x34a36c
     NSURLSession *session;         // offset global 0x34a378
     NSURLSessionTask *sessionTask; // offset global 0x34a37c

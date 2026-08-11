@@ -240,55 +240,54 @@ static inline const char *MainGameRendererPhoneDiffAbbreviation(int diff) {
 
 // Rebuilds the front atlas and blits its difficulty, music-bar, level, start-mark, and end-mark
 // words. De-inlined from the front-atlas section of -loadTexure:artwork:index:.
-static inline void MainGameRendererPhoneBuildFrontTexture(MainGameRendererPhone *self,
+static inline void MainGameRendererPhoneBuildFrontTexture(Texture2D *__strong *texFront,
                                                           RendererConf *conf,
                                                           BFCodec *codec,
                                                           NSData *cipherKey) {
     const char *diffAbbrev = MainGameRendererPhoneDiffAbbreviation(conf.diff);
-    self->texFront = [[Texture2D alloc] initWithData:nullptr
-                                         pixelFormat:Texture2DPixelFormatRGBA8888
-                                           pixelSize:kFrontTexturePixelSize];
+    *texFront = [[Texture2D alloc] initWithData:nullptr
+                                    pixelFormat:Texture2DPixelFormatRGBA8888
+                                      pixelSize:kFrontTexturePixelSize];
     NSString *plist = [NSBundle.mainBundle pathForResource:@"game_front_tex_pn2" ofType:@"plist"];
-    [self->texFront setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
+    [*texFront setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
     [codec cipherInit:cipherKey];
     LoadTextureSubImageFromEncryptedTex(
-        self->texFront, @"game_front_tex_pn2", codec, CGPointMake(0.0, 0.0));
+        *texFront, @"game_front_tex_pn2", codec, CGPointMake(0.0, 0.0));
     NSString *diffWord = [NSString stringWithFormat:@"game_diff_%s", diffAbbrev];
     LoadTextureSubImageFromResource(
-        self->texFront, diffWord, [self->texFront spriteAtIndex:kFrontSpriteDiffWord].origin);
+        *texFront, diffWord, [*texFront spriteAtIndex:kFrontSpriteDiffWord].origin);
     NSString *mbarWord = [NSString stringWithFormat:@"game_mbar_%s_pn2", diffAbbrev];
     LoadTextureSubImageFromResource(
-        self->texFront, mbarWord, [self->texFront spriteAtIndex:kFrontSpriteMusicBar].origin);
+        *texFront, mbarWord, [*texFront spriteAtIndex:kFrontSpriteMusicBar].origin);
     NSString *levelWord = [NSString stringWithFormat:@"game_lv_%d", conf.level];
     LoadTextureSubImageFromResource(
-        self->texFront, levelWord, [self->texFront spriteAtIndex:kFrontSpriteLevelWord].origin);
-    LoadTextureSubImageFromResource(self->texFront,
-                                    @"game_start_mark_pn2",
-                                    [self->texFront spriteAtIndex:kFrontSpriteStartMark].origin);
-    LoadTextureSubImageFromResource(self->texFront,
-                                    @"game_end_mark_pn2",
-                                    [self->texFront spriteAtIndex:kFrontSpriteEndMark].origin);
+        *texFront, levelWord, [*texFront spriteAtIndex:kFrontSpriteLevelWord].origin);
+    LoadTextureSubImageFromResource(
+        *texFront, @"game_start_mark_pn2", [*texFront spriteAtIndex:kFrontSpriteStartMark].origin);
+    LoadTextureSubImageFromResource(
+        *texFront, @"game_end_mark_pn2", [*texFront spriteAtIndex:kFrontSpriteEndMark].origin);
 }
 
 // Unzips the note-marker frames into the marker atlas: one bank of twenty-four "ma" frames, then
 // four banks of sixteen "h" hold frames. De-inlined from the marker section of
 // -loadTexure:artwork:index:.
-static inline void MainGameRendererPhoneLoadMarkerTexture(MainGameRendererPhone *self,
+static inline void MainGameRendererPhoneLoadMarkerTexture(Texture2D *__strong *texMarker,
+                                                          BOOL isRetina,
                                                           RendererConf *conf,
                                                           BFCodec *codec,
                                                           NSData *cipherKey) {
     // The base sprite index for each of the four "h" hold banks. @ghidraAddress 0x2927c0
     static const int kHoldBankBase[] = {0x18, 0x28, 0x38, 0x48};
     @autoreleasepool {
-        if (self->texMarker) {
-            self->texMarker = nil;
+        if (*texMarker) {
+            *texMarker = nil;
         }
-        self->texMarker = [[Texture2D alloc] initWithData:nullptr
-                                              pixelFormat:Texture2DPixelFormatRGBA8888
-                                                pixelSize:kAtlasPixelSize];
+        *texMarker = [[Texture2D alloc] initWithData:nullptr
+                                         pixelFormat:Texture2DPixelFormatRGBA8888
+                                           pixelSize:kAtlasPixelSize];
         NSString *plist = [NSBundle.mainBundle pathForResource:@"game_marker_tex_pn2"
                                                         ofType:@"plist"];
-        [self->texMarker setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
+        [*texMarker setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
     }
     NSString *markerPath = [MarkerManager getMarkerPath:conf.markerID];
     KUnzip *unzip = [[KUnzip alloc] initWithPath:markerPath];
@@ -299,7 +298,7 @@ static inline void MainGameRendererPhoneLoadMarkerTexture(MainGameRendererPhone 
             NSMutableData *data = [unzip uncompress:name];
             UIImage *image = CreateImageFromEncryptedData(codec, data);
             if (image) {
-                [self->texMarker setSubImage:image inRect:[self->texMarker spriteAtIndex:i]];
+                [*texMarker setSubImage:image inRect:[*texMarker spriteAtIndex:i]];
             }
         }
     }
@@ -312,37 +311,40 @@ static inline void MainGameRendererPhoneLoadMarkerTexture(MainGameRendererPhone 
                 UIImage *image = CreateImageFromEncryptedData(codec, data);
                 if (image) {
                     unsigned int spriteIndex = (unsigned int)(i + kHoldBankBase[bank]);
-                    [self->texMarker setSubImage:image
-                                          inRect:[self->texMarker spriteAtIndex:spriteIndex]];
+                    [*texMarker setSubImage:image inRect:[*texMarker spriteAtIndex:spriteIndex]];
                 }
             }
         }
     }
-    self->texMarker.isScale2x = self->isRetina;
+    (*texMarker).isScale2x = isRetina;
 }
 
 // Builds the hold-marker atlas and its sub-renderer, then unzips the "m" and "m6" hold-marker
 // frames from hm0001.zip. De-inlined from the hold-marker section of -loadTexure:artwork:index:.
-static inline void MainGameRendererPhoneBuildHoldMarkerTexture(MainGameRendererPhone *self,
-                                                               BFCodec *codec,
-                                                               NSData *cipherKey) {
+static inline void
+MainGameRendererPhoneBuildHoldMarkerTexture(MainGameRendererPhone *self,
+                                            Texture2D *__strong *texHoldMarker,
+                                            HoldMarkerRender *__strong *holdMarkerRender,
+                                            BOOL is4Inch,
+                                            BFCodec *codec,
+                                            NSData *cipherKey) {
     @autoreleasepool {
-        if (self->texHoldMarker) {
-            self->texHoldMarker = nil;
+        if (*texHoldMarker) {
+            *texHoldMarker = nil;
         }
-        self->texHoldMarker = [[Texture2D alloc] initWithData:nullptr
-                                                  pixelFormat:Texture2DPixelFormatRGBA8888
-                                                    pixelSize:kAtlasPixelSize];
+        *texHoldMarker = [[Texture2D alloc] initWithData:nullptr
+                                             pixelFormat:Texture2DPixelFormatRGBA8888
+                                               pixelSize:kAtlasPixelSize];
         NSString *plist = [NSBundle.mainBundle pathForResource:@"game_hold_marker_tex"
                                                         ofType:@"plist"];
-        [self->texHoldMarker setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
+        [*texHoldMarker setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
         [codec cipherInit:cipherKey];
-        if (!self->holdMarkerRender) {
+        if (!*holdMarkerRender) {
             // The game area is delayed on the four-inch idiom by the phone button margin.
-            int gameAreaDelay = self->is4Inch ? self.buttonMarginForScreen40 : 0;
-            self->holdMarkerRender = [[HoldMarkerRender alloc] init:self->texHoldMarker
-                                                              isPad:NO
-                                                      gameAreaDelay:gameAreaDelay];
+            int gameAreaDelay = is4Inch ? self.buttonMarginForScreen40 : 0;
+            *holdMarkerRender = [[HoldMarkerRender alloc] init:*texHoldMarker
+                                                         isPad:NO
+                                                 gameAreaDelay:gameAreaDelay];
         }
     }
     // The hold-marker frame loops deliberately run outside any autorelease pool, matching the
@@ -357,9 +359,8 @@ static inline void MainGameRendererPhoneBuildHoldMarkerTexture(MainGameRendererP
             UIImage *image = CreateImageFromEncryptedData(codec, data);
             if (image) {
                 unsigned int spriteIndex = (unsigned int)(row * kHoldMarkerColumnCount + col);
-                [self->texHoldMarker
-                    setSubImage:image
-                        atPoint:[self->texHoldMarker spriteAtIndex:spriteIndex].origin];
+                [*texHoldMarker setSubImage:image
+                                    atPoint:[*texHoldMarker spriteAtIndex:spriteIndex].origin];
             }
         }
     }
@@ -370,9 +371,8 @@ static inline void MainGameRendererPhoneBuildHoldMarkerTexture(MainGameRendererP
         UIImage *image = CreateImageFromEncryptedData(codec, data);
         if (image) {
             unsigned int spriteIndex = (unsigned int)(i + kHoldMarkerTailBase);
-            [self->texHoldMarker
-                setSubImage:image
-                    atPoint:[self->texHoldMarker spriteAtIndex:spriteIndex].origin];
+            [*texHoldMarker setSubImage:image
+                                atPoint:[*texHoldMarker spriteAtIndex:spriteIndex].origin];
         }
     }
 }
@@ -380,64 +380,64 @@ static inline void MainGameRendererPhoneBuildHoldMarkerTexture(MainGameRendererP
 // Blits the jacket artwork, the aspect-fitted index image, and the optional partner-name label
 // into the front atlas, then marks it scale-2x. De-inlined from the composite section of
 // -loadTexure:artwork:index:.
-static inline void MainGameRendererPhoneCompositeFront(MainGameRendererPhone *self,
-                                                       RendererConf *conf,
-                                                       UIImage *artwork,
-                                                       UIImage *index) {
-    [self->texFront setSubImage:artwork inRect:[self->texFront spriteAtIndex:kFrontSpriteArtwork]];
+static inline void MainGameRendererPhoneCompositeFront(
+    Texture2D *texFront, BOOL isRetina, RendererConf *conf, UIImage *artwork, UIImage *index) {
+    [texFront setSubImage:artwork inRect:[texFront spriteAtIndex:kFrontSpriteArtwork]];
     if (index) {
-        CGRect frame = [self->texFront spriteAtIndex:kFrontSpriteIndex];
+        CGRect frame = [texFront spriteAtIndex:kFrontSpriteIndex];
         CGSize size = index.size;
         // Height preserves the index image's aspect ratio within the frame's width.
-        [self->texFront setSubImage:index
-                             inRect:CGRectMake(frame.origin.x,
-                                               frame.origin.y,
-                                               frame.size.width,
-                                               (frame.size.width * size.height) / size.width)];
+        [texFront setSubImage:index
+                       inRect:CGRectMake(frame.origin.x,
+                                         frame.origin.y,
+                                         frame.size.width,
+                                         (frame.size.width * size.height) / size.width)];
     }
     if (conf.partnerName) {
-        CGRect labelFrame = [self->texFront spriteAtIndex:kFrontSpritePartnerName];
+        CGRect labelFrame = [texFront spriteAtIndex:kFrontSpritePartnerName];
         UILabel *label = [[UILabel alloc] initWithFrame:labelFrame];
         label.opaque = NO;
         label.backgroundColor = UIColor.clearColor; // The original used +clearColor.
         label.textColor = UIColor.whiteColor;       // The original used +whiteColor.
         label.textAlignment = NSTextAlignmentRight; // 2.
-        label.font = [UIFont
-            boldSystemFontOfSize:(self->isRetina ? kPartnerFontSizeRetina : kPartnerFontSize)];
+        label.font =
+            [UIFont boldSystemFontOfSize:(isRetina ? kPartnerFontSizeRetina : kPartnerFontSize)];
         label.text = conf.partnerName;
         UIImage *rendered = [label renderImage];
-        [self->texFront setSubImage:rendered
-                            atPoint:[self->texFront spriteAtIndex:kFrontSpritePartnerName].origin];
+        [texFront setSubImage:rendered
+                      atPoint:[texFront spriteAtIndex:kFrontSpritePartnerName].origin];
     }
-    self->texFront.isScale2x = self->isRetina;
+    texFront.isScale2x = isRetina;
 }
 
 // Rebuilds the combo atlas from its encrypted texture. De-inlined from the combo section of
 // -loadTexure:artwork:index:.
-static inline void MainGameRendererPhoneBuildComboTexture(MainGameRendererPhone *self,
+static inline void MainGameRendererPhoneBuildComboTexture(Texture2D *__strong *texCombo,
+                                                          BOOL isRetina,
                                                           BFCodec *codec,
                                                           NSData *cipherKey) {
     @autoreleasepool {
-        if (self->texCombo) {
-            self->texCombo = nil;
+        if (*texCombo) {
+            *texCombo = nil;
         }
-        self->texCombo = [[Texture2D alloc] initWithData:nullptr
-                                             pixelFormat:Texture2DPixelFormatRGBA8888
-                                               pixelSize:kAtlasPixelSize];
+        *texCombo = [[Texture2D alloc] initWithData:nullptr
+                                        pixelFormat:Texture2DPixelFormatRGBA8888
+                                          pixelSize:kAtlasPixelSize];
         NSString *plist = [NSBundle.mainBundle pathForResource:@"game_combo_tex_pn2"
                                                         ofType:@"plist"];
-        [self->texCombo setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
+        [*texCombo setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
         [codec cipherInit:cipherKey];
         LoadTextureSubImageFromEncryptedTex(
-            self->texCombo, @"game_combo_tex_pn2", codec, CGPointMake(0.0, 0.0));
+            *texCombo, @"game_combo_tex_pn2", codec, CGPointMake(0.0, 0.0));
     }
-    self->texCombo.isScale2x = self->isRetina;
+    (*texCombo).isScale2x = isRetina;
 }
 
 // Draws one right-aligned seven-digit score run into the front atlas: a background board (sprite
 // 0xa) then each digit, every rectangle scaled about a shared anchor. De-inlined from the two
 // identical digit loops of -renderScore:partnerScore:atPoint:scaleH:alpha:.
-static inline void MainGameRendererPhoneDrawScoreRun(MainGameRendererPhone *self,
+static inline void MainGameRendererPhoneDrawScoreRun(Texture2D *texFront,
+                                                     BOOL isRetina,
                                                      const char digits[8],
                                                      unsigned int shown,
                                                      CGPoint origin,
@@ -456,10 +456,10 @@ static inline void MainGameRendererPhoneDrawScoreRun(MainGameRendererPhone *self
         boardY += (1.0 - scaleH) * boardHeight * 0.5;
         boardHeight *= scaleH;
     }
-    [self->texFront drawSprite:0xa
-                        inRect:CGRectMake(board.origin.x, boardY, board.size.width, boardHeight)
-                     transform:0
-                         alpha:(float)drawAlpha];
+    [texFront drawSprite:0xa
+                  inRect:CGRectMake(board.origin.x, boardY, board.size.width, boardHeight)
+               transform:0
+                   alpha:(float)drawAlpha];
     // A comma appears once the score reaches 0xaae61 (700,001), shifting the digit sprite base.
     long spriteBase = (shown > 0xaae60) ? -0xd : -0x17;
     for (int i = 0; i < 7; ++i) {
@@ -468,9 +468,9 @@ static inline void MainGameRendererPhoneDrawScoreRun(MainGameRendererPhone *self
         }
         // Each digit sits on a per-idiom pitch, offset from the run origin; retina packs them
         // tighter.
-        double digitDx = self->isRetina ? 12.0 : 9.0;
-        int digitPitch = self->isRetina ? 0x10 : 0x12;
-        double digitDy = self->isRetina ? 8.0 : 12.0;
+        double digitDx = isRetina ? 12.0 : 9.0;
+        int digitPitch = isRetina ? 0x10 : 0x12;
+        double digitDy = isRetina ? 8.0 : 12.0;
         CGRect digit =
             [Texture2D scaledRect:CGRectMake(origin.x + digitDx + (double)(digitPitch * i),
                                              origin.y + digitDy,
@@ -484,28 +484,32 @@ static inline void MainGameRendererPhoneDrawScoreRun(MainGameRendererPhone *self
             digitY += (1.0 - scaleH) * digitHeight * 0.5;
             digitHeight *= scaleH;
         }
-        [self->texFront drawSprite:((long)digits[i] + spriteBase)
-                            inRect:CGRectMake(digit.origin.x, digitY, digit.size.width, digitHeight)
-                         transform:0
-                             alpha:(float)drawAlpha];
+        [texFront drawSprite:((long)digits[i] + spriteBase)
+                      inRect:CGRectMake(digit.origin.x, digitY, digit.size.width, digitHeight)
+                   transform:0
+                       alpha:(float)drawAlpha];
     }
 }
 
 // Draws one "GO" mark half (sprite 5 or 6): it appears at frame 0x45/0x47, scales from the key
 // time to 2.0 then back to 1.0, sliding across per-frame x-positions, and fades out from 0x5a.
 // De-inlined from the two identical GO passes of -renderReadyGo.
-static inline void MainGameRendererPhoneRenderGoMark(
-    MainGameRendererPhone *self, NSUInteger sprite, int spriteW, int spriteH, int centreY) {
+static inline void MainGameRendererPhoneRenderGoMark(Texture2D *texReady,
+                                                     unsigned int frame,
+                                                     NSUInteger sprite,
+                                                     int spriteW,
+                                                     int spriteH,
+                                                     int centreY) {
     // Each half has a distinct start frame and x-position keyframes.
     unsigned int start = (sprite == 5) ? 0x47 : 0x47;
     // Sprite 5 and 6 differ in their appear window and x keyframes.
     unsigned int appearStart = (sprite == 5) ? 0x45 : 0x47;
     (void)start;
     float alpha;
-    if (self->frame < 0x5a) {
-        alpha = InterpolateFloatByFrame(0.0f, 1.0f, self->frame, appearStart, appearStart + 5);
+    if (frame < 0x5a) {
+        alpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, appearStart, appearStart + 5);
     } else {
-        alpha = InterpolateFloatByFrame(1.0f, 0.0f, self->frame, 0x5a, 0x5e);
+        alpha = InterpolateFloatByFrame(1.0f, 0.0f, frame, 0x5a, 0x5e);
     }
     if (alpha <= 0.0f) {
         return;
@@ -514,62 +518,60 @@ static inline void MainGameRendererPhoneRenderGoMark(
     double scale;
     float x;
     if (sprite == 5) {
-        if (self->frame < 0x4a) {
-            scale =
-                (double)InterpolateFloatByFrame(kReadyKeyTime040, 2.0f, self->frame, 0x45, 0x4a);
-            x = InterpolateFloatByFrame(138.0f, 95.0f, self->frame, 0x45, 0x4a);
-        } else if (self->frame < 0x5a) {
-            scale = (double)InterpolateFloatByFrame(2.0f, 1.0f, self->frame, 0x4a, 0x4c);
-            x = InterpolateFloatByFrame(95.0f, 117.0f, self->frame, 0x4a, 0x4c);
+        if (frame < 0x4a) {
+            scale = (double)InterpolateFloatByFrame(kReadyKeyTime040, 2.0f, frame, 0x45, 0x4a);
+            x = InterpolateFloatByFrame(138.0f, 95.0f, frame, 0x45, 0x4a);
+        } else if (frame < 0x5a) {
+            scale = (double)InterpolateFloatByFrame(2.0f, 1.0f, frame, 0x4a, 0x4c);
+            x = InterpolateFloatByFrame(95.0f, 117.0f, frame, 0x4a, 0x4c);
         } else {
             scale = 1.0;
-            x = InterpolateFloatByFrame(117.0f, 60.0f, self->frame, 0x5a, 0x5e);
+            x = InterpolateFloatByFrame(117.0f, 60.0f, frame, 0x5a, 0x5e);
         }
     } else {
-        if (self->frame < 0x4c) {
-            scale =
-                (double)InterpolateFloatByFrame(kReadyKeyTime040, 2.0f, self->frame, 0x47, 0x4c);
-            x = InterpolateFloatByFrame(180.0f, 224.0f, self->frame, 0x47, 0x4c);
-        } else if (self->frame < 0x5a) {
-            scale = (double)InterpolateFloatByFrame(2.0f, 1.0f, self->frame, 0x4c, 0x4e);
-            x = InterpolateFloatByFrame(224.0f, 201.0f, self->frame, 0x4c, 0x4e);
+        if (frame < 0x4c) {
+            scale = (double)InterpolateFloatByFrame(kReadyKeyTime040, 2.0f, frame, 0x47, 0x4c);
+            x = InterpolateFloatByFrame(180.0f, 224.0f, frame, 0x47, 0x4c);
+        } else if (frame < 0x5a) {
+            scale = (double)InterpolateFloatByFrame(2.0f, 1.0f, frame, 0x4c, 0x4e);
+            x = InterpolateFloatByFrame(224.0f, 201.0f, frame, 0x4c, 0x4e);
         } else {
             scale = 1.0;
-            x = InterpolateFloatByFrame(201.0f, 258.0f, self->frame, 0x5a, 0x5e);
+            x = InterpolateFloatByFrame(201.0f, 258.0f, frame, 0x5a, 0x5e);
         }
     }
-    [self->texReady drawSprite:sprite
-                        inRect:CGRectMake((double)x - (double)spriteW * scale * 0.5,
-                                          (double)centreY - (double)spriteH * scale * 0.5,
-                                          (double)spriteW * scale,
-                                          (double)spriteH * scale)
-                     transform:0
-                         alpha:alpha];
+    [texReady drawSprite:sprite
+                  inRect:CGRectMake((double)x - (double)spriteW * scale * 0.5,
+                                    (double)centreY - (double)spriteH * scale * 0.5,
+                                    (double)spriteW * scale,
+                                    (double)spriteH * scale)
+               transform:0
+                   alpha:alpha];
 }
 
 // Draws the result screen's white finish curtain (a 48-column wipe plus four centred message
 // banners) during its opening frames. De-inlined from -renderResult.
-static inline void
-MainGameRendererPhoneRenderResultCurtain(MainGameRendererPhone *self, double slide, float wipe) {
+static inline void MainGameRendererPhoneRenderResultCurtain(
+    MainGameRendererPhone *self, Texture2D *texFront, BOOL is4Inch, double slide, float wipe) {
     for (int columnX = 0; columnX < 0x300; columnX += 0x10) {
         int gameTop =
-            self->is4Inch ? (self.buttonMarginForScreen40 + kFourInchGameTop) : kFourInchGameTop;
-        [self->texFront drawSprite:2
-                           atPoint:CGPointMake((double)columnX, slide + (double)gameTop)
-                         transform:1
-                             alpha:wipe];
+            is4Inch ? (self.buttonMarginForScreen40 + kFourInchGameTop) : kFourInchGameTop;
+        [texFront drawSprite:2
+                     atPoint:CGPointMake((double)columnX, slide + (double)gameTop)
+                   transform:1
+                       alpha:wipe];
     }
-    CGRect banner = [self->texFront spriteAtIndex:2];
+    CGRect banner = [texFront spriteAtIndex:2];
     double centreX = (kScoreRightEdge - banner.size.width) * 0.5;
     double centreYBias = (kButtonPositionYBias - banner.size.height) * 0.5;
     static const int kBandNonFourInch[] = {0xa0, 0xf0, 0x140, 0x190};
     for (int band = 0; band < 4; ++band) {
-        int gameTop = self->is4Inch ? (self.buttonMarginForScreen40 + kBandNonFourInch[band]) :
-                                      kBandNonFourInch[band];
-        [self->texFront drawSprite:2
-                           atPoint:CGPointMake(centreX, slide + centreYBias + (double)gameTop)
-                         transform:2
-                             alpha:wipe];
+        int gameTop = is4Inch ? (self.buttonMarginForScreen40 + kBandNonFourInch[band]) :
+                                kBandNonFourInch[band];
+        [texFront drawSprite:2
+                     atPoint:CGPointMake(centreX, slide + centreYBias + (double)gameTop)
+                   transform:2
+                       alpha:wipe];
     }
 }
 
@@ -625,11 +627,13 @@ MainGameRendererPhoneRenderResultCurtain(MainGameRendererPhone *self, double sli
     if (texFront) {
         texFront = nil;
     }
-    MainGameRendererPhoneBuildFrontTexture(self, conf, codec, cipherKey);
-    MainGameRendererPhoneLoadMarkerTexture(self, conf, codec, cipherKey);
-    MainGameRendererPhoneBuildHoldMarkerTexture(self, codec, cipherKey);
-    MainGameRendererPhoneCompositeFront(self, conf, artwork, index);
-    MainGameRendererPhoneBuildComboTexture(self, codec, cipherKey);
+    MainGameRendererPhoneBuildFrontTexture(&self->texFront, conf, codec, cipherKey);
+    MainGameRendererPhoneLoadMarkerTexture(
+        &self->texMarker, self->isRetina, conf, codec, cipherKey);
+    MainGameRendererPhoneBuildHoldMarkerTexture(
+        self, &self->texHoldMarker, &self->holdMarkerRender, self->is4Inch, codec, cipherKey);
+    MainGameRendererPhoneCompositeFront(self->texFront, self->isRetina, conf, artwork, index);
+    MainGameRendererPhoneBuildComboTexture(&self->texCombo, self->isRetina, codec, cipherKey);
     self.rendererConf = conf;
 }
 
@@ -1168,7 +1172,7 @@ MainGameRendererPhoneRenderResultCurtain(MainGameRendererPhone *self, double sli
     char digits[8];
     snprintf(digits, sizeof(digits), "%7d", scoreDisplay);
     MainGameRendererPhoneDrawScoreRun(
-        self, digits, scoreDisplay, point, scaleH, alpha, anchor, widthScale, alpha);
+        texFront, isRetina, digits, scoreDisplay, point, scaleH, alpha, anchor, widthScale, alpha);
     if (!self.isSession) {
         return;
     }
@@ -1194,7 +1198,8 @@ MainGameRendererPhoneRenderResultCurtain(MainGameRendererPhone *self, double sli
     // The partner origin is shifted up and left of the player anchor by one cell.
     CGPoint partnerOrigin =
         CGPointMake((point.x + scaleH) - scaleH, ((point.y + alpha) - partnerGap) - alpha);
-    MainGameRendererPhoneDrawScoreRun(self,
+    MainGameRendererPhoneDrawScoreRun(texFront,
+                                      isRetina,
                                       partnerDigits,
                                       partnerScoreDisplay,
                                       partnerOrigin,
@@ -1658,8 +1663,8 @@ MainGameRendererPhoneRenderResultCurtain(MainGameRendererPhone *self, double sli
                            alpha:outAlpha];
         }
     }
-    MainGameRendererPhoneRenderGoMark(self, 5, spriteW, spriteH, centreY);
-    MainGameRendererPhoneRenderGoMark(self, 6, spriteW, spriteH, centreY);
+    MainGameRendererPhoneRenderGoMark(texReady, frame, 5, spriteW, spriteH, centreY);
+    MainGameRendererPhoneRenderGoMark(texReady, frame, 6, spriteW, spriteH, centreY);
     if (frame == 0x1b) {
         [AudioManager.sharedManager playSeResFile:@"SD_CV_READY" inDirectory:nil];
     }
@@ -1907,7 +1912,8 @@ MainGameRendererPhoneRenderResultCurtain(MainGameRendererPhone *self, double sli
     // The finish curtain replays over the first ten frames of the result screen.
     if (frame < 10) {
         double curtainScale = (double)((float)frame * kPreStartFadeStep + 1.0f);
-        MainGameRendererPhoneRenderResultCurtain(self, slide, (float)curtainScale);
+        MainGameRendererPhoneRenderResultCurtain(
+            self, texFront, is4Inch, slide, (float)curtainScale);
     }
     // The player (and partner) score, then the bonus, appear after the curtain.
     BOOL preBonus = frame < 0x28 || self.scoreBackup;
