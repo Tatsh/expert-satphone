@@ -634,7 +634,10 @@ static inline void GameViewControllerReportTotalScore(GameViewController *self) 
     score.value = [ScoreRecord totalScore];
     [GKScore reportScores:@[ score ]
         withCompletionHandler:^(NSError *_Nullable error) {
+          // This helper is inlined at several call sites, so the compiler emitted byte-identical
+          // twin copies of this empty error handler: 0x16084 and 0x16088.
           /** @ghidraAddress 0x16084 */
+          /** @ghidraAddress 0x16088 */
           (void)error;
         }];
 }

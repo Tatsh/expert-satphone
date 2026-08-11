@@ -1379,7 +1379,9 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                            [weakUpload setAlpha:1.0];
                            [weakEdit setAlpha:1.0];
                          }
-                         completion:nil];
+                         completion:^(BOOL finished){
+                             /** @ghidraAddress 0x58934 */
+                         }];
         return;
     }
 
@@ -1400,7 +1402,9 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                        [weakUpload setAlpha:1.0];
                        [weakEdit setAlpha:1.0];
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x58830 */
+                     }];
     [editTxt[0] setText:editorInfo[@"fumenName"]];
     [editTxt[1] setText:editorInfo[@"editorName"]];
     [editTxt[2] setText:editorInfo[@"comment"]];
@@ -2011,7 +2015,9 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                        [weakCover setAlpha:1.0];
                        [weakUpload setAlpha:1.0];
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x5b3a4 */
+                     }];
     [self.controller unenableCoverTap];
 }
 
@@ -2282,7 +2288,9 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                                                                0.0, -(double)kRandViewSlideOffset)];
                        }
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x5c4f8 */
+                     }];
 }
 
 /** @ghidraAddress 0x59668 */
