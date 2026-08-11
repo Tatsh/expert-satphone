@@ -742,4 +742,33 @@ digits:
              alpha:(float)alpha];
 }
 
+/** @ghidraAddress 0x203fb0 */
+- (void)renderFinish {
+    __weak MainGameRendererPadKnt *weakSelf = self;
+    // Load the result texture on the render's background context, then enter the result sub-state
+    // on the main queue.
+    void (^loadResult)(void) = ^{
+      /** @ghidraAddress 0x20419c */
+      [weakSelf loadResultTex:(short)[weakSelf.sequence rank]];
+      dispatch_async(dispatch_get_main_queue(), ^{
+        /** @ghidraAddress 0x204284 */
+        [weakSelf setSubState:10];
+      });
+    };
+
+    if (self.sequence.isFullcombo) {
+        // A full combo shows the flourish first, then advances after 100 frames.
+        [self renderFullcombo:(int)frame isResult:NO];
+        if (self.subState == 0 && frame > 99) {
+            self.subState = 1;
+            [self.eaglView performBlockInBackground:loadResult];
+        }
+    } else {
+        if (self.subState == 0 && frame > 0x13) {
+            self.subState = 1;
+            [self.eaglView performBlockInBackground:loadResult];
+        }
+    }
+}
+
 @end
