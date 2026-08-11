@@ -1030,7 +1030,9 @@ MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self, int index, CGP
                            [weakUpload setAlpha:1.0];
                            [weakEdit setAlpha:1.0];
                          }
-                         completion:nil];
+                         completion:^(BOOL finished){
+                             /** @ghidraAddress 0x132c4c */
+                         }];
         return;
     }
 
@@ -1051,7 +1053,9 @@ MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self, int index, CGP
                        [weakUpload setAlpha:1.0];
                        [weakEdit setAlpha:1.0];
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x132d50 */
+                     }];
     [editTxt[0] setText:editorInfo[@"fumenName"]];
     [editTxt[1] setText:editorInfo[@"editorName"]];
     [editTxt[2] setText:editorInfo[@"comment"]];
@@ -1971,7 +1975,9 @@ MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self, int index, CGP
                        [weakCover setAlpha:1.0];
                        [weakUpload setAlpha:1.0];
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x135548 */
+                     }];
     [self.controller unenableCoverTap];
 }
 
@@ -2176,7 +2182,9 @@ MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self, int index, CGP
                                                                0.0, -(double)kRandViewSlideOffset)];
                        }
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x13669c */
+                     }];
 }
 
 /** @ghidraAddress 0x133b9c */

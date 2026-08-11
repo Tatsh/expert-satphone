@@ -2084,7 +2084,9 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
                            [weakUpload setAlpha:1.0];
                            [weakEdit setAlpha:1.0];
                          }
-                         completion:nil];
+                         completion:^(BOOL finished){
+                             /** @ghidraAddress 0x19d3f0 */
+                         }];
         return;
     }
 
@@ -2105,7 +2107,9 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
                        [weakUpload setAlpha:1.0];
                        [weakEdit setAlpha:1.0];
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x19d4f4 */
+                     }];
     [editTxt[0] setText:editorInfo[@"fumenName"]];
     [editTxt[1] setText:editorInfo[@"editorName"]];
     [editTxt[2] setText:editorInfo[@"comment"]];
