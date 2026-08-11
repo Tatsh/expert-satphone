@@ -20,6 +20,7 @@
 #import <UIKit/UIKit.h>
 
 #import "StorePackListGenre.h"
+#import "StorePackView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

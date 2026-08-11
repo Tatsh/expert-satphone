@@ -3090,16 +3090,16 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 - (nullable id)getSearchArray:(nullable NSString *)searchString {
     // Normalise kana and width (twice each, matching the binary), split on spaces, de-duplicate via
     // a set, and drop empty terms.
-    NSMutableString *normalised = [searchString mutableCopy];
+    NSMutableString *normalized = [searchString mutableCopy];
     CFStringTransform(
-        (CFMutableStringRef)normalised, nullptr, kCFStringTransformHiraganaKatakana, false);
+        (CFMutableStringRef)normalized, nullptr, kCFStringTransformHiraganaKatakana, false);
     CFStringTransform(
-        (CFMutableStringRef)normalised, nullptr, kCFStringTransformFullwidthHalfwidth, false);
+        (CFMutableStringRef)normalized, nullptr, kCFStringTransformFullwidthHalfwidth, false);
     CFStringTransform(
-        (CFMutableStringRef)normalised, nullptr, kCFStringTransformHiraganaKatakana, false);
+        (CFMutableStringRef)normalized, nullptr, kCFStringTransformHiraganaKatakana, false);
     CFStringTransform(
-        (CFMutableStringRef)normalised, nullptr, kCFStringTransformFullwidthHalfwidth, false);
-    NSArray *terms = [normalised componentsSeparatedByString:@" "];
+        (CFMutableStringRef)normalized, nullptr, kCFStringTransformFullwidthHalfwidth, false);
+    NSArray *terms = [normalized componentsSeparatedByString:@" "];
     NSMutableArray *unique = [NSMutableArray arrayWithArray:[NSSet setWithArray:terms].allObjects];
     [unique removeObject:@""];
     return unique;

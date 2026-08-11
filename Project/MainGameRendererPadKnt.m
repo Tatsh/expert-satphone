@@ -2313,23 +2313,23 @@ digits:
     [self renderBG];
     [self renderShutter:YES];
     [self renderUpperBG:NO];
-    unsigned int frame = self->frame;
+    unsigned int frameValue = self->frame;
     // The tune info eases in from the right and fades up.
-    float tuneAlpha =
-        InterpolateFloatByFrame(0.0f, 1.0f, frame, kPreStartTuneFadeStart, kPreStartTuneFadeEnd);
+    float tuneAlpha = InterpolateFloatByFrame(
+        0.0f, 1.0f, frameValue, kPreStartTuneFadeStart, kPreStartTuneFadeEnd);
     float tuneX = InterpolateFloatByFrame((float)kPreStartTuneInfoXFrom,
                                           (float)kPreStartTuneInfoXTo,
-                                          frame,
+                                          frameValue,
                                           kPreStartTuneFadeStart,
                                           kPreStartTuneFadeEnd);
     [self renderTuneInfo:CGPointMake((double)tuneX, kPreStartTuneInfoY)
              artworkSize:kUpperArtworkSize
                    alpha:(double)tuneAlpha];
     // The score and partner score slide in from the right and fade up together.
-    float scoreAlpha =
-        InterpolateFloatByFrame(0.0f, 1.0f, frame, kPreStartScoreFadeStart, kPreStartScoreFadeEnd);
+    float scoreAlpha = InterpolateFloatByFrame(
+        0.0f, 1.0f, frameValue, kPreStartScoreFadeStart, kPreStartScoreFadeEnd);
     float scoreSlide = InterpolateFloatByFrame(
-        kPreStartScoreSlide, 0.0f, frame, kPreStartScoreFadeStart, kPreStartScoreFadeEnd);
+        kPreStartScoreSlide, 0.0f, frameValue, kPreStartScoreFadeStart, kPreStartScoreFadeEnd);
     [self renderScore:0
               atPoint:CGPointMake(kUpperScoreX - (double)scoreSlide, kUpperScoreY)
                 alpha:(double)scoreAlpha];
@@ -2339,7 +2339,7 @@ digits:
                        scale:kUpperPartnerScoreScale
                        alpha:(double)scoreAlpha];
     // The music bar fades up first.
-    float barAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, kPreStartMusicFadeEnd);
+    float barAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frameValue, 0, kPreStartMusicFadeEnd);
     [self renderMusicBar:CGPointMake(kPreStartMusicBarX, kUpperMusicBarY)
                 timeline:NO
                    alpha:(double)barAlpha];
