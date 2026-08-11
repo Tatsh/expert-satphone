@@ -7,6 +7,8 @@
 #import "Downloader.h"
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
+#import "SessionDownloader.h"
+#import "StoreUtil.h"
 
 NSData *CreateMd5DataFromCString(const char *lpcszInput);
 NSString *CreateRandomString(int length);
@@ -285,11 +287,11 @@ NSString *CreateRandomString(int length);
     // Verified at 0xb5354 as ldr pendingReceipts / bl count / bl initWithCapacity:,
     // then block at 0xb53a0 with enumerateKeysAndObjectsUsingBlock:.
     NSMutableArray *ids = [[NSMutableArray alloc] initWithCapacity:pendingReceipts.count];
-    [pendingReceipts enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-      /** @ghidraAddress 0xb53a0 */
-      NSString *packID = obj[@"packID"] ?: key;
-      if (packID) {
-          [ids addObject:packID];
+    [pendingReceipts enumerateKeysAndObjectsUsingBlock:^(NSString *productID, id obj, BOOL *stop) {
+      /** @ghidraAddress 0xb5420 */
+      int packID = [StoreUtil packIDForProductID:productID];
+      if (packID > 0) {
+          [ids addObject:[[NSNumber alloc] initWithInt:packID]];
       }
     }];
     return ids;
@@ -475,16 +477,41 @@ NSString *CreateRandomString(int length);
 
 /** @ghidraAddress 0xb8598 */
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue {
-    // Verified at 0xb8598: restoringReceipts count check, enumerateKeysAndObjectsUsingBlock:
-    // at 0xb8598 tail, then SessionDownloader with tag 1 for verify.
-    if (restoringReceipts.count == 0) {
-        restoringReceipts = nil;
-        if ([self.delegate respondsToSelector:@selector(restoreNothing)]) {
-            [self.delegate performSelector:@selector(restoreNothing)];
+    // Two flags survive the block scopes: whether the restore ultimately succeeded and whether the
+    // pending list needs saving.
+    __block BOOL restoreSucceeded = NO;
+    __block BOOL savePending = NO;
+    if (restoringReceipts.count != 0) {
+        // Copy every restored receipt into the pending map (as a set: the value is a placeholder),
+        // then kick off server verification of the whole pending set.
+        [restoringReceipts
+            enumerateKeysAndObjectsUsingBlock:^(NSString *productID, id obj, BOOL *stop) {
+              /** @ghidraAddress 0xb890c */
+              [pendingReceipts setObject:@"dummy" forKey:productID];
+            }];
+        verifingIDs = [pendingReceipts.allKeys copy];
+        if (pendingReceipts.count != 0) {
+            NSDictionary *post = [self createVerifyPostDictionary:@[] productPrices:@[]];
+            SessionDownloader *downloader =
+                [[SessionDownloader alloc] initWithURL:[StoreUtil verifyReceiptNewURL]
+                                        postDictionary:post
+                                              delegate:self];
+            [downloader setTag:1];
+            [downloader startDownloading];
+            return;
         }
-        return;
     }
-    // Further verify path via SessionDownloader is deferred.
+    restoringReceipts = nil;
+    if (savePending) {
+        [self savePendingList];
+    }
+    if (restoreSucceeded) {
+        if ([self.delegate respondsToSelector:@selector(restoreSucceeded)]) {
+            [self.delegate performSelector:@selector(restoreSucceeded)];
+        }
+    } else if ([self.delegate respondsToSelector:@selector(restoreNothing)]) {
+        [self.delegate performSelector:@selector(restoreNothing)];
+    }
 }
 
 /** @ghidraAddress 0xb8970 */

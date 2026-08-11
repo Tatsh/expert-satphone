@@ -909,3 +909,5 @@
 0x16ef90	(^void)(BOOL)
 0x16f0dc	(^void)(void)
 0x16f194	(^void)(BOOL)
+0xb5420	(^void)(id, id, BOOL *)
+0xb890c	(^void)(id, id, BOOL *)
