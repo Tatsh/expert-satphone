@@ -689,11 +689,11 @@ static NSString *const kEditDataZeroHashText = @"0000000000000000000000000000000
     editorInfo = [[NSMutableDictionary alloc] init];
     NSString *savedName = [[NSUserDefaults standardUserDefaults] stringForKey:kPrefEditorNameKey];
     if (!savedName) {
-        // The default editor name assembled on the stack in the binary (raw bytes 0x5c 0x4f 0x10).
-        savedName = @"\x5c\x4f\x10";
+        // The default editor name, "creator" (UTF-16 CFString in the binary).
+        savedName = @"作成者";
     }
-    // The default fumenName assembled on the stack in the binary (raw bytes b0 65 57 30 44).
-    editorInfo[@"fumenName"] = @"\xb0\x65\x57\x30\x44";
+    // The default chart name, "new chart" (UTF-16 CFString in the binary).
+    editorInfo[@"fumenName"] = @"新しい譜面";
     editorInfo[@"editorName"] = savedName;
     editorInfo[@"comment"] = @"";
     editorInfo[@"level"] = @0;

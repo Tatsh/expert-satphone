@@ -788,7 +788,7 @@ static const float kGridZoomMax = 1.0f;
                     break;
                 }
             }
-            if (ev->endPosition > rightDot) {
+            if ((unsigned int)ev->endPosition > rightDot) {
                 break;
             }
             ++ev;

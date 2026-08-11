@@ -201,7 +201,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSData *)remainingData;
 
 /**
- * @brief Consumes a C-style @c /* ... *\/ comment.
+ * @brief Consumes a C-style block comment (slash-star to star-slash).
  * @param outComment Where to return the comment's inner text, when the caller wants it.
  * @return Whether a comment was consumed.
  * @ghidraAddress 0x62d4c

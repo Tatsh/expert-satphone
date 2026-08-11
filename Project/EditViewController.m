@@ -399,7 +399,7 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
                 panelRect.origin.x = (double)((float)(col * (int)kPhoneButtonPitch) - width);
                 panelRect.origin.y =
                     (double)(((float)(row * (int)kPhoneButtonPitch) - width) + kPhoneButtonOffsetY);
-                panelRect.size.width = (double)(width + width + kPhoneButtonPitch);
+                panelRect.size.width = (double)(width + width + kPhoneButtonSizeBase);
                 panelRect.size.height = panelRect.size.width;
             }
             if ([self.mainGameRenderer state] == kRendererStateEnded) {
@@ -585,7 +585,8 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
         if (![self.btnAreaPst isHidden]) {
             int x = (int)[self.mainGameRenderer sector2pos:pasteSector];
             CGRect glFrame = [self.glView frame];
-            if ((x > -100) && ((double)x < glFrame.size.width + kPasteButtonHiddenX)) {
+            if ((x > -kPasteVisibleMargin) &&
+                ((double)x < glFrame.size.width + kPasteButtonHiddenX)) {
                 CGRect frame = [self.btnAreaPst frame];
                 frame.origin.x = (double)(x - kPasteButtonNudge);
                 [self.btnAreaPst setFrame:frame];

@@ -269,6 +269,7 @@ static inline void EditSequenceWriteConflictNibble(char *table, int segment) {
                     event->value = packed[1] & 0xf;
                     --limit;
                     // Falls through to the tap density accounting.
+                    __attribute__((fallthrough));
                 case kEditSequenceEventTap: {
                     const int segment = EditSequenceBarSegment((int)(packed[0] >> 8), endSector);
                     slotMusicBar[segment] = (char)(slotMusicBar[segment] + 1);

@@ -127,9 +127,6 @@ static const int kDownloaderErrorAlertTag = 3;
 // The plain-alert type shared by every alert this view raises.
 static const int kPlainAlertType = 0;
 
-// The tapped-button index that means "confirmed".
-static const int kConfirmButtonIndex = 1;
-
 // The head-row music id: the "all tunes" ranking has no tune of its own.
 static const int kAllTunesMusicID = 0;
 

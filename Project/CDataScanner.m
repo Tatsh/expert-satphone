@@ -277,7 +277,7 @@ static const unichar kLineTerminators[] = {0x0a, 0x0c, 0x0d, 0x85, 0x2028, 0x202
 
 /** @ghidraAddress 0x622e4 */
 - (BOOL)scanDataOfLength:(NSUInteger)scanLength
-             intoPointer:(const void *__autoreleasing *)outPointer {
+             intoPointer:(const void *_Nullable *_Nullable)outPointer {
     if (self.bytesRemaining < scanLength) {
         return NO;
     }

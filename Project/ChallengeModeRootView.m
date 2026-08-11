@@ -246,6 +246,8 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
         [self addSubview:playExplain];
 
         UIFont *smallFont = [UIFont boldSystemFontOfSize:isPad ? 18.0 : 9.0];
+        (void)
+            smallFont; // Built alongside largeFont; the reconstructed path applies only largeFont.
         UIFont *largeFont = [UIFont boldSystemFontOfSize:isPad ? 24.0 : 12.0];
 
         double labelWidth = playExplainImage.size.width * 0.5;
@@ -783,7 +785,7 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
         [[ChallengeStatus sharedStatus] scratchInfoTable][(NSUInteger)selectedView.tag];
     NSString *itemPath = [ScratchUtil itemPathForMusicID:(unsigned int)[info musicID]];
     KUnzip *unzip = [[KUnzip alloc] initWithPath:itemPath tail:0x10];
-    NSData *packed = nil;
+    NSMutableData *packed = nil;
     if (unzip && (packed = [unzip uncompress:@"index"])) {
         BFCodec *codec = [[BFCodec alloc] init];
         [codec cipherInit:GetBgmCipherKey()];
@@ -795,7 +797,7 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
     detailView.alpha = 0;
     bDetailOpen = YES;
     [self addSubview:detailView];
-    [detailView setDetailInfo:[selectedView tag]];
+    [detailView setDetailInfo:(int)[selectedView tag]];
     [detailView showDetail];
     detailView.transform = CGAffineTransformMakeScale(kAnimDuration020Alt, kAnimDuration020Alt);
     __weak ScratchMusicDetailView *weakDetailView = detailView;
@@ -1181,7 +1183,7 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
             case 4: {
                 [refreshTimer invalidate];
                 int difficulty = detailView.difficulty;
-                NSDictionary *tuneInfo = detailView.tuneInfo;
+                TuneInfo *tuneInfo = detailView.tuneInfo;
                 [self.controller challengeMusicStart:tuneInfo diff:difficulty];
                 [ChallengeStatus.sharedStatus playMusic:json];
                 [UIApplication.sharedApplication beginIgnoringInteractionEvents];
