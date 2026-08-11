@@ -387,7 +387,7 @@ static const CGFloat kRowHeightValidPhone = 80.0;
 /** @ghidraAddress 0x1b1cd0 */
 - (void)storePackViewSelected:(id)packView {
     if (self.allowsSelection) {
-        NSNumber *pack = [self.currentGenre packInfoForIndex:[packView index]];
+        StorePackInfo *pack = [self.currentGenre packInfoForIndex:[packView index]];
         if (pack != nil &&
             [self.viewController respondsToSelector:@selector(storePackTableViewShowDetail:)]) {
             [self.viewController performSelector:@selector(storePackTableViewShowDetail:)

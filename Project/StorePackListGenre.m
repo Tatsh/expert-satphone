@@ -30,7 +30,7 @@ static NSString *const kCommentKey = @"Comment";
 @implementation StorePackListGenre {
     // The accumulated boxed pack identifiers for this genre. A bare ivar in the binary, with no
     // backing property.
-    NSMutableArray<NSNumber *> *arrayPackInfo;
+    NSMutableArray<StorePackInfo *> *arrayPackInfo;
 }
 
 #pragma mark - Colour parsing
@@ -134,12 +134,12 @@ static NSString *const kCommentKey = @"Comment";
 }
 
 /** @ghidraAddress 0x1b0be0 */
-- (NSArray<NSNumber *> *)packList {
+- (NSArray<StorePackInfo *> *)packList {
     return arrayPackInfo;
 }
 
 /** @ghidraAddress 0x1b0bf0 */
-- (NSNumber *)packInfoForIndex:(NSUInteger)index {
+- (StorePackInfo *)packInfoForIndex:(NSUInteger)index {
     if (index < arrayPackInfo.count) {
         return arrayPackInfo[index];
     }
@@ -149,7 +149,7 @@ static NSString *const kCommentKey = @"Comment";
 #pragma mark - Page accumulation
 
 /** @ghidraAddress 0x1b0c5c */
-- (void)updateList:(NSArray<NSNumber *> *)list step:(NSUInteger)step hasNext:(BOOL)hasNext {
+- (void)updateList:(NSArray<StorePackInfo *> *)list step:(NSUInteger)step hasNext:(BOOL)hasNext {
     if (list.count != 0) {
         [arrayPackInfo addObjectsFromArray:list];
     }

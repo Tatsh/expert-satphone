@@ -10,14 +10,22 @@
 
 #import <Foundation/Foundation.h>
 
+#import "CampaignDetailViewController.h"
+#import "StoreDetailViewController.h"
+
 @class StoreDialogView;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief What a store child controller needs from its owning store tab controller.
+ *
+ * The parent tab controller is also the delegate of the detail views its children open, so it
+ * incorporates those delegate protocols.
  */
-@protocol StoreParentViewController <NSObject>
+@protocol StoreParentViewController <NSObject,
+                                     StoreDetailViewControllerDelegate,
+                                     CampaignDetailViewControllerDelegate>
 
 /** @brief The shared modal progress/download dialog panel, or @c nil before it is built. */
 @property(nonatomic, readonly, nullable) StoreDialogView *modalDialog;

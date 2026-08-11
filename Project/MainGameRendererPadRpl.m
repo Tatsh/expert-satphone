@@ -1051,10 +1051,9 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     [self.sequence getMarkerState:self->markerState];
 
     for (int i = 0; i < kMainGameGridPanelCount; ++i) {
-        int panelForY = (i >= 0) ? i : (i + 3);
-        double x = (double)(((i % 4) * kGridCellSize) | kPanelMarkerInset);
-        double y =
-            (double)((((panelForY >> 2) * kGridCellSize) | kPanelMarkerInset) + kPanelGridTop);
+        CGPoint origin = MainGameRendererPadRplPanelOrigin(i);
+        double x = origin.x;
+        double y = origin.y;
 
         unsigned int stateWord = (unsigned int)self->markerState[i];
         unsigned int phase = stateWord & 0xfff;

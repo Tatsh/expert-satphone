@@ -11,6 +11,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+@class StorePackInfo;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -122,28 +124,30 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)packCount;
 
 /**
- * @brief The accumulated pack identifiers for this genre.
- * @return The boxed pack identifiers.
+ * @brief The accumulated packs for this genre.
+ * @return The resolved pack-info objects.
  * @ghidraAddress 0x1b0be0
  */
-- (NSArray<NSNumber *> *)packList;
+- (NSArray<StorePackInfo *> *)packList;
 
 /**
- * @brief The boxed pack identifier at the given index, or @c nil when out of range.
+ * @brief The pack at the given index, or @c nil when out of range.
  * @param index The pack index.
- * @return The boxed pack identifier, or @c nil.
+ * @return The pack info, or @c nil.
  * @ghidraAddress 0x1b0bf0
  */
-- (nullable NSNumber *)packInfoForIndex:(NSUInteger)index;
+- (nullable StorePackInfo *)packInfoForIndex:(NSUInteger)index;
 
 /**
- * @brief Append a fetched page of pack identifiers to the genre.
- * @param list The pack-identifier numbers from the page.
+ * @brief Append a fetched page of packs to the genre.
+ * @param list The pack-info objects from the page.
  * @param step The page size requested, added to @c numFetchedPack.
  * @param hasNext Whether the server reports a further page.
  * @ghidraAddress 0x1b0c5c
  */
-- (void)updateList:(nullable NSArray<NSNumber *> *)list step:(NSUInteger)step hasNext:(BOOL)hasNext;
+- (void)updateList:(nullable NSArray<StorePackInfo *> *)list
+              step:(NSUInteger)step
+           hasNext:(BOOL)hasNext;
 
 /**
  * @brief Set the genre description from a dictionary's @c Comment entry when present.
