@@ -22,6 +22,7 @@
 
 #import "StorePackInfo.h"
 
+@class StorePromotion;
 @class StorePromotionView;
 
 NS_ASSUME_NONNULL_BEGIN

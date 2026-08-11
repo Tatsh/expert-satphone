@@ -15,6 +15,7 @@
 #import <Foundation/Foundation.h>
 
 @class EditorIDManager;
+@class JcfDownloader;
 @class jubeatLabAccess;
 
 NS_ASSUME_NONNULL_BEGIN

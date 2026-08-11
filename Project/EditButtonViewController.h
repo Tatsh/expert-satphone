@@ -10,6 +10,8 @@
 
 #import <UIKit/UIKit.h>
 
+@class EditButtonViewController;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**

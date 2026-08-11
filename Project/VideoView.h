@@ -20,6 +20,7 @@
 #import <UIKit/UIKit.h>
 
 @class GradationView;
+@class VideoView;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,6 +14,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+@class ChallengeMissionSheet;
 @class ChallengeModeRootView;
 @class ScratchInfo;
 

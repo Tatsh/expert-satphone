@@ -11,7 +11,9 @@
 
 #import <Foundation/Foundation.h>
 
+@class SKPaymentQueue;
 @class SKProduct;
+@class SKRequest;
 
 NS_ASSUME_NONNULL_BEGIN
 

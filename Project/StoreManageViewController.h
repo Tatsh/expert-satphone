@@ -22,6 +22,7 @@
 @protocol StoreDialogViewDelegate;
 @protocol StoreDownloadManagerDelegate;
 
+@class StoreDownloadManager;
 @class StoreViewController;
 
 NS_ASSUME_NONNULL_BEGIN
