@@ -900,3 +900,6 @@
 0x361b0	(^void)(BOOL)
 0x37c20	(^void)(BOOL)
 0x382cc	(^void)(BOOL)
+0xb50a8	(^void)(void)
+0x166020	(^void)(void)
+0x1de758	(^void)(BOOL)

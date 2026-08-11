@@ -937,7 +937,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
                 [weakIncoming setAlpha:1.0];
               }
               completion:^(BOOL finished2) {
-                /** @ghidraAddress 0x2d0eb0 */
+                /** @ghidraAddress 0x1de758 */
                 // A capture-free global block: re-enable touch input at the end of the sequence.
                 [[UIApplication sharedApplication] endIgnoringInteractionEvents];
               }];

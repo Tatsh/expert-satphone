@@ -35,7 +35,7 @@ static const KnitColorPalette kKnitColorPalettes[] = {
     static KnitColorManager *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-      /** @ghidraAddress 0x16600c */
+      /** @ghidraAddress 0x166020 */
       instance = [[KnitColorManager alloc] init];
     });
     return instance;

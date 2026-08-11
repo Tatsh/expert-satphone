@@ -32,7 +32,7 @@ NSString *CreateRandomString(int length);
     static PurchaseManager *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-      /** @ghidraAddress 0xb50a0 */
+      /** @ghidraAddress 0xb50a8 */
       instance = [[PurchaseManager alloc] init];
     });
     return instance;
