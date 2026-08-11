@@ -1093,6 +1093,7 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
                            weakScaleDown.alpha = 1.0;
                          }
                          completion:^(BOOL finished){
+                             /** @ghidraAddress 0x406d8 */
                          }];
     }
     if (backColumnType == 0) {
@@ -1103,6 +1104,7 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
                            weakScaleUp.alpha = 1.0;
                          }
                          completion:^(BOOL finished){
+                             /** @ghidraAddress 0x40728 */
                          }];
     }
     if (colType == 0) {
@@ -1113,6 +1115,7 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
                            weakScaleUp.alpha = 0.0;
                          }
                          completion:^(BOOL finished){
+                             /** @ghidraAddress 0x407c8 */
                          }];
     } else if (colType == 2) {
         __weak UIButton *weakScaleDown = scaleDown;
@@ -1122,6 +1125,7 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
                            weakScaleDown.alpha = 0.0;
                          }
                          completion:^(BOOL finished){
+                             /** @ghidraAddress 0x40778 */
                          }];
     }
 }
