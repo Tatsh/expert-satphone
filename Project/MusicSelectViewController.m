@@ -204,6 +204,10 @@ static const NSTimeInterval kSearchBoxSlideDuration = 0.1; // @ghidraAddress 0x2
 static const CGFloat kSearchBoxSlideOffset = -52.0;        // @ghidraAddress 0x28f228
 static NSString *const kSearchBoxCloseSoundSuffix = @"MUSIC_LEFT";
 
+// The first time the search box is opened, its tutorial overlay is shown once and this preference
+// records that it has been seen.
+static NSString *const kPrefSearchTutorialFinishKey = @"PrefSearchTutorialFinish";
+
 // Completing a challenge-purchase restore records this marker under the restore-end preference and
 // shows the completion alert (tag 3).
 static NSString *const kRestoreCompleteMarker = @"Restore Complete";
@@ -1428,6 +1432,47 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
                            CGAffineTransformMakeTranslation(0.0, kSearchBoxSlideOffset);
                      }
                      completion:nil];
+}
+
+/** @ghidraAddress 0x361b4 */
+- (void)pullSearchBox {
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:0.0];
+    bOpenSearchBox = YES;
+    if (![NSUserDefaults.standardUserDefaults boolForKey:kPrefSearchTutorialFinishKey]) {
+        [NSUserDefaults.standardUserDefaults setBool:YES forKey:kPrefSearchTutorialFinishKey];
+    }
+    [searchBox becomeFirstResponder];
+    if (searchArray.count == 0) {
+        [self showButtonMarker:NO];
+        searchArray = [NSMutableArray arrayWithArray:[self getSearchArray:searchBox.text]];
+        if (searchArray.count != 0) {
+            [self exeSearchPickUp];
+        }
+        __weak UISearchBar *weakSearch = searchBox;
+        __weak UIButton *weakCancel = searchCancelBtn;
+        __weak UIView *weakTutorial = searchTutorialView;
+        [UIView animateWithDuration:kSearchBoxSlideDuration
+            delay:0.0
+            options:UIViewAnimationOptionCurveLinear
+            animations:^{
+              /** @ghidraAddress 0x36544 */
+              weakSearch.transform = CGAffineTransformMakeTranslation(0.0, 0.0);
+              weakCancel.transform = CGAffineTransformMakeTranslation(0.0, 0.0);
+              if (weakTutorial != nil) {
+                  weakTutorial.alpha = 0.0;
+              }
+            }
+            completion:^(BOOL finished) {
+              /** @ghidraAddress 0x366bc */
+              if (searchTutorialView != nil) {
+                  [searchTutorialView removeFromSuperview];
+                  searchTutorialView = nil;
+              }
+            }];
+    }
 }
 
 #pragma mark - Button marker
