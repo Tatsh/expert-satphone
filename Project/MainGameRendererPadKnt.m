@@ -73,8 +73,12 @@ static const double kPartnerBadgeXOffset = 2.0;          // fmov 2.0
 static const double kPartnerBadgeYOffset = -25.0;        // fmov -25.0
 
 // The result-screen render states: a finished chart, the result screen, and the result wait.
+static const unsigned int kRenderStatePlay = 3;
 static const unsigned int kRenderStateFinish = 4;
 static const unsigned int kRenderStateResult = 5;
+
+// The sub-state -endResult parks the result screen in once it is dismissed.
+static const unsigned int kResultEndSubState = 99;
 
 // The Excellent (perfect-million) result banner. Its final flourish, from frame 0x7c, scatters
 // twenty sparkle particles from four parallel tables: the sprite index, the base x and y, and the
@@ -405,6 +409,25 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 }
 
 @implementation MainGameRendererPadKnt
+
+/** @ghidraAddress 0x206d7c */
+- (void)dealloc {
+    [self releaseTexture];
+    // [super dealloc] is compiler-emitted (ARC).
+}
+
+/** @ghidraAddress 0x2007e4 */
+- (void)startPlay {
+    [self setState:kRenderStatePlay];
+    self.sePlayerGo = nil;
+}
+
+/** @ghidraAddress 0x200820 */
+- (void)endResult {
+    if (self.state == kRenderStateResult) {
+        self.subState = kResultEndSubState;
+    }
+}
 
 /** @ghidraAddress 0x206ddc */
 - (void)replaySelect {

@@ -54,11 +54,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)start;
 
 /**
- * @brief Halts the title sequence before teardown. DECLARED ONLY.
- */
-- (void)stopAnimation;
-
-/**
  * @brief Fades the touch prompt in and out forever.
  * @ghidraAddress 0x13ea74
  */
