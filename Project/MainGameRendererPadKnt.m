@@ -1,5 +1,8 @@
 #import "MainGameRendererPadKnt.h"
 
+#import "RendererConf.h"
+#import "Texture2D.h"
+
 // The ready/go countdown runs for two and a half seconds on the Knit pad renderer.
 static const double kReadyGoDuration = 2.5; // fmov 0x4004000000000000
 
@@ -29,6 +32,23 @@ static const int kResultScoreDigitStride = 50;                 // 0x32
 static const unsigned int kScoreSevenFigureThreshold = 700000; // 0xaae60
 static const int kScoreDigitBaseSmall = -0x15; // '0' maps to sprite 0x1b below the threshold
 static const int kScoreDigitBaseLarge = -0xb;  // '0' maps to sprite 0x25 at/above the threshold
+
+// The tune-info panel: the square artwork sprite, then a title and level plate to its right, and a
+// difficulty badge whose horizontal offset depends on the chart difficulty.
+static const NSUInteger kTuneArtworkSprite = 0xe;
+static const NSUInteger kTuneTitleSprite = 0xf;
+static const NSUInteger kTuneLevelPlateSprite = 0x10;
+static const NSUInteger kTuneDifficultyBadgeSprite = 0x12;
+static const double kTuneTitleXOffset = 17.0;           // fmov 17.0
+static const double kTuneTitleYOffset = -15.0;          // fmov -15.0
+static const double kTuneLevelPlateXOffset = 20.0;      // fmov 20.0
+static const double kTuneLevelPlateYOffset = 58.0;      // @ghidraAddress 0x2929d8
+static const double kTuneDifficultyBadgeYOffset = -6.0; // fmov -6.0
+// The difficulty badge x-offset from the level plate, chosen by RendererConf.diff.
+static const double kTuneDifficultyBadgeOffsetBasic = 96.0;     // @ghidraAddress 0x28f908 (diff 0)
+static const double kTuneDifficultyBadgeOffsetAdvanced = 160.0; // @ghidraAddress 0x28f438 (diff 1)
+static const double kTuneDifficultyBadgeOffsetExtreme = 143.0;  // @ghidraAddress 0x2924a8 (diff 2)
+static const double kTuneDifficultyBadgeOffsetOther = 70.0;     // @ghidraAddress 0x28f6a0 (other)
 
 @implementation MainGameRendererPadKnt
 
@@ -80,6 +100,45 @@ static const int kScoreDigitBaseLarge = -0xb;  // '0' maps to sprite 0x25 at/abo
 /** @ghidraAddress 0x202390 */
 - (CGRect)getMusicBarRect {
     return musicBarRect;
+}
+
+/** @ghidraAddress 0x202748 */
+- (void)renderTuneInfo:(CGPoint)pos artworkSize:(double)artworkSize alpha:(double)alpha {
+    [self.texFront drawSprite:kTuneArtworkSprite
+                       inRect:CGRectMake(pos.x, pos.y, artworkSize, artworkSize)
+                    transform:0
+                        alpha:(float)alpha];
+    double plateX = pos.x + artworkSize;
+    [self.texFront drawSprite:kTuneTitleSprite
+                      atPoint:CGPointMake(plateX + kTuneTitleXOffset, pos.y + kTuneTitleYOffset)
+                    transform:0
+                        alpha:(float)alpha];
+    plateX += kTuneLevelPlateXOffset;
+    double plateY = pos.y + kTuneLevelPlateYOffset;
+    [self.texFront drawSprite:kTuneLevelPlateSprite
+                      atPoint:CGPointMake(plateX, plateY)
+                    transform:0
+                        alpha:(float)alpha];
+    double badgeOffset;
+    switch (self.rendererConf.diff) {
+    case 2:
+        badgeOffset = kTuneDifficultyBadgeOffsetExtreme;
+        break;
+    case 1:
+        badgeOffset = kTuneDifficultyBadgeOffsetAdvanced;
+        break;
+    case 0:
+        badgeOffset = kTuneDifficultyBadgeOffsetBasic;
+        break;
+    default:
+        badgeOffset = kTuneDifficultyBadgeOffsetOther;
+        break;
+    }
+    [self.texFront
+        drawSprite:kTuneDifficultyBadgeSprite
+           atPoint:CGPointMake(plateX + badgeOffset, plateY + kTuneDifficultyBadgeYOffset)
+         transform:0
+             alpha:(float)alpha];
 }
 
 /** @ghidraAddress 0x201e60 */
