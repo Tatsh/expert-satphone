@@ -25,6 +25,7 @@
 
 #import "AlertViewManager.h"
 #import "EditorIDManager.h"
+#import "PurchaseManager.h"
 #import "StoreDownloadManager.h"
 #import "StoreParentViewController.h"
 

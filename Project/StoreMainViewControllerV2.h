@@ -26,6 +26,7 @@
 
 #import "AlertViewManager.h"
 #import "EditorIDManager.h"
+#import "StoreDetailViewControllerV2.h"
 #import "StoreGenreSelectView.h"
 #import "StorePackListController.h"
 #import "StorePromotionView.h"
