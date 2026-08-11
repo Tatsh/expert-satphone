@@ -1398,6 +1398,61 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     }
 }
 
+/** @ghidraAddress 0x22488 */
+- (void)preparePlaylistArray:(NSInteger)index {
+    arrayCurrentPlaylist = nil;
+    switch (index) {
+    case kPlaylistSelectionNotHold:
+        currentPlaylistSource = arrayNotHoldList;
+        arrayCurrentPlaylist = arrayNotHoldList;
+        break;
+    case kPlaylistSelectionHold:
+        currentPlaylistSource = arrayHoldList;
+        arrayCurrentPlaylist = arrayHoldList;
+        break;
+    case kPlaylistSelectionLevel: {
+        NSInteger level = [NSUserDefaults.standardUserDefaults integerForKey:kPrefPlayListLevelKey];
+        [self createArrayLevel:(int)(level != 0 ? level : 1)];
+        currentPlaylistSource = arrayLevelList;
+        arrayCurrentPlaylist = arrayLevelList;
+        break;
+    }
+    case kPlaylistSelectionNotPlayed:
+        currentPlaylistSource = arrayNotPlayedTune;
+        arrayCurrentPlaylist = arrayNotPlayedTune;
+        break;
+    case kPlaylistSelectionDefault:
+        currentPlaylistSource = nil;
+        arrayCurrentPlaylist = nil;
+        break;
+    default:
+        if (index >= 0) {
+            // A saved playlist: collect the full tune list's members that belong to it.
+            currentPlaylistSource = [playlistManager playlistAtIndex:index];
+            arrayCurrentPlaylist = [[NSMutableArray alloc] initWithCapacity:arrayAllTune.count];
+            for (TuneInfo *tune in arrayAllTune) {
+                if ([playlistManager containsMusic:tune.tuneID inPlaylistAtIndex:index]) {
+                    [arrayCurrentPlaylist addObject:tune];
+                }
+            }
+        }
+        break;
+    }
+    // Apply the active search filter over whichever list was selected (or the full list when no
+    // playlist filter is in force).
+    if (searchArray != nil && searchArray.count != 0) {
+        NSArray<TuneInfo *> *source = (arrayCurrentPlaylist == nil) ?
+                                          [NSMutableArray arrayWithArray:arrayAllTune] :
+                                          [NSMutableArray arrayWithArray:arrayCurrentPlaylist];
+        arrayCurrentPlaylist = [[NSMutableArray alloc] initWithCapacity:arrayAllTune.count];
+        for (TuneInfo *tune in source) {
+            if ([self matchTitle:tune]) {
+                [arrayCurrentPlaylist addObject:tune];
+            }
+        }
+    }
+}
+
 #pragma mark - Edit and shuffle
 
 /** @ghidraAddress 0x2ea1c */
