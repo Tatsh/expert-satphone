@@ -170,7 +170,7 @@ static const double kNeighbourDriftQuarter = 0.25;
     BOOL isPad;
     BOOL bAlreadyBack;
     EditorIDManager *idManager;
-    __weak StoreViewController *storeViewCtrl;
+    __weak id<StoreParentViewController> storeViewCtrl;
     StorePackListController *packListCtrl;
     StorePromotionView *promotionView;
     StorePackTableView *packTableView;
@@ -206,7 +206,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0xa1bc0 */
-- (instancetype)initWithParent:(nullable StoreViewController *)parent {
+- (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;

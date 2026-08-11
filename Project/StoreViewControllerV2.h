@@ -26,6 +26,7 @@
 #import "AlertViewManager.h"
 #import "EditorIDManager.h"
 #import "StoreDownloadManager.h"
+#import "StoreParentViewController.h"
 
 @class StoreDialogView;
 @class StorePackInfo;
@@ -37,7 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface StoreViewControllerV2 : UITabBarController <AlertViewManagerDelegate,
                                                        EditorIDManagerDelegate,
-                                                       StoreDownloadManagerDelegate>
+                                                       StoreDownloadManagerDelegate,
+                                                       StoreParentViewController>
 
 /**
  * @brief Builds the four tabs, each wrapped in a non-translucent navigation controller.

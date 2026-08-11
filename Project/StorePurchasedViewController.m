@@ -43,7 +43,7 @@ static const UIViewAnimationOptions kOverlayAnimationOptions =
 
 @implementation StorePurchasedViewController {
     BOOL isPad;
-    __weak StoreViewController *storeViewCtrl;
+    __weak id<StoreParentViewController> storeViewCtrl;
     StorePackListGenre *purchasedPackList;
     NSMutableArray<NSNumber *> *arrayUnresolvedPackID;
     StorePackTableView *packTableView;
@@ -59,7 +59,7 @@ static const UIViewAnimationOptions kOverlayAnimationOptions =
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0x1b4324 */
-- (instancetype)initWithParent:(nullable StoreViewController *)parent {
+- (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;

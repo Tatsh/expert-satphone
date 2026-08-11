@@ -24,6 +24,7 @@
 #import "Downloader.h"
 #import "StoreDialogView.h"
 #import "StoreDownloadManager.h"
+#import "StoreParentViewController.h"
 
 @class StoreViewController;
 
@@ -49,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0xbe580
  */
-- (instancetype)initWithParent:(nullable StoreViewController *)parent;
+- (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent;
 
 /**
  * @brief Builds the view: a full-bounds vertical gradient, a non-selectable table, a loading

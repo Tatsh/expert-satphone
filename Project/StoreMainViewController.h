@@ -32,6 +32,7 @@
 #import "StoreDetailViewControllerV2.h"
 #import "StoreGenreSelectView.h"
 #import "StorePackListController.h"
+#import "StoreParentViewController.h"
 #import "StorePromotionView.h"
 
 @class BalloonView;
@@ -77,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0xa1bc0
  */
-- (instancetype)initWithParent:(nullable StoreViewController *)parent;
+- (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent;
 
 /**
  * @brief Builds the view: a vertical grey gradient behind a pack table, plus (on pad) a rounded

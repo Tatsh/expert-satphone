@@ -191,7 +191,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
     NSInteger startUpID;
     int working_index;
     BOOL isPad;
-    __weak StoreViewController *storeViewCtrl;
+    __weak id<StoreParentViewController> storeViewCtrl;
     UITableView *tableView;
     Downloader *infoDownloader;
     Downloader *musicInfoDownloader;
@@ -217,7 +217,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0xbe580 */
-- (instancetype)initWithParent:(nullable StoreViewController *)parent {
+- (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;

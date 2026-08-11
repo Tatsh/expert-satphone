@@ -51,7 +51,7 @@ static const int kConfirmButtonIndex = 1;
 @implementation StoreManageViewController {
     unsigned int working_index;
     BOOL isPad;
-    __weak StoreViewController *storeViewCtrl;
+    __weak id<StoreParentViewController> storeViewCtrl;
     UITableView *tableView;
     Downloader *infoDownloader;
     StoreDownloadManager *dlManager;
@@ -63,7 +63,7 @@ static const int kConfirmButtonIndex = 1;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0x90c58 */
-- (instancetype)initWithParent:(nullable StoreViewController *)parent {
+- (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;

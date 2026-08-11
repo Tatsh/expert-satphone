@@ -32,6 +32,7 @@
 #import "PurchaseManager.h"
 #import "StoreDialogView.h"
 #import "StoreDownloadManager.h"
+#import "StoreParentViewController.h"
 
 @class StoreDetailViewControllerV2;
 @class StorePackInfo;
@@ -46,7 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                      StoreDialogViewDelegate,
                                                      EditorIDManagerDelegate,
                                                      DownloaderDelegate,
-                                                     StoreDownloadManagerDelegate>
+                                                     StoreDownloadManagerDelegate,
+                                                     StoreParentViewController>
 
 /**
  * @brief The deep-link parameters used to pre-open a genre, pack, or campaign. Held strongly.

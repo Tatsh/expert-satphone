@@ -22,6 +22,7 @@
 #import <UIKit/UIKit.h>
 
 #import "Downloader.h"
+#import "StoreParentViewController.h"
 
 @class StorePackDetailView;
 @class StorePackInfo;
@@ -48,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x1b4324
  */
-- (instancetype)initWithParent:(nullable StoreViewController *)parent;
+- (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent;
 
 /**
  * @brief Clears the resolved and unresolved pack lists and the table's current genre.
