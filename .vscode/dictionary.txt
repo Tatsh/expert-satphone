@@ -370,6 +370,8 @@ persional
 persision
 physmem
 plid
+plists
+plumesign
 pnlres
 pntmp
 polymorphically
