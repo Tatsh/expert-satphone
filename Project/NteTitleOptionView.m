@@ -36,7 +36,7 @@ static const CGFloat kCarBobDistance = -5.0;
 static const NSTimeInterval kCarBobDelay = 0.4; // @ghidraAddress 0x28f2c0
 
 // A shared 0.20-second animation duration global, defined elsewhere in the binary.
-extern const double g_dAnimDuration020;
+static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 
 @implementation NteTitleOptionView {
     UIView *bgView;

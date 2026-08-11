@@ -9,7 +9,7 @@
 #import "SystemUtilities.h"
 
 // The shared 0.2s animation duration, pooled at 0x28f240 and shared across the view layer.
-extern const double g_dAnimDuration020;
+static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 // The scratch-entry accessors this card reads; ScratchInfo exposes them only through its private
 // ivars so far, so they are declared locally. See TYPES_PENDING.md.
 @interface ScratchInfo (ScratchView)

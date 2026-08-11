@@ -7,7 +7,7 @@
 
 // The animation-duration constant (0.2) is reused here as a colour component, exactly as the
 // binary does.
-extern const double g_dAnimDuration020;
+static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 
 // The maximum number of playlists the user may keep. Above this the "new playlist" button disables.
 static const NSUInteger kMaxPlaylists = 50;

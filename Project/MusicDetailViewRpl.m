@@ -22,7 +22,7 @@
 #import "SharePlayManager.h"
 #import "TuneInfo.h"
 
-extern const double g_dAnimDuration020; // @ghidraAddress 0x28f240 (0.2)
+static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 
 // The Ripples theme resource names for the start-button image variants and the edit/close sounds.
 static NSString *const kStartButtonImage = @"menu_button_start_rpl";

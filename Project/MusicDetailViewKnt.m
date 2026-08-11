@@ -24,7 +24,7 @@
 #import "cipher_keys.h"
 
 // The shared 0.2 animation-duration double, reused here as the phone reflection-height fraction.
-extern const double g_dAnimDuration020; // @ghidraAddress 0x28f240 (0.2)
+static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 
 // The edit-select confirmation sound played when the edit entry is chosen from the file list.
 static NSString *const kEditSelectSound = @"SD_KNT_OK";

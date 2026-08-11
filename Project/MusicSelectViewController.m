@@ -53,7 +53,7 @@
 #import "TuneInfo.h"
 #import "cipher_keys.h"
 
-extern const double g_dAnimDuration020; // @ghidraAddress 0x28f240 (0.2)
+static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 
 // Landscape-left and landscape-right make up the supported orientation mask.
 static const UIInterfaceOrientationMask kSupportedOrientations =
