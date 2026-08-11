@@ -29,17 +29,16 @@ delegate class `JubeatAppDelegate`, and every routine reachable from there is re
 
 ## Layout
 
-| Path        | Contents                                                        |
-| ----------- | --------------------------------------------------------------- |
-| `Project/`  | Reconstructed sources, one class per header and implementation. |
-| `.claude/`  | Rules governing reconstruction fidelity and coding style.       |
-| `STATUS.md` | The routines still to reconstruct.                              |
+| Path       | Contents                                                        |
+| ---------- | --------------------------------------------------------------- |
+| `Project/` | Reconstructed sources, one class per header and implementation. |
+| `.claude/` | Rules governing reconstruction fidelity and coding style.       |
 
-Nearly the whole binary is reconstructed and audited. What remains is a fixed, shrinking work list
-in [STATUS.md](STATUS.md): the outstanding Objective-C methods and C/C++ functions and blocks, each
-row a routine in `-[ClassName selector]` (or function) form with its Ghidra address, cross-reference
-count, and byte length. A routine drops off the list once its source lands. Regenerate the file with
-`tools/status_tables_gen.py` after landing new work.
+Every routine reachable from the entry point is reconstructed and audited: all of the binary's
+Objective-C methods and C/C++ functions and blocks now carry a reconstructed source with a
+`@ghidraAddress` tag, verified against the shipped binary's runtime metadata and `__const` pool.
+`tools/status_tables_gen.py` regenerates the completion tables against the binary should new work
+ever be needed.
 
 ## Provenance
 
