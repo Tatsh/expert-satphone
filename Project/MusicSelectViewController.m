@@ -139,6 +139,29 @@ static NSString *const kJoinSoundSuffix = @"MUSIC_SELECT";
 // many screen widths off to the left of centre so it slides in from that side.
 static const CGFloat kDetailPanelOffscreenDirection = -4.0; // fmov, -4.0
 
+// The shuffle animation fades the BGM out over this and plays the themed music-select cue. It runs
+// as a slide (this duration) that pushes the detail view aside, then a flip whose whole duration is
+// divided into thirds for the middle stage that swaps the tune data while the cover is edge-on.
+static const CGFloat kShuffleBgmFadeOut = 0.075;         // @ghidraAddress 0x28f2b0
+static const NSTimeInterval kShuffleSlideDuration = 0.1; // @ghidraAddress 0x28f2b8
+static const CGFloat kShuffleFlipDuration = 0.1;         // fmov (float), 0.1
+static const CGFloat kShuffleFlipStageDivisor = 3.0;     // fmov, 3.0
+static NSString *const kShuffleSoundSuffix = @"MUSIC_SELECT";
+// The detail view slides left by this many points; the pad slides 86, the phone 20.
+static const int kShuffleSlideOffsetPad = 86;
+static const int kShuffleSlideOffsetPhone = 20;
+
+// The cover-flip 3D pose: a perspective m34 of -1/1000, a viewer distance that differs by idiom
+// (iPhone 750, iPad 733.3333), a rotation of pi about the vertical axis for the front face and 2*pi
+// for the back, and a shrink to a quarter (iPhone) or roughly a quarter (iPad).
+static const CGFloat kCoverFlipPerspectiveM34 = -0.0010000000474974513; // movk, -1/1000
+static const CGFloat kCoverFlipViewerDistancePhone = 750.0;             // @ghidraAddress 0x28f370
+static const CGFloat kCoverFlipViewerDistancePad = 733.3333740234375;   // @ghidraAddress 0x28f378
+static const CGFloat kCoverFlipScalePad = 0.2666666805744171;           // @ghidraAddress 0x28f270
+static const CGFloat kCoverFlipScalePhone = 0.25;                       // fmov, 0.25
+static const CGFloat g_dPi = 3.141592653589793;                         // @ghidraAddress 0x28f278
+static const CGFloat g_dTwoPi = 6.283185307179586;                      // @ghidraAddress 0x28f298
+
 // The custom-BGM archive member (ciphered with the BGM key, skipping the 16-byte trailer), the
 // default menu BGM resource suffix, and the store-balloon animation key.
 static NSString *const kCustomBgmEntryName = @"bgm";
@@ -1316,6 +1339,57 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     } else if (list.count != 1 && !bSuffleAnim) {
         [self shuffleAnimation:tune];
     }
+}
+
+/** @ghidraAddress 0x3486c */
+- (void)shuffleAnimation:(nullable id)tune {
+    int slideOffset = isPad ? kShuffleSlideOffsetPad : kShuffleSlideOffsetPhone;
+    bSuffleAnim = YES;
+    __weak UIView *weakCover = coverView;
+    __weak MusicDetailView *weakDetail = musicDetailView;
+    __weak MusicView *weakSelected = selectedMusicView;
+    musicDetailView.transform = CGAffineTransformMakeTranslation(0, 0);
+    [[AudioManager sharedManager] fadeoutBgm:kShuffleBgmFadeOut];
+    [[AudioManager sharedManager] playSeResFile:[self soundName:kShuffleSoundSuffix]
+                                    inDirectory:nil];
+    [UIView animateWithDuration:kShuffleSlideDuration
+        delay:0.0
+        options:UIViewAnimationOptionCurveEaseOut
+        animations:^{
+          /** @ghidraAddress 0x34ba0 */
+          weakDetail.transform = CGAffineTransformMakeTranslation(-slideOffset, 0);
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x34c2c */
+          [self changeMusicData:tune];
+          [UIView animateWithDuration:kShuffleFlipDuration / kShuffleFlipStageDivisor
+              delay:0.0
+              options:UIViewAnimationOptionCurveEaseIn
+              animations:^{
+                /** @ghidraAddress 0x34dbc */
+                weakDetail.transform = CGAffineTransformMakeTranslation(0, 0);
+              }
+              completion:^(BOOL innerFinished) {
+                /** @ghidraAddress 0x34e40 */
+                CGFloat viewerDistance =
+                    isPad ? kCoverFlipViewerDistancePad : kCoverFlipViewerDistancePhone;
+                CATransform3D perspective = CATransform3DIdentity;
+                perspective.m34 = kCoverFlipPerspectiveM34;
+                perspective = CATransform3DTranslate(perspective, 0, 0, viewerDistance);
+                // The selected music view's artwork flips to its front (pi about the vertical
+                // axis), centred over the cover.
+                UIImageView *imgView = weakSelected.imgView;
+                imgView.center = weakCover.center;
+                imgView.layer.transform = CATransform3DRotate(perspective, g_dPi, 0, -1.0, 0);
+                // The detail view flips full-circle (2*pi) at the shrunk cover-flip scale, also
+                // centred over the cover.
+                CGFloat scale = isPad ? kCoverFlipScalePad : kCoverFlipScalePhone;
+                CATransform3D scaled = CATransform3DScale(perspective, scale, scale, 1.0);
+                weakDetail.center = weakCover.center;
+                weakDetail.layer.transform = CATransform3DRotate(scaled, g_dTwoPi, 0, 1.0, 0);
+                bSuffleAnim = NO;
+              }];
+        }];
 }
 
 #pragma mark - Search box
