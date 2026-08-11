@@ -1356,17 +1356,21 @@ digits:
 
 /** @ghidraAddress 0x200a40 */
 - (void)renderStartMark:(float)alpha {
-    unsigned int frame = (unsigned int)startMarkFrame;
+    unsigned int startMarkFrameValue = (unsigned int)startMarkFrame;
     // The rise offset (8 -> 0 over frames 4..8) and the fade-in alpha (0 -> 1 over frames 4..8).
-    float rise = InterpolateFloatByFrame(
-        kStartMarkRiseFrom, 0.0f, frame, kStartMarkRiseStartFrame, kStartMarkRiseEndFrame);
-    float fadeIn = InterpolateFloatByFrame(
-                       0.0f, 1.0f, frame, kStartMarkRiseStartFrame, kStartMarkRiseEndFrame) *
-                   alpha;
+    float rise = InterpolateFloatByFrame(kStartMarkRiseFrom,
+                                         0.0f,
+                                         startMarkFrameValue,
+                                         kStartMarkRiseStartFrame,
+                                         kStartMarkRiseEndFrame);
+    float fadeIn =
+        InterpolateFloatByFrame(
+            0.0f, 1.0f, startMarkFrameValue, kStartMarkRiseStartFrame, kStartMarkRiseEndFrame) *
+        alpha;
     // The pulse, cycling every 120 frames: up over 0..50, then down over 50..80.
-    unsigned int cyc = (unsigned int)(float)((int)frame % (int)kStartMarkCycleLength);
+    unsigned int cyc = (unsigned int)(float)((int)startMarkFrameValue % (int)kStartMarkCycleLength);
     float pulse = InterpolateFloatByFrame(0.0f, 1.0f, cyc, 0, kStartMarkPulsePeak);
-    if ((int)frame > (int)kStartMarkPulsePeak) {
+    if ((int)startMarkFrameValue > (int)kStartMarkPulsePeak) {
         pulse = InterpolateFloatByFrame(1.0f, 0.0f, cyc, kStartMarkPulsePeak, kStartMarkPulseEnd);
     }
     // The horizontal sweep, -100 -> 100 over frames 0..80.

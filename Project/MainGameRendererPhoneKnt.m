@@ -2770,14 +2770,14 @@ drawDigits:
     // The clipped-sprite atlas indices for the start-mark burst.
     enum { kSpriteBurstMid = 0x1e, kSpriteBurstTop = 0x1f, kSpriteBurstBottom = 0x1d };
 
-    unsigned int frame = (unsigned int)startMarkFrame;
+    unsigned int startMarkFrameValue = (unsigned int)startMarkFrame;
     // The rise offset (8 -> 0 over frames 4..8) and the fade-in alpha (0 -> 1 over frames 4..8).
-    float rise = InterpolateFloatByFrame(8.0f, 0.0f, frame, 4, 8);
-    float fadeIn = InterpolateFloatByFrame(0.0f, 1.0f, frame, 4, 8) * alpha;
+    float rise = InterpolateFloatByFrame(8.0f, 0.0f, startMarkFrameValue, 4, 8);
+    float fadeIn = InterpolateFloatByFrame(0.0f, 1.0f, startMarkFrameValue, 4, 8) * alpha;
     // The pulse, cycling every 120 frames: up over 0..50, then down over 50..80.
-    unsigned int cyc = (unsigned int)(float)((int)frame % 0x78);
+    unsigned int cyc = (unsigned int)(float)((int)startMarkFrameValue % 0x78);
     float pulse = InterpolateFloatByFrame(0.0f, 1.0f, cyc, 0, 0x32);
-    if ((int)frame > 0x32) {
+    if ((int)startMarkFrameValue > 0x32) {
         pulse = InterpolateFloatByFrame(1.0f, 0.0f, cyc, 0x32, 0x50);
     }
     // The horizontal sweep, -100 -> 100 over frames 0..80.
