@@ -2122,7 +2122,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 }
 
 /** @ghidraAddress 0x14e254 */
-- (void)renderFullcombo:(int)frame {
+- (void)renderFullcombo:(int)animFrame {
     static const float kCornerScaleMid = 0.9f;  // @ghidraAddress 0x28f3b0
     static const float kCornerScaleHigh = 1.4f; // @ghidraAddress 0x292af0
     static const double kFieldWidth = 200.0;    // @ghidraAddress 0x28f400
@@ -2148,7 +2148,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         return;
     }
     // On frame 2, cue the clear jingle and the full-combo voice.
-    if (frame == 2) {
+    if (animFrame == 2) {
         [AudioManager.sharedManager playSeResFile:@"SD_RPL_RESULT_CLEAR" inDirectory:nil];
         [AudioManager.sharedManager playSeResFile:@"SD_RPL_CV_FULLCOMBO" inDirectory:nil];
     }
@@ -2164,7 +2164,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     // four grid rows.
     int cornerX = 0x28;
     int mirrorRow = 0xf;
-    int animFrame = frame;
+    int animFrame = animFrame;
     for (int row = 0; row < 4; ++row) {
         if (animFrame >= 0) {
             float baseAlpha;
@@ -2227,28 +2227,30 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     double wordBY = is4Inch ? (double)(gameTop + 0x1b8) : kWordAY;
 
     float alpha0;
-    if (frame < 4) {
-        alpha0 = InterpolateFloatByFrame(0.0f, 1.0f, frame, 4, 4);
+    if (animFrame < 4) {
+        alpha0 = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 4, 4);
     } else {
-        alpha0 = InterpolateFloatByFrame(1.0f, 0.0f, frame, 0x55, 0x5a);
+        alpha0 = InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 0x55, 0x5a);
     }
     float wx0;
-    if (frame < 4) {
-        wx0 = (frame < 2) ? InterpolateFloatByFrame((float)kWord0X, (float)kWord0X2, frame, 0, 2) :
-                            InterpolateFloatByFrame((float)kWord0X2, (float)kWord0X3, frame, 2, 4);
+    if (animFrame < 4) {
+        wx0 = (animFrame < 2) ?
+                  InterpolateFloatByFrame((float)kWord0X, (float)kWord0X2, animFrame, 0, 2) :
+                  InterpolateFloatByFrame((float)kWord0X2, (float)kWord0X3, animFrame, 2, 4);
     } else {
-        wx0 = (frame < 0x5a) ? InterpolateFloatByFrame((float)kWord0X3, -30.0f, frame, 0x55, 0x5a) :
-                               InterpolateFloatByFrame(-30.0f, (float)kWord2X, frame, 0x5a, 0x5f);
+        wx0 = (animFrame < 0x5a) ?
+                  InterpolateFloatByFrame((float)kWord0X3, -30.0f, animFrame, 0x55, 0x5a) :
+                  InterpolateFloatByFrame(-30.0f, (float)kWord2X, animFrame, 0x5a, 0x5f);
     }
     float wx1;
-    if (frame < 2) {
-        wx1 = InterpolateFloatByFrame((float)kWord1X, (float)kWord1X2, frame, 0, 2);
-    } else if (frame < 4) {
-        wx1 = InterpolateFloatByFrame((float)kWord1X2, (float)kWord1X3, frame, 2, 4);
-    } else if (frame < 0x5a) {
-        wx1 = InterpolateFloatByFrame((float)kWord1X3, (float)kWord2X2, frame, 0x55, 0x5a);
+    if (animFrame < 2) {
+        wx1 = InterpolateFloatByFrame((float)kWord1X, (float)kWord1X2, animFrame, 0, 2);
+    } else if (animFrame < 4) {
+        wx1 = InterpolateFloatByFrame((float)kWord1X2, (float)kWord1X3, animFrame, 2, 4);
+    } else if (animFrame < 0x5a) {
+        wx1 = InterpolateFloatByFrame((float)kWord1X3, (float)kWord2X2, animFrame, 0x55, 0x5a);
     } else {
-        wx1 = InterpolateFloatByFrame((float)kWord2X2, (float)kWord2X3, frame, 0x5a, 0x5f);
+        wx1 = InterpolateFloatByFrame((float)kWord2X2, (float)kWord2X3, animFrame, 0x5a, 0x5f);
     }
     [self.texFront drawSprite:kWordSprite0
                       atPoint:CGPointMake((double)wx0 - word0Rect.size.width * 0.5,
@@ -2263,26 +2265,26 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 
     // The next word-plate pair, on the 6..0xc / 0x57..0x61 windows.
     float alpha1;
-    if (frame < 0xc) {
-        alpha1 = InterpolateFloatByFrame(0.0f, 1.0f, frame, 6, 0xc);
+    if (animFrame < 0xc) {
+        alpha1 = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 6, 0xc);
     } else {
-        alpha1 = InterpolateFloatByFrame(1.0f, 0.0f, frame, 0x57, 0x61);
+        alpha1 = InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 0x57, 0x61);
     }
     double word1PlateY = is4Inch ? (double)(gameTop + 0x1b8) : kWordAY;
     double word0PlateY = is4Inch ? (double)(gameTop + 200) : kFieldWidth;
     float wx2;
     float wx3;
-    if (frame < 0xc) {
-        wx2 = (frame < 9) ? InterpolateFloatByFrame(121.0f, 83.0f, frame, 6, 9) :
-                            InterpolateFloatByFrame(83.0f, 69.0f, frame, 9, 0xc);
-        wx3 = (frame < 9) ? InterpolateFloatByFrame(183.0f, 215.0f, frame, 6, 9) :
-                            InterpolateFloatByFrame(215.0f, 228.0f, frame, 9, 0xc);
-    } else if (frame < 0x5c) {
-        wx2 = InterpolateFloatByFrame(69.0f, 152.0f, frame, 0x57, 0x5c);
-        wx3 = InterpolateFloatByFrame(228.0f, 129.0f, frame, 0x57, 0x5c);
+    if (animFrame < 0xc) {
+        wx2 = (animFrame < 9) ? InterpolateFloatByFrame(121.0f, 83.0f, animFrame, 6, 9) :
+                                InterpolateFloatByFrame(83.0f, 69.0f, animFrame, 9, 0xc);
+        wx3 = (animFrame < 9) ? InterpolateFloatByFrame(183.0f, 215.0f, animFrame, 6, 9) :
+                                InterpolateFloatByFrame(215.0f, 228.0f, animFrame, 9, 0xc);
+    } else if (animFrame < 0x5c) {
+        wx2 = InterpolateFloatByFrame(69.0f, 152.0f, animFrame, 0x57, 0x5c);
+        wx3 = InterpolateFloatByFrame(228.0f, 129.0f, animFrame, 0x57, 0x5c);
     } else {
-        wx2 = InterpolateFloatByFrame(152.0f, 168.0f, frame, 0x5c, 0x61);
-        wx3 = InterpolateFloatByFrame(129.0f, 107.0f, frame, 0x5c, 0x61);
+        wx2 = InterpolateFloatByFrame(152.0f, 168.0f, animFrame, 0x5c, 0x61);
+        wx3 = InterpolateFloatByFrame(129.0f, 107.0f, animFrame, 0x5c, 0x61);
     }
     [self.texFront drawSprite:kWordSprite0
                       atPoint:CGPointMake((double)wx2 - word0Rect.size.width * 0.5,
@@ -2297,9 +2299,9 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 
     // The two mirrored word plates that grow about a shared anchor, on the 5..0x2f / 6..0x34
     // windows.
-    float alpha2 = (frame < 2) ? InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 2) :
-                                 InterpolateFloatByFrame(1.0f, 0.0f, frame, 5, 0x2f);
-    float scale2 = InterpolateFloatByFrame(1.0f, 1.2f, frame, 5, 0x2f);
+    float alpha2 = (animFrame < 2) ? InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 2) :
+                                     InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 5, 0x2f);
+    float scale2 = InterpolateFloatByFrame(1.0f, 1.2f, animFrame, 5, 0x2f);
     double plate0Y = is4Inch ? (double)(gameTop + 200) : kFieldWidth;
     double plate1Y = is4Inch ? (double)(gameTop + 0x1b8) : kWordAY;
     [self.texFront drawSprite:kWordSprite2
@@ -2319,9 +2321,9 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                     transform:0x2d
                         alpha:alpha2];
 
-    float alpha3 = (frame < 8) ? InterpolateFloatByFrame(0.0f, 1.0f, frame, 6, 8) :
-                                 InterpolateFloatByFrame(1.0f, 0.0f, frame, 0xc, 0x34);
-    float scale3 = InterpolateFloatByFrame(1.0f, 1.2f, frame, 0xc, 0x34);
+    float alpha3 = (animFrame < 8) ? InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 6, 8) :
+                                     InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 0xc, 0x34);
+    float scale3 = InterpolateFloatByFrame(1.0f, 1.2f, animFrame, 0xc, 0x34);
     double plate2Y = is4Inch ? (double)(gameTop + 0x1b8) : kWordAY;
     double plate3Y = is4Inch ? (double)(gameTop + 200) : kFieldWidth;
     [self.texFront drawSprite:kWordSprite2
@@ -2374,7 +2376,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 }
 
 /** @ghidraAddress 0x14feb8 */
-- (void)renderRating:(unsigned int)frame {
+- (void)renderRating:(unsigned int)animFrame {
     static const double kLabelXDefault = 326.0; // @ghidraAddress 0x292f70
     static const double kLabelYBase = 86.0;     // @ghidraAddress 0x28f950
     static const double kGlyphXDefault = 360.0; // @ghidraAddress 0x292918
@@ -2392,18 +2394,19 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     if (rank < 5) {
         unsigned int labelEnd = (rank > 2) ? 7 : 0xe;
         unsigned int scaleEnd = (rank < 3) ? 4 : 3;
-        float labelSlide = InterpolateFloatByFrame(25.0f, 0.0f, frame, 0, labelEnd);
-        float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, labelEnd);
+        float labelSlide = InterpolateFloatByFrame(25.0f, 0.0f, animFrame, 0, labelEnd);
+        float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, labelEnd);
         [self.texFront drawSprite:kLabelSprite
                           atPoint:CGPointMake((double)labelSlide + kLabelYBase, labelY)
                         transform:(char)(int)labelAlpha
                             alpha:0];
         (void)[self.texFront spriteAtIndex:kGlyphSprite];
         float glyphScale;
-        if (frame < scaleEnd) {
-            glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleMid, frame, 0, scaleEnd);
+        if (animFrame < scaleEnd) {
+            glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleMid, animFrame, 0, scaleEnd);
         } else {
-            glyphScale = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, frame, scaleEnd, scaleEnd);
+            glyphScale =
+                InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, scaleEnd, scaleEnd);
         }
         [self.texFront drawSprite:kGlyphSprite
                           atPoint:CGPointMake(kGlyphAnchorX - (double)labelAlpha * 0.5,
@@ -2414,22 +2417,22 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                         transform:0x39
                             alpha:0.0f];
     } else {
-        float labelSlide = InterpolateFloatByFrame(25.0f, 0.0f, frame, 0, 0xd);
-        float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 0xd);
+        float labelSlide = InterpolateFloatByFrame(25.0f, 0.0f, animFrame, 0, 0xd);
+        float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 0xd);
         [self.texFront drawSprite:kLabelSprite
                           atPoint:CGPointMake((double)labelSlide + kLabelYBase, labelY)
                         transform:(char)(int)labelAlpha
                             alpha:0];
         (void)[self.texFront spriteAtIndex:kGlyphSprite];
         float glyphScale;
-        if (frame < 8) {
-            glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleLow, frame, 0, 8);
-        } else if (frame < 0xe) {
-            glyphScale = InterpolateFloatByFrame(kRatingScaleLow, kScaleMid2, frame, 8, 0xe);
-        } else if (frame < 0x10) {
-            glyphScale = InterpolateFloatByFrame(kScaleMid2, 1.0f, frame, 0xe, 0x10);
+        if (animFrame < 8) {
+            glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleLow, animFrame, 0, 8);
+        } else if (animFrame < 0xe) {
+            glyphScale = InterpolateFloatByFrame(kRatingScaleLow, kScaleMid2, animFrame, 8, 0xe);
+        } else if (animFrame < 0x10) {
+            glyphScale = InterpolateFloatByFrame(kScaleMid2, 1.0f, animFrame, 0xe, 0x10);
         } else {
-            glyphScale = InterpolateFloatByFrame(kScaleReset, 1.0f, frame, 8, 0xd);
+            glyphScale = InterpolateFloatByFrame(kScaleReset, 1.0f, animFrame, 8, 0xd);
         }
         [self.texFront drawSprite:kGlyphSprite
                           atPoint:CGPointMake(kGlyphAnchorX - (double)labelAlpha * 0.5,
@@ -2443,7 +2446,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 }
 
 /** @ghidraAddress 0x150348 */
-- (BOOL)renderCleared:(unsigned int)frame {
+- (BOOL)renderCleared:(unsigned int)animFrame {
     static const double kCentreX = 160.0;         // @ghidraAddress 0x28f438
     static const double kCentreXDefault = 320.0;  // @ghidraAddress 0x28f470
     static const double kWordY = 280.0;           // @ghidraAddress 0x28f658
@@ -2463,8 +2466,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     float to;
     unsigned int start;
     unsigned int end;
-    if (frame < 0x28) {
-        if (frame < 6) {
+    if (animFrame < 0x28) {
+        if (animFrame < 6) {
             start = 0;
             end = 6;
             from = 0.0f;
@@ -2475,15 +2478,15 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
             from = 0.13f;
             to = kClearedScaleLow;
         }
-        float base = InterpolateFloatByFrame(from, to, frame, start, end);
+        float base = InterpolateFloatByFrame(from, to, animFrame, start, end);
         (void)base;
-        p = frame;
+        p = animFrame;
         from = kClearedScaleHigh;
         to = kClearedScaleMid;
         start = 0;
         end = 6;
     } else {
-        p = (frame - 0x28) % 0x1e;
+        p = (animFrame - 0x28) % 0x1e;
         if (p < 5) {
             InterpolateFloatByFrame(0.13f, g_flKeyTime040, p, 0, 5);
             from = kClearedScaleHigh;
@@ -2532,8 +2535,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                         alpha:0.0f];
 
     // The "CLEARED" word plate wipes in over the first six frames.
-    float wordAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 6);
-    float wordScale = InterpolateFloatByFrame(kComboFadeBase, 1.0f, frame, 0, 6);
+    float wordAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 6);
+    float wordScale = InterpolateFloatByFrame(kComboFadeBase, 1.0f, animFrame, 0, 6);
     double wordY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x118) : kWordY;
     (void)[self.texFront spriteAtIndex:0x2f];
     [self.texFront drawSprite:kWordSprite
@@ -2545,19 +2548,19 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                         alpha:wordAlpha];
 
     // The clear voice/jingle on frame 0, then the rating from frame 10.
-    if (frame < 10) {
-        if (frame == 0) {
+    if (animFrame < 10) {
+        if (animFrame == 0) {
             [AudioManager.sharedManager playSeResFile:@"SD_RPL_RESULT_CLEAR" inDirectory:nil];
             [AudioManager.sharedManager playSeResFile:@"SD_RPL_CV_CLEAR" inDirectory:nil];
         }
     } else {
-        [self renderRating:frame - 10];
+        [self renderRating:animFrame - 10];
     }
-    return frame > 0x3b;
+    return animFrame > 0x3b;
 }
 
 /** @ghidraAddress 0x1507cc */
-- (BOOL)renderFailed:(unsigned int)frame {
+- (BOOL)renderFailed:(unsigned int)animFrame {
     static const double kCentreX = 160.0;            // @ghidraAddress 0x28f438
     static const double kCentreXDefault = 320.0;     // @ghidraAddress 0x28f470
     static const double kWordY = 280.0;              // @ghidraAddress 0x28f658
@@ -2568,13 +2571,13 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const NSUInteger kDiscSprite = 0x34;
     static const NSUInteger kWordSprite = 0x30;
 
-    float discAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 0x10);
-    float discScale = InterpolateFloatByFrame(kFailedScaleFrom, kFailedScaleTo, frame, 0, 0x10);
+    float discAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 0x10);
+    float discScale = InterpolateFloatByFrame(kFailedScaleFrom, kFailedScaleTo, animFrame, 0, 0x10);
     float slide;
-    if (frame < 0x10) {
-        slide = InterpolateFloatByFrame(-20.0f, 0.0f, frame, 0, 0x10);
+    if (animFrame < 0x10) {
+        slide = InterpolateFloatByFrame(-20.0f, 0.0f, animFrame, 0, 0x10);
     } else {
-        slide = InterpolateFloatByFrame(0.0f, 10.0f, frame, 0x10, 0x32);
+        slide = InterpolateFloatByFrame(0.0f, 10.0f, animFrame, 0x10, 0x32);
     }
     double centreY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x140) : kCentreXDefault;
     double discY = centreY + (double)slide;
@@ -2589,8 +2592,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                         alpha:discAlpha];
 
     // The "FAILED" word plate scales in and drops.
-    float wordScale = InterpolateFloatByFrame(kFailedWordScaleFrom, 1.0f, frame, 0, 0x10);
-    float wordDrop = InterpolateFloatByFrame(kFailedWordDrop, 0.0f, frame, 0, 0x10);
+    float wordScale = InterpolateFloatByFrame(kFailedWordScaleFrom, 1.0f, animFrame, 0, 0x10);
+    float wordDrop = InterpolateFloatByFrame(kFailedWordDrop, 0.0f, animFrame, 0, 0x10);
     double wordY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x118) : kWordY;
     double drawWordY = wordY + (double)wordDrop;
     CGRect wordRect = [self.texFront spriteAtIndex:0x30];
@@ -2604,19 +2607,19 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                         alpha:discAlpha];
 
     // The failed voice/jingle on frame 0, then the rating from frame 10.
-    if (frame < 10) {
-        if (frame == 0) {
+    if (animFrame < 10) {
+        if (animFrame == 0) {
             [AudioManager.sharedManager playSeResFile:@"SD_RPL_RESULT_FAILED" inDirectory:nil];
             [AudioManager.sharedManager playSeResFile:@"SD_RPL_CV_FAILED" inDirectory:nil];
         }
     } else {
-        [self renderRating:frame - 10];
+        [self renderRating:animFrame - 10];
     }
-    return frame > 0x3b;
+    return animFrame > 0x3b;
 }
 
 /** @ghidraAddress 0x14f0e8 */
-- (BOOL)renderExcellent:(unsigned int)frame {
+- (BOOL)renderExcellent:(unsigned int)animFrame {
     static const double kCentreX = 160.0;      // @ghidraAddress 0x28f438
     static const float kExcellentPeak = 0.1f;  // @ghidraAddress 0x28f70c
     static const float kScaleReset = 0.2f;     // @ghidraAddress 0x28f3c8
@@ -2638,11 +2641,11 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     // The main beam disc scale ramps up over the first 20 frames, holds, then blows out.
     double beamScale;
     double beamHeight = kExcellentPeak;
-    if (frame < 0x14) {
-        beamHeight = InterpolateFloatByFrame(0.0f, kExcellentPeak, frame, 10, 0x14);
-        beamScale = (double)InterpolateFloatByFrame(g_flKeyTime080, 1.0f, frame, 10, 0x14);
-    } else if (frame > 0x2e) {
-        unsigned int p = frame - 0x2f;
+    if (animFrame < 0x14) {
+        beamHeight = InterpolateFloatByFrame(0.0f, kExcellentPeak, animFrame, 10, 0x14);
+        beamScale = (double)InterpolateFloatByFrame(g_flKeyTime080, 1.0f, animFrame, 10, 0x14);
+    } else if (animFrame > 0x2e) {
+        unsigned int p = animFrame - 0x2f;
         if ((int)p < 2) {
             beamHeight = InterpolateFloatByFrame(kExcellentPeak, g_flKeyTime040, p, 0, 2);
             beamScale = (double)InterpolateFloatByFrame(1.0f, g_flKeyTime080, p, 0, 2);
@@ -2654,12 +2657,12 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
             beamScale = (double)InterpolateFloatByFrame(g_flKeyTime080, 1.0f, p, 2, 10);
         }
     } else {
-        unsigned int p = frame - 0x26;
-        if (frame < 0x26) {
-            p = frame - 0x1d;
+        unsigned int p = animFrame - 0x26;
+        if (animFrame < 0x26) {
+            p = animFrame - 0x1d;
         }
-        if (frame < 0x1d) {
-            p = frame - 0x14;
+        if (animFrame < 0x1d) {
+            p = animFrame - 0x14;
         }
         if ((int)p < 3) {
             beamScale = (double)InterpolateFloatByFrame(g_flKeyTime080, 1.0f, p, 0, 3);
@@ -2706,9 +2709,9 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     (void)halfH;
 
     // A second beam blow-out from frame 0x39.
-    if (frame > 0x38) {
-        float blowScale = InterpolateFloatByFrame(kScaleReset, 0.0f, frame, 0x39, 0x4d);
-        float blowFade = InterpolateFloatByFrame(1.0f, kFadeEnd, frame, 0x39, 0x4d);
+    if (animFrame > 0x38) {
+        float blowScale = InterpolateFloatByFrame(kScaleReset, 0.0f, animFrame, 0x39, 0x4d);
+        float blowFade = InterpolateFloatByFrame(1.0f, kFadeEnd, animFrame, 0x39, 0x4d);
         (void)blowFade;
         [self.texFront drawSprite:kBeamSprite
                           atPoint:CGPointMake(kCentreX, centreY)
@@ -2744,24 +2747,24 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     // The chip ring (sprite 0x36) sweeps into the ring positions over frames 20..46. The ring
     // positions come from the shipped {x, y} double table, four-inch offsetting the y by the button
     // margin.
-    unsigned int cf = frame - 0x14;
+    unsigned int cf = animFrame - 0x14;
     if (cf < 0x1b) {
         int count = 9;
         double firstX = kChipInsetY;
         double firstY;
         // Sub-phase selects the count and the sweep window.
-        if (frame < 0x1d) {
+        if (animFrame < 0x1d) {
             count = 9;
             firstX = kChipInsetY;
             firstY = is4Inch ? (double)(self.buttonMarginForScreen40 + 200) : 200.0;
-        } else if (frame < 0x26) {
+        } else if (animFrame < 0x26) {
             count = 8;
-            cf = frame - 0x1d;
+            cf = animFrame - 0x1d;
             firstX = kFillY;
             firstY = is4Inch ? (double)(self.buttonMarginForScreen40 + 200) : 200.0;
         } else {
             count = 6;
-            cf = frame - 0x26;
+            cf = animFrame - 0x26;
             firstX = kFillY;
             firstY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x1b8) : kBeamWideY;
         }
@@ -2786,14 +2789,14 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     }
 
     // The "EXCELLENT" word plate scales/wipes in from frame 49.
-    if (frame > 0x30) {
-        unsigned int p = frame - 0x31;
+    if (animFrame > 0x30) {
+        unsigned int p = animFrame - 0x31;
         double wordY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x147) : kWordY;
         float wordScale;
         if ((int)p < 8) {
             wordScale = InterpolateFloatByFrame(2.0f, g_flKeyTime080, p, 0, 8);
         } else {
-            wordScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, frame, 8, 10);
+            wordScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, animFrame, 8, 10);
         }
         CGRect wordRect = [self.texFront spriteAtIndex:0x31];
         [self.texFront drawSprite:kWordSprite
@@ -2807,7 +2810,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     }
 
     // The per-phase voice/sound cues.
-    switch (frame) {
+    switch (animFrame) {
     case 0x18:
     case 0x21:
     case 0x2a:
@@ -2823,7 +2826,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     (void)beamHeight;
     (void)kChipInsetY2;
     (void)kScaleReset;
-    return frame > 0x77;
+    return animFrame > 0x77;
 }
 
 /** @ghidraAddress 0x150d70 */

@@ -82,11 +82,11 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
 #pragma mark - Life Cycle
 
 /** @ghidraAddress 0x16a4b0 */
-- (instancetype)initWithSectionTitles:(NSArray<NSString *> *)titlesArray {
+- (instancetype)initWithSectionTitles:(NSArray<NSString *> *)sectionTitles {
     self = [super initWithFrame:CGRectZero];
     if (self) {
-        self.titlesArray = [NSMutableArray arrayWithArray:titlesArray];
-        self.thumbRects = [NSMutableArray arrayWithCapacity:titlesArray.count];
+        self.titlesArray = [NSMutableArray arrayWithArray:sectionTitles];
+        self.thumbRects = [NSMutableArray arrayWithCapacity:sectionTitles.count];
         self.accessibilityElements = [NSMutableArray arrayWithCapacity:self.titlesArray.count];
 
         self.backgroundColor = UIColor.clearColor;

@@ -9,12 +9,11 @@
 }
 
 /** @ghidraAddress 0x15bcf0 */
-- (instancetype)initWithFileName:(NSString *)fileName frame:(CGRect)frame {
+- (instancetype)initWithFileName:(NSString *)name frame:(CGRect)frame {
     // Yes, plain -init rather than -initWithNibName:bundle:.
     self = [super init];
     if (self) {
-        // The parameter shadows the ivar of the same name, which is why this is spelled out.
-        self->fileName = fileName;
+        fileName = name;
         bgRect = frame;
     }
     return self;

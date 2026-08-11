@@ -264,16 +264,16 @@ static inline void RootViewControllerBeginFadeInForAnimation(RootViewController 
 
 /** @ghidraAddress 0x1a7770 */
 - (void)fade:(NSString *)animationName
-     durationIn:(double)durationIn
-    durationOut:(double)durationOut {
+     durationIn:(double)inDuration
+    durationOut:(double)outDuration {
     // Input is blocked for the whole transition. Nothing here re-enables it; that is
     // -fadeinAnimStop:finished:context:'s job, at the far end of the two animations.
     [UIApplication.sharedApplication beginIgnoringInteractionEvents];
 
     // Both durations are parked in ivars so the second half of the transition can read durationOut
     // long after this call has returned.
-    self->durationIn = durationIn;
-    self->durationOut = durationOut;
+    self->durationIn = inDuration;
+    self->durationOut = outDuration;
 
     [fadeView removeFromSuperview];
     fadeView = nil;

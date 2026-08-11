@@ -1936,7 +1936,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
 }
 
 /** @ghidraAddress 0x107e44 */
-- (BOOL)renderCleared:(unsigned int)frame centerY:(double)centerY {
+- (BOOL)renderCleared:(unsigned int)animFrame centerY:(double)centerY {
     // Per-letter final centre X positions for "CLEARED".
     /** @ghidraAddress 0x2925c0 */
     static const double kClearedLetterX[] = {68.0, 173.0, 279.0, 385.0, 491.0, 598.0, 702.0};
@@ -1952,7 +1952,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
         kResultExitStartFrame = 80,
     };
 
-    MainGameRendererPadDrawResultFlashBeam(self.texClear0, frame, centerY);
+    MainGameRendererPadDrawResultFlashBeam(self.texClear0, animFrame, centerY);
 
     // The letter glyphs all share sprite 0's cell dimensions for centring and scaling.
     CGRect cell = [self.texClear0 spriteAtIndex:0];
@@ -1968,13 +1968,16 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     for (int i = 0; i < kClearedLetterCount; ++i) {
         unsigned int startFrame = (unsigned int)(i * kClearedLetterStagger);
         unsigned int endFrame = startFrame + kClearedLetterDuration;
-        float alpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, startFrame, endFrame);
+        float alpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, startFrame, endFrame);
         if (alpha <= 0.0f) {
             continue;
         }
-        float x = InterpolateFloatByFrame(
-            (float)kClearedLetterSpawnX, (float)kClearedLetterX[i], frame, startFrame, endFrame);
-        float scale = InterpolateFloatByFrame(2.0f, 1.0f, frame, startFrame, endFrame);
+        float x = InterpolateFloatByFrame((float)kClearedLetterSpawnX,
+                                          (float)kClearedLetterX[i],
+                                          animFrame,
+                                          startFrame,
+                                          endFrame);
+        float scale = InterpolateFloatByFrame(2.0f, 1.0f, animFrame, startFrame, endFrame);
         double w = cell.size.width * (double)scale;
         double h = cell.size.height * (double)scale;
         [letterTex[i] drawSprite:kClearedLetterSprite[i]
@@ -1982,11 +1985,11 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
                        transform:0
                            alpha:alpha];
     }
-    return frame > kResultExitStartFrame - 1;
+    return animFrame > kResultExitStartFrame - 1;
 }
 
 /** @ghidraAddress 0x10823c */
-- (BOOL)renderFailed:(unsigned int)frame centerY:(double)centerY {
+- (BOOL)renderFailed:(unsigned int)animFrame centerY:(double)centerY {
     // Per-letter final centre X positions for "FAILED".
     /** @ghidraAddress 0x292660 */
     static const double kFailedLetterX[] = {147.0, 254.0, 333.0, 414.0, 521.0, 628.0};
@@ -2003,7 +2006,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
         kResultExitStartFrame = 80,
     };
 
-    MainGameRendererPadDrawResultFlashBeam(self.texClear1, frame, centerY);
+    MainGameRendererPadDrawResultFlashBeam(self.texClear1, animFrame, centerY);
 
     // The letters are drawn at natural size but centred using sprite 2's cell dimensions.
     CGRect cell = [self.texClear1 spriteAtIndex:2];
@@ -2020,19 +2023,19 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     for (int i = 0; i < kFailedLetterCount; ++i) {
         unsigned int startFrame = (unsigned int)(i * kFailedLetterStagger);
         unsigned int endFrame = startFrame + kFailedLetterDuration;
-        float alpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, startFrame, endFrame);
+        float alpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, startFrame, endFrame);
         if (alpha <= 0.0f) {
             continue;
         }
-        float fall =
-            InterpolateFloatByFrame((float)kFailedLetterFall[i], 0.0f, frame, startFrame, endFrame);
+        float fall = InterpolateFloatByFrame(
+            (float)kFailedLetterFall[i], 0.0f, animFrame, startFrame, endFrame);
         [letterTex[i] drawSprite:kFailedLetterSprite[i]
                          atPoint:CGPointMake(kFailedLetterX[i] - halfWidth,
                                              (centerY - (double)fall) - halfHeight)
                        transform:0
                            alpha:alpha];
     }
-    return frame > kResultExitStartFrame - 1;
+    return animFrame > kResultExitStartFrame - 1;
 }
 
 /** @ghidraAddress 0x108804 */

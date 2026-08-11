@@ -45,8 +45,9 @@ static NSData *sSessionResponse = nil;
     int retryCnt;             // +0x60, ivar-offset global 0x34aa90
     NSString *receiveHash;    // +0x58, ivar-offset global 0x34aa9c
 }
-- (NSString *)dataHash:(nullable NSData *)data;
-- (nullable NSURLRequest *)createPostRequest:(nullable NSURL *)url postData:(nullable NSData *)data;
+- (NSString *)dataHash:(nullable NSData *)bodyData;
+- (nullable NSURLRequest *)createPostRequest:(nullable NSURL *)url
+                                    postData:(nullable NSData *)bodyData;
 - (nullable NSURLRequest *)getSessionRequest;
 @end
 
@@ -87,7 +88,7 @@ static inline void SessionDownloaderRetryOriginalRequest(SessionDownloader *self
 /** @ghidraAddress 0xff324 */
 - (instancetype)initWithURL:(NSURL *)url
              postDictionary:(NSDictionary *)postDictionary
-                   delegate:(id)delegate {
+                   delegate:(id)aDelegate {
     _apiTag = 0;
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:postDictionary];
     // Reuse a caller-supplied cnonce; otherwise mint a random one and record it in the body.
@@ -102,11 +103,11 @@ static inline void SessionDownloaderRetryOriginalRequest(SessionDownloader *self
         params[key] = clientInfo[key];
     }
     NSData *json = [CJSONSerializer.serializer serializeDictionary:params error:nil];
-    return [self initWithURL:url postData:json delegate:delegate];
+    return [self initWithURL:url postData:json delegate:aDelegate];
 }
 
 /** @ghidraAddress 0xffb48 */
-- (instancetype)initWithURL:(NSURL *)url delegate:(id)delegate {
+- (instancetype)initWithURL:(NSURL *)url delegate:(id)aDelegate {
     _apiTag = 0;
     NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
     sendCnonce = [NSString stringWithFormat:@"%d", rand()];
@@ -116,18 +117,18 @@ static inline void SessionDownloaderRetryOriginalRequest(SessionDownloader *self
         params[key] = clientInfo[key];
     }
     NSData *json = [CJSONSerializer.serializer serializeDictionary:params error:nil];
-    return [self initWithURL:url postData:json delegate:delegate];
+    return [self initWithURL:url postData:json delegate:aDelegate];
 }
 
 /** @ghidraAddress 0xffe1c */
-- (instancetype)initWithURL:(NSURL *)url postData:(NSData *)postData delegate:(id)delegate {
+- (instancetype)initWithURL:(NSURL *)url postData:(NSData *)postData delegate:(id)aDelegate {
     self = [super init];
     if (self) {
         retryCnt = 0;
         requestURL = url;
         requestData = postData;
         request = [self createPostRequest:url postData:postData];
-        delegate = delegate;
+        self->delegate = aDelegate;
     }
     return self;
 }
@@ -135,25 +136,25 @@ static inline void SessionDownloaderRetryOriginalRequest(SessionDownloader *self
 #pragma mark - Request signing
 
 /** @ghidraAddress 0xff7b8 */
-- (NSString *)dataHash:(NSData *)data {
+- (NSString *)dataHash:(NSData *)bodyData {
     // The MAC is the SHA-256 hex of the UTF-8 body with the fixed salt appended.
-    NSString *body = [[NSString alloc] initWithData:[data copy] encoding:NSUTF8StringEncoding];
+    NSString *body = [[NSString alloc] initWithData:[bodyData copy] encoding:NSUTF8StringEncoding];
     body = [body stringByAppendingString:kSessionMACSalt];
     return CreateSha256HexStringFromData([body dataUsingEncoding:NSUTF8StringEncoding], NO);
 }
 
 /** @ghidraAddress 0xff8b4 */
-- (NSURLRequest *)createPostRequest:(NSURL *)url postData:(NSData *)data {
+- (NSURLRequest *)createPostRequest:(NSURL *)url postData:(NSData *)bodyData {
     NSMutableURLRequest *req =
         [NSMutableURLRequest requestWithURL:url
                                 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                             timeoutInterval:kSessionTimeout];
     req.HTTPMethod = @"POST";
-    [req setValue:[NSString stringWithFormat:@"%d", (int)data.length]
+    [req setValue:[NSString stringWithFormat:@"%d", (int)bodyData.length]
         forHTTPHeaderField:@"Content-Length"];
     [req setValue:@"application/json; charset=UTF-8" forHTTPHeaderField:@"Content-Type"];
-    [req setValue:[self dataHash:data] forHTTPHeaderField:@"JBT_REQUEST_MAC"];
-    req.HTTPBody = data;
+    [req setValue:[self dataHash:bodyData] forHTTPHeaderField:@"JBT_REQUEST_MAC"];
+    req.HTTPBody = bodyData;
     [req setValue:JubeatAppDelegate.appDelegate.userAgent forHTTPHeaderField:@"User-Agent"];
     // Without a live session the first request must open one; otherwise the cached cookies ride
     // along on this request.

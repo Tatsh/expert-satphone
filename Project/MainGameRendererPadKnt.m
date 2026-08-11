@@ -478,7 +478,7 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 }
 
 /** @ghidraAddress 0x204dd0 */
-- (void)renderRating:(unsigned int)frame {
+- (void)renderRating:(unsigned int)animFrame {
     int rank = (int)self.sequence.rank;
     float rankScale;
     float rankAlpha;
@@ -488,8 +488,8 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
         unsigned int popEnd = (rank < 3) ? 4 : 3;
         unsigned int settleEnd = (rank < 3) ? 0xe : 7;
         float labelSlide =
-            InterpolateFloatByFrame(kRatingLabelSlideFrom, 0.0f, frame, 0, settleEnd);
-        float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, settleEnd);
+            InterpolateFloatByFrame(kRatingLabelSlideFrom, 0.0f, animFrame, 0, settleEnd);
+        float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, settleEnd);
         [self.texResult
             drawSprite:kRatingLabelSprite
                atPoint:CGPointMake(kRatingLabelX,
@@ -497,10 +497,11 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
              transform:0
                  alpha:labelAlpha];
         CGSize rankSize = [self.texResult spriteAtIndex:kRatingRankSprite].size;
-        if (frame < popEnd) {
-            rankScale = InterpolateFloatByFrame(2.0f, kRatingScaleLow, frame, 0, popEnd);
+        if (animFrame < popEnd) {
+            rankScale = InterpolateFloatByFrame(2.0f, kRatingScaleLow, animFrame, 0, popEnd);
         } else {
-            rankScale = InterpolateFloatByFrame(kRatingScaleLow, 1.0f, frame, popEnd, settleEnd);
+            rankScale =
+                InterpolateFloatByFrame(kRatingScaleLow, 1.0f, animFrame, popEnd, settleEnd);
         }
         rankAlpha = labelAlpha;
         [self.texResult drawSprite:kRatingRankSprite
@@ -515,8 +516,8 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
     }
     // The top ranks (rank >= 5): the label slides in over a fixed window and the rank sprite pops
     // through several frame windows before settling.
-    float labelSlide = InterpolateFloatByFrame(kRatingLabelSlideFrom, 0.0f, frame, 0, 0xd);
-    float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 0xd);
+    float labelSlide = InterpolateFloatByFrame(kRatingLabelSlideFrom, 0.0f, animFrame, 0, 0xd);
+    float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 0xd);
     [self.texResult
         drawSprite:kRatingLabelSprite
            atPoint:CGPointMake(kRatingLabelX,
@@ -524,18 +525,18 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
          transform:0
              alpha:labelAlpha];
     CGSize rankSize = [self.texResult spriteAtIndex:kRatingRankSprite].size;
-    if (frame < 8) {
-        rankScale = InterpolateFloatByFrame(2.0f, kRatingScaleBig, frame, 0, 8);
-        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, frame, 8, 0xd);
-    } else if (frame < 0xe) {
-        rankScale = InterpolateFloatByFrame(kRatingScaleBig, kRatingScaleMid, frame, 8, 0xe);
-        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, frame, 8, 0xd);
-    } else if (frame < 0x10) {
-        rankScale = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, frame, 0xe, 0x10);
-        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, frame, 8, 0xd);
+    if (animFrame < 8) {
+        rankScale = InterpolateFloatByFrame(2.0f, kRatingScaleBig, animFrame, 0, 8);
+        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, animFrame, 8, 0xd);
+    } else if (animFrame < 0xe) {
+        rankScale = InterpolateFloatByFrame(kRatingScaleBig, kRatingScaleMid, animFrame, 8, 0xe);
+        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, animFrame, 8, 0xd);
+    } else if (animFrame < 0x10) {
+        rankScale = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, 0xe, 0x10);
+        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, animFrame, 8, 0xd);
     } else {
         rankScale = 1.0f;
-        rankAlpha = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, frame, 8, 0xd);
+        rankAlpha = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, 8, 0xd);
     }
     [self.texResult drawSprite:kRatingRankSprite
                        atPoint:CGPointMake(kRatingRankAnchorX - rankSize.width * 0.5,
@@ -548,10 +549,10 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 }
 
 /** @ghidraAddress 0x2042e4 */
-- (BOOL)renderExcellent:(unsigned int)frame {
+- (BOOL)renderExcellent:(unsigned int)animFrame {
     // Sound cues at set frames: the rating voice, the panel hit, the excellent-string cue (three
     // times), and, on the final flourish, the result sting plus the excellent voice.
-    switch (frame) {
+    switch (animFrame) {
     case kExcRatingFrame:
         [[AudioManager sharedManager] playSeResFile:kSeExcRating inDirectory:nil];
         break;
@@ -573,10 +574,10 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 
     // The two title glyphs slide in from the sides and fade in over frames 0..8, fading back out
     // after frame 40.
-    float titleSlide = InterpolateFloatByFrame(kExcTitleSlideFrom, 0.0f, frame, 0, 8);
-    float titleAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 8);
-    if (frame > kExcPanelFrame) {
-        titleAlpha = InterpolateFloatByFrame(1.0f, 0.0f, frame, 0x28, 0x32);
+    float titleSlide = InterpolateFloatByFrame(kExcTitleSlideFrom, 0.0f, animFrame, 0, 8);
+    float titleAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 8);
+    if (animFrame > kExcPanelFrame) {
+        titleAlpha = InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 0x28, 0x32);
     }
     double titleH = [self.texResultBg spriteAtIndex:kExcTitleSprite].size.height;
     [self.texResultBg
@@ -594,7 +595,7 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 
     // The eight excellent panels fill the grid's top and bottom rows as the frame passes each.
     for (int i = 0; i < 16; i += 2) {
-        if (i / 2 > (int)(frame - kExcPanelFrame)) {
+        if (i / 2 > (int)(animFrame - kExcPanelFrame)) {
             continue;
         }
         int panel = kExcPanelOrder[i / 2];
@@ -607,11 +608,11 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 
     // The Excellent word flies in as glyph pairs across frames 0x60..0x74; each pair slides from
     // off-screen to its slot with a fade.
-    if (frame >= kExcStringFrame0) {
+    if (animFrame >= kExcStringFrame0) {
         float g1x =
-            InterpolateFloatByFrame(kExcWordScatterY, kExcTitleSlideFrom, frame, 0x60, 0x67) +
+            InterpolateFloatByFrame(kExcWordScatterY, kExcTitleSlideFrom, animFrame, 0x60, 0x67) +
             kExcWord1XTo;
-        float g1y = InterpolateFloatByFrame(kExcWord1XFrom, kExcWord1YFrom, frame, 0x60, 0x67) +
+        float g1y = InterpolateFloatByFrame(kExcWord1XFrom, kExcWord1YFrom, animFrame, 0x60, 0x67) +
                     kExcWord1YTo;
         [self.texResult drawSprite:kExcWordSprite
                            atPoint:CGPointMake((double)g1x, (double)g1y)
@@ -620,11 +621,12 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
                             anchor:CGPointMake((double)g1x, (double)g1y)
                          transform:0
                              alpha:1.0f];
-        float g2x = InterpolateFloatByFrame(kExcWord2XTo, kExcTitleSlideFrom, frame, 0x60, 0x67) +
-                    kExcWord1XTo;
-        float g2y = InterpolateFloatByFrame(kExcWord2XFrom, kExcWord1YFrom, frame, 0x60, 0x67) +
+        float g2x =
+            InterpolateFloatByFrame(kExcWord2XTo, kExcTitleSlideFrom, animFrame, 0x60, 0x67) +
+            kExcWord1XTo;
+        float g2y = InterpolateFloatByFrame(kExcWord2XFrom, kExcWord1YFrom, animFrame, 0x60, 0x67) +
                     kExcWord1YTo;
-        float g2a = InterpolateFloatByFrame(0.0f, 0.5f, frame - 0x60, 0, 4);
+        float g2a = InterpolateFloatByFrame(0.0f, 0.5f, animFrame - 0x60, 0, 4);
         [self.texResult drawSprite:kExcWordSprite
                            atPoint:CGPointMake((double)g2x, (double)g2y)
                              scale:kExcWordScale
@@ -632,11 +634,12 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
                             anchor:CGPointMake((double)g2x, (double)g2y)
                          transform:0
                              alpha:g2a];
-        if (frame > kExcStringFrame1) {
+        if (animFrame > kExcStringFrame1) {
             float g3x =
-                InterpolateFloatByFrame(kExcWord3XTo, kExcTitleSlideFrom, frame, 0x67, 0x6e) +
+                InterpolateFloatByFrame(kExcWord3XTo, kExcTitleSlideFrom, animFrame, 0x67, 0x6e) +
                 kExcWord3XOffset;
-            float g3y = InterpolateFloatByFrame(kExcWord3YFrom, kExcWord2XFrom, frame, 0x67, 0x6e);
+            float g3y =
+                InterpolateFloatByFrame(kExcWord3YFrom, kExcWord2XFrom, animFrame, 0x67, 0x6e);
             [self.texResult drawSprite:kExcWordSprite
                                atPoint:CGPointMake((double)g3x, (double)(g3y + kExcWordFive))
                                  scale:kExcWord3Scale
@@ -644,11 +647,12 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
                                 anchor:CGPointMake((double)g3x, (double)(g3y + kExcWordFive))
                              transform:0
                                  alpha:1.0f];
-            float g4x =
-                InterpolateFloatByFrame(kExcWord3XFrom2, kExcTitleSlideFrom, frame, 0x67, 0x6e) +
-                kExcWord3XOffset;
-            float g4y = InterpolateFloatByFrame(kExcWord1YFrom, kExcWord2XFrom, frame, 0x67, 0x6e);
-            float g4a = InterpolateFloatByFrame(0.0f, 0.5f, frame - 0x67, 0, 4);
+            float g4x = InterpolateFloatByFrame(
+                            kExcWord3XFrom2, kExcTitleSlideFrom, animFrame, 0x67, 0x6e) +
+                        kExcWord3XOffset;
+            float g4y =
+                InterpolateFloatByFrame(kExcWord1YFrom, kExcWord2XFrom, animFrame, 0x67, 0x6e);
+            float g4a = InterpolateFloatByFrame(0.0f, 0.5f, animFrame - 0x67, 0, 4);
             [self.texResult drawSprite:kExcWordSprite
                                atPoint:CGPointMake((double)g4x, (double)(g4y + kExcWordFive))
                                  scale:kExcWord3Scale
@@ -656,12 +660,12 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
                                 anchor:CGPointMake((double)g4x, (double)(g4y + kExcWordFive))
                              transform:0
                                  alpha:g4a];
-            if (frame > kExcStringFrame2) {
-                float g5x =
-                    InterpolateFloatByFrame(kExcWord1XTo, kExcTitleSlideFrom, frame, 0x6e, 0x75) +
-                    kExcWord4XTo;
+            if (animFrame > kExcStringFrame2) {
+                float g5x = InterpolateFloatByFrame(
+                                kExcWord1XTo, kExcTitleSlideFrom, animFrame, 0x6e, 0x75) +
+                            kExcWord4XTo;
                 float g5y =
-                    InterpolateFloatByFrame(kExcWord4YFrom, kExcWord2XFrom, frame, 0x6e, 0x75) +
+                    InterpolateFloatByFrame(kExcWord4YFrom, kExcWord2XFrom, animFrame, 0x6e, 0x75) +
                     kExcWord4YTo;
                 [self.texResult drawSprite:kExcWordSprite
                                    atPoint:CGPointMake((double)g5x, (double)g5y)
@@ -670,13 +674,13 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
                                     anchor:CGPointMake((double)g5x, (double)g5y)
                                  transform:0
                                      alpha:1.0f];
-                float g6x =
-                    InterpolateFloatByFrame(kExcWord2XTo, kExcTitleSlideFrom, frame, 0x6e, 0x75) +
-                    kExcWord4XTo;
+                float g6x = InterpolateFloatByFrame(
+                                kExcWord2XTo, kExcTitleSlideFrom, animFrame, 0x6e, 0x75) +
+                            kExcWord4XTo;
                 float g6y =
-                    InterpolateFloatByFrame(kExcWord1XFrom, kExcWord2XFrom, frame, 0x6e, 0x75) +
+                    InterpolateFloatByFrame(kExcWord1XFrom, kExcWord2XFrom, animFrame, 0x6e, 0x75) +
                     kExcWord4YTo;
-                float g6a = InterpolateFloatByFrame(0.0f, 0.5f, frame - 0x6e, 0, 4);
+                float g6a = InterpolateFloatByFrame(0.0f, 0.5f, animFrame - 0x6e, 0, 4);
                 [self.texResult drawSprite:kExcWordSprite
                                    atPoint:CGPointMake((double)g6x, (double)g6y)
                                      scale:1.0f
@@ -684,17 +688,17 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
                                     anchor:CGPointMake((double)g6x, (double)g6y)
                                  transform:0
                                      alpha:g6a];
-                if (frame > 0x7b) {
-                    MainGameRendererPadKntRenderExcellentBurst(self, frame);
+                if (animFrame > 0x7b) {
+                    MainGameRendererPadKntRenderExcellentBurst(self, animFrame);
                 }
             }
         }
     }
-    return frame > 0x95;
+    return animFrame > 0x95;
 }
 
 /** @ghidraAddress 0x2051b8 */
-- (BOOL)renderCleared:(unsigned int)frame {
+- (BOOL)renderCleared:(unsigned int)animFrame {
     static const float kBannerSlideFrom = 544.0f;                   // @ghidraAddress 0x293e80
     static const float kBannerTopTo = 352.0f;                       // @ghidraAddress 0x2932d0
     static const float kBannerMidTo = 928.0f;                       // @ghidraAddress 0x293e8c
@@ -711,17 +715,18 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
     static NSString *const kSeResultClear = @"SD_KNT_RESULT_CLEAR"; // @ghidraAddress 0x2df940
     static NSString *const kSeVoiceClear = @"SD_KNT_CV_CLEAR";      // @ghidraAddress 0x2df960
 
-    float fadeIn = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 8);
+    float fadeIn = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 8);
 
     // The banner strips sample sprite 6 only for its height, then draw the wider sprite 7
     // stretched.
     double plateH = [self.texResultBg spriteAtIndex:6].size.height;
-    float topY = InterpolateFloatByFrame(kBannerSlideFrom, kBannerTopTo, frame, 0, 0x10);
+    float topY = InterpolateFloatByFrame(kBannerSlideFrom, kBannerTopTo, animFrame, 0, 0x10);
     [self.texResultBg drawSprite:7
                           inRect:CGRectMake(0.0, (double)topY - plateH * 0.5, kFieldWidth, plateH)];
 
-    double midY = (double)InterpolateFloatByFrame(kBannerSlideFrom, kBannerMidTo, frame, 0, 0x10) -
-                  plateH * 0.5;
+    double midY =
+        (double)InterpolateFloatByFrame(kBannerSlideFrom, kBannerMidTo, animFrame, 0, 0x10) -
+        plateH * 0.5;
     [self.texResultBg drawSprite:7 inRect:CGRectMake(0.0, midY, kBannerMidWidth, plateH)];
     [self.texResultBg drawSprite:7
                           inRect:CGRectMake(kBannerMidWidth, midY, kBannerBoxWidth, plateH)
@@ -747,8 +752,8 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 
     // The "cleared" word (texResult sprite 0) scales up from 0.3 and fades in over frames 0..6,
     // anchored at the field centre.
-    float wordAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 6);
-    float wordScale = InterpolateFloatByFrame(kWordScaleFrom, 1.0f, frame, 0, 6);
+    float wordAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 6);
+    float wordScale = InterpolateFloatByFrame(kWordScaleFrom, 1.0f, animFrame, 0, 6);
     CGSize wordSize = [self.texResult spriteAtIndex:0].size;
     [self.texResult drawSprite:0
                        atPoint:CGPointMake(kWordCentreX - wordSize.width * 0.5,
@@ -760,20 +765,20 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
                          alpha:wordAlpha];
 
     // The clear jingle and voice play once; from frame 10 the rating tally counts up.
-    if (frame < 10) {
-        if (frame == 0) {
+    if (animFrame < 10) {
+        if (animFrame == 0) {
             [[AudioManager sharedManager] playSeResFile:kSeResultClear inDirectory:nil];
             [[AudioManager sharedManager] playSeResFile:kSeVoiceClear inDirectory:nil];
         }
     } else {
-        [self renderRating:frame - 10];
+        [self renderRating:animFrame - 10];
     }
 
-    return frame > 0x3b;
+    return animFrame > 0x3b;
 }
 
 /** @ghidraAddress 0x205628 */
-- (BOOL)renderFailed:(unsigned int)frame {
+- (BOOL)renderFailed:(unsigned int)animFrame {
     static const double kBannerTopY = 352.0;           // @ghidraAddress 0x292a50
     static const double kBannerMidY = 928.0;           // @ghidraAddress 0x293e40
     static const double kFieldWidth = 768.0;           // @ghidraAddress 0x292460
@@ -792,13 +797,13 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
     static NSString *const kSeResultFailed = @"SD_KNT_RESULT_FAILED"; // @ghidraAddress 0x2df980
     static NSString *const kSeVoiceFailed = @"SD_KNT_CV_FAILED";      // @ghidraAddress 0x2df9a0
 
-    float fadeIn = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 0x10);
+    float fadeIn = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 0x10);
     // The binary computes a banner slide offset here but discards it; the banner is drawn at a
     // fixed position. Reproduced for fidelity.
-    if (frame < 0x10) {
-        (void)InterpolateFloatByFrame(kBannerSlideOffscreen, 0.0f, frame, 0, 0x10);
+    if (animFrame < 0x10) {
+        (void)InterpolateFloatByFrame(kBannerSlideOffscreen, 0.0f, animFrame, 0, 0x10);
     } else {
-        (void)InterpolateFloatByFrame(0.0f, kBannerSlideSettle, frame, 0x10, 0x32);
+        (void)InterpolateFloatByFrame(0.0f, kBannerSlideSettle, animFrame, 0x10, 0x32);
     }
 
     // The failed banner: sprite 9 sampled only for its height, then the wider sprite 10 drawn.
@@ -831,9 +836,9 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 
     // The "failed" word (texResult sprite 1) scales up from 0.76 and drops from 46 points above,
     // fading in over frames 0..16, anchored at the field centre.
-    float wordScale = InterpolateFloatByFrame(kWordScaleFrom, 1.0f, frame, 0, 0x10);
+    float wordScale = InterpolateFloatByFrame(kWordScaleFrom, 1.0f, animFrame, 0, 0x10);
     double wordY =
-        (double)InterpolateFloatByFrame(kWordDropFrom, 0.0f, frame, 0, 0x10) + kWordBaseY;
+        (double)InterpolateFloatByFrame(kWordDropFrom, 0.0f, animFrame, 0, 0x10) + kWordBaseY;
     CGSize wordSize = [self.texResult spriteAtIndex:1].size;
     [self.texResult
         drawSprite:1
@@ -845,16 +850,16 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
              alpha:fadeIn];
 
     // The fail jingle and voice play once; from frame 10 the rating tally counts up.
-    if (frame < 10) {
-        if (frame == 0) {
+    if (animFrame < 10) {
+        if (animFrame == 0) {
             [[AudioManager sharedManager] playSeResFile:kSeResultFailed inDirectory:nil];
             [[AudioManager sharedManager] playSeResFile:kSeVoiceFailed inDirectory:nil];
         }
     } else {
-        [self renderRating:frame - 10];
+        [self renderRating:animFrame - 10];
     }
 
-    return frame > 0x3b;
+    return animFrame > 0x3b;
 }
 
 /** @ghidraAddress 0x203240 */
@@ -1000,7 +1005,7 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 }
 
 /** @ghidraAddress 0x203a70 */
-- (void)renderFullcombo:(int)frame isResult:(BOOL)isResult {
+- (void)renderFullcombo:(int)animFrame isResult:(BOOL)isResult {
     static const NSUInteger kFullcomboWordSprite = 2;
     static const NSUInteger kFullcomboGlowSprite = 3;
     static const double kFullcomboX = 8.0;            // fmov, 8.0
@@ -1020,8 +1025,8 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
     }
     // On the result screen the animation is offset 150 frames past its in-game phase; in game it is
     // clamped to that 150-frame window.
-    unsigned int clamped = ((int)frame < 0x97) ? (unsigned int)frame : 0x96;
-    unsigned int f = isResult ? (unsigned int)frame + 0x96 : clamped;
+    unsigned int clamped = ((int)animFrame < 0x97) ? (unsigned int)frame : 0x96;
+    unsigned int f = isResult ? (unsigned int)animFrame + 0x96 : clamped;
     if ((int)f >= 0xa1) {
         return;
     }

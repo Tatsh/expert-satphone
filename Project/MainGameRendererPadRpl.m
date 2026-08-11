@@ -940,7 +940,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
 
     // The shutter-open amount is either advanced from the tension and beat, or held.
-    float shutterOpen;
+    float shutterOpenValue;
     if (drive) {
         float target = tension * kShutterTensionFactor * kTensionScale;
         if (target > 0.0f) {
@@ -948,14 +948,14 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
             float wave = (float)sin(sinArg);
             target = target + (amp - amp * wave);
         }
-        shutterOpen = (target + self->shutterOpen) * kShutterHalf;
-        self->shutterOpen = shutterOpen;
+        shutterOpenValue = (target + self->shutterOpen) * kShutterHalf;
+        self->shutterOpen = shutterOpenValue;
     } else {
-        shutterOpen = self->shutterOpen;
+        shutterOpenValue = self->shutterOpen;
     }
 
     float openInterp = InterpolateFloatByPosition(
-        shutterOpen, 0.0f, kShutterTensionFactor, kBgAppearHighShutter(), 2.79999995f);
+        shutterOpenValue, 0.0f, kShutterTensionFactor, kBgAppearHighShutter(), 2.79999995f);
     (void)openInterp;
 
     // First bar group: each of four rows draws its ripple pair from the shared table, offset by the
@@ -2067,7 +2067,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 }
 
 /** @ghidraAddress 0x11ec14 */
-- (void)renderFullcombo:(int)frame {
+- (void)renderFullcombo:(int)animFrame {
     static const double kCornerBaseX = 0x60; // 96, first corner x
     static const NSUInteger kFullcomboCornerSprite = 0x22;
     static const NSUInteger kFullcomboWordSprite0 = 0x24;
@@ -2084,7 +2084,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         return;
     }
     // On frame 2, cue the full-combo voice and sound effect.
-    if (frame == 2) {
+    if (animFrame == 2) {
         [[AudioManager sharedManager] playSeResFile:@"SD_RPL_RESULT_CLEAR" inDirectory:nil];
         [[AudioManager sharedManager] playSeResFile:@"SD_RPL_CV_FULLCOMBO" inDirectory:nil];
     }
@@ -2098,7 +2098,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     // per iteration over four grid rows.
     int cornerY = 0x60;
     int rowFromTop = 0xf;
-    int animFrame = frame;
+    int animFrame = animFrame;
     for (int row = 0; row < 4; ++row) {
         if (animFrame >= 0) {
             float scale;
@@ -2154,8 +2154,8 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
 
     // The four "FULLCOMBO" word plates fly in, hold, and fly out with their own frame windows.
-    float wordAlpha0 = (frame < 4) ? InterpolateFloatByFrame(0.0f, 1.0f, frame, 4, 4) :
-                                     InterpolateFloatByFrame(1.0f, 0.0f, frame, 0x55, 0x5a);
+    float wordAlpha0 = (animFrame < 4) ? InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 4, 4) :
+                                         InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 0x55, 0x5a);
     [self.texFront drawSprite:kFullcomboWordSprite0
                       atPoint:CGPointMake(kWord0X, kWord2X)
                     transform:0
@@ -2205,7 +2205,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 }
 
 /** @ghidraAddress 0x11f788 */
-- (BOOL)renderExcellent:(unsigned int)frame {
+- (BOOL)renderExcellent:(unsigned int)animFrame {
     static const double kFieldCenterX = 384.0; // @ghidraAddress 0x292470
     static const double kFieldCenterY = 640.0; // @ghidraAddress 0x291d80
     static const float kExcellentPeak = 0.9f;  // An fmov immediate.
@@ -2225,11 +2225,11 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 
     // The main disc scale ramps up over the first 20 frames, holds, then blows out.
     float discScale;
-    if (frame < 0x14) {
-        InterpolateFloatByFrame(0.0f, kExcellentPeak, frame, 10, 0x14);
-        discScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, frame, 10, 0x14);
-    } else if (frame > 0x2e) {
-        unsigned int p = frame - 0x2f;
+    if (animFrame < 0x14) {
+        InterpolateFloatByFrame(0.0f, kExcellentPeak, animFrame, 10, 0x14);
+        discScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, animFrame, 10, 0x14);
+    } else if (animFrame > 0x2e) {
+        unsigned int p = animFrame - 0x2f;
         if ((int)p < 2) {
             InterpolateFloatByFrame(kExcellentPeak, g_flKeyTime040, p, 0, 2);
             discScale = InterpolateFloatByFrame(1.0f, g_flKeyTime080, p, 0, 2);
@@ -2241,12 +2241,12 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
             discScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, p, 2, 10);
         }
     } else {
-        unsigned int p = frame - 0x26;
-        if (frame < 0x26) {
-            p = frame - 0x1d;
+        unsigned int p = animFrame - 0x26;
+        if (animFrame < 0x26) {
+            p = animFrame - 0x1d;
         }
-        if (frame < 0x1d) {
-            p = frame - 0x14;
+        if (animFrame < 0x1d) {
+            p = animFrame - 0x14;
         }
         if ((int)p < 3) {
             discScale = InterpolateFloatByFrame(1.0f, g_flKeyTime080, p, 0, 3);
@@ -2268,18 +2268,18 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                          alpha:0.0f];
 
     // The chip ring: nine chips sweeping into the ring positions over frames 20..46.
-    unsigned int cf = frame - 0x14;
+    unsigned int cf = animFrame - 0x14;
     if (cf < 0x1b) {
         int count = 9;
         double firstX = 197.0;
-        if (frame < 0x1d) {
+        if (animFrame < 0x1d) {
             count = 9;
-        } else if (frame < 0x26) {
+        } else if (animFrame < 0x26) {
             count = 8;
-            cf = frame - 0x1d;
+            cf = animFrame - 0x1d;
         } else {
             count = 6;
-            cf = frame - 0x26;
+            cf = animFrame - 0x26;
             firstX = 288.0;
         }
         float chipScale = (cf < 4) ? InterpolateFloatByFrame(0.0f, 1.0f, cf, 0, 4) :
@@ -2303,13 +2303,13 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
 
     // The "EXCELLENT" word plate scales/wipes in from frame 49.
-    if (frame > 0x30) {
-        unsigned int p = frame - 0x31;
+    if (animFrame > 0x30) {
+        unsigned int p = animFrame - 0x31;
         float wordScale;
         if ((int)p < 8) {
             wordScale = InterpolateFloatByFrame(2.0f, g_flKeyTime080, p, 0, 8);
         } else {
-            wordScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, frame, 8, 10);
+            wordScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, animFrame, 8, 10);
         }
         [self.texResult spriteAtIndex:kExcellentWordSprite];
         [self.texResult drawSprite:kExcellentWordSprite
@@ -2322,7 +2322,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
 
     // The per-phase voice/sound cues.
-    switch (frame) {
+    switch (animFrame) {
     case 0x18:
     case 0x21:
     case 0x2a:
@@ -2339,11 +2339,11 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     (void)kDiscY;
     (void)kDiscSprite();
     (void)kExcellentDiscSprite;
-    return frame > 0x77;
+    return animFrame > 0x77;
 }
 
 /** @ghidraAddress 0x11ffbc */
-- (void)renderRating:(unsigned int)frame {
+- (void)renderRating:(unsigned int)animFrame {
     static const double kRatingLabelX = 208.0;  // @ghidraAddress 0x2929f0
     static const double kRatingLabelY = 656.0;  // @ghidraAddress 0x292520
     static const double kRatingGlyphX = 480.0;  // @ghidraAddress 0x28e020
@@ -2357,18 +2357,19 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     if (rank < 5) {
         unsigned int labelEnd = (rank > 2) ? 7 : 0xe;
         unsigned int scaleEnd = (rank < 3) ? 4 : 3;
-        float labelSlide = InterpolateFloatByFrame(25.0f, 0.0f, frame, 0, labelEnd);
-        float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, labelEnd);
+        float labelSlide = InterpolateFloatByFrame(25.0f, 0.0f, animFrame, 0, labelEnd);
+        float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, labelEnd);
         [self.texResult drawSprite:kRatingLabelSprite
                            atPoint:CGPointMake((double)labelSlide + kRatingLabelX, kRatingLabelY)
                          transform:(char)(int)labelAlpha
                              alpha:0];
         [self.texResult spriteAtIndex:kRatingGlyphSprite];
         float glyphScale;
-        if (frame < scaleEnd) {
-            glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleMid, frame, 0, scaleEnd);
+        if (animFrame < scaleEnd) {
+            glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleMid, animFrame, 0, scaleEnd);
         } else {
-            glyphScale = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, frame, scaleEnd, scaleEnd);
+            glyphScale =
+                InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, scaleEnd, scaleEnd);
         }
         [self.texResult drawSprite:kRatingGlyphSprite
                            atPoint:CGPointMake(kRatingGlyphX - (double)labelAlpha * 0.5,
@@ -2379,23 +2380,24 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                          transform:10
                              alpha:0.0f];
     } else {
-        float labelSlide = InterpolateFloatByFrame(25.0f, 0.0f, frame, 0, 0xd);
-        float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 0xd);
+        float labelSlide = InterpolateFloatByFrame(25.0f, 0.0f, animFrame, 0, 0xd);
+        float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 0xd);
         [self.texResult drawSprite:kRatingLabelSprite
                            atPoint:CGPointMake((double)labelSlide + kRatingLabelX, kRatingLabelY)
                          transform:(char)(int)labelAlpha
                              alpha:0];
         [self.texResult spriteAtIndex:kRatingGlyphSprite];
         float glyphScale;
-        if (frame < 8) {
-            glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleLow, frame, 0, 8);
-        } else if (frame < 0xe) {
+        if (animFrame < 8) {
+            glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleLow, animFrame, 0, 8);
+        } else if (animFrame < 0xe) {
+            glyphScale = InterpolateFloatByFrame(
+                kRatingScaleLow, kFullcomboScaleMidLocal(), animFrame, 8, 0xe);
+        } else if (animFrame < 0x10) {
             glyphScale =
-                InterpolateFloatByFrame(kRatingScaleLow, kFullcomboScaleMidLocal(), frame, 8, 0xe);
-        } else if (frame < 0x10) {
-            glyphScale = InterpolateFloatByFrame(kFullcomboScaleMidLocal(), 1.0f, frame, 0xe, 0x10);
+                InterpolateFloatByFrame(kFullcomboScaleMidLocal(), 1.0f, animFrame, 0xe, 0x10);
         } else {
-            glyphScale = InterpolateFloatByFrame(0.2f, 1.0f, frame, 8, 0xd);
+            glyphScale = InterpolateFloatByFrame(0.2f, 1.0f, animFrame, 8, 0xd);
         }
         [self.texResult drawSprite:kRatingGlyphSprite
                            atPoint:CGPointMake(kRatingGlyphX - (double)labelAlpha * 0.5,
@@ -2409,7 +2411,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 }
 
 /** @ghidraAddress 0x1202e0 */
-- (BOOL)renderCleared:(unsigned int)frame {
+- (BOOL)renderCleared:(unsigned int)animFrame {
     static const double kFieldCenterX = 384.0;    // @ghidraAddress 0x292470
     static const double kFieldCenterY = 640.0;    // @ghidraAddress 0x291d80
     static const double kWordY = 544.0;           // @ghidraAddress 0x292a68
@@ -2422,12 +2424,12 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     // The disc pulses in, then loops a gentle beat scale.
     float scale;
     unsigned int p;
-    if (frame < 0x28) {
+    if (animFrame < 0x28) {
         float from;
         float to;
         unsigned int start;
         unsigned int end;
-        if (frame < 6) {
+        if (animFrame < 6) {
             start = 0;
             end = 6;
             from = 0.0f;
@@ -2438,12 +2440,12 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
             from = 0.13f;
             to = kClearedScaleLow;
         }
-        float base = InterpolateFloatByFrame(from, to, frame, start, end);
-        scale = InterpolateFloatByFrame(kClearedScaleHigh, kClearedScaleMid, frame, 0, 6);
+        float base = InterpolateFloatByFrame(from, to, animFrame, start, end);
+        scale = InterpolateFloatByFrame(kClearedScaleHigh, kClearedScaleMid, animFrame, 0, 6);
         (void)base;
-        p = frame;
+        p = animFrame;
     } else {
-        p = (frame - 0x28) % 0x1e;
+        p = (animFrame - 0x28) % 0x1e;
         if (p < 5) {
             InterpolateFloatByFrame(0.13f, g_flKeyTime040, p, 0, 5);
             scale = InterpolateFloatByFrame(kClearedScaleHigh, 1.0f, p, 0, 5);
@@ -2484,8 +2486,8 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                          alpha:0.0f];
 
     // The "CLEARED" word plate wipes in over the first six frames.
-    float wordAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 6);
-    float wordScale = InterpolateFloatByFrame(kComboFadeBase, 1.0f, frame, 0, 6);
+    float wordAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 6);
+    float wordScale = InterpolateFloatByFrame(kComboFadeBase, 1.0f, animFrame, 0, 6);
     [self.texResult spriteAtIndex:kClearedWordSprite];
     [self.texResult drawSprite:kClearedWordSprite
                        atPoint:CGPointMake(kFieldCenterX - (double)scale * 0.5, kWordY)
@@ -2496,20 +2498,20 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                          alpha:wordAlpha];
 
     // The clear voice/sound on frame 0, then the rating from frame 10.
-    if (frame < 10) {
-        if (frame == 0) {
+    if (animFrame < 10) {
+        if (animFrame == 0) {
             [[AudioManager sharedManager] playSeResFile:@"SD_RPL_RESULT_CLEAR" inDirectory:nil];
             [[AudioManager sharedManager] playSeResFile:@"SD_RPL_CV_CLEAR" inDirectory:nil];
         }
     } else {
-        [self renderRating:frame - 10];
+        [self renderRating:animFrame - 10];
     }
     (void)p;
-    return frame > 0x3b;
+    return animFrame > 0x3b;
 }
 
 /** @ghidraAddress 0x120658 */
-- (BOOL)renderFailed:(unsigned int)frame {
+- (BOOL)renderFailed:(unsigned int)animFrame {
     static const double kFieldCenterX = 384.0;       // @ghidraAddress 0x292470
     static const double kFieldCenterY = 640.0;       // @ghidraAddress 0x291d80
     static const double kWordY = 544.0;              // @ghidraAddress 0x292a68
@@ -2521,13 +2523,13 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const NSUInteger kFailedWordSprite = 1;
 
     // The disc scales in and slides down.
-    float discAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 0x10);
-    float discScale = InterpolateFloatByFrame(kFailedScaleFrom, kFailedScaleTo, frame, 0, 0x10);
+    float discAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 0x10);
+    float discScale = InterpolateFloatByFrame(kFailedScaleFrom, kFailedScaleTo, animFrame, 0, 0x10);
     float slide;
-    if (frame < 0x10) {
-        slide = InterpolateFloatByFrame(-20.0f, 0.0f, frame, 0, 0x10);
+    if (animFrame < 0x10) {
+        slide = InterpolateFloatByFrame(-20.0f, 0.0f, animFrame, 0, 0x10);
     } else {
-        slide = InterpolateFloatByFrame(0.0f, 10.0f, frame, 0x10, 0x32);
+        slide = InterpolateFloatByFrame(0.0f, 10.0f, animFrame, 0x10, 0x32);
     }
     double discY = (double)slide + kFieldCenterY;
     [self.texResult spriteAtIndex:kFailedDiscSprite];
@@ -2541,8 +2543,8 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                          alpha:discAlpha];
 
     // The "FAILED" word plate scales in and drops.
-    float wordScale = InterpolateFloatByFrame(kFailedWordScaleFrom, 1.0f, frame, 0, 0x10);
-    float wordDrop = InterpolateFloatByFrame(kFailedWordDrop, 0.0f, frame, 0, 0x10);
+    float wordScale = InterpolateFloatByFrame(kFailedWordScaleFrom, 1.0f, animFrame, 0, 0x10);
+    float wordDrop = InterpolateFloatByFrame(kFailedWordDrop, 0.0f, animFrame, 0, 0x10);
     double wordY = (double)wordDrop + kWordY;
     [self.texResult spriteAtIndex:kFailedWordSprite];
     [self.texResult drawSprite:kFailedWordSprite
@@ -2555,15 +2557,15 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                          alpha:discAlpha];
 
     // The failed voice/sound on frame 0, then the rating from frame 10.
-    if (frame < 10) {
-        if (frame == 0) {
+    if (animFrame < 10) {
+        if (animFrame == 0) {
             [[AudioManager sharedManager] playSeResFile:@"SD_RPL_RESULT_FAILED" inDirectory:nil];
             [[AudioManager sharedManager] playSeResFile:@"SD_RPL_CV_FAILED" inDirectory:nil];
         }
     } else {
-        [self renderRating:frame - 10];
+        [self renderRating:animFrame - 10];
     }
-    return frame > 0x3b;
+    return animFrame > 0x3b;
 }
 
 /** @ghidraAddress 0x120a58 */

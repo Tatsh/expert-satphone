@@ -230,7 +230,8 @@
     // and later used for ripple layers. Verified at 0x13e17c via isPad check and
     // CAGradientLayer setup similar to Org but with white/clear colours.
     CGRect bounds = self.view.bounds;
-    CGFloat yHorizon = bounds.size.height * 0.7; // DAT_0x291c98 — 0.7, fmul at 0x13e17c
+    yHorizon =
+        (int)(bounds.size.height * 0.7); // DAT_0x291c98 — 0.7, fmul at 0x13e17c, stored to ivar
     // Title background and ripple layers are built here; full details mirror Org's
     // 5-frame tit_cubes animation but with Rpl's palette. The disassembly at 0x13e17c
     // shows the same 5-iteration loop and two CAGradientLayers as Org.

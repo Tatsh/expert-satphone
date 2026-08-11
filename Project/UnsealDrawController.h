@@ -34,11 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
  * Note that it chains to plain @c -init, not to @c -initWithNibName:bundle:, so there is no nib.
  * Neither argument is used until @c -viewDidLoad.
  *
- * @param fileName The encrypted @c .tex resource's base name, with no scale suffix or extension.
+ * @param name The encrypted @c .tex resource's base name, with no scale suffix or extension.
  * @param frame The rectangle the artwork fills, in the loaded view's coordinates.
  * @ghidraAddress 0x15bcf0
  */
-- (instancetype)initWithFileName:(nullable NSString *)fileName frame:(CGRect)frame;
+- (instancetype)initWithFileName:(nullable NSString *)name frame:(CGRect)frame;
 
 @end
 

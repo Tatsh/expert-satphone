@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithURL:(nullable NSURL *)url
              postDictionary:(nullable NSDictionary *)postDictionary
-                   delegate:(nullable id)delegate;
+                   delegate:(nullable id)aDelegate;
 
 /**
  * @brief Builds a signed GET-style request that carries a fresh random @c cnonce.
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised client.
  * @ghidraAddress 0xffb48
  */
-- (instancetype)initWithURL:(nullable NSURL *)url delegate:(nullable id)delegate;
+- (instancetype)initWithURL:(nullable NSURL *)url delegate:(nullable id)aDelegate;
 
 /**
  * @brief Builds a signed POST from a URL and a ready request body.
@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithURL:(nullable NSURL *)url
                    postData:(nullable NSData *)postData
-                   delegate:(nullable id)delegate;
+                   delegate:(nullable id)aDelegate;
 
 /**
  * @brief The request's API tag, used to decide the session-retry behaviour.

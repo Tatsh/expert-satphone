@@ -107,9 +107,9 @@ static const CGFloat kThumbSelectedAlpha = 0.8; // @ghidraAddress 0x28e060
 }
 
 /** @ghidraAddress 0x16fe84 */
-- (void)setFont:(UIFont *)font {
-    [self.secondLabel setFont:font];
-    [self.label setFont:font];
+- (void)setFont:(UIFont *)aFont {
+    [self.secondLabel setFont:aFont];
+    [self.label setFont:aFont];
 }
 
 /** @ghidraAddress 0x16fd84 */
