@@ -35,11 +35,13 @@
 #import "RootViewController.h"
 #import "RotatableNavigationController.h"
 #import "ScoreRecord.h"
+#import "ScoreRecordManager.h"
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
 #import "SettingsNavController.h"
 #import "SharePlayManager.h"
 #import "StoreDialogView.h"
+#import "StoreMusicListManager.h"
 #import "StoreUtil.h"
 #import "TuneInfo.h"
 #import "cipher_keys.h"
@@ -56,6 +58,17 @@ static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
 
 // The advert location the unread-recommendation count is queried for at startup.
 static NSString *const kRecommendAdLocationTop = @"ADL_TOP";
+
+// The not-yet-played list is built by querying score records in batches of this many tunes, with an
+// initial capacity that also allows for each tune's extend-music alias. A one-off migration under
+// this preference clears a stale full-combo-check flag; a store-music entry's real id lives under
+// this dictionary key, and the not-played array keeps only tunes absent from the played set.
+static const NSUInteger kNotYetPlayedBatchSize = 15;
+static const NSUInteger kNotYetPlayedBatchCapacity = 32;
+static const NSUInteger kNotYetPlayedRecordCapacity = 16;
+static NSString *const kPrefFcCheckFlagV2Key = @"PrefFcCheckFlagV2";
+static NSString *const kStoreMusicIDKey = @"ID";
+static NSString *const kNotYetPlayedPredicateFormat = @"NOT (tuneID IN %@)";
 
 // Tapping a push notification posts a read-response to the scratch server carrying the editor id,
 // the notification's push id, and this "tapped" status, keyed under these names.
@@ -1617,6 +1630,92 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 }
 
 #pragma mark - Playlist arrays
+
+/** @ghidraAddress 0x20ff0 */
+- (void)createArrayNotYetPlayed {
+    arrayNotPlayedTune = [[NSMutableArray alloc] initWithArray:arrayAllTune];
+    NSManagedObjectContext *context = ScoreRecordManager.sharedManager.managedObjectContext;
+    NSUInteger tuneCount = arrayAllTune.count;
+    NSDictionary *extendMusic = StoreMusicListManager.sharedManager.extendMusicDictionary;
+    NSDictionary *originalMusic = StoreMusicListManager.sharedManager.originalMusicDictionary;
+    // One-off migration: the v1 full-combo-check flag was stored per record; clear any that are
+    // still set, saving each, then mark the migration done unless a record still reports it.
+    if (![NSUserDefaults.standardUserDefaults boolForKey:kPrefFcCheckFlagV2Key]) {
+        for (ScoreRecord *record in [ScoreRecord allRecords]) {
+            if (record.fcCheck.boolValue) {
+                record.fcCheck = @(NO);
+                NSError *error = nil;
+                if (![ScoreRecordManager.sharedManager.managedObjectContext save:&error]) {
+                    NSArray *detailed = error.userInfo[NSDetailedErrorsKey];
+                    if (detailed.count != 0) {
+                        for (NSError *sub in detailed) {
+                            (void)sub; // The binary enumerates the detailed errors without acting.
+                        }
+                    }
+                }
+            }
+        }
+        BOOL anyChecked = NO;
+        for (ScoreRecord *record in [ScoreRecord allRecords]) {
+            anyChecked |= record.fcCheck.boolValue;
+        }
+        if (!anyChecked) {
+            [NSUserDefaults.standardUserDefaults setBool:@(YES).boolValue
+                                                  forKey:kPrefFcCheckFlagV2Key];
+        }
+    }
+    // Walk the full tune list in batches, resolving each tune's played records (plus any extend
+    // alias) and removing the tunes that have a scored record from the not-played list.
+    for (NSUInteger start = 0; start < tuneCount;) {
+        NSUInteger batch = tuneCount - start;
+        if (batch > kNotYetPlayedBatchSize) {
+            batch = kNotYetPlayedBatchSize;
+        }
+        NSMutableArray *tuneIDs =
+            [[NSMutableArray alloc] initWithCapacity:kNotYetPlayedBatchCapacity];
+        for (NSUInteger i = 0; i < batch; ++i) {
+            TuneInfo *tune = arrayAllTune[start + i];
+            [tuneIDs addObject:@((unsigned int)tune.tuneID)];
+            id aliasID = extendMusic[@((unsigned int)tune.tuneID)][kStoreMusicIDKey];
+            if (aliasID != nil) {
+                [tuneIDs addObject:aliasID];
+            }
+        }
+        NSArray<ScoreRecord *> *records = [ScoreRecord recordsForTuneIDs:tuneIDs];
+        if (records.count != 0) {
+            // The scored tune ids in this batch, plus the original-music aliases of any that map
+            // back to a different real id.
+            NSMutableArray *scoredIDs =
+                [[NSMutableArray alloc] initWithCapacity:kNotYetPlayedRecordCapacity];
+            for (ScoreRecord *record in records) {
+                if (![scoredIDs containsObject:@(record.tuneID)] &&
+                    [ScoreRecord checkScore:record]) {
+                    [scoredIDs addObject:@(record.tuneID)];
+                }
+            }
+            NSMutableArray *aliasIDs = [[NSMutableArray alloc] init];
+            for (NSInteger i = (NSInteger)scoredIDs.count - 1; i >= 0; --i) {
+                id original = originalMusic[scoredIDs[i]];
+                if (original != nil) {
+                    id originalID = original[kStoreMusicIDKey];
+                    if ([scoredIDs indexOfObject:originalID] == NSNotFound) {
+                        [aliasIDs addObject:original[kStoreMusicIDKey]];
+                    }
+                }
+            }
+            if (aliasIDs.count != 0) {
+                [scoredIDs addObjectsFromArray:aliasIDs];
+            }
+            if (scoredIDs.count != 0) {
+                NSPredicate *predicate =
+                    [NSPredicate predicateWithFormat:kNotYetPlayedPredicateFormat, scoredIDs];
+                [arrayNotPlayedTune filterUsingPredicate:predicate];
+            }
+        }
+        [context reset];
+        start += batch;
+    }
+}
 
 /** @ghidraAddress 0x21bbc */
 - (void)createArrayLevel:(int)level {
