@@ -621,7 +621,10 @@ static const float kGridZoomMax = 1.0f;
                      kSectorBasePos);
     [self renderBaseLine:startX lineType:4 alpha:alpha];
 
-    const EditSequenceEvent *paste = [self.sequence getSequencePasteTable];
+    // EditSequence vends the shared 20-byte record typed as a SequenceEvent; the edit renderer
+    // reads it through the edit-domain field names of the same-size EditSequenceEvent.
+    const EditSequenceEvent *paste =
+        (const EditSequenceEvent *)[self.sequence getSequencePasteTable];
     if (paste->type == EditSequenceEventTypeMeasure) {
         return;
     }
@@ -704,7 +707,9 @@ static const float kGridZoomMax = 1.0f;
     float zoom = self->dotBySec;
 
     int conflict = self->conflictDot;
-    const EditSequenceEvent *events = [self.sequence getSequenceEventTable];
+    // Reinterpret the shared 20-byte record (see -renderPasteFrame:) through the edit field names.
+    const EditSequenceEvent *events =
+        (const EditSequenceEvent *)[self.sequence getSequenceEventTable];
 
     /** @ghidraAddress 0x2934a4 (-100) */
     static const float kLeftEdgeSectors = -100.0f;

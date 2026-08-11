@@ -41,8 +41,10 @@ typedef NS_CLOSED_ENUM(short, EditSequenceEventType) {
  *
  * The record's layout is recovered from the edit renderer's traversal (a stride of @c 0x14 bytes);
  * the type is at @c +0x0 , a bpm measure number at @c +0x2 , the dot position at @c +0x4 , the note
- * key index at @c +0x8 , and a bar's end position at @c +0xc . Its true owner is @c EditSequence ;
- * it is declared here because that class is not yet reconstructed.
+ * key index at @c +0x8 , and a bar's end position at @c +0xc . It is the same 20-byte record
+ * @c EditSequence stores as a @c SequenceEvent, viewed through the edit renderer's field names, so
+ * it carries a trailing reserved word at @c +0x10 to keep the stride at 20 bytes. Its true owner is
+ * @c EditSequence .
  */
 typedef struct EditSequenceEvent {
     EditSequenceEventType type; // +0x00
@@ -50,6 +52,7 @@ typedef struct EditSequenceEvent {
     unsigned int position;      // +0x04 The event's dot position.
     int keyIndex;               // +0x08 The 0..15 panel index of a note.
     int endPosition;            // +0x0c A bar's end dot position.
+    unsigned int reserved;      // +0x10 Unread by the renderer; present so the stride is 20 bytes.
 } EditSequenceEvent;
 
 /**
