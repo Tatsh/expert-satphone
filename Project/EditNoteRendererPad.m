@@ -12,9 +12,10 @@
 #import "cipher_keys.h"
 #import "neEngineBridge.h"
 
-// The engine's pi and 0.2 background constants, declared where used.
-extern const double g_dPi;              // @ghidraAddress 0x28f278
-extern const double g_dAnimDuration020; // @ghidraAddress 0x28f240 (0.2)
+// The engine's pi and 0.2 background constants, from the __const pool. Defined file-locally as in
+// the other renderers rather than shared, matching how the binary inlines each pool load.
+static const double g_dPi = 3.141592653589793; // @ghidraAddress 0x28f278
+static const double g_dAnimDuration020 = 0.2;  // @ghidraAddress 0x28f240
 
 // The C standard library sine, imported for the beat pulse.
 extern double sin(double);
