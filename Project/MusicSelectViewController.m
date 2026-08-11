@@ -2232,6 +2232,61 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     [self setSearchEnable:NO];
 }
 
+/** @ghidraAddress 0x33980 */
+- (void)resumeJcfDownload {
+    if (JubeatAppDelegate.appDelegate.jcfDownloadID == nil) {
+        return;
+    }
+    if (isMarkerSelectOpen) {
+        __weak MarkerSelectView *weakMarkerSelect = markerSelectView;
+        __weak UIButton *weakMarker = btnMarker;
+        __weak UIView *weakCover = nil;
+        [markerSelectView close];
+        __weak MusicDetailView *weakDetail = musicDetailView;
+        __weak UIView *weakMarkerCover = markerSelectCover;
+        [UIView animateWithDuration:kMenuBgmResumeFade
+            animations:^{
+              /** @ghidraAddress 0x33d6c */
+              weakMarkerSelect.transform = CGAffineTransformIdentity;
+              weakMarker.transform = CGAffineTransformIdentity;
+              weakCover.alpha = 0.0;
+            }
+            completion:^(BOOL finished) {
+              /** @ghidraAddress 0x33eb4 */
+              if (weakDetail.superview != nil) {
+                  [weakDetail activateAnim:YES];
+              }
+              weakCover.hidden = YES;
+              weakMarkerSelect.hidden = YES;
+              weakMarkerCover.hidden = YES;
+            }];
+    }
+    BOOL noDetailOpen = selectedMusicView == nil;
+    if (!noDetailOpen) {
+        [self closeDetailView];
+    }
+    if (isPad) {
+        [self dismissViewControllerAnimated:NO
+                                 completion:^{
+                                 }];
+    }
+    if (bOpenModal) {
+        if (bOpenSetting) {
+            [settingsNavCtrl settingClose];
+        }
+        [self dismissViewControllerAnimated:NO
+                                 completion:^{
+                                   /** @ghidraAddress 0x34020 */
+                                   [self JcfDownLoad];
+                                 }];
+        bOpenModal = NO;
+        [self musicShuffleEnable];
+        [self setSearchEnable:YES];
+    } else if (noDetailOpen) {
+        [self JcfDownLoad];
+    }
+}
+
 /** @ghidraAddress 0x32e34 */
 - (void)JcfDownLoadTopPage {
     if (jubeatLabURL == nil) {
