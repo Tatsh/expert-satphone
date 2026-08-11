@@ -87,7 +87,7 @@ enum { kOptionDropSizePad = 0x96, kOptionDropSizePhone = 0x4b };
 static const int kDisplayLinkFrameInterval = 2;
 
 // The number of swipe recognisers installed (up, down, left, right).
-enum { kSwipeRecognizerCount = 4 };
+static const int kSwipeRecognizerCount = 4;
 
 // The pulsing prompt-blink fast repeat count used by nextScene (fmov 0x41200000).
 static const float kNextSceneBlinkRepeatCount = 10.0f;
