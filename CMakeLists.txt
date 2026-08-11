@@ -124,11 +124,6 @@ target_include_directories(jubeat PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Project")
 
 add_subdirectory(Project)
 
-# --- Vendored TouchJSON (3rdparty/) --------------------------------------------------------
-# TouchJSON provides the JSON scanner/serialiser the CJSON* classes wrap. Its headers are
-# vendored under 3rdparty/TouchJSON; the reconstructed CJSON* implementations live in Project/.
-target_include_directories(jubeat PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/TouchJSON")
-
 # --- minizip unzip engine (reconstructed, in Project/) -------------------------------------
 # The .zip extraction KUnzip drives (the unz* reading API and the zlib_filefunc_def custom I/O
 # table) is minizip statically linked into the shipped binary. It is being reconstructed into
