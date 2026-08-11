@@ -10,6 +10,7 @@
 #import "Sequence.h"
 #import "Texture2D.h"
 #import "TextureLoading.h"
+#import "UpperBGKnit.h"
 #import "neEngineBridge.h"
 
 // The ready/go countdown runs for two and a half seconds on the Knit pad renderer.
@@ -409,6 +410,22 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 }
 
 @implementation MainGameRendererPadKnt
+
+/** @ghidraAddress 0x1fdf14 */
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.arrayBgEff = [[NSMutableArray alloc] init];
+        self.upperBgKnt = [[UpperBGKnit alloc] init];
+        [self.upperBgKnt initBg:CGRectMake(0.0, 0.0, 768.0, 256.0)
+                     waveBottom:150.0f
+                        waveTop:20.0f
+                    pulseHeight:30.0f
+                          isPad:YES];
+        self->effFrame = 0;
+    }
+    return self;
+}
 
 /** @ghidraAddress 0x20036c */
 - (void)releaseTexture {
