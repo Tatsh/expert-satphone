@@ -253,7 +253,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
     // every initialisation of the singleton is serialised against its other work.
     __block RecommendCore *result = nil;
     dispatch_sync(g_hRecommendCoreQueue, ^{
-      /** @ghidraAddress 0x268bc4 */
+      /** @ghidraAddress 0x268be8 */
       result = [super init];
     });
     return result;
@@ -425,7 +425,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
 
 - (void)appliListWithCallBack:(void (^)(id _Nullable list, NSError *_Nullable error))callback {
     [self startSessionWithCallback:^(NSError *_Nullable error) {
-      /** @ghidraAddress 0x269e18 */
+      /** @ghidraAddress 0x269e1c */
       if (error != nil) {
           callback(nil, error);
           return;

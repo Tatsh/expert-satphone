@@ -97,10 +97,12 @@ static inline void InheritCodeInputViewShowReplaceDoneLabel(InheritCodeInputView
                           delay:0
                         options:UIViewAnimationOptionCurveLinear
                      animations:^{
-                       /** @ghidraAddress 0xd1650 */
+                       /** @ghidraAddress 0xd1718 */
                        weakLabel.alpha = 1.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0xd1764 */
+                     }];
 }
 
 @implementation InheritCodeInputView
