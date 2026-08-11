@@ -6,6 +6,7 @@
 #import "ChallengeMissionListCell.h"
 #import "ChallengeMissionReward.h"
 #import "ChallengeMissionSheet.h"
+#import "ChallengeModeRootView.h"
 #import "ChallengeRewardListCell.h"
 #import "ChallengeStatus.h"
 #import "ImageLoading.h"
@@ -68,13 +69,17 @@ enum {
     kSessionErrorAlertTag = 9999,
     // The event-sheet period substring "YYYY-MM-DDThh:mm"; anything shorter has no period.
     kMinimumPeriodLength = 0x11,
-    // The empty-state font size, and the pad/phone title top offsets.
-    kEmptyLabelFontSize = 24.0,
 };
+
+// The empty-state label font size.
+static const CGFloat kEmptyLabelFontSize = 24.0;
 
 // The animation duration read from the __const pool at 0x28e040; options 0x30000 is
 // UIViewAnimationOptionCurveLinear.
 static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddress 0x28e040
+
+@interface ChallengeMissionPageView () <AlertViewManagerDelegate>
+@end
 
 @implementation ChallengeMissionPageView {
     UIImageView *titleImageView;
@@ -243,7 +248,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
 
 /** @ghidraAddress 0xab448 */
 - (void)tapListBtn:(id)sender {
-    int list = (int)[sender tag];
+    int list = (int)[(UIView *)sender tag];
     if (list == selectedList) {
         return;
     }
@@ -379,7 +384,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
 
 /** @ghidraAddress 0xabdc8 */
 - (void)downloaderFinished:(id)downloader {
-    int tag = (int)[downloader tag];
+    int tag = (int)[(Downloader *)downloader tag];
     NSDictionary *json = [downloader getDataInJSON];
     if ([json[kStatusKey] intValue] != 0) {
         [self challengeConnectError:json];
@@ -482,7 +487,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
 
 /** @ghidraAddress 0xacf9c */
 - (void)downloaderError:(id)downloader {
-    if ((int)[downloader tag] == ChallengeMissionListKindReward) {
+    if ((int)[(Downloader *)downloader tag] == ChallengeMissionListKindReward) {
         missionListBtn.enabled = YES;
         rewardListBtn.enabled = YES;
     }
@@ -496,7 +501,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
                                           title:nil
                                             msg:message
                                          cancel:@""
-                                        btnText:ok
+                                        btnText:@[ ok ]
                                            show:YES];
 }
 
@@ -524,7 +529,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
                                                   title:nil
                                                     msg:message
                                                  cancel:@""
-                                                btnText:ok
+                                                btnText:@[ ok ]
                                                    show:YES];
             return;
         }
@@ -540,7 +545,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
                                                   title:nil
                                                     msg:message
                                                  cancel:@""
-                                                btnText:ok
+                                                btnText:@[ ok ]
                                                    show:YES];
             return;
         }
@@ -558,7 +563,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
                                           title:nil
                                             msg:message
                                          cancel:@""
-                                        btnText:ok
+                                        btnText:@[ ok ]
                                            show:YES];
 }
 
