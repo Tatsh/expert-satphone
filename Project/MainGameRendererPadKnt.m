@@ -490,6 +490,113 @@ MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *s
     return frame > 0x3b;
 }
 
+/** @ghidraAddress 0x203a70 */
+- (void)renderFullcombo:(int)frame isResult:(BOOL)isResult {
+    static const NSUInteger kFullcomboWordSprite = 2;
+    static const NSUInteger kFullcomboGlowSprite = 3;
+    static const double kFullcomboX = 8.0;            // fmov, 8.0
+    static const float kFullcomboStartY = 160.0f;     // @ghidraAddress 0x28e014
+    static const float kFullcomboTopTargetY = 352.0f; // @ghidraAddress 0x292a50
+    static const float kFullcomboMidTargetY = 928.0f; // @ghidraAddress 0x293e40
+    static const float kFullcomboBounceScale = 1.4f;  // @ghidraAddress 0x292af0
+    static const float kFullcomboThirdBaseY = 464.0f; // @ghidraAddress 0x293e60
+    static const float kFullcomboExitSlide = 192.0f;  // @ghidraAddress 0x2925a0
+    static const float kFullcomboGlowAlpha = 0.5f;    // fmov, 0.5
+    static NSString *const kSeResultFullcombo =
+        @"SD_KNT_RESULT_FULLCOMBO";                                    // @ghidraAddress 0x2df860
+    static NSString *const kSeVoiceFullcombo = @"SD_KNT_CV_FULLCOMBO"; // @ghidraAddress 0x2df880
+
+    if (self.scoreBackup) {
+        return;
+    }
+    // On the result screen the animation is offset 150 frames past its in-game phase; in game it is
+    // clamped to that 150-frame window.
+    unsigned int clamped = ((int)frame < 0x97) ? (unsigned int)frame : 0x96;
+    unsigned int f = isResult ? (unsigned int)frame + 0x96 : clamped;
+    if ((int)f >= 0xa1) {
+        return;
+    }
+    if (f == 2) {
+        [[AudioManager sharedManager] playSeResFile:kSeResultFullcombo inDirectory:nil];
+        [[AudioManager sharedManager] playSeResFile:kSeVoiceFullcombo inDirectory:nil];
+    }
+    CGSize wordSize = [self.texCombo spriteAtIndex:kFullcomboWordSprite].size;
+    float topTargetY = (float)((double)kFullcomboTopTargetY - wordSize.height * 0.5);
+    float midTargetY = (float)((double)kFullcomboMidTargetY - wordSize.height * 0.5);
+    if ((int)f < 0x96) {
+        // The slide-in phase: the top copy slides to its target over six frames, the mid copy over
+        // twenty-four, with a scale bounce on frames 28..37.
+        float topY = InterpolateFloatByFrame(kFullcomboStartY, topTargetY, f, 0, 6);
+        float midY = InterpolateFloatByFrame(kFullcomboStartY, midTargetY, f, 0, 0x18);
+        if ((int)f > 0x1c && (int)(f - 0x1c) < 10) {
+            unsigned int b = f - 0x1c;
+            float bounce = InterpolateFloatByFrame(1.0f, kFullcomboBounceScale, b, 0, 5);
+            if ((int)b > 5) {
+                bounce = InterpolateFloatByFrame(kFullcomboBounceScale, 1.0f, b, 5, 10);
+            }
+            double scaledH = (float)(wordSize.height * (double)bounce);
+            float centre = (float)((wordSize.height - scaledH) * 0.5);
+            [self.texCombo
+                drawSprite:kFullcomboGlowSprite
+                    inRect:CGRectMake(kFullcomboX, (double)(topY + centre), wordSize.width, scaledH)
+                 transform:0
+                     alpha:kFullcomboGlowAlpha];
+            [self.texCombo
+                drawSprite:kFullcomboGlowSprite
+                    inRect:CGRectMake(kFullcomboX, (double)(midY + centre), wordSize.width, scaledH)
+                 transform:0
+                     alpha:kFullcomboGlowAlpha];
+        }
+        [self.texCombo drawSprite:kFullcomboWordSprite
+                          atPoint:CGPointMake(kFullcomboX, (double)topY)];
+        [self.texCombo drawSprite:kFullcomboWordSprite
+                          atPoint:CGPointMake(kFullcomboX, (double)midY)];
+        if ((int)f > 0x17) {
+            return;
+        }
+        // A third copy slides up from the start position through the base Y to the mid target over
+        // frames 0..24, with its own scale bounce.
+        float thirdY = InterpolateFloatByFrame(kFullcomboStartY, kFullcomboThirdBaseY, f, 0, 6);
+        unsigned int b = f - 6;
+        if (b != 0 && (int)f > 5) {
+            thirdY = InterpolateFloatByFrame(kFullcomboThirdBaseY, midTargetY, f, 6, 0x18);
+        }
+        float scaleFrom = ((int)b < 6) ? 1.0f : 3.0f;
+        float scaleTo = ((int)b < 6) ? 3.0f : 1.0f;
+        unsigned int scaleStart = ((int)b < 6) ? 0 : 6;
+        unsigned int scaleEnd = ((int)b < 6) ? 6 : 0x12;
+        float thirdScale = InterpolateFloatByFrame(scaleFrom, scaleTo, b, scaleStart, scaleEnd);
+        if ((int)f > 5) {
+            double scaledH = (float)(wordSize.height * (double)thirdScale);
+            float centre = (float)((wordSize.height - scaledH) * 0.5);
+            [self.texCombo
+                drawSprite:kFullcomboGlowSprite
+                    inRect:CGRectMake(
+                               kFullcomboX, (double)(thirdY + centre), wordSize.width, scaledH)
+                 transform:0
+                     alpha:kFullcomboGlowAlpha];
+            return;
+        }
+        // Frames 0..5: the third copy is drawn as a plain glow at its slide position.
+        [self.texCombo drawSprite:kFullcomboGlowSprite
+                          atPoint:CGPointMake(kFullcomboX, (double)thirdY)
+                        transform:0
+                            alpha:kFullcomboGlowAlpha];
+        return;
+    }
+    // The result exit (frames 150..160): the copies fade out and slide apart by up to 192 points.
+    float exitAlpha = InterpolateFloatByFrame(1.0f, 0.0f, f - 0x96, 0, 10);
+    float slide = InterpolateFloatByFrame(0.0f, kFullcomboExitSlide, f - 0x96, 0, 10);
+    [self.texCombo drawSprite:kFullcomboWordSprite
+                      atPoint:CGPointMake(kFullcomboX, (double)(topTargetY + slide))
+                    transform:0
+                        alpha:exitAlpha];
+    [self.texCombo drawSprite:kFullcomboWordSprite
+                      atPoint:CGPointMake(kFullcomboX, (double)(midTargetY - slide))
+                    transform:0
+                        alpha:exitAlpha];
+}
+
 /** @ghidraAddress 0x20186c */
 - (void)renderCombo:(unsigned int)combo alpha:(float)alpha {
     if (self.scoreBackup) {
