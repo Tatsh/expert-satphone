@@ -172,7 +172,7 @@ static const CGFloat kLogoVisible = 1.0;
     NSTimeInterval delay = 0.0;
 
     switch (state) {
-    case kLogoAnimationStateWhitenBackground:
+    case kLogoAnimationStateWhitenBackground: {
         state = kLogoAnimationStateFadeInKonamiLogo;
         animations = ^{
           /** @ghidraAddress 0x82e1c */
@@ -181,8 +181,8 @@ static const CGFloat kLogoVisible = 1.0;
         duration = kFadeInDuration;
         delay = 0.0;
         break;
-
-    case kLogoAnimationStateFadeInKonamiLogo:
+    }
+    case kLogoAnimationStateFadeInKonamiLogo: {
         state = kLogoAnimationStateFadeOutKonamiLogo;
         animations = ^{
           /** @ghidraAddress 0x82ea0 */
@@ -191,8 +191,8 @@ static const CGFloat kLogoVisible = 1.0;
         duration = kFadeInDuration;
         delay = kFadeInDelay;
         break;
-
-    case kLogoAnimationStateFadeOutKonamiLogo:
+    }
+    case kLogoAnimationStateFadeOutKonamiLogo: {
         state = kLogoAnimationStateFadeInBemaniLogo;
         animations = ^{
           /** @ghidraAddress 0x82ed0 */
@@ -201,8 +201,8 @@ static const CGFloat kLogoVisible = 1.0;
         duration = kFadeOutDuration;
         delay = kFadeOutDelay;
         break;
-
-    case kLogoAnimationStateFadeInBemaniLogo:
+    }
+    case kLogoAnimationStateFadeInBemaniLogo: {
         state = kLogoAnimationStateFadeOutBemaniLogo;
         // The screen only becomes tappable here, so the Konami logo cannot be skipped.
         [self.view addGestureRecognizer:[[UITapGestureRecognizer alloc]
@@ -215,8 +215,8 @@ static const CGFloat kLogoVisible = 1.0;
         duration = kFadeInDuration;
         delay = kFadeInDelay;
         break;
-
-    case kLogoAnimationStateFadeOutBemaniLogo:
+    }
+    case kLogoAnimationStateFadeOutBemaniLogo: {
         state = kLogoAnimationStateFadeInNonageCaution;
         animations = ^{
           /** @ghidraAddress 0x82f30 */
@@ -225,8 +225,8 @@ static const CGFloat kLogoVisible = 1.0;
         duration = kFadeOutDuration;
         delay = kFadeOutDelay;
         break;
-
-    case kLogoAnimationStateFadeInNonageCaution:
+    }
+    case kLogoAnimationStateFadeInNonageCaution: {
         // Steps to 7, not 6, so the notice is never faded out and the guard above takes over.
         state = kLogoAnimationStateFadeOutNonageCaution;
         animations = ^{
@@ -236,13 +236,13 @@ static const CGFloat kLogoVisible = 1.0;
         duration = kFadeInDuration;
         delay = kFadeInDelay;
         break;
-
-    case kLogoAnimationStateIdle:
+    }
+    case kLogoAnimationStateIdle: {
         // Reached only when -handleTap: has taken over and parked the sequence here. Doing nothing
         // is the point: it swallows the completion of the animation the tap interrupted.
         return;
-
-    case kLogoAnimationStateFadeOutNonageCaution:
+    }
+    case kLogoAnimationStateFadeOutNonageCaution: {
         // Unreachable: the guard at the top of this method catches 7 before the switch.
         state = kLogoAnimationStateFinished;
         animations = ^{
@@ -252,9 +252,10 @@ static const CGFloat kLogoVisible = 1.0;
         duration = kFadeOutDuration;
         delay = kNonageCautionHold;
         break;
-
-    default:
+    }
+    default: {
         break;
+    }
     }
 
     [UIView animateWithDuration:duration
