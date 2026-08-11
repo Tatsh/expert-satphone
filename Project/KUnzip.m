@@ -144,7 +144,7 @@ extern int KUnzip_ferror_mem_func(voidpf opaque, voidpf stream); // 0x76b34
             filefunc.zclose_file = KUnzip_fclose_filehandle_func;
             filefunc.zerror_file = KUnzip_ferror_filehandle_func;
             filefunc.opaque = (__bridge voidpf)self;
-            zipfile = unzOpenInternal(path.UTF8String, &filefunc);
+            zipfile = unzOpenInternal((voidpf)path.UTF8String, &filefunc);
             if (zipfile == nullptr) {
                 return nil;
             }

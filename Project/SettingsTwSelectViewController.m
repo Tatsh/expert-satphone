@@ -520,11 +520,11 @@ static const NSTimeInterval kFadeInDuration = 0.2; // @ghidraAddress 0x28e040
 - (void)scrollChange:(id)sender {
     CGFloat contentWidth = scrollView.contentSize.width;
     NSInteger pageCount = frameTable.count;
-    if ([sender tag] == 0) {
+    if ([(UIView *)sender tag] == 0) {
         --itemPage;
     }
     int page = itemPage;
-    if ([sender tag] == 1) {
+    if ([(UIView *)sender tag] == 1) {
         ++itemPage;
         page = itemPage;
     }

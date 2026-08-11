@@ -131,8 +131,10 @@ static inline CGPoint HoldMarkerRenderPanelOrigin(HoldMarkerRender *self, int pa
     float shrink = isPad ? kLineShrinkPad : kLineShrinkPhone;
     double pitch = isPad ? kPanelPitchPad : kPanelPitchPhone;
 
-    // Uninitialised on the default path — see below.
-    CGRect rect;
+    // The binary leaves rect holding whatever the caller left in its registers on the default
+    // path (see the default arm below); zero-initialise it here so the reachable arms are
+    // unaffected while the default path stays defined.
+    CGRect rect = CGRectZero;
     switch (vector) {
     case kHoldVectorUp:
         // Vertical, anchored on the start panel's column.
