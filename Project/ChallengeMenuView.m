@@ -402,7 +402,7 @@ static const UIViewAnimationOptions kVerifyFadeOptions = UIViewAnimationOptionCu
     cell.tag = indexPath.row;
     cell.aDelegate = self;
     UIImage *rowImage =
-        LoadScaledPngImage([NSString stringWithFormat:kRowImageFormat, indexPath.row]);
+        LoadScaledPngImage([NSString stringWithFormat:kRowImageFormat, (int)indexPath.row]);
     [cell setBgImage:rowImage numImage:numImageArray];
     if (indexPath.row == 0) {
         [cell setNumber:[ChallengeStatus sharedStatus].presentNum];

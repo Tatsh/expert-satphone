@@ -315,7 +315,7 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
     element.accessibilityFrame = [self.window convertRect:segmentRect fromView:self];
     element.accessibilityTraits = UIAccessibilityTraitNone;
 
-    if (self.selectedIndex == index) {
+    if (self.selectedIndex == (NSUInteger)index) {
         element.accessibilityTraits = element.accessibilityTraits | UIAccessibilityTraitSelected;
     } else if (!self.isEnabled) {
         element.accessibilityTraits = element.accessibilityTraits | UIAccessibilityTraitNotEnabled;
@@ -469,7 +469,7 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
         self.thumb.secondLabel.text = self.titlesArray[hoverIndex - 1];
         self.thumb.secondLabel.alpha =
             0.5 - ((self.thumb.center.x / self.segmentWidth) - hoverIndex);
-    } else if (hoverIndex + 1 < self.titlesArray.count) {
+    } else if ((NSUInteger)(hoverIndex + 1) < self.titlesArray.count) {
         self.thumb.label.alpha =
             0.5 + (1 - ((self.thumb.center.x / self.segmentWidth) - hoverIndex));
         self.thumb.secondLabel.text = self.titlesArray[hoverIndex + 1];

@@ -66,7 +66,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
     self.scrView.showsHorizontalScrollIndicator = NO;
 
     for (NSInteger page = 1; page <= kPageCount; ++page) {
-        NSString *imageName = [NSString stringWithFormat:kHowtoImageNameFormat, page];
+        NSString *imageName = [NSString stringWithFormat:kHowtoImageNameFormat, (int)page];
         UIImage *image = LoadScaledPngImage(imageName);
         if (image) {
             UIImageView *imageView = [[UIImageView alloc] initWithImage:image];

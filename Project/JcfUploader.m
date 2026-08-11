@@ -1,6 +1,7 @@
 #import "JcfUploader.h"
 
 #import <Security/Security.h>
+#import <UIKit/UIKit.h>
 
 #import "EditorIDManager.h"
 #import "jubeatLabAccess.h"

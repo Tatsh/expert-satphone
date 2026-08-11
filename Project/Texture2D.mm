@@ -159,7 +159,8 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                                         8,
                                         bytesPerRow,
                                         deviceRGB,
-                                        kCGImageAlphaNoneSkipLast | kCGBitmapByteOrder32Big);
+                                        (uint32_t)kCGImageAlphaNoneSkipLast |
+                                            (uint32_t)kCGBitmapByteOrder32Big);
         CGColorSpaceRelease(deviceRGB);
         break;
     }
@@ -173,7 +174,8 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                                         8,
                                         bytesPerRow,
                                         deviceRGB,
-                                        kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+                                        (uint32_t)kCGImageAlphaPremultipliedLast |
+                                            (uint32_t)kCGBitmapByteOrder32Big);
         CGColorSpaceRelease(deviceRGB);
         break;
     }
@@ -300,7 +302,8 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                                         8,
                                         width * 3,
                                         deviceRGB,
-                                        kCGImageAlphaNoneSkipLast | kCGBitmapByteOrder32Big);
+                                        (uint32_t)kCGImageAlphaNoneSkipLast |
+                                            (uint32_t)kCGBitmapByteOrder32Big);
         CGColorSpaceRelease(deviceRGB);
         uploadFormat = GL_RGB;
         break;
@@ -314,7 +317,8 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                                         8,
                                         width * 4,
                                         deviceRGB,
-                                        kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+                                        (uint32_t)kCGImageAlphaPremultipliedLast |
+                                            (uint32_t)kCGBitmapByteOrder32Big);
         CGColorSpaceRelease(deviceRGB);
         uploadFormat = GL_RGBA;
         break;

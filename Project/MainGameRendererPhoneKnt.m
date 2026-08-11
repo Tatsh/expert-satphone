@@ -23,6 +23,18 @@
 #import "combo_display.h"
 #import "neEngineBridge.h"
 
+// One entry of the knit background-effect schedule: after @c threshold frames, spawn an
+// @c EffectBgKnit of @c effType at (@c startX, @c startY) with the given width range and move.
+typedef struct {
+    int threshold;
+    int effType;
+    int startX;
+    int startY;
+    int wmin;
+    int wmax;
+    int move;
+} MainGamePhoneKntBgEffectSpec;
+
 // ==== CONSTANTS ====
 
 // The knit renderer enters the playing state (3) from -startPlay and marks the result state (5)

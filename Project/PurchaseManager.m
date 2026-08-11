@@ -160,7 +160,7 @@ NSString *CreateRandomString(int length);
     }
     NSString *nonce = CreateRandomString(0x10);
     NSMutableDictionary *dict =
-        [[NSMutableDictionary alloc] initWithDictionary:JubeatAppDelegate.appDelegate.clientInfo];
+        [[NSMutableDictionary alloc] initWithDictionary:JubeatAppDelegate.clientInfo];
     dict[@"receipt"] = receipt;
     dict[@"target"] = @"JP";
     dict[@"sku"] = sku;
@@ -186,7 +186,7 @@ NSString *CreateRandomString(int length);
     }
     NSString *nonce = CreateRandomString(0x10);
     NSMutableDictionary *dict =
-        [[NSMutableDictionary alloc] initWithDictionary:JubeatAppDelegate.appDelegate.clientInfo];
+        [[NSMutableDictionary alloc] initWithDictionary:JubeatAppDelegate.clientInfo];
     dict[@"receiptdata"] = receipt;
     dict[@"target"] = @"JP";
     dict[@"nonce"] = nonce;
@@ -233,7 +233,7 @@ NSString *CreateRandomString(int length);
         productPrices = [tmp copy];
     }
     NSMutableDictionary *dict =
-        [[NSMutableDictionary alloc] initWithDictionary:JubeatAppDelegate.appDelegate.clientInfo];
+        [[NSMutableDictionary alloc] initWithDictionary:JubeatAppDelegate.clientInfo];
     dict[@"receipt"] = receipt;
     dict[@"products"] = products;
     dict[@"prices"] = productPrices;
