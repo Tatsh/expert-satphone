@@ -109,6 +109,7 @@ MainGameRendererPadMarkerSprite(unsigned int phase, unsigned int slot, int *spri
 // keyframes, and fades out from frame 0x5a. Factored from the two near-identical passes at the
 // tail of -renderReadyGo.
 static inline void MainGameRendererPadRenderGoMark(MainGameRendererPad *self,
+                                                   unsigned int frame,
                                                    NSUInteger sprite,
                                                    unsigned int appearStart,
                                                    unsigned int scaleUpEnd,
@@ -121,27 +122,25 @@ static inline void MainGameRendererPadRenderGoMark(MainGameRendererPad *self,
     static const float kReadyGoKeyTime = 0.4f;       // @ghidraAddress 0x28f3b4
     static const double kReadyGoMarkCenterY = 600.0; // @ghidraAddress 0x291c30
     float alpha;
-    if (self->frame < 0x5a) {
-        alpha = InterpolateFloatByFrame(0.0f, 1.0f, self->frame, appearStart, scaleUpEnd);
+    if (frame < 0x5a) {
+        alpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, appearStart, scaleUpEnd);
     } else {
-        alpha = InterpolateFloatByFrame(1.0f, 0.0f, self->frame, 0x5a, 0x5e);
+        alpha = InterpolateFloatByFrame(1.0f, 0.0f, frame, 0x5a, 0x5e);
     }
     if (alpha <= 0.0f) {
         return;
     }
     float scale;
     float centerX;
-    if (self->frame < scaleUpEnd) {
-        scale =
-            InterpolateFloatByFrame(kReadyGoKeyTime, 2.0f, self->frame, appearStart, scaleUpEnd);
+    if (frame < scaleUpEnd) {
+        scale = InterpolateFloatByFrame(kReadyGoKeyTime, 2.0f, frame, appearStart, scaleUpEnd);
+        centerX = InterpolateFloatByFrame(xKeyStart, xKeyScaleUp, frame, appearStart, scaleUpEnd);
+    } else if (frame < 0x5a) {
+        scale = InterpolateFloatByFrame(2.0f, 1.0f, frame, scaleUpEnd, scaleUpEnd + 2);
         centerX =
-            InterpolateFloatByFrame(xKeyStart, xKeyScaleUp, self->frame, appearStart, scaleUpEnd);
-    } else if (self->frame < 0x5a) {
-        scale = InterpolateFloatByFrame(2.0f, 1.0f, self->frame, scaleUpEnd, scaleUpEnd + 2);
-        centerX = InterpolateFloatByFrame(
-            xKeyScaleUp, xKeySettle, self->frame, scaleUpEnd, scaleUpEnd + 2);
+            InterpolateFloatByFrame(xKeyScaleUp, xKeySettle, frame, scaleUpEnd, scaleUpEnd + 2);
     } else {
-        centerX = InterpolateFloatByFrame(xKeySettle, xKeyFadeOut, self->frame, 0x5a, 0x5e);
+        centerX = InterpolateFloatByFrame(xKeySettle, xKeyFadeOut, frame, 0x5a, 0x5e);
         scale = 1.0f;
     }
     double w = (double)spriteW * (double)scale;
@@ -1840,10 +1839,10 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     }
     // The "GO" halves (sprites 5 and 6) with their own frame windows and x keyframes.
     MainGameRendererPadRenderGoMark(
-        self, 5, 0x45, 0x4a, spriteW, spriteH, 340.0f, 254.0f, 298.0f, 184.0f);
+        self, frame, 5, 0x45, 0x4a, spriteW, spriteH, 340.0f, 254.0f, 298.0f, 184.0f);
     // @ghidraAddress 0x292578, 0x292574, 0x29256c, 0x292570
     MainGameRendererPadRenderGoMark(
-        self, 6, 0x47, 0x4c, spriteW, spriteH, 424.0f, 511.0f, 466.0f, 580.0f);
+        self, frame, 6, 0x47, 0x4c, spriteW, spriteH, 424.0f, 511.0f, 466.0f, 580.0f);
     // @ghidraAddress 0x292588, 0x292584, 0x29257c, 0x292580
     if (frame == 0x1b) {
         [AudioManager.sharedManager playSeResFile:@"SD_CV_READY" inDirectory:nil];

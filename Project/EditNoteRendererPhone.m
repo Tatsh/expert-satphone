@@ -65,6 +65,7 @@ enum { kDebugTextGlyphCap = 0x200, kDebugFontFirstGlyph = 0x20 };
 // Builds the knit beat-background texture, its sprite table, and its colour variant blits.
 // De-inlined from 0x20ec38.
 static inline void EditNoteRendererPhoneLoadBeatBgTexture(EditNoteRendererPhone *self,
+                                                          BOOL isRetina,
                                                           BFCodec *codec,
                                                           NSData *cipherKey) {
     if (self.texBeatBg) {
@@ -97,7 +98,7 @@ static inline void EditNoteRendererPhoneLoadBeatBgTexture(EditNoteRendererPhone 
         UIImage *image = [[UIImage alloc] initWithContentsOfFile:path2];
         [self.texBeatBg setSubImage:image inRect:[self.texBeatBg spriteAtIndex:10]];
     }
-    self.texBeatBg.isScale2x = self->isRetina;
+    self.texBeatBg.isScale2x = isRetina;
 }
 
 // Unzips the note-marker frames from the marker archive and blits them into the marker atlas: two
@@ -144,6 +145,7 @@ static inline void EditNoteRendererPhoneLoadMarkersFromArchive(EditNoteRendererP
 // Rebuilds the front atlas: sprite sheet, level and mark blits, the note markers unzipped from the
 // marker archive, and the jacket artwork and index images. De-inlined from 0x20f220.
 static inline void EditNoteRendererPhoneBuildFrontTexture(EditNoteRendererPhone *self,
+                                                          BOOL isRetina,
                                                           EditRendererConf *conf,
                                                           UIImage *artwork,
                                                           UIImage *index,
@@ -185,26 +187,27 @@ static inline void EditNoteRendererPhoneBuildFrontTexture(EditNoteRendererPhone 
                                               frame.size.width,
                                               (frame.size.width * size.height) / size.width)];
     }
-    self.texFront.isScale2x = self->isRetina;
+    self.texFront.isScale2x = isRetina;
 }
 
 // Draws the "READY" letters: a per-letter settle-out during frames 0x15..0x31, or a together
 // drop-in during the later frames. De-inlined from 0x211198.
-static inline void EditNoteRendererPhoneRenderReadyGoReady(EditNoteRendererPhone *self) {
+static inline void EditNoteRendererPhoneRenderReadyGoReady(EditNoteRendererPhone *self,
+                                                           unsigned int frame) {
     // The spread-out x-positions of the five settle-out letters, in points.
     static const float kReadyLetterX[] = {-88.5f, -45.0f, 0.0f, 48.5f, 91.5f};
     // The drop-in target x-positions of the five letters, in points.
     static const double kReadyDropX[] = {71.5, 115.0, 160.0, 208.5, 251.5};
     CGRect sprite = [self.texReady0 spriteAtIndex:0];
     double halfWidth = sprite.size.width * 0.5;
-    if ((unsigned int)(self->frame - 0x15) < 0x1d) {
+    if ((unsigned int)(frame - 0x15) < 0x1d) {
         // Settle-out: the five letters slide from their spread-out positions to centre, one at a
         // time, over the frames after 0x14.
         float baseHeight = (float)sprite.size.height;
         for (long letter = 4; letter >= 0; --letter) {
-            if (letter <= (long)(int)self->frame - 0x14) {
+            if (letter <= (long)(int)frame - 0x14) {
                 unsigned int startFrame = (unsigned int)letter;
-                unsigned int current = (unsigned int)((long)(int)self->frame - 0x14);
+                unsigned int current = (unsigned int)((long)(int)frame - 0x14);
                 float slide =
                     InterpolateFloatByFrame(baseHeight, 0.0f, current, startFrame, startFrame + 8);
                 float letterAlpha =
@@ -221,9 +224,9 @@ static inline void EditNoteRendererPhoneRenderReadyGoReady(EditNoteRendererPhone
         // Drop-in: the five letters fall in together over frames 0x32 onward.
         (void)[self.texReady0 spriteAtIndex:0];
         float dropY = InterpolateFloatByFrame(
-            0.0f, (float)((sprite.size.height * -2.0) + 335.0), self->frame - 0x32, 0, 10);
+            0.0f, (float)((sprite.size.height * -2.0) + 335.0), frame - 0x32, 0, 10);
         double letterY = (double)(dropY + 50.0f);
-        float letterAlpha = InterpolateFloatByFrame(1.0f, 0.0f, self->frame - 0x32, 9, 0xf);
+        float letterAlpha = InterpolateFloatByFrame(1.0f, 0.0f, frame - 0x32, 9, 0xf);
         for (NSInteger letter = 4; letter >= 0; --letter) {
             [self.texReady0 drawSprite:(NSUInteger)letter
                                atPoint:CGPointMake(kReadyDropX[letter] - halfWidth, letterY)
@@ -235,8 +238,9 @@ static inline void EditNoteRendererPhoneRenderReadyGoReady(EditNoteRendererPhone
 
 // Draws the two "GO" halves: a swell-in during frames 0x38..0x3e, or a shrink-out during frames
 // 0x3f..0x4a. De-inlined from 0x2114d0.
-static inline void EditNoteRendererPhoneRenderReadyGoGo(EditNoteRendererPhone *self) {
-    unsigned int f = self->frame;
+static inline void EditNoteRendererPhoneRenderReadyGoGo(EditNoteRendererPhone *self,
+                                                        unsigned int frame) {
+    unsigned int f = frame;
     if ((unsigned int)(f - 0x38) < 7) {
         CGRect sprite = [self.texReady1 spriteAtIndex:0];
         double halfWidth = sprite.size.width * 0.5;
@@ -308,15 +312,16 @@ static inline void EditNoteRendererPhoneRenderReadyGoGo(EditNoteRendererPhone *s
 
 // Plays the ready and go sounds on their frames and finishes the countdown sub-state. De-inlined
 // from 0x211830.
-static inline void EditNoteRendererPhoneRenderReadyGoAudio(EditNoteRendererPhone *self) {
-    if (self->frame == 0x14) {
+static inline void EditNoteRendererPhoneRenderReadyGoAudio(EditNoteRendererPhone *self,
+                                                           unsigned int frame) {
+    if (frame == 0x14) {
         [AudioManager.sharedManager playSeResFile:@"SD_KNT_CV_READY" inDirectory:nil];
     }
-    if (self->frame == 0x3b) {
+    if (frame == 0x3b) {
         [AudioManager.sharedManager playSePlayer:self.sePlayerGo];
         self.sePlayerGo = nil;
     }
-    if (self->frame >= 0x4b) {
+    if (frame >= 0x4b) {
         self.subState = kEditNotePhoneEndSubState;
     }
 }
@@ -437,7 +442,7 @@ static inline void EditNoteRendererPhoneRenderFullcomboOut(
         self.texDebugFont = CreateTexture2DFromPngResource(@"debugfont");
     }
     [codec cipherInit:cipherKey];
-    EditNoteRendererPhoneLoadBeatBgTexture(self, codec, cipherKey);
+    EditNoteRendererPhoneLoadBeatBgTexture(self, self->isRetina, codec, cipherKey);
     if (!self.texReady0) {
         [codec cipherInit:cipherKey];
         self.texReady0 = CreateTexture2DFromEncryptedTexResource(@"game_ready_knt_0_tex", codec);
@@ -461,7 +466,8 @@ static inline void EditNoteRendererPhoneRenderFullcomboOut(
         conf.tuneID == self.rendererConf.tuneID) {
         return;
     }
-    EditNoteRendererPhoneBuildFrontTexture(self, conf, artwork, index, codec, cipherKey);
+    EditNoteRendererPhoneBuildFrontTexture(
+        self, self->isRetina, conf, artwork, index, codec, cipherKey);
     self.rendererConf = conf;
 }
 
@@ -807,9 +813,9 @@ static inline void EditNoteRendererPhoneRenderFullcomboOut(
 
 /** @ghidraAddress 0x21114c */
 - (void)renderReadyGo {
-    EditNoteRendererPhoneRenderReadyGoReady(self);
-    EditNoteRendererPhoneRenderReadyGoGo(self);
-    EditNoteRendererPhoneRenderReadyGoAudio(self);
+    EditNoteRendererPhoneRenderReadyGoReady(self, frame);
+    EditNoteRendererPhoneRenderReadyGoGo(self, frame);
+    EditNoteRendererPhoneRenderReadyGoAudio(self, frame);
 }
 
 /** @ghidraAddress 0x211978 */

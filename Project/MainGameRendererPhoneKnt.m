@@ -128,10 +128,11 @@ static const double kButtonHighlightNudge = 40.0; // @ghidraAddress 0x28f1f8
 // Draws one 4x4 button-grid panel column pass. De-inlined from the grid loop of -renderButtons: a
 // pressed panel draws the down overlay (sprite 2 twice, once nudged), then every panel draws its
 // base state sprite (0 up / 1 down). The four-inch phone offsets the grid by the button margin.
-static inline void MainGameRendererPhoneKntDrawButtonGrid(MainGameRendererPhoneKnt *self) {
+static inline void MainGameRendererPhoneKntDrawButtonGrid(MainGameRendererPhoneKnt *self,
+                                                          BOOL is4Inch) {
     for (unsigned int panel = 0; panel < kMainGameGridPanelCount; ++panel) {
         double panelX = (double)((int)(panel % kGridColumns) * kGridPitch);
-        int gameTop = self->is4Inch ? self.buttonMarginForScreen40 : 0;
+        int gameTop = is4Inch ? self.buttonMarginForScreen40 : 0;
         double panelY =
             (double)((int)(panel / kGridColumns) * kGridPitch + gameTop + kFourInchGameTopE);
         BOOL pressed = (self.btnPress & (1 << panel)) != 0;
@@ -236,11 +237,12 @@ static inline void MainGameRendererPhoneKntBuildWaveTextures(MainGameRendererPho
 // selected by the packaged colour preference. De-inlined from the beat-background section of
 // -loadTexure:artwork:index:.
 static inline void MainGameRendererPhoneKntBuildBeatBgTexture(MainGameRendererPhoneKnt *self,
+                                                              BOOL isRetina,
                                                               BFCodec *codec,
                                                               NSData *cipherKey) {
     NSString *plist;
     NSString *baseLayer;
-    if (self->isRetina) {
+    if (isRetina) {
         self.texBeatBg = [[Texture2D alloc] initWithData:nullptr
                                              pixelFormat:Texture2DPixelFormatRGBA8888
                                                pixelSize:kAtlasPixelSize];
@@ -276,7 +278,7 @@ static inline void MainGameRendererPhoneKntBuildBeatBgTexture(MainGameRendererPh
         [self.texBeatBg setSubImage:layer2
                              inRect:[self.texBeatBg spriteAtIndex:kBeatBgSpriteLayer2]];
     }
-    self.texBeatBg.isScale2x = self->isRetina;
+    self.texBeatBg.isScale2x = isRetina;
 }
 
 // Rebuilds the front atlas and blits its level word, start-mark, and end-mark chips. Unlike the
@@ -310,6 +312,7 @@ static inline void MainGameRendererPhoneKntBuildFrontTexture(MainGameRendererPho
 // four banks of sixteen "h" hold frames. De-inlined from the marker section of
 // -loadTexure:artwork:index:.
 static inline void MainGameRendererPhoneKntLoadMarkerTexture(MainGameRendererPhoneKnt *self,
+                                                             BOOL isRetina,
                                                              RendererConf *conf,
                                                              BFCodec *codec,
                                                              NSData *cipherKey) {
@@ -354,14 +357,17 @@ static inline void MainGameRendererPhoneKntLoadMarkerTexture(MainGameRendererPho
             }
         }
     }
-    self.texMarker.isScale2x = self->isRetina;
+    self.texMarker.isScale2x = isRetina;
 }
 
 // Builds the hold-marker atlas and its sub-renderer, then unzips the "m" and "m6" hold-marker
 // frames from hm0001.zip. De-inlined from the hold-marker section of -loadTexure:artwork:index:.
-static inline void MainGameRendererPhoneKntBuildHoldMarkerTexture(MainGameRendererPhoneKnt *self,
-                                                                  BFCodec *codec,
-                                                                  NSData *cipherKey) {
+static inline void
+MainGameRendererPhoneKntBuildHoldMarkerTexture(MainGameRendererPhoneKnt *self,
+                                               HoldMarkerRender *__strong *holdMarkerRender,
+                                               BOOL is4Inch,
+                                               BFCodec *codec,
+                                               NSData *cipherKey) {
     @autoreleasepool {
         if (self.texHoldMarker) {
             self.texHoldMarker = nil;
@@ -372,12 +378,12 @@ static inline void MainGameRendererPhoneKntBuildHoldMarkerTexture(MainGameRender
         NSString *plist = [NSBundle.mainBundle pathForResource:@"game_hold_marker_tex"
                                                         ofType:@"plist"];
         [self.texHoldMarker setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
-        if (!self->holdMarkerRender) {
+        if (!*holdMarkerRender) {
             // The game area is delayed on the four-inch idiom by the phone button margin.
-            int gameAreaDelay = self->is4Inch ? self.buttonMarginForScreen40 : 0;
-            self->holdMarkerRender = [[HoldMarkerRender alloc] init:self.texHoldMarker
-                                                              isPad:NO
-                                                      gameAreaDelay:gameAreaDelay];
+            int gameAreaDelay = is4Inch ? self.buttonMarginForScreen40 : 0;
+            *holdMarkerRender = [[HoldMarkerRender alloc] init:self.texHoldMarker
+                                                         isPad:NO
+                                                 gameAreaDelay:gameAreaDelay];
         }
     }
     // The hold-marker frame loops deliberately run outside any autorelease pool, matching the
@@ -415,6 +421,7 @@ static inline void MainGameRendererPhoneKntBuildHoldMarkerTexture(MainGameRender
 // into the front atlas, then marks it scale-2x. De-inlined from the composite section of
 // -loadTexure:artwork:index:.
 static inline void MainGameRendererPhoneKntCompositeFront(MainGameRendererPhoneKnt *self,
+                                                          BOOL isRetina,
                                                           RendererConf *conf,
                                                           UIImage *artwork,
                                                           UIImage *index) {
@@ -436,19 +443,20 @@ static inline void MainGameRendererPhoneKntCompositeFront(MainGameRendererPhoneK
         label.backgroundColor = UIColor.clearColor; // The original used +clearColor.
         label.textColor = UIColor.blackColor;       // The original used +blackColor.
         label.textAlignment = NSTextAlignmentRight; // 2.
-        label.font = [UIFont
-            boldSystemFontOfSize:(self->isRetina ? kPartnerFontSizeRetina : kPartnerFontSize)];
+        label.font =
+            [UIFont boldSystemFontOfSize:(isRetina ? kPartnerFontSizeRetina : kPartnerFontSize)];
         label.text = conf.partnerName;
         UIImage *rendered = [label renderImage];
         [self.texFront setSubImage:rendered
                            atPoint:[self.texFront spriteAtIndex:kFrontSpritePartnerName].origin];
     }
-    self.texFront.isScale2x = self->isRetina;
+    self.texFront.isScale2x = isRetina;
 }
 
 // Rebuilds the combo atlas from its encrypted texture. De-inlined from the combo section of
 // -loadTexure:artwork:index:.
 static inline void MainGameRendererPhoneKntBuildComboTexture(MainGameRendererPhoneKnt *self,
+                                                             BOOL isRetina,
                                                              BFCodec *codec,
                                                              NSData *cipherKey) {
     @autoreleasepool {
@@ -465,7 +473,7 @@ static inline void MainGameRendererPhoneKntBuildComboTexture(MainGameRendererPho
         LoadTextureSubImageFromEncryptedTex(
             self.texCombo, @"game_combo_knt_tex_pn2", codec, CGPointMake(0.0, 0.0));
     }
-    self.texCombo.isScale2x = self->isRetina;
+    self.texCombo.isScale2x = isRetina;
 }
 
 // The Excellent (perfect-million) result banner's final sparkle burst (frame >= 0x7c): twenty
@@ -566,12 +574,13 @@ static NSString *const kSeExcVoice = @"SD_KNT_CV_EXCELLENT"; // @ghidraAddress 0
 
 // The Excellent burst: twenty particles, the last five sweeping outward with an offset trail.
 static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRendererPhoneKnt *self,
+                                                                BOOL is4Inch,
                                                                 unsigned int frame) {
     static const float kExcFlourishRiseFrom = -86.0f; // @ghidraAddress 0x2934e8
     static const float kExcFlourishSweep = 640.0f;    // @ghidraAddress 0x2934ec
     static const float kExcTrailXScale = -1.02f;      // @ghidraAddress 0x2934f0
-    int margin = self->is4Inch ? [self buttonMarginForScreen40] : 0;
-    float titleSpacing = self->is4Inch ?
+    int margin = is4Inch ? [self buttonMarginForScreen40] : 0;
+    float titleSpacing = is4Inch ?
                              (float)([self buttonMarginForScreen40] + kExcTitleGlyphSpacing4Inch) :
                              (float)kExcTitleGlyphSpacing;
     float rise =
@@ -885,7 +894,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
 
 /** @ghidraAddress 0x18ef18 */
 - (void)renderButtons {
-    MainGameRendererPhoneKntDrawButtonGrid(self);
+    MainGameRendererPhoneKntDrawButtonGrid(self, self->is4Inch);
 }
 
 /** @ghidraAddress 0x193214 */
@@ -995,7 +1004,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
         MainGameRendererPhoneKntBuildWaveTextures(self, codec, cipherKey);
     }
     if (!self.texBeatBg) {
-        MainGameRendererPhoneKntBuildBeatBgTexture(self, codec, cipherKey);
+        MainGameRendererPhoneKntBuildBeatBgTexture(self, self->isRetina, codec, cipherKey);
     }
     if (!self.texReady0) {
         [codec cipherInit:cipherKey];
@@ -1027,10 +1036,11 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
         self.texFront = nil;
     }
     MainGameRendererPhoneKntBuildFrontTexture(self, conf, codec, cipherKey);
-    MainGameRendererPhoneKntLoadMarkerTexture(self, conf, codec, cipherKey);
-    MainGameRendererPhoneKntBuildHoldMarkerTexture(self, codec, cipherKey);
-    MainGameRendererPhoneKntCompositeFront(self, conf, artwork, index);
-    MainGameRendererPhoneKntBuildComboTexture(self, codec, cipherKey);
+    MainGameRendererPhoneKntLoadMarkerTexture(self, self->isRetina, conf, codec, cipherKey);
+    MainGameRendererPhoneKntBuildHoldMarkerTexture(
+        self, &self->holdMarkerRender, self->is4Inch, codec, cipherKey);
+    MainGameRendererPhoneKntCompositeFront(self, self->isRetina, conf, artwork, index);
+    MainGameRendererPhoneKntBuildComboTexture(self, self->isRetina, codec, cipherKey);
     self.rendererConf = conf;
 }
 
@@ -1389,7 +1399,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
         }
     }
     if (frame > 0x7b) {
-        MainGameRendererPhoneKntRenderExcellentBurst(self, frame);
+        MainGameRendererPhoneKntRenderExcellentBurst(self, self->is4Inch, frame);
     }
     return frame > 0x95;
 }
