@@ -1,11 +1,14 @@
 #import "MainGameRendererPadKnt.h"
 
+#import <UIKit/UIKit.h>
+
 #import "AudioManager.h"
 #import "HoldMarkerRender.h"
 #import "JubeatAppDelegate.h"
 #import "RendererConf.h"
 #import "Sequence.h"
 #import "Texture2D.h"
+#import "TextureLoading.h"
 #import "neEngineBridge.h"
 
 // The ready/go countdown runs for two and a half seconds on the Knit pad renderer.
@@ -67,6 +70,51 @@ static const double kPartnerBadgeYOffset = -25.0;        // fmov -25.0
 // The result-screen render states: a finished chart, the result screen, and the result wait.
 static const unsigned int kRenderStateFinish = 4;
 static const unsigned int kRenderStateResult = 5;
+
+// The result screen composes the sub-renderers and lays out the score, tune info, music bar,
+// partner score, combo, and the win/clear/fail banner, then the new-record stamp and the
+// good-job/vote overlay. The shutter closes over its own frames; a perfect million shows Excellent,
+// 700000+ shows Cleared, else Failed.
+static const float kShutterCloseThreshold = 43.5f;        // @ghidraAddress 0x292b58
+static const float kShutterCloseStep = -43.5f;            // @ghidraAddress 0x292b54
+static const double kResultArtworkX = 18.0;               // fmov, 18.0
+static const double kResultArtworkY = 25.0;               // fmov, 25.0
+static const double kResultArtworkSize = 160.0;           // @ghidraAddress 0x28f438
+static const double kResultMusicBarX = 8.0;               // fmov, 8.0
+static const double kResultMusicBarY = 208.0;             // @ghidraAddress 0x2929f0
+static const double kResultScoreX = 412.0;                // @ghidraAddress 0x2929f8
+static const double kResultScoreY = 138.0;                // @ghidraAddress 0x2924c8
+static const double kResultPartnerX = 516.0;              // @ghidraAddress 0x292a00
+static const double kResultPartnerY = 80.0;               // @ghidraAddress 0x28f3f8
+static const double kResultPartnerScale = 0.7;            // @ghidraAddress 0x291c98
+static const unsigned int kResultBannerStartFrame = 0x1e; // 30
+static const unsigned int kClearedScoreThreshold = 699999;
+static const int kMillionScore = 1000000;
+// The new-record stamp slides in over frames 0x41..0x49 and its updated-score readout trails it.
+static const unsigned int kNewRecordStartFrame = 0x41; // 65
+static const unsigned int kNewRecordEndFrame = 0x49;   // 73
+static const unsigned int kNewRecordGateFrame = 0x40;  // shown once past frame 64
+static const float kNewRecordSlideFrom = 168.0f;       // @ghidraAddress 0x292fc0
+static const float kNewRecordSlideTo = 226.0f;         // @ghidraAddress 0x293ea8
+static const float kNewRecordXBase = 412.0f;           // @ghidraAddress 0x292b64
+static const double kNewRecordStampY = 185.0;          // @ghidraAddress 0x293e48
+static const double kNewRecordScoreXOffset = -128.0;   // @ghidraAddress 0x292e80
+static const double kNewRecordScoreY = 187.0;          // @ghidraAddress 0x293e50
+static const NSUInteger kNewRecordStampSprite = 0x19;
+static const double kNewRecordXNudge = 1.0;   // fmov, 1.0
+static const double kResultEightNudge = -8.0; // fmov, -8.0
+// The retry/vote overlay: the replay-tag sprite, the vote strip swapped in from a resource, and the
+// good-job image fading to its configured maximum.
+static const double kResultTagScale = 0.125; // 1/8, fmov
+static const NSUInteger kResultReplayTagSprite = 0x11;
+static const double kResultReplayTagX = 584.0; // @ghidraAddress 0x292a78
+static const double kResultOverlayY = 852.0;   // @ghidraAddress 0x292a80
+static const NSUInteger kResultVoteSprite = 0x14;
+static const double kResultVoteX = 392.0;                            // @ghidraAddress 0x292a88
+static NSString *const kResultVoteResource = @"game_level_vote_knt"; // @ghidraAddress 0x2e1fc0
+static const NSTimeInterval kGoodJobFadeDuration = 0.3;              // @ghidraAddress 0x28f260
+static NSString *const kSeVoiceResult = @"SD_KNT_CV_RESULT";         // @ghidraAddress 0x2dfa00
+static const unsigned int kResultSubStateComplete = 10;
 
 // The Knit music bar is a single backdrop sprite with 0x78 note cells five points apart, each a
 // marker sprite chosen by the note value plus a state-dependent base: idle, cursor-lit, or one of
@@ -595,6 +643,135 @@ MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *s
                       atPoint:CGPointMake(kFullcomboX, (double)(midTargetY - slide))
                     transform:0
                         alpha:exitAlpha];
+}
+
+/** @ghidraAddress 0x205c24 */
+- (void)renderResult {
+    const ScoreData *score = self.sequence.getScore;
+    ScoreData backup;
+    if (self.scoreBackup) {
+        backup = self.replayBackupScore;
+        score = &backup;
+    }
+    // The shutter, if still open, closes in one 43.5-point step per frame down to zero.
+    if (shutterOpen > 0.0f) {
+        shutterOpen =
+            (shutterOpen >= kShutterCloseThreshold) ? shutterOpen + kShutterCloseStep : 0.0f;
+    }
+    [self renderShutter:NO];
+    if (self.sequence.isFullcombo && !self.scoreBackup) {
+        [self renderFullcombo:(int)frame isResult:YES];
+    }
+    [self renderUpperBG:YES];
+    [self renderTuneInfo:CGPointMake(kResultArtworkX, kResultArtworkY)
+             artworkSize:kResultArtworkSize
+                   alpha:1.0];
+    [self renderMusicBar:CGPointMake(kResultMusicBarX, kResultMusicBarY) timeline:NO alpha:1.0];
+    [self renderScore:(unsigned int)score->totalPoint
+              atPoint:CGPointMake(kResultScoreX, kResultScoreY)
+                alpha:1.0];
+    [self renderPartnerScore:self.partnerScore + self.partnerFinalBonus
+                     atPoint:CGPointMake(kResultPartnerX, kResultPartnerY)
+                       scale:kResultPartnerScale
+                       alpha:1.0];
+    float comboAlpha = InterpolateFloatByFrame(1.0f, 0.0f, frame, 0, 10);
+    [self renderCombo:(unsigned int)self.sequence.getScore->curCombo alpha:comboAlpha];
+
+    // Once the result has settled (frame >= 30, live play only), the win/clear/fail banner runs and
+    // reports when it has finished animating.
+    BOOL bannerDone;
+    if (frame < kResultBannerStartFrame || self.scoreBackup) {
+        bannerDone = self.scoreBackup;
+    } else if (score->totalPoint == kMillionScore) {
+        bannerDone = [self renderExcellent:frame - kResultBannerStartFrame];
+    } else if (score->totalPoint > (int)kClearedScoreThreshold) {
+        bannerDone = [self renderCleared:frame - kResultBannerStartFrame];
+    } else {
+        bannerDone = [self renderFailed:frame - kResultBannerStartFrame];
+    }
+
+    // A new record slides its stamp in over frames 65..73 and reads out the recorded score.
+    if (self.isNewRecord && frame > kNewRecordGateFrame && !self.scoreBackup) {
+        float stampAlpha =
+            InterpolateFloatByFrame(0.0f, 1.0f, frame, kNewRecordStartFrame, kNewRecordEndFrame);
+        float stampX = InterpolateFloatByFrame(kNewRecordSlideFrom,
+                                               kNewRecordSlideTo,
+                                               frame,
+                                               kNewRecordStartFrame,
+                                               kNewRecordEndFrame);
+        double x = (double)(stampX + kNewRecordXBase + (float)kNewRecordXNudge);
+        [self.texFront drawSprite:kNewRecordStampSprite
+                          atPoint:CGPointMake(x, kNewRecordStampY)
+                        transform:0
+                            alpha:stampAlpha];
+        [self renderUpdatedScore:self.scoreRecord
+                         atPoint:CGPointMake(x + kNewRecordScoreXOffset + kResultEightNudge,
+                                             kNewRecordScoreY)
+                           alpha:(double)stampAlpha];
+    }
+
+    // The retry/vote overlay appears with the result sub-state, sliding its tag and score in.
+    if (self.subState != 0) {
+        unsigned int elapsed = frame - subStateChangeFrame;
+        float slideIn = (elapsed > 7) ? 1.0f : (float)elapsed * (float)kResultTagScale;
+        [self.texResult drawSprite:kResultReplayTagSprite
+                           atPoint:CGPointMake(kResultReplayTagX, kResultOverlayY)
+                         transform:0
+                             alpha:slideIn];
+        if (!self.replayPlaying && self.isCustom && self.isDownload && self.hasMusic) {
+            // A downloaded custom tune swaps the vote strip in from a resource once, then fades the
+            // good-job image up.
+            if (!self.isTextureChange) {
+                self.isTextureChange = YES;
+                CGPoint votePoint = [self.texFront spriteAtIndex:kResultVoteSprite].origin;
+                LoadTextureSubImageFromResource(self.texFront, kResultVoteResource, votePoint);
+                if (self.goodJobImage != nil) {
+                    __weak UIImageView *weakGoodJob = self.goodJobImage;
+                    float goodJobAlpha = self.goodJobAlphaMax;
+                    [UIView animateWithDuration:kGoodJobFadeDuration
+                                     animations:^{
+                                       /** @ghidraAddress 0x20663c */
+                                       weakGoodJob.alpha = goodJobAlpha;
+                                     }
+                                     completion:nil];
+                }
+            }
+            [self.texFront drawSprite:kResultVoteSprite
+                              atPoint:CGPointMake(kResultVoteX, kResultOverlayY)
+                            transform:0
+                                alpha:slideIn];
+        }
+        if (!self.isCustom && self.hasMusic && self.goodJobImage != nil) {
+            __weak UIImageView *weakGoodJob = self.goodJobImage;
+            float goodJobAlpha = self.goodJobAlphaMax;
+            [UIView animateWithDuration:kGoodJobFadeDuration
+                             animations:^{
+                               /** @ghidraAddress 0x206694 */
+                               weakGoodJob.alpha = goodJobAlpha;
+                             }
+                             completion:nil];
+        }
+        if (self.isSession && !self.hasMusic && self.goodJobImage != nil) {
+            __weak UIImageView *weakGoodJob = self.goodJobImage;
+            float goodJobAlpha = self.goodJobAlphaMax;
+            [UIView animateWithDuration:kGoodJobFadeDuration
+                             animations:^{
+                               /** @ghidraAddress 0x2066ec */
+                               weakGoodJob.alpha = goodJobAlpha;
+                             }
+                             completion:nil];
+        }
+    }
+    [self renderButtons];
+    if (frame == 0) {
+        [[AudioManager sharedManager] playSeResFile:kSeVoiceResult inDirectory:nil];
+    }
+    // Once the banner finishes and the sub-state has not yet advanced, enter the result-complete
+    // sub-state and record the frame it changed on.
+    if (bannerDone && self.subState == 0) {
+        self.subState = kResultSubStateComplete;
+        subStateChangeFrame = frame;
+    }
 }
 
 /** @ghidraAddress 0x20186c */
