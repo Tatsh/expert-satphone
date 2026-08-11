@@ -81,6 +81,8 @@
 0x125548	float InterpolateFloatByFrame(float flFrom, float flTo, unsigned int nCurrentFrame, unsigned int nStartFrame, unsigned int nEndFrame)
 0x13bddc	(^void)(void)
 0x13be50	(^void)(BOOL)
+0x13f0a8	(^void)(void)
+0x13f11c	(^void)(BOOL)
 0x140efc	(^void)(void)
 0x140fc4	(^void)(BOOL)
 0x142b98	(^void)(void)

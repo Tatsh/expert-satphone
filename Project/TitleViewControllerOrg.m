@@ -192,6 +192,7 @@
         animations:^{
           /** @ghidraAddress 0x13bddc */
           jubeatLogoView.alpha = 1.0;
+          copyrightView.alpha = 1.0;
         }
         completion:^(BOOL finished) {
           /** @ghidraAddress 0x13be50 */
