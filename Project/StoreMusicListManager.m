@@ -5,6 +5,11 @@
 #import "Md5Utilities.h"
 #import "StoreMusicInfo.h"
 
+// The built-in (pre-installed) music identifiers, a positive-terminated int table. The init loop
+// walks it from the first element and stops at the first non-positive value. @ghidraAddress
+// 0x3538c0
+static const int g_builtinMusicIDs[] = {100000201, 100000901, 100000902, 100000903, -1};
+
 @implementation StoreMusicListManager {
     NSMutableArray *_arrayMusic;             // offset global 0x34a758
     NSMutableArray *_arrayExtendMusic;       // offset global 0x34a75c
@@ -32,18 +37,13 @@
         // Disassembly at 0xd3a20: alloc/initWithCapacity:4, then ldr w2,[x8,#0x8c0] (count),
         // cmp w2,#1 / b.lt, then loop with ldr x21,[x8,#0x550] (numberWithInt:) etc at 0xd3a58.
         NSMutableArray *arr = [[NSMutableArray alloc] initWithCapacity:4];
-        // DAT_0x3538c0 is a count followed by that many ints at 0x3538c4.
-        // The exact count and values are at those addresses, verified via ldr w2,[x8,#0x8c0] at
-        // 0xd3a4c.
-        extern int g_builtinMusicCount; // at 0x3538c0
-        extern int g_builtinMusicIDs[]; // at 0x3538c4
-        if (g_builtinMusicCount > 0) {
-            int *p = g_builtinMusicIDs;
+        // Add each built-in music id while the current entry is positive; the -1 sentinel ends it.
+        if (g_builtinMusicIDs[0] > 0) {
+            const int *p = g_builtinMusicIDs;
             do {
-                NSNumber *n = [NSNumber numberWithInt:*p++];
-                [arr addObject:n];
-            } while (--g_builtinMusicCount >
-                     0); // actually while (p still within count) — simplified
+                [arr addObject:@(*p)];
+                ++p;
+            } while (*p > 0);
         }
         self.arrayBuiltinMusic = [NSArray arrayWithArray:arr];
     }
