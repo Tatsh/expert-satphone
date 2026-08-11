@@ -231,7 +231,7 @@ static const NSTimeInterval kPauseInteractionDelay = 0.4; // @ghidraAddress 0x28
           /** @ghidraAddress 0x985d0 */
           weakSelf.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x9861c */
           [weakSelf removeFromSuperview];
           [weakSelf.delegate resumeInPauseView];
@@ -254,7 +254,7 @@ static const NSTimeInterval kPauseInteractionDelay = 0.4; // @ghidraAddress 0x28
           /** @ghidraAddress 0x98900 */
           weakSelf.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x9894c */
           [weakSelf removeFromSuperview];
         }];

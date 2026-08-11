@@ -202,7 +202,7 @@ static const int kMissionIconWrapThreshold = 24;
           /** @ghidraAddress 0x4eba8 */
           weakSelf.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x4ebf4 */
           MissionAchievementMessage *strongSelf = weakSelf;
           [strongSelf->conImg startAnimating];
@@ -215,7 +215,7 @@ static const int kMissionIconWrapThreshold = 24;
                 weakMessageView.transform =
                     CGAffineTransformMakeTranslation(0, kMissionMessageSlideDownDistance);
               }
-              completion:^(BOOL innerFinished) {
+              completion:^(BOOL __attribute__((unused)) innerFinished) {
                 /** @ghidraAddress 0x4edb8 */
                 __weak BalloonView *weakBgView = strongSelf->bgView;
                 [UIView animateWithDuration:kMissionMessageSettleStageDuration
@@ -228,7 +228,7 @@ static const int kMissionIconWrapThreshold = 24;
                       weakBgView.transform =
                           CGAffineTransformScale(CGAffineTransformMakeTranslation(0, 0), 1, 1);
                     }
-                    completion:^(BOOL settleFinished) {
+                    completion:^(BOOL __attribute__((unused)) settleFinished) {
                       /** @ghidraAddress 0x4efa4 */
                       // Arm the auto-dismiss timer and unlock tapping, regardless of whether the
                       // animation ran to completion, so the banner can always be dismissed.
@@ -272,7 +272,7 @@ static const int kMissionIconWrapThreshold = 24;
           weakBgView.transform = bgTarget;
           weakMessageView.transform = messageTarget;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x4f418 */
           MissionAchievementMessage *strongSelf = weakSelf;
           [UIView animateWithDuration:kMissionMessageShortStageDuration
@@ -282,7 +282,7 @@ static const int kMissionIconWrapThreshold = 24;
                 /** @ghidraAddress 0x4f50c */
                 weakSelf.alpha = 0;
               }
-              completion:^(BOOL fadeFinished) {
+              completion:^(BOOL __attribute__((unused)) fadeFinished) {
                 /** @ghidraAddress 0x4f558 */
                 [strongSelf messageEnd];
               }];

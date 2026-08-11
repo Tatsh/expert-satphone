@@ -398,7 +398,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
           /** @ghidraAddress 0xf2fa8 */
           weakCover.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xf2ff4 */
           [weakDialog.buttonAbort setEnabled:YES];
         }];
@@ -417,7 +417,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
           /** @ghidraAddress 0xf3270 */
           weakCover.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xf32bc */
           [weakDialog.indicatorView stopAnimating];
           [weakCover removeFromSuperview];
@@ -1010,7 +1010,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
                        /** @ghidraAddress 0xf71c0 */
                        weakPolicy.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0xf720c */
                      }];
 }
@@ -1023,7 +1023,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
                        /** @ghidraAddress 0xf72dc */
                        weakPolicy.alpha = 0.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0xf7328 */
                      }];
 }
@@ -1083,7 +1083,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
           /** @ghidraAddress 0xf85f4 */
           weakAgreement.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xf8640 */
           [self storeEnd:nil];
         }];

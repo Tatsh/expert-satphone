@@ -79,7 +79,7 @@ static const NSTimeInterval kRightDropDelay = 0.1f; // @ghidraAddress 0x28f2b8
           weakSelf.transform = transform;
           self.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x140fc4 */
           [self dropAnimEnd:self];
         }];

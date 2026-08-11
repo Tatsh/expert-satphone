@@ -448,7 +448,7 @@ static BOOL g_bApplilinkWebAPISessionStatus;
     __block NSString *firstLine = nil;
     NSMutableString *accumulator = [[NSMutableString alloc] init];
     NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    [text enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
+    [text enumerateLinesUsingBlock:^(NSString *line, BOOL *__attribute__((unused)) stop) {
       /** @ghidraAddress 0x253104 */
       if (lineIndex != 0) {
           [accumulator appendString:line];

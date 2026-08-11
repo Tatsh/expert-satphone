@@ -1063,7 +1063,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
                                                                0.0, -(double)kRandViewSlideOffset)];
                        }
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x1a1050 */
                      }];
 }
@@ -1087,7 +1087,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
           [weakSelf.labelShareMessage setAlpha:0.0];
           [weakSelf.buttonHostSharePlay setEnabled:NO];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x19e778 */
           [weakSelf.labelShareMessage setHidden:YES];
           [weakSelf.buttonHostSharePlay setEnabled:YES];
@@ -1121,7 +1121,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
                        [weakUpload setAlpha:1.0];
                        [weakCover setAlpha:1.0];
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x19fefc */
                      }];
     [self.controller unenableCoverTap];
@@ -1209,7 +1209,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
               self->btnDiff[i].layer.transform = shrink;
           }
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1a03bc */
           [weakSelf.controller startEdit:weakSelf.info];
         }];
@@ -1329,7 +1329,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
               [weakSelf.shareDataProgress setAlpha:0.0];
               [weakSelf.labelShareMessage setTransform:CGAffineTransformIdentity];
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x19ee04 */
               [weakSelf.shareDataProgress setHidden:YES];
             }];
@@ -1398,7 +1398,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
           [weakUpload setAlpha:0.0];
           [weakCover setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1a38fc */
           [self removeUploadView];
         }];
@@ -1766,7 +1766,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
                   [weakSelf.labelShareMessage setAlpha:1.0];
                   [weakSelf.buttonHostSharePlay setEnabled:NO];
                 }
-                completion:^(BOOL finished) {
+                completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0x1a0b5c */
                   [weakSelf.buttonHostSharePlay setEnabled:YES];
                 }];
@@ -1810,7 +1810,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
           /** @ghidraAddress 0x19f304 */
           MusicDetailViewKntDimUnselectedButtons(self->btnDiff, difficulty);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x19f5a4 */
           if (!hasShareManager) {
               [weakSelf.controller startPlay:weakSelf.info];
@@ -2114,7 +2114,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
                            [weakUpload setAlpha:1.0];
                            [weakEdit setAlpha:1.0];
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x19d3f0 */
                          }];
         return;
@@ -2137,7 +2137,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
                        [weakUpload setAlpha:1.0];
                        [weakEdit setAlpha:1.0];
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x19d4f4 */
                      }];
     [editTxt[0] setText:editorInfo[@"fumenName"]];

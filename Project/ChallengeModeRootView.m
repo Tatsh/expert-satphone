@@ -1810,7 +1810,7 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
                 /** @ghidraAddress 0x716cc */
                 weakRankingView.alpha = 1;
               }
-              completion:^(BOOL innerFinished) {
+              completion:^(BOOL __attribute__((unused)) innerFinished) {
                 /** @ghidraAddress 0x71718 */
                 (void)finished;
               }];
@@ -1843,7 +1843,7 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
                     /** @ghidraAddress 0x719e4 */
                     weakDetailView.alpha = 1;
                   }
-                  completion:^(BOOL innerFinished) {
+                  completion:^(BOOL __attribute__((unused)) innerFinished) {
                     /** @ghidraAddress 0x71a30 */
                     (void)finished;
                   }];

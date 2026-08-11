@@ -537,7 +537,7 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
                        /** @ghidraAddress 0x1c2af0 */
                        weakList.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x1c2b3c */
                          // A global no-op completion block.
                      }];

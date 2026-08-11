@@ -771,7 +771,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
                        /** @ghidraAddress 0x111724 */
                        goodJobImage.alpha = 0.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x111770 */
                      }];
 }
@@ -2049,7 +2049,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
                                        /** @ghidraAddress 0x110ed4 */
                                        overlay.alpha = alphaMax;
                                      }
-                                     completion:^(BOOL finished){
+                                     completion:^(BOOL __attribute__((unused)) finished){
                                          /** @ghidraAddress 0x110f28 */
                                      }];
                 }
@@ -2071,7 +2071,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
                                /** @ghidraAddress 0x110f2c */
                                overlay.alpha = alphaMax;
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x110f80 */
                              }];
         }
@@ -2084,7 +2084,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
                                /** @ghidraAddress 0x110f84 */
                                overlay.alpha = alphaMax;
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x110fd8 */
                              }];
         }

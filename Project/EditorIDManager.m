@@ -194,11 +194,12 @@ static const int kAccountSwitchStatus = 0x75da;
     [[NSClassFromString(@"ChallengeStatus") sharedStatus] resetStatus];
 
     NSHTTPCookieStorage *storage = NSHTTPCookieStorage.sharedHTTPCookieStorage;
-    [storage.cookies
-        enumerateObjectsUsingBlock:^(NSHTTPCookie *cookie, NSUInteger index, BOOL *stop) {
-          /** @ghidraAddress 0x1d3b68 */
-          [storage deleteCookie:cookie];
-        }];
+    [storage.cookies enumerateObjectsUsingBlock:^(NSHTTPCookie *cookie,
+                                                  NSUInteger __attribute__((unused)) index,
+                                                  BOOL *__attribute__((unused)) stop) {
+      /** @ghidraAddress 0x1d3b68 */
+      [storage deleteCookie:cookie];
+    }];
 }
 
 /** @ghidraAddress 0x1d3534 */

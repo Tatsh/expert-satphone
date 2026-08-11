@@ -744,26 +744,28 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
     [packView setHidden:NO];
 
     // Fill the visible tune views with their track info; blank and hide the surplus slots.
-    [arrayMusicView
-        enumerateObjectsUsingBlock:^(StorePackMusicView *musicView, NSUInteger index, BOOL *stop) {
-          /** @ghidraAddress 0x1dfd8c */
-          if ((NSInteger)index < trackCount) {
-              [musicView setInfo:self.packInfo.musicInfos[index]];
-              [musicView setHidden:NO];
-          } else {
-              [musicView setInfo:nil];
-              [musicView setHidden:YES];
-          }
-        }];
+    [arrayMusicView enumerateObjectsUsingBlock:^(StorePackMusicView *musicView,
+                                                 NSUInteger index,
+                                                 BOOL *__attribute__((unused)) stop) {
+      /** @ghidraAddress 0x1dfd8c */
+      if ((NSInteger)index < trackCount) {
+          [musicView setInfo:self.packInfo.musicInfos[index]];
+          [musicView setHidden:NO];
+      } else {
+          [musicView setInfo:nil];
+          [musicView setHidden:YES];
+      }
+    }];
 
     [packArtworkView startDownloadImage];
 
     // Kick off the artwork download for each tune view (a capture-free global block).
-    [arrayMusicView
-        enumerateObjectsUsingBlock:^(StorePackMusicView *musicView, NSUInteger index, BOOL *stop) {
-          /** @ghidraAddress 0x1dfeb0 */
-          [musicView.artworkView startDownloadImage];
-        }];
+    [arrayMusicView enumerateObjectsUsingBlock:^(StorePackMusicView *musicView,
+                                                 NSUInteger __attribute__((unused)) index,
+                                                 BOOL *__attribute__((unused)) stop) {
+      /** @ghidraAddress 0x1dfeb0 */
+      [musicView.artworkView startDownloadImage];
+    }];
 
     isInfoLoaded = YES;
     [NSNotificationCenter.defaultCenter addObserver:self
@@ -915,7 +917,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
           // First leg: fade the outgoing background out.
           [weakOutgoing setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1de5b8 */
           // Retire the outgoing background (reset to opaque for reuse, then hide), prime the
           // incoming one (unhide at zero alpha), and start the second leg.
@@ -931,7 +933,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
                 // Second leg: fade the incoming background in.
                 [weakIncoming setAlpha:1.0];
               }
-              completion:^(BOOL finished2) {
+              completion:^(BOOL __attribute__((unused)) finished2) {
                 /** @ghidraAddress 0x1de758 */
                 // A capture-free global block: re-enable touch input at the end of the sequence.
                 [[UIApplication sharedApplication] endIgnoringInteractionEvents];

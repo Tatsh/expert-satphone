@@ -261,7 +261,7 @@ static const NSTimeInterval kFadeDuration = 0.6;
           /** @ghidraAddress 0xfbd54 */
           self.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xfbd78 */
           // The finished flag is ignored, so the delegate is notified even if the fade was cut
           // short.

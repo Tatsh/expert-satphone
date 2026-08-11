@@ -28,7 +28,7 @@ static const NSInteger kSdkVersionNotSupportedError = 1025;
     // error the core reports here is discarded.
     [AnalysisNetworkCore openExternalWebBrowserCore:url
                                                 env:env
-                                           callback:^(NSError *error){
+                                           callback:^(NSError *__attribute__((unused)) error){
                                                /** @ghidraAddress 0x2411c0 */
                                            }];
 }

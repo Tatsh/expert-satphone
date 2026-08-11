@@ -598,7 +598,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
                            /** @ghidraAddress 0x10a0f0 */
                            [goodJob setAlpha:0.0f];
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x10a13c */
                              // The completion block is the shared empty global block.
                          }];
@@ -2295,7 +2295,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
                                        /** @ghidraAddress 0x109830 */
                                        [goodJob setAlpha:(double)alphaMax];
                                      }
-                                     completion:^(BOOL finished){
+                                     completion:^(BOOL __attribute__((unused)) finished){
                                          /** @ghidraAddress 0x109884 */
                                      }];
                 }
@@ -2315,7 +2315,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
                                /** @ghidraAddress 0x109888 */
                                [goodJob setAlpha:(double)alphaMax];
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x1098dc */
                              }];
         }
@@ -2328,7 +2328,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
                                /** @ghidraAddress 0x1098e0 */
                                [goodJob setAlpha:(double)alphaMax];
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x109934 */
                              }];
         }

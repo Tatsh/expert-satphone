@@ -551,7 +551,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                            /** @ghidraAddress 0x121be4 */
                            [goodJob setAlpha:0.0f];
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x121c30 */
                              // The completion block is the shared empty global block.
                          }];
@@ -2669,7 +2669,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                        /** @ghidraAddress 0x121438 */
                                        [goodJob setAlpha:1.0f];
                                      }
-                                     completion:^(BOOL finished){
+                                     completion:^(BOOL __attribute__((unused)) finished){
                                          /** @ghidraAddress 0x121484 */
                                      }];
                 }
@@ -2681,7 +2681,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                        /** @ghidraAddress 0x121488 */
                                        [goodJob setAlpha:(double)alphaMax];
                                      }
-                                     completion:^(BOOL finished){
+                                     completion:^(BOOL __attribute__((unused)) finished){
                                          /** @ghidraAddress 0x1214dc */
                                      }];
                 }
@@ -2700,7 +2700,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                /** @ghidraAddress 0x1214e0 */
                                [goodJob setAlpha:(double)alphaMax];
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x121534 */
                              }];
         }
@@ -2713,7 +2713,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                /** @ghidraAddress 0x121538 */
                                [goodJob setAlpha:(double)alphaMax];
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x12158c */
                              }];
         }

@@ -196,7 +196,7 @@ static NSString *const kUserIDTitleText = @"あなたのユーザーID";
                              /** @ghidraAddress 0x3a8ec */
                              weakCodeBg.alpha = 1;
                            }
-                           completion:^(BOOL innerFinished){
+                           completion:^(BOOL __attribute__((unused)) innerFinished){
                                /** @ghidraAddress 0x3a938 */
                                // Empty completion block (0x2c9d80).
                            }];

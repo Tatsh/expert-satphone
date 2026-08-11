@@ -717,7 +717,7 @@ static const double kBgmRestoreFadeTime = 0.2;
           /** @ghidraAddress 0x1793a0 */
           [weakDialog setAlpha:1.0f];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1793ec */
           [weakDialog.buttonAbort setEnabled:YES];
         }];
@@ -736,7 +736,7 @@ static const double kBgmRestoreFadeTime = 0.2;
           /** @ghidraAddress 0x179608 */
           [weakDialog setAlpha:0.0f];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x179654 */
           [weakDialog.indicatorView stopAnimating];
         }];

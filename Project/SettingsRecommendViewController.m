@@ -98,7 +98,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
           /** @ghidraAddress 0xcfe08 */
           weakRecommendView.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xcfe54 */
           weakRecommendView.alpha = 1.0;
         }];

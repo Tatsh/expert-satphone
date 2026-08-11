@@ -104,7 +104,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
           /** @ghidraAddress 0x20a8e4 */
           weakRewardView.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x20a930 */
           self->rewardView.alpha = 1.0;
         }];

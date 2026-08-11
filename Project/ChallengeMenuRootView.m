@@ -94,7 +94,7 @@ static NSString *const kChallengeLaboMenuSE = @"SD_LABO_MENU";
                        weakCover.alpha = 1;
                        weakMenu.alpha = 1;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x1013b0 */
                      }];
 }
@@ -111,7 +111,7 @@ static NSString *const kChallengeLaboMenuSE = @"SD_LABO_MENU";
                            /** @ghidraAddress 0x10149c */
                            weakCurrent.alpha = 1;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x1014e8 */
                          }];
     }
@@ -130,7 +130,7 @@ static NSString *const kChallengeLaboMenuSE = @"SD_LABO_MENU";
           weakCover.alpha = 0;
           weakMenu.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x10174c */
           [self.aDelegate closeMenuView];
         }];
@@ -146,7 +146,7 @@ static NSString *const kChallengeLaboMenuSE = @"SD_LABO_MENU";
                        /** @ghidraAddress 0x101874 */
                        weakMenu.alpha = 1;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x1018c0 */
                      }];
 }
@@ -162,7 +162,7 @@ static NSString *const kChallengeLaboMenuSE = @"SD_LABO_MENU";
                        /** @ghidraAddress 0x1019dc */
                        weakMenu.alpha = 0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x101a28 */
                      }];
 }
@@ -178,7 +178,7 @@ static NSString *const kChallengeLaboMenuSE = @"SD_LABO_MENU";
           /** @ghidraAddress 0x101b78 */
           weakMenu.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x101bc4 */
           [UIView animateWithDuration:kChallengeMenuAnimationDuration
                                 delay:0
@@ -187,7 +187,7 @@ static NSString *const kChallengeLaboMenuSE = @"SD_LABO_MENU";
                              /** @ghidraAddress 0x101c74 */
                              weakCurrent.alpha = 1;
                            }
-                           completion:^(BOOL finished2){
+                           completion:^(BOOL __attribute__((unused)) finished2){
                                /** @ghidraAddress 0x101cc0 */
                            }];
         }];
@@ -210,7 +210,7 @@ static NSString *const kChallengeLaboMenuSE = @"SD_LABO_MENU";
           [self->currentView removeFromSuperview];
           self->currentView = nil;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x101f6c */
           [UIView animateWithDuration:kChallengeMenuAnimationDuration
                                 delay:0
@@ -220,7 +220,7 @@ static NSString *const kChallengeLaboMenuSE = @"SD_LABO_MENU";
                              weakMenu.alpha = 1;
                              [weakMenu refreshView];
                            }
-                           completion:^(BOOL finished2){
+                           completion:^(BOOL __attribute__((unused)) finished2){
                                /** @ghidraAddress 0x10208c */
                            }];
         }];

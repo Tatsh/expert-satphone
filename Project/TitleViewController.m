@@ -174,7 +174,7 @@ static const NSCalendarUnit kSvTimeCalendarUnits =
                        weakCover.alpha = 1.0;
                        weakText.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x1e6d8 */
                      }];
 }

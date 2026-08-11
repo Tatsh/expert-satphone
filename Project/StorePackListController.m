@@ -129,11 +129,12 @@ static NSString *_storeCountry = nil;
 /** @ghidraAddress 0xcb9f0 */
 - (NSArray<NSString *> *)genreNames {
     NSMutableArray<NSString *> *names = [[NSMutableArray alloc] initWithCapacity:arrayGenre.count];
-    [arrayGenre
-        enumerateObjectsUsingBlock:^(StorePackListGenre *genre, NSUInteger index, BOOL *stop) {
-          /** @ghidraAddress 0xcbabc */
-          [names addObject:genre.genreName];
-        }];
+    [arrayGenre enumerateObjectsUsingBlock:^(StorePackListGenre *genre,
+                                             NSUInteger __attribute__((unused)) index,
+                                             BOOL *__attribute__((unused)) stop) {
+      /** @ghidraAddress 0xcbabc */
+      [names addObject:genre.genreName];
+    }];
     return names;
 }
 
@@ -447,7 +448,9 @@ static NSString *_storeCountry = nil;
     if (!_initiallyLoaded) {
         NSArray *promotionEntries = [response arrayForKey:kResponseKeyPromotion];
         if (promotionEntries.count) {
-            [promotionEntries enumerateObjectsUsingBlock:^(id entry, NSUInteger index, BOOL *stop) {
+            [promotionEntries enumerateObjectsUsingBlock:^(id entry,
+                                                           NSUInteger __attribute__((unused)) index,
+                                                           BOOL *__attribute__((unused)) stop) {
               /** @ghidraAddress 0xcdcec */
               if (![entry isKindOfClass:[NSDictionary class]]) {
                   return;

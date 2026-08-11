@@ -1362,7 +1362,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
               [weakSelf.shareDataProgress setAlpha:0.0];
               [weakSelf.labelShareMessage setTransform:CGAffineTransformIdentity];
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x59f84 */
               [weakSelf.shareDataProgress setHidden:YES];
             }];
@@ -1396,7 +1396,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                            [weakUpload setAlpha:1.0];
                            [weakEdit setAlpha:1.0];
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x58934 */
                          }];
         return;
@@ -1419,7 +1419,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                        [weakUpload setAlpha:1.0];
                        [weakEdit setAlpha:1.0];
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x58830 */
                      }];
     [editTxt[0] setText:editorInfo[@"fumenName"]];
@@ -1608,7 +1608,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
           MusicDetailViewOrgShrinkUnselectedButtons(
               self->btnDiff, self->detailScrollButton, difficulty);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x5aa9c */
           if (!hasShareManager) {
               [weakSelf.controller startPlay:weakSelf.info];
@@ -1995,7 +1995,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                   [weakSelf.labelShareMessage setAlpha:1.0];
                   [weakSelf.buttonHostSharePlay setEnabled:NO];
                 }
-                completion:^(BOOL finished) {
+                completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0x5c004 */
                   [weakSelf.buttonHostSharePlay setEnabled:YES];
                 }];
@@ -2037,7 +2037,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                        [weakCover setAlpha:1.0];
                        [weakUpload setAlpha:1.0];
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x5b3a4 */
                      }];
     [self.controller unenableCoverTap];
@@ -2062,7 +2062,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
               self->btnDiff[i].layer.transform = shrink;
           }
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x5b864 */
           [weakSelf.controller startEdit:weakSelf.info];
         }];
@@ -2310,7 +2310,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                                                                0.0, -(double)kRandViewSlideOffset)];
                        }
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x5c4f8 */
                      }];
 }
@@ -2332,7 +2332,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
           /** @ghidraAddress 0x5990c */
           [weakSelf.labelShareMessage setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x59978 */
           [weakSelf.labelShareMessage setHidden:YES];
         }];
@@ -2349,7 +2349,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
           [weakCover setAlpha:0.0];
           [weakUpload setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x5ec8c */
           [self removeUploadView];
         }];

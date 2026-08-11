@@ -627,7 +627,7 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
               currentPage = perPage != 0 ? (unsigned int)musicIndex / (unsigned int)perPage : 0;
               [listView setContentOffset:CGPointMake((double)currentPage * pageWidth, 0)];
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x3dab4 */
               [self updatePageDisplay];
             }];
@@ -706,7 +706,8 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
 - (void)releaseArtworks {
     [artworkCache removeAllObjects];
     [operationQueue cancelAllOperations];
-    [dictLoader enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+    [dictLoader enumerateKeysAndObjectsUsingBlock:^(
+                    id __attribute__((unused)) key, id obj, BOOL *__attribute__((unused)) stop) {
       /** @ghidraAddress 0x3e318 */
       [obj setDelegate:nil];
     }];
@@ -1071,7 +1072,7 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
     }
     [weakListView setCollectionViewLayout:layout
                                  animated:YES
-                               completion:^(BOOL finished) {
+                               completion:^(BOOL __attribute__((unused)) finished) {
                                  /** @ghidraAddress 0x403d4 */
                                  for (collectionCell *cell in listView.visibleCells) {
                                      [[cell getMusicView] switchLabel:drawColumnType];
@@ -1096,7 +1097,7 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
                            /** @ghidraAddress 0x4068c */
                            weakScaleDown.alpha = 1.0;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x406d8 */
                          }];
     }
@@ -1107,7 +1108,7 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
                            /** @ghidraAddress 0x406dc */
                            weakScaleUp.alpha = 1.0;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x40728 */
                          }];
     }
@@ -1118,7 +1119,7 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
                            /** @ghidraAddress 0x4077c */
                            weakScaleUp.alpha = 0.0;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x407c8 */
                          }];
     } else if (colType == 2) {
@@ -1128,7 +1129,7 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
                            /** @ghidraAddress 0x4072c */
                            weakScaleDown.alpha = 0.0;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x40778 */
                          }];
     }
@@ -1273,7 +1274,7 @@ static inline void MusicListViewBuildBalloonView(MusicListView *self) {
               /** @ghidraAddress 0x413e8 */
               weakBalloon.alpha = 0.0;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x41434 */
               // Alpha is reset to 1.0 only after setHidden:YES, so the reset is never
               // seen; the ivar is not nil'ed, the balloon object is reused.

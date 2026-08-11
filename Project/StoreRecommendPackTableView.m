@@ -142,7 +142,9 @@ static const CGFloat kRowHeightValidPhone = 80.0;
         [request setValue:JubeatAppDelegate.appDelegate.userAgent forHTTPHeaderField:@"User-Agent"];
         NSURLSessionDataTask *task = [NSURLSession.sharedSession
             dataTaskWithRequest:request
-              completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+              completionHandler:^(NSData *data,
+                                  NSURLResponse *__attribute__((unused)) response,
+                                  NSError *__attribute__((unused)) error) {
                 /** @ghidraAddress 0x212c50 */
                 // The response and error are unused: a transport failure is detected only via
                 // nil data.

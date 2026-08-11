@@ -271,7 +271,9 @@ NSString *CreateRandomString(int length);
     // then stp w8,wzr with block at 0xb52b0 (Block_CollectPurchasedPackID) and
     // bl enumerateObjectsUsingBlock:.
     NSMutableArray *ids = [[NSMutableArray alloc] initWithCapacity:purchasedProducts.count];
-    [purchasedProducts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    [purchasedProducts enumerateObjectsUsingBlock:^(id obj,
+                                                    NSUInteger __attribute__((unused)) idx,
+                                                    BOOL *__attribute__((unused)) stop) {
       /** @ghidraAddress 0xb52b0 */
       // Block body extracts pack ID from product — verified via the block's capture of ids.
       NSString *packID = obj[@"packID"] ?: obj[@"productID"];
@@ -288,7 +290,9 @@ NSString *CreateRandomString(int length);
     // Verified at 0xb5354 as ldr pendingReceipts / bl count / bl initWithCapacity:,
     // then block at 0xb53a0 with enumerateKeysAndObjectsUsingBlock:.
     NSMutableArray *ids = [[NSMutableArray alloc] initWithCapacity:pendingReceipts.count];
-    [pendingReceipts enumerateKeysAndObjectsUsingBlock:^(NSString *productID, id obj, BOOL *stop) {
+    [pendingReceipts enumerateKeysAndObjectsUsingBlock:^(NSString *productID,
+                                                         id __attribute__((unused)) obj,
+                                                         BOOL *__attribute__((unused)) stop) {
       /** @ghidraAddress 0xb5420 */
       int packID = [StoreUtil packIDForProductID:productID];
       if (packID > 0) {
@@ -485,11 +489,12 @@ NSString *CreateRandomString(int length);
     if (restoringReceipts.count != 0) {
         // Copy every restored receipt into the pending map (as a set: the value is a placeholder),
         // then kick off server verification of the whole pending set.
-        [restoringReceipts
-            enumerateKeysAndObjectsUsingBlock:^(NSString *productID, id obj, BOOL *stop) {
-              /** @ghidraAddress 0xb890c */
-              [pendingReceipts setObject:@"dummy" forKey:productID];
-            }];
+        [restoringReceipts enumerateKeysAndObjectsUsingBlock:^(NSString *productID,
+                                                               id __attribute__((unused)) obj,
+                                                               BOOL *__attribute__((unused)) stop) {
+          /** @ghidraAddress 0xb890c */
+          [pendingReceipts setObject:@"dummy" forKey:productID];
+        }];
         verifingIDs = [pendingReceipts.allKeys copy];
         if (pendingReceipts.count != 0) {
             NSDictionary *post = [self createVerifyPostDictionary:@[] productPrices:@[]];

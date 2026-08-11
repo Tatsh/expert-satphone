@@ -640,7 +640,7 @@ static const NSTimeInterval kFadeInDuration = 0.2; // @ghidraAddress 0x28e040
                            self->selFrameLockImgTable[i].alpha = 1.0;
                        }
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x7de44 */
                          // The completion is empty.
                      }];

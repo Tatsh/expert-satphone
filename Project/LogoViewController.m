@@ -263,7 +263,7 @@ static const CGFloat kLogoVisible = 1.0;
                         options:UIViewAnimationOptionBeginFromCurrentState |
                                 UIViewAnimationOptionAllowUserInteraction
                      animations:animations
-                     completion:^(BOOL finished) {
+                     completion:^(BOOL __attribute__((unused)) finished) {
                        /** @ghidraAddress 0x82fc0 */
                        // The step's completion drives the next step, so the sequence is a chain
                        // of animations rather than a timer.
@@ -299,7 +299,7 @@ static const CGFloat kLogoVisible = 1.0;
               /** @ghidraAddress 0x832f8 */
               self->bemaniLogoView.alpha = kLogoHidden;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x83328 */
               // Rejoins the sequence one step back, so the next -fireAnimation runs the age
               // notice's fade in.

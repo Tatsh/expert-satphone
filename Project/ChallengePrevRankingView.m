@@ -207,7 +207,7 @@ static inline void ChallengePrevRankingViewHandleListLoadResponse(ChallengePrevR
           /** @ghidraAddress 0x14160c */
           weakLineupListView.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x141658 */
           [UIView animateWithDuration:kFadeDuration
                                 delay:kFadeDelay
@@ -232,7 +232,7 @@ static inline void ChallengePrevRankingViewHandleListLoadResponse(ChallengePrevR
           /** @ghidraAddress 0x1418c0 */
           weakRankingListView.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x14190c */
           [UIView animateWithDuration:kFadeDuration
                                 delay:kFadeDelay
@@ -241,7 +241,7 @@ static inline void ChallengePrevRankingViewHandleListLoadResponse(ChallengePrevR
                              /** @ghidraAddress 0x1419c0 */
                              weakLineupListView.alpha = 1.0;
                            }
-                           completion:^(BOOL innerFinished){
+                           completion:^(BOOL __attribute__((unused)) innerFinished){
                                /** @ghidraAddress 0x141a0c */
                            }];
         }];

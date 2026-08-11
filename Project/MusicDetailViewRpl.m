@@ -1041,7 +1041,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                            [weakUpload setAlpha:1.0];
                            [weakEdit setAlpha:1.0];
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x132c4c */
                          }];
         return;
@@ -1064,7 +1064,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                        [weakUpload setAlpha:1.0];
                        [weakEdit setAlpha:1.0];
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x132d50 */
                      }];
     [editTxt[0] setText:editorInfo[@"fumenName"]];
@@ -1226,7 +1226,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
           MusicDetailViewRplScaleOutUnselectedButtons(
               self->btnDiff, self->detailScrollButton, difficulty);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x134c40 */
           if (!hasShareManager) {
               [weakSelf.controller startPlay:weakSelf.info];
@@ -1760,7 +1760,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
               [weakSelf.shareDataProgress setAlpha:0.0];
               [weakSelf.labelShareMessage setTransform:CGAffineTransformIdentity];
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x1344b8 */
               [weakSelf.shareDataProgress setHidden:YES];
             }];
@@ -1953,7 +1953,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                   [weakSelf.labelShareMessage setAlpha:1.0];
                   [weakSelf.buttonHostSharePlay setEnabled:NO];
                 }
-                completion:^(BOOL finished) {
+                completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0x1361a8 */
                   [weakSelf.buttonHostSharePlay setEnabled:YES];
                 }];
@@ -1995,7 +1995,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                        [weakCover setAlpha:1.0];
                        [weakUpload setAlpha:1.0];
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x135548 */
                      }];
     [self.controller unenableCoverTap];
@@ -2020,7 +2020,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
               self->btnDiff[i].layer.transform = shrink;
           }
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x135a08 */
           [weakSelf.controller startEdit:weakSelf.info];
         }];
@@ -2202,7 +2202,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                                                                0.0, -(double)kRandViewSlideOffset)];
                        }
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x13669c */
                      }];
 }
@@ -2224,7 +2224,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
           /** @ghidraAddress 0x133e40 */
           [weakSelf.labelShareMessage setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x133eac */
           [weakSelf.labelShareMessage setHidden:YES];
         }];
@@ -2241,7 +2241,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
           [weakCover setAlpha:0.0];
           [weakUpload setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x138eac */
           [self removeUploadView];
         }];

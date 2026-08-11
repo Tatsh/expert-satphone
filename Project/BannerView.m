@@ -44,7 +44,9 @@
     // view alive. The binary uses objc_initWeak here and objc_loadWeakRetained at the far end.
     __weak UIImageView *weakImageView = self.imageView;
     task = [session dataTaskWithURL:url
-                  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                  completionHandler:^(NSData *data,
+                                      NSURLResponse *__attribute__((unused)) response,
+                                      NSError *__attribute__((unused)) error) {
                     /** @ghidraAddress 0x1bb264 */
                     // Yes, response and error are both ignored: a failed request simply yields no
                     // image and the grey plate stays.

@@ -96,12 +96,13 @@ static inline NSURL *StoreUtilPolicyStoreURLWithVersionDefaultsKey(NSString *def
     // Appends one "&key=value" pair per string entry; the leading "&" is unconditional, so the
     // result is a fragment to append after an existing query, not a standalone query string.
     NSMutableString *query = [[NSMutableString alloc] init];
-    [dictionary enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-      /** @ghidraAddress 0xb9950 */
-      if ([key isKindOfClass:NSString.class] && [value isKindOfClass:NSString.class]) {
-          [query appendFormat:@"&%@=%@", key, value];
-      }
-    }];
+    [dictionary
+        enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *__attribute__((unused)) stop) {
+          /** @ghidraAddress 0xb9950 */
+          if ([key isKindOfClass:NSString.class] && [value isKindOfClass:NSString.class]) {
+              [query appendFormat:@"&%@=%@", key, value];
+          }
+        }];
     return [NSString stringWithString:query];
 }
 
@@ -155,7 +156,8 @@ static inline NSURL *StoreUtilPolicyStoreURLWithVersionDefaultsKey(NSString *def
     }
     NSMutableString *path = [NSMutableString
         stringWithFormat:@"%s/optional_packlist/?target=%s&packs=", kStoreCGIPath, kStoreRegion];
-    [packIDs enumerateObjectsUsingBlock:^(NSNumber *packID, NSUInteger index, BOOL *stop) {
+    [packIDs enumerateObjectsUsingBlock:^(
+                 NSNumber *packID, NSUInteger index, BOOL *__attribute__((unused)) stop) {
       /** @ghidraAddress 0xb9eac */
       [path appendFormat:(index == 0 ? @"%d" : @",%d"), packID.unsignedIntValue];
     }];

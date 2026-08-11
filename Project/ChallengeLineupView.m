@@ -189,7 +189,7 @@ static const CGFloat kHalf = 0.5;
           /** @ghidraAddress 0x14689c */
           weakSelf.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1468e8 */
           [self.aDelegate closeLineupView];
         }];
@@ -205,7 +205,7 @@ static const CGFloat kHalf = 0.5;
                        /** @ghidraAddress 0x146a0c */
                        weakSelf.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x146a58 */
                      }];
 }

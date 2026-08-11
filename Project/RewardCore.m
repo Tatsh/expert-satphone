@@ -287,7 +287,9 @@ static dispatch_queue_t gRewardCoreQueue;
                                                   postApplicationInstallWithPriority:
                                                       kRewardInstallPriorityPasteBoard
                                                                             callback:^(
-                                                                                NSError *
+                                                                                NSError
+                                                                                    *__attribute__((
+                                                                                        unused))
                                                                                     pasteBoardError){
                                                                                 /** @ghidraAddress
                                                                                    0x231b70 */
@@ -319,7 +321,7 @@ static dispatch_queue_t gRewardCoreQueue;
         block(nil);
         return;
     }
-    [RewardWebAPI checkLoginWithBlock:^(BOOL valid, NSError *error) {
+    [RewardWebAPI checkLoginWithBlock:^(BOOL valid, NSError *__attribute__((unused)) error) {
       /** @ghidraAddress 0x231d38 (Block_RewardCoreStartSessionAfterInit) */
       if (valid) {
           gRewardAuthExpiry = [[NSDate date] dateByAddingTimeInterval:kRewardAuthSessionLifetime];

@@ -645,7 +645,7 @@ static inline void VideoViewShowStreamingErrorOverlay(VideoView *self) {
     self.playTimeObserver =
         [self.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(0.5, 1000000000)
                                                   queue:nil
-                                             usingBlock:^(CMTime time) {
+                                             usingBlock:^(CMTime __attribute__((unused)) time) {
                                                /** @ghidraAddress 0x229b78 */
                                                [blockSelf syncTimeRemaining];
                                              }];
@@ -782,7 +782,7 @@ static inline void VideoViewShowStreamingErrorOverlay(VideoView *self) {
               self.memuView.alpha = 1.0;
               self.menuStatus = VideoViewMenuStatusShown;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x22a5b0 */
               [self performSelector:@selector(menuOff)
                          withObject:nil
@@ -806,7 +806,7 @@ static inline void VideoViewShowStreamingErrorOverlay(VideoView *self) {
                            self.memuView.alpha = 1.0;
                            self.menuStatus = VideoViewMenuStatusShown;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x22a720 */
                              // The binary's completion is an empty global block.
                          }];
@@ -828,7 +828,7 @@ static inline void VideoViewShowStreamingErrorOverlay(VideoView *self) {
                   /** @ghidraAddress 0x22a868 */
                   self.memuView.alpha = 0.0;
                 }
-                completion:^(BOOL finished) {
+                completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0x22a89c */
                   self.memuView.hidden = YES;
                   self.menuStatus = VideoViewMenuStatusHidden;

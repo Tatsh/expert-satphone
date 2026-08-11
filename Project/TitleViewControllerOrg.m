@@ -196,7 +196,7 @@
           jubeatLogoView.alpha = 1.0;
           copyrightView.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x13be50 */
           [self startMarkerCheck];
         }];

@@ -81,10 +81,8 @@ static const int kListPosYErrorPhone = 0x1e;
 @end
 
 // Presents the shared alert with an empty title and a localised OK button.
-static inline void ChallengeRivalListViewShowPlainAlert(ChallengeRivalListView *self,
-                                                        id delegate,
-                                                        int tag,
-                                                        NSString *msg) {
+static inline void ChallengeRivalListViewShowPlainAlert(
+    ChallengeRivalListView *__attribute__((unused)) self, id delegate, int tag, NSString *msg) {
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:delegate

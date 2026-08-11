@@ -92,10 +92,8 @@ static const int kCoinOverflowConfirmTag = 4;
 @end
 
 // Presents the shared alert with an empty title and a localised OK button.
-static inline void ChallengePresentViewShowPlainAlert(ChallengePresentView *self,
-                                                      id delegate,
-                                                      int tag,
-                                                      NSString *msg) {
+static inline void ChallengePresentViewShowPlainAlert(
+    ChallengePresentView *__attribute__((unused)) self, id delegate, int tag, NSString *msg) {
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:delegate

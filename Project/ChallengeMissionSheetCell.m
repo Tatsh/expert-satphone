@@ -406,7 +406,7 @@ static NSString *const kMissionIconNames[] = {
               /** @ghidraAddress 0x85854 */
               weakStampView.alpha = kStampShown;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x858a0 */
               if ([self.aDelegate respondsToSelector:@selector(stampAnimationEnd:)]) {
                   [self.aDelegate performSelector:@selector(stampAnimationEnd:) withObject:self];
@@ -465,7 +465,7 @@ static NSString *const kMissionIconNames[] = {
                            /** @ghidraAddress 0x85c68 */
                            weakCompleteImage.alpha = kStampShown;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x85cb4 */
                              // The original passes an empty global completion block here.
                          }];

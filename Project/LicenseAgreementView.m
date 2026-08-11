@@ -535,7 +535,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
           /** @ghidraAddress 0x1f77d4 */
           self.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1f77f8 */
           if ([self->delegate respondsToSelector:@selector(agreementSuccess:)]) {
               [self->delegate performSelector:@selector(agreementSuccess:) withObject:self];

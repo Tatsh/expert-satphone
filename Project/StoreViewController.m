@@ -343,7 +343,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
           /** @ghidraAddress 0x8a8a0 */
           [weakCover setAlpha:1.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x8a8ec */
           [weakDialog.buttonAbort setEnabled:YES];
         }];
@@ -363,7 +363,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
           /** @ghidraAddress 0x8ab68 */
           [weakCover setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x8abb4 */
           [weakDialog.indicatorView stopAnimating];
           [weakCover removeFromSuperview];
@@ -958,7 +958,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
                        /** @ghidraAddress 0x8eab8 */
                        [weakCover setAlpha:1.0];
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x8eb04 */
                      }];
 }
@@ -971,7 +971,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
                        /** @ghidraAddress 0x8ebd4 */
                        [weakCover setAlpha:0.0];
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x8ec20 */
                      }];
 }
@@ -1031,7 +1031,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
           /** @ghidraAddress 0x8feec */
           [weakSender setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x8ff38 */
           [self storeEnd:nil];
         }];

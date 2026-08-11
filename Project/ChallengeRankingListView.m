@@ -220,10 +220,8 @@ static const CGFloat kTitleAlpha = 0.5;
 @end
 
 // Shows the shared plain alert with the given tag, message, and a localised OK button.
-static inline void ChallengeRankingListViewShowPlainAlert(ChallengeRankingListView *self,
-                                                          id delegate,
-                                                          int tag,
-                                                          NSString *msg) {
+static inline void ChallengeRankingListViewShowPlainAlert(
+    ChallengeRankingListView *__attribute__((unused)) self, id delegate, int tag, NSString *msg) {
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:kBundleKeyOK value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
                                        delegate:delegate
@@ -346,7 +344,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
               /** @ghidraAddress 0x157c00 */
               weakListView.alpha = 1.0;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x157c4c */
               [self buttonEnable:YES];
               self->isNext = [json[kKeyHasNext] boolValue];
@@ -771,7 +769,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
                        /** @ghidraAddress 0x156be0 */
                        weakTitleView.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x156c2c */
                      }];
     selectArea = area;
@@ -825,7 +823,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
           /** @ghidraAddress 0x156fec */
           weakListView.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x157038 */
           [self->rankingDownloader startDownloading];
         }];
@@ -918,7 +916,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
               /** @ghidraAddress 0x158284 */
               weakAddMessage.alpha = 0.0;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x1582d0 */
               UIImage *img = LoadScaledPngImage(kResRivalRegMsg1);
               weakAddMessage.image = img;
@@ -1077,7 +1075,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
                            weakRivalAddView.alpha = 1.0;
                            weakRivalCover.alpha = 1.0;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x15925c */
                          }];
     } else {
@@ -1233,7 +1231,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
           weakAddBtn.alpha = 0.0;
           weakCancelBtn.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1597f4 */
           NSDictionary *post =
               [NSDictionary dictionaryWithObjects:@[ self->selectedRivalID, @YES ]
@@ -1255,7 +1253,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
                              /** @ghidraAddress 0x159a8c */
                              weakAddMessage.alpha = 1.0;
                            }
-                           completion:^(BOOL innerFinished){
+                           completion:^(BOOL __attribute__((unused)) innerFinished){
                                /** @ghidraAddress 0x159ad8 */
                            }];
         }];
@@ -1274,7 +1272,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
           weakRivalAddView.alpha = 0.0;
           weakRivalCover.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x15949c */
           // Asymmetric teardown: rivalAddView is removed and its ivar cleared, but rivalCover is
           // only removed and kept for reuse.
@@ -1297,7 +1295,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
           /** @ghidraAddress 0x15a620 */
           weakAddMessage.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x15a66c */
           UIImage *img = LoadScaledPngImage(kResRivalRegMsg3);
           weakAddMessage.image = img;
@@ -1309,7 +1307,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
                              weakAddMessage.alpha = 1.0;
                              weakEndBtn.alpha = 1.0;
                            }
-                           completion:^(BOOL innerFinished){
+                           completion:^(BOOL __attribute__((unused)) innerFinished){
                                /** @ghidraAddress 0x15a868 */
                            }];
         }];

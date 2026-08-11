@@ -513,7 +513,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                        /** @ghidraAddress 0x152218 */
                        goodJob.alpha = 0.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x152264 */
                      }];
 }
@@ -2963,7 +2963,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                                        /** @ghidraAddress 0x151950 */
                                        goodJob.alpha = alphaMax;
                                      }
-                                     completion:^(BOOL finished){
+                                     completion:^(BOOL __attribute__((unused)) finished){
                                          /** @ghidraAddress 0x1519a4 */
                                      }];
                 }
@@ -2983,7 +2983,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                                /** @ghidraAddress 0x1519a8 */
                                goodJob.alpha = alphaMax;
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x1519fc */
                              }];
         }
@@ -2996,7 +2996,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                                /** @ghidraAddress 0x151a00 */
                                goodJob.alpha = alphaMax;
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x151a54 */
                              }];
         }

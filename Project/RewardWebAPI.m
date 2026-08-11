@@ -169,7 +169,7 @@ static BOOL RewardResponseIsSuccess(id response) {
         cachePolicy:nil
         timeout:kRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x2542b8 */
           if (![response isKindOfClass:[NSDictionary class]]) {
               callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorGeneric
@@ -222,7 +222,7 @@ static BOOL RewardResponseIsSuccess(id response) {
                                                                      userInfo:response]);
           }
         }
-        failedBlock:^(id request, id error) {
+        failedBlock:^(id __attribute__((unused)) request, id error) {
           /** @ghidraAddress 0x2547a0 */
           callback(error);
         }];
@@ -248,7 +248,7 @@ static BOOL RewardResponseIsSuccess(id response) {
         cachePolicy:nil
         timeout:kRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x2549f8 */
           if (![response isKindOfClass:[NSDictionary class]]) {
               block(NO,
@@ -264,7 +264,7 @@ static BOOL RewardResponseIsSuccess(id response) {
                 [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorGeneric
                                                               userInfo:response]);
         }
-        failedBlock:^(id request, id error) {
+        failedBlock:^(id __attribute__((unused)) request, id error) {
           /** @ghidraAddress 0x254b84 */
           block(NO, error);
         }];
@@ -300,7 +300,7 @@ static BOOL RewardResponseIsSuccess(id response) {
         cachePolicy:nil
         timeout:kRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x254f04 */
           if (![response isKindOfClass:[NSDictionary class]]) {
               callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorGeneric
@@ -339,7 +339,7 @@ static BOOL RewardResponseIsSuccess(id response) {
                                                                      userInfo:response]);
           }
         }
-        failedBlock:^(id request, id error) {
+        failedBlock:^(id __attribute__((unused)) request, id error) {
           /** @ghidraAddress 0x255318 */
           callback(error);
         }];
@@ -364,7 +364,7 @@ static BOOL RewardResponseIsSuccess(id response) {
         cachePolicy:nil
         timeout:kRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x255528 */
           if (RewardResponseIsSuccess(response)) {
               callback(response, nil);
@@ -374,7 +374,7 @@ static BOOL RewardResponseIsSuccess(id response) {
                    [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorGeneric
                                                                  userInfo:response]);
         }
-        failedBlock:^(id request, id error) {
+        failedBlock:^(id __attribute__((unused)) request, id error) {
           /** @ghidraAddress 0x2556dc */
           callback(nil, error);
         }];
@@ -394,7 +394,7 @@ static BOOL RewardResponseIsSuccess(id response) {
         cachePolicy:nil
         timeout:kRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x2558f4 */
           if (RewardResponseIsSuccess(response)) {
               callback(response, nil);
@@ -404,7 +404,7 @@ static BOOL RewardResponseIsSuccess(id response) {
                    [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorGeneric
                                                                  userInfo:response]);
         }
-        failedBlock:^(id request, id error) {
+        failedBlock:^(id __attribute__((unused)) request, id error) {
           /** @ghidraAddress 0x255aa8 */
           callback(nil, error);
         }];
@@ -425,7 +425,7 @@ static BOOL RewardResponseIsSuccess(id response) {
         cachePolicy:nil
         timeout:kRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x255d70 */
           if (![response isKindOfClass:[NSDictionary class]]) {
               callback(0,
@@ -453,7 +453,7 @@ static BOOL RewardResponseIsSuccess(id response) {
                    [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorGeneric
                                                                  userInfo:response]);
         }
-        failedBlock:^(id request, id error) {
+        failedBlock:^(id __attribute__((unused)) request, id error) {
           /** @ghidraAddress 0x25601c */
           callback(0, error);
         }];
@@ -472,7 +472,7 @@ static BOOL RewardResponseIsSuccess(id response) {
         cachePolicy:nil
         timeout:kRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x2562b4 */
           if (![response isKindOfClass:[NSDictionary class]]) {
               callback(0,
@@ -500,7 +500,7 @@ static BOOL RewardResponseIsSuccess(id response) {
                    [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorGeneric
                                                                  userInfo:response]);
         }
-        failedBlock:^(id request, id error) {
+        failedBlock:^(id __attribute__((unused)) request, id error) {
           /** @ghidraAddress 0x256560 */
           callback(0, error);
         }];
@@ -535,7 +535,7 @@ static BOOL RewardResponseIsSuccess(id response) {
         cachePolicy:nil
         timeout:kRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x256890 */
           if (![response isKindOfClass:[NSDictionary class]]) {
               callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorGeneric
@@ -554,7 +554,7 @@ static BOOL RewardResponseIsSuccess(id response) {
           callback([ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorGeneric
                                                                  userInfo:response]);
         }
-        failedBlock:^(id request, id result) {
+        failedBlock:^(id __attribute__((unused)) request, id result) {
           /** @ghidraAddress 0x256ab4 */
           callback(result);
         }];
@@ -574,7 +574,7 @@ static BOOL RewardResponseIsSuccess(id response) {
         cachePolicy:nil
         timeout:kRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x256c88 */
           if (RewardResponseIsSuccess(response)) {
               block(response, nil);
@@ -584,7 +584,7 @@ static BOOL RewardResponseIsSuccess(id response) {
                 [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorGeneric
                                                               userInfo:response]);
         }
-        failedBlock:^(id request, id error) {
+        failedBlock:^(id __attribute__((unused)) request, id error) {
           /** @ghidraAddress 0x256e3c */
           block(nil, error);
         }];

@@ -719,7 +719,7 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
           self->jubeatLogoView.alpha = 1.0;
           self->copyrightView.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x187000 */
           [weakSelf startMarkerCheck];
         }];
@@ -919,7 +919,7 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
                            weakTouch.transform =
                                CGAffineTransformMakeTranslation(0.0, (double)(long)self->tapDelayY);
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x18888c */
                          }];
     }

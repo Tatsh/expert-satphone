@@ -257,10 +257,11 @@ static inline void MainGameRendererPhoneKntBuildWaveTextures(MainGameRendererPho
 // Builds the beat-background atlas and blits its base layer, then composites the two theme layers
 // selected by the packaged colour preference. De-inlined from the beat-background section of
 // -loadTexure:artwork:index:.
-static inline void MainGameRendererPhoneKntBuildBeatBgTexture(MainGameRendererPhoneKnt *self,
-                                                              BOOL isRetina,
-                                                              BFCodec *codec,
-                                                              NSData *cipherKey) {
+static inline void
+MainGameRendererPhoneKntBuildBeatBgTexture(MainGameRendererPhoneKnt *self,
+                                           BOOL isRetina,
+                                           BFCodec *codec,
+                                           NSData *__attribute__((unused)) cipherKey) {
     NSString *plist;
     NSString *baseLayer;
     if (isRetina) {
@@ -721,7 +722,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
                        /** @ghidraAddress 0x193a88 */
                        goodJobImage.alpha = 0.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x193ad4 */
                      }];
 }
@@ -2591,7 +2592,7 @@ drawDigits:
                                        /** @ghidraAddress 0x19310c */
                                        weakGoodJob.alpha = goodJobAlpha;
                                      }
-                                     completion:^(BOOL finished){
+                                     completion:^(BOOL __attribute__((unused)) finished){
                                          /** @ghidraAddress 0x193160 */
                                      }];
                 }
@@ -2609,7 +2610,7 @@ drawDigits:
                                /** @ghidraAddress 0x193164 */
                                weakGoodJob.alpha = goodJobAlpha;
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x1931b8 */
                              }];
         }
@@ -2621,7 +2622,7 @@ drawDigits:
                                /** @ghidraAddress 0x1931bc */
                                weakGoodJob.alpha = goodJobAlpha;
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x193210 */
                              }];
         }

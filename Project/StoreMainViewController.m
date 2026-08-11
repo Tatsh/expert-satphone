@@ -532,7 +532,7 @@ static const double kNeighbourDriftQuarter = 0.25;
                                /** @ghidraAddress 0xa726c */
                                weakBalloon.alpha = 0.0;
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0xa72b8 */
                              }];
         }
@@ -549,7 +549,7 @@ static const double kNeighbourDriftQuarter = 0.25;
                        /** @ghidraAddress 0xa7390 */
                        weakBalloon.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0xa73dc */
                      }];
 }
@@ -611,7 +611,7 @@ static const double kNeighbourDriftQuarter = 0.25;
               weakCover.alpha = 1.0;
               weakDetail.alpha = 1.0;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0xa3a28 */
               [weakDetail loadInfo];
             }];
@@ -773,7 +773,7 @@ static const double kNeighbourDriftQuarter = 0.25;
           weakTop.transform = CGAffineTransformMakeTranslation((CGFloat)topSlideDx, 0.0);
           weakNew.transform = CGAffineTransformMakeTranslation(0.0, 0.0);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xa0e94 */
           [weakTop setInactive];
           [detailWindowArray addObject:detailView];
@@ -818,7 +818,7 @@ static const double kNeighbourDriftQuarter = 0.25;
               deeperWindow.transform = CGAffineTransformMakeTranslation((CGFloat)deeperDx, 0.0);
           }
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xa1514 */
           [weakNewTop setActive];
           [weakPopped removeFromSuperview];
@@ -857,7 +857,7 @@ static const double kNeighbourDriftQuarter = 0.25;
               secondWindow.alpha = 0.0;
           }
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xa1a00 */
           [weakCover removeFromSuperview];
           for (NSInteger index = count - 1; index >= 0; --index) {
@@ -964,7 +964,7 @@ static const double kNeighbourDriftQuarter = 0.25;
                   weakCover.alpha = 0.0;
                   weakDetail.alpha = 0.0;
                 }
-                completion:^(BOOL finished) {
+                completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0xa6b64 */
                   [weakCover removeFromSuperview];
                   [weakDetail removeFromSuperview];
@@ -1173,7 +1173,7 @@ static const double kNeighbourDriftQuarter = 0.25;
                            /** @ghidraAddress 0xa5504 */
                            weakTable.alpha = 1.0;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0xa5550 */
                          }];
     }

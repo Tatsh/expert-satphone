@@ -224,7 +224,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
                                weakTopcover.alpha = 1.0;
                                weakDownloadView.alpha = 1.0;
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x1e781c */
                              }];
 
@@ -298,7 +298,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
           weakTopcover.alpha = 0.0;
           weakDownloadView.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1e7dc8 */
           [self removeDownloadView];
         }];
@@ -326,7 +326,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
           weakTopcover.alpha = 0.0;
           weakDownloadView.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1e80b8 */
           [self removeDownloadView];
         }];

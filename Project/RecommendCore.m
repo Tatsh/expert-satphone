@@ -389,32 +389,33 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
           [g_pRecommendSessionExpiry timeIntervalSinceNow] < 0.0) {
           // The recommend API invokes this block with (loginStatus, userIdPresent, error); the
           // binary reads only the login status and the error, ignoring userIdPresent.
-          [RecommendWebAPI
-              checkLoginWithCallback:^(BOOL loggedIn, BOOL userIdPresent, NSError *checkError) {
-                /** @ghidraAddress 0x269b34 */
-                if (checkError != nil) {
-                    callback(checkError);
-                    return;
-                }
-                if (!loggedIn) {
-                    [RecommendWebAPI startLoginWithCallback:^(NSError *_Nullable loginError) {
-                      /** @ghidraAddress 0x269c68 */
-                      if (loginError != nil) {
-                          callback(loginError);
-                          return;
-                      }
-                      [ApplilinkUdid setUdidKeychainFromPasteBoard];
-                      [ApplilinkConsts loggedInRecommend];
-                      g_pRecommendSessionExpiry = [[NSDate date]
-                          dateByAddingTimeInterval:kRecommendCoreLoginValiditySeconds];
-                      callback(nil);
-                    }];
-                    return;
-                }
-                g_pRecommendSessionExpiry =
-                    [[NSDate date] dateByAddingTimeInterval:kRecommendCoreLoginValiditySeconds];
-                callback(nil);
-              }];
+          [RecommendWebAPI checkLoginWithCallback:^(BOOL loggedIn,
+                                                    BOOL __attribute__((unused)) userIdPresent,
+                                                    NSError *checkError) {
+            /** @ghidraAddress 0x269b34 */
+            if (checkError != nil) {
+                callback(checkError);
+                return;
+            }
+            if (!loggedIn) {
+                [RecommendWebAPI startLoginWithCallback:^(NSError *_Nullable loginError) {
+                  /** @ghidraAddress 0x269c68 */
+                  if (loginError != nil) {
+                      callback(loginError);
+                      return;
+                  }
+                  [ApplilinkUdid setUdidKeychainFromPasteBoard];
+                  [ApplilinkConsts loggedInRecommend];
+                  g_pRecommendSessionExpiry =
+                      [[NSDate date] dateByAddingTimeInterval:kRecommendCoreLoginValiditySeconds];
+                  callback(nil);
+                }];
+                return;
+            }
+            g_pRecommendSessionExpiry =
+                [[NSDate date] dateByAddingTimeInterval:kRecommendCoreLoginValiditySeconds];
+            callback(nil);
+          }];
           return;
       }
       callback(nil);
@@ -569,7 +570,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
     [RecommendAdCache clearAllAdData];
     [ApplilinkFile delateFolder];
     [RecommendAdCache clearAllAdDataInfoExpire];
-    [self getAllAdStatusWithCallback:^(NSError *_Nullable error){
+    [self getAllAdStatusWithCallback:^(NSError *_Nullable __attribute__((unused)) error){
         /** @ghidraAddress 0x26aa1c */
         // The binary passes a global no-op block here.
     }];
@@ -1315,7 +1316,8 @@ static void RecommendCorePostOwnAdImpression(RecommendCore *core,
                           creativeIdList:creativeIdList
                        incentiveTypeList:incentiveTypeList
                           installFlgList:installFlgList
-                                callback:^(NSError *_Nullable registerError){
+                                callback:^(NSError *_Nullable
+                                           __attribute__((unused)) registerError){
                                     /** @ghidraAddress 0x26ef8c */
                                     // The binary passes a global no-op block here.
                                 }];

@@ -1556,7 +1556,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                        /** @ghidraAddress 0x38280 */
                        weakDialog.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x382cc */
                      }];
 }
@@ -1851,7 +1851,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                       cover.alpha = 0.0;
                       weakDetail.alpha = 0.0;
                     }
-                    completion:^(BOOL finished) {
+                    completion:^(BOOL __attribute__((unused)) finished) {
                       /** @ghidraAddress 0x2f864 */
                       [weakDetail clearInfo];
                       [weakDetail removeFromSuperview];
@@ -1870,7 +1870,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                   cover.alpha = 0.0;
                   shareView.alpha = 0.0;
                 }
-                completion:^(BOOL finished) {
+                completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0x2f730 */
                   [shareView removeFromSuperview];
                   cover.hidden = YES;
@@ -2006,7 +2006,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           /** @ghidraAddress 0x316a4 */
           shareView.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x316c8 */
           [shareView removeFromSuperview];
         }];
@@ -2058,7 +2058,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           /** @ghidraAddress 0x316e8 */
           weakDetail.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x31734 */
           if (bgmData != nil) {
               [[AudioManager sharedManager] pushBgm];
@@ -2143,7 +2143,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           weakBalloon.alpha = 1.0;
           weakBalloon.transform = CGAffineTransformIdentity;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x28634 */
           CAKeyframeAnimation *animation =
               [CAKeyframeAnimation animationWithKeyPath:kStoreBalloonAnimationKeyPath];
@@ -2204,7 +2204,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           [weakShare setAlpha:1.0];
           [weakCover setAlpha:1.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x2fec8 */
           [weakManager startClient];
         }];
@@ -2793,7 +2793,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           /** @ghidraAddress 0x34ba0 */
           weakDetail.transform = CGAffineTransformMakeTranslation(-slideOffset, 0);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x34c2c */
           [self changeMusicData:tune];
           [UIView animateWithDuration:kShuffleFlipDuration / kShuffleFlipStageDivisor
@@ -2803,7 +2803,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                 /** @ghidraAddress 0x34dbc */
                 weakDetail.transform = CGAffineTransformMakeTranslation(0, 0);
               }
-              completion:^(BOOL innerFinished) {
+              completion:^(BOOL __attribute__((unused)) innerFinished) {
                 /** @ghidraAddress 0x34e40 */
                 CGFloat viewerDistance =
                     isPad ? kCoverFlipViewerDistancePad : kCoverFlipViewerDistancePhone;
@@ -2855,7 +2855,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                        weakCancel.transform =
                            CGAffineTransformMakeTranslation(0.0, kSearchBoxSlideOffset);
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x361b0 */
                      }];
 }
@@ -2891,7 +2891,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                   weakTutorial.alpha = 0.0;
               }
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x366bc */
               if (searchTutorialView != nil) {
                   [searchTutorialView removeFromSuperview];
@@ -2916,7 +2916,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
               weakMarker.transform =
                   CGAffineTransformMakeTranslation(0.0, -weakMarker.frame.size.height);
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x2e994 */
               self->searchBox.layer.zPosition = 0.0;
             }];
@@ -2926,7 +2926,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
               /** @ghidraAddress 0x2e744 */
               weakMarker.transform = CGAffineTransformIdentity;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x2e7b4 */
               self->searchBox.layer.zPosition = 0.0;
               [weakMarker setEnabled:YES];
@@ -2969,7 +2969,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                            weakMarker.transform = slide;
                            weakCover.alpha = 1.0;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x141758 */
                          }];
         [[AudioManager sharedManager] playSeResFile:[self soundName:kMarkerSelectOpenSoundSuffix]
@@ -2995,7 +2995,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
               weakMarker.transform = CGAffineTransformIdentity;
               weakCover.alpha = 0.0;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x326fc */
               if (weakDetail.superview != nil) {
                   [weakDetail activateAnim:YES];
@@ -3260,7 +3260,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                        /** @ghidraAddress 0x2a600 */
                        [weakCover setAlpha:1.0];
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x2a64c */
                      }];
 }
@@ -3286,7 +3286,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           /** @ghidraAddress 0x2a7fc */
           [weakCover setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x2a848 */
           [weakCover setHidden:YES];
           if (appendCoverView != nil) {
@@ -3393,7 +3393,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           weakCover.alpha = 1.0;
           weakDetail.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x2c0b0 */
           if (hasExtend &&
               ![NSUserDefaults.standardUserDefaults boolForKey:kPrefExtendTutorialFinishKey]) {
@@ -3503,7 +3503,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           weakDetail.alpha = listAlpha;
           weakImg.alpha = listAlpha;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x2df84 */
           weakCover.hidden = YES;
           UIImageView *imgView = detailMusicView.imgView;
@@ -3543,7 +3543,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                        detailMusicView.adRankBgAdv.alpha = 1.0;
                        detailMusicView.adRankBgExt.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x158528 */
                      }];
     [UIView animateWithDuration:kDetailCloseLabelDuration
@@ -3573,7 +3573,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           /** @ghidraAddress 0x28c10 */
           [weakBalloon setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x28c5c */
           [weakBalloon.layer removeAnimationForKey:kStoreBalloonAnimationKey];
         }];
@@ -3863,7 +3863,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           /** @ghidraAddress 0x37df8 */
           [weakCover setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x37e44 */
           [weakCover removeFromSuperview];
           challengeCoverView = nil;
@@ -3904,7 +3904,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                        /** @ghidraAddress 0x37bd4 */
                        weakCover.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x37c20 */
                      }];
 }
@@ -3992,7 +3992,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           [weakCover setAlpha:0.0];
           [weakDownload setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x33310 */
           [self removeDownloadView];
         }];
@@ -4035,7 +4035,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
               weakMarker.transform = CGAffineTransformIdentity;
               weakCover.alpha = 0.0;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x33eb4 */
               if (weakDetail.superview != nil) {
                   [weakDetail activateAnim:YES];

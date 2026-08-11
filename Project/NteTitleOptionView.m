@@ -131,7 +131,7 @@ extern const double g_dAnimDuration020;
                        weakSmog.alpha = 1.0;
                        weakSmog.transform = rest;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x207fd0 */
                      }];
 
@@ -154,7 +154,7 @@ extern const double g_dAnimDuration020;
           /** @ghidraAddress 0x20816c */
           weakCar.transform = bobUp;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x2081e0 */
           // finished is ignored; only nextCarFunc stops the loop.
           if (self->nextCarFunc) {

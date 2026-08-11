@@ -506,7 +506,7 @@ static const double kNeighbourDriftQuarter = 0.25;
               weakCover.alpha = 1.0;
               weakDetail.alpha = 1.0;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x17ce24 */
               [weakDetail loadInfo];
             }];
@@ -662,7 +662,7 @@ static const double kNeighbourDriftQuarter = 0.25;
           weakTop.transform = CGAffineTransformMakeTranslation((CGFloat)topSlideDx, 0.0);
           weakNew.transform = CGAffineTransformMakeTranslation(0.0, 0.0);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x17a75c */
           [weakTop setInactive];
           [detailWindowArray addObject:detailView];
@@ -707,7 +707,7 @@ static const double kNeighbourDriftQuarter = 0.25;
               deeperWindow.transform = CGAffineTransformMakeTranslation((CGFloat)deeperDx, 0.0);
           }
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x17addc */
           [weakNewTop setActive];
           [weakPopped removeFromSuperview];
@@ -746,7 +746,7 @@ static const double kNeighbourDriftQuarter = 0.25;
               secondWindow.alpha = 0.0;
           }
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x17b2c8 */
           [weakCover removeFromSuperview];
           for (NSInteger index = count - 1; index >= 0; --index) {
@@ -842,7 +842,7 @@ static const double kNeighbourDriftQuarter = 0.25;
                   weakCover.alpha = 0.0;
                   weakDetail.alpha = 0.0;
                 }
-                completion:^(BOOL finished) {
+                completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0x17fdb8 */
                   [weakCover removeFromSuperview];
                   [weakDetail removeFromSuperview];
@@ -1044,7 +1044,7 @@ static const double kNeighbourDriftQuarter = 0.25;
                            /** @ghidraAddress 0x17e7a4 */
                            weakTable.alpha = 1.0;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x17e7f0 */
                          }];
     }

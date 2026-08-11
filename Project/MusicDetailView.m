@@ -277,7 +277,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
           weakSearch.alpha = 1.0;
           weakTopcover.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x127f5c */
           [self.searchPackView startDownload];
         }];
@@ -295,7 +295,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
           /** @ghidraAddress 0x1281cc */
           weakSearch.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x128218 */
           [self socialSend:self.socialType sendText:recommendString];
           [self searchViewDealloc];
@@ -315,7 +315,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
           weakTopcover.alpha = 0;
           weakSearch.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1285d0 */
           [self searchViewDealloc];
           [self.controller enableCoverTap];
@@ -347,7 +347,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
     [composer setInitialText:(text ? text : @"")];
     // The shipped block reads its argument as a plain integer; typed here as the framework's
     // SLComposeViewControllerResult.
-    composer.completionHandler = ^(SLComposeViewControllerResult result) {
+    composer.completionHandler = ^(SLComposeViewControllerResult __attribute__((unused)) result) {
       /** @ghidraAddress 0x1288cc */
       [self.controller dismissViewControllerAnimated:YES completion:nil];
     };

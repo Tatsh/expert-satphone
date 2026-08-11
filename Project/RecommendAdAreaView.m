@@ -279,7 +279,7 @@ static inline NSString *RecommendAdAreaViewDecodedValueFrom(NSString *component,
     }
     [RecommendWebAPI readRegistWithAdType:_adType
                                  adIdList:adIdList
-                                 callback:^(NSError *_Nullable error){
+                                 callback:^(NSError *_Nullable __attribute__((unused)) error){
                                      /** @ghidraAddress 0x2729b4 */
                                  }];
     // The impression identifier is only assigned once; a reload keeps the first one.
@@ -542,7 +542,7 @@ static inline NSString *RecommendAdAreaViewDecodedValueFrom(NSString *component,
                             displayNumber:displayNumber
                             incentiveType:incentiveType
                                installFlg:installFlg
-                                 callback:^(NSError *_Nullable error) {
+                                 callback:^(NSError *_Nullable __attribute__((unused)) error) {
                                    /** @ghidraAddress 0x2744d4 */
                                    NSURL *schemeUrl = [NSURL
                                        URLWithString:[NSString stringWithFormat:

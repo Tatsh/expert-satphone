@@ -125,7 +125,7 @@ static const NSTimeInterval kPushDisplayDuration = 5.0;
           /** @ghidraAddress 0xc95f8 */
           weakSelf.transform = CGAffineTransformMakeTranslation(0, 0);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xc967c */
           [AudioManager.sharedManager playSeResFile:sound inDirectory:nil];
           self->dispTimer = [NSTimer timerWithTimeInterval:kPushDisplayDuration
@@ -148,7 +148,7 @@ static const NSTimeInterval kPushDisplayDuration = 5.0;
           weakSelf.transform =
               CGAffineTransformMakeTranslation(0, -(weakSelf.frame.size.height + kPushSlideMargin));
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xc99f0 */
           [self popNotification];
         }];
@@ -165,7 +165,7 @@ static const NSTimeInterval kPushDisplayDuration = 5.0;
                        weakSelf.transform = CGAffineTransformMakeTranslation(
                            0, -(weakSelf.frame.size.height + kPushSlideMargin));
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0xc9c58 */
                      }];
     dispTimer = nil;

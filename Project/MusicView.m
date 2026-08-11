@@ -778,7 +778,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
                            [weakChipArray[i] setAlpha:0.0];
                        }
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x4935c */
                      }];
 }
@@ -808,7 +808,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
               [weakChipArray[i] setAlpha:0.0];
           }
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x49968 */
           // Square the artwork by forcing its height to its width. The binary reads the width
           // for both the width and height slots; size.height is never used.
@@ -952,7 +952,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
                            }
                        }
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0x4ab64 */
                      }];
 
@@ -986,7 +986,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
                   /** @ghidraAddress 0x4b688 */
                   [weakSelf.btnPlaylistAction setAlpha:0.0];
                 }
-                completion:^(BOOL finished) {
+                completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0x4b6f4 */
                   [weakSelf.btnPlaylistAction setEnabled:YES];
                 }];
@@ -1003,7 +1003,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
                   /** @ghidraAddress 0x4b760 */
                   [weakSelf.btnBgmSelect setAlpha:0.0];
                 }
-                completion:^(BOOL finished) {
+                completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0x4b7cc */
                   [weakSelf.btnBgmSelect setEnabled:YES];
                 }];
@@ -1055,7 +1055,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
                   [weakSelf.btnPlaylistAction setAlpha:1.0];
                   [weakSelf.btnPlaylistAction setTransform:CGAffineTransformIdentity];
                 }
-                completion:^(BOOL finished) {
+                completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0x4c28c */
                   [weakSelf.btnPlaylistAction setEnabled:YES];
                 }];
@@ -1082,7 +1082,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
               [weakSelf.btnBgmSelect setAlpha:1.0];
               [weakSelf.btnBgmSelect setTransform:CGAffineTransformIdentity];
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x4c3d8 */
               [weakSelf.btnBgmSelect setEnabled:YES];
             }];
@@ -1121,7 +1121,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
           [strongSelf.btnBgmSelect
               setTransform:CGAffineTransformMakeScale(kButtonPressScale, kButtonPressScale)];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x4c810 */
           NSString *prefix = [strongSelf bgmImagePrefix];
           UIImage *up =
@@ -1138,7 +1138,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
                 [weakSelf.btnBgmSelect setAlpha:1.0];
                 [strongSelf.btnBgmSelect setTransform:CGAffineTransformIdentity];
               }
-              completion:^(BOOL innerFinished) {
+              completion:^(BOOL __attribute__((unused)) innerFinished) {
                 /** @ghidraAddress 0x4cb98 */
                 [UIApplication.sharedApplication endIgnoringInteractionEvents];
               }];

@@ -85,7 +85,7 @@ static const NSTimeInterval kUnlockFadeDuration = 0.2; // @ghidraAddress 0x28e04
               /** @ghidraAddress 0x7b668 */
               weakBgView.alpha = 0.0;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x7b6b4 */
               // Captured strongly here, unlike the animation block above.
               self->bgView.hidden = YES;

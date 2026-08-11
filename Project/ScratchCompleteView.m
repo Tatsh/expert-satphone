@@ -89,7 +89,7 @@ static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e
           weakSelf.transform = CGAffineTransformIdentity;
           weakSelf.alpha = 1;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x16e928 */
           // Stage 2: pop the artwork pair in.
           __strong __typeof__(self) strongSelf = weakSelf;
@@ -106,7 +106,7 @@ static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e
                 weakArtworkView.transform = CGAffineTransformMakeScale(1.0, 1.0);
                 weakArtworkView.alpha = 1.0;
               }
-              completion:^(BOOL finished2) {
+              completion:^(BOOL __attribute__((unused)) finished2) {
                 /** @ghidraAddress 0x16ec48 */
                 // Stage 3: pop the two title labels in.
                 __strong __typeof__(self) strongSelf3 = weakSelf;
@@ -125,7 +125,7 @@ static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e
                       weakArtistName.transform = CGAffineTransformMakeScale(1.0, 1.0);
                       weakArtistName.alpha = 1.0;
                     }
-                    completion:^(BOOL finished3) {
+                    completion:^(BOOL __attribute__((unused)) finished3) {
                       /** @ghidraAddress 0x16ef90 */
                       // Stage 4: pop the COMPLETE banner in.
                       __strong __typeof__(self) strongSelf4 = weakSelf;
@@ -139,7 +139,7 @@ static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e
                             weakComplete.transform = CGAffineTransformMakeScale(1.0, 1.0);
                             weakComplete.alpha = 1.0;
                           }
-                          completion:^(BOOL finished4) {
+                          completion:^(BOOL __attribute__((unused)) finished4) {
                             /** @ghidraAddress 0x16f194 */
                             // The reveal is done: arm the dismiss tap.
                             __strong __typeof__(self) strongSelf5 = weakSelf;

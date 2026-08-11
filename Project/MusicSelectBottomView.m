@@ -445,7 +445,7 @@ static const NSTimeInterval kMarqueeStepDuration = 0.6;
           /** @ghidraAddress 0x1d7778 */
           weakText.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1d77c4 */
           weakBtnNewInfo.enabled = YES;
           int width = (int)weakScroll.contentSize.width;
@@ -463,7 +463,7 @@ static const NSTimeInterval kMarqueeStepDuration = 0.6;
                              /** @ghidraAddress 0x1d791c */
                              weakScroll.contentOffset = CGPointMake(distance, 0);
                            }
-                           completion:^(BOOL innerFinished){
+                           completion:^(BOOL __attribute__((unused)) innerFinished){
                                /** @ghidraAddress 0x1d7978 */
                            }];
         }];
@@ -483,7 +483,7 @@ static const NSTimeInterval kMarqueeStepDuration = 0.6;
           /** @ghidraAddress 0x1d7b34 */
           weakText.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1d7b80 */
           [self showNextStoreText];
         }];

@@ -226,17 +226,18 @@ static NSString *sPasteBoardUdidCache;      // 0x3542d8
                 callback(analysisError);
             }
             sInitializingFlg = NO;
-            [[RecommendCore sharedInstance] getAllAdStatusWithCallback:^(
-                                                NSError *_Nullable adStatusError) {
-              /** @ghidraAddress 0x2425b8 */
-              // After the ad-status refresh, prefetch the installed-application list (its
-              // result is discarded — a warm-up of the appli-list cache).
-              (void)adStatusError;
-              [[RecommendCore sharedInstance]
-                  appliListWithCallBack:^(NSArray *_Nullable list, NSError *_Nullable listError){
-                      /** @ghidraAddress 0x242610 */
-                  }];
-            }];
+            [[RecommendCore sharedInstance]
+                getAllAdStatusWithCallback:^(NSError *_Nullable adStatusError) {
+                  /** @ghidraAddress 0x2425b8 */
+                  // After the ad-status refresh, prefetch the installed-application list (its
+                  // result is discarded — a warm-up of the appli-list cache).
+                  (void)adStatusError;
+                  [[RecommendCore sharedInstance]
+                      appliListWithCallBack:^(NSArray *_Nullable __attribute__((unused)) list,
+                                              NSError *_Nullable __attribute__((unused)) listError){
+                          /** @ghidraAddress 0x242610 */
+                      }];
+                }];
           }];
         }];
       }];
@@ -275,7 +276,7 @@ static NSString *sPasteBoardUdidCache;      // 0x3542d8
         cachePolicy:nil
         timeout:kApplilinkSessionRequestTimeout
         retry:NO
-        finishedBlock:^(id request, id response) {
+        finishedBlock:^(id __attribute__((unused)) request, id response) {
           /** @ghidraAddress 0x243ae8 */
           NSError *error = nil;
           if ([response isKindOfClass:[NSDictionary class]] &&
@@ -296,7 +297,7 @@ static NSString *sPasteBoardUdidCache;      // 0x3542d8
           [ApplilinkWebAPI setSessionStatus:sSessionValid];
           [ApplilinkWebAPI setSessionConnectionWait:NO];
         }
-        failedBlock:^(id request, NSError *error) {
+        failedBlock:^(id __attribute__((unused)) request, NSError *error) {
           /** @ghidraAddress 0x243d30 */
           [ApplilinkWebAPI setSessionConnectionWait:NO];
           block(error);
@@ -717,10 +718,11 @@ static NSString *sPasteBoardUdidCache;      // 0x3542d8
 
 + (void)collectDeviceInfoCore {
     [ApplilinkCore saveDeviceInfo];
-    [AnalysisNetworkCore postAnalysisDeviceDataWithActionType:^(NSError *_Nullable error){
-        /** @ghidraAddress 0x2446a0 */
-        // A no-op completion handler; the analytics post's result is not observed here.
-    }];
+    [AnalysisNetworkCore
+        postAnalysisDeviceDataWithActionType:^(NSError *_Nullable __attribute__((unused)) error){
+            /** @ghidraAddress 0x2446a0 */
+            // A no-op completion handler; the analytics post's result is not observed here.
+        }];
 }
 
 + (void)saveDeviceInfo {

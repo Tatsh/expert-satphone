@@ -101,7 +101,7 @@ static inline void InheritCodeInputViewShowReplaceDoneLabel(InheritCodeInputView
                        /** @ghidraAddress 0xd1718 */
                        weakLabel.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0xd1764 */
                      }];
 }
@@ -248,7 +248,7 @@ static inline void InheritCodeInputViewShowReplaceDoneLabel(InheritCodeInputView
                   weakInput.alpha = 0;
                   weakSend.alpha = 0;
                 }
-                completion:^(BOOL finished) {
+                completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0xd1558 */
                   InheritCodeInputViewShowReplaceDoneLabel(weakSelf);
                 }];

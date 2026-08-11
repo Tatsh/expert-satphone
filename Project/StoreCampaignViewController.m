@@ -413,7 +413,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                            /** @ghidraAddress 0xbf720 */
                            weakArtwork.alpha = 1.0;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0xbf76c */
                          }];
     }
@@ -460,7 +460,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                        weakCover.alpha = 1.0;
                        weakDetail.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0xc022c */
                      }];
     [UIApplication.sharedApplication performSelector:@selector(endIgnoringInteractionEvents)
@@ -497,7 +497,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                        weakCover.alpha = 1.0;
                        weakDetail.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          /** @ghidraAddress 0xc0608 */
                      }];
     [UIApplication.sharedApplication performSelector:@selector(endIgnoringInteractionEvents)
@@ -523,7 +523,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
           weakCover.alpha = 0.0;
           weakDetail.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xbfb58 */
           [weakCover removeFromSuperview];
           [weakDetail removeCampaignInfo];
@@ -1224,7 +1224,9 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
         __weak StoreCampaignViewController *weakSelf = self;
         NSURLSessionDataTask *task = [NSURLSession.sharedSession
             dataTaskWithRequest:request
-              completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+              completionHandler:^(NSData *data,
+                                  NSURLResponse *__attribute__((unused)) response,
+                                  NSError *__attribute__((unused)) error) {
                 /** @ghidraAddress 0xc3f14 */
                 if (!data) {
                     return;
@@ -1267,7 +1269,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                                                  /** @ghidraAddress 0xc44fc */
                                                  weakArtwork.alpha = 1.0;
                                                }
-                                               completion:^(BOOL finished){
+                                               completion:^(BOOL __attribute__((unused)) finished){
                                                    /** @ghidraAddress 0xc4548 */
                                                }];
                               break;

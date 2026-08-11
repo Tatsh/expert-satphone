@@ -329,7 +329,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
           /** @ghidraAddress 0xab948 */
           outgoing.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xab994 */
           outgoing.hidden = YES;
           incoming.hidden = NO;
@@ -340,7 +340,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
                 /** @ghidraAddress 0xabad4 */
                 incoming.alpha = 1;
               }
-              completion:^(BOOL finished2) {
+              completion:^(BOOL __attribute__((unused)) finished2) {
                 /** @ghidraAddress 0xabb20 */
                 self->missionListBtn.enabled = YES;
                 self->rewardListBtn.enabled = YES;
@@ -698,7 +698,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
                            /** @ghidraAddress 0xadefc */
                            weakView.alpha = 1;
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0xadf48 */
                          }];
         return;
@@ -755,7 +755,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
           /** @ghidraAddress 0xae21c */
           outgoing.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xae268 */
           [outgoing removeFromSuperview];
           if (showSheet == NO) {
@@ -768,7 +768,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
                 /** @ghidraAddress 0xae39c */
                 incoming.alpha = 1;
               }
-              completion:^(BOOL finished2) {
+              completion:^(BOOL __attribute__((unused)) finished2) {
                 /** @ghidraAddress 0xae3e8 */
                 if (self->downloadWait) {
                     return;
@@ -798,7 +798,7 @@ static const NSTimeInterval kMissionPageAnimationDuration = 0.2; // @ghidraAddre
           /** @ghidraAddress 0xae6f0 */
           weakView.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xae73c */
           [weakView removeFromSuperview];
           self->rewardDownloadView = nil;

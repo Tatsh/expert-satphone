@@ -193,7 +193,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
               /** @ghidraAddress 0x168c90 */
               weakSearchBox.alpha = 0;
             }
-            completion:^(BOOL finished) {
+            completion:^(BOOL __attribute__((unused)) finished) {
               /** @ghidraAddress 0x168cdc */
               [UIView animateWithDuration:kFadeDuration
                                     delay:0
@@ -202,7 +202,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
                                  /** @ghidraAddress 0x168d8c */
                                  weakRivalAddView.alpha = 1.0;
                                }
-                               completion:^(BOOL innerFinished){
+                               completion:^(BOOL __attribute__((unused)) innerFinished){
                                    /** @ghidraAddress 0x168dd8 */
                                }];
             }];
@@ -452,7 +452,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
           weakAddBtn.alpha = 0;
           weakCancelBtn.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x16980c */
           NSDictionary *post =
               [NSDictionary dictionaryWithObjects:@[ targetID, @YES ]
@@ -473,7 +473,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
                              /** @ghidraAddress 0x169aa4 */
                              weakAddMessage.alpha = 1.0;
                            }
-                           completion:^(BOOL innerFinished){
+                           completion:^(BOOL __attribute__((unused)) innerFinished){
                                /** @ghidraAddress 0x169af0 */
                            }];
         }];
@@ -492,7 +492,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
           /** @ghidraAddress 0x169ce0 */
           weakRivalAddView.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x169d2c */
           [UIApplication.sharedApplication endIgnoringInteractionEvents];
           [UIView animateWithDuration:kFadeDuration
@@ -502,7 +502,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
                              /** @ghidraAddress 0x169e1c */
                              weakSearchBox.alpha = 1.0;
                            }
-                           completion:^(BOOL innerFinished){
+                           completion:^(BOOL __attribute__((unused)) innerFinished){
                                /** @ghidraAddress 0x169e68 */
                            }];
         }];
@@ -521,7 +521,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
           /** @ghidraAddress 0x16a06c */
           weakAddMessage.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x16a0b8 */
           weakAddMessage.image = LoadScaledPngImage(kRivalMessageDoneImageName);
           [UIView animateWithDuration:kFadeDuration
@@ -532,7 +532,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
                              weakAddMessage.alpha = 1.0;
                              weakEndBtn.alpha = 1.0;
                            }
-                           completion:^(BOOL innerFinished){
+                           completion:^(BOOL __attribute__((unused)) innerFinished){
                                /** @ghidraAddress 0x16a2b4 */
                            }];
         }];
@@ -618,7 +618,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
           /** @ghidraAddress 0x169214 */
           weakAddMessage.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x169260 */
           weakAddMessage.image = LoadScaledPngImage(kRivalMessageAskImageName);
           [UIView animateWithDuration:kFadeDuration
@@ -630,7 +630,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
                              weakAddBtn.alpha = 1.0;
                              weakCancelBtn.alpha = 1.0;
                            }
-                           completion:^(BOOL innerFinished){
+                           completion:^(BOOL __attribute__((unused)) innerFinished){
                                /** @ghidraAddress 0x1694b8 */
                            }];
         }];

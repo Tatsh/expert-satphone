@@ -310,7 +310,7 @@ static const UIViewAnimationOptions kOverlayAnimationOptions =
           weakCover.alpha = 0.0;
           weakDetail.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1b5a60 */
           [weakCover removeFromSuperview];
           [weakDetail removeFromSuperview];
@@ -414,7 +414,7 @@ static const UIViewAnimationOptions kOverlayAnimationOptions =
           weakCover.alpha = 1.0;
           weakDetail.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1b63bc */
           [weakDetail loadRestoreInfo];
         }];

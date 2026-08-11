@@ -625,7 +625,8 @@ static inline void GameViewControllerMergeMusicBar(NSData *existingBlob,
 
 // Reports the accumulated total score to the Game Center leaderboard when authenticated. Shared by
 // -pushBtnReplay: and the two -loop: end-of-play arms.
-static inline void GameViewControllerReportTotalScore(GameViewController *self) {
+static inline void
+GameViewControllerReportTotalScore(GameViewController *__attribute__((unused)) self) {
     if (![[JubeatAppDelegate appDelegate] gameCenterAvailable] ||
         ![[GKLocalPlayer localPlayer] isAuthenticated]) {
         return;
@@ -861,7 +862,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
                                    [weakEvaluate setAlpha:1.0];
                                    [weakCover setAlpha:1.0];
                                  }
-                                 completion:^(BOOL finished){
+                                 completion:^(BOOL __attribute__((unused)) finished){
                                      /** @ghidraAddress 0x16160 */
                                  }];
             }
@@ -914,7 +915,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
                       [weakSearch setAlpha:1.0];
                       [weakCover setAlpha:1.0];
                     }
-                    completion:^(BOOL finished) {
+                    completion:^(BOOL __attribute__((unused)) finished) {
                       /** @ghidraAddress 0x16238 */
                       [self->packSearchView startDownload];
                     }];
@@ -1702,7 +1703,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
           [weakEvaluate setAlpha:0.0];
           [weakCover setAlpha:0.0];
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x17ae0 */
           [self removeEvaluate];
         }];
@@ -2139,7 +2140,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
           weakTxt.alpha = 1.0;
           weakTxt.transform = riseTransform;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x19af0 */
           (void)[[JubeatAppDelegate appDelegate] isPhoneRetina]; // Discarded, as in the binary.
           CGAffineTransform fadeTransform = CGAffineTransformConcat(
@@ -2153,7 +2154,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
                 weakTxt.alpha = 0.0;
                 weakTxt.transform = fadeTransform;
               }
-              completion:^(BOOL fadeFinished) {
+              completion:^(BOOL __attribute__((unused)) fadeFinished) {
                 /** @ghidraAddress 0x19d64 */
                 __weak UIImageView *weakBtn = self.btnGoodJob;
                 [UIView animateWithDuration:kGoodJobBtnFadeDuration
@@ -2161,7 +2162,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
                                    /** @ghidraAddress 0x19e4c */
                                    weakBtn.alpha = kGoodJobBtnFinalAlpha;
                                  }
-                                 completion:^(BOOL btnFinished){
+                                 completion:^(BOOL __attribute__((unused)) btnFinished){
                                      /** @ghidraAddress 0x19e9c */
                                  }];
               }];
@@ -2681,7 +2682,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
           weakCoverView.alpha = 0.0;
           weakSearchView.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1acc0 */
           [self releaseSearchPackView];
           [self end];
@@ -2701,7 +2702,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
           weakCoverView.alpha = 0.0;
           weakSearchView.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1af98 */
           [self releaseSearchPackView];
         }];

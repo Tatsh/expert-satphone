@@ -251,7 +251,7 @@ static NSString *const kCancelButtonKey = @"Cancel";
           weakTable.alpha = 0;
           weakShadow.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x184208 */
           [weakTable removeFromSuperview];
           [weakShadow removeFromSuperview];

@@ -517,7 +517,7 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 /** @ghidraAddress 0x225740 */
 - (void)movieStart {
     [self analysisWithStatus:kApplilinkMovieStatusStart
-                    callback:^(NSError *_Nullable error){
+                    callback:^(NSError *_Nullable __attribute__((unused)) error){
                         /** @ghidraAddress 0x22575c */
                         // Empty error handler; failures are swallowed.
                     }];
@@ -527,7 +527,7 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 - (void)movieEnd {
     [ApplilinkCore toDelegateMovieFinish:self.applilinkDelegate];
     [self analysisWithStatus:kApplilinkMovieStatusEnd
-                    callback:^(NSError *_Nullable error) {
+                    callback:^(NSError *_Nullable __attribute__((unused)) error) {
                       /** @ghidraAddress 0x225820 */
                       // Once the movie has ended, either show the ready end card or pin the player
                       // on its finished frame.
@@ -593,14 +593,14 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 - (void)storeNotice:(nullable id)view {
     if (self.videoView == view) {
         [self analysisWithStatus:kApplilinkMovieStatusStoreFromVideo
-                        callback:^(NSError *_Nullable error) {
+                        callback:^(NSError *_Nullable __attribute__((unused)) error) {
                           /** @ghidraAddress 0x2261b0 */
                           [self toStore];
                         }];
     }
     if (self.webView == view) {
         [self analysisWithStatus:kApplilinkMovieStatusStoreFromEndCard
-                        callback:^(NSError *_Nullable error) {
+                        callback:^(NSError *_Nullable __attribute__((unused)) error) {
                           /** @ghidraAddress 0x2261d4 */
                           [self toStore];
                         }];

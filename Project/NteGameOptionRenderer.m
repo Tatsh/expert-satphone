@@ -74,7 +74,7 @@ static const NSTimeInterval kBetweenStepsDelay = 0.2; // @ghidraAddress 0x28f240
           weakRightImage.transform =
               CGAffineTransformMakeTranslation(self.frame.size.width * self->divValue, 0);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x153afc */
           [self nextOpen:1];
         }];
@@ -95,7 +95,7 @@ static const NSTimeInterval kBetweenStepsDelay = 0.2; // @ghidraAddress 0x28f240
           weakRightImage.transform =
               CGAffineTransformMakeTranslation(self.frame.size.width * self->divValue * step, 0);
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x15386c */
           // The chain stops when the next step would reach the division count, so the strip ends
           // translated by exactly divCnt divisions.

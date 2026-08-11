@@ -479,7 +479,9 @@ static const CGFloat kSampleButtonPadY = 170.0;
         // session; the latter is only used for the banner artwork.
         NSURLSessionDataTask *task = [NSURLSession.sharedSession
             dataTaskWithRequest:request
-              completionHandler:^(NSData *_Nullable data, NSURLResponse *response, NSError *error) {
+              completionHandler:^(NSData *_Nullable data,
+                                  NSURLResponse *__attribute__((unused)) response,
+                                  NSError *__attribute__((unused)) error) {
                 /** @ghidraAddress 0x1bd1b4 */
                 if (data) {
                     [thumbCache setObject:data forKey:key];

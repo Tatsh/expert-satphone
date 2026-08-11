@@ -325,7 +325,7 @@ static const NSUInteger kMarkerNumberLength = 4;
           /** @ghidraAddress 0x61328 */
           weakCover.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x61374 */
           weakDialog.buttonAbort.enabled = YES;
         }];
@@ -345,7 +345,7 @@ static const NSUInteger kMarkerNumberLength = 4;
           /** @ghidraAddress 0x61594 */
           weakCover.alpha = 0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x615e0 */
           [weakDialog.indicatorView stopAnimating];
           [weakCover removeFromSuperview];

@@ -1131,7 +1131,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
                            /** @ghidraAddress 0x206f98 */
                            [goodJob setAlpha:0.0f];
                          }
-                         completion:^(BOOL finished){
+                         completion:^(BOOL __attribute__((unused)) finished){
                              /** @ghidraAddress 0x206fe4 */
                              // The completion block is the shared empty global block.
                          }];
@@ -1931,7 +1931,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
                                        /** @ghidraAddress 0x20663c */
                                        weakGoodJob.alpha = goodJobAlpha;
                                      }
-                                     completion:^(BOOL finished){
+                                     completion:^(BOOL __attribute__((unused)) finished){
                                          /** @ghidraAddress 0x206690 */
                                      }];
                 }
@@ -1949,7 +1949,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
                                /** @ghidraAddress 0x206694 */
                                weakGoodJob.alpha = goodJobAlpha;
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x2066e8 */
                              }];
         }
@@ -1961,7 +1961,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
                                /** @ghidraAddress 0x2066ec */
                                weakGoodJob.alpha = goodJobAlpha;
                              }
-                             completion:^(BOOL finished){
+                             completion:^(BOOL __attribute__((unused)) finished){
                                  /** @ghidraAddress 0x206740 */
                              }];
         }

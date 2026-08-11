@@ -64,10 +64,11 @@ enum { kDebugTextGlyphCap = 0x200, kDebugFontFirstGlyph = 0x20 };
 
 // Builds the knit beat-background texture, its sprite table, and its colour variant blits.
 // De-inlined from 0x20ec38.
-static inline void EditNoteRendererPhoneLoadBeatBgTexture(EditNoteRendererPhone *self,
-                                                          BOOL isRetina,
-                                                          BFCodec *codec,
-                                                          NSData *cipherKey) {
+static inline void
+EditNoteRendererPhoneLoadBeatBgTexture(EditNoteRendererPhone *self,
+                                       BOOL isRetina,
+                                       BFCodec *codec,
+                                       NSData *__attribute__((unused)) cipherKey) {
     if (self.texBeatBg) {
         return;
     }
@@ -388,8 +389,11 @@ static inline void EditNoteRendererPhoneRenderFullcomboIn(
 
 // The full-combo fade-out: the two halves drift apart and fade (frames 0x96 and later). De-inlined
 // from 0x211d08.
-static inline void EditNoteRendererPhoneRenderFullcomboOut(
-    EditNoteRendererPhone *self, unsigned int current, CGRect banner, float restX, float startX) {
+static inline void EditNoteRendererPhoneRenderFullcomboOut(EditNoteRendererPhone *self,
+                                                           unsigned int current,
+                                                           CGRect __attribute__((unused)) banner,
+                                                           float restX,
+                                                           float startX) {
     float fade = InterpolateFloatByFrame(1.0f, 0.0f, current - 0x96, 0, 10);
     float drift = InterpolateFloatByFrame(0.0f, 80.0f, current - 0x96, 0, 10);
     [self.texFront drawSprite:kFrontSpriteFullcombo

@@ -193,7 +193,7 @@ enum { kHeadingBottomPadding = 12 };
                    /** @ghidraAddress 0x1b4128 */
                    weakBanner.alpha = 1.0;
                  }
-                 completion:^(BOOL finished){
+                 completion:^(BOOL __attribute__((unused)) finished){
                      /** @ghidraAddress 0x1b4174 */
                      // Empty, and a global block because of it — the binary's body is a single ret.
                  }];

@@ -633,26 +633,28 @@ static const int kNoSamplePlaying = -1;
     [packView setHidden:NO];
 
     // Fill the visible tune views with their track info; blank and hide the surplus slots.
-    [arrayMusicView
-        enumerateObjectsUsingBlock:^(StorePackMusicView *musicView, NSUInteger index, BOOL *stop) {
-          /** @ghidraAddress 0xb2f14 */
-          if ((NSInteger)index < trackCount) {
-              [musicView setInfo:self.packInfo.musicInfos[index]];
-              [musicView setHidden:NO];
-          } else {
-              [musicView setInfo:nil];
-              [musicView setHidden:YES];
-          }
-        }];
+    [arrayMusicView enumerateObjectsUsingBlock:^(StorePackMusicView *musicView,
+                                                 NSUInteger index,
+                                                 BOOL *__attribute__((unused)) stop) {
+      /** @ghidraAddress 0xb2f14 */
+      if ((NSInteger)index < trackCount) {
+          [musicView setInfo:self.packInfo.musicInfos[index]];
+          [musicView setHidden:NO];
+      } else {
+          [musicView setInfo:nil];
+          [musicView setHidden:YES];
+      }
+    }];
 
     [packArtworkView startDownloadImage];
 
     // Kick off the artwork download for each tune view (a capture-free global block).
-    [arrayMusicView
-        enumerateObjectsUsingBlock:^(StorePackMusicView *musicView, NSUInteger index, BOOL *stop) {
-          /** @ghidraAddress 0xb3038 */
-          [musicView.artworkView startDownloadImage];
-        }];
+    [arrayMusicView enumerateObjectsUsingBlock:^(StorePackMusicView *musicView,
+                                                 NSUInteger __attribute__((unused)) index,
+                                                 BOOL *__attribute__((unused)) stop) {
+      /** @ghidraAddress 0xb3038 */
+      [musicView.artworkView startDownloadImage];
+    }];
 
     isInfoLoaded = YES;
     [NSNotificationCenter.defaultCenter addObserver:self

@@ -218,7 +218,7 @@ static NSString *g_adId = nil;
     BOOL changed = ![userId isEqualToString:g_userId];
     g_userId = [NSString stringWithString:userId];
     if (changed) {
-        [AnalysisNetworkCore postSetUserIDWithCallback:^(NSError *error){
+        [AnalysisNetworkCore postSetUserIDWithCallback:^(NSError *__attribute__((unused)) error){
             /** @ghidraAddress 0x22f0d0 */
             // The binary passes an empty completion block here.
         }];
@@ -229,12 +229,13 @@ static NSString *g_adId = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kDefaultsKeyRewardReLoginFlg];
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kDefaultsKeyRecommendReLoginFlg];
         [[NSUserDefaults standardUserDefaults] synchronize];
-        [[RecommendCore sharedInstance] startSessionWithCallback:^(NSError *error){
-            /** @ghidraAddress 0x22f0d4 */
-            // The binary passes an empty completion block here.
-        }];
+        [[RecommendCore sharedInstance]
+            startSessionWithCallback:^(NSError *__attribute__((unused)) error){
+                /** @ghidraAddress 0x22f0d4 */
+                // The binary passes an empty completion block here.
+            }];
     } else if (!g_didPostUserId) {
-        [AnalysisNetworkCore postSetUserIDWithCallback:^(NSError *error){
+        [AnalysisNetworkCore postSetUserIDWithCallback:^(NSError *__attribute__((unused)) error){
             /** @ghidraAddress 0x22f0d8 */
             // The binary passes an empty completion block here.
         }];

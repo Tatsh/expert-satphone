@@ -411,7 +411,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
                        }
                        [defaults synchronize];
                      }
-                       failedBlock:^(id request, NSError *error){
+                       failedBlock:^(id __attribute__((unused)) request,
+                                     NSError *__attribute__((unused)) error){
                            /** @ghidraAddress 0x23ac9c */
                            // A global empty block; the transport failure is discarded.
                        }];
@@ -451,7 +452,8 @@ static BOOL AnalysisResponseIsSuccess(NSDictionary *response) {
                                         [[UIApplication sharedApplication] openURL:openUrl];
                                     }
                                   }
-                                    failedBlock:^(id request, NSError *error){
+                                    failedBlock:^(id __attribute__((unused)) request,
+                                                  NSError *__attribute__((unused)) error){
                                         /** @ghidraAddress 0x23b048 */
                                         // A global empty block; the transport failure is discarded.
                                     }];

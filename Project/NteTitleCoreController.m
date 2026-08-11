@@ -404,7 +404,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
           /** @ghidraAddress 0x1cfa1c */
           weakOpt.transform = endXform;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1cfa90 */
           [self startRunCar];
         }];
@@ -499,7 +499,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
           /** @ghidraAddress 0x1d0334 */
           self->jubeatLogoView.alpha = 1.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x1d0364 */
           [weakSelf startMarkerCheck];
         }];
@@ -919,7 +919,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
                        weakCover.alpha = 1.0;
                        weakSheet.alpha = 1.0;
                      }
-                     completion:^(BOOL finished){
+                     completion:^(BOOL __attribute__((unused)) finished){
                          // The binary's completion here is the shared empty global block (invoke
                          // 0x1d1f88); it does nothing.
                          /** @ghidraAddress 0x1d1f88 */

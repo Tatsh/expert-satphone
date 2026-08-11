@@ -874,7 +874,7 @@ static const int kNoSampleRow = -1;
           // Stage 1: fade the outgoing view out to transparent before the swap.
           weakOutgoing.alpha = 0.0;
         }
-        completion:^(BOOL finished) {
+        completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0xe2164 */
           // Stage-1 completion: hide the outgoing view, ready the incoming one at zero alpha,
           // then run the stage-2 fade-in and finish.
@@ -889,7 +889,7 @@ static const int kNoSampleRow = -1;
                 // Stage 2: fade the incoming view in.
                 weakIncoming.alpha = 1.0;
               }
-              completion:^(BOOL innerFinished) {
+              completion:^(BOOL __attribute__((unused)) innerFinished) {
                 /** @ghidraAddress 0xe2354 */
                 // Stage-2 completion: hide the carrier, snap the incoming scroll offset, and
                 // re-enable input unconditionally so a cancelled transition cannot lock the UI.

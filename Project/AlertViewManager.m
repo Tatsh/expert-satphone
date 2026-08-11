@@ -155,21 +155,23 @@ static AlertViewManager *g_pAlertViewManagerShared = nil;
     int buttonIndex = 1;
     for (NSString *buttonTitle in otherButtonTitles) {
         int index = buttonIndex;
-        UIAlertAction *action = [UIAlertAction actionWithTitle:buttonTitle
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^(UIAlertAction *tappedAction) {
-                                                         /** @ghidraAddress 0xa9520 */
-                                                         [self alertControllerEvent:index];
-                                                       }];
+        UIAlertAction *action =
+            [UIAlertAction actionWithTitle:buttonTitle
+                                     style:UIAlertActionStyleDefault
+                                   handler:^(UIAlertAction *__attribute__((unused)) tappedAction) {
+                                     /** @ghidraAddress 0xa9520 */
+                                     [self alertControllerEvent:index];
+                                   }];
         [alertController addAction:action];
         ++buttonIndex;
     }
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:cancelBtnText
-                                                           style:UIAlertActionStyleCancel
-                                                         handler:^(UIAlertAction *action) {
-                                                           /** @ghidraAddress 0xa9548 */
-                                                           [self alertControllerEvent:0];
-                                                         }];
+    UIAlertAction *cancelAction =
+        [UIAlertAction actionWithTitle:cancelBtnText
+                                 style:UIAlertActionStyleCancel
+                               handler:^(UIAlertAction *__attribute__((unused)) action) {
+                                 /** @ghidraAddress 0xa9548 */
+                                 [self alertControllerEvent:0];
+                               }];
     [alertController addAction:cancelAction];
     if (show) {
         if (viewController) {
