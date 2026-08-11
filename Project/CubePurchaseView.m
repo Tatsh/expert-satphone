@@ -361,7 +361,7 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
         return;
     }
 
-    int tag = (int)[downloader tag];
+    int tag = (int)[(Downloader *)downloader tag];
     if (tag == kDownloaderTagRegisterAge) {
         NSString *msg = [NSBundle.mainBundle localizedStringForKey:kLocalizableKeyServerErrorMsg
                                                              value:kEmptyString
@@ -409,7 +409,7 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
 }
 
 - (void)downloaderError:(id)downloader {
-    int tag = (int)[downloader tag];
+    int tag = (int)[(Downloader *)downloader tag];
     if (tag == kDownloaderTagRegisterAge) {
         NSString *msg = [NSBundle.mainBundle localizedStringForKey:kLocalizableKeyServerErrorMsg
                                                              value:kEmptyString

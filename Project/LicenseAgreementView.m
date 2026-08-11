@@ -276,7 +276,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 /** @ghidraAddress 0x1f5cd0 */
 - (void)downloaderFinished:(nullable id)downloader {
     NSDictionary *data = nil;
-    int tag = (int)[downloader tag];
+    int tag = (int)[(Downloader *)downloader tag];
     if (tag == kChallengePolicyTag) {
         data = [downloader getDataInJSON];
     } else if (tag == kStorePolicyTag) {
@@ -289,7 +289,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
         [self sendErrorDelegate:networkError];
         return;
     }
-    if ([downloader tag] == kChallengePolicyTag) {
+    if ([(Downloader *)downloader tag] == kChallengePolicyTag) {
         if (data[kKeyStatusLower]) {
             int status = [data[kKeyStatusLower] intValue];
             if (status == 0) {
@@ -317,7 +317,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
                                                              table:nil];
         }
         [self sendErrorDelegate:message];
-    } else if ([downloader tag] == kStorePolicyTag) {
+    } else if ([(Downloader *)downloader tag] == kStorePolicyTag) {
         NSString *version = data[kKeyVersion];
         NSString *policyVersion = data[kKeyPolicyVersion];
         NSString *policy = data[kKeyPolicyUpper];

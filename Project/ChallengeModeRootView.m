@@ -1153,7 +1153,7 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
             }
             if (status == 0x186ab) {
                 [UIApplication.sharedApplication endIgnoringInteractionEvents];
-                int tag = (int)[downloader tag];
+                int tag = (int)[(Downloader *)downloader tag];
                 if (tag == 0 || tag == 2) {
                     bScratchEnable = YES;
                     [selectedView scratchCancel];
@@ -1165,7 +1165,7 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
             }
             // Any other non-zero status falls through to the error dispatcher below.
         } else {
-            switch ((int)[downloader tag]) {
+            switch ((int)[(Downloader *)downloader tag]) {
             case 0:
             case 2:
                 [UIApplication.sharedApplication endIgnoringInteractionEvents];
@@ -1227,7 +1227,7 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
     }
     // Error dispatcher: no "status" key, or a non-zero status other than the two handled above.
     NSString *errMessage = json[@"err_message"];
-    switch ((int)[downloader tag]) {
+    switch ((int)[(Downloader *)downloader tag]) {
     case 2: {
         [UIApplication.sharedApplication endIgnoringInteractionEvents];
         if (status == 0x19710) {
@@ -1402,7 +1402,7 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
     NSString *serverErrorMsg = [NSBundle.mainBundle localizedStringForKey:@"ServerErrorMsg"
                                                                     value:@""
                                                                     table:nil];
-    switch ((int)[downloader tag]) {
+    switch ((int)[(Downloader *)downloader tag]) {
     case 0:
         [AlertViewManager.sharedManager makeAlert:0
                                          delegate:nil

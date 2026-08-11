@@ -272,7 +272,7 @@ static inline void ChallengeRivalListViewHandleListLoadResponse(ChallengeRivalLi
         }
     }
 
-    int tag = (int)[downloader tag];
+    int tag = (int)[(Downloader *)downloader tag];
     if (tag == kTagRemove) {
         ChallengeRivalListViewHandleRemoveResponse(self, json, status);
     } else if (tag == kTagListLoad) {
@@ -285,7 +285,7 @@ static inline void ChallengeRivalListViewHandleListLoadResponse(ChallengeRivalLi
     NSString *msg = [NSBundle.mainBundle localizedStringForKey:@"ServerErrorMsg"
                                                          value:@""
                                                          table:nil];
-    (void)[downloader tag]; // Read but unused, as in the binary.
+    (void)[(Downloader *)downloader tag]; // Read but unused, as in the binary.
     ChallengeRivalListViewShowPlainAlert(self, nil, 3, msg);
 }
 

@@ -571,7 +571,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
         }
     }
 
-    int tag = (int)[downloader tag];
+    int tag = (int)[(Downloader *)downloader tag];
     if (tag == kTagRegister) {
         ChallengeRivalSearchViewHandleRegisterResponse(self, json, status);
     } else if (tag == kTagSearch) {
@@ -585,7 +585,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
     NSString *msg = [NSBundle.mainBundle localizedStringForKey:@"ServerErrorMsg"
                                                          value:@""
                                                          table:nil];
-    if ([downloader tag] != kTagRegister) {
+    if ([(Downloader *)downloader tag] != kTagRegister) {
         NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
         [[AlertViewManager sharedManager] makeAlert:0
                                            delegate:self

@@ -276,7 +276,7 @@ static inline void ChallengePresentViewHandleListLoadResponse(ChallengePresentVi
         }
     }
 
-    int tag = (int)[downloader tag];
+    int tag = (int)[(Downloader *)downloader tag];
     if (tag == kTagAcceptDecline) {
         ChallengePresentViewHandleAcceptDeclineResponse(self, json, status);
     } else if (tag == kTagListLoad) {
@@ -289,7 +289,7 @@ static inline void ChallengePresentViewHandleListLoadResponse(ChallengePresentVi
     NSString *msg = [NSBundle.mainBundle localizedStringForKey:@"ServerErrorMsg"
                                                          value:@""
                                                          table:nil];
-    (void)[downloader tag]; // Read but unused, as in the binary.
+    (void)[(Downloader *)downloader tag]; // Read but unused, as in the binary.
     ChallengePresentViewShowPlainAlert(self, nil, 3, msg);
 }
 

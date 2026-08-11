@@ -863,7 +863,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
         }
     }
 
-    int tag = (int)[downloader tag];
+    int tag = (int)[(Downloader *)downloader tag];
     if (tag == kTagRivalRegister) {
         ChallengeRankingListViewHandleRivalRegisterResponse(self, json, status);
     } else if (tag == kTagRankingLoad) {
@@ -882,7 +882,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
     NSString *msg = [NSBundle.mainBundle localizedStringForKey:kBundleKeyServerErrorMsg
                                                          value:@""
                                                          table:nil];
-    int tag = (int)[downloader tag];
+    int tag = (int)[(Downloader *)downloader tag];
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:kBundleKeyOK value:@"" table:nil];
     id delegate = self;
     int alertTag;
@@ -947,12 +947,12 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
 
 /** @ghidraAddress 0x1585dc */
 - (void)tapDifficulty:(id)sender {
-    [self setDifficulty:(int)[sender tag]];
+    [self setDifficulty:(int)[(UIView *)sender tag]];
 }
 
 /** @ghidraAddress 0x158618 */
 - (void)tapArea:(id)sender {
-    [self setArea:(int)[sender tag]];
+    [self setArea:(int)[(UIView *)sender tag]];
 }
 
 /** @ghidraAddress 0x158654 */

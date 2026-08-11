@@ -473,7 +473,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
     if (working_index != kNoWorkingRow) {
         return;
     }
-    working_index = (int)[sender tag];
+    working_index = (int)[(UIView *)sender tag];
     if (!isPad) {
         return;
     }
@@ -484,7 +484,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
     itemDetailViewPad.alpha = 0.0;
     [self.view addSubview:coverViewPad];
     [self.view addSubview:itemDetailViewPad];
-    [itemDetailViewPad setCampaignInfo:downloadMusicList[[sender tag]]];
+    [itemDetailViewPad setCampaignInfo:downloadMusicList[[(UIView *)sender tag]]];
     [itemDetailViewPad loadInfo];
 
     __weak UIView *weakCover = coverViewPad;
@@ -596,7 +596,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
 
 /** @ghidraAddress 0xbfc60 */
 - (void)pushExternalLink:(nullable id)sender {
-    int tag = (int)[sender tag];
+    int tag = (int)[(UIView *)sender tag];
     if (tag < 0) {
         return;
     }
@@ -974,7 +974,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
 
 /** @ghidraAddress 0xc22ec */
 - (void)downloaderError:(id)downloader {
-    switch ([downloader tag]) {
+    switch ([(Downloader *)downloader tag]) {
     case kDownloaderTagCampaignList:
         if (!firstDownloadFailed) {
             firstDownloadFailed = YES;

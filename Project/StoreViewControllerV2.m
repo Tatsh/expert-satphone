@@ -1131,7 +1131,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
             [[AlertViewManager sharedManager] showUpdateAlert];
         }
     }
-    switch ([downloader tag]) {
+    switch ([(Downloader *)downloader tag]) {
     case kSessionTagTotalPurchase:
         if (status == 0) {
             [[NSUserDefaults standardUserDefaults] setInteger:0 forKey:kPrefTotalPurchase];
@@ -1210,7 +1210,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 
 /** @ghidraAddress 0xf7fc0 */
 - (void)downloaderError:(nullable id)downloader {
-    if ([downloader tag] == kSessionTagMissionCheck) {
+    if ([(Downloader *)downloader tag] == kSessionTagMissionCheck) {
         NSString *ok = [[NSBundle mainBundle] localizedStringForKey:kLocKeyOK
                                                               value:kEmptyValue
                                                               table:nil];
@@ -1222,7 +1222,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
                                              cancel:ok
                                             btnText:nil
                                                show:YES];
-    } else if ([downloader tag] == kSessionTagRestoreAge) {
+    } else if ([(Downloader *)downloader tag] == kSessionTagRestoreAge) {
         NSString *ok = [[NSBundle mainBundle] localizedStringForKey:kLocKeyOK
                                                               value:kEmptyValue
                                                               table:nil];

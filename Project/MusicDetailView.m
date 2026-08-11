@@ -241,7 +241,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 /** @ghidraAddress 0x127958 */
 - (void)pushRecommend:(nullable id)sender {
     self.socialType = SLServiceTypeFacebook;
-    if ([sender tag] == kRecommendTagTwitter) {
+    if ([(UIView *)sender tag] == kRecommendTagTwitter) {
         self.socialType = SLServiceTypeTwitter;
     }
     [self.controller unenableCoverTap];

@@ -821,7 +821,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
 
 /** @ghidraAddress 0x1dddd4 */
 - (void)tapRelationButton:(nullable id)sender {
-    int tag = (int)[sender tag];
+    int tag = (int)[(UIView *)sender tag];
     if (tag == currentList) {
         return;
     }

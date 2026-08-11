@@ -145,7 +145,7 @@ static const CGFloat kBorderWidth = 1.0;
 
 /** @ghidraAddress 0x1dbc60 */
 - (void)tapGenreBtn:(id)sender {
-    const NSInteger tag = [sender tag];
+    const NSInteger tag = [(UIView *)sender tag];
     const NSInteger index = genreSize != 0 ? tag % genreSize : tag;
     [self setSelectedBanner:index];
     [self.delegate StoreGenreSelectViewDelegateGenreSelected:index];

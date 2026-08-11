@@ -229,7 +229,7 @@ static inline void InheritCodeInputViewShowReplaceDoneLabel(InheritCodeInputView
     int status = [json[kInputKeyStatus] intValue];
     [UIApplication.sharedApplication endIgnoringInteractionEvents];
 
-    if ([downloader tag] == kInputTagReplace) {
+    if ([(Downloader *)downloader tag] == kInputTagReplace) {
         if (status == 0) {
             // The migration succeeded: swap the keychain identity and fade the field out, then
             // reveal the "migration complete" label.

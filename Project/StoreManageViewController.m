@@ -272,7 +272,7 @@ static const int kConfirmButtonIndex = 1;
     if (working_index != kNoWorkingRow) {
         return;
     }
-    working_index = (unsigned int)[sender tag];
+    working_index = (unsigned int)[(UIView *)sender tag];
     NSDictionary *info = StoreMusicListManager.sharedManager.purchasedMusic[working_index];
     unsigned int musicID = [info[kMusicKeyID] unsignedIntValue];
     NSString *path = [StoreUtil filePathForMusicID:musicID];

@@ -323,7 +323,7 @@ static inline void ChallengePrevRankingViewHandleListLoadResponse(ChallengePrevR
         return;
     }
 
-    int tag = (int)[downloader tag];
+    int tag = (int)[(Downloader *)downloader tag];
     if (tag == kTagArtwork) {
         ChallengePrevRankingViewStoreArtwork(self, downloader);
     } else if (tag == kTagListLoad) {
@@ -336,7 +336,7 @@ static inline void ChallengePrevRankingViewHandleListLoadResponse(ChallengePrevR
     NSString *msg = [NSBundle.mainBundle localizedStringForKey:@"ServerErrorMsg"
                                                          value:@""
                                                          table:nil];
-    (void)[downloader tag]; // Read but unused, as in the binary.
+    (void)[(Downloader *)downloader tag]; // Read but unused, as in the binary.
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
                                        delegate:nil
