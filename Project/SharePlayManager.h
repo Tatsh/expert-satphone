@@ -26,15 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol SharePlayManagerDelegate <NSObject>
 
-@required
+@optional
 /**
  * @brief Reports the progress of the incoming music-data stream as a fraction in @c 0..1.
  * @param manager The reporting manager.
  * @param progress The received fraction, clamped to @c 1.0.
  */
 - (void)sharePlayManager:(SharePlayManager *)manager receiveProgress:(float)progress;
-
-@optional
 /**
  * @brief A candidate host was discovered while browsing.
  * @param manager The reporting manager.

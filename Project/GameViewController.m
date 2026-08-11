@@ -1805,6 +1805,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
             [self.mainGameRenderer setState:kRendererStateStarting];
         }
         // Fall through to the starting / playing pause handling.
+        __attribute__((fallthrough));
     case kRendererStateStarting:
     case kRendererStatePlaying: {
         if (self->bRestartFlag) {

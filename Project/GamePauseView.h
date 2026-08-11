@@ -17,11 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol GamePauseViewDelegate <NSObject>
 /** @brief Sent when the resume button is tapped. */
-- (void)resumeInPauseView:(nonnull id)pauseView;
+- (void)resumeInPauseView;
 /** @brief Sent when the restart button is tapped. */
-- (void)restartInPauseView:(nonnull id)pauseView;
+- (void)restartInPauseView;
 /** @brief Sent when the end button is tapped. */
-- (void)endInPauseView:(nonnull id)pauseView;
+- (void)endInPauseView;
 @end
 
 /**

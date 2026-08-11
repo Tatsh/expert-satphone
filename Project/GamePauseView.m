@@ -234,7 +234,7 @@ static const NSTimeInterval kPauseInteractionDelay = 0.4; // @ghidraAddress 0x28
         completion:^(BOOL finished) {
           /** @ghidraAddress 0x9861c */
           [weakSelf removeFromSuperview];
-          [weakSelf.delegate resumeInPauseView:weakSelf];
+          [weakSelf.delegate resumeInPauseView];
         }];
     [UIApplication.sharedApplication performSelector:@selector(endIgnoringInteractionEvents)
                                           withObject:nil
@@ -262,13 +262,13 @@ static const NSTimeInterval kPauseInteractionDelay = 0.4; // @ghidraAddress 0x28
                                           withObject:nil
                                           afterDelay:kPauseInteractionDelay];
     [AudioManager.sharedManager playSeResFile:[self soundName:kPauseSoundConfirm] inDirectory:nil];
-    [self.delegate restartInPauseView:self];
+    [self.delegate restartInPauseView];
 }
 
 /** @ghidraAddress 0x98994 */
 - (void)pushBtnEnd:(id)sender {
     [AudioManager.sharedManager playSeResFile:[self soundName:kPauseSoundConfirm] inDirectory:nil];
-    [self.delegate endInPauseView:self];
+    [self.delegate endInPauseView];
 }
 
 @end
