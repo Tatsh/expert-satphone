@@ -124,13 +124,6 @@ target_include_directories(jubeat PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Project")
 
 add_subdirectory(Project)
 
-# --- minizip unzip engine (reconstructed, in Project/) -------------------------------------
-# The .zip extraction KUnzip drives (the unz* reading API and the zlib_filefunc_def custom I/O
-# table) is minizip statically linked into the shipped binary. It is being reconstructed into
-# Project/ from the binary rather than vendored: Project/ioapi.c is the reconstructed stdio
-# filefunc set (built with the rest of Project/); the unz* engine (unzip.c) is a pending
-# reconstruction. Both build against the system zlib linked below.
-
 # Compiler options as real -flags (not XCODE_ATTRIBUTE build settings) so they
 # apply under every generator and can be overridden per source file. Language
 # standards are per-language (AppleClang 15 / LLVM 16 spells C23 / C++23 gnu2x /
