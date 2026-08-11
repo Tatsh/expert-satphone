@@ -29,24 +29,20 @@ delegate class `JubeatAppDelegate`, and every routine reachable from there is re
 
 ## Layout
 
-| Path               | Contents                                                                  |
-| ------------------ | ------------------------------------------------------------------------- |
-| `Project/`         | Reconstructed sources, one class per header and implementation.           |
-| `.claude/`         | Rules governing reconstruction fidelity and coding style.                 |
-| `STATUS.md`        | Per-method status index over the `STATUS_NN.md` tables.                   |
-| `STATUS_NN.md`     | Every authored method with its status, cross-reference count, and length. |
-| `TYPES_PENDING.md` | Placeholder types, declarations without bodies, and binary defects found. |
+| Path        | Contents                                                        |
+| ----------- | --------------------------------------------------------------- |
+| `Project/`  | Reconstructed sources, one class per header and implementation. |
+| `.claude/`  | Rules governing reconstruction fidelity and coding style.       |
+| `STATUS.md` | The routines still to reconstruct.                              |
 
-This is a long-running task. Start a session by reading [STATUS.md](STATUS.md); it indexes the
-per-method status tables (`STATUS_NN.md`), each row a method in `-[ClassName selector]` form with a
-done/outstanding tick, its cross-reference count, and its byte length in the binary. Regenerate them
-with `tools/status_tables_gen.py` after landing new work.
+Nearly the whole binary is reconstructed and audited. What remains is a fixed, shrinking work list
+in [STATUS.md](STATUS.md): the outstanding Objective-C methods and C/C++ functions and blocks, each
+row a routine in `-[ClassName selector]` (or function) form with its Ghidra address, cross-reference
+count, and byte length. A routine drops off the list once its source lands. Regenerate the file with
+`tools/status_tables_gen.py` after landing new work.
 
 ## Provenance
 
 Every reconstructed routine carries a `@ghidraAddress` Doxygen tag giving its address in the
 original binary, relative to the image base `0x100000000`. The tag is what makes a claim in this
 tree checkable against the binary, so it is required rather than decorative.
-
-The binary embeds the same Konami "applilink" advertising SDK as _REFLEC BEAT plus_, whose
-reconstruction lives in the sibling `rbplus-src` tree.

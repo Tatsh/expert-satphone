@@ -52,10 +52,10 @@ faithful C, C++, and Objective-C. The coding style of the resulting source lives
 - When reconstructing a C or C++ function (or an Objective-C block), record its final signature in
   `tools/cxx_signatures.txt` in the same change: add or update the `0xADDRESS<tab>signature` line
   for that routine's image-relative address, using block syntax (for example `(^void)(int)`) for a
-  block. `STATUS_06.md` reads this sidecar for its Signature column, and flips the routine's status
-  to done from the `@ghidraAddress` you add to the reconstructed source; regenerate the status
-  tables with `tools/status_tables_gen.py`. The tables are only accurate if every reconstructed
-  routine is annotated and signed as it lands.
+  block. `STATUS.md` reads this sidecar for its Signature column, and drops the routine from the
+  outstanding list once the `@ghidraAddress` you add to the reconstructed source matches; regenerate
+  it with `tools/status_tables_gen.py`. The list is only accurate if every reconstructed routine is
+  annotated and signed as it lands.
 - Fix the Ghidra program itself, not only the reconstructed source. As you work a function, in
   Ghidra: give every parameter, local, and return a real type (never a bare `long`/`int`/`undefined*`
   standing in for an object or struct pointer); rename every auto-named variable (`pnVar1`, `lVar2`,
