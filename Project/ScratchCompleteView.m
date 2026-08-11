@@ -5,6 +5,13 @@
 #import "JubeatAppDelegate.h"
 #import "ScratchUtil.h"
 
+// The reveal cascade's per-stage animation timings: the whole view scales in over 0.05s after a
+// 0.3s delay, the artwork and label stages take 0.1s each, and the banner 0.2s.
+static const NSTimeInterval kRevealSelfDuration = 0.05;  // @ghidraAddress 0x293378
+static const NSTimeInterval kRevealSelfDelay = 0.3;      // @ghidraAddress 0x28f248
+static const NSTimeInterval kRevealStageDuration = 0.1;  // @ghidraAddress 0x28f290
+static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e040
+
 @implementation ScratchCompleteView {
     UIView *bgView;                                    // offset global 0x34b334
     UIImageView *completeView;                         // offset global 0x34b338
@@ -67,13 +74,13 @@
 
 /** @ghidraAddress 0x16e730 */
 - (void)animationStart {
-    // Verified at 0x16e730: _objc_initWeak at 0x16e750, setAlpha:0 at 0x16e768 (movi v0),
-    // then animateWithDuration:delay:options:animations:completion: at 0x16e730 tail
-    // with DAT_0x293378 (0.3) and DAT_0x28f248 (0.1), blocks at 0x16e870 and 0x16e928.
+    // A four-stage reveal cascade: the whole view scales/fades in, then the artwork pair, then the
+    // two title labels, then the COMPLETE banner, each stage a nested completion. The dismiss
+    // gesture is armed only after the last stage so a tap cannot close the view early.
     __weak typeof(self) weakSelf = self;
     self.alpha = 0;
-    [UIView animateWithDuration:0.3
-        delay:0.1
+    [UIView animateWithDuration:kRevealSelfDuration
+        delay:kRevealSelfDelay
         options:UIViewAnimationOptionBeginFromCurrentState |
                 UIViewAnimationOptionAllowUserInteraction
         animations:^{
@@ -83,8 +90,61 @@
         }
         completion:^(BOOL finished) {
           /** @ghidraAddress 0x16e928 */
-          // Reveal artwork — the completion block notifies that the view is visible.
-          (void)finished;
+          // Stage 2: pop the artwork pair in.
+          __weak UIImageView *weakArtworkBg = weakSelf->artworkBg;
+          __weak UIImageView *weakArtworkView = weakSelf->artworkView;
+          weakArtworkView.alpha = 0.0;
+          [UIView animateWithDuration:kRevealStageDuration
+              delay:0.0
+              options:UIViewAnimationOptionCurveEaseOut
+              animations:^{
+                /** @ghidraAddress 0x16eabc */
+                weakArtworkBg.transform = CGAffineTransformMakeScale(1.0, 1.0);
+                weakArtworkBg.alpha = 1.0;
+                weakArtworkView.transform = CGAffineTransformMakeScale(1.0, 1.0);
+                weakArtworkView.alpha = 1.0;
+              }
+              completion:^(BOOL finished2) {
+                /** @ghidraAddress 0x16ec48 */
+                // Stage 3: pop the two title labels in.
+                __weak UILabel *weakMusicName = weakSelf->musicName;
+                __weak UILabel *weakArtistName = weakSelf->artistName;
+                weakMusicName.alpha = 0.0;
+                weakArtistName.alpha = 0.0;
+                [UIView animateWithDuration:kRevealStageDuration
+                    delay:0.0
+                    options:UIViewAnimationOptionBeginFromCurrentState |
+                            UIViewAnimationOptionAllowUserInteraction
+                    animations:^{
+                      /** @ghidraAddress 0x16ee04 */
+                      weakMusicName.transform = CGAffineTransformMakeScale(1.0, 1.0);
+                      weakMusicName.alpha = 1.0;
+                      weakArtistName.transform = CGAffineTransformMakeScale(1.0, 1.0);
+                      weakArtistName.alpha = 1.0;
+                    }
+                    completion:^(BOOL finished3) {
+                      /** @ghidraAddress 0x16ef90 */
+                      // Stage 4: pop the COMPLETE banner in.
+                      __weak UIImageView *weakComplete = weakSelf->completeView;
+                      weakComplete.alpha = 0.0;
+                      [UIView animateWithDuration:kRevealBannerDuration
+                          delay:0.0
+                          options:UIViewAnimationOptionCurveEaseOut
+                          animations:^{
+                            /** @ghidraAddress 0x16f0dc */
+                            weakComplete.transform = CGAffineTransformMakeScale(1.0, 1.0);
+                            weakComplete.alpha = 1.0;
+                          }
+                          completion:^(BOOL finished4) {
+                            /** @ghidraAddress 0x16f194 */
+                            // The reveal is done: arm the dismiss tap.
+                            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
+                                initWithTarget:weakSelf
+                                        action:@selector(closeView)];
+                            [weakSelf->touchView addGestureRecognizer:tap];
+                          }];
+                    }];
+              }];
         }];
 }
 
