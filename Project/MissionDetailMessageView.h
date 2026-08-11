@@ -16,6 +16,7 @@
 
 #import <UIKit/UIKit.h>
 
+#import "AlertViewManager.h"
 #import "ChallengeMissionAchieve.h"
 #import "ChallengeMissionPlayTerm.h"
 #import "ChallengeMissionTerms.h"
@@ -42,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief A centred overlay describing one mission and offering to skip it for jCube.
  */
-@interface MissionDetailMessageView : UIView
+@interface MissionDetailMessageView : UIView <AlertViewManagerDelegate>
 
 /**
  * @brief The object told about skip, purchase, and close events. Held weakly.

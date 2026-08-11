@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The launch splash screen and its logo animation.
  */
-@interface LogoViewController : UIViewController
+@interface LogoViewController : UIViewController <DownloaderDelegate>
 
 /**
  * @brief Builds the controller.

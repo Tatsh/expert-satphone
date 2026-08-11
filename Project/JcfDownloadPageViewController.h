@@ -13,6 +13,7 @@
 
 #import <UIKit/UIKit.h>
 
+#import "AlertViewManager.h"
 #import "EditorIDManager.h"
 #import "JcfDownloadView.h"
 
@@ -59,8 +60,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Hosts the jubeatLab chart download web page and drives its download modal.
  */
-@interface JcfDownloadPageViewController
-    : UIViewController <UIWebViewDelegate, JcfDownloadViewDelegate, EditorIDManagerDelegate>
+@interface JcfDownloadPageViewController : UIViewController <UIWebViewDelegate,
+                                                             JcfDownloadViewDelegate,
+                                                             EditorIDManagerDelegate,
+                                                             AlertViewManagerDelegate>
 
 /**
  * @brief Builds the web view and loading indicator, registers for the suspend notification, and

@@ -10,6 +10,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "AlertViewManager.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -33,7 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
  * store row (tag 6) drives an in-app-purchase restore flow through @c PurchaseManager, guarded by a
  * progress dialog and a confirmation alert.
  */
-@interface ChallengeMenuView : UIView <UITableViewDataSource, UITableViewDelegate>
+@interface ChallengeMenuView
+    : UIView <UITableViewDataSource, UITableViewDelegate, AlertViewManagerDelegate>
 
 /**
  * @brief The object told about close and row-selection events. Held weakly.

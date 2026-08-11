@@ -61,7 +61,7 @@ typedef NS_ENUM(int, ScratchViewState) {
  * @brief One scratch card: a jacket image under five stacked cover layers, with a rub gesture, a
  * reveal effect, a download indicator, and a small scratch-progress state machine.
  */
-@interface ScratchView : UIView
+@interface ScratchView : UIView <DownloaderDelegate>
 
 /**
  * @brief The scratch delegate. Held weakly.

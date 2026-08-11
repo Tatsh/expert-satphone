@@ -23,6 +23,10 @@
 #import <StoreKit/StoreKit.h>
 #import <UIKit/UIKit.h>
 
+#import "AlertViewManager.h"
+#import "EditorIDManager.h"
+#import "StoreDownloadManager.h"
+
 @class StoreDialogView;
 @class StorePackInfo;
 
@@ -31,7 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The store's four-tab container and shared purchase/restore/download coordinator.
  */
-@interface StoreViewControllerV2 : UITabBarController
+@interface StoreViewControllerV2 : UITabBarController <AlertViewManagerDelegate,
+                                                       EditorIDManagerDelegate,
+                                                       StoreDownloadManagerDelegate>
 
 /**
  * @brief Builds the four tabs, each wrapped in a non-translucent navigation controller.

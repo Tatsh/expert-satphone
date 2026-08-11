@@ -22,6 +22,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "ApplilinkViewDelegate.h"
+
 @class ApplilinkParameters;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
  * The class metadata declares conformance to the closed-SDK @c ShadeViewDelegate,
  * @c ApplilinkViewDelegate, and @c SdkViewDelegate protocols.
  */
-@interface RecommendFullScreenController : UIViewController
+@interface RecommendFullScreenController : UIViewController <ApplilinkViewDelegate>
 
 /**
  * @brief Whether the interstitial advert is currently on screen.

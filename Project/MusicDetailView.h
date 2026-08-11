@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 
 #import "EditFileListViewController.h"
+#import "SearchPackIDView.h"
 
 @class EditFileListViewDeleteController;
 @class EditModalView;
@@ -45,7 +46,8 @@ NS_ASSUME_NONNULL_BEGIN
                                      UITextFieldDelegate,
                                      UINavigationControllerDelegate,
                                      EditFileListViewDelegate,
-                                     UIPopoverPresentationControllerDelegate>
+                                     UIPopoverPresentationControllerDelegate,
+                                     SearchPackIDViewDelegate>
 
 /**
  * @brief Designated initialiser; builds every subview at the origin and hides the modal chrome.

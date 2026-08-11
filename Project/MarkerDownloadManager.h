@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Downloader.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class MarkerDownloadManager;
@@ -31,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Runs a list of marker download tasks one after another.
  */
-@interface MarkerDownloadManager : NSObject
+@interface MarkerDownloadManager : NSObject <DownloaderDelegate>
 
 /** @brief The index of the task currently downloading. @ghidraAddress 0x87c04 (getter) */
 @property(nonatomic) unsigned int currentIndex;

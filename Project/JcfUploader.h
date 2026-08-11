@@ -11,7 +11,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class EditorIDManager;
+#import "EditorIDManager.h"
 @class jubeatLabAccess;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Uploads an edit chart to jubeatLab.
  */
-@interface JcfUploader : NSObject
+@interface JcfUploader : NSObject <EditorIDManagerDelegate>
 
 /**
  * @brief Reads a keychain generic-password value for an account key.

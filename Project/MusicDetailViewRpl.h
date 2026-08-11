@@ -14,6 +14,9 @@
 
 #import <UIKit/UIKit.h>
 
+#import "JcfDownloadPageNavController.h"
+#import "JcfManageNavController.h"
+#import "JcfUpLoadView.h"
 #import "MusicDetailView.h"
 
 @class TuneInfo;
@@ -24,7 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The detail card for the Ripples theme.
  */
-@interface MusicDetailViewRpl : MusicDetailView {
+@interface MusicDetailViewRpl : MusicDetailView <JcfDownloadPageNavControllerDelegate,
+                                                 JcfManageNavControllerDelegate,
+                                                 JcfUpLoadViewDelegate> {
     UIButton *btnDiff[4];
     UIImageView *levelNumView[4];
     UIImage *levelNumImg[10];

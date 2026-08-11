@@ -11,6 +11,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "AlertViewManager.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -20,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
  * delegate protocol so it can react to the button tap; the protocol is dispatched dynamically, so
  * this header does not import it.
  */
-@interface StoreDetailMusicCell : UITableViewCell
+@interface StoreDetailMusicCell : UITableViewCell <AlertViewManagerDelegate>
 
 /**
  * @brief The fixed row height for this cell.

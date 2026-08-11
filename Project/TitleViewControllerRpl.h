@@ -13,6 +13,7 @@
 
 #import <UIKit/UIKit.h>
 
+#import "MarkerDownloadView.h"
 #import "TitleViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -20,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The title screen in REFLEC BEAT plus livery.
  */
-@interface TitleViewControllerRpl : TitleViewController
+@interface TitleViewControllerRpl : TitleViewController <MarkerDownloadViewDelegate>
 
 /**
  * @brief Builds the controller, records whether this is a pad, and subscribes to notifications.

@@ -14,6 +14,10 @@
 
 #import <UIKit/UIKit.h>
 
+#import "EditModalView.h"
+#import "JcfDownloadPageNavController.h"
+#import "JcfManageNavController.h"
+#import "JcfUpLoadView.h"
 #import "MusicDetailView.h"
 
 @class TuneInfo;
@@ -24,7 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The detail card for the Knit theme.
  */
-@interface MusicDetailViewKnt : MusicDetailView {
+@interface MusicDetailViewKnt : MusicDetailView <EditModalViewDelegate,
+                                                 JcfDownloadPageNavControllerDelegate,
+                                                 JcfManageNavControllerDelegate,
+                                                 JcfUpLoadViewDelegate> {
     UIButton *btnDiff[4];
     UIImageView *levelNumView[4];
     UIImage *levelNumImg[10];

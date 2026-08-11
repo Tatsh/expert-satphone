@@ -21,6 +21,10 @@
 
 #import <UIKit/UIKit.h>
 
+#import "AlertViewManager.h"
+#import "Downloader.h"
+#import "StoreDownloadManager.h"
+
 @class ChallengeMissionReward;
 @class Downloader;
 @class StoreDialogView;
@@ -31,7 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief A challenge-mission reward-item download overlay.
  */
-@interface MissionRewardDownloadView : UIView
+@interface MissionRewardDownloadView
+    : UIView <AlertViewManagerDelegate, DownloaderDelegate, StoreDownloadManagerDelegate>
 
 /**
  * @brief The overlay's owner, told when the window is closed.

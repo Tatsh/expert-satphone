@@ -15,6 +15,9 @@
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
 
+#import "JcfDownloadPageNavController.h"
+#import "JcfManageNavController.h"
+#import "JcfUpLoadView.h"
 #import "MusicDetailView.h"
 
 @class TuneInfo;
@@ -25,7 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The detail card for the original (classic) theme.
  */
-@interface MusicDetailViewOrg : MusicDetailView {
+@interface MusicDetailViewOrg : MusicDetailView <JcfDownloadPageNavControllerDelegate,
+                                                 JcfManageNavControllerDelegate,
+                                                 JcfUpLoadViewDelegate> {
     UIButton *btnDiff[4];
     UIImageView *lightView[4][2];
     UIImageView *diffTextView[4];

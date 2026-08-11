@@ -21,6 +21,7 @@
 #import "AlertViewManager.h"
 #import "CubePurchaseListView.h"
 #import "Downloader.h"
+#import "MessageTextView.h"
 #import "PurchaseManager.h"
 
 @class MessageTextView;
@@ -36,7 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
                                       CubePurchaseListViewDelegate,
                                       DownloaderDelegate,
                                       PurchaseManagerDelegate,
-                                      SKProductsRequestDelegate>
+                                      SKProductsRequestDelegate,
+                                      MessageTextViewDelegate>
 
 /**
  * @brief Builds the whole view: the background plate, the close, SPTL, and cube-policy buttons, and

@@ -17,6 +17,7 @@
 
 #import "AlertViewManager.h"
 #import "EditButtonViewController.h"
+#import "EditFileListViewController.h"
 #import "EditModalView.h"
 
 @class EAGLView;
@@ -32,7 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface EditViewController : UIViewController <UIPopoverPresentationControllerDelegate,
                                                   AlertViewManagerDelegate,
                                                   EditButtonViewControllerDelegate,
-                                                  EditModalViewDelegate>
+                                                  EditModalViewDelegate,
+                                                  EditFileListViewDelegate>
 
 /**
  * @brief Initialises the editor: reads the saved adjust-sector offset, resolves the device idiom,

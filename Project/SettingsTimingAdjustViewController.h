@@ -18,6 +18,7 @@
 #import <UIKit/UIKit.h>
 
 #import "AdjustTestView.h"
+#import "AlertViewManager.h"
 
 @class CADisplayLink;
 
@@ -26,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The timing-adjust calibration view controller.
  */
-@interface SettingsTimingAdjustViewController : UIViewController
+@interface SettingsTimingAdjustViewController : UIViewController <AlertViewManagerDelegate>
 
 /**
  * @brief Sets the navigation title, seeds @c delaySector from @c NSUserDefaults , subscribes to the

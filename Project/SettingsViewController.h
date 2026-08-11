@@ -13,6 +13,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "AlertViewManager.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -23,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  * for the delete-custom-sequence confirmation (see @c -alertSelect:).
  */
 @interface SettingsViewController
-    : UITableViewController <UITableViewDataSource, UITableViewDelegate>
+    : UITableViewController <UITableViewDataSource, UITableViewDelegate, AlertViewManagerDelegate>
 
 /**
  * @brief The object forwarded to sub-controllers that need to notify the settings owner (for

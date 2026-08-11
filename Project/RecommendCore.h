@@ -14,6 +14,8 @@
 #import <UIKit/UIKit.h>
 
 #import "ApplilinkParameters.h"
+#import "ApplilinkStore.h"
+#import "ApplilinkURLConnection.h"
 #import "ApplilinkViewDelegate.h"
 
 @class RecommendFullScreenController;
@@ -25,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The Applilink recommend SDK's shared advert controller.
  */
-@interface RecommendCore : NSObject
+@interface RecommendCore : NSObject <ApplilinkURLConnectionDelegate, SdkViewDelegate>
 
 /**
  * @brief Whether the recommend core has been initialised.

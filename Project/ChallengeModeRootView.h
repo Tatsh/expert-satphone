@@ -18,6 +18,7 @@
 #import "AlertViewManager.h"
 #import "ChallengeLineupView.h"
 #import "ChallengeLoginInformationView.h"
+#import "ChallengeMenuRootView.h"
 #import "ChallengeNameSettingView.h"
 #import "ChallengeRankingListView.h"
 #import "Downloader.h"
@@ -47,7 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
                                            PurchaseManagerDelegate,
                                            ScratchCompleteViewDelegate,
                                            ScratchMusicDetailViewDelegate,
-                                           ScratchViewDelegate>
+                                           ScratchViewDelegate,
+                                           ChallengeMenuRootViewDelegate>
 
 /**
  * @brief The owning music-select controller. Held weakly.

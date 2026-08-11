@@ -21,6 +21,7 @@
 
 #import <UIKit/UIKit.h>
 
+#import "AppliView.h"
 #import "ApplilinkParameters.h"
 #import "ApplilinkWebView.h"
 #import "VideoView.h"
@@ -37,7 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
  * view's callbacks); the two protocols share the ready/close/repeat/store/error selectors, which is
  * why one controller can be both.
  */
-@interface ApplilinkVideoController : UIViewController <VideoViewDelegate, SdkViewDelegate>
+@interface ApplilinkVideoController
+    : UIViewController <VideoViewDelegate, SdkViewDelegate, AppliViewDelegate>
 
 /**
  * @brief The SDK delegate told about ready and close events.

@@ -10,6 +10,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <StoreKit/StoreKit.h>
 
 @class SKPaymentQueue;
 @class SKProduct;
@@ -26,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)restoreNothing;
 @end
 
-@interface PurchaseManager : NSObject
+@interface PurchaseManager : NSObject <SKPaymentTransactionObserver>
 
 /**
  * @brief The delegate.

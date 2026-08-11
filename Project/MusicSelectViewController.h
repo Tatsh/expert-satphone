@@ -15,8 +15,10 @@
 #import <GameKit/GameKit.h>
 #import <UIKit/UIKit.h>
 
+#import "MarkerSelectView.h"
 #import "MusicListView.h"
 #import "MusicPlaylistViewController.h"
+#import "MusicSelectBottomView.h"
 #import "MusicView.h"
 #import "PurchaseManager.h"
 #import "SharePlayManager.h"
@@ -59,7 +61,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                          UIPopoverPresentationControllerDelegate,
                                                          UISearchBarDelegate,
                                                          GKGameCenterControllerDelegate,
-                                                         PurchaseManagerDelegate> {
+                                                         PurchaseManagerDelegate,
+                                                         MarkerSelectViewDelegate,
+                                                         MusicSelectBottomViewDelegate> {
     unsigned int pageHowto;
     BOOL isMarkerSelectOpen;
     unsigned int indexStoreInfo;
