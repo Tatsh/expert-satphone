@@ -10,11 +10,14 @@
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
+#import "LabUtilities.h"
+#import "NSDictionary+PropertyList.h"
 #import "ScratchInfo.h"
 #import "ScratchUtil.h"
 #import "Sequence.h"
 #import "StoreMusicListManager.h"
 #import "TuneInfo.h"
+#import "cipher_keys.h"
 
 // The number of difficulties (basic, advanced, extreme) and their indices.
 enum {
@@ -169,10 +172,22 @@ static const CGFloat kHighscoreTextSlideOffset = 40.0;  // @ghidraAddress 0x28f1
     UILabel *consumeTitleLabel;
     UILabel *baseConsumeCoin;
     UILabel *consumeCoin;
-    id _aDelegate;
+    __weak id<ScratchMusicDetailViewDelegate> _aDelegate;
     TuneInfo *_tuneInfo;
 }
 @end
+
+// Maps a raw chart level to its digit-atlas index: below 2 shows the "0" glyph, 2..9 map to
+// level-1, and 10 or above clamps to the last glyph.
+static inline char ScratchMusicDetailViewLevelIndex(int level) {
+    if (level < 2) {
+        return 0;
+    }
+    if (level < 10) {
+        return (char)(level - 1);
+    }
+    return 9;
+}
 
 @implementation ScratchMusicDetailView
 
@@ -579,14 +594,14 @@ static const CGFloat kHighscoreTextSlideOffset = 40.0;  // @ghidraAddress 0x28f1
 #pragma mark - Info
 
 /** @ghidraAddress 0x161c40 */
-- (void)setInfo:(nullable TuneInfo *)info score:(nullable id)score {
-    [super setInfo:info score:score];
+- (void)setInfo:(nullable TuneInfo *)info score:(nullable id)scoreArg {
+    [super setInfo:info score:scoreArg];
     if (info == nil) {
         return;
     }
-    self.levelBas = ClampLevel(info.lvBas);
-    self.levelAdv = ClampLevel(info.lvAdv);
-    self.levelExt = ClampLevel(info.lvExt);
+    self.levelBas = ScratchMusicDetailViewLevelIndex(info.lvBas);
+    self.levelAdv = ScratchMusicDetailViewLevelIndex(info.lvAdv);
+    self.levelExt = ScratchMusicDetailViewLevelIndex(info.lvExt);
 
     [levelNumView[0] setImage:levelNumImg[(int)(unsigned char)self.levelBas]];
     [levelNumView[1] setImage:levelNumImg[(int)(unsigned char)self.levelAdv]];
@@ -595,7 +610,7 @@ static const CGFloat kHighscoreTextSlideOffset = 40.0;  // @ghidraAddress 0x28f1
     [levelNumView[3] setAlpha:0];
 
     [self resetScore];
-    [self putScore:score];
+    [self putScore:scoreArg];
     [self loadContentFromPath:info.filePath orData:nil];
 }
 
@@ -684,15 +699,15 @@ static const CGFloat kHighscoreTextSlideOffset = 40.0;  // @ghidraAddress 0x28f1
 }
 
 /** @ghidraAddress 0x162920 */
-- (void)setScoreBoard:(int)score fullcombo:(BOOL)fullcombo {
+- (void)setScoreBoard:(int)scoreValue fullcombo:(BOOL)fullcombo {
     char digits[8] = "0000000";
-    if (score < 0) {
+    if (scoreValue < 0) {
         // No score: blank the rating and combo, and show all-zero digits.
         [ratingView setImage:nil];
         [comboView setImage:nil];
     } else {
-        if (score < kExcellentScore) {
-            short rank = [Sequence rankOfPoint:score];
+        if (scoreValue < kExcellentScore) {
+            short rank = [Sequence rankOfPoint:scoreValue];
             [ratingView setImage:ratingImg[(int)(unsigned short)rank]];
             [comboView setImage:(fullcombo ? fullcomboImg : nil)];
         } else {
@@ -700,7 +715,7 @@ static const CGFloat kHighscoreTextSlideOffset = 40.0;  // @ghidraAddress 0x28f1
             [ratingView setImage:nil];
             [comboView setImage:excellentImg];
         }
-        snprintf(digits, sizeof(digits), "%*d", kHighscoreFieldWidth, score);
+        snprintf(digits, sizeof(digits), "%*d", kHighscoreFieldWidth, scoreValue);
     }
 
     for (int i = 0; i < kHighscoreDigitCount; ++i) {
@@ -928,9 +943,9 @@ static const CGFloat kHighscoreTextSlideOffset = 40.0;  // @ghidraAddress 0x28f1
     [codec decipher:seqExt];
     [Sequence getMusicBarData:mbarDots[kDiffExtreme] raw:seqExt];
 
-    self.levelBas = ClampLevel(self.tuneInfo.lvBas);
-    self.levelAdv = ClampLevel(self.tuneInfo.lvAdv);
-    self.levelExt = ClampLevel(self.tuneInfo.lvExt);
+    self.levelBas = ScratchMusicDetailViewLevelIndex(self.tuneInfo.lvBas);
+    self.levelAdv = ScratchMusicDetailViewLevelIndex(self.tuneInfo.lvAdv);
+    self.levelExt = ScratchMusicDetailViewLevelIndex(self.tuneInfo.lvExt);
 }
 
 #pragma mark - Sound
@@ -1009,7 +1024,7 @@ static const CGFloat kHighscoreTextSlideOffset = 40.0;  // @ghidraAddress 0x28f1
 
 // The tune levels 2..9 map to digit images 1..8; anything below 2 blanks (0), 10 or above clamps
 // to the top image (9).
-static inline char ClampLevel(int level) {
+static inline char ScratchMusicDetailViewLevelIndex(int level) {
     if (level < 2) {
         return 0;
     }

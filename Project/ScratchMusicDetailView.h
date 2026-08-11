@@ -162,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param fullcombo Whether the chart was full-comboed.
  * @ghidraAddress 0x162920
  */
-- (void)setScoreBoard:(int)score fullcombo:(BOOL)fullcombo;
+- (void)setScoreBoard:(int)scoreValue fullcombo:(BOOL)fullcombo;
 
 /**
  * @brief Selects a difficulty: fades and scales the three difficulty buttons and the fourth-slot

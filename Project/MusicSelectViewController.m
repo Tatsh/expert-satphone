@@ -914,14 +914,17 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
             [balloonView setArrowPosision:balloonHeight - (double)(int)(balloonHeight * 0.5)];
             [balloonView setArrowSize:CGSizeMake(16.0, 12.0)];
             [balloonView setContentEdgeInsets:UIEdgeInsetsMake(12.0, 12.0, 12.0, 12.0)];
-            // The binary passes the localised template straight to +stringWithFormat: with no
-            // argument (its %@ is left dangling); kept faithful, with the format read into a
-            // variable so it is not a checkable literal.
+            // The binary passes the localised template straight to -initWithFormat: with no
+            // argument, so its %@ is left dangling; reproduced faithfully. The format-security
+            // warning is expected here and suppressed for this one call.
             NSString *balloonFormat =
                 [NSBundle.mainBundle localizedStringForKey:@"StoreBalloonMessage(%@)"
                                                      value:@""
                                                      table:nil];
-            NSString *message = [NSString stringWithFormat:balloonFormat];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-security"
+            NSString *message = [[NSString alloc] initWithFormat:balloonFormat];
+#pragma clang diagnostic pop
             UILabel *label = [[UILabel alloc] initWithFrame:balloonView.contentRect];
             [label setOpaque:NO];
             [label setBackgroundColor:UIColor.clearColor];

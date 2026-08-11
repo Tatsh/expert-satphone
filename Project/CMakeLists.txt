@@ -396,6 +396,7 @@ target_sources(jubeat PRIVATE
     ChallengeMissionReward.h
     ChallengeMissionSheet.h
     ChallengeMissionSheetCell.h
+    ChallengeMissionSheetView.h
     ChallengeMissionTerms.h
     ChallengeModeRootView.h
     ChallengeNameSettingView.h
