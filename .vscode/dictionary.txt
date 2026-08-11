@@ -520,6 +520,7 @@ unretained
 unrotated
 unselectable
 unsuffixed
+valf
 vararg
 varargs
 vars

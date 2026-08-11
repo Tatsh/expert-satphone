@@ -511,6 +511,7 @@ target_sources(jubeat PRIVATE
     MusicView.h
     NSData+Base64.h
     NSDictionary+PropertyList.h
+    NSDictionary+TypedAccessors.h
     NSStringURLEncoding.h
     NoMenuTextView.h
     NotificationPageNavController.h

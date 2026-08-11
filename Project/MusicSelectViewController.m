@@ -28,6 +28,7 @@
 #import "MusicShareView.h"
 #import "MusicView.h"
 #import "NSDictionary+PropertyList.h"
+#import "NSDictionary+TypedAccessors.h"
 #import "NotificationPageNavController.h"
 #import "PurchaseManager.h"
 #import "PushNotificationView.h"
@@ -121,6 +122,36 @@ static const CGFloat kVerifyDialogFontSizePhone = 16.0; // fmov, 16.0
 
 // The store update-time preference records the newest seen store timestamp.
 static NSString *const kPrefStoreUpdateTimeKey = @"PrefStoreUpdateTime";
+
+// The store-new and challenge-new badges blink their opacity between these bounds over this
+// duration, auto-reversing and repeating forever with a linear curve, under this animation key.
+static NSString *const kStoreNewBlinkAnimationKey = @"STORE_NEW_BLINK_ANIM";
+static NSString *const kStoreNewBlinkKeyPath = @"opacity";
+static const NSTimeInterval kStoreNewBlinkDuration = 0.4; // @ghidraAddress 0x28f268
+static const float kStoreNewBlinkFromOpacity = 0.2;       // @ghidraAddress 0x28f3c8
+
+// The challenge-info download response carries a status code and, for the store info, an update
+// time, update-text comments, and a scratch id under these keys; the challenge flow uses these
+// preferences and post-body keys, and its downloader carries these api tags.
+static NSString *const kChallengeUpdateTimeKey = @"UpdateTime";
+static NSString *const kChallengeUpdateTextKey = @"UpdateText";
+static NSString *const kChallengeScratchIDKey = @"ScratchId";
+static NSString *const kPrefTotalPurchaseKey = @"PrefTotalPurchase";
+static NSString *const kPrefPurchaseLimitTypeKey = @"PrefPurchaseLimitType";
+static NSString *const kChallengeTotalPurchaseBodyKey = @"sum";
+static NSString *const kChallengeAgeBodyKey = @"age";
+static const int kChallengeDownloaderApiTagAge = 2;
+static const int kChallengeDownloaderApiTagTotalPurchase = 3;
+
+// The finished-download handler switches on the downloader's tag: the store info banner, the
+// challenge initialise, the age registration, the total-purchase registration, or a push-id send.
+enum {
+    kDownloaderTagStoreInfo = 0,
+    kDownloaderTagChallengeInit = 1,
+    kDownloaderTagAgeRegist = 2,
+    kDownloaderTagTotalPurchaseRegist = 3,
+    kDownloaderTagPushIDSend = 4,
+};
 
 // The scratch (challenge) content update id preference; the challenge-new badge hides once the seen
 // id catches up. The BGM fades out over this duration when launching challenge mode.
@@ -385,6 +416,20 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
         }
     }
     return NO;
+}
+
+// The store-new / challenge-new badges share one opacity-blink animation; build it once here.
+static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:kStoreNewBlinkKeyPath];
+    animation.duration = kStoreNewBlinkDuration;
+    animation.fromValue = @(kStoreNewBlinkFromOpacity);
+    animation.toValue = @(1.0f);
+    animation.autoreverses = YES;
+    animation.repeatCount = HUGE_VALF;
+    animation.timingFunction =
+        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.removedOnCompletion = NO;
+    return animation;
 }
 
 @implementation MusicSelectViewController
@@ -3130,6 +3175,108 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
                                            show:YES];
     idManager = nil;
     [self hideChallengeCoverView];
+}
+
+/** @ghidraAddress 0x291f0 */
+- (void)downloaderFinished:(nullable id)downloader {
+    NSDictionary *json = [(Downloader *)downloader getDataInJSON];
+    int status = json[@"status"] != nil ? [json[@"status"] intValue] : -1;
+    switch (((Downloader *)downloader).tag) {
+    case kDownloaderTagStoreInfo: {
+        NSString *updateTime = [json stringForKey:kChallengeUpdateTimeKey];
+        NSArray *updateText = [json arrayForKey:kChallengeUpdateTextKey];
+        currentScratchID = [json[kChallengeScratchIDKey] intValue];
+        if (updateTime != nil) {
+            storeUpdateTime = updateTime;
+            NSString *seen =
+                [NSUserDefaults.standardUserDefaults stringForKey:kPrefStoreUpdateTimeKey];
+            if (seen == nil || [seen compare:storeUpdateTime
+                                     options:NSNumericSearch] == NSOrderedAscending) {
+                [imgStoreNew.layer addAnimation:MusicSelectMakeNewBadgeBlinkAnimation()
+                                         forKey:kStoreNewBlinkAnimationKey];
+                imgStoreNew.hidden = NO;
+            }
+        }
+        if (currentScratchID >= 0 &&
+            [NSUserDefaults.standardUserDefaults integerForKey:kPrefScratchUpdateIDKey] <
+                currentScratchID) {
+            [imgChallengeNew.layer addAnimation:MusicSelectMakeNewBadgeBlinkAnimation()
+                                         forKey:kStoreNewBlinkAnimationKey];
+            imgChallengeNew.hidden = NO;
+        }
+        if (updateText.count != 0) {
+            NSMutableArray *comments = [[NSMutableArray alloc] init];
+            for (id entry in updateText) {
+                if ([entry isKindOfClass:[NSDictionary class]]) {
+                    [comments addObject:entry];
+                }
+            }
+            [bottomView setCommentTable:comments];
+        }
+        [self challengeModeEnable:YES];
+        infoDownloader = nil;
+        break;
+    }
+    case kDownloaderTagChallengeInit:
+        if (status == 0) {
+            [self makeChallengeRootView];
+            [challengeModeView setChallengeData:[(Downloader *)downloader getDataInJSON]];
+            NSInteger totalPurchase =
+                [NSUserDefaults.standardUserDefaults integerForKey:kPrefTotalPurchaseKey];
+            if (totalPurchase < 1) {
+                [self launchChallengeMode];
+            } else {
+                challengeInfoDownloader = nil;
+                NSDictionary *body = @{kChallengeTotalPurchaseBodyKey : @((int)totalPurchase)};
+                challengeInfoDownloader =
+                    [[SessionDownloader alloc] initWithURL:ScratchUtil.registTotalPurchaseURL
+                                            postDictionary:body
+                                                  delegate:self];
+                [challengeInfoDownloader setTag:kChallengeDownloaderApiTagTotalPurchase];
+                [challengeInfoDownloader startDownloading];
+            }
+        } else {
+            [self challengeConnectError:json];
+        }
+        challengeInfoDownloader = nil;
+        break;
+    case kDownloaderTagAgeRegist:
+        if (status != 0) {
+            [self challengeConnectError:json];
+        } else {
+            [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefTotalPurchaseKey];
+            [self launchChallengeMode];
+        }
+        challengeInfoDownloader = nil;
+        break;
+    case kDownloaderTagTotalPurchaseRegist:
+        if (status == 0) {
+            challengeInfoDownloader = nil;
+            NSInteger limitType =
+                [NSUserDefaults.standardUserDefaults integerForKey:kPrefPurchaseLimitTypeKey];
+            if (limitType == 0) {
+                [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefTotalPurchaseKey];
+                [self launchChallengeMode];
+                challengeInfoDownloader = nil;
+            } else {
+                NSDictionary *body = @{kChallengeAgeBodyKey : @((int)(limitType - 1))};
+                challengeInfoDownloader =
+                    [[SessionDownloader alloc] initWithURL:ScratchUtil.registUserAgeURL
+                                            postDictionary:body
+                                                  delegate:self];
+                [challengeInfoDownloader setTag:kChallengeDownloaderApiTagAge];
+                [challengeInfoDownloader startDownloading];
+                challengeInfoDownloader = nil;
+            }
+        } else {
+            [self challengeConnectError:json];
+            challengeInfoDownloader = nil;
+        }
+        break;
+    case kDownloaderTagPushIDSend:
+        [JubeatAppDelegate.appDelegate setBSendPushID:YES];
+        break;
+    }
 }
 
 /** @ghidraAddress 0x29df8 */
