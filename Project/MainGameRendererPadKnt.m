@@ -71,6 +71,95 @@ static const double kPartnerBadgeYOffset = -25.0;        // fmov -25.0
 static const unsigned int kRenderStateFinish = 4;
 static const unsigned int kRenderStateResult = 5;
 
+// The Excellent (perfect-million) result banner. Its final flourish, from frame 0x7c, scatters
+// twenty sparkle particles from four parallel tables: the sprite index, the base x and y, and the
+// per-particle scale (drawn at a shared -0.4746 rotation). Each of the first fifteen particles is
+// also drawn four times as an offset shadow trail.
+static const int kExcParticleSprite[] = { // @ghidraAddress 0x2942ac
+    18, 18, 18, 19, 20, 20, 20, 21, 21, 18, 20, 18, 18, 20, 21, 4, 4, 4, 4, 4};
+static const float kExcParticleX[] = { // @ghidraAddress 0x2942fc
+    -33.0f, -35.0f, -15.0f, -25.0f, -4.0f,  -20.0f, 7.0f,   153.0f, 153.0f, 364.0f,
+    115.0f, 352.0f, 370.0f, 364.0f, 329.0f, 207.0f, 399.0f, 591.0f, 208.0f, 16.0f};
+static const float kExcParticleY[] = { // @ghidraAddress 0x29434c
+    360.0f,  467.0f,  316.0f,  436.0f,  301.0f,  512.0f, 1019.0f, 1025.0f, 1033.0f, 1017.0f,
+    1064.0f, 1067.0f, 1150.0f, 1135.0f, 1028.0f, 955.0f, 955.0f,  965.0f,  357.0f,  360.0f};
+static const float kExcParticleScale[] = { // @ghidraAddress 0x29439c
+    2.18f, 1.53f, 0.98f, 1.0f, 0.66f, 1.25f, 1.9f,  1.59f, 1.59f, 1.14f,
+    1.59f, 2.0f,  1.23f, 1.0f, 1.07f, 0.18f, 0.18f, 0.18f, 0.18f, 0.18f};
+static const int kExcParticleCount = 20;
+static const int kExcSweepParticleFirst = 15; // particles 15..19 sweep out; 0..14 are static+trail
+static const float kExcParticleRotate = -0.47459015f; // @ghidraAddress 0x2934c4
+// The eight excellent panels fill the grid rows in this reflow order (a 16-entry table read every
+// other frame), drawn inset 16 into a 192-point grid pitch, dropped 256 points, minus a 16-point
+// half.
+static const int kExcPanelOrder[] = { // @ghidraAddress 0x29426c
+    0,
+    4,
+    8,
+    12,
+    13,
+    14,
+    15,
+    11,
+    7,
+    3,
+    2,
+    1,
+    5,
+    9,
+    10,
+    6};
+static const int kExcPanelPitch = 0xc0;     // 192
+static const int kExcPanelInset = 0x10;     // 16
+static const int kExcPanelGridTopY = 0x100; // 256
+static const double kExcPanelHalf = -16.0;  // fmov, -16.0
+static const NSUInteger kExcTitleSprite = 0xd;
+static const NSUInteger kExcPanelSprite = 0xf;
+static const NSUInteger kExcWordSprite = 4;
+static const double kExcTitleLeftBaseX = 288.0; // @ghidraAddress 0x2926f8
+static const double kExcTitleXOffset = -48.0;   // @ghidraAddress 0x292438
+static const double kExcTitleLeftY = 544.0;     // @ghidraAddress 0x292a68
+static const double kExcTitleRightBaseX = 96.0; // @ghidraAddress 0x28f908
+static const double kExcTitleRightY = 736.0;    // @ghidraAddress 0x292a60
+static const float kExcTitleSlideFrom = 96.0f;  // @ghidraAddress 0x293e64
+// The Excellent word (texResult sprite 4) flies in as four glyph pairs over frames 0x60..0x74, each
+// pair sliding from an off-screen x/y to its slot with a fade; the constants below are the per-pair
+// slide-from and target values.
+static const float kExcWordScatterY = 864.0f;     // @ghidraAddress 0x293e68
+static const float kExcWord1XTo = -150.0f;        // @ghidraAddress 0x293e6c
+static const float kExcWord1YFrom = 736.0f;       // @ghidraAddress 0x293e70
+static const float kExcWord1YTo = 61.0f;          // @ghidraAddress 0x293e74
+static const float kExcWord1XFrom = 352.0f;       // @ghidraAddress 0x2932d0
+static const float kExcWordScale = 1.3333334f;    // @ghidraAddress 0x293e78
+static const float kExcWord2XTo = 480.0f;         // @ghidraAddress 0x293e7c
+static const float kExcWord2XFrom = 544.0f;       // @ghidraAddress 0x293e80
+static const float kExcWord3XTo = -672.0f;        // @ghidraAddress 0x293e84
+static const float kExcWord3XOffset = -93.0f;     // @ghidraAddress 0x293e88
+static const float kExcWord3YFrom = 928.0f;       // @ghidraAddress 0x293e8c
+static const float kExcWord3Scale = 0.65f;        // @ghidraAddress 0x293e90
+static const float kExcWord3XFrom2 = -288.0f;     // @ghidraAddress 0x293e94
+static const float kExcWord4YFrom = 160.0f;       // @ghidraAddress 0x28e014
+static const float kExcWord4XTo = -39.0f;         // @ghidraAddress 0x293e98
+static const float kExcWord4YTo = 63.0f;          // @ghidraAddress 0x293e9c
+static const float kExcFlourishXFrom = -198.0f;   // @ghidraAddress 0x293ea0
+static const float kExcFlourishXSpread = 1536.0f; // @ghidraAddress 0x293ea4
+static const float kExcSweepThreshold = 640.0f;   // @ghidraAddress 0x2934ec
+static const float kExcParticleSpread = 192.0f;   // @ghidraAddress 0x2925a0
+static const double kExcWordFive = 5.0;           // fmov, 5.0
+
+// The excellent title glyphs fill the 4x4 grid rows; sound cues fire at set frames.
+static const NSUInteger kExcRatingFrame = 0x14;
+static const NSUInteger kExcPanelFrame = 0x28;
+static const NSUInteger kExcStringFrame0 = 0x60;
+static const NSUInteger kExcStringFrame1 = 0x67;
+static const NSUInteger kExcStringFrame2 = 0x6e;
+static const NSUInteger kExcVoiceFrame = 0x7c;
+static NSString *const kSeExcRating = @"SD_KNT_CV_RATING";   // @ghidraAddress 0x2df8a0
+static NSString *const kSeExcPanel = @"SD_KNT_EXC_PANEL";    // @ghidraAddress 0x2df8c0
+static NSString *const kSeExcString = @"SD_KNT_EXC_STRING";  // @ghidraAddress 0x2df8e0
+static NSString *const kSeExcResult = @"SD_KNT_RESULT_EXC";  // @ghidraAddress 0x2df900
+static NSString *const kSeExcVoice = @"SD_KNT_CV_EXCELLENT"; // @ghidraAddress 0x2df920
+
 // The result screen composes the sub-renderers and lays out the score, tune info, music bar,
 // partner score, combo, and the win/clear/fail banner, then the new-record stamp and the
 // good-job/vote overlay. The shutter closes over its own frames; a perfect million shows Excellent,
@@ -252,6 +341,64 @@ MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *s
     return NO;
 }
 
+// The Excellent banner's final sparkle burst (frame >= 0x7c): twenty particles from the parallel
+// tables. Particles 6..17 rise by the flourish offset, others fall by it; particles 15..19 sweep
+// outward (away from the 640-point centre line) and, from frame 0x8d, ripple on a 48-frame cycle,
+// each drawn as a five-step offset trail (skipping the zero step) plus the particle itself.
+static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPadKnt *self,
+                                                              unsigned int frame) {
+    float rise = InterpolateFloatByFrame(kExcFlourishXFrom, 0.0f, frame, 0x7c, 0x80) + 6.0f;
+    if (frame > 0x7f) {
+        rise -= (float)((int)(frame * 2) - 0x100);
+        if (rise < 0.0f) {
+            rise = 0.0f;
+        }
+    }
+    float sweep = InterpolateFloatByFrame(kExcFlourishXSpread, 0.0f, frame, 0x7c, 0x86);
+    for (int i = 0; i < kExcParticleCount; ++i) {
+        float x = kExcParticleX[i];
+        float y = kExcParticleY[i];
+        // Particles 6..17 rise; the rest fall.
+        float shifted =
+            ((unsigned int)(i - 6) < 0xc) ? rise + kExcParticleY[i] : kExcParticleY[i] - rise;
+        if (i < kExcSweepParticleFirst) {
+            y = shifted;
+        }
+        if ((unsigned int)(i - kExcSweepParticleFirst) < 5) {
+            // The last five particles sweep away from the centre line and ripple after frame 0x8d.
+            float dir = (y >= kExcSweepThreshold) ? -1.0f : 1.0f;
+            x = x + sweep * dir;
+            y = y - sweep * 0.5f * dir;
+            int ripple = ((((i << 3) ^ -1) & 8) - 4) * ((int)(frame - 0x8c) % 0x30);
+            if (frame > 0x8c) {
+                y = y - (float)ripple;
+                x = (float)(ripple * 2) + x;
+            }
+            for (int step = -4; step <= 4; ++step) {
+                if (step == 0) {
+                    continue;
+                }
+                double sx = (double)(x + (float)step * kExcParticleSpread);
+                double sy = (double)(y + (float)step * kExcParticleSpread * -0.5f);
+                [self.texResultBg drawSprite:(NSUInteger)kExcParticleSprite[i]
+                                     atPoint:CGPointMake(sx, sy)
+                                       scale:kExcParticleScale[i]
+                                      rotate:kExcParticleRotate
+                                      anchor:CGPointMake(sx, sy)
+                                   transform:0
+                                       alpha:1.0f];
+            }
+        }
+        [self.texResultBg drawSprite:(NSUInteger)kExcParticleSprite[i]
+                             atPoint:CGPointMake((double)x, (double)y)
+                               scale:kExcParticleScale[i]
+                              rotate:kExcParticleRotate
+                              anchor:CGPointMake((double)x, (double)y)
+                           transform:0
+                               alpha:1.0f];
+    }
+}
+
 @implementation MainGameRendererPadKnt
 
 /** @ghidraAddress 0x206dcc */
@@ -372,6 +519,152 @@ MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *s
                         anchor:CGPointMake(kRatingRankAnchorX, kRatingRankAnchorY)
                      transform:0
                          alpha:rankAlpha];
+}
+
+/** @ghidraAddress 0x2042e4 */
+- (BOOL)renderExcellent:(unsigned int)frame {
+    // Sound cues at set frames: the rating voice, the panel hit, the excellent-string cue (three
+    // times), and, on the final flourish, the result sting plus the excellent voice.
+    switch (frame) {
+    case kExcRatingFrame:
+        [[AudioManager sharedManager] playSeResFile:kSeExcRating inDirectory:nil];
+        break;
+    case kExcPanelFrame:
+        [[AudioManager sharedManager] playSeResFile:kSeExcPanel inDirectory:nil];
+        break;
+    case kExcStringFrame0:
+    case kExcStringFrame1:
+    case kExcStringFrame2:
+        [[AudioManager sharedManager] playSeResFile:kSeExcString inDirectory:nil];
+        break;
+    case kExcVoiceFrame:
+        [[AudioManager sharedManager] playSeResFile:kSeExcResult inDirectory:nil];
+        [[AudioManager sharedManager] playSeResFile:kSeExcVoice inDirectory:nil];
+        break;
+    default:
+        break;
+    }
+
+    // The two title glyphs slide in from the sides and fade in over frames 0..8, fading back out
+    // after frame 40.
+    float titleSlide = InterpolateFloatByFrame(kExcTitleSlideFrom, 0.0f, frame, 0, 8);
+    float titleAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 8);
+    if (frame > kExcPanelFrame) {
+        titleAlpha = InterpolateFloatByFrame(1.0f, 0.0f, frame, 0x28, 0x32);
+    }
+    double titleH = [self.texResultBg spriteAtIndex:kExcTitleSprite].size.height;
+    [self.texResultBg
+        drawSprite:kExcTitleSprite
+           atPoint:CGPointMake((double)titleSlide + kExcTitleLeftBaseX + kExcTitleXOffset,
+                               kExcTitleLeftY - titleH * 0.5)
+         transform:0
+             alpha:titleAlpha];
+    [self.texResultBg
+        drawSprite:kExcTitleSprite
+           atPoint:CGPointMake((kExcTitleRightBaseX - (double)titleSlide) + kExcTitleXOffset,
+                               kExcTitleRightY - titleH * 0.5)
+         transform:0
+             alpha:titleAlpha];
+
+    // The eight excellent panels fill the grid's top and bottom rows as the frame passes each.
+    for (int i = 0; i < 16; i += 2) {
+        if (i / 2 > (int)(frame - kExcPanelFrame)) {
+            continue;
+        }
+        int panel = kExcPanelOrder[i / 2];
+        double px = (double)((panel % 4) * kExcPanelPitch | kExcPanelInset) + kExcPanelHalf;
+        double py = (double)(((panel >> 2) * kExcPanelPitch | kExcPanelInset) + kExcPanelGridTopY) +
+                    kExcPanelHalf;
+        [self.texResultBg drawSprite:kExcPanelSprite
+                              inRect:CGRectMake(px, py, kExcPanelSpread, kExcPanelSpread)];
+    }
+
+    // The Excellent word flies in as glyph pairs across frames 0x60..0x74; each pair slides from
+    // off-screen to its slot with a fade.
+    if (frame >= kExcStringFrame0) {
+        float g1x =
+            InterpolateFloatByFrame(kExcWordScatterY, kExcTitleSlideFrom, frame, 0x60, 0x67) +
+            kExcWord1XTo;
+        float g1y = InterpolateFloatByFrame(kExcWord1XFrom, kExcWord1YFrom, frame, 0x60, 0x67) +
+                    kExcWord1YTo;
+        [self.texResult drawSprite:kExcWordSprite
+                           atPoint:CGPointMake((double)g1x, (double)g1y)
+                             scale:kExcWordScale
+                            rotate:kExcParticleRotate
+                            anchor:CGPointMake((double)g1x, (double)g1y)
+                         transform:0
+                             alpha:1.0f];
+        float g2x = InterpolateFloatByFrame(kExcWord2XTo, kExcTitleSlideFrom, frame, 0x60, 0x67) +
+                    kExcWord1XTo;
+        float g2y = InterpolateFloatByFrame(kExcWord2XFrom, kExcWord1YFrom, frame, 0x60, 0x67) +
+                    kExcWord1YTo;
+        float g2a = InterpolateFloatByFrame(0.0f, 0.5f, frame - 0x60, 0, 4);
+        [self.texResult drawSprite:kExcWordSprite
+                           atPoint:CGPointMake((double)g2x, (double)g2y)
+                             scale:kExcWordScale
+                            rotate:kExcParticleRotate
+                            anchor:CGPointMake((double)g2x, (double)g2y)
+                         transform:0
+                             alpha:g2a];
+        if (frame > kExcStringFrame1) {
+            float g3x =
+                InterpolateFloatByFrame(kExcWord3XTo, kExcTitleSlideFrom, frame, 0x67, 0x6e) +
+                kExcWord3XOffset;
+            float g3y = InterpolateFloatByFrame(kExcWord3YFrom, kExcWord2XFrom, frame, 0x67, 0x6e);
+            [self.texResult drawSprite:kExcWordSprite
+                               atPoint:CGPointMake((double)g3x, (double)(g3y + kExcWordFive))
+                                 scale:kExcWord3Scale
+                                rotate:kExcParticleRotate
+                                anchor:CGPointMake((double)g3x, (double)(g3y + kExcWordFive))
+                             transform:0
+                                 alpha:1.0f];
+            float g4x =
+                InterpolateFloatByFrame(kExcWord3XFrom2, kExcTitleSlideFrom, frame, 0x67, 0x6e) +
+                kExcWord3XOffset;
+            float g4y = InterpolateFloatByFrame(kExcWord1YFrom, kExcWord2XFrom, frame, 0x67, 0x6e);
+            float g4a = InterpolateFloatByFrame(0.0f, 0.5f, frame - 0x67, 0, 4);
+            [self.texResult drawSprite:kExcWordSprite
+                               atPoint:CGPointMake((double)g4x, (double)(g4y + kExcWordFive))
+                                 scale:kExcWord3Scale
+                                rotate:kExcParticleRotate
+                                anchor:CGPointMake((double)g4x, (double)(g4y + kExcWordFive))
+                             transform:0
+                                 alpha:g4a];
+            if (frame > kExcStringFrame2) {
+                float g5x =
+                    InterpolateFloatByFrame(kExcWord1XTo, kExcTitleSlideFrom, frame, 0x6e, 0x75) +
+                    kExcWord4XTo;
+                float g5y =
+                    InterpolateFloatByFrame(kExcWord4YFrom, kExcWord2XFrom, frame, 0x6e, 0x75) +
+                    kExcWord4YTo;
+                [self.texResult drawSprite:kExcWordSprite
+                                   atPoint:CGPointMake((double)g5x, (double)g5y)
+                                     scale:1.0f
+                                    rotate:kExcParticleRotate
+                                    anchor:CGPointMake((double)g5x, (double)g5y)
+                                 transform:0
+                                     alpha:1.0f];
+                float g6x =
+                    InterpolateFloatByFrame(kExcWord2XTo, kExcTitleSlideFrom, frame, 0x6e, 0x75) +
+                    kExcWord4XTo;
+                float g6y =
+                    InterpolateFloatByFrame(kExcWord1XFrom, kExcWord2XFrom, frame, 0x6e, 0x75) +
+                    kExcWord4YTo;
+                float g6a = InterpolateFloatByFrame(0.0f, 0.5f, frame - 0x6e, 0, 4);
+                [self.texResult drawSprite:kExcWordSprite
+                                   atPoint:CGPointMake((double)g6x, (double)g6y)
+                                     scale:1.0f
+                                    rotate:kExcParticleRotate
+                                    anchor:CGPointMake((double)g6x, (double)g6y)
+                                 transform:0
+                                     alpha:g6a];
+                if (frame > 0x7b) {
+                    MainGameRendererPadKntRenderExcellentBurst(self, frame);
+                }
+            }
+        }
+    }
+    return frame > 0x95;
 }
 
 /** @ghidraAddress 0x2051b8 */

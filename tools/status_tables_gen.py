@@ -107,6 +107,9 @@ def _super_only_deallocs(binary, methods, ends):
 _DEFAULT_HOST = 'localhost:8089'
 _PROGRAM = 'Jubeat'
 _SOURCE_SUFFIXES = ('.h', '.m', '.mm', '.cpp', '.c')
+# A background agent works in a git worktree under this directory; its in-progress copy of the tree
+# must never count toward the reconstructed surface until the work is integrated into the main tree.
+_WORKTREES_DIR = 'worktrees'
 
 # Free-function names that are compiler emissions rather than programmer-authored routines: the ARC
 # block copy/destroy/byref helper pairs.
@@ -179,6 +182,10 @@ def _annotated_addresses(tree_path, ignore=frozenset()):
         if path.suffix not in _SOURCE_SUFFIXES:
             continue
         if path.name in ignore:
+            continue
+        # Skip agent worktrees under .claude/worktrees: a background agent's in-progress copy of the
+        # tree must not flip routines to done before its work is reviewed and integrated.
+        if _WORKTREES_DIR in path.parts:
             continue
         text = path.read_text(encoding='utf-8', errors='replace')
         for match in re.finditer(r'@ghidraAddress\s+0x([0-9a-fA-F]+)', text):
@@ -283,7 +290,8 @@ def main():
     properties = binary.property_map()
     written_bodies = {key
                       for key, body in source_bodies(tree_path).items()
-                      if body.path.name not in ignore}
+                      if body.path.name not in ignore
+                      and _WORKTREES_DIR not in Path(body.path).parts}
     annotated = _annotated_addresses(tree_path, ignore)
     signatures = _load_signatures(tree_path)
 
