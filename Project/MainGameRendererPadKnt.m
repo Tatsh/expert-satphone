@@ -2219,7 +2219,8 @@ digits:
     }
     [self.sequence getHoldMarkerState:self->holdState];
     if (![self.rendererConf isStealth]) {
-        [self->holdMarkerRender renderHoldMarker:self->holdState];
+        // holdState and HoldMarkerInfo are the same 16-byte per-panel record under two names.
+        [self->holdMarkerRender renderHoldMarker:(HoldMarkerInfo *)self->holdState];
     }
     if (sectorDelta > kMarkerHighlightSector) {
         // The start marker fades in over the last hundred sectors of the approach.

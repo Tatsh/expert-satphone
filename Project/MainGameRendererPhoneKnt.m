@@ -2081,7 +2081,8 @@ drawDigits:
     // The hold markers, unless stealth mode hides them.
     [self.sequence getHoldMarkerState:holdState];
     if (!self.rendererConf.isStealth) {
-        [holdMarkerRender renderHoldMarker:holdState];
+        // holdState and HoldMarkerInfo are the same 16-byte per-panel record under two names.
+        [holdMarkerRender renderHoldMarker:(HoldMarkerInfo *)holdState];
     }
 
     // Within the last 150 sectors before the first marker, run the start-mark burst, fading it in

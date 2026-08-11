@@ -1104,7 +1104,8 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     if (self.rendererConf.isStealth) {
         return;
     }
-    [holdMarkerRender renderHoldMarker:holdState];
+    // holdState and HoldMarkerInfo are the same 16-byte per-panel record under two subsystem names.
+    [holdMarkerRender renderHoldMarker:(HoldMarkerInfo *)holdState];
 }
 
 /** @ghidraAddress 0x10cb34 */

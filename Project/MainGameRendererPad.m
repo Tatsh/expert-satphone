@@ -1091,7 +1091,8 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     if ([self.rendererConf isStealth]) {
         return;
     }
-    [self->holdMarkerRender renderHoldMarker:self->holdState];
+    // holdState and HoldMarkerInfo are the same 16-byte per-panel record under two subsystem names.
+    [self->holdMarkerRender renderHoldMarker:(HoldMarkerInfo *)self->holdState];
 }
 
 /** @ghidraAddress 0x10463c */

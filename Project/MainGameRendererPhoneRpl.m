@@ -761,7 +761,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 
     [self.sequence getHoldMarkerState:self->holdState];
     if (![self.rendererConf isStealth]) {
-        [self->holdMarkerRender renderHoldMarker:self->holdState];
+        // holdState and HoldMarkerInfo are the same 16-byte per-panel record under two names.
+        [self->holdMarkerRender renderHoldMarker:(HoldMarkerInfo *)self->holdState];
     }
     // Once the first marker approaches within the highlight window, cue the start mark, fading it
     // in over the approach.
