@@ -204,6 +204,7 @@ enum { kSeekRefinementPasses = 5 };
 static const double kPasteVisibleMargin = 100.0;
 
 @interface EditViewController () {
+@public
     BOOL isPad;
     double music_time;
     double music_duration;

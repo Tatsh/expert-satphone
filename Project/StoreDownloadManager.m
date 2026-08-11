@@ -38,6 +38,7 @@ static NSString *const kTuneInfoIDKey = @"ID";
 static const NSUInteger kDigestLength = 16;
 
 @interface StoreDownloadManager () <DownloaderDelegate> {
+@public
     BOOL isStarted;             // +0x8
     NSArray *tasks;             // +0x10
     Downloader *fileDownloader; // +0x18

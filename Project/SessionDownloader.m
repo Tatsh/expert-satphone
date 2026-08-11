@@ -37,6 +37,7 @@ static BOOL sSessionValid = NO;
 static NSData *sSessionResponse = nil;
 
 @interface SessionDownloader () {
+@public
     NSString *sendCnonce;     // +0x50, ivar-offset global 0x34aa88
     NSURLRequest *tmpRequest; // +0x38, ivar-offset global 0x34aa8c
     NSURL *requestURL;        // +0x40, ivar-offset global 0x34aa94

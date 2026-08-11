@@ -77,6 +77,7 @@ static const NSTimeInterval kButtonPressDuration = 0.25; // 0x3fd0000000000000
 static const CGFloat kButtonPressScale = 0.5;
 
 @interface MusicView () {
+@public
     // Device-idiom flags, filled from the app delegate in the initialiser.
     BOOL isPad; // 0x349b94
     BOOL isPhoneRetina;

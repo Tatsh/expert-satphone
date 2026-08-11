@@ -185,6 +185,7 @@ static const CGRect kKonamiRightRectPad = {{401.0, 35.0}, {89.0, 89.0}};
 static const CGRect kKonamiRightRectPhone = {{188.0, 14.0}, {44.0, 44.0}};
 
 @interface TitleViewControllerKnt () {
+@public
     // The runtime keeps every ivar under its bare metadata name; the header declares none, so pin
     // them here in binary order (offset globals 0x34b520..0x34b5b4).
     BOOL isPad;                            // +0x34b520.

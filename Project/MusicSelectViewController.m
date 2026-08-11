@@ -491,12 +491,12 @@ enum {
 
 // A tune matches a level when any of its three chart levels equals it, or its extend chart (looked
 // up by extendID) has a matching level.
-static BOOL MusicSelectTuneHasLevel(MusicSelectViewController *self, TuneInfo *tune, int level) {
+static BOOL MusicSelectTuneHasLevel(NSDictionary *dictAllExtendTune, TuneInfo *tune, int level) {
     if ((int)tune.lvAdv == level || (int)tune.lvBas == level || (int)tune.lvExt == level) {
         return YES;
     }
     if (tune.extendID != 0) {
-        TuneInfo *extend = self->dictAllExtendTune[@(tune.extendID)];
+        TuneInfo *extend = dictAllExtendTune[@(tune.extendID)];
         if ((int)extend.lvAdv == level || (int)extend.lvBas == level ||
             (int)extend.lvExt == level) {
             return YES;
@@ -507,12 +507,12 @@ static BOOL MusicSelectTuneHasLevel(MusicSelectViewController *self, TuneInfo *t
 
 // A tune counts as a hold chart when its own hold flag is set or its extend chart (looked up by
 // extendID) has a hold flag.
-static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tune) {
+static BOOL MusicSelectTuneIsHold(NSDictionary *dictAllExtendTune, TuneInfo *tune) {
     if (tune.holdFlag != 0) {
         return YES;
     }
     if (tune.extendID != 0) {
-        TuneInfo *extend = self->dictAllExtendTune[@(tune.extendID)];
+        TuneInfo *extend = dictAllExtendTune[@(tune.extendID)];
         if (extend.holdFlag != 0) {
             return YES;
         }
@@ -2603,7 +2603,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     arrayLevelList = nil;
     arrayLevelList = [[NSMutableArray alloc] init];
     for (TuneInfo *tune in arrayAllTune) {
-        if (MusicSelectTuneHasLevel(self, tune, level)) {
+        if (MusicSelectTuneHasLevel(dictAllExtendTune, tune, level)) {
             [arrayLevelList addObject:tune];
         }
     }
@@ -2616,7 +2616,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     }
     arrayHoldList = [[NSMutableArray alloc] init];
     for (TuneInfo *tune in arrayAllTune) {
-        if (MusicSelectTuneIsHold(self, tune)) {
+        if (MusicSelectTuneIsHold(dictAllExtendTune, tune)) {
             [arrayHoldList addObject:tune];
         }
     }
@@ -2630,7 +2630,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     }
     arrayNotHoldList = [[NSMutableArray alloc] init];
     for (TuneInfo *tune in arrayAllTune) {
-        if (!MusicSelectTuneIsHold(self, tune)) {
+        if (!MusicSelectTuneIsHold(dictAllExtendTune, tune)) {
             [arrayNotHoldList addObject:tune];
         }
     }

@@ -68,6 +68,7 @@ static const NSTimeInterval kInputFadeDuration = 0.2; // @ghidraAddress 0x28f240
 static const CGFloat kInputHalf = 0.5;
 
 @interface InheritCodeInputView () {
+@public
     UIImageView *bgView;           // +0x8
     UILabel *expText;              // +0x10
     UITextField *inputText;        // +0x18

@@ -103,6 +103,7 @@ static const UIViewAnimationOptions kFadeOptions =
                                         ChallengeRankingListViewDelegate,
                                         AlertViewManagerDelegate,
                                         DownloaderDelegate> {
+@public
     ChallengePrevRankingListView *lineupListView; // +0x8
     ChallengeRankingListView *rankingListView;    // +0x10
     int scratchID;                                // +0x18

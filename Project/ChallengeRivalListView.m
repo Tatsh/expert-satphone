@@ -70,6 +70,7 @@ static const int kListPosYErrorPad = 0x3c;
 static const int kListPosYErrorPhone = 0x1e;
 
 @interface ChallengeRivalListView () <AlertViewManagerDelegate, DownloaderDelegate> {
+@public
     ChallengeListView *rivalListView; // +0x8
     NSArray *rivalNameList;           // +0x10
     NSArray *rivalIDList;             // +0x18

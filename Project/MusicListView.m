@@ -108,6 +108,7 @@ enum {
 };
 
 @interface MusicListView () <UIGestureRecognizerDelegate> {
+@public
     UICollectionViewFlowLayout *flowLayout;
     NSMutableArray *flowLayoutTable;
     UICollectionView *listView;

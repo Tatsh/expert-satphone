@@ -21,6 +21,7 @@
 // property. Offset globals in declaration order: 0x34b770, 0x34b778, 0x34b77c, 0x34b780, 0x34b784,
 // 0x34b788, 0x34b78c, 0x34b794.
 @interface RootViewController () {
+@public
     UIViewController *titleViewCtrl;
     UIViewController *gameViewCtrl;
     UIViewController *editViewCtrl;

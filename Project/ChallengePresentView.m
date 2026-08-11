@@ -80,6 +80,7 @@ static const int kAcceptConfirmTag = 7;
 static const int kCoinOverflowConfirmTag = 4;
 
 @interface ChallengePresentView () <AlertViewManagerDelegate, DownloaderDelegate> {
+@public
     ChallengePresentListView *presentListView; // +0x8
     NSArray *presentList;                      // +0x10
     int selectPresentIndex;                    // +0x18

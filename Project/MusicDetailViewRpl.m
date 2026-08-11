@@ -108,20 +108,21 @@ static const NSTimeInterval kStartPlayInputLockDuration = 0.7;  // @ghidraAddres
 
 // Scales out and fades every difficulty button except the selected one, plus both scroll buttons,
 // when starting play.
-static inline void MusicDetailViewRplScaleOutUnselectedButtons(MusicDetailViewRpl *self,
+static inline void MusicDetailViewRplScaleOutUnselectedButtons(UIButton *const *btnDiff,
+                                                               UIButton *const *detailScrollButton,
                                                                int selected) {
     CATransform3D shrink =
         CATransform3DMakeScale(kEditButtonShrinkScale, kEditButtonShrinkScale, 1.0);
     for (int i = 0; i < kDiffButtonCount; ++i) {
         if (i != selected) {
-            [self->btnDiff[i] setAlpha:0.0];
-            self->btnDiff[i].layer.transform = shrink;
+            [btnDiff[i] setAlpha:0.0];
+            btnDiff[i].layer.transform = shrink;
         }
     }
-    [self->detailScrollButton[0] setAlpha:0.0];
-    self->detailScrollButton[0].layer.transform = shrink;
-    [self->detailScrollButton[1] setAlpha:0.0];
-    self->detailScrollButton[1].layer.transform = shrink;
+    [detailScrollButton[0] setAlpha:0.0];
+    detailScrollButton[0].layer.transform = shrink;
+    [detailScrollButton[1] setAlpha:0.0];
+    detailScrollButton[1].layer.transform = shrink;
 }
 
 // With no edit loaded the three edit text fields dim to this alpha; the edit buttons fade in over
@@ -226,13 +227,14 @@ enum {
 // re-derives the hold flag from the current difficulty's hold mark (except on the edit page),
 // refreshes the start button, records the page, and applies either the difficulty (snapping a stale
 // extreme back to basic) on the detail page or the edit music bar on the edit page.
-static inline void MusicDetailViewRplSettleScrollPage(MusicDetailViewRpl *self) {
+static inline void MusicDetailViewRplSettleScrollPage(MusicDetailViewRpl *self,
+                                                      UIImageView *const *holdMark) {
     [self setEnableButton:YES];
     double width = self.scrollView.frame.size.width;
     int page = (int)((width * 0.5 + self.scrollView.contentOffset.x) / width);
     self.editPage = page;
     int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
-    BOOL holdHidden = self->holdMark[difficulty].isHidden;
+    BOOL holdHidden = holdMark[difficulty].isHidden;
     [JubeatAppDelegate.appDelegate setHoldFlag:(page != 1) && !holdHidden];
     [self refreshStartButton];
     if (self.isStarted) {
@@ -284,19 +286,21 @@ static const NSTimeInterval kSelectDiffExtendInputLock = 0.4; // @ghidraAddress 
 
 // Repositions the high-score text view for the current idiom (a shared reposition used by the
 // difficulty-select path).
-static inline void MusicDetailViewRplRepositionHighscoreText(MusicDetailViewRpl *self) {
+static inline void MusicDetailViewRplRepositionHighscoreText(MusicDetailViewRpl *self,
+                                                             UIImageView *highscoreTextView) {
     double baseX = self.isPad ? kHighscoreBaseXPad : kHighscoreBaseXPhone;
     double centerY = self.isPad ? kHighscoreCenterYPad : kHighscoreCenterYPhone;
-    [self->highscoreTextView setCenter:CGPointMake(baseX + kHighscoreCenterXNudge, centerY)];
+    [highscoreTextView setCenter:CGPointMake(baseX + kHighscoreCenterXNudge, centerY)];
 }
 
 // Repositions the high-score board view to its idiom home centre.
-static inline void MusicDetailViewRplRepositionHighscoreBoard(MusicDetailViewRpl *self) {
+static inline void MusicDetailViewRplRepositionHighscoreBoard(MusicDetailViewRpl *self,
+                                                              UIImageView *highscoreBoardView) {
     double homeX = self.isPad ?
                        kHighscoreBoardXPad :
                        (self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
     double y = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
-    [self->highscoreBoardView setCenter:CGPointMake(homeX, y)];
+    [highscoreBoardView setCenter:CGPointMake(homeX, y)];
 }
 
 // A chart level maps to a zero-based level-image index: below 2 -> first image, 10+ -> last of ten.
@@ -455,19 +459,22 @@ static const double kMarkHeightPad = 16.0;
 
 // Builds one difficulty slot: its button (added to the scroll view and centred) and its level
 // number image. @p center is the button's centre in the scroll view.
-static inline void
-MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self, int index, CGPoint center) {
+static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self,
+                                                           UIButton *__strong *btnDiff,
+                                                           UIImageView *__strong *levelNumView,
+                                                           int index,
+                                                           CGPoint center) {
     BOOL isPad = self.isPad;
-    self->btnDiff[index] = [self
+    btnDiff[index] = [self
         diffButton:[NSString stringWithFormat:kDiffButtonNameFormat, kDiffButtonLetters[index]]];
     double numX = isPad ? kLevelNumXPad : kLevelNumXPhone;
     double numY = isPad ? kLevelNumYPad : kLevelNumYPhone;
     double numSize = isPad ? kLevelNumSizePad : kLevelNumSizePhone;
-    self->levelNumView[index] =
+    levelNumView[index] =
         [[UIImageView alloc] initWithFrame:CGRectMake(numX, numY, numSize, numSize)];
-    [self->btnDiff[index] addSubview:self->levelNumView[index]];
-    [self->btnDiff[index] setCenter:center];
-    [self.scrollView addSubview:self->btnDiff[index]];
+    [btnDiff[index] addSubview:levelNumView[index]];
+    [btnDiff[index] setCenter:center];
+    [self.scrollView addSubview:btnDiff[index]];
 }
 
 @implementation MusicDetailViewRpl
@@ -595,7 +602,8 @@ MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self, int index, CGP
                              CGPointMake(width - diffEdge, diffCenterY),
                              CGPointMake(width + diffEdge, diffCenterY)};
     for (int i = 0; i < kExtendButtonIndex + 1; ++i) {
-        MusicDetailViewRplBuildDifficultyButton(self, i, diffCenters[i]);
+        MusicDetailViewRplBuildDifficultyButton(
+            self, self->btnDiff, self->levelNumView, i, diffCenters[i]);
     }
 
     [self loadImages];
@@ -1081,12 +1089,14 @@ MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self, int index, CGP
     [highscoreTextView setCenter:CGPointMake(baseX + kHighscoreCenterXNudge, centerY)];
     [highscoreBoardView setAlpha:0.0];
     __weak MusicDetailViewRpl *weakSelf = self;
+    UIImageView *textView = highscoreTextView;
+    UIImageView *boardView = highscoreBoardView;
     [UIView animateWithDuration:kExtendModeAnimDuration
                      animations:^{
                        /** @ghidraAddress 0x130d18 */
                        [weakSelf changeDifficulty:difficulty];
-                       MusicDetailViewRplRepositionHighscoreText(weakSelf);
-                       [weakSelf->highscoreBoardView setAlpha:1.0];
+                       MusicDetailViewRplRepositionHighscoreText(weakSelf, textView);
+                       [boardView setAlpha:1.0];
                      }];
 }
 
@@ -1147,12 +1157,13 @@ MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self, int index, CGP
             [highscoreBoardView setCenter:CGPointMake(homeX - slide, y)];
             [highscoreBoardView setAlpha:0.0];
             [NSUserDefaults.standardUserDefaults setInteger:current forKey:kPrefDifficultyKey];
+            UIImageView *boardView = highscoreBoardView;
             [UIView animateWithDuration:kExtendModeAnimDuration
                              animations:^{
                                /** @ghidraAddress 0x1315e4 */
                                [weakSelf changeDifficulty:current];
-                               MusicDetailViewRplRepositionHighscoreBoard(weakSelf);
-                               [weakSelf->highscoreBoardView setAlpha:1.0];
+                               MusicDetailViewRplRepositionHighscoreBoard(weakSelf, boardView);
+                               [boardView setAlpha:1.0];
                              }];
             inputLock = kSelectDiffExtendInputLock;
         }
@@ -1164,16 +1175,18 @@ MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self, int index, CGP
 
     // A different difficulty: reposition the high-score text, play the voice cue, persist the
     // choice, and slide the text into place.
-    MusicDetailViewRplRepositionHighscoreText(self);
+    MusicDetailViewRplRepositionHighscoreText(self, highscoreTextView);
     [highscoreBoardView setAlpha:0.0];
     [[AudioManager sharedManager] playSeResFile:voiceCue inDirectory:nil];
     [NSUserDefaults.standardUserDefaults setInteger:tapped forKey:kPrefDifficultyKey];
+    UIImageView *textView = highscoreTextView;
+    UIImageView *boardView = highscoreBoardView;
     [UIView animateWithDuration:kExtendModeAnimDuration
                      animations:^{
                        /** @ghidraAddress 0x13153c */
                        [weakSelf changeDifficulty:tapped];
-                       MusicDetailViewRplRepositionHighscoreText(weakSelf);
-                       [weakSelf->highscoreBoardView setAlpha:1.0];
+                       MusicDetailViewRplRepositionHighscoreText(weakSelf, textView);
+                       [boardView setAlpha:1.0];
                      }];
     [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
                                             withObject:nil
@@ -1207,7 +1220,8 @@ MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self, int index, CGP
         options:UIViewAnimationOptionBeginFromCurrentState
         animations:^{
           /** @ghidraAddress 0x1349a0 */
-          MusicDetailViewRplScaleOutUnselectedButtons(self, difficulty);
+          MusicDetailViewRplScaleOutUnselectedButtons(
+              self->btnDiff, self->detailScrollButton, difficulty);
         }
         completion:^(BOOL finished) {
           /** @ghidraAddress 0x134c40 */
@@ -2258,19 +2272,19 @@ MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *self, int index, CGP
 - (void)scrollViewDidEndScrollingAnimation:(nullable UIScrollView *)scrollView {
     [detailScrollButton[0] setAlpha:1.0];
     [detailScrollButton[1] setAlpha:1.0];
-    MusicDetailViewRplSettleScrollPage(self);
+    MusicDetailViewRplSettleScrollPage(self, self->holdMark);
 }
 
 /** @ghidraAddress 0x136a80 */
 - (void)scrollViewDidEndDecelerating:(nullable UIScrollView *)scrollView {
-    MusicDetailViewRplSettleScrollPage(self);
+    MusicDetailViewRplSettleScrollPage(self, self->holdMark);
 }
 
 /** @ghidraAddress 0x136d54 */
 - (void)scrollViewDidEndDragging:(nullable UIScrollView *)scrollView
                   willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
-        MusicDetailViewRplSettleScrollPage(self);
+        MusicDetailViewRplSettleScrollPage(self, self->holdMark);
     }
 }
 

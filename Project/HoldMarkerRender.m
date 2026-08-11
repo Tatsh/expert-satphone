@@ -80,6 +80,7 @@ enum {
 };
 
 @interface HoldMarkerRender () {
+@public
     // Weak: the initialiser stores it with objc_storeWeak and the line renderer reads it back with
     // objc_loadWeakRetained. The ivar's encoding does not say so; only the calls do.
     __weak Texture2D *drawTex;

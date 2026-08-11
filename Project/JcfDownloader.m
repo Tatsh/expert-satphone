@@ -51,6 +51,7 @@ static const int kStatusOK = 0;
 static const NSUInteger kJcfExtensionLength = 4;
 
 @interface JcfDownloader () {
+@public
     NSURL *requestURL;                   // +0x08
     jubeatLabAccess *seqDownloader;      // +0x10
     jubeatLabAccess *packInfoDownloader; // +0x18

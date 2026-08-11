@@ -162,6 +162,7 @@ static const CGFloat kTitleAlpha = 0.5;
                                         DownloaderDelegate,
                                         UITableViewDataSource,
                                         UITableViewDelegate> {
+@public
     UIView *bgView;                             // +0x8
     UIImageView *bgImageView;                   // +0x10
     UIImageView *titleView;                     // +0x18

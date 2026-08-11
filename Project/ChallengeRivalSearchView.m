@@ -124,6 +124,7 @@ static const UIControlEvents kButtonEvent = UIControlEventTouchUpInside;
 @interface ChallengeRivalSearchView () <AlertViewManagerDelegate,
                                         ChallengeTextInputViewDelegate,
                                         DownloaderDelegate> {
+@public
     ChallengeTextInputView *inputView; // +0x8
     NSString *targetID;                // +0x10
     NSString *targetName;              // +0x18

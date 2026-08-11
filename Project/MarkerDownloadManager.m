@@ -37,6 +37,7 @@ static NSString *const kMarkerInfoKeyBannerName = @"bannerName";
 static const NSUInteger kMarkerDigestLength = 0x10;
 
 @interface MarkerDownloadManager () {
+@public
     BOOL isStarted;             // +0x8
     NSArray *tasks;             // +0x10
     Downloader *fileDownloader; // +0x18
