@@ -35,6 +35,7 @@
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
 #import "SharePlayManager.h"
+#import "StoreDialogView.h"
 #import "StoreUtil.h"
 #import "TuneInfo.h"
 #import "cipher_keys.h"
@@ -71,6 +72,16 @@ static const NSTimeInterval kChallengeCoverFadeDuration = 0.3; // @ghidraAddress
 static const CGFloat kChallengeCoverBackgroundAlpha = 0.4; // @ghidraAddress 0x28f2c0
 static const CGFloat kChallengeIndicatorSize = 50.0;       // @ghidraAddress 0x28f2c8
 static const NSTimeInterval kChallengeLoadTimeout = 1.0;   // fmov, 1.0
+
+// The purchase-verify dialog is a fixed-size box (pad 400x300 with an 18-point message font, phone
+// 300x270 with 16-point) centred over the challenge cover, its progress bar reset and its abort
+// button hidden, and it fades in over the cover-fade duration.
+static const CGFloat kVerifyDialogWidthPad = 400.0;     // @ghidraAddress 0x28f2e0
+static const CGFloat kVerifyDialogHeightPad = 300.0;    // @ghidraAddress 0x28f2d0
+static const CGFloat kVerifyDialogWidthPhone = 300.0;   // @ghidraAddress 0x28f2d0
+static const CGFloat kVerifyDialogHeightPhone = 270.0;  // @ghidraAddress 0x28f2d8
+static const CGFloat kVerifyDialogFontSizePad = 18.0;   // fmov, 18.0
+static const CGFloat kVerifyDialogFontSizePhone = 16.0; // fmov, 16.0
 
 // The store update-time preference records the newest seen store timestamp.
 static NSString *const kPrefStoreUpdateTimeKey = @"PrefStoreUpdateTime";
@@ -605,6 +616,36 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 - (void)hideVerifyDialog {
     [verifyDialog removeFromSuperview];
     verifyDialog = nil;
+}
+
+/** @ghidraAddress 0x37ee8 */
+- (void)showVerifyDialog:(nullable id)message {
+    CGRect viewFrame = self.view.frame;
+    if (JubeatAppDelegate.appDelegate.isPad) {
+        verifyDialog = [[StoreDialogView alloc]
+            initWithFrame:CGRectMake(0, 0, kVerifyDialogWidthPad, kVerifyDialogHeightPad)];
+        verifyDialog.labelMessage.font = [UIFont systemFontOfSize:kVerifyDialogFontSizePad];
+    } else {
+        verifyDialog = [[StoreDialogView alloc]
+            initWithFrame:CGRectMake(0, 0, kVerifyDialogWidthPhone, kVerifyDialogHeightPhone)];
+        verifyDialog.labelMessage.font = [UIFont systemFontOfSize:kVerifyDialogFontSizePhone];
+    }
+    verifyDialog.center = CGPointMake(viewFrame.size.width * 0.5, viewFrame.size.height * 0.5);
+    [verifyDialog.progressView setProgress:0.0];
+    verifyDialog.labelMessage.text = message;
+    verifyDialog.buttonAbort.hidden = YES;
+    [verifyDialog layout:YES];
+    [challengeCoverView addSubview:verifyDialog];
+    verifyDialog.alpha = 0.0;
+    __weak StoreDialogView *weakDialog = verifyDialog;
+    [UIView animateWithDuration:kChallengeCoverFadeDuration
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:^{
+                       /** @ghidraAddress 0x38280 */
+                       weakDialog.alpha = 1.0;
+                     }
+                     completion:nil];
 }
 
 /** @ghidraAddress 0x36d04 */
