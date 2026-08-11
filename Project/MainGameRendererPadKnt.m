@@ -1,6 +1,7 @@
 #import "MainGameRendererPadKnt.h"
 
 #import "RendererConf.h"
+#import "Sequence.h"
 #import "Texture2D.h"
 
 // The ready/go countdown runs for two and a half seconds on the Knit pad renderer.
@@ -59,6 +60,32 @@ static const double kPartnerUnconnectedAlphaScale = 0.5; // fmov 0.5
 static const double kPartnerBadgeXOffset = 2.0;          // fmov 2.0
 static const double kPartnerBadgeYOffset = -25.0;        // fmov -25.0
 
+// The result-screen render states: a finished chart, the result screen, and the result wait.
+static const unsigned int kRenderStateFinish = 4;
+static const unsigned int kRenderStateResult = 5;
+
+// The Knit music bar is a single backdrop sprite with 0x78 note cells five points apart, each a
+// marker sprite chosen by the note value plus a state-dependent base: idle, cursor-lit, or one of
+// four graded bases (indexed by the 2-bit per-cell grade XOR 2). A cell shows its graded marker
+// once finished/result/replay or once the play cursor has passed its fade-out point.
+static const NSUInteger kMusicBarBackdropSprite = 0xb;
+static const NSUInteger kMusicBarPlayHeadSprite = 0x13;
+static const double kMusicBarBackdropXOffset = -8.0; // fmov -8.0
+static const double kMusicBarCellBaseXOffset = 0.0;  // @ghidraAddress 0x292488
+static const double kMusicBarCellYOffset = 1.0;      // fmov 1.0
+static const int kMusicBarCellPitch = 5;
+static const int kMusicBarNoteBaseIdle = 0x3a;
+static const int kMusicBarNoteBaseCursor = 0x42;
+// Indexed by the per-cell 2-bit grade (XOR 2) to pick the graded note-marker sprite base.
+static const int kMusicBarRatingSpriteBase[] = {0x4a, 0x3a, 0x52, 0x42}; // @ghidraAddress 0x293ec0
+static const float kMusicBarCursorScale = 120.0f;                        // @ghidraAddress 0x291be8
+static const float kMusicBarFadeStart = 0.3f;                            // @ghidraAddress 0x28e0b0
+static const float kMusicBarFadeEnd = 1.2999999523162842f;               // @ghidraAddress 0x292558
+static const float kMusicBarPlayHeadScale = 600.0f;                      // @ghidraAddress 0x291c3c
+static const float kMusicBarPlayHeadXOffset = 74.0f;                     // @ghidraAddress 0x28fa28
+static const double kMusicBarPlayHeadY = 197.0;                          // @ghidraAddress 0x28f6b0
+enum { kMusicBarCellCount = 0x78 };
+
 @implementation MainGameRendererPadKnt
 
 /** @ghidraAddress 0x206dcc */
@@ -109,6 +136,66 @@ static const double kPartnerBadgeYOffset = -25.0;        // fmov -25.0
 /** @ghidraAddress 0x202390 */
 - (CGRect)getMusicBarRect {
     return musicBarRect;
+}
+
+/** @ghidraAddress 0x2023a8 */
+- (void)renderMusicBar:(CGPoint)pos timeline:(BOOL)timeline alpha:(double)alpha {
+    [self.texFront drawSprite:kMusicBarBackdropSprite
+                      atPoint:CGPointMake(pos.x + kMusicBarBackdropXOffset, pos.y)
+                    transform:0
+                        alpha:(float)alpha];
+    if (!self.sequence) {
+        return;
+    }
+    float playPosition = self.sequence.playPosition;
+    const char *bar = self.sequence.getMusicBar;
+    const ScoreData *score = self.sequence.getScore;
+    ScoreData backup;
+    if (self.scoreBackup) {
+        backup = self.replayBackupScore;
+        score = &backup;
+    }
+    double cellBaseX = pos.x + kMusicBarCellBaseXOffset;
+    float cursor = playPosition * kMusicBarCursorScale; // The play cursor, in cell units.
+    int cellX = 0;
+    for (int i = 0; i < kMusicBarCellCount; ++i) {
+        // Each cell packs a 4-bit note value into a nibble of the bar byte array.
+        int byteIndex = i >> 1;
+        int nibbleShift = (i & 1) * 4;
+        unsigned int note = (unsigned int)(((bar[byteIndex] >> nibbleShift) & 0xf) - 1);
+        if (note < 8) {
+            int spriteBase;
+            float cellF = (float)i;
+            if (self.state == kRenderStateFinish || self.state == kRenderStateResult ||
+                self.scoreBackup || (cellF + kMusicBarFadeEnd < cursor)) {
+                // A finished/result/replay cell (or a cell the cursor has fully passed) shows its
+                // graded marker, from the 2-bit grade packed four-per-byte in musicBarResult.
+                int gradeByte = score->musicBarResult[i >> 2];
+                int gradeShift = (i & 3) * 2;
+                int grade = ((gradeByte >> gradeShift) & 3) ^ 2;
+                spriteBase = kMusicBarRatingSpriteBase[grade];
+            } else {
+                // A still-upcoming cell is idle; the cell the cursor currently sits in is lit.
+                spriteBase = (cellF + kMusicBarFadeStart < cursor) ? kMusicBarNoteBaseIdle :
+                                                                     kMusicBarNoteBaseCursor;
+            }
+            [self.texFront
+                drawSprite:(NSUInteger)((int)note + spriteBase)
+                   atPoint:CGPointMake(cellBaseX + (double)cellX, pos.y + kMusicBarCellYOffset)
+                 transform:0
+                     alpha:(float)alpha];
+        }
+        cellX += kMusicBarCellPitch;
+    }
+    if (timeline) {
+        // The play-head sprite, tracking the play position.
+        [self.texFront drawSprite:kMusicBarPlayHeadSprite
+                          atPoint:CGPointMake((double)(playPosition * kMusicBarPlayHeadScale +
+                                                       kMusicBarPlayHeadXOffset),
+                                              kMusicBarPlayHeadY)
+                        transform:0
+                            alpha:(float)alpha];
+    }
 }
 
 /** @ghidraAddress 0x202060 */
