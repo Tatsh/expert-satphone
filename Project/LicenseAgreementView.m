@@ -276,7 +276,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 /** @ghidraAddress 0x1f5cd0 */
 - (void)downloaderFinished:(nullable id)downloader {
     NSDictionary *data = nil;
-    int tag = [downloader tag];
+    int tag = (int)[downloader tag];
     if (tag == kChallengePolicyTag) {
         data = [downloader getDataInJSON];
     } else if (tag == kStorePolicyTag) {

@@ -1219,7 +1219,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
             float baseSize = (float)(int)((xr - cx * spawnChance) + 0x80);
             float xSpeed = baseSize * kBgRippleMag;
             unsigned int life2 = arc4random() % 0x14 + 0x82;
-            (void)[self.texCombo spriteAtIndex:spriteBits];
+            (void)[self.texCombo spriteAtIndex:(unsigned int)spriteBits];
             CGPoint at =
                 CGPointMake((double)((yr + 0xb9) - (cy * xRange + (xRange >> 1))),
                             (double)((0xa0 - (yRange >> 1)) + (zr - cz * yRange) + gameTop));

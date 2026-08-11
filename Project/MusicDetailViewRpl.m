@@ -961,10 +961,10 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     [self.buttonLink setHidden:(info.iTunesURL == nil)];
     [self.btnRecommendTwitter setHidden:NO];
     [self.btnRecommendFacebook setHidden:NO];
-    [levelNumView[0] setImage:levelNumImg[self.levelBas]];
-    [levelNumView[1] setImage:levelNumImg[self.levelAdv]];
-    [levelNumView[2] setImage:levelNumImg[self.levelExt]];
-    [levelNumView[kExtendButtonIndex] setImage:levelNumImg[self.levelExt]];
+    [levelNumView[0] setImage:levelNumImg[(int)self.levelBas]];
+    [levelNumView[1] setImage:levelNumImg[(int)self.levelAdv]];
+    [levelNumView[2] setImage:levelNumImg[(int)self.levelExt]];
+    [levelNumView[kExtendButtonIndex] setImage:levelNumImg[(int)self.levelExt]];
     [levelNumView[kExtendButtonIndex] setAlpha:0.0];
     [self resetScore];
     [self putScore:score];
@@ -1071,7 +1071,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     [editTxt[1] setText:editorInfo[@"editorName"]];
     [editTxt[2] setText:editorInfo[@"comment"]];
     int level = [editorInfo[@"level"] intValue];
-    [levelNumView[kExtendButtonIndex] setImage:levelNumImg[level]];
+    [levelNumView[kExtendButtonIndex] setImage:levelNumImg[(int)level]];
     [levelNumView[kExtendButtonIndex] setAlpha:1.0];
     if (dlFlag == kEditDownloadFlag) {
         [infoBtn setAdjustsImageWhenHighlighted:NO];
@@ -1409,7 +1409,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         if (isExtend && (self.extendInfo.extendFlag & (1 << i)) != 0) {
             level = extendLevels[i];
         }
-        [levelNumView[i] setImage:levelNumImg[level]];
+        [levelNumView[i] setImage:levelNumImg[(int)level]];
     }
 
     // The current difficulty's hold mark drives the app hold flag (except on the edit page).
@@ -2358,7 +2358,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     [editTxt[1] setText:editorInfo[@"editorName"]];
     [editTxt[2] setText:editorInfo[@"comment"]];
     int level = [editorInfo[@"level"] intValue];
-    [levelNumView[kExtendButtonIndex] setImage:levelNumImg[level]];
+    [levelNumView[kExtendButtonIndex] setImage:levelNumImg[(int)level]];
     [levelNumView[kExtendButtonIndex] setAlpha:1.0];
     [self.controller dismissViewControllerAnimated:YES completion:nil];
     [self.controller enableCoverTap];

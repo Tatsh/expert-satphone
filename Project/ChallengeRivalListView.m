@@ -272,7 +272,7 @@ static inline void ChallengeRivalListViewHandleListLoadResponse(ChallengeRivalLi
         }
     }
 
-    int tag = [downloader tag];
+    int tag = (int)[downloader tag];
     if (tag == kTagRemove) {
         ChallengeRivalListViewHandleRemoveResponse(self, json, status);
     } else if (tag == kTagListLoad) {

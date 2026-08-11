@@ -323,7 +323,7 @@ static inline void ChallengePrevRankingViewHandleListLoadResponse(ChallengePrevR
         return;
     }
 
-    int tag = [downloader tag];
+    int tag = (int)[downloader tag];
     if (tag == kTagArtwork) {
         ChallengePrevRankingViewStoreArtwork(self, downloader);
     } else if (tag == kTagListLoad) {

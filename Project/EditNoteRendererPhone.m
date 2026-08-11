@@ -551,7 +551,7 @@ static inline void EditNoteRendererPhoneRenderFullcomboOut(
     drawPosition:(CGPoint)drawPosition
         drawArea:(CGRect)drawArea
            alpha:(float)alpha {
-    CGRect sprite = [self.texFront spriteAtIndex:(NSUInteger)drawIndex];
+    CGRect sprite = [self.texFront spriteAtIndex:(unsigned int)drawIndex];
     // The chip runs from drawPosition over the sprite's size; the visible portion is the
     // intersection with drawArea. If they do not overlap in either axis, nothing is drawn.
     double areaLeft = (double)(float)drawArea.origin.x;

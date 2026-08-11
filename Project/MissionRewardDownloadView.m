@@ -537,7 +537,7 @@ static const double kBgmRestoreFadeTime = 0.2;
                          range:NSMakeRange(data.length - kMd5DigestLength, kMd5DigestLength)];
                 NSData *retained = data;
                 if (!VerifyMd5Digest(retained.bytes,
-                                     (unsigned long)(retained.length - kMd5DigestLength),
+                                     (unsigned int)(retained.length - kMd5DigestLength),
                                      digest)) {
                     succeeded = NO;
                 } else {

@@ -571,7 +571,7 @@ static inline void ChallengeRivalSearchViewHandleSearchResponse(ChallengeRivalSe
         }
     }
 
-    int tag = [downloader tag];
+    int tag = (int)[downloader tag];
     if (tag == kTagRegister) {
         ChallengeRivalSearchViewHandleRegisterResponse(self, json, status);
     } else if (tag == kTagSearch) {

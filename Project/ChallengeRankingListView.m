@@ -863,7 +863,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
         }
     }
 
-    int tag = [downloader tag];
+    int tag = (int)[downloader tag];
     if (tag == kTagRivalRegister) {
         ChallengeRankingListViewHandleRivalRegisterResponse(self, json, status);
     } else if (tag == kTagRankingLoad) {
@@ -882,7 +882,7 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
     NSString *msg = [NSBundle.mainBundle localizedStringForKey:kBundleKeyServerErrorMsg
                                                          value:@""
                                                          table:nil];
-    int tag = [downloader tag];
+    int tag = (int)[downloader tag];
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:kBundleKeyOK value:@"" table:nil];
     id delegate = self;
     int alertTag;

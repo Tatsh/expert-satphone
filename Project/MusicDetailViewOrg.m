@@ -1450,7 +1450,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
             [lightView[i][0].layer addAnimation:lightBlinkAnim forKey:kBlinkAnimationKey];
             [lightView[i][1].layer addAnimation:lightBlinkAnim forKey:kBlinkAnimationKey];
             [levelTextView[i] setImage:levelTextImg[i]];
-            [levelNumView[i] setImage:levelNumImg[i][level]];
+            [levelNumView[i] setImage:levelNumImg[i][(int)level]];
         } else {
             // The others dim, hide their difficulty text, stop their light blink, and show the
             // "off" level word and number glyphs.
@@ -1461,7 +1461,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
             [lightView[i][0] setAlpha:0.0];
             [lightView[i][1] setAlpha:0.0];
             [levelTextView[i] setImage:levelTextImg[kLevelOffWordIndex]];
-            [levelNumView[i] setImage:levelNumImg[kLevelOffRow][level]];
+            [levelNumView[i] setImage:levelNumImg[kLevelOffRow][(int)level]];
         }
     }
     // The extend button is always full and unscaled.
@@ -1780,7 +1780,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
         if (isExtend && (self.extendInfo.extendFlag & (1 << i)) != 0) {
             level = extendLevels[i];
         }
-        [levelNumView[i] setImage:levelNumImg[i][level]];
+        [levelNumView[i] setImage:levelNumImg[i][(int)level]];
     }
 
     // The current difficulty's hold mark drives the app hold flag (except on the edit page).
@@ -2232,9 +2232,9 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     [self.btnRecommendTwitter setHidden:NO];
     [self.btnRecommendFacebook setHidden:NO];
     // The base level images come from the "off" difficulty-word row until a difficulty is selected.
-    [levelNumView[0] setImage:levelNumImg[kLevelOffRow][self.levelBas]];
-    [levelNumView[1] setImage:levelNumImg[kLevelOffRow][self.levelAdv]];
-    [levelNumView[2] setImage:levelNumImg[kLevelOffRow][self.levelExt]];
+    [levelNumView[0] setImage:levelNumImg[kLevelOffRow][(int)self.levelBas]];
+    [levelNumView[1] setImage:levelNumImg[kLevelOffRow][(int)self.levelAdv]];
+    [levelNumView[2] setImage:levelNumImg[kLevelOffRow][(int)self.levelExt]];
     [self resetScore];
     [self putScore:score];
     [self loadContentFromPath:info.filePath orData:nil];

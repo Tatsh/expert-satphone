@@ -276,7 +276,7 @@ static inline void ChallengePresentViewHandleListLoadResponse(ChallengePresentVi
         }
     }
 
-    int tag = [downloader tag];
+    int tag = (int)[downloader tag];
     if (tag == kTagAcceptDecline) {
         ChallengePresentViewHandleAcceptDeclineResponse(self, json, status);
     } else if (tag == kTagListLoad) {
