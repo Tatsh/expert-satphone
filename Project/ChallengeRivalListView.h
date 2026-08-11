@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "ChallengeListView.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class ChallengeRivalListView;
@@ -25,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief A modal that downloads the player's rival list, shows it in a table, and lets each rival's
  * registration be removed through the server.
  */
-@interface ChallengeRivalListView : UIView
+@interface ChallengeRivalListView : UIView <ChallengeListViewDelegate>
 
 /**
  * @brief The delegate told when the modal closes. Held weakly.

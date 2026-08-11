@@ -39,7 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface StoreViewControllerV2 : UITabBarController <AlertViewManagerDelegate,
                                                        EditorIDManagerDelegate,
                                                        StoreDownloadManagerDelegate,
-                                                       StoreParentViewController>
+                                                       StoreParentViewController,
+                                                       PurchaseManagerDelegate>
 
 /**
  * @brief Builds the four tabs, each wrapped in a non-translucent navigation controller.

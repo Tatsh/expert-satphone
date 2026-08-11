@@ -14,7 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
-@class EditorIDManager;
+#import "EditorIDManager.h"
+
 @class JcfDownloader;
 @class jubeatLabAccess;
 
@@ -43,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Downloads a shared edit chart by its custom id.
  */
-@interface JcfDownloader : NSObject
+@interface JcfDownloader : NSObject <EditorIDManagerDelegate>
 
 /**
  * @brief The store-new-info endpoint used for the comprised-pack lookup.

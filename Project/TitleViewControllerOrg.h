@@ -13,6 +13,7 @@
 
 #import <UIKit/UIKit.h>
 
+#import "MarkerDownloadView.h"
 #import "TitleViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -20,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The title screen in the game's own livery.
  */
-@interface TitleViewControllerOrg : TitleViewController
+@interface TitleViewControllerOrg : TitleViewController <MarkerDownloadViewDelegate>
 
 /**
  * @brief Builds the controller and subscribes to background/foreground notifications.

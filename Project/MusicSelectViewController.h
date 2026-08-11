@@ -15,19 +15,21 @@
 #import <GameKit/GameKit.h>
 #import <UIKit/UIKit.h>
 
+#import "AlertViewManager.h"
+#import "Downloader.h"
+#import "EditorIDManager.h"
+#import "JcfDownloadPageNavController.h"
 #import "MarkerSelectView.h"
 #import "MusicListView.h"
 #import "MusicPlaylistViewController.h"
 #import "MusicSelectBottomView.h"
 #import "MusicView.h"
 #import "PurchaseManager.h"
+#import "SettingsNavController.h"
 #import "SharePlayManager.h"
 
 @class BalloonView;
 @class ChallengeModeRootView;
-@class Downloader;
-@class EditorIDManager;
-@class JcfDownloadPageNavController;
 @class JcfDownloadView;
 @class JcfUpLoadView;
 @class MarkerSelectView;
@@ -39,7 +41,6 @@
 @class PushNotificationView;
 @class RotatableNavigationController;
 @class SessionDownloader;
-@class SettingsNavController;
 @class StoreDialogView;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -63,7 +64,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                          GKGameCenterControllerDelegate,
                                                          PurchaseManagerDelegate,
                                                          MarkerSelectViewDelegate,
-                                                         MusicSelectBottomViewDelegate> {
+                                                         MusicSelectBottomViewDelegate,
+                                                         AlertViewManagerDelegate,
+                                                         DownloaderDelegate,
+                                                         EditorIDManagerDelegate,
+                                                         JcfDownloadPageNavControllerDelegate,
+                                                         SettingsNavControllerDelegate> {
     unsigned int pageHowto;
     BOOL isMarkerSelectOpen;
     unsigned int indexStoreInfo;

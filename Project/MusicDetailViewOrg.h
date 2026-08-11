@@ -15,6 +15,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
 
+#import "EditModalView.h"
 #import "JcfDownloadPageNavController.h"
 #import "JcfManageNavController.h"
 #import "JcfUpLoadView.h"
@@ -30,7 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface MusicDetailViewOrg : MusicDetailView <JcfDownloadPageNavControllerDelegate,
                                                  JcfManageNavControllerDelegate,
-                                                 JcfUpLoadViewDelegate> {
+                                                 JcfUpLoadViewDelegate,
+                                                 EditModalViewDelegate> {
     UIButton *btnDiff[4];
     UIImageView *lightView[4][2];
     UIImageView *diffTextView[4];

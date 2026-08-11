@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief A paging, wrap-around row of genre banners with a delegate-reported selection.
  */
-@interface StoreGenreSelectView : UIView
+@interface StoreGenreSelectView : UIView <UIScrollViewDelegate>
 
 /**
  * @brief The object told when the selected genre changes.

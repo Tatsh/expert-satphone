@@ -7,6 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Downloader.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -21,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Posts the installed-app reward check to the game server and applies the granted rewards.
  */
-@interface RewardCheck : NSObject
+@interface RewardCheck : NSObject <DownloaderDelegate>
 
 /**
  * @brief Builds the check request for the reward list and starts nothing until @c -checkStart .

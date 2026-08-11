@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)restoreNothing;
 @end
 
-@interface PurchaseManager : NSObject <SKPaymentTransactionObserver>
+@interface PurchaseManager : NSObject <SKPaymentTransactionObserver, SKRequestDelegate>
 
 /**
  * @brief The delegate.

@@ -18,6 +18,7 @@
 #import "ChallengeMenuView.h"
 #import "ChallengeNameSettingView.h"
 #import "ChallengePresentView.h"
+#import "ChallengePrevRankingView.h"
 #import "ChallengeRivalListView.h"
 #import "ChallengeRivalSearchView.h"
 
@@ -51,7 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
                                            ChallengeNameSettingViewDelegate,
                                            ChallengeRivalSearchViewDelegate,
                                            ChallengeRivalListViewDelegate,
-                                           ChallengeLoginInformationViewDelegate>
+                                           ChallengeLoginInformationViewDelegate,
+                                           ChallengePrevRankingViewDelegate>
 
 /**
  * @brief The object told about close, refresh, and purchase events. Held weakly.

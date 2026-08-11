@@ -12,6 +12,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "EditModalTableViewController.h"
+
 @class EditModalView;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief A modal navigation controller that edits a custom sequence's metadata.
  */
-@interface EditModalView : UINavigationController
+@interface EditModalView : UINavigationController <EditModalTableViewControllerDelegate>
 
 /**
  * @brief The object told about close, save, and re-select events.

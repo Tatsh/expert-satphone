@@ -20,7 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
  * key in @c NSUserDefaults . The Agree button becomes enabled only once the user scrolls the policy
  * text to the bottom.
  */
-@interface LicenseAgreementView : UIView <DownloaderDelegate, UIScrollViewDelegate>
+@interface LicenseAgreementView
+    : UIView <DownloaderDelegate, UIScrollViewDelegate, UITextViewDelegate>
 
 /**
  * @brief The layer class, so the view is backed by a @c CAGradientLayer .

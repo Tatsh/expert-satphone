@@ -53,7 +53,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                          StoreGenreSelectViewDelegate,
                                                          EditorIDManagerDelegate,
                                                          AlertViewManagerDelegate,
-                                                         SKStoreProductViewControllerDelegate>
+                                                         SKStoreProductViewControllerDelegate,
+                                                         StoreDetailViewControllerV2Delegate,
+                                                         StoreDetailViewControllerV2CloseDelegate>
 
 /**
  * @brief Builds the controller for a parent store view.
