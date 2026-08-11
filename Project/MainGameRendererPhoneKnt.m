@@ -578,7 +578,6 @@ static const float kExcWord5XOffset = -16.2f;       // @ghidraAddress 0x2934dc
 static const float kExcWord5YOffset = 26.6f;        // @ghidraAddress 0x2934e0
 static const float kExcWord5Scale = 0.78f;          // @ghidraAddress 0x2934e4
 static const float kExcWord3XFrom = -280.0f;        // @ghidraAddress 0x2934c8
-static const double kExcWordTitleXOffset = -24.0;   // fmov, -24.0
 static const double kExcTitleGlyphSpacing = 166.0;  // @ghidraAddress 0x29275c
 static const int kExcTitleGlyphSpacing4Inch = 0xa6; // 166
 static const NSUInteger kExcRatingFrame = 0x14;

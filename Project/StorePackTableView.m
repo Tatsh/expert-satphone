@@ -404,7 +404,7 @@ static const CGFloat kRowHeightValidPhone = 80.0;
     } else if (!isPad) {
         // iPad rows report their taps through the tile delegate instead.
         if ([self.viewController respondsToSelector:@selector(storePackTableViewShowDetail:)]) {
-            NSNumber *pack = [self.currentGenre packInfoForIndex:indexPath.row];
+            StorePackInfo *pack = [self.currentGenre packInfoForIndex:indexPath.row];
             [self.viewController performSelector:@selector(storePackTableViewShowDetail:)
                                       withObject:pack];
         }
