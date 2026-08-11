@@ -253,6 +253,30 @@ def _find_app(payload: Path) -> Path:
     return apps[0]
 
 
+def _resource_root(resources_dir: Path) -> Path:
+    """
+    Resolve the directory whose contents are the bundle resources.
+
+    Accepts the resources laid out three ways and returns the directory to overlay in each case: an
+    IPA root (``resources_dir/Payload/<App>.app`` — its ``.app`` is returned), the extracted
+    ``<App>.app`` bundle itself (returned as-is), or a plain directory of resources (returned as-is).
+
+    Parameters
+    ----------
+    resources_dir : Path
+        The IPA root, ``.app`` bundle, or plain resource directory holding the game's resources.
+
+    Returns
+    -------
+    Path
+        The directory whose contents overlay onto the fresh bundle's root.
+    """
+    payload = resources_dir / 'Payload'
+    if payload.is_dir():
+        return _find_app(payload)
+    return resources_dir
+
+
 def _overlay_resources(resource_root: Path, app: Path) -> int:
     """
     Copy the original app's resources onto the fresh bundle's root.
@@ -360,9 +384,10 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Repack the CI-built .ipa with the game resources.')
     parser.add_argument('resources_dir',
                         type=Path,
-                        help='the original extracted Jubeat.app (or a directory of its resources) '
-                        'whose textures, plists, audio, and archives the code-only CI build lacks; '
-                        'overlaid onto the fresh bundle root, read only')
+                        help='the original resources whose textures, plists, audio, and archives '
+                        'the code-only CI build lacks; an IPA root (Payload/Jubeat.app), an '
+                        'extracted Jubeat.app, or a plain resource directory, overlaid onto the '
+                        'fresh bundle root; read only')
     parser.add_argument('output_ipa',
                         nargs='?',
                         type=Path,
@@ -411,7 +436,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     # Resolve the signer up front so we fail fast before downloading anything.
     plumesign = '' if args.skip_sign else _resolve_plumesign(args.plumesign)
 
-    resource_root = args.resources_dir.resolve()
+    resource_root = _resource_root(args.resources_dir.resolve())
     output_ipa = args.output_ipa.resolve()
 
     session = _session(args.token or _gh_token())
