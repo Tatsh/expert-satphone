@@ -1592,6 +1592,72 @@ digits:
     lastCombo = combo;
 }
 
+/** @ghidraAddress 0x20086c */
+- (void)drawClip:(int)clip
+    drawPosition:(CGPoint)drawPosition
+        drawArea:(CGRect)drawArea
+           alpha:(float)alpha {
+    // The full sprite rectangle in texels: its origin is the source texel origin, its size the
+    // drawn size on screen at drawPosition.
+    CGRect sprite = [self.texFront spriteAtIndex:(unsigned int)clip];
+    double spriteU = sprite.origin.x;
+    double spriteV = sprite.origin.y;
+    double spriteW = sprite.size.width;
+    double spriteH = sprite.size.height;
+
+    double posX = drawPosition.x;
+    double posY = drawPosition.y;
+
+    // The clip area is compared at single precision (the binary rounds it through floats).
+    double areaX = (double)(float)drawArea.origin.x;
+    double areaY = (double)(float)drawArea.origin.y;
+    double areaRight = (double)(float)(drawArea.size.width + areaX);
+    double areaBottom = (double)(float)(drawArea.size.height + areaY);
+
+    // Reject unless the sprite drawn at drawPosition overlaps the clip area on both axes.
+    if (!(posX + spriteW >= areaX && posX <= areaRight && posY + spriteH >= areaY &&
+          posY <= areaBottom)) {
+        return;
+    }
+
+    // Trim the horizontal axis: when the draw origin is left of the area, advance the destination
+    // origin, shrink the width, and slide the source U to match; then clamp the right edge.
+    double destX = posX;
+    double srcU = spriteU;
+    double horizWidth = spriteW;
+    if (posX < areaX) {
+        destX = areaX;
+        horizWidth = spriteW - (areaX - posX);
+        srcU = spriteU + (areaX - posX);
+    }
+    double finalWidth = horizWidth;
+    if (horizWidth + destX > areaRight) {
+        finalWidth = horizWidth - ((horizWidth + destX) - areaRight);
+    }
+
+    // Trim the vertical axis. As in the phone renderer, the binary subtracts the top-clip amount
+    // from the *width*, not the height, and starts the height from the full sprite height.
+    double destY = posY;
+    double srcV = spriteV;
+    double width = finalWidth;
+    if (posY < areaY) {
+        destY = areaY;
+        width = finalWidth - (areaY - posY); // Yes, the binary trims width by the vertical clip.
+        srcV = spriteV + (areaY - posY);
+    }
+    double height = spriteH;
+    if (spriteH + destY > areaBottom) {
+        height = spriteH - ((spriteH + destY) - areaBottom);
+    }
+
+    // The pad atlas is 1:1, so the source region is the trimmed texel rectangle at the drawn size
+    // (no retina doubling, unlike the phone renderer).
+    [self.texFront drawInRect:CGRectMake(destX, destY, width, height)
+                   fromRegion:CGRectMake(srcU, srcV, width, height)
+                    transform:0
+                        alpha:alpha];
+}
+
 /** @ghidraAddress 0x200a40 */
 - (void)renderStartMark:(float)alpha {
     unsigned int startMarkFrameValue = (unsigned int)startMarkFrame;
