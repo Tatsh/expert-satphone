@@ -405,6 +405,91 @@ MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *s
     return frame > 0x3b;
 }
 
+/** @ghidraAddress 0x205628 */
+- (BOOL)renderFailed:(unsigned int)frame {
+    static const double kBannerTopY = 352.0;           // @ghidraAddress 0x292a50
+    static const double kBannerMidY = 928.0;           // @ghidraAddress 0x293e40
+    static const double kFieldWidth = 768.0;           // @ghidraAddress 0x292460
+    static const double kBannerMidWidth = 576.0;       // @ghidraAddress 0x291d88
+    static const double kBannerBoxWidth = 192.0;       // @ghidraAddress 0x28fa00
+    static const double kWordCentreX = 384.0;          // @ghidraAddress 0x292470
+    static const double kWordBaseY = 544.0;            // @ghidraAddress 0x292a68
+    static const float kWordScaleFrom = 0.76f;         // @ghidraAddress 0x292b4c
+    static const float kWordDropFrom = 46.0f;          // @ghidraAddress 0x292b50
+    static const float kBannerSlideOffscreen = -20.0f; // fmov, -20.0
+    static const float kBannerSlideSettle = 10.0f;     // fmov, 10.0
+    static const int kPanelPitch = 0xc0;               // 192, per-panel grid pitch
+    static const int kPanelInsetX = 0x60;              // 96, grid horizontal inset
+    static const int kPanelGridTopY = 0x160;           // 352, rows pushed down
+    static const int kPanelReflowStride = 0xc;         // 12, the 4x4 reflow multiplier
+    static NSString *const kSeResultFailed = @"SD_KNT_RESULT_FAILED"; // @ghidraAddress 0x2df980
+    static NSString *const kSeVoiceFailed = @"SD_KNT_CV_FAILED";      // @ghidraAddress 0x2df9a0
+
+    float fadeIn = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 0x10);
+    // The binary computes a banner slide offset here but discards it; the banner is drawn at a
+    // fixed position. Reproduced for fidelity.
+    if (frame < 0x10) {
+        (void)InterpolateFloatByFrame(kBannerSlideOffscreen, 0.0f, frame, 0, 0x10);
+    } else {
+        (void)InterpolateFloatByFrame(0.0f, kBannerSlideSettle, frame, 0x10, 0x32);
+    }
+
+    // The failed banner: sprite 9 sampled only for its height, then the wider sprite 10 drawn.
+    double plateH = [self.texResultBg spriteAtIndex:9].size.height;
+    [self.texResultBg drawSprite:10
+                          inRect:CGRectMake(0.0, kBannerTopY - plateH * 0.5, kFieldWidth, plateH)];
+    double midY = kBannerMidY - plateH * 0.5;
+    [self.texResultBg drawSprite:10 inRect:CGRectMake(0.0, midY, kBannerMidWidth, plateH)];
+    [self.texResultBg drawSprite:10
+                          inRect:CGRectMake(kBannerMidWidth, midY, kBannerBoxWidth, plateH)
+                       transform:0
+                           alpha:1.0f];
+
+    // The eight fail panels fill the grid's top and bottom rows; the last is drawn full opacity.
+    CGSize panelSize = [self.texResultBg spriteAtIndex:8].size;
+    for (int i = 0; i < 8; ++i) {
+        float cellAlpha = (i == 7) ? 1.0f : fadeIn;
+        int reflowed = i % 4 + (i >> 2) * kPanelReflowStride;
+        double px = (double)((reflowed % 4) * kPanelPitch + kPanelInsetX);
+        double py = (double)((reflowed >> 2) * kPanelPitch + kPanelGridTopY);
+        [self.texResultBg
+            drawSprite:8
+               atPoint:CGPointMake(px - panelSize.width * 0.5, py - panelSize.height * 0.5)
+                 scale:1.0f
+                rotate:0
+                anchor:CGPointMake(px, py)
+             transform:0
+                 alpha:cellAlpha];
+    }
+
+    // The "failed" word (texResult sprite 1) scales up from 0.76 and drops from 46 points above,
+    // fading in over frames 0..16, anchored at the field centre.
+    float wordScale = InterpolateFloatByFrame(kWordScaleFrom, 1.0f, frame, 0, 0x10);
+    double wordY =
+        (double)InterpolateFloatByFrame(kWordDropFrom, 0.0f, frame, 0, 0x10) + kWordBaseY;
+    CGSize wordSize = [self.texResult spriteAtIndex:1].size;
+    [self.texResult
+        drawSprite:1
+           atPoint:CGPointMake(kWordCentreX - wordSize.width * 0.5, wordY - wordSize.height * 0.5)
+             scale:wordScale
+            rotate:0
+            anchor:CGPointMake(kWordCentreX, wordY)
+         transform:0
+             alpha:fadeIn];
+
+    // The fail jingle and voice play once; from frame 10 the rating tally counts up.
+    if (frame < 10) {
+        if (frame == 0) {
+            [[AudioManager sharedManager] playSeResFile:kSeResultFailed inDirectory:nil];
+            [[AudioManager sharedManager] playSeResFile:kSeVoiceFailed inDirectory:nil];
+        }
+    } else {
+        [self renderRating:frame - 10];
+    }
+
+    return frame > 0x3b;
+}
+
 /** @ghidraAddress 0x20186c */
 - (void)renderCombo:(unsigned int)combo alpha:(float)alpha {
     if (self.scoreBackup) {
