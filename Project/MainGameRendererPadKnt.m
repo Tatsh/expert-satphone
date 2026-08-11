@@ -81,6 +81,12 @@ static const unsigned int kRenderStateResult = 5;
 // The sub-state -endResult parks the result screen in once it is dismissed.
 static const unsigned int kResultEndSubState = 99;
 
+// The debug-text overlay lays glyphs out on a 12-point advance and a 20-point line height, capped
+// at 0x200 glyphs; each printable character maps to the font sprite at its ASCII code minus space.
+static const double kDebugGlyphAdvance = 12.0;
+static const double kDebugLineHeight = 20.0;
+enum { kDebugMaxGlyphs = 0x200 };
+
 // The Excellent (perfect-million) result banner. Its final flourish, from frame 0x7c, scatters
 // twenty sparkle particles from four parallel tables: the sprite index, the base x and y, and the
 // per-particle scale (drawn at a shared -0.4746 rotation). Each of the first fifteen particles is
@@ -502,6 +508,44 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 - (void)endResult {
     if (self.state == kRenderStateResult) {
         self.subState = kResultEndSubState;
+    }
+}
+
+/** @ghidraAddress 0x206c14 */
+- (void)drawDebugText:(const char *)text pos:(CGPoint)pos alpha:(float)alpha {
+    double x = pos.x;
+    double y = pos.y;
+    int drawn = 0;
+    long i = 0;
+    while (true) {
+        char c = text[i];
+        if (c == '\0') {
+            break;
+        }
+        if (c == '\n') {
+            y += kDebugLineHeight;
+            ++i;
+            x = pos.x;
+            continue;
+        }
+        if (c <= ' ' || c == '\x7f') {
+            ++i;
+            x += kDebugGlyphAdvance;
+            continue;
+        }
+        [self.texDebugFont drawSprite:(NSUInteger)((long)c - 0x20)
+                              atPoint:CGPointMake(x, y)
+                            transform:0
+                                alpha:alpha];
+        ++drawn;
+        ++i;
+        x += kDebugGlyphAdvance;
+        if (drawn >= kDebugMaxGlyphs) {
+            break;
+        }
+    }
+    if (drawn != 0) {
+        [self.texDebugFont commitDraw];
     }
 }
 
