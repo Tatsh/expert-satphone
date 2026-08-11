@@ -74,6 +74,13 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 
 @implementation MusicDetailView
 
+// -infoChange: is abstract on the base: the binary defines it only on the concrete theme
+// subclasses (Org/Rpl/Knt) and never on MusicDetailView itself, but the base declares it so the
+// music-select screen can drive it polymorphically. The base body only traps a direct call.
+- (void)infoChange:(int)difficulty {
+    [self doesNotRecognizeSelector:_cmd];
+}
+
 #pragma mark - Construction
 
 /** @ghidraAddress 0x126714 */

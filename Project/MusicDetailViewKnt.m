@@ -531,6 +531,12 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
     return [CAGradientLayer class];
 }
 
+/** @ghidraAddress 0x1a3284 */
+- (void)dealloc {
+    // The binary emits an explicit override that only chains to super (its own .cxx_destruct runs
+    // the ARC ivar teardown). [super dealloc] is compiler-emitted under ARC.
+}
+
 /** @ghidraAddress 0x1955d8 */
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];

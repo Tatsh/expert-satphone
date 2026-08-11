@@ -528,7 +528,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
           [weakCover removeFromSuperview];
           [weakDetail removeCampaignInfo];
           [weakDetail removeFromSuperview];
-          StoreCampaignViewController *strongSelf = weakSelf;
+          __strong __typeof__(self) strongSelf = weakSelf;
           strongSelf->working_index = kNoWorkingRow;
         }];
     [UIApplication.sharedApplication performSelector:@selector(endIgnoringInteractionEvents)
@@ -1229,7 +1229,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                 if (!data) {
                     return;
                 }
-                StoreCampaignViewController *strongSelf = weakSelf;
+                __strong __typeof__(self) strongSelf = weakSelf;
                 UIImage *image = [[UIImage alloc] initWithData:data];
                 if (image) {
                     if (UIScreen.mainScreen.scale != 1.0) {
@@ -1241,7 +1241,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                 }
                 dispatch_async(dispatch_get_main_queue(), ^{
                   /** @ghidraAddress 0xc40fc */
-                  StoreCampaignViewController *innerSelf = weakSelf;
+                  __strong __typeof__(self) innerSelf = weakSelf;
                   UIImage *cached = [innerSelf->artworkCache objectForKey:campaignID];
                   if (cached) {
                       for (StoreCampaignTableViewCell *cell in innerSelf->tableView.visibleCells) {

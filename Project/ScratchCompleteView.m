@@ -91,7 +91,7 @@ static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e
         completion:^(BOOL finished) {
           /** @ghidraAddress 0x16e928 */
           // Stage 2: pop the artwork pair in.
-          ScratchCompleteView *strongSelf = weakSelf;
+          __strong __typeof__(self) strongSelf = weakSelf;
           __weak UIImageView *weakArtworkBg = strongSelf->artworkBg;
           __weak UIImageView *weakArtworkView = strongSelf->artworkView;
           weakArtworkView.alpha = 0.0;
@@ -108,7 +108,7 @@ static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e
               completion:^(BOOL finished2) {
                 /** @ghidraAddress 0x16ec48 */
                 // Stage 3: pop the two title labels in.
-                ScratchCompleteView *strongSelf3 = weakSelf;
+                __strong __typeof__(self) strongSelf3 = weakSelf;
                 __weak UILabel *weakMusicName = strongSelf3->musicName;
                 __weak UILabel *weakArtistName = strongSelf3->artistName;
                 weakMusicName.alpha = 0.0;
@@ -127,7 +127,7 @@ static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e
                     completion:^(BOOL finished3) {
                       /** @ghidraAddress 0x16ef90 */
                       // Stage 4: pop the COMPLETE banner in.
-                      ScratchCompleteView *strongSelf4 = weakSelf;
+                      __strong __typeof__(self) strongSelf4 = weakSelf;
                       __weak UIImageView *weakComplete = strongSelf4->completeView;
                       weakComplete.alpha = 0.0;
                       [UIView animateWithDuration:kRevealBannerDuration
@@ -141,7 +141,7 @@ static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e
                           completion:^(BOOL finished4) {
                             /** @ghidraAddress 0x16f194 */
                             // The reveal is done: arm the dismiss tap.
-                            ScratchCompleteView *strongSelf5 = weakSelf;
+                            __strong __typeof__(self) strongSelf5 = weakSelf;
                             UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
                                 initWithTarget:weakSelf
                                         action:@selector(closeView)];
