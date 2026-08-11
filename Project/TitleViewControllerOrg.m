@@ -4,6 +4,7 @@
 #import "ApplilinkNetwork.h"
 #import "AudioManager.h"
 #import "EditorIDManager.h"
+#import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 #import "LicenseAgreementView.h"
 #import "MarkerDownloadView.h"

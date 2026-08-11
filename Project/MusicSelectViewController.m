@@ -11,6 +11,7 @@
 #import "Downloader.h"
 #import "EditorIDManager.h"
 #import "GameNetworkUtil.h"
+#import "ImageLoading.h"
 #import "JcfDownloadPageNavController.h"
 #import "JcfDownloadView.h"
 #import "JubeatAppDelegate.h"

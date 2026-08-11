@@ -24,6 +24,10 @@
 // the ready/go mark spin. Keeps the binary's name for the pi literal.
 static const double g_dPi = 3.141592653589793; // @ghidraAddress 0x28f278
 
+// Shared float pool slots the result banner reads: the combo-fade base and a 0.7 key time.
+static const float g_flComboFadeBase = 0.3f; // @ghidraAddress 0x28e0b0
+static const float g_flKeyTime070 = 0.7f;    // @ghidraAddress 0x28f3bc
+
 // -renderImage renders a view into a UIImage. It is a category the binary provides on UIView whose
 // declaring class is not established; declared here so the partner-name label can be messaged,
 // mirroring the inline UIView categories in RootViewController.m.

@@ -37,6 +37,9 @@ static NSString *const kPageLeftImageName = @"page_left";
 static NSString *const kPageRightImageName = @"page_right";
 
 // Per-idiom layout tables, indexed by the isPad flag (index 0 phone, index 1 iPad) unless noted.
+// The shared 0.6 float pool slot, used as the page-button shadow opacity.
+static const float g_flKeyTime060 = 0.6f; // @ghidraAddress 0x28f3b8
+
 static const double kListHeightInsetByIsPad[] = {32.0, 44.0};     // 0x28f480
 static const double kItemWidthByIsPad[] = {100.0, 220.0};         // 0x28f310
 static const double kItemHeightPhoneByIs4Inch[] = {106.0, 101.0}; // 0x28f320

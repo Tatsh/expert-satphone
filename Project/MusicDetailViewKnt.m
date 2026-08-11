@@ -3,6 +3,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "AlertViewManager.h"
+#import "AudioManager.h"
 #import "BFCodec.h"
 #import "EditDataManager.h"
 #import "EditFileListViewDeleteController.h"

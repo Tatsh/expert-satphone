@@ -19,6 +19,9 @@ extern const double g_dAnimDuration020; // @ghidraAddress 0x28f240 (0.2)
 // The C standard library sine, imported for the beat pulse.
 extern double sin(double);
 
+// The combo-fade base float pool slot, applied to the fade alpha.
+static const float g_flComboFadeBase = 0.3f; // @ghidraAddress 0x28e0b0
+
 // The state that entering triggers the result BGM, and the state that lazily loads the "go" cue.
 static const unsigned int kEditRenderStateResult = 5;
 static const unsigned int kEditRenderStateReady = 2;
