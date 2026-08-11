@@ -3,6 +3,7 @@
 #import "BFCodec.h"
 #import "JubeatAppDelegate.h"
 #import "Md5Utilities.h"
+#import "StoreMusicInfo.h"
 
 @implementation StoreMusicListManager {
     NSMutableArray *_arrayMusic;             // offset global 0x34a758
@@ -216,21 +217,23 @@
 }
 
 /** @ghidraAddress 0xd546c */
-- (BOOL)checkChangedMusic:(NSDictionary *)oldInfo info:(NSDictionary *)newInfo {
+- (BOOL)checkChangedMusic:(NSMutableDictionary *)oldInfo info:(StoreMusicInfo *)newInfo {
     // Compares name, artist, itemURL, extID etc and updates oldInfo in place, returning YES if
-    // anything changed. Verified at 0xd546c via isEqualToString: checks for name/artist/itemURL.
+    // anything changed. The new info is a StoreMusicInfo (the binary reads -name/-artist/-itemURL
+    // off it); the stored entry is a mutable dictionary. Verified at 0xd546c via isEqualToString:
+    // checks for name/artist/itemURL.
     BOOL changed = NO;
-    NSString *name = newInfo[@"name"];
+    NSString *name = newInfo.name;
     if (name && ![name isEqualToString:oldInfo[@"Name"]]) {
         oldInfo[@"Name"] = name;
         changed = YES;
     }
-    NSString *artist = newInfo[@"artist"];
+    NSString *artist = newInfo.artist;
     if (artist && ![artist isEqualToString:oldInfo[@"Artist"]]) {
         oldInfo[@"Artist"] = artist;
         changed = YES;
     }
-    NSString *url = newInfo[@"itemURL"];
+    NSString *url = newInfo.itemURL;
     if (url && ![url isEqualToString:oldInfo[@"ItemURL"]]) {
         oldInfo[@"ItemURL"] = url;
         changed = YES;
@@ -239,16 +242,15 @@
 }
 
 /** @ghidraAddress 0xd5bb8 */
-- (BOOL)addMusic:(NSDictionary *)musicInfo {
-    // Adds or updates a music entry in arrayMusic or arrayExtendMusic based on extendFlag.
-    // Disassembly at 0xd5bb8 shows the extendFlag check, then count loops on arrayMusic or
-    // arrayExtendMusic, with dictionaryWithDictionary: and checkChangedMusic:info:.
+- (BOOL)addMusic:(StoreMusicInfo *)musicInfo {
+    // Adds or updates a music entry in arrayMusic or arrayExtendMusic based on extendFlag. The
+    // argument is a StoreMusicInfo (the binary reads -musicID/-extendFlag off it); the stored
+    // entries themselves are dictionaries keyed by "ID".
     // Verified via bl extendFlag at 0xd5bb8 and bl arrayMusic/arrayExtendMusic counts.
-    NSNumber *flag = musicInfo[@"extendFlag"];
-    if (!flag.intValue) {
+    if (musicInfo.extendFlag == 0) {
         for (NSUInteger i = 0; i < self.arrayMusic.count; ++i) {
             NSDictionary *existing = self.arrayMusic[i];
-            if ([existing[@"ID"] unsignedIntValue] == [musicInfo[@"musicID"] unsignedIntValue]) {
+            if ([existing[@"ID"] unsignedIntValue] == (unsigned int)musicInfo.musicID) {
                 NSMutableDictionary *copy = [NSMutableDictionary dictionaryWithDictionary:existing];
                 if (![self checkChangedMusic:copy info:musicInfo]) {
                     return NO;
@@ -260,7 +262,7 @@
     } else {
         for (NSUInteger i = 0; i < self.arrayExtendMusic.count; ++i) {
             NSDictionary *existing = self.arrayExtendMusic[i];
-            if ([existing[@"ID"] unsignedIntValue] == [musicInfo[@"musicID"] unsignedIntValue]) {
+            if ([existing[@"ID"] unsignedIntValue] == (unsigned int)musicInfo.musicID) {
                 NSMutableDictionary *copy = [NSMutableDictionary dictionaryWithDictionary:existing];
                 if (![self checkChangedMusic:copy info:musicInfo]) {
                     return NO;

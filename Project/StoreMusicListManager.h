@@ -10,6 +10,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class StoreMusicInfo;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -156,7 +158,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return YES if changed.
  * @ghidraAddress 0xd546c
  */
-- (BOOL)checkChangedMusic:(NSDictionary *)oldInfo info:(NSDictionary *)newInfo;
+- (BOOL)checkChangedMusic:(NSMutableDictionary *)oldInfo info:(nullable StoreMusicInfo *)newInfo;
 
 /**
  * @brief Adds or updates a music entry.
@@ -164,7 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return YES if added/updated.
  * @ghidraAddress 0xd5bb8
  */
-- (BOOL)addMusic:(NSDictionary *)musicInfo;
+- (BOOL)addMusic:(nullable StoreMusicInfo *)musicInfo;
 
 /**
  * @brief Updates hold/extend flags for a tune.
