@@ -1150,7 +1150,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
 
     // On the four-inch screen the field is taller, so the header/footer gap is filled with the
     // background sprite (sprite 0x17) twice, mirrored.
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         int gap = [self buttonMarginForScreen40] - [self upperBgHeight40];
         [self.texFront
             drawSprite:0x17
@@ -1184,7 +1184,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
     float beatScale = pulse * kBeatScale * kBeatScaleUnit;
     double beatY = kBeatY;
     double anchorY = kFieldWidth;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         beatY = (double)((float)([self buttonMarginForScreen40] + kGridTopOffset) + kBeatY4Inch);
         anchorY = (double)([self buttonMarginForScreen40] + 0x140);
     }
@@ -1214,7 +1214,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
         effFrame = 0;
     } else {
         int topOffset =
-            self.is4Inch ? [self buttonMarginForScreen40] + kGridTopOffset : kGridTopOffset;
+            self->is4Inch ? [self buttonMarginForScreen40] + kGridTopOffset : kGridTopOffset;
         const MainGamePhoneKntBgEffectSpec *spec = &kBgEffectSchedule[effSlot];
         if ((unsigned int)spec->threshold < effFrame) {
             EffectBgKnit *eff = [[EffectBgKnit alloc] init];
@@ -1435,7 +1435,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
     double plateH = plate.size.height;
     float topFrom = kBannerTopFrom;
     float topTo = kBannerTopTo;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         topFrom = (float)([self buttonMarginForScreen40] + 0x118);
         topTo = (float)([self buttonMarginForScreen40] + 200);
     }
@@ -1445,7 +1445,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
 
     float midFrom = kBannerTopFrom;
     float midTo = kBannerMidTo;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         midFrom = (float)([self buttonMarginForScreen40] + 0x118);
         midTo = (float)([self buttonMarginForScreen40] + 0x1b8);
     }
@@ -1463,7 +1463,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
         float cellAlpha = (i == 7) ? 1.0f : fadeIn;
         int reflowed = i % 4 + (i >> 2) * 0xc;
         double px = (double)((reflowed % 4) * kPanelPitch + kPanelInset);
-        int margin = self.is4Inch ? [self buttonMarginForScreen40] : 0;
+        int margin = self->is4Inch ? [self buttonMarginForScreen40] : 0;
         double py = (double)((reflowed >> 2) * kPanelPitch + margin + kGridTop);
         [self.texResultBg drawSprite:1
                              atPoint:CGPointMake(px, py)
@@ -1478,7 +1478,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
     float wordAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 6);
     float wordScale = InterpolateFloatByFrame(kComboFadeBase, 1.0f, animFrame, 0, 6);
     double wordY = kWordBaseY;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         wordY = (double)([self buttonMarginForScreen40] + 0x118);
     }
     (void)[self.texFront spriteAtIndex:0x18];
@@ -1524,7 +1524,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
 
     // The combo cut-in burst sits at the horizontal centre, nudged down on the four-inch screen.
     float burstY = (float)kComboBaseY;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         burstY = (float)[self buttonMarginForScreen40] + (float)kComboBaseY;
     }
 
@@ -1642,7 +1642,7 @@ drawDigits:
 
     // The result-background plate slides in over the field, centred horizontally.
     double plateY = kBannerTopY;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         plateY = (double)([self buttonMarginForScreen40] + 200);
     }
     CGRect plate = [self.texResultBg spriteAtIndex:5];
@@ -1651,7 +1651,7 @@ drawDigits:
                           inRect:CGRectMake(plateY - plateH * 0.5, kFieldWidth, plateH, 6)];
 
     double midY = kBannerMidY;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         midY = (double)([self buttonMarginForScreen40] + 0x1b8);
     }
     midY = midY - plateH * 0.5;
@@ -1667,7 +1667,7 @@ drawDigits:
         float cellAlpha = (i == 7) ? 1.0f : fadeIn;
         int reflowed = i % 4 + (i >> 2) * 0xc;
         double px = (double)((reflowed % 4) * kPanelPitch + kPanelInset);
-        int margin = self.is4Inch ? [self buttonMarginForScreen40] : 0;
+        int margin = self->is4Inch ? [self buttonMarginForScreen40] : 0;
         double py = (double)((reflowed >> 2) * kPanelPitch + margin + kGridTop);
         [self.texResultBg drawSprite:4
                              atPoint:CGPointMake(px, py)
@@ -1682,7 +1682,7 @@ drawDigits:
     float wordScale = InterpolateFloatByFrame(kWordScaleFrom, 1.0f, animFrame, 0, 0x10);
     float wordSlide = InterpolateFloatByFrame(kWordSlideFrom, 0.0f, animFrame, 0, 0x10);
     double wordY = kWordX;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         wordY = (double)([self buttonMarginForScreen40] + 0x118);
     }
     (void)[self.texFront spriteAtIndex:0x19];
@@ -1781,7 +1781,7 @@ drawDigits:
     double bottomRestY = kBottomRestY;
     double wordStartY = kWordStartY;
     float wordSettleY = kWordSettleY;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         int margin = [self buttonMarginForScreen40];
         topRestY = (double)(margin + 200);
         bottomRestY = (double)(margin + 440);
@@ -1887,7 +1887,7 @@ drawDigits:
     // The READY line's Y and the GO line's Y both shift down by the four-inch game-area margin.
     int readyY;
     int goY;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         readyY = (int)((float)[self buttonMarginForScreen40] + kReadyYDefault);
         goY = (int)((float)[self buttonMarginForScreen40] + kGoYDefault);
     } else {
@@ -2024,7 +2024,7 @@ drawDigits:
     [self.sequence getMarkerState:markerState];
 
     for (int i = 0; i < 16; ++i) {
-        int margin = self.is4Inch ? [self buttonMarginForScreen40] : 0;
+        int margin = self->is4Inch ? [self buttonMarginForScreen40] : 0;
         unsigned int state = (unsigned int)markerState[i];
         unsigned int frameCount = state & 0xfff;
         unsigned int bank = (state >> 0xc) & 7;
@@ -2163,7 +2163,7 @@ drawDigits:
     // The play-head cursor over the bar, when a timeline is shown.
     if (timeline) {
         double headY = kMusicBarPlayHeadY;
-        if (self.is4Inch) {
+        if (self->is4Inch) {
             headY = (double)([self upperBgHeight40] + 0x7d);
         }
         float headX = playPosition * kMusicBarPlayHeadScale + kMusicBarPlayHeadX;
@@ -2203,7 +2203,7 @@ drawDigits:
     double drawY = point.y;
     double scaleX = scale;
     // On the taller four-inch screen the panel slides and is drawn unscaled.
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         drawY = point.y -
                 ((float)(alpha - alpha * scale) + (float)(alpha * kPartnerFourInchYFactor - alpha));
         scaleX = 1.0;
@@ -2280,9 +2280,9 @@ drawDigits:
     float tuneX = InterpolateFloatByFrame(28.0f, 8.0f, f, 10, 0x14);
     double tuneY = kTuneInfoYDefault;
     double artworkSize = kArtworkSize[0];
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         tuneY = (double)((self.upperBgHeight40 >> 2) + 10);
-        artworkSize = kArtworkSize[self.is4Inch];
+        artworkSize = kArtworkSize[self->is4Inch];
     }
     [self renderTuneInfo:CGPointMake((double)tuneX, tuneY) artworkSize:artworkSize alpha:tuneFade];
 
@@ -2290,13 +2290,13 @@ drawDigits:
     float uiFade = InterpolateFloatByFrame(0.0f, 1.0f, f, 4, 0xe);
     float slide = InterpolateFloatByFrame(kSlideDistance, 0.0f, f, 4, 0xe);
     double scoreY = kScoreYDefault;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         scoreY = (double)(self.upperBgHeight40 + 0x60);
     }
     [self renderScore:0 atPoint:CGPointMake(kScoreX - (double)slide, scoreY) alpha:uiFade];
 
     double partnerY = kPartnerYDefault;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         partnerY = (double)(self.upperBgHeight40 + 0x46);
     }
     [self renderPartnerScore:0
@@ -2307,7 +2307,7 @@ drawDigits:
     // The music bar fades in over frames 0..10.
     float barFade = InterpolateFloatByFrame(0.0f, 1.0f, f, 0, 10);
     double musicBarY = kMusicBarYDefault;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         musicBarY = (double)(self.upperBgHeight40 + 0x83);
     }
     [self renderMusicBar:CGPointMake(0.0, musicBarY) timeline:NO alpha:barFade];
@@ -2341,7 +2341,7 @@ drawDigits:
     // pop timing both shorten for the top ranks (rank < 3).
     unsigned int slideEnd = (rank < 3) ? 0xe : 7;
     double labelY = kRatingLabelBaseY;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         labelY = (double)([self buttonMarginForScreen40] + 0x146);
     }
     float labelSlide = InterpolateFloatByFrame(10.0f, 0.0f, animFrame, 0, slideEnd);
@@ -2353,7 +2353,7 @@ drawDigits:
              alpha:labelAlpha];
 
     double rankY = kRankBaseY;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         rankY = (double)([self buttonMarginForScreen40] + 0x168) + 1.0;
     }
     (void)[self.texResultBg spriteAtIndex:kRankSprite];
@@ -2467,20 +2467,20 @@ drawDigits:
 
     double tuneY = kTuneInfoYDefault;
     double artworkSize = kArtworkSize[0];
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         tuneY = (double)((self.upperBgHeight40 >> 2) + 10);
-        artworkSize = kArtworkSize[self.is4Inch];
+        artworkSize = kArtworkSize[self->is4Inch];
     }
     [self renderTuneInfo:CGPointMake(kTuneInfoX, tuneY) artworkSize:artworkSize alpha:1.0];
 
     double musicBarY = kMusicBarYDefault;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         musicBarY = (double)(self.upperBgHeight40 + 0x83);
     }
     [self renderMusicBar:CGPointMake(0.0, musicBarY) timeline:NO alpha:1.0];
 
     double scoreY = kScoreYDefault;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         scoreY = (double)(self.upperBgHeight40 + 0x60);
     }
     [self renderScore:(unsigned int)score->totalPoint
@@ -2488,7 +2488,7 @@ drawDigits:
                 alpha:1.0];
 
     double partnerY = kPartnerYDefault;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         partnerY = (double)(self.upperBgHeight40 + 0x46);
     }
     [self renderPartnerScore:self.partnerScore + self.partnerFinalBonus
@@ -2517,7 +2517,7 @@ drawDigits:
     if (self.isNewRecord && frame > kNewRecordGateFrame && !self.scoreBackup) {
         float stampAlpha =
             InterpolateFloatByFrame(0.0f, 1.0f, frame, kNewRecordStartFrame, kNewRecordEndFrame);
-        int heightBase = self.is4Inch ? (self.upperBgHeight40 - 5) : 0;
+        int heightBase = self->is4Inch ? (self.upperBgHeight40 - 5) : 0;
         int retinaBias = isRetina ? kNewRecordYRetina : kNewRecordYNonRetina;
         double stampY = (double)(heightBase + retinaBias + kNewRecordYBase);
         float stampSlide = InterpolateFloatByFrame(kNewRecordSlideFrom,
@@ -2538,7 +2538,7 @@ drawDigits:
 
     // The retry/vote overlay appears with the result sub-state, sliding its tag and score in.
     if (self.subState != 0) {
-        int margin = self.is4Inch ? [self buttonMarginForScreen40] : 0;
+        int margin = self->is4Inch ? [self buttonMarginForScreen40] : 0;
         double overlayY = (double)(margin + kResultOverlayYBase) + 1.0;
         unsigned int elapsed = frame - subStateChangeFrame;
         float slideIn = (elapsed > 7) ? 1.0f : (float)elapsed * kResultTagScale;
@@ -2642,7 +2642,7 @@ drawDigits:
     unsigned int baseSprite = (scoreDisplay < kScoreSixDigitThreshold) ? 0x21 : 0x2b;
     float a = (float)alpha;
 
-    if (!self.is4Inch) {
+    if (!self->is4Inch) {
         [self.texFront drawSprite:kScorePlateLo atPoint:point transform:0 alpha:a];
         [self.texFront drawSprite:kScorePlateHi atPoint:point transform:0 alpha:a];
         int glyphX = 0;
@@ -2730,7 +2730,7 @@ drawDigits:
 
     // The bars sweep out from the centre (nudged down on the taller four-inch screen).
     double centre = kShutterCentre;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         centre = (double)([self buttonMarginForScreen40] + 0x140);
     }
 
@@ -2788,7 +2788,7 @@ drawDigits:
             continue;
         }
         double cellX = (double)((int)((i % 4) * (int)kCellPitch) | (int)kCellCentre);
-        int margin = self.is4Inch ? [self buttonMarginForScreen40] : 0;
+        int margin = self->is4Inch ? [self buttonMarginForScreen40] : 0;
         double cellY = (double)((((int)(i >> 2) * (int)kCellPitch) | (int)kCellCentre) + margin +
                                 (int)kGridTopOffset);
         double areaX = cellX - kClipInset;
@@ -2952,16 +2952,16 @@ drawDigits:
     // The tune info (jacket, title, difficulty).
     double tuneInfoY = kTuneInfoYDefault;
     double artworkSize = kArtworkSize[0];
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         tuneInfoY = (double)((self.upperBgHeight40 >> 2) + 10);
-        artworkSize = kArtworkSize[self.is4Inch];
+        artworkSize = kArtworkSize[self->is4Inch];
     }
     [self renderTuneInfo:CGPointMake(kTuneInfoX, tuneInfoY) artworkSize:artworkSize alpha:1.0];
 
     // The music bar at x=0, y=136 (nudged down on the 4-inch screen); the timeline flag is set
     // only in the play state.
     double musicBarY = kMusicBarYDefault;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         musicBarY = (double)(self.upperBgHeight40 + 0x83);
     }
     [self renderMusicBar:CGPointMake(0.0, musicBarY) timeline:(self.state == 3) alpha:1.0];
@@ -2975,7 +2975,7 @@ drawDigits:
         score = (unsigned int)[self replayBackupScore].totalPoint;
     }
     double scoreY = kScoreYDefault;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         scoreY = (double)(self.upperBgHeight40 + 0x60);
     }
     [self renderScore:score atPoint:CGPointMake(kScoreX, scoreY) alpha:1.0];
@@ -2983,7 +2983,7 @@ drawDigits:
     // The partner's score in versus play.
     unsigned int partnerScore = self.partnerScore;
     double partnerY = kPartnerYDefault;
-    if (self.is4Inch) {
+    if (self->is4Inch) {
         partnerY = (double)(self.upperBgHeight40 + 0x46);
     }
     [self renderPartnerScore:partnerScore

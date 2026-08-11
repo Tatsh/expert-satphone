@@ -177,8 +177,8 @@
     [self.view addGestureRecognizer:tap];
     // Re-adds the coBtn view on top. Disassembly at 0x13bd14: ldr x0,[x19,#coBtn] / bl
     // removeFromSuperview, then bl view / bl addSubview:.
-    [self.coBtn removeFromSuperview];
-    [self.view addSubview:self.coBtn];
+    [self->coBtn removeFromSuperview];
+    [self.view addSubview:self->coBtn];
 }
 
 /** @ghidraAddress 0x13bd1c */
@@ -311,7 +311,7 @@
     copyrightView.center =
         CGPointMake(bounds.size.width * 0.5, bounds.size.height - 30.0); // DAT_0x28f2c8 vs 30.0
     [self.view addSubview:copyrightView];
-    [self.view addSubview:self.coBtn];
+    [self.view addSubview:self->coBtn];
     markerView = [[MarkerDownloadView alloc] init];
 }
 

@@ -170,8 +170,8 @@
         [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     tapRecognizer = tap;
     [self.view addGestureRecognizer:tap];
-    [self.coBtn removeFromSuperview];
-    [self.view addSubview:self.coBtn];
+    [self->coBtn removeFromSuperview];
+    [self.view addSubview:self->coBtn];
 }
 
 /** @ghidraAddress 0x13efe8 */
@@ -252,7 +252,7 @@
     copyrightView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"tit_copyright")];
     copyrightView.center = CGPointMake(bounds.size.width * 0.5, bounds.size.height - 20);
     [self.view addSubview:copyrightView];
-    [self.view addSubview:self.coBtn];
+    [self.view addSubview:self->coBtn];
 }
 
 #pragma mark - Input
