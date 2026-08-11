@@ -21,6 +21,7 @@
 #import "ChallengeMenuRootView.h"
 #import "ChallengeNameSettingView.h"
 #import "ChallengeRankingListView.h"
+#import "CubePurchaseView.h"
 #import "Downloader.h"
 #import "PurchaseManager.h"
 #import "ScratchCompleteView.h"
@@ -44,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
                                            ChallengeLoginInformationViewDelegate,
                                            ChallengeNameSettingViewDelegate,
                                            ChallengeRankingListViewDelegate,
+                                           CubePurchaseViewDelegate,
                                            DownloaderDelegate,
                                            PurchaseManagerDelegate,
                                            ScratchCompleteViewDelegate,

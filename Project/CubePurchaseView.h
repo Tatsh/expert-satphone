@@ -11,8 +11,9 @@
  * @c SKProductsRequest , runs the purchase through @c PurchaseManager , validates the result with
  * the server through a @c SessionDownloader , and shows policy and message overlays with a
  * @c MessageTextView . Its @c aDelegate (the challenge-mode root view in the shipped tree) is sent
- * @c closeCubePurchase , @c showPurchaseDialog: , @c hidePurchaseDialog , and @c refreshStatus
- * dynamically, so no fixed protocol describes it and the property stays typed @c id .
+ * @c closeCubePurchase , @c showPurchaseDialog: , @c hidePurchaseDialog , and @c refreshStatus ;
+ * the binary dispatches these dynamically over a bare @c id ivar, modelled here as the
+ * @c CubePurchaseViewDelegate protocol.
  */
 
 #import <StoreKit/StoreKit.h>
@@ -28,6 +29,23 @@
 @class SessionDownloader;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * @brief What a @c CubePurchaseView tells its owner (the challenge-mode root view in the shipped
+ * tree). The binary types the @c aDelegate ivar as a bare @c id and dispatches these dynamically;
+ * the protocol names that implicit contract so the sends are typed.
+ */
+@protocol CubePurchaseViewDelegate <NSObject>
+@optional
+/** @brief Dismisses the cube-purchase menu. */
+- (void)closeCubePurchase;
+/** @brief Shows the modal processing dialog with a message. */
+- (void)showPurchaseDialog:(nonnull NSString *)message;
+/** @brief Hides the modal processing dialog. */
+- (void)hidePurchaseDialog;
+/** @brief Refreshes the owner's cube-count and related status. */
+- (void)refreshStatus;
+@end
 
 /**
  * @brief A modal view that sells cubes: a scrollable product list backed by StoreKit, an age /
@@ -182,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
  * shown, hidden, or its status refreshed. Held weakly.
  * @ghidraAddress 0x1c2ba4 (getter), 0x1c2bc4 (setter)
  */
-@property(nonatomic, weak, nullable) id aDelegate;
+@property(nonatomic, weak, nullable) id<CubePurchaseViewDelegate> aDelegate;
 
 @end
 

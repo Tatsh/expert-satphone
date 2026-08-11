@@ -66,6 +66,12 @@ NS_ASSUME_NONNULL_BEGIN
                         mDict:(nullable NSDictionary *)mDict
                     scratchID:(int)scratchID;
 
+/**
+ * @brief Swaps the back button's image for the ranking-screen variant.
+ * @ghidraAddress 0x15a440
+ */
+- (void)replaceBackBtnImage;
+
 @end
 
 NS_ASSUME_NONNULL_END
