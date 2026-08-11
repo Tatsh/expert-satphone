@@ -102,6 +102,24 @@ static const double kButtonEdgeShort = 32.0;     // @ghidraAddress 0x28f458
 static const double kButtonDepressedMid = 54.0;  // @ghidraAddress 0x28f640
 static const double kButtonDepressedFar = 138.0; // @ghidraAddress 0x2924c8
 
+// The pre-start intro animation. Over the first frames the HUD slides and fades in: the tune info
+// eases from x 38 to 18 and fades over frames 10..20; the score and partner score slide in 40
+// points from the right and fade over frames 4..14; the music bar fades over frames 0..10. At
+// frame 20 the "muon" cue plays and the sub-state advances to begin play.
+static const double kPreStartTuneInfoXFrom = 38.0; // @ghidraAddress 0x292ae4
+static const double kPreStartTuneInfoXTo = 18.0;   // fmov 18.0
+static const double kPreStartTuneInfoY = 25.0;     // fmov 25.0
+static const float kPreStartScoreSlide = 40.0f;    // @ghidraAddress 0x292568
+static const double kPreStartMusicBarX = 8.0;      // fmov 8.0
+static const unsigned int kPreStartTuneFadeStart = 10;
+static const unsigned int kPreStartTuneFadeEnd = 20;
+static const unsigned int kPreStartScoreFadeStart = 4;
+static const unsigned int kPreStartScoreFadeEnd = 14; // 0xe
+static const unsigned int kPreStartMusicFadeEnd = 10;
+static const unsigned int kPreStartEndFrame = 20; // 0x14
+static NSString *const kSeMuon = @"SD_MUON";      // @ghidraAddress 0x283f78
+static const unsigned int kPreStartSubStatePlay = 10;
+
 // The upper HUD layout for the pad Knit renderer: the tune-info block, music bar, live score, and
 // partner score, with the artwork sized at 160 points.
 static const double kUpperTuneInfoX = 18.0;        // fmov 18.0
@@ -1741,6 +1759,48 @@ digits:
         } else {
             MainGameRendererPadKntDrawButtonFace(texFront, kButtonFaceReleasedBase, x, y);
         }
+    }
+}
+
+/** @ghidraAddress 0x203018 */
+- (void)renderPreStart {
+    [self renderBG];
+    [self renderShutter:YES];
+    [self renderUpperBG:NO];
+    unsigned int frame = self->frame;
+    // The tune info eases in from the right and fades up.
+    float tuneAlpha =
+        InterpolateFloatByFrame(0.0f, 1.0f, frame, kPreStartTuneFadeStart, kPreStartTuneFadeEnd);
+    float tuneX = InterpolateFloatByFrame((float)kPreStartTuneInfoXFrom,
+                                          (float)kPreStartTuneInfoXTo,
+                                          frame,
+                                          kPreStartTuneFadeStart,
+                                          kPreStartTuneFadeEnd);
+    [self renderTuneInfo:CGPointMake((double)tuneX, kPreStartTuneInfoY)
+             artworkSize:kUpperArtworkSize
+                   alpha:(double)tuneAlpha];
+    // The score and partner score slide in from the right and fade up together.
+    float scoreAlpha =
+        InterpolateFloatByFrame(0.0f, 1.0f, frame, kPreStartScoreFadeStart, kPreStartScoreFadeEnd);
+    float scoreSlide = InterpolateFloatByFrame(
+        kPreStartScoreSlide, 0.0f, frame, kPreStartScoreFadeStart, kPreStartScoreFadeEnd);
+    [self renderScore:0
+              atPoint:CGPointMake(kUpperScoreX - (double)scoreSlide, kUpperScoreY)
+                alpha:(double)scoreAlpha];
+    [self renderPartnerScore:0
+                     atPoint:CGPointMake(kUpperPartnerScoreX - (double)scoreSlide,
+                                         kUpperPartnerScoreY)
+                       scale:kUpperPartnerScoreScale
+                       alpha:(double)scoreAlpha];
+    // The music bar fades up first.
+    float barAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, kPreStartMusicFadeEnd);
+    [self renderMusicBar:CGPointMake(kPreStartMusicBarX, kUpperMusicBarY)
+                timeline:NO
+                   alpha:(double)barAlpha];
+    [self renderButtons];
+    if (self->frame == kPreStartEndFrame) {
+        [[AudioManager sharedManager] playSeResFile:kSeMuon inDirectory:nil];
+        [self setSubState:kPreStartSubStatePlay];
     }
 }
 
