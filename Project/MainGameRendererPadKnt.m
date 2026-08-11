@@ -87,6 +87,21 @@ static const unsigned int kButtonGridPitch = 0xc0;
 static const unsigned int kButtonGridInsetX = 0x60;
 static const unsigned int kButtonGridTopY = 0x160;
 
+// The play-field button grid. Each of the sixteen buttons is drawn as a four-part face laid across
+// a 192-point grid dropped 256 points: a body sprite at the origin, a right edge, a bottom edge,
+// and a bottom-right corner. A released button uses sprites 0..3; a held one first lays a
+// depressed-panel overlay (sprite 8, drawn four times rotated) then uses sprites 4..7.
+enum {
+    kButtonFaceReleasedBase = 0, // first sprite of the released four-part face
+    kButtonFacePressedBase = 4,  // first sprite of the held four-part face
+    kButtonDepressedSprite = 8,  // the depressed-panel overlay
+};
+static const int kButtonAreaTopY = 256;          // 0x100
+static const double kButtonEdgeLong = 160.0;     // @ghidraAddress 0x28f438
+static const double kButtonEdgeShort = 32.0;     // @ghidraAddress 0x28f458
+static const double kButtonDepressedMid = 54.0;  // @ghidraAddress 0x28f640
+static const double kButtonDepressedFar = 138.0; // @ghidraAddress 0x2924c8
+
 // The upper HUD layout for the pad Knit renderer: the tune-info block, music bar, live score, and
 // partner score, with the artwork sized at 160 points.
 static const double kUpperTuneInfoX = 18.0;        // fmov 18.0
@@ -374,6 +389,23 @@ MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *s
         }
     }
     return NO;
+}
+
+// Draws one button's four-part face from a sprite base (0 released, 4 held): the body at the
+// origin, the right edge dropped a long edge to the right, the bottom edge dropped a short edge
+// down, and the corner offset by both.
+static inline void
+MainGameRendererPadKntDrawButtonFace(Texture2D *texFront, int base, double x, double y) {
+    [texFront drawSprite:base atPoint:CGPointMake(x, y)];
+    [texFront drawSprite:(base + 1)
+                 atPoint:CGPointMake(x + kButtonEdgeLong, y)
+               transform:1
+                   alpha:1.0f];
+    [texFront drawSprite:(base + 2)
+                 atPoint:CGPointMake(x, y + kButtonEdgeShort)
+               transform:1
+                   alpha:1.0f];
+    [texFront drawSprite:(base + 3) atPoint:CGPointMake(x + kButtonEdgeShort, y + kButtonEdgeLong)];
 }
 
 // The Excellent banner's final sparkle burst (frame >= 0x7c): twenty particles from the parallel
@@ -1682,6 +1714,34 @@ digits:
                      atPoint:CGPointMake(kUpperPartnerScoreX, kUpperPartnerScoreY)
                        scale:kUpperPartnerScoreScale
                        alpha:1.0];
+}
+
+/** @ghidraAddress 0x202c8c */
+- (void)renderButtons {
+    for (int i = 0; i < kMainGameGridPanelCount; ++i) {
+        double x = (double)((i % 4) * kButtonGridPitch);
+        double y = (double)((i / 4) * kButtonGridPitch + kButtonAreaTopY);
+        Texture2D *texFront = self.texFront;
+        if ((self.btnPress & (1 << (i & 0x1f))) != 0) {
+            // Held: lay the depressed panel (sprite 8 at four rotations), then the pressed face.
+            [texFront drawSprite:kButtonDepressedSprite atPoint:CGPointMake(x, y)];
+            [texFront drawSprite:kButtonDepressedSprite
+                         atPoint:CGPointMake(x + kButtonDepressedMid, y)
+                       transform:1
+                           alpha:1.0f];
+            [texFront drawSprite:kButtonDepressedSprite
+                         atPoint:CGPointMake(x + kButtonDepressedFar, y + kButtonDepressedMid)
+                       transform:2
+                           alpha:1.0f];
+            [texFront drawSprite:kButtonDepressedSprite
+                         atPoint:CGPointMake(x, y + kButtonDepressedFar)
+                       transform:3
+                           alpha:1.0f];
+            MainGameRendererPadKntDrawButtonFace(texFront, kButtonFacePressedBase, x, y);
+        } else {
+            MainGameRendererPadKntDrawButtonFace(texFront, kButtonFaceReleasedBase, x, y);
+        }
+    }
 }
 
 /** @ghidraAddress 0x2023a8 */
