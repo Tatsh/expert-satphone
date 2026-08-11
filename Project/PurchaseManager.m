@@ -248,7 +248,7 @@ NSString *CreateRandomString(int length);
     NSArray *ids = [NSArray arrayWithObjects:&verifingID count:1];
     NSArray *prices;
     if (!verifingPrice) {
-        prices = [NSArray arrayWithObjects:@(-1) count:1];
+        prices = @[ @(-1) ];
     } else {
         prices = [NSArray arrayWithObjects:&verifingPrice count:1];
     }
@@ -607,7 +607,7 @@ NSString *CreateRandomString(int length);
     NSArray *ids = [NSArray arrayWithObjects:&verifingID count:1];
     NSArray *prices;
     if (!verifingPrice) {
-        prices = [NSArray arrayWithObjects:@(-1) count:1];
+        prices = @[ @(-1) ];
     } else {
         prices = [NSArray arrayWithObjects:&verifingPrice count:1];
     }

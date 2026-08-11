@@ -151,10 +151,13 @@ target_compile_options(jubeat PRIVATE
 
 # Warnings: most of Xcode's recommended GCC_WARN_* / CLANG_WARN_* set as real -W
 # flags. Every warning is an error (-Werror), so the build fails on any of them,
-# with two exceptions kept as printed warnings: -Wdeprecated-declarations (the
-# reconstruction faithfully uses APIs Apple has since deprecated) and
+# with three exceptions kept as printed warnings: -Wdeprecated-declarations (the
+# reconstruction faithfully uses APIs Apple has since deprecated),
 # -Wunused-parameter (the de-inlined helpers and delegate methods keep the
-# binary's full parameter lists even where a body ignores an argument). The
+# binary's full parameter lists even where a body ignores an argument), and
+# -Warc-performSelector-leaks (the optional-delegate dispatches faithfully mirror
+# the binary's -respondsToSelector:-guarded objc_msgSend calls on void selectors,
+# where ARC cannot see the selector family but nothing is actually leaked). The
 # noisy conversion / cast / pedantic families are deliberately left off: this is
 # a faithful binary reconstruction with intentional narrowing, pointer-in-int and
 # reinterpret casts.
@@ -162,6 +165,7 @@ target_compile_options(jubeat PRIVATE
     -Werror
     -Wno-error=deprecated-declarations
     -Wno-error=unused-parameter
+    -Wno-error=arc-performSelector-leaks
     -Wall
     -Wextra
     -Wshadow

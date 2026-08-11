@@ -122,7 +122,7 @@ static NSString *const kIdentifierSeedFormat = @"%@(%@)";
     NSString *identifier = CreateMd5HexStringFromCString(seed.UTF8String);
     NSArray *objects = @[ identifier, name, [NSMutableArray arrayWithCapacity:8] ];
     NSArray *keys = @[ kPlaylistIdentifierKey, kPlaylistNameKey, kPlaylistMusicListKey ];
-    NSDictionary *playlist = [NSDictionary dictionaryWithObjects:objects forKeys:keys count:3];
+    NSDictionary *playlist = [NSDictionary dictionaryWithObjects:objects forKeys:keys];
     [self.arrayPlaylist addObject:[NSMutableDictionary dictionaryWithDictionary:playlist]];
     return YES;
 }

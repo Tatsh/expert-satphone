@@ -95,7 +95,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                        height:pixelSize];
 }
 
-- (nullable instancetype)initWithImage:(nullable UIImage *)image {
+- (instancetype)initWithImage:(nullable UIImage *)image {
     /** @ghidraAddress 0xdf6c */
     CGImageRef cgImage = image.CGImage;
     if (!image) {

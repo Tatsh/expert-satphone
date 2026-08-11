@@ -616,7 +616,7 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 }
 
 /** @ghidraAddress 0x226234 */
-- (void)repeatNotice:(nullable id)view {
+- (void)repeatNotice:(id)view {
     if (self.webView != view) {
         return;
     }
@@ -625,7 +625,7 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 }
 
 /** @ghidraAddress 0x22629c */
-- (void)linkErrorNotice:(nullable id)view error:(nullable NSError *)error {
+- (void)linkErrorNotice:(id)view error:(NSError *)error {
     if (self.webView != view) {
         return;
     }
