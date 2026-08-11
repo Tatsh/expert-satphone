@@ -11,11 +11,11 @@ enum {
 };
 
 // Both labels are given the title's height, whichever line they carry.
-enum { kLabelHeightPadding = 2 };
+static const int kLabelHeightPadding = 2;
 
 // How far the two lines sit either side of the background's vertical centre, on top of half the
 // period line's own height.
-enum { kLineGap = 3 };
+static const int kLineGap = 3;
 
 // The chosen border: three points of a yellow-green, drawn on the background rather than the icon.
 // The three components are at 0x291c60, 0x291c68 and 0x291c70, and each is exactly n/255 at float

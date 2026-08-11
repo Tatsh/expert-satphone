@@ -42,7 +42,7 @@ static NSString *const kBundleResourceType = @"zip";
 static NSString *const kBundleSubdirectoryFormat = @"appendData/%@";
 
 // The frame's itemType: only background frames (itemType 0) carry a downloadable archive.
-enum { kFrameItemTypeBackground = 0 };
+static const int kFrameItemTypeBackground = 0;
 
 // The frame's termType: 0 is always free, 1 is unlocked once the install count reaches the frame's
 // first termsTable threshold.

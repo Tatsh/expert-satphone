@@ -164,7 +164,7 @@ static const double kUpperPartnerScoreScale = 0.7; // @ghidraAddress 0x100291c98
 // at 0x200 glyphs; each printable character maps to the font sprite at its ASCII code minus space.
 static const double kDebugGlyphAdvance = 12.0;
 static const double kDebugLineHeight = 20.0;
-enum { kDebugMaxGlyphs = 0x200 };
+static const int kDebugMaxGlyphs = 0x200;
 
 // The Excellent (perfect-million) result banner. Its final flourish, from frame 0x7c, scatters
 // twenty sparkle particles from four parallel tables: the sprite index, the base x and y, and the
@@ -320,7 +320,7 @@ static const float kMusicBarFadeEnd = 1.2999999523162842f;               // @ghi
 static const float kMusicBarPlayHeadScale = 600.0f;                      // @ghidraAddress 0x291c3c
 static const float kMusicBarPlayHeadXOffset = 74.0f;                     // @ghidraAddress 0x28fa28
 static const double kMusicBarPlayHeadY = 197.0;                          // @ghidraAddress 0x28f6b0
-enum { kMusicBarCellCount = 0x78 };
+static const int kMusicBarCellCount = 0x78;
 
 // The 4x4 marker grid: each panel sits on a 192-point pitch inset 16 points, the rows pushed 256
 // points down. A marker's animation word packs a phase (low 12 bits) and a slot (next 3 bits); the
@@ -521,11 +521,11 @@ enum {
 };
 
 // The knit renderer builds six stacked wave layers, all sharing one sprite table.
-enum { kWaveTextureCount = 6 };
+static const int kWaveTextureCount = 6;
 
 // The user-default the knit colour theme is read from, clamped to the four packaged variants.
 static NSString *const kPrefColorKnitKey = @"PrefColorKnit";
-enum { kPrefColorKnitMax = 3 };
+static const int kPrefColorKnitMax = 3;
 
 // Beat-background atlas sprite indices for the two packaged theme layers.
 enum {
@@ -985,7 +985,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
         @"res_rtg_ss_knt",
         @"res_rtg_sss_knt",
     };
-    enum { kRankCount = 8 };
+    static const int kRankCount = 8;
     static const double kResultClipY = 256.0;    // @ghidraAddress 0x28e030
     static const double kResultClipSize = 768.0; // @ghidraAddress 0x292460
     enum {

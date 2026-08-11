@@ -20,7 +20,7 @@ static NSString *const kHoldFlagKey = @"holdFlag";
 static NSString *const kExtendIDKey = @"extID";
 
 // -infoDict builds at exactly the seven entries it can hold.
-enum { kInfoDictCapacity = 8 };
+static const int kInfoDictCapacity = 8;
 
 // -isLicensedTune renders the identifier as nine zero-padded decimals and reads the first one.
 static const char kTuneIDFormat[] = "%09u";

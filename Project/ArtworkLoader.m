@@ -5,7 +5,7 @@
 #import "LabUtilities.h"
 
 // The archives carry a fixed header before the entries proper.
-enum { kArchiveHeaderLength = 16 };
+static const int kArchiveHeaderLength = 16;
 
 // The two entries an archive holds, one per size.
 static NSString *const kBigArtworkEntry = @"artwork";

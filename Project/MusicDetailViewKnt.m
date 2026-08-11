@@ -62,7 +62,7 @@ static const CGFloat kDiffButtonDimScale = 0.95; // @ghidraAddress 0x28f6e0
 enum { kDiffButtonCount = 3, kExtendButtonIndex = 3 };
 
 // The level image is shown behind the fourth (extend) difficulty's level-number view.
-enum { kExtendLevelNumIndex = 3 };
+static const int kExtendLevelNumIndex = 3;
 
 // The music bar holds 120 dot views; each dot's sprite comes from a 4-bit nibble in the dot map and
 // its image row from a 2-bit value in the resource map.
@@ -170,7 +170,7 @@ static const NSTimeInterval kShareProgressAnimDuration = 0.3; // @ghidraAddress 
 
 // The edit music bar uses the fourth music-bar image, its dot data spans 60 bytes, and its
 // user-tag badge (blank/staff/artist) sits inset from the extend button's right edge.
-enum { kEditMbarBackgroundImage = 3 };
+static const int kEditMbarBackgroundImage = 3;
 static const NSUInteger kEditMbarDataLength = 60;
 static NSString *const kUserTagIconNames[] = {
     @"list_icon_user_blank", @"icon_user_staff", @"icon_user_artist"};
@@ -192,7 +192,7 @@ static NSString *const kRatingImageNames[] = {@"msc_rate_e_knt",
 // The high-score digit and level number image name formats; the level number is 1-based.
 static NSString *const kHighscoreDigitFormat = @"msc_high_score_%d_knt";
 static NSString *const kLevelNumberFormat = @"lv_%02d_knt";
-enum { kLevelImageCount = 10 };
+static const int kLevelImageCount = 10;
 
 // The four music-bar bars, each resizable with per-idiom cap insets, and the mini-dot grid format.
 static NSString *const kMusicBarNames[] = {

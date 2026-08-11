@@ -52,19 +52,19 @@ static NSString *const kAllGenreName = @"すべて";
 static NSString *const kTemporaryGenreName = @"tmp";
 
 // The initial capacity of the genre array.
-enum { kGenreArrayInitialCapacity = 8 };
+static const int kGenreArrayInitialCapacity = 8;
 
 // The initial capacity of the pack-info cache.
-enum { kPackInfoDictInitialCapacity = 128 };
+static const int kPackInfoDictInitialCapacity = 128;
 
 // The number of packs requested per catalogue page.
-enum { kPackFetchPageSize = 24 };
+static const int kPackFetchPageSize = 24;
 
 // The two-character promotion prefix stripped before parsing a pack identifier.
-enum { kPromotionPrefixLength = 2 };
+static const int kPromotionPrefixLength = 2;
 
 // The purchase-limit type indicating a subscription that must not be reset.
-enum { kPurchaseLimitTypeSubscription = 3 };
+static const int kPurchaseLimitTypeSubscription = 3;
 
 // The App Store country recorded from the most recent product's price locale. A process-wide
 // cache shared across every controller instance, matching the binary's file-scope global.

@@ -1,10 +1,10 @@
 #import "StorePackListGenre.h"
 
 // The initial capacity of the accumulated pack-identifier array.
-enum { kPackInfoInitialCapacity = 20 };
+static const int kPackInfoInitialCapacity = 20;
 
 // The number of slash-separated components a valid colour string carries.
-enum { kColorComponentCount = 3 };
+static const int kColorComponentCount = 3;
 
 // The divisor turning a 0-255 colour byte into a normalised 0-1 component.
 static const float kColorComponentScale = 255.0f;

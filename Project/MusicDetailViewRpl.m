@@ -152,7 +152,7 @@ static NSString *const kRatingImageNames[] = {@"msc_rate_e_rpl",
 static NSString *const kHighscoreDigitFormat = @"msc_high_score_%d_rpl";
 static NSString *const kLevelNumberFormat = @"lv_%02d_rpl";
 static NSString *const kMiniDotFormat = @"mini_dot_%d_%d_rpl";
-enum { kLevelImageCount = 10 };
+static const int kLevelImageCount = 10;
 
 // The four music-bar bars stretch from resizable images with per-idiom cap insets.
 static NSString *const kMusicBarNames[] = {
@@ -260,7 +260,7 @@ static inline void MusicDetailViewRplSettleScrollPage(MusicDetailViewRpl *self,
 
 // The edit music bar uses the fourth (index 3) bar background image and reads 60 bytes of simple
 // edit data.
-enum { kEditMbarBackgroundImage = 3 };
+static const int kEditMbarBackgroundImage = 3;
 static const NSUInteger kEditMbarDataLength = 60;
 
 // A downloaded edit's author badge, indexed by the userTag field.

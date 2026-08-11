@@ -105,7 +105,7 @@ enum {
 };
 
 // The banner-detail cache sentinel that marks an available banner and short-circuits the request.
-enum { kRecommendWebAPIBannerAvailable = 1 };
+static const int kRecommendWebAPIBannerAvailable = 1;
 
 // Request timeouts, in seconds.
 static const float kRecommendWebAPIShortTimeout = 3.0f;

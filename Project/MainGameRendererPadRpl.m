@@ -1526,7 +1526,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     /** @ghidraAddress 0x292c60 */
     static const int kMusicBarRatingSpriteBase[] = {0x57, 0x47, 0x5f, 0x4f};
     static const int kMusicBarCellPitch = 5;
-    enum { kMusicBarCellCount = 0x78 };
+    static const int kMusicBarCellCount = 0x78;
 
     // The one-piece backdrop.
     [self.texFront drawSprite:kMusicBarSpriteBackdrop

@@ -37,7 +37,7 @@ static const NSTimeInterval kBannerFadeDuration = 0.2;
 static const CGFloat kCommentInitialHeightPhone = 200.0; // @ghidraAddress 0x28f400
 
 // The heading reports its own height with this much added below.
-enum { kHeadingBottomPadding = 12 };
+static const int kHeadingBottomPadding = 12;
 
 @implementation StoreGenreTitleView {
     BOOL isPad;

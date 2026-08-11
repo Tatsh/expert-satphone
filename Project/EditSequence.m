@@ -7,7 +7,7 @@
 
 // The maximum number of working events and clipboard events; the malloc'd arrays hold 2000 records
 // of 20 bytes each (40000 bytes).
-enum { kEditSequenceMaxEvents = 2000 };
+static const int kEditSequenceMaxEvents = 2000;
 static const size_t kEditSequenceEventArrayByteCount = 40000;
 
 // The event kinds packed into a SequenceEvent's low byte, matching Sequence's disc format.

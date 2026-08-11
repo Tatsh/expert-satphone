@@ -58,7 +58,7 @@ enum {
 };
 
 // The game area top on the four-inch phone, added to buttonMarginForScreen40.
-enum { kFourInchGameTop = 0xa0 };
+static const int kFourInchGameTop = 0xa0;
 
 // The default (non-four-inch) game-area offset, 160 points. @ghidraAddress 0x28f438
 static const double kGameAreaOffsetDefault = 160.0;
@@ -79,7 +79,7 @@ static const float kUpperBGKnitPulseHeight = 15.0f;    // fmov 0x41700000
 static const float kUpperBGKnitBaselineDefault = 110.0f;
 
 // The four-inch resting-baseline bias added to (upperBgHeight40 / 3).
-enum { kFourInchBaselineBias = 0x6e };
+static const int kFourInchBaselineBias = 0x6e;
 
 // The replay-swap animation duration, 0.3 seconds. @ghidraAddress 0x28f260
 static const double kReplayFadeDuration = 0.3;
@@ -132,14 +132,14 @@ enum {
 
 // The ranks that carry a rating overlay blitted into the result-background atlas (sprite 0). A rank
 // of 8 or more loads only the base texture.
-enum { kRatingRankCount = 8 };
+static const int kRatingRankCount = 8;
 
 // The debug-font glyph advance and newline drop, in points.
 static const double kDebugGlyphAdvance = 12.0;
 
 static const double kDebugLineHeight = 20.0;
 
-enum { kDebugMaxGlyphs = 0x200 };
+static const int kDebugMaxGlyphs = 0x200;
 
 // The button-highlight sprite x-nudge (40 points) for the pressed overlay.
 static const double kButtonHighlightNudge = 40.0; // @ghidraAddress 0x28f1f8
@@ -188,12 +188,12 @@ enum {
 };
 
 // The knit renderer builds six stacked wave layers, all sharing one sprite table.
-enum { kWaveTextureCount = 6 };
+static const int kWaveTextureCount = 6;
 
 // The user-default the knit colour theme is read from, clamped to the four packaged variants.
 static NSString *const kPrefColorKnitKey = @"PrefColorKnit";
 
-enum { kPrefColorKnitMax = 3 };
+static const int kPrefColorKnitMax = 3;
 
 // Beat-background atlas sprite indices for the two packaged theme layers.
 enum {
@@ -1903,7 +1903,7 @@ drawDigits:
     static const double kGoRightX = 244.0;                      // @ghidraAddress 0x28fab0
     static const NSString *const kSeReady = @"SD_KNT_CV_READY"; // @ghidraAddress 0x2df840
     static const NSUInteger kProbeSprite = 0;
-    enum { kReadyGlyphCount = 5 };
+    static const int kReadyGlyphCount = 5;
 
     // The READY line's Y and the GO line's Y both shift down by the four-inch game-area margin.
     int readyY;
@@ -2118,7 +2118,7 @@ drawDigits:
     static const float kMusicBarPlayHeadX = 36.0f;      // @ghidraAddress 0x28f53c
     static const double kMusicBarPlayHeadY = 130.0;     // @ghidraAddress 0x28fa38
     static const NSUInteger kMusicBarSpritePlayHead = 0x14;
-    enum { kMusicBarCellCount = 0x78 };
+    static const int kMusicBarCellCount = 0x78;
 
     float a = (float)alpha;
 

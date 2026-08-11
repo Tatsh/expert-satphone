@@ -39,7 +39,7 @@ enum {
 };
 
 // The renderer sub-state sentinel that gates the state transitions in -loop:.
-enum { kRendererSubStateReady = 10 };
+static const int kRendererSubStateReady = 10;
 
 // The alert tags echoed back through -alertSelect:.
 enum {
@@ -50,7 +50,7 @@ enum {
 };
 
 // The alert button-message value that marks the positive (OK) button in -alertSelect:.
-enum { kAlertButtonOK = 1 };
+static const int kAlertButtonOK = 1;
 
 // The grid-division types selectable from the grid popover, indexed by button position.
 static const int kGridDivideTypes[] = {1, 2, 4, 8, 3, 6, 15};
@@ -59,7 +59,7 @@ static const int kGridDivideTypes[] = {1, 2, 4, 8, 3, 6, 15};
 enum { kTemplateSlotCount = 4 };
 
 // The free-grid division type, which also forces the renderer's divide to 1.
-enum { kGridDivideFree = 15 };
+static const int kGridDivideFree = 15;
 
 // The number of 4x4 panels tested for touches each frame.
 enum { kPanelCount = 16 };
@@ -166,13 +166,13 @@ static const double kMusicOverrunStep = 1.0 / 30.0;
 static const double kMusicOverrunBack = -0.09;
 
 // The clap-window sector span: a clap fires once the sequence has advanced eight sectors past it.
-enum { kClapWindowSectors = 8 };
+static const int kClapWindowSectors = 8;
 
 // The undo/redo history-depth threshold above which an edit forces an auto-save.
-enum { kHistoryAutoSaveThreshold = 10 };
+static const int kHistoryAutoSaveThreshold = 10;
 
 // The auto-save counter threshold: every ninth non-forced edit triggers a save.
-enum { kAutoSaveCounterLimit = 8 };
+static const int kAutoSaveCounterLimit = 8;
 
 // The phone-idiom 4x4 button-hit geometry: an 80pt grid pitch offset 160pt down the view.
 static const float kPhoneButtonPitch = 80.0f;
@@ -192,14 +192,14 @@ static const double kPadButtonOffsetY = 256.0;
 static const double kPadButtonSize = 176.0;
 
 // The paste-button horizontal nudge and its off-screen hidden position.
-enum { kPasteButtonNudge = 12 };
+static const int kPasteButtonNudge = 12;
 static const double kPasteButtonHiddenX = -100.0;
 
 // The timeline seek-column geometry: an initial 0xc0 span refined by a 0x100 window over passes.
 enum { kSeekInitialSpan = 0xc0, kSeekInitialWindow = 0x100 };
 
 // The number of binary-search refinement passes the timeline seek runs (counting 0 down to -4).
-enum { kSeekRefinementPasses = 5 };
+static const int kSeekRefinementPasses = 5;
 
 // The paste-button on-screen visibility band around the view's timeline area.
 static const double kPasteVisibleMargin = 100.0;

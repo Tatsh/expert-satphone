@@ -118,10 +118,10 @@ static const double kAutoSwitchSizePad = 200.0;   // @ghidraAddress 0x28e0a8
 static const NSUInteger kMusicArchiveTailLength = 16;
 
 // The PrefEditSelect value that selects a custom (editor) chart.
-enum { kEditSelectCustom = 1 };
+static const int kEditSelectCustom = 1;
 
 // The number of taps that toggles auto-play on the catcher overlay.
-enum { kTapCountAutoSwitch = 2 };
+static const int kTapCountAutoSwitch = 2;
 
 // The chart-archive member names uncompressed from the KUnzip container.
 static NSString *const kArchiveMarkerMember = @"marker";
@@ -191,7 +191,7 @@ enum {
 };
 
 // The alert-type values passed as the first makeAlert: argument.
-enum { kAlertTypePlain = 0 };
+static const int kAlertTypePlain = 0;
 
 // The end-play confirmation alert strings shown in challenge mode.
 static NSString *const kEndAlertTitle =
@@ -230,7 +230,7 @@ static NSString *const kImageSearchKnt = @"result_jbt_knt"; // @ghidraAddress 0x
 static NSString *const kImageSearchDefault = @"result_jbt"; // @ghidraAddress 0x2d4fe0
 
 // The number of trailing characters dropped from an edit file name to derive its sequence id.
-enum { kEditFileNameSuffixLength = 4 };
+static const int kEditFileNameSuffixLength = 4;
 
 // The good-job label's animation transform scales and per-idiom vertical offsets, in points.
 static const double kGoodJobTxtInitialScale = 0.8;   // @ghidraAddress 0x28e060
@@ -377,7 +377,7 @@ static const double kSectorFramesPerSecond = 30.0; // An fmov immediate.
 static const double kSectorSubdivision = 10.0;     // An fmov immediate.
 
 // The 4x4 panel grid geometry.
-enum { kPanelColumns = 4 };
+static const int kPanelColumns = 4;
 
 // The per-idiom panel metrics, in pixels: the square panel edge and the top offset to the first
 // panel row.
@@ -411,7 +411,7 @@ static const double kHitTestPadSide = 176.0;       // @ghidraAddress 0x28e038
 
 // The phone-idiom panel hit-test grid: 0x50 (80pt) panels widened by the button-touch width; the
 // row origin adds 160pt and the rect side is 2*touchWidth + 80pt.
-enum { kHitTestPhonePanelPitch = 0x50 };
+static const int kHitTestPhonePanelPitch = 0x50;
 static const float kHitTestPhoneRowOriginY = 160.0; // @ghidraAddress 0x28e014
 static const float kHitTestPhoneSideBase = 80.0;    // @ghidraAddress 0x28e018
 
@@ -419,7 +419,7 @@ static const float kHitTestPhoneSideBase = 80.0;    // @ghidraAddress 0x28e018
 static const double kPlaybackCatchupStep = 0.03333333333333333; // @ghidraAddress 0x28e048
 
 // The renderer sub-state that gates each play-state transition in -loop:.
-enum { kRendererSubStateReady = 10 };
+static const int kRendererSubStateReady = 10;
 
 // The result-screen fade-out cover alpha (half-transparent black).
 static const double kResultCoverAlpha = 0.5; // An fmov immediate (0x3fe0000000000000).
@@ -432,11 +432,11 @@ enum {
 };
 
 // The fps sample window: fps is recomputed every 8 frames as 8 / elapsed seconds.
-enum { kFpsSampleFrameMask = 7 };
+static const int kFpsSampleFrameMask = 7;
 static const double kFpsSampleFrameCount = 8.0;
 
 // The 4x4 panel grid column count and mask for the hit-test loop.
-enum { kHitTestColumnMask = 3 };
+static const int kHitTestColumnMask = 3;
 
 // The end-of-play score-submission dictionary keys and difficulty labels.
 static NSString *const kScoreJsonTargetKey = @"target";         // @ghidraAddress 0x2d4ca0
@@ -461,7 +461,7 @@ static NSString *const kGoodJobSoundFormat = @"SD_EEFMN_0%d"; // @ghidraAddress 
 static const double kResultOverlayFadeDuration = 0.2; // @ghidraAddress 0x28e040
 
 // The edit-score upload Downloader tag.
-enum { kScoreUploaderTag = 1 };
+static const int kScoreUploaderTag = 1;
 
 // The result-screen "decide" menu sound-effect base name.
 static NSString *const kDecideSoundName = @"OK"; // @ghidraAddress 0x2d4d80
@@ -473,7 +473,7 @@ static NSString *const kTweetURL =
     @"https://itunes.apple.com/jp/app/jubeat-plus/id395192484"; // @ghidraAddress 0x2d4e00
 
 // The number of good-job sound-effect variants selected at random.
-enum { kGoodJobSoundVariantCount = 5 };
+static const int kGoodJobSoundVariantCount = 5;
 
 // The JCF-download preference and its post-play default in extreme difficulty.
 static NSString *const kPrefJcfDownloadSelect = @"PrefJcfDownloadSelect";

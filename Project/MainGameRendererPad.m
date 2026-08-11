@@ -1545,7 +1545,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     // Indexed by the per-cell 2-bit grade (XOR 2) to pick the graded note-marker sprite base.
     static const int kMusicBarRatingSpriteBase[] = {0x5e, 0x4e, 0x66, 0x56};
     static const int kMusicBarCellPitch = 5;
-    enum { kMusicBarCellCount = 0x78 };
+    static const int kMusicBarCellCount = 0x78;
 
     // The three-piece bar backdrop: left cap, stretched middle strip, right cap.
     [self.texFront drawSprite:kMusicBarSpriteLeftCap

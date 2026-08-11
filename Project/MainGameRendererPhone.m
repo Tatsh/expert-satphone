@@ -87,7 +87,7 @@ static const double kReplayFadeDuration = 0.3;
 static NSString *const kReplayChipResource = @"game_start_mark_pn2";
 
 // The music-bar cell count and the fade window that keeps the cursor's own cell dim.
-enum { kMusicBarCellCount = 0x78 };
+static const int kMusicBarCellCount = 0x78;
 static const float kMusicBarCellFadeEnd = 1.2999999523162842f; // @ghidraAddress 0x292558
 
 // The music-bar per-grade base sprite indices, indexed by the two-bit grade (xor 2). Read from
@@ -120,7 +120,7 @@ static const float kResultBonusFadeStep = -0.07999999821186066f; // @ghidraAddre
 // The cleared/failed animation's vertical centre (140 points).
 static const double kResultClearCentreY = 140.0; // @ghidraAddress 0x28f6a8
 // The clear threshold: 700,000 points separates cleared from failed.
-enum { kResultClearThreshold = 700000 };
+static const int kResultClearThreshold = 700000;
 // The result-state new-record and rating chip layout constants.
 static const double kResultRatingX = 88.0;   // @ghidraAddress 0x292400
 static const double kResultRatingX2 = 168.0; // @ghidraAddress 0x292710
@@ -182,7 +182,7 @@ static const float kBgMeasureScale = 160.0f; // @ghidraAddress 0x28e014
 // The combo-word chip top: 378 points on the non-four-inch phone, and a +0x17a offset on the
 // four-inch phone.
 static const double kComboWordTop = 378.0; // @ghidraAddress 0x2926e0
-enum { kComboWordTop4Inch = 0x17a };
+static const int kComboWordTop4Inch = 0x17a;
 
 // The combo digit x-layout tables, indexed by digit count minus one (1..3 digits). Read from
 // 0x2928d0 (step) and 0x2928f0 (base).
@@ -196,7 +196,7 @@ enum {
 };
 
 // Ranks 0..8 have rating overlays; rank >= 9 loads only the base rating texture.
-enum { kRatingRankCount = 9 };
+static const int kRatingRankCount = 9;
 
 // The square texel dimension of each atlas texture.
 enum {

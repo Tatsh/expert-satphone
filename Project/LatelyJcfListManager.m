@@ -1,7 +1,7 @@
 #import "LatelyJcfListManager.h"
 
 // How many owners the list holds before it starts evicting.
-enum { kMaxOwners = 20 };
+static const int kMaxOwners = 20;
 
 // Each entry is a two-element array rather than a dictionary or a model object.
 enum {

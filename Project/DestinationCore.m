@@ -14,7 +14,7 @@ static NSString *const kRegistPath = @"/destination/regist.php";
 static NSString *const kHTTPMethodGet = @"GET";
 
 // The dictionary is built at exactly the three entries it takes.
-enum { kParameterCount = 3 };
+static const int kParameterCount = 3;
 
 static const float kRequestTimeout = 10.0f;
 

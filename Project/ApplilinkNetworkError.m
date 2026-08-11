@@ -8,7 +8,7 @@ NSErrorDomain const ApplilinkErrorDomain = @"ApplilinkErrorDomain"; // @ghidraAd
 static NSString *const kApplilinkErrorStringsTable = @"Error";
 
 // The code every unmapped code falls back to.
-enum { kApplilinkErrorCodeUnexpected = 1000 };
+static const int kApplilinkErrorCodeUnexpected = 1000;
 
 // One row of the message table: the applilink error code, the reward bundle's localisation key, and
 // the built-in English fallback, used both as the localisation default and when the bundle is

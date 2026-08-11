@@ -1744,7 +1744,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     // The per-bar grade-colour sprite bases, indexed by the two-bit grade (xor 2). @0x2930f0
     static const int kGradeSpriteBase[] = {0x6a, 0x5a, 0x72, 0x62};
     static const int kCellPitch = 2;
-    enum { kCellCount = 0x78 };
+    static const int kCellCount = 0x78;
 
     [self.texFront drawSprite:kBackdropSprite
                       atPoint:CGPointMake(pos.x, pos.y)

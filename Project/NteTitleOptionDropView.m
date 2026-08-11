@@ -5,7 +5,7 @@
 #import "ImageLoading.h"
 
 // The only move type the class distinguishes. Anything else takes the other arm everywhere.
-enum { kMoveTypeRight = 1 };
+static const int kMoveTypeRight = 1;
 
 // The artwork is one of title_anime_2, _3 or _4, picked afresh on every construction.
 static NSString *const kArtworkNameFormat = @"title_anime_%d";

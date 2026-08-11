@@ -50,7 +50,7 @@ enum {
 };
 
 // The music-bar cell count.
-enum { kMusicBarCellCount = 0x78 };
+static const int kMusicBarCellCount = 0x78;
 
 // The fade window, in cell units, that keeps the cursor's own cell dim.
 static const float kMusicBarCellFadeStart = 0.30000001192092896f; // @ghidraAddress 0x10028e0b0

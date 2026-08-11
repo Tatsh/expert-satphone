@@ -72,10 +72,10 @@ enum {
 };
 
 // The maximum acceptable score; scoreUpdate: ignores anything at or above it.
-enum { kEditDataMaxScore = 0xf4241 };
+static const int kEditDataMaxScore = 0xf4241;
 
 // The random tag characters span this many letters starting at 'A'.
-enum { kEditDataTagLetterSpan = 25 };
+static const int kEditDataTagLetterSpan = 25;
 
 // The editor-name application-defaults key and the default field values, from __const.
 static NSString *const kPrefEditorNameKey = @"PrefEditorName";

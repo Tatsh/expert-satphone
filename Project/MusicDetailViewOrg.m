@@ -67,7 +67,7 @@ static const int kRandViewSlideOffset = 10;
 static const NSTimeInterval kRandViewToggleDuration = 0.3; // @ghidraAddress 0x28f260
 
 // The three selectable difficulty buttons (a fourth extend slot follows).
-enum { kDiffButtonCount = 3 };
+static const int kDiffButtonCount = 3;
 
 // Entering edit shrinks the difficulty buttons to this scale over this duration, and input stays
 // locked for a slightly longer beat.
@@ -310,7 +310,7 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self,
 
 // The edit music bar uses the fourth (index 3) bar background image and reads 60 bytes of simple
 // edit data.
-enum { kEditMbarBackgroundImage = 3 };
+static const int kEditMbarBackgroundImage = 3;
 static const NSUInteger kEditMbarDataLength = 60;
 
 // A downloaded edit's author badge, indexed by the userTag field.

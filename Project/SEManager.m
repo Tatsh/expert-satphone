@@ -1,7 +1,7 @@
 #import "SEManager.h"
 
 // How many players the set is built for.
-enum { kPlayingSetCapacity = 32 };
+static const int kPlayingSetCapacity = 32;
 
 @implementation SEManager {
     NSMutableSet *playingSEs;

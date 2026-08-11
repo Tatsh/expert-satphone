@@ -64,10 +64,10 @@ static const double kWavePlugThreshold = M_PI_4 / 2.0; // 0.39269908...
 
 // The concierge hit-test padding: the rect is inset by ten points and offset back by the logo
 // view's origin (structural, from getConciergeRect at 0x1d03ac).
-enum { kConciergeInset = 10 };
+static const int kConciergeInset = 10;
 
 // The tap-count ceiling. tapCnt saturates at 255 (0xff).
-enum { kTapCountMax = 255 };
+static const int kTapCountMax = 255;
 
 // The Konami-code / Hinabita state-machine terminal values. The swipe/tap sequence walks kcState
 // up through these; hnState mirrors it for the tap-driven confirm.
@@ -78,13 +78,13 @@ enum {
 };
 
 // The concierge shake-recovery frame count seeded on a wave tap (structural).
-enum { kConciergeShakeUpFrames = 8 };
+static const int kConciergeShakeUpFrames = 8;
 
 // The falling option-drop diameter per idiom, in points (from addOptionDrop at 0x1d04e4).
 enum { kOptionDropSizePad = 0x96, kOptionDropSizePhone = 0x4b };
 
 // The GL display link runs at half the screen refresh (frame interval 2).
-enum { kDisplayLinkFrameInterval = 2 };
+static const int kDisplayLinkFrameInterval = 2;
 
 // The number of swipe recognisers installed (up, down, left, right).
 enum { kSwipeRecognizerCount = 4 };
