@@ -2,6 +2,7 @@
 
 #import "EditorIDManager.h"
 #import "TweetResourceManager.h"
+#import "cipher_keys.h"
 
 // The tweet-resource store's install-count setter, and the resource-data cipher key. Not declared
 // on the reconstructed TweetResourceManager header / not reconstructed yet, so forward-declared.
@@ -17,8 +18,6 @@
 - (BOOL)decipher:(nullable NSMutableData *)data;
 - (BOOL)encipher:(nullable NSMutableData *)data;
 @end
-
-extern NSData *_Nullable CreateResourceDataCipherKey(void);
 
 // The Konami "agx" host and CGI path every endpoint is built from.
 static NSString *const kHost = @"agx.s.konaminet.jp";

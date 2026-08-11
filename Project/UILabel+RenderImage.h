@@ -4,8 +4,8 @@
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The runtime metadata attributes @c renderImage to
  * @c UILabel; the renderers message it on their partner-name labels to rasterise them into an
- * atlas. Only the declaration is reconstructed here: the implementation is supplied outside this
- * tree (a shared category), so this header exists to type the message sends faithfully.
+ * atlas. Its real IMP is at 0x1255c4 (Ghidra left it unrecognised as an ObjC method because every
+ * caller dispatches through the @c objc_msgSend thunk at 0x391013).
  */
 
 #import <UIKit/UIKit.h>
@@ -18,9 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UILabel (RenderImage)
 
 /**
- * @brief Rasterises the label's layer into a @c UIImage at the label's bounds and scale.
- * @return The rendered image, or @c nil if the label has no drawable bounds.
- * @ghidraAddress 0x391013
+ * @brief Rasterises the view's layer into a @c UIImage sized to its frame, at 1.0 scale.
+ * @return The rendered image.
+ * @ghidraAddress 0x1255c4
  */
 - (nullable UIImage *)renderImage;
 

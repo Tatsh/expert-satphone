@@ -7,6 +7,7 @@
 
 #import "BFCodec.h"
 #import "TextureLoading.h"
+#import "cipher_keys.h"
 
 // The only extension the PNG loader handles, from the CFString at 0x2d8620.
 static NSString *const kPngExtension = @"png";

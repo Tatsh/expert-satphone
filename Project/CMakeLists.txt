@@ -62,6 +62,7 @@ target_sources(jubeat PRIVATE
     ChallengeMissionReward.m
     ChallengeMissionSheet.m
     ChallengeMissionSheetCell.m
+    ChallengeMissionSheetView.m
     ChallengeMissionTerms.m
     ChallengeModeRootView.m
     ChallengeNameSettingView.m
@@ -318,6 +319,7 @@ target_sources(jubeat PRIVATE
     TitleViewControllerRpl.m
     TuneInfo.m
     TweetResourceManager.m
+    UILabel+RenderImage.m
     UnsealDrawController.m
     UnsealViewController.m
     UnselectableTextView.m
@@ -341,6 +343,7 @@ target_sources(jubeat PRIVATE
     note_timing_grade.c
     packed_bit_table.c
     sprite_vertex.cpp
+    unzip.c
     AdjustTestView.h
     AlertViewManager.h
     AnalysisNetwork.h
@@ -683,6 +686,7 @@ target_sources(jubeat PRIVATE
     nullptr_compat.h
     packed_bit_table.h
     sprite_vertex.h
+    unzip.h
 )
 
 target_include_directories(jubeat PRIVATE .)

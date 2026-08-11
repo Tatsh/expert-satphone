@@ -83,6 +83,13 @@ NSData *CreateLabUrlCipherKey(void);
  */
 NSData *CreateMissionDataCipherKey(void);
 
+/**
+ * @brief The Blowfish key for the challenge-resource (panel) data.
+ * @return The key material, to be handed to @c -[BFCodec cipherInit:] .
+ * @ghidraAddress 0x7fa54
+ */
+NSData *CreateResourceDataCipherKey(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -3,9 +3,7 @@
 #import "BFCodec.h"
 #import "JubeatAppDelegate.h"
 #import "ScratchUtil.h"
-
-// The resource-data cipher key; a free function not reconstructed yet. See TYPES_PENDING.md.
-FOUNDATION_EXTERN NSData *_Nullable CreateResourceDataCipherKey(void);
+#import "cipher_keys.h"
 
 // Marks a file URL as excluded from iCloud backup; a free function not reconstructed yet. See
 // TYPES_PENDING.md.

@@ -36,6 +36,7 @@ autoresizes
 autoresizing
 autoreverses
 badresponse
+badzipfile
 bagde
 basenames
 basesize
@@ -60,6 +61,8 @@ caache
 caeagl
 calcel
 camimg
+casesensitivitydefault
+casesensitivitydefaultvalue
 cbnz
 ccmp
 ccontext
@@ -90,6 +93,7 @@ cosf
 coveragerc
 cplusplus
 cpucores
+crcerror
 crossfade
 crossfades
 crossfading
@@ -275,8 +279,8 @@ manami
 masuda
 math
 matsuo
+maxfilenameinzip
 mbar
-mday
 mdfile
 memcmp
 memcpy
@@ -364,7 +368,6 @@ pendconlist
 pendlist
 persional
 persision
-pglobal
 physmem
 plid
 pnlres
@@ -449,6 +452,8 @@ shohei
 signedness
 sincosf
 sinf
+sizecentraldiritem
+sizeziplocalheader
 skmpledata
 snapcraft
 sourcei
@@ -459,6 +464,8 @@ stdbool
 stdlib
 stmps
 strb
+strcmpcasenosensitive
+strcmpi
 strikethrough
 strncmp
 strnstr
@@ -518,6 +525,7 @@ unretained
 unrotated
 unselectable
 unsuffixed
+unzlocal
 valf
 vararg
 varargs
@@ -529,6 +537,8 @@ verifing
 vermette's
 vers
 voidpf
+vollant
+vollant's
 vtable
 warc
 wblock

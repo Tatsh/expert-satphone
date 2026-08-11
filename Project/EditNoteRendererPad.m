@@ -1,5 +1,7 @@
 #import "EditNoteRendererPad.h"
 
+#include <math.h>
+
 #import "AudioManager.h"
 #import "BFCodec.h"
 #import "EAGLView.h"
@@ -16,9 +18,6 @@
 // the other renderers rather than shared, matching how the binary inlines each pool load.
 static const double g_dPi = 3.141592653589793; // @ghidraAddress 0x28f278
 static const double g_dAnimDuration020 = 0.2;  // @ghidraAddress 0x28f240
-
-// The C standard library sine, imported for the beat pulse.
-extern double sin(double);
 
 // The combo-fade base float pool slot, applied to the fade alpha.
 static const float g_flComboFadeBase = 0.3f; // @ghidraAddress 0x28e0b0
