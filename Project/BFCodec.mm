@@ -65,7 +65,7 @@ static inline void PutBigEndianWord(unsigned char *bytes, uint64_t word) {
     if (!key) {
         return;
     }
-    [self cipherInit:key.bytes length:static_cast<int>(key.length)];
+    [self cipherInit:static_cast<const char *>(key.bytes) length:static_cast<int>(key.length)];
 }
 
 /** @ghidraAddress 0x94aec */
@@ -75,7 +75,7 @@ static inline void PutBigEndianWord(unsigned char *bytes, uint64_t word) {
     unsigned int paddedLength = (plainLength + kBlockLength + kBlockMask) & ~kBlockMask;
     data.length = paddedLength;
 
-    unsigned char *bytes = data.mutableBytes;
+    unsigned char *bytes = static_cast<unsigned char *>(data.mutableBytes);
 
     unsigned int offset = 0;
     if (plainLength != 0) {
@@ -143,7 +143,7 @@ static inline void PutBigEndianWord(unsigned char *bytes, uint64_t word) {
         return NO;
     }
 
-    unsigned char *bytes = data.mutableBytes;
+    unsigned char *bytes = static_cast<unsigned char *>(data.mutableBytes);
 
     if (cipherLength != 0) {
         // The same fixed vector -cipherInit:length: wrote, read back big-endian.
