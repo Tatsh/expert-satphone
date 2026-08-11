@@ -27,7 +27,6 @@ static NSString *const kScratchDifficultyExtreme = @"EXT";
 static NSString *const kScratchDifficultyTotal = @"TOTAL";
 
 @implementation ScratchInfo {
-    int _musicID;                // +0x4
     int myScore[4];              // +0x8
     int myRank[4];               // +0x18
     int myIndex[4];              // +0x28

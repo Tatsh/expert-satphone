@@ -15,6 +15,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface ScratchInfo : NSObject
 
+/** @brief The track's music identifier. */
+@property(nonatomic) int musicID;
+
+/** @brief Whether the scratch card for this track has been opened. */
+@property(nonatomic) BOOL bOpen;
+
 /**
  * @brief Builds the track from a store dictionary, looking its details up in the challenge line-up.
  * @param dictionary The store dictionary (carries @c music_id ).

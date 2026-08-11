@@ -156,7 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param detailView The new overlay to bring to the front.
  * @ghidraAddress 0xa088c
  */
-- (void)pushDetailList:(nullable UIView *)detailView;
+- (void)pushDetailList:(nullable StorePackDetailViewV2 *)detailView;
 
 /**
  * @brief Pops the top pad pack-detail overlay off the stack, sliding the stack back.

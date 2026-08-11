@@ -730,7 +730,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 #pragma mark - Pad detail-window stack
 
 /** @ghidraAddress 0xa088c */
-- (void)pushDetailList:(nullable UIView *)detailView {
+- (void)pushDetailList:(nullable StorePackDetailViewV2 *)detailView {
     NSInteger count = (NSInteger)detailWindowArray.count;
     if (count - 1 < 0) {
         return;
@@ -741,8 +741,8 @@ static const double kNeighbourDriftQuarter = 0.25;
     if (count - 2 >= 0) {
         grandparent = detailWindowArray[count - 2];
     }
-    UIView *topWindow = detailWindowArray[count - 1];
-    __weak UIView *weakTop = topWindow;
+    StorePackDetailViewV2 *topWindow = detailWindowArray[count - 1];
+    __weak StorePackDetailViewV2 *weakTop = topWindow;
     __weak UIView *weakNew = detailView;
 
     // Reset the outgoing front to identity, then park the newcomer off to the right.
@@ -789,10 +789,10 @@ static const double kNeighbourDriftQuarter = 0.25;
     }
     [UIApplication.sharedApplication beginIgnoringInteractionEvents];
 
-    UIView *poppedWindow = detailWindowArray[count - 1];
+    StorePackDetailViewV2 *poppedWindow = detailWindowArray[count - 1];
     __weak UIView *weakPopped = poppedWindow;
     UIView *newTopWindow = detailWindowArray[count - 2];
-    __weak UIView *weakNewTop = newTopWindow;
+    __weak StorePackDetailViewV2 *weakNewTop = newTopWindow;
     UIView *deeperWindow = nil;
     if (count - 3 >= 0) {
         deeperWindow = detailWindowArray[count - 3];

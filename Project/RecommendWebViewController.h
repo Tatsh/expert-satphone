@@ -9,14 +9,9 @@
 
 #import <UIKit/UIKit.h>
 
-NS_ASSUME_NONNULL_BEGIN
+#import "RewardWebViewController.h"
 
-/**
- * @brief The applilink reward web view controller superclass; not reconstructed as its own file
- * yet, so it is forward-declared here as a @c UIViewController subclass. See TYPES_PENDING.md.
- */
-@interface RewardWebViewController : UIViewController
-@end
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief A reward web view controller specialised for applilink recommendation content.
