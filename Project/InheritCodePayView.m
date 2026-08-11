@@ -37,16 +37,16 @@ static NSString *const kCodeTitleText = @"引き継ぎコード";
 static NSString *const kUserIDTitleText = @"あなたのユーザーID";
 
 @implementation InheritCodePayView {
-    UIImageView *bgView;           // +0x08, ivar-offset global 0x349a74
-    UILabel *warnText;             // +0x10, ivar-offset global 0x349a78
-    CopyableUiLabel *codeLabel;    // +0x18, ivar-offset global 0x349a88
-    CopyableUiLabel *codeLabel2;   // +0x20, ivar-offset global 0x349a90
-    UILabel *codeTitle;            // +0x28, ivar-offset global 0x349a84
-    UILabel *codeTitle2;           // +0x30, ivar-offset global 0x349a8c
-    UIView *codeBg;                // +0x38, ivar-offset global 0x349a80
-    UILabel *failedText;           // +0x40, ivar-offset global 0x349a98
-    UIButton *sendBtn;             // +0x48, ivar-offset global 0x349a7c
-    UIViewController *_parentCtrl; // +0x50, ivar-offset global 0x349a94
+    UIImageView *bgView;                  // +0x08, ivar-offset global 0x349a74
+    UILabel *warnText;                    // +0x10, ivar-offset global 0x349a78
+    CopyableUiLabel *codeLabel;           // +0x18, ivar-offset global 0x349a88
+    CopyableUiLabel *codeLabel2;          // +0x20, ivar-offset global 0x349a90
+    UILabel *codeTitle;                   // +0x28, ivar-offset global 0x349a84
+    UILabel *codeTitle2;                  // +0x30, ivar-offset global 0x349a8c
+    UIView *codeBg;                       // +0x38, ivar-offset global 0x349a80
+    UILabel *failedText;                  // +0x40, ivar-offset global 0x349a98
+    UIButton *sendBtn;                    // +0x48, ivar-offset global 0x349a7c
+    __weak UIViewController *_parentCtrl; // +0x50, ivar-offset global 0x349a94
 }
 
 /** @ghidraAddress 0x39714 */

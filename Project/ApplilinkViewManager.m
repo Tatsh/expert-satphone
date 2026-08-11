@@ -2,15 +2,6 @@
 
 #import "ApplilinkParameters.h"
 
-// The SDK-delegate callbacks the manager relays. The receiver is dispatched dynamically after a
-// -respondsToSelector: guard, so the protocol only documents the selectors for the compiler.
-@protocol ApplilinkViewManagerSdkDelegate <NSObject>
-@optional
-- (void)openedNotice;
-- (void)closeNotice:(nullable id)view;
-- (void)viewReady:(nullable id)view;
-@end
-
 // The in-app video player the manager owns; not reconstructed in this tree yet, so it is
 // forward-declared. See TYPES_PENDING.md.
 @interface ApplilinkVideoController : NSObject
@@ -45,6 +36,9 @@ static const char *const kQueueLabel = "ApplilinkViewManager";
     __weak id<ApplilinkViewManagerSdkDelegate> _sdkDelegate; // weak; callbacks are relayed to it
     ApplilinkParameters *_applilinkParams; // strong; the last request's parameters
 }
+
+// The weak sdkDelegate property is backed by the binary's _sdkDelegate ivar.
+@synthesize sdkDelegate = _sdkDelegate;
 
 #pragma mark - Lifecycle
 

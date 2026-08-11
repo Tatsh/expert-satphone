@@ -79,7 +79,7 @@ static NSString *const kRecommendHtmlFileCreateErrorValue = @"html file create e
 // ApplilinkViewDelegate, and SdkViewDelegate protocols. ApplilinkViewDelegate is only
 // forward-declared in the reconstructed tree, so its callbacks are implemented here and dispatched
 // dynamically; ShadeViewDelegate is defined in ShadeView.h and adopted formally.
-@interface RecommendFullScreenController () <ShadeViewDelegate>
+@interface RecommendFullScreenController () <ApplilinkViewManagerSdkDelegate, ShadeViewDelegate>
 
 // The advert base view that hosts the advert area, sized for the current orientation.
 @property(nonatomic, strong, nullable) UIView *baseView;

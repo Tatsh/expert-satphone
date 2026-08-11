@@ -761,7 +761,8 @@ static inline void MainGameRendererPadKntBuildComboTexture(MainGameRendererPadKn
 static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *self,
                                                         RendererConf *conf,
                                                         UIImage *artwork,
-                                                        UIImage *index) {
+                                                        UIImage *index,
+                                                        CGRect *musicBarRect) {
     const char *diffCode = MainGameRendererPadKntDiffCode(conf.diff);
     LoadTextureSubImageFromResource(self.texFront,
                                     [NSString stringWithFormat:@"game_diff_%s_knt", diffCode],
@@ -771,7 +772,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
                                     [self.texFront spriteAtIndex:kFrontSpriteMusicBar].origin);
     // The result-screen music bar keeps a fixed origin but the loaded bar's size.
     CGRect musicBarSprite = [self.texFront spriteAtIndex:kFrontSpriteMusicBar];
-    self->musicBarRect = CGRectMake(
+    *musicBarRect = CGRectMake(
         kMusicBarRectX, kMusicBarRectY, musicBarSprite.size.width, musicBarSprite.size.height);
     LoadTextureSubImageFromResource(self.texFront,
                                     [NSString stringWithFormat:@"game_lv_%d_knt", conf.level],
@@ -953,7 +954,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
     }
     MainGameRendererPadKntBuildHoldMarkerTexture(self, &self->holdMarkerRender, codec, cipherKey);
     MainGameRendererPadKntBuildComboTexture(self, codec, cipherKey);
-    MainGameRendererPadKntCompositeFront(self, conf, artwork, index);
+    MainGameRendererPadKntCompositeFront(self, conf, artwork, index, &self->musicBarRect);
     self.rendererConf = conf;
 }
 

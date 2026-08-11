@@ -13,11 +13,20 @@
 
 #import <UIKit/UIKit.h>
 
-#import "ApplilinkStore.h"
-
 @class ApplilinkParameters;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * @brief The SDK-delegate callbacks the manager relays. The receiver is dispatched dynamically
+ * after a @c -respondsToSelector: guard, so the protocol only documents the selectors.
+ */
+@protocol ApplilinkViewManagerSdkDelegate <NSObject>
+@optional
+- (void)openedNotice;
+- (void)closeNotice:(nullable id)view;
+- (void)viewReady:(nullable id)view;
+@end
 
 /**
  * @brief The Applilink in-app video-player host singleton.
@@ -28,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief The SDK delegate that opened-notice and close-notice callbacks are relayed to.
  * @ghidraAddress 0x2486e4
  */
-@property(weak, nonatomic, nullable) id<SdkViewDelegate> sdkDelegate;
+@property(weak, nonatomic, nullable) id<ApplilinkViewManagerSdkDelegate> sdkDelegate;
 
 /**
  * @brief The shared instance, creating the private serial queue on first use.

@@ -14,19 +14,19 @@ NSData *CreateMd5DataFromCString(const char *lpcszInput);
 NSString *CreateRandomString(int length);
 
 @implementation PurchaseManager {
-    int purchaseCnt;                             // offset global 0x34a4b4
-    NSMutableArray *purchasedProducts;           // offset global 0x34a4b8
-    NSMutableDictionary *pendingReceipts;        // offset global 0x34a4bc
-    BOOL bConsume;                               // offset global 0x34a4c0
-    NSString *purchasingID;                      // offset global 0x34a4c4
-    NSNumber *purchasingPrice;                   // offset global 0x34a4c8
-    NSString *verifingID;                        // offset global 0x34a4cc
-    NSNumber *verifingPrice;                     // offset global 0x34a4d0
-    NSMutableDictionary *restoringReceipts;      // offset global 0x34a4d4
-    NSMutableData *verifyData;                   // offset global 0x34a4d8
-    NSArray *verifingIDs;                        // offset global 0x34a4dc
-    NSMutableDictionary *pendingConsumeReceipts; // offset global 0x34a4e4
-    id _delegate;                                // offset global 0x34a4e8
+    int purchaseCnt;                              // offset global 0x34a4b4
+    NSMutableArray *purchasedProducts;            // offset global 0x34a4b8
+    NSMutableDictionary *pendingReceipts;         // offset global 0x34a4bc
+    BOOL bConsume;                                // offset global 0x34a4c0
+    NSString *purchasingID;                       // offset global 0x34a4c4
+    NSNumber *purchasingPrice;                    // offset global 0x34a4c8
+    NSString *verifingID;                         // offset global 0x34a4cc
+    NSNumber *verifingPrice;                      // offset global 0x34a4d0
+    NSMutableDictionary *restoringReceipts;       // offset global 0x34a4d4
+    NSMutableData *verifyData;                    // offset global 0x34a4d8
+    NSArray *verifingIDs;                         // offset global 0x34a4dc
+    NSMutableDictionary *pendingConsumeReceipts;  // offset global 0x34a4e4
+    __weak id<PurchaseManagerDelegate> _delegate; // offset global 0x34a4e8
 }
 
 /** @ghidraAddress 0xb5068 */
