@@ -2549,7 +2549,9 @@ drawDigits:
                                        /** @ghidraAddress 0x19310c */
                                        weakGoodJob.alpha = goodJobAlpha;
                                      }
-                                     completion:nil];
+                                     completion:^(BOOL finished){
+                                         /** @ghidraAddress 0x193160 */
+                                     }];
                 }
             }
             [self.texFront drawSprite:kResultVoteSprite
@@ -2565,7 +2567,9 @@ drawDigits:
                                /** @ghidraAddress 0x193164 */
                                weakGoodJob.alpha = goodJobAlpha;
                              }
-                             completion:nil];
+                             completion:^(BOOL finished){
+                                 /** @ghidraAddress 0x1931b8 */
+                             }];
         }
         if (self.isSession && !self.hasMusic && self.goodJobImage != nil) {
             __weak UIImageView *weakGoodJob = self.goodJobImage;
@@ -2575,7 +2579,9 @@ drawDigits:
                                /** @ghidraAddress 0x1931bc */
                                weakGoodJob.alpha = goodJobAlpha;
                              }
-                             completion:nil];
+                             completion:^(BOOL finished){
+                                 /** @ghidraAddress 0x193210 */
+                             }];
         }
     }
     if (frame == 0) {

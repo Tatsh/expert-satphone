@@ -1168,7 +1168,9 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
                                        /** @ghidraAddress 0x20663c */
                                        weakGoodJob.alpha = goodJobAlpha;
                                      }
-                                     completion:nil];
+                                     completion:^(BOOL finished){
+                                         /** @ghidraAddress 0x206690 */
+                                     }];
                 }
             }
             [self.texFront drawSprite:kResultVoteSprite
@@ -1184,7 +1186,9 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
                                /** @ghidraAddress 0x206694 */
                                weakGoodJob.alpha = goodJobAlpha;
                              }
-                             completion:nil];
+                             completion:^(BOOL finished){
+                                 /** @ghidraAddress 0x2066e8 */
+                             }];
         }
         if (self.isSession && !self.hasMusic && self.goodJobImage != nil) {
             __weak UIImageView *weakGoodJob = self.goodJobImage;
@@ -1194,7 +1198,9 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
                                /** @ghidraAddress 0x2066ec */
                                weakGoodJob.alpha = goodJobAlpha;
                              }
-                             completion:nil];
+                             completion:^(BOOL finished){
+                                 /** @ghidraAddress 0x206740 */
+                             }];
         }
     }
     [self renderButtons];

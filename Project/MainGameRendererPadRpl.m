@@ -2684,7 +2684,9 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                        /** @ghidraAddress 0x121488 */
                                        [goodJob setAlpha:(double)alphaMax];
                                      }
-                                     completion:nil];
+                                     completion:^(BOOL finished){
+                                         /** @ghidraAddress 0x1214dc */
+                                     }];
                 }
             }
             [self.texFront drawSprite:kGoodJobGlyphSprite
@@ -2701,7 +2703,9 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                /** @ghidraAddress 0x1214e0 */
                                [goodJob setAlpha:(double)alphaMax];
                              }
-                             completion:nil];
+                             completion:^(BOOL finished){
+                                 /** @ghidraAddress 0x121534 */
+                             }];
         }
 
         if (self.isSession && !self.hasMusic && self.goodJobImage) {
@@ -2712,7 +2716,9 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                /** @ghidraAddress 0x121538 */
                                [goodJob setAlpha:(double)alphaMax];
                              }
-                             completion:nil];
+                             completion:^(BOOL finished){
+                                 /** @ghidraAddress 0x12158c */
+                             }];
         }
     }
 

@@ -2039,7 +2039,9 @@ MainGameRendererPhoneRenderResultCurtain(MainGameRendererPhone *self, double sli
                                        /** @ghidraAddress 0x110ed4 */
                                        overlay.alpha = alphaMax;
                                      }
-                                     completion:nil];
+                                     completion:^(BOOL finished){
+                                         /** @ghidraAddress 0x110f28 */
+                                     }];
                 }
             }
             int voteTop = is4Inch ? self.buttonMarginForScreen40 : 0;
@@ -2059,7 +2061,9 @@ MainGameRendererPhoneRenderResultCurtain(MainGameRendererPhone *self, double sli
                                /** @ghidraAddress 0x110f2c */
                                overlay.alpha = alphaMax;
                              }
-                             completion:nil];
+                             completion:^(BOOL finished){
+                                 /** @ghidraAddress 0x110f80 */
+                             }];
         }
         // A session tune without music likewise fades the overlay in.
         if (self.isSession && !self.hasMusic && self.goodJobImage) {
@@ -2070,7 +2074,9 @@ MainGameRendererPhoneRenderResultCurtain(MainGameRendererPhone *self, double sli
                                /** @ghidraAddress 0x110f84 */
                                overlay.alpha = alphaMax;
                              }
-                             completion:nil];
+                             completion:^(BOOL finished){
+                                 /** @ghidraAddress 0x110fd8 */
+                             }];
         }
     }
     double buttonsY =

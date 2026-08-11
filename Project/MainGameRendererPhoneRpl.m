@@ -2961,7 +2961,9 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                                        /** @ghidraAddress 0x151950 */
                                        goodJob.alpha = alphaMax;
                                      }
-                                     completion:nil];
+                                     completion:^(BOOL finished){
+                                         /** @ghidraAddress 0x1519a4 */
+                                     }];
                 }
             }
             double voteY = is4Inch ? ((double)(gameTop + 0x196) + 1.0) : kVoteGlyphXDefault;
@@ -2979,7 +2981,9 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                                /** @ghidraAddress 0x1519a8 */
                                goodJob.alpha = alphaMax;
                              }
-                             completion:nil];
+                             completion:^(BOOL finished){
+                                 /** @ghidraAddress 0x1519fc */
+                             }];
         }
 
         if (self.isSession && !self.hasMusic && self.goodJobImage) {
@@ -2990,7 +2994,9 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                                /** @ghidraAddress 0x151a00 */
                                goodJob.alpha = alphaMax;
                              }
-                             completion:nil];
+                             completion:^(BOOL finished){
+                                 /** @ghidraAddress 0x151a54 */
+                             }];
         }
     }
 
