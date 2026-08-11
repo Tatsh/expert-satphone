@@ -18,6 +18,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** @brief The track's music identifier. */
 @property(nonatomic) int musicID;
 
+/**
+ * @brief The identifier of the pack this track belongs to.
+ * @ghidraAddress 0x1cab20
+ */
+@property(nonatomic) NSInteger packID;
+
 /** @brief Whether the scratch card for this track has been opened. */
 @property(nonatomic) BOOL bOpen;
 

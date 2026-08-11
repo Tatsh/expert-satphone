@@ -356,14 +356,15 @@ static NSString *const kShareMusicInfoIndexKey = @"index";
 // Closing the detail view fades the BGM out over this, flips the cover shut over this longer
 // duration, restores the rank backgrounds after this delay and then the name and artist labels,
 // and unlocks interaction after this final delay.
-static const CGFloat kDetailCloseBgmFadeOut = 0.45;           // @ghidraAddress 0x28f280
-static const NSTimeInterval kDetailCloseFlipDuration = 0.6;   // @ghidraAddress 0x28f288
-static const NSTimeInterval kDetailCloseRankBgDuration = 0.1; // @ghidraAddress 0x28f290
-static const NSTimeInterval kDetailCloseRankBgDelay = 0.7;    // @ghidraAddress 0x28f2a0
-static const NSTimeInterval kDetailCloseLabelDuration = 0.3;  // @ghidraAddress 0x28f260
-static const NSTimeInterval kDetailCloseLabelDelay = 0.3;     // @ghidraAddress 0x28f260
-static const NSTimeInterval kDetailCloseUnlockDelay = 0.8;    // @ghidraAddress 0x28e060
-static const NSTimeInterval kDetailCloseBgmRestartFade = 0.2; // @ghidraAddress 0x28e040
+static const CGFloat kDetailCloseBgmFadeOut = 0.45;            // @ghidraAddress 0x28f280
+static const NSTimeInterval kDetailCloseFlipDuration = 0.6;    // @ghidraAddress 0x28f288
+static const NSTimeInterval kDetailCloseRankBgDuration = 0.1;  // @ghidraAddress 0x28f290
+static const NSTimeInterval kDetailCloseRankBgDelay = 0.7;     // @ghidraAddress 0x28f2a0
+static const NSTimeInterval kDetailCloseLabelDuration = 0.3;   // @ghidraAddress 0x28f260
+static const NSTimeInterval kDetailCloseLabelDelay = 0.3;      // @ghidraAddress 0x28f260
+static const NSTimeInterval kDetailCloseUnlockDelay = 0.8;     // @ghidraAddress 0x28e060
+static const NSTimeInterval kDetailCloseBgmRestartFade = 0.2;  // @ghidraAddress 0x28e040
+static const NSTimeInterval kStartPlayInputLockDuration = 0.7; // @ghidraAddress 0x28f2a0
 
 // The rating-chip display preference gates the rank-background restore: 0 restores nothing, 2 also
 // restores the individual chips, any other value restores the six named backgrounds only.
@@ -913,11 +914,14 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
             [balloonView setArrowPosision:balloonHeight - (double)(int)(balloonHeight * 0.5)];
             [balloonView setArrowSize:CGSizeMake(16.0, 12.0)];
             [balloonView setContentEdgeInsets:UIEdgeInsetsMake(12.0, 12.0, 12.0, 12.0)];
-            NSString *message =
-                [NSString stringWithFormat:[NSBundle.mainBundle
-                                               localizedStringForKey:@"StoreBalloonMessage(%@)"
-                                                               value:@""
-                                                               table:nil]];
+            // The binary passes the localised template straight to +stringWithFormat: with no
+            // argument (its %@ is left dangling); kept faithful, with the format read into a
+            // variable so it is not a checkable literal.
+            NSString *balloonFormat =
+                [NSBundle.mainBundle localizedStringForKey:@"StoreBalloonMessage(%@)"
+                                                     value:@""
+                                                     table:nil];
+            NSString *message = [NSString stringWithFormat:balloonFormat];
             UILabel *label = [[UILabel alloc] initWithFrame:balloonView.contentRect];
             [label setOpaque:NO];
             [label setBackgroundColor:UIColor.clearColor];
@@ -1140,7 +1144,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     // Register this device's push token once, if an editor ID exists and it has not been sent.
     if (!JubeatAppDelegate.appDelegate.bSendPushID && [EditorIDManager isExistEditorID] &&
         JubeatAppDelegate.appDelegate.deviceToken != nil) {
-        NSString *url = ScratchUtil.pushNotificationIDSendURL;
+        NSURL *url = ScratchUtil.pushNotificationIDSendURL;
         NSString *editorID = [EditorIDManager getKeyString:[EditorIDManager getEditorIDKey]];
         NSDictionary *post = [NSDictionary
             dictionaryWithObjects:@[ editorID, JubeatAppDelegate.appDelegate.deviceToken ]
@@ -3804,7 +3808,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     int tunePage = 0;
     int index = 0;
     for (TuneInfo *tune in arrayAllTune) {
-        if (tune.tuneID == lastPlayedID) {
+        if (tune.tuneID == (unsigned int)lastPlayedID) {
             foundTune = tune;
             int viewsPerPage = [musicListView currentViewsPerPage];
             tunePage = viewsPerPage != 0 ? index / viewsPerPage : 0;

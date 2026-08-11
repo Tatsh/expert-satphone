@@ -4,7 +4,6 @@
 
 #import "AudioManager.h"
 #import "BFCodec.h"
-#import "ChallengeMusicInfo.h"
 #import "ChallengeRankingListView.h"
 #import "ChallengeStatus.h"
 #import "ImageCache.h"
@@ -159,7 +158,7 @@ static const CGFloat kHighscoreTextSlideOffset = 40.0;  // @ghidraAddress 0x28f1
     int myRank[kDiffCount];
     int itemSlot;
     int _difficulty;
-    ChallengeMusicInfo *minfo;
+    ScratchInfo *minfo;
     UIButton *rankingBtn;
     UIButton *jbtStoreBtn;
     ChallengeRankingListView *rankingListView;
@@ -839,7 +838,7 @@ static const CGFloat kHighscoreTextSlideOffset = 40.0;  // @ghidraAddress 0x28f1
     double enableTime = [status getMusicEnableTime:slot];
     [self.buttonStartPlay setEnabled:(0.0 <= enableTime)];
 
-    ChallengeMusicInfo *info = status.scratchInfoTable[slot];
+    ScratchInfo *info = status.scratchInfoTable[slot];
     _musicID = info.musicID;
     _difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
     packID = info.packID;
@@ -987,7 +986,7 @@ static const CGFloat kHighscoreTextSlideOffset = 40.0;  // @ghidraAddress 0x28f1
 
 /** @ghidraAddress 0x163fc8 */
 - (void)refreshDetail {
-    ChallengeMusicInfo *info = [ChallengeStatus sharedStatus].scratchInfoTable[itemSlot];
+    ScratchInfo *info = [ChallengeStatus sharedStatus].scratchInfoTable[itemSlot];
     for (int i = 0; i < kDiffCount; ++i) {
         myRank[i] = [info getMyRank:i];
     }
