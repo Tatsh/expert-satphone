@@ -180,7 +180,7 @@
           jubeatLogoView.alpha = 1.0;
         }
         completion:^(BOOL finished) {
-          /** @ghidraAddress 0x13f0b0 */
+          /** @ghidraAddress 0x13f0a8 */
           [self startMarkerCheck];
         }];
 }

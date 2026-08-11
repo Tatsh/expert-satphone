@@ -141,7 +141,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
 + (instancetype)sharedInstance {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-      /** @ghidraAddress 0x25dae4 */
+      /** @ghidraAddress 0x25dae0 */
       g_pApplilinkUdidShared = [[ApplilinkUdid alloc] init];
       g_pApplilinkUdidShared.pasteBoard = [[ApplilinkPasteBoard alloc] init];
     });
@@ -153,7 +153,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
     // The binary runs [super init] synchronously on the queue +allocWithZone: already created.
     __block ApplilinkUdid *initialized = nil;
     dispatch_sync(g_pApplilinkUdidQueue, ^{
-      /** @ghidraAddress 0x25d8dc */
+      /** @ghidraAddress 0x25d8d8 */
       initialized = [super init];
     });
     return initialized;

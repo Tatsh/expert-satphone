@@ -465,7 +465,7 @@ static dispatch_queue_t gRewardCoreQueue;
           return;
       }
       [self getAppListStatusWithBlock:^(NSInteger bannerStatus, NSError *statusError) {
-        /** @ghidraAddress 0x232ba8 (Block_RewardCorePackAdDisplayStatus) */
+        /** @ghidraAddress 0x232b7c (Block_RewardCorePackAdDisplayStatus) */
         if (statusError) {
             callback(status, statusError);
             return;
@@ -567,7 +567,7 @@ static dispatch_queue_t gRewardCoreQueue;
               return;
           }
           [RewardWebAPI bannerInfoWithBlock:^(NSDictionary *result, NSError *bannerError) {
-            /** @ghidraAddress 0x233920 (Block_RewardCoreCacheBannerInfo) */
+            /** @ghidraAddress 0x2338fc (Block_RewardCoreCacheBannerInfo) */
             if (bannerError || ![result isKindOfClass:[NSDictionary class]]) {
                 block(0, bannerError);
                 return;

@@ -13,7 +13,7 @@
     static StoreMusicListManager *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-      /** @ghidraAddress 0xd39a0 */
+      /** @ghidraAddress 0xd399c */
       instance = [[StoreMusicListManager alloc] init];
     });
     return instance;
