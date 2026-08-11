@@ -831,6 +831,148 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
     return frame > 0x3b;
 }
 
+/** @ghidraAddress 0x203240 */
+- (void)renderReadyGo {
+    // The five "READY" letters cascade in from a per-letter x offset added to the field centre; the
+    // settle then parks them at five fixed x positions.
+    static const float kReadyLetterX[] = {
+        -177.0f, -90.0f, 0.0f, 97.0f, 183.0f};        // @ghidraAddress 0x294258
+    static const float kReadyLetterCentreX = 384.0f;  // @ghidraAddress 0x29254c
+    static const float kReadyLetterBaseY = 110.0f;    // @ghidraAddress 0x293330
+    static const double kReadySettleDropBase = 665.0; // @ghidraAddress 0x293e10
+    // The settle x positions, indexed by the letter sprite (0..4).
+    static const double kReadySettleX0 = 207.0; // @ghidraAddress 0x2924b8
+    static const double kReadySettleX1 = 294.0; // @ghidraAddress 0x28f668
+    static const double kReadySettleX2 = 384.0; // @ghidraAddress 0x292470
+    static const double kReadySettleX3 = 481.0; // @ghidraAddress 0x293e20
+    static const double kReadySettleX4 = 567.0; // @ghidraAddress 0x293e18
+    // The "GO" burst on texReady1: a left and a right glyph pair, centre-anchored and scaled 1.25.
+    static const double kGoCentreY = 775.0;                    // @ghidraAddress 0x293e28
+    static const double kGoLeftX = 174.0;                      // @ghidraAddress 0x293e30
+    static const double kGoRightX = 594.0;                     // @ghidraAddress 0x293e38
+    static const float kGoScale = 1.25f;                       // fmov 0x3fa00000
+    static NSString *const kSeVoiceReady = @"SD_KNT_CV_READY"; // @ghidraAddress 0x2df840
+    static const unsigned int kReadyGoCompleteSubState = 99;
+
+    if (frame - 0x15 < 0x1d) {
+        // Phase 1: the READY cascade (frames 0x15..0x31). Each letter rises into place and fades in
+        // over an eight-frame window opening at its own index; the phase clock is offset by 0x14.
+        CGSize letterSize = [self.texReady0 spriteAtIndex:0].size;
+        double halfW = letterSize.width * 0.5;
+        unsigned int phaseFrame = frame - 0x14;
+        for (int i = 4; i >= 0; --i) {
+            if (i > (int)phaseFrame) {
+                continue;
+            }
+            float rise =
+                InterpolateFloatByFrame((float)letterSize.height, 0.0f, phaseFrame, i, i + 8);
+            float fadeIn = InterpolateFloatByFrame(0.0f, 1.0f, phaseFrame, i, i + 8);
+            [self.texReady0
+                drawSprite:(NSUInteger)i
+                   atPoint:CGPointMake((double)(kReadyLetterX[i] + kReadyLetterCentreX) - halfW,
+                                       (double)(kReadyLetterBaseY - rise))
+                 transform:0
+                     alpha:fadeIn];
+        }
+    } else {
+        // Phase 1b: the settle. The five letters drop into place from above and fade out, each
+        // parked at a fixed x minus half the sprite width. This arm also covers the frames before
+        // the cascade, where the interpolations clamp to a fully faded-out state.
+        CGSize letterSize = [self.texReady0 spriteAtIndex:0].size;
+        double halfW = letterSize.width * 0.5;
+        float drop = InterpolateFloatByFrame(
+            0.0f, (float)(letterSize.height * -2.0 + kReadySettleDropBase), frame - 0x32, 0, 10);
+        double settleY = (double)(drop + kReadyLetterBaseY);
+        float settleAlpha = InterpolateFloatByFrame(1.0f, 0.0f, frame - 0x32, 9, 0xf);
+        const double settleX[] = {
+            kReadySettleX0, kReadySettleX1, kReadySettleX2, kReadySettleX3, kReadySettleX4};
+        for (int i = 4; i >= 0; --i) {
+            [self.texReady0 drawSprite:(NSUInteger)i
+                               atPoint:CGPointMake(settleX[i] - halfW, settleY)
+                             transform:0
+                                 alpha:settleAlpha];
+        }
+    }
+
+    if (frame - 0x38 < 7) {
+        // Phase 2a: the GO burst appears (frames 0x38..0x3e). A static base glyph on each side plus
+        // a copy that rises up into place and fades in.
+        CGSize goSize = [self.texReady1 spriteAtIndex:0].size;
+        double halfW = goSize.width * 0.5;
+        double halfH = goSize.height * 0.5;
+        float appearAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame - 0x37, 0, 4);
+        float rise = InterpolateFloatByFrame(0.0f, (float)goSize.height, frame - 0x37, 0, 8);
+        double baseY = kGoCentreY - goSize.height;
+        double riseY = kGoCentreY - (double)rise;
+        double leftX = kGoLeftX - halfW;
+        double rightX = kGoRightX - halfW;
+        [self.texReady1 drawSprite:2
+                           atPoint:CGPointMake(leftX, baseY)
+                             scale:kGoScale
+                            rotate:0
+                            anchor:CGPointMake(kGoLeftX, baseY + halfH)
+                         transform:0
+                             alpha:1.0f];
+        [self.texReady1 drawSprite:0
+                           atPoint:CGPointMake(leftX, riseY)
+                             scale:kGoScale
+                            rotate:0
+                            anchor:CGPointMake(kGoLeftX, riseY + halfH)
+                         transform:0
+                             alpha:appearAlpha];
+        [self.texReady1 drawSprite:3
+                           atPoint:CGPointMake(rightX, baseY)
+                             scale:kGoScale
+                            rotate:0
+                            anchor:CGPointMake(kGoRightX, baseY + halfH)
+                         transform:0
+                             alpha:1.0f];
+        [self.texReady1 drawSprite:1
+                           atPoint:CGPointMake(rightX, riseY)
+                             scale:kGoScale
+                            rotate:0
+                            anchor:CGPointMake(kGoRightX, riseY + halfH)
+                         transform:0
+                             alpha:appearAlpha];
+    } else if (frame <= 0x4a) {
+        // Phase 2b: the GO settle (frames 0x3f..0x4a). The two rising glyphs drop back down while
+        // fading out. This arm also covers the frames before the burst, where the interpolations
+        // clamp to a fully faded-out state.
+        CGSize goSize = [self.texReady1 spriteAtIndex:0].size;
+        double halfW = goSize.width * 0.5;
+        double halfH = goSize.height * 0.5;
+        float fadeOut = InterpolateFloatByFrame(1.0f, 0.0f, frame - 0x3f, 0, 8);
+        float shrink =
+            InterpolateFloatByFrame((float)goSize.height, (float)halfH, frame - 0x3f, 0, 8);
+        double settleY = kGoCentreY - (double)shrink;
+        [self.texReady1 drawSprite:0
+                           atPoint:CGPointMake(kGoLeftX - halfW, settleY)
+                             scale:kGoScale
+                            rotate:0
+                            anchor:CGPointMake(kGoLeftX, settleY + halfH)
+                         transform:0
+                             alpha:fadeOut];
+        [self.texReady1 drawSprite:1
+                           atPoint:CGPointMake(kGoRightX - halfW, settleY)
+                             scale:kGoScale
+                            rotate:0
+                            anchor:CGPointMake(kGoRightX, settleY + halfH)
+                         transform:0
+                             alpha:fadeOut];
+    }
+
+    if (frame == 0x14) {
+        [[AudioManager sharedManager] playSeResFile:kSeVoiceReady inDirectory:nil];
+    }
+    if (frame == 0x3b) {
+        [[AudioManager sharedManager] playSePlayer:self.sePlayerGo];
+        self.sePlayerGo = nil;
+    }
+    if (frame >= 0x4b) {
+        self.subState = kReadyGoCompleteSubState;
+    }
+}
+
 /** @ghidraAddress 0x203a70 */
 - (void)renderFullcombo:(int)frame isResult:(BOOL)isResult {
     static const NSUInteger kFullcomboWordSprite = 2;
