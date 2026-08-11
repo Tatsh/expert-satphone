@@ -157,6 +157,22 @@ static const int kComboWordTrailingOffset = -0xa2; // -162, the word's x past th
 static const double kComboWordY = 720.0;           // @ghidraAddress 0x2929d0
 static const NSUInteger kComboWordSprite = 0;
 
+// The result-screen rating: a rating-label sprite slides up into place and fades in, then the rank
+// sprite pops (overshooting and settling), both timings shortening for the top ranks. The rank
+// sprite is centre-anchored and scaled about its centre.
+static const NSUInteger kRatingLabelSprite = 0xe;
+static const NSUInteger kRatingRankSprite = 0x10;
+static const double kRatingLabelX = 218.0;        // @ghidraAddress 0x2924d8
+static const double kRatingLabelBaseY = 656.0;    // @ghidraAddress 0x292520
+static const double kRatingLabelSlideY = 120.0;   // @ghidraAddress 0x28f210
+static const double kRatingRankAnchorX = 480.0;   // @ghidraAddress 0x28e020
+static const double kRatingRankAnchorY = 746.0;   // @ghidraAddress 0x292480
+static const float kRatingLabelSlideFrom = 25.0f; // fmov 25.0
+static const float kRatingScaleLow = 1.16f;       // @ghidraAddress 0x292b34
+static const float kRatingScaleBig = 1.6f;        // @ghidraAddress 0x292b30
+static const float kRatingScaleSmall = 0.2f;      // @ghidraAddress 0x28f3c8
+static const float kRatingScaleMid = 0.9f;        // @ghidraAddress 0x28f3b0
+
 // The origin of grid panel @p index within the Knit marker grid.
 static inline CGPoint MainGameRendererPadKntPanelOrigin(int index) {
     int x = (index % kMarkerGridColumns) * kMarkerPanelPitch | kMarkerPanelInset;
@@ -237,6 +253,76 @@ MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *s
 /** @ghidraAddress 0x202390 */
 - (CGRect)getMusicBarRect {
     return musicBarRect;
+}
+
+/** @ghidraAddress 0x204dd0 */
+- (void)renderRating:(unsigned int)frame {
+    int rank = (int)self.sequence.rank;
+    float rankScale;
+    float rankAlpha;
+    if (rank < 5) {
+        // The rating label slides up and fades in over a rank-dependent window; the rank sprite
+        // overshoots to 2.0 then settles.
+        unsigned int popEnd = (rank < 3) ? 4 : 3;
+        unsigned int settleEnd = (rank < 3) ? 0xe : 7;
+        float labelSlide =
+            InterpolateFloatByFrame(kRatingLabelSlideFrom, 0.0f, frame, 0, settleEnd);
+        float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, settleEnd);
+        [self.texResult
+            drawSprite:kRatingLabelSprite
+               atPoint:CGPointMake(kRatingLabelX,
+                                   (double)labelSlide + kRatingLabelBaseY + kRatingLabelSlideY)
+             transform:0
+                 alpha:labelAlpha];
+        CGSize rankSize = [self.texResult spriteAtIndex:kRatingRankSprite].size;
+        if (frame < popEnd) {
+            rankScale = InterpolateFloatByFrame(2.0f, kRatingScaleLow, frame, 0, popEnd);
+        } else {
+            rankScale = InterpolateFloatByFrame(kRatingScaleLow, 1.0f, frame, popEnd, settleEnd);
+        }
+        rankAlpha = labelAlpha;
+        [self.texResult drawSprite:kRatingRankSprite
+                           atPoint:CGPointMake(kRatingRankAnchorX - rankSize.width * 0.5,
+                                               kRatingRankAnchorY - rankSize.height * 0.5)
+                             scale:rankScale
+                            rotate:0
+                            anchor:CGPointMake(kRatingRankAnchorX, kRatingRankAnchorY)
+                         transform:0
+                             alpha:rankAlpha];
+        return;
+    }
+    // The top ranks (rank >= 5): the label slides in over a fixed window and the rank sprite pops
+    // through several frame windows before settling.
+    float labelSlide = InterpolateFloatByFrame(kRatingLabelSlideFrom, 0.0f, frame, 0, 0xd);
+    float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 0xd);
+    [self.texResult
+        drawSprite:kRatingLabelSprite
+           atPoint:CGPointMake(kRatingLabelX,
+                               (double)labelSlide + kRatingLabelBaseY + kRatingLabelSlideY)
+         transform:0
+             alpha:labelAlpha];
+    CGSize rankSize = [self.texResult spriteAtIndex:kRatingRankSprite].size;
+    if (frame < 8) {
+        rankScale = InterpolateFloatByFrame(2.0f, kRatingScaleBig, frame, 0, 8);
+        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, frame, 8, 0xd);
+    } else if (frame < 0xe) {
+        rankScale = InterpolateFloatByFrame(kRatingScaleBig, kRatingScaleMid, frame, 8, 0xe);
+        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, frame, 8, 0xd);
+    } else if (frame < 0x10) {
+        rankScale = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, frame, 0xe, 0x10);
+        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, frame, 8, 0xd);
+    } else {
+        rankScale = 1.0f;
+        rankAlpha = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, frame, 8, 0xd);
+    }
+    [self.texResult drawSprite:kRatingRankSprite
+                       atPoint:CGPointMake(kRatingRankAnchorX - rankSize.width * 0.5,
+                                           kRatingRankAnchorY - rankSize.height * 0.5)
+                         scale:rankScale
+                        rotate:0
+                        anchor:CGPointMake(kRatingRankAnchorX, kRatingRankAnchorY)
+                     transform:0
+                         alpha:rankAlpha];
 }
 
 /** @ghidraAddress 0x20186c */
