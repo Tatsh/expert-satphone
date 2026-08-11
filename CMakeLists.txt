@@ -133,6 +133,7 @@ add_subdirectory(Project)
 target_compile_options(jubeat PRIVATE
     $<$<COMPILE_LANGUAGE:C,OBJC>:-std=gnu2x>
     $<$<COMPILE_LANGUAGE:CXX,OBJCXX>:-std=gnu++2b>
+    -include "${CMAKE_CURRENT_SOURCE_DIR}/Project/nullptr_compat.h"
     $<$<COMPILE_LANGUAGE:CXX,OBJCXX>:-stdlib=libc++>
     # Keep u8"" literals as char[] (C-era UTF-8 strings used as const char*);
     # C++20 otherwise makes them char8_t[].
