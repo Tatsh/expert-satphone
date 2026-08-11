@@ -1,0 +1,91 @@
+concurrency:
+  cancel-in-progress: true
+  group: build-${{ github.ref }}
+env:
+  # Debug so the artefact carries DWARF and can be debugged on device. This is the compile gate,
+  # not a shipping build, and the reconstruction is verified against the binary by reading rather
+  # than by running an optimised build.
+  BUILD_CONFIG: 'Debug'
+  IOS_CMAKE_REF: '21598aa550701d20654c032328f7e8710a14099b'
+jobs:
+  xcode:
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
+    runs-on: macos-14
+    env:
+      IOS_ARCHS: 'arm64'
+      DEPLOYMENT_TARGET: '12.0'
+      # RESOURCES_DIR: ${{ vars.RESOURCES_DIR }}
+    steps:
+      - uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 'Toolchain versions'
+        run: |
+          xcodebuild -version
+          sw_vers
+      - name: 'Fetch ios-cmake toolchain'
+        run: |
+          git clone --revision="$IOS_CMAKE_REF" https://github.com/leetal/ios-cmake.git .ios-cmake
+      - name: 'Configure'
+        run: |
+          CMAKE_ARGS=(
+            -B build
+            -G Xcode
+            -DCMAKE_BUILD_TYPE="$BUILD_CONFIG"
+            -DCMAKE_TOOLCHAIN_FILE="${GITHUB_WORKSPACE}/.ios-cmake/ios.toolchain.cmake"
+            -DDEPLOYMENT_TARGET="$DEPLOYMENT_TARGET"
+            -DENABLE_BITCODE=NO
+            -DIOS_ARCHS="$IOS_ARCHS"
+            -DPLATFORM=OS64
+            -DENABLE_PATCHES=ON
+          )
+          [ -n "$RESOURCES_DIR" ] && CMAKE_ARGS+=( -DRESOURCES_DIR="$RESOURCES_DIR" )
+          cmake "${CMAKE_ARGS[@]}"
+      - name: 'Build'
+        run: |
+          cmake --build build --config "$BUILD_CONFIG" -- \
+            -IDEBuildingContinueBuildingAfterErrors=YES \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGNING_REQUIRED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            DEVELOPMENT_TEAM="" \
+            PROVISIONING_PROFILE_SPECIFIER=""
+      - name: 'Ad-hoc sign + package .ipa'
+        run: |
+          APP="$(find build -type d -name 'Jubeat.app' -print -quit)"
+          test -n "$APP" || { echo "Jubeat.app not found under build/"; exit 1; }
+          echo "Built app: $APP"
+          codesign --force --sign - --timestamp=none "$APP"
+          codesign --verify --verbose=2 "$APP"
+          # dwarf-with-dsym leaves the linked binary holding only a debug map naming .o files from
+          # the build machine, so the app alone cannot be debugged: the DWARF is in the .dSYM, and
+          # it ships inside the bundle so a single download carries both. That invalidates the
+          # ad-hoc signature above, which does not matter here because the .ipa is re-signed with
+          # Impactor before it reaches a device.
+          DSYM="$(find build -type d -name 'Jubeat.app.dSYM' -print -quit)"
+          test -n "$DSYM" || { echo 'no .dSYM found; the build is not emitting debug info'; exit 1; }
+          rm -rf Payload Jubeat-adhoc.ipa
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          cp -R "$DSYM" "Payload/$(basename "$APP")/"
+          /usr/bin/zip -qry Jubeat-adhoc.ipa Payload
+          echo "Packaged: Jubeat-adhoc.ipa (the .dSYM is inside the bundle)"
+      - name: 'Upload .ipa'
+        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+        with:
+          name: 'Jubeat-adhoc-ipa'
+          path: 'Jubeat-adhoc.ipa'
+          if-no-files-found: 'error'
+name: 'build'
+'on':
+  push:
+    branches: ['master']
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches: ['master']
