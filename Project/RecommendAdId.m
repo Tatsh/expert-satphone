@@ -314,7 +314,10 @@ enum {
         }
         return NO;
     }
-    [pasteboard setData:nil forPasteboardType:kPasteboardType];
+    // The binary passes a nil data to clear the slot; a typed nil sidesteps the framework's
+    // nonnull.
+    NSData *emptyData = nil;
+    [pasteboard setData:emptyData forPasteboardType:kPasteboardType];
     [UIPasteboard removePasteboardWithName:_serviceName];
     return YES;
 }

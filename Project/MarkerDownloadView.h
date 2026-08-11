@@ -185,7 +185,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param manager The queue.
  * @ghidraAddress 0x617f4
  */
-- (void)downloadManagerFailed:(MarkerDownloadManager *)manager;
+- (void)downloadManagerFailed:(nullable MarkerDownloadManager *)manager;
 
 @end
 

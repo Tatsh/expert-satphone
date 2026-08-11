@@ -68,8 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x1a9420
  */
 - (void)fadeoutAnimStop:(NSString *)animationID
-               finished:(NSNumber *)finished
-                context:(void *)context;
+               finished:(nullable NSNumber *)finished
+                context:(nullable void *)context;
 /**
  * @brief Finishes a transition once the screen has faded back in.
  *
@@ -84,8 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x1a9fec
  */
 - (void)fadeinAnimStop:(NSString *)animationID
-              finished:(NSNumber *)finished
-               context:(void *)context;
+              finished:(nullable NSNumber *)finished
+               context:(nullable void *)context;
 /**
  * @brief Builds the knit-theme title screen into @c titleViewCtrl.
  *
@@ -121,8 +121,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x1a81b4
  */
 - (void)openStoreAnimStop:(NSString *)animationID
-                 finished:(NSNumber *)finished
-                  context:(void *)context;
+                 finished:(nullable NSNumber *)finished
+                  context:(nullable void *)context;
 /**
  * @brief Finishes the slide back out of the store screen.
  *
@@ -136,8 +136,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x1a8d7c
  */
 - (void)endStoreAnimStop:(NSString *)animationID
-                finished:(NSNumber *)finished
-                 context:(void *)context;
+                finished:(nullable NSNumber *)finished
+                 context:(nullable void *)context;
 
 /**
  * @brief Slides the store screen in over music select with a 3-D cube-flip.

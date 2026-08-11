@@ -23,8 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloadManagerProceed:(nonnull MarkerDownloadManager *)manager;
 /** @brief All tasks completed. */
 - (void)downloadManagerCompleted:(nonnull MarkerDownloadManager *)manager;
-/** @brief A task failed. */
-- (void)downloadManagerFailed:(nonnull MarkerDownloadManager *)manager;
+/** @brief A task failed. The manager is @c nil when the view fails the download itself, before any
+ * manager exists (the illegal-marker path). */
+- (void)downloadManagerFailed:(nullable MarkerDownloadManager *)manager;
 @end
 
 /**

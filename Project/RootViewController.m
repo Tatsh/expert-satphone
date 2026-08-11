@@ -10,6 +10,7 @@
 #import "ImageCache.h"
 #import "JubeatAppDelegate.h"
 #import "LogoViewController.h"
+#import "MissionAchievementMessage.h"
 #import "MusicSelectViewController.h"
 #import "ScratchUtil.h"
 #import "TitleViewControllerKnt.h"
@@ -34,10 +35,8 @@
     NSString *currentSceneID;
     MusicSelectViewController *musicSelectViewCtrl;
     BOOL _isActive;
-    // The achievement-message overlay, at offset global 0x34b774. -init allocates it as a
-    // MissionAchievementMessage; that class is not reconstructed yet, so it is typed UIView and its
-    // selectors are declared below.
-    UIView *achieveMessage;
+    // The achievement-message overlay, at offset global 0x34b774.
+    MissionAchievementMessage *achieveMessage;
 }
 @end
 
@@ -46,7 +45,6 @@
 // UIViewController for the same reason.
 static NSString *const kGameViewControllerClassName = @"GameViewController";
 static NSString *const kEditViewControllerClassName = @"EditViewController";
-static NSString *const kMissionAchievementMessageClassName = @"MissionAchievementMessage";
 // The store screen -openStore: builds and -endStore tears down; not reconstructed yet.
 static NSString *const kStoreViewControllerClassName = @"StoreViewController";
 
@@ -141,16 +139,6 @@ static const double kTitleSwitchFadeDuration = 1.5;
 - (void)setShareManager:(nullable id)shareManager;
 - (void)setMusicData:(nullable id)musicData;
 - (void)setDelegate:(nullable id)delegate;
-@end
-
-// The achievement-message overlay's selectors. Its class is not established yet; see
-// -openAchiveMessage: and -messageClose. Declared on UIView so the overlay can be messaged.
-@interface UIView (JubeatAchieveMessage)
-- (instancetype)initWithTitle:(nullable id)title;
-- (void)setADelegate:(nullable id)delegate;
-- (void)setAchieveTitle:(nullable id)title;
-- (void)transReset;
-- (void)enterAnimationStart;
 @end
 
 // De-inlined from -openStore: and -endStore:. Installs the perspective sublayer transform on the
@@ -248,9 +236,8 @@ static inline void RootViewControllerBeginFadeInForAnimation(RootViewController 
 
         // The achievement overlay is built with a nil title and told to report back to this
         // controller. It is added to the view only when -openAchiveMessage: fires.
-        achieveMessage =
-            [[NSClassFromString(kMissionAchievementMessageClassName) alloc] initWithTitle:nil];
-        [achieveMessage setADelegate:self];
+        achieveMessage = [[MissionAchievementMessage alloc] initWithTitle:nil];
+        achieveMessage.aDelegate = (id<MissionAchievementMessageDelegate>)self;
     }
     return self;
 }

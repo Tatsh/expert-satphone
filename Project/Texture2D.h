@@ -72,7 +72,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
  * @param height The content height.
  * @ghidraAddress 0xdcd4
  */
-- (void)setData:(const void *)data
+- (void)setData:(nullable const void *)data
     pixelFormat:(Texture2DPixelFormat)pixelFormat
       pixelSize:(GLuint)pixelSize
           width:(int)width
@@ -85,7 +85,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
  * @param pixelSize The square texture dimension in texels.
  * @ghidraAddress 0xde88
  */
-- (void)setData:(const void *)data
+- (void)setData:(nullable const void *)data
     pixelFormat:(Texture2DPixelFormat)pixelFormat
       pixelSize:(GLuint)pixelSize;
 
@@ -99,7 +99,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
  * @return The initialised texture.
  * @ghidraAddress 0xde9c
  */
-- (instancetype)initWithData:(const void *)data
+- (instancetype)initWithData:(nullable const void *)data
                  pixelFormat:(Texture2DPixelFormat)pixelFormat
                    pixelSize:(GLuint)pixelSize
                        width:(int)width
@@ -113,7 +113,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
  * @return The initialised texture.
  * @ghidraAddress 0xdf58
  */
-- (instancetype)initWithData:(const void *)data
+- (instancetype)initWithData:(nullable const void *)data
                  pixelFormat:(Texture2DPixelFormat)pixelFormat
                    pixelSize:(GLuint)pixelSize;
 

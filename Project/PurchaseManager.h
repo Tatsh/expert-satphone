@@ -122,7 +122,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0xb6af0
  */
 - (nullable NSDictionary *)createVerifyPostDictionary:(NSArray *)products
-                                        productPrices:(NSArray *)productPrices;
+                                        productPrices:(nullable NSArray *)productPrices;
 /**
  * @brief Verify the receipt for the current verifingID/Price.
  * @ghidraAddress 0xb6ec4
