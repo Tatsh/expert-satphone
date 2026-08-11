@@ -60,6 +60,25 @@ static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
 // The advert location the unread-recommendation count is queried for at startup.
 static NSString *const kRecommendAdLocationTop = @"ADL_TOP";
 
+// The selected difficulty and edit-page preferences, and whether the extend-chart tutorial overlay
+// has been shown once.
+static NSString *const kPrefDifficultyKey = @"PrefDifficulty";
+static NSString *const kPrefEditSelectKey = @"PrefEditSelect";
+static NSString *const kPrefExtendTutorialFinishKey = @"PrefExtendTutorialFinish";
+
+// Opening a tune shows the extend-chart tutorial overlay sized to the artwork times a per-idiom
+// factor (pad 3.75, phone 4.0), positioned at the difficulty's slot minus a per-theme, per-idiom
+// inset from a 3x2 table; a preselected edit page counts as difficulty select.
+static const CGFloat kExtendTutorialArtworkScalePad = 3.75;  // fmov, 3.75
+static const CGFloat kExtendTutorialArtworkScalePhone = 4.0; // fmov, 4.0
+static const int kEditSelectActive = 1;
+// g_anExtendTutorialOffsetByThemeAndDevice at 0x28f3d0: [theme][isPad ? 0 : 1] (indexed isPad ^ 1).
+static const int kExtendTutorialInsetByThemeAndDevice[][2] = {
+    {14, 8},  // original: pad, phone
+    {28, 10}, // ripples: pad, phone
+    {22, 9},  // knit: pad, phone
+};
+
 // The not-yet-played list is built by querying score records in batches of this many tunes, with an
 // initial capacity that also allows for each tune's extend-music alias. A one-off migration under
 // this preference clears a stale full-combo-check flag; a store-music entry's real id lives under
@@ -3178,10 +3197,10 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x291f0 */
-- (void)downloaderFinished:(nullable id)downloader {
-    NSDictionary *json = [(Downloader *)downloader getDataInJSON];
+- (void)downloaderFinished:(nullable Downloader *)downloader {
+    NSDictionary *json = [downloader getDataInJSON];
     int status = json[@"status"] != nil ? [json[@"status"] intValue] : -1;
-    switch (((Downloader *)downloader).tag) {
+    switch (downloader.tag) {
     case kDownloaderTagStoreInfo: {
         NSString *updateTime = [json stringForKey:kChallengeUpdateTimeKey];
         NSArray *updateText = [json arrayForKey:kChallengeUpdateTextKey];
@@ -3220,7 +3239,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     case kDownloaderTagChallengeInit:
         if (status == 0) {
             [self makeChallengeRootView];
-            [challengeModeView setChallengeData:[(Downloader *)downloader getDataInJSON]];
+            [challengeModeView setChallengeData:[downloader getDataInJSON]];
             NSInteger totalPurchase =
                 [NSUserDefaults.standardUserDefaults integerForKey:kPrefTotalPurchaseKey];
             if (totalPurchase < 1) {
