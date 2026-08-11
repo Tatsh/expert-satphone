@@ -80,10 +80,14 @@ static const double kPartnerUnconnectedAlphaScale = 0.5; // fmov 0.5
 static const double kPartnerBadgeXOffset = 2.0;          // fmov 2.0
 static const double kPartnerBadgeYOffset = -25.0;        // fmov -25.0
 
-// The result-screen render states: a finished chart, the result screen, and the result wait.
+// The render states driven by -draw: the pre-start intro, the ready/go countdown, active play, the
+// finish transition, and the two result sub-screens.
+static const unsigned int kRenderStatePreStart = 1;
+static const unsigned int kRenderStateReady = 2;
 static const unsigned int kRenderStatePlay = 3;
 static const unsigned int kRenderStateFinish = 4;
 static const unsigned int kRenderStateResult = 5;
+static const unsigned int kRenderStateResultWait = 6;
 
 // The sub-state -endResult parks the result screen in once it is dismissed.
 static const unsigned int kResultEndSubState = 99;
@@ -528,6 +532,65 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 - (void)dealloc {
     [self releaseTexture];
     // [super dealloc] is compiler-emitted (ARC).
+}
+
+/** @ghidraAddress 0x206744 */
+- (void)draw {
+    switch (self.state) {
+    case kRenderStatePreStart:
+        [self renderPreStart];
+        break;
+    case kRenderStateReady:
+        [self renderBG];
+        [self renderShutter:YES];
+        [self renderUpperBG:NO];
+        [self renderUpper];
+        [self renderStartMark:1.0f];
+        [self renderButtons];
+        [self renderReadyGo];
+        break;
+    case kRenderStatePlay:
+        [self renderBG];
+        [self renderShutter:YES];
+        [self renderCombo:(unsigned int)self.sequence.getScore->curCombo alpha:1.0f];
+        [self renderUpperBG:NO];
+        [self renderUpper];
+        [self renderMarker];
+        [self renderButtons];
+        break;
+    case kRenderStateFinish:
+        [self renderBG];
+        [self renderShutter:YES];
+        [self renderCombo:(unsigned int)self.sequence.getScore->curCombo alpha:1.0f];
+        [self renderUpperBG:NO];
+        [self renderUpper];
+        [self renderMarker];
+        [self renderButtons];
+        [self renderFinish];
+        break;
+    case kRenderStateResult:
+    case kRenderStateResultWait:
+        [self renderBG];
+        [self renderResult];
+        break;
+    default:
+        [self renderBG];
+        [self renderShutter:YES];
+        [self renderUpperBG:NO];
+        [self renderButtons];
+        break;
+    }
+    [self.texBeatBg commitDraw];
+    [self.texResultBg commitDraw];
+    [self.upperBgKnt commitBg:self.texWaveAr];
+    [self.texCombo commitDraw];
+    [self.texHoldMarker commitDraw];
+    [self.texMarker commitDraw];
+    [self.texFront commitDraw];
+    [self.texReady0 commitDraw];
+    [self.texReady1 commitDraw];
+    [self.texResult commitDraw];
+    ++frame;
 }
 
 /** @ghidraAddress 0x20004c */
