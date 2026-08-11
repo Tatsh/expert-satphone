@@ -410,10 +410,69 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 
 @implementation MainGameRendererPadKnt
 
+/** @ghidraAddress 0x20036c */
+- (void)releaseTexture {
+    self.texDebugFont = nil;
+    self.texReady0 = nil;
+    self.texReady1 = nil;
+    self.texFront = nil;
+    self.texResult = nil;
+    self.texResultBg = nil;
+    self.texBeatBg = nil;
+    if (self.texWaveAr != nil) {
+        [self.texWaveAr removeAllObjects];
+        self.texWaveAr = nil;
+    }
+}
+
 /** @ghidraAddress 0x206d7c */
 - (void)dealloc {
     [self releaseTexture];
     // [super dealloc] is compiler-emitted (ARC).
+}
+
+/** @ghidraAddress 0x20048c */
+- (void)setState:(unsigned int)state {
+    switch (state) {
+    case 0:
+        self->lastCombo = 0;
+        self->comboCutFrame = 0;
+        self->comboEffectFrame = 0;
+        self->scoreDisplay = 0;
+        self->shutterOpen = 0;
+        self->lastHakuPhase = 0;
+        self->bounceEnergy = 0;
+        self.scoreRecord = nil;
+        break;
+    case 2:
+        self->lastCombo = 0;
+        self->comboCutFrame = 0;
+        self->comboEffectFrame = 0;
+        self->scoreDisplay = 0;
+        self->shutterOpen = 0;
+        self->startMarkFrame = 0;
+        self.scoreRecord = nil;
+        if (self.sePlayerGo == nil) {
+            NSString *path = [NSBundle.mainBundle pathForResource:@"SD_KNT_CV_GO" ofType:@"caf"];
+            self.sePlayerGo =
+                [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:path]
+                                                       error:nil];
+            [self.sePlayerGo prepareToPlay];
+        }
+        break;
+    case 5:
+        [[AudioManager sharedManager] loadBgmResAAC:@"SD_KNT_BGM_RESULT" inDirectory:nil];
+        [[AudioManager sharedManager] startBgm:YES fadeTime:0.0];
+        break;
+    case 6:
+        // The frame counter is left running for state 6; every other state resets it below.
+        [super setState:state];
+        return;
+    default:
+        break;
+    }
+    self->frame = 0;
+    [super setState:state];
 }
 
 /** @ghidraAddress 0x2007e4 */
