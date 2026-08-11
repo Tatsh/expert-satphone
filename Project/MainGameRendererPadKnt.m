@@ -20,6 +20,16 @@ static const double kScoreDigitNudge = 1.0; // fmov 0x3ff0000000000000
 static const int kScoreDigitCount = 7;
 static const NSUInteger kScoreSlashSprite = '/'; // 0x2f, drawn after the leading blanks
 
+// The result score tweens the displayed value halfway to the target each frame and draws its two
+// panel sprites plus seven digit glyphs one hundred points apart (a wider six-figure layout), the
+// glyph set switching above 700000 so seven-figure scores use narrower digits.
+static const NSUInteger kScorePanelSprite = 9;
+static const NSUInteger kScorePanelLabelSprite = 10;
+static const int kResultScoreDigitStride = 50;                 // 0x32
+static const unsigned int kScoreSevenFigureThreshold = 700000; // 0xaae60
+static const int kScoreDigitBaseSmall = -0x15; // '0' maps to sprite 0x1b below the threshold
+static const int kScoreDigitBaseLarge = -0xb;  // '0' maps to sprite 0x25 at/above the threshold
+
 @implementation MainGameRendererPadKnt
 
 /** @ghidraAddress 0x206dcc */
@@ -70,6 +80,36 @@ static const NSUInteger kScoreSlashSprite = '/'; // 0x2f, drawn after the leadin
 /** @ghidraAddress 0x202390 */
 - (CGRect)getMusicBarRect {
     return musicBarRect;
+}
+
+/** @ghidraAddress 0x201e60 */
+- (void)renderScore:(unsigned int)score atPoint:(CGPoint)point alpha:(double)alpha {
+    if (score == 0) {
+        scoreDisplay = 0;
+    } else if (scoreDisplay != score) {
+        // Tween the displayed value halfway to the target, rounding away from the current value.
+        int step = (scoreDisplay < score) ? 1 : -1;
+        scoreDisplay = scoreDisplay + (((int)(score - scoreDisplay) + step) >> 1);
+    }
+    char buf[8];
+    snprintf(buf, sizeof(buf), "%7d", scoreDisplay);
+    unsigned int display = scoreDisplay;
+    [self.texFront drawSprite:kScorePanelSprite atPoint:point transform:0 alpha:(float)alpha];
+    [self.texFront drawSprite:kScorePanelLabelSprite atPoint:point transform:0 alpha:(float)alpha];
+    int digitBase =
+        (display > kScoreSevenFigureThreshold) ? kScoreDigitBaseLarge : kScoreDigitBaseSmall;
+    int digitX = 0;
+    for (int i = 0; i < kScoreDigitCount; ++i) {
+        unsigned char c = (unsigned char)buf[i];
+        if ((unsigned int)(c - '0') < 10) {
+            [self.texFront
+                drawSprite:(NSUInteger)(digitBase + (char)buf[i])
+                   atPoint:CGPointMake(point.x + (double)digitX + kScoreDigitNudge, point.y)
+                 transform:0
+                     alpha:(float)alpha];
+        }
+        digitX += kResultScoreDigitStride;
+    }
 }
 
 /** @ghidraAddress 0x201cc0 */
