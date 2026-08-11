@@ -47,6 +47,9 @@ enum {
 // The sub-state value that marks the play session as finished.
 static const unsigned int kMainGamePhoneKntEndSubState = 99;
 
+// Pi, shared with the engine's rodata pool; the shutter oscillation samples sin over it.
+static const double g_dPi = 3.141592653589793; // @ghidraAddress 0x28f278
+
 // The button-position grid: 0x50-point pitch with a 0x28-point half-cell inset.
 enum {
     kButtonGridPitch = 0x50,

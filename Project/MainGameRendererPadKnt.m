@@ -1,5 +1,7 @@
 #import "MainGameRendererPadKnt.h"
 
+#include <math.h>
+
 #import <UIKit/UIKit.h>
 
 #import "AudioManager.h"
@@ -12,6 +14,9 @@
 #import "TextureLoading.h"
 #import "UpperBGKnit.h"
 #import "neEngineBridge.h"
+
+// Pi, shared with the engine's rodata pool; the shutter oscillation samples sin over it.
+static const double g_dPi = 3.141592653589793; // @ghidraAddress 0x28f278
 
 // The ready/go countdown runs for two and a half seconds on the Knit pad renderer.
 static const double kReadyGoDuration = 2.5; // fmov 0x4004000000000000
@@ -1801,6 +1806,62 @@ digits:
     if (self->frame == kPreStartEndFrame) {
         [[AudioManager sharedManager] playSeResFile:kSeMuon inDirectory:nil];
         [self setSubState:kPreStartSubStatePlay];
+    }
+}
+
+/** @ghidraAddress 0x2015b4 */
+- (void)renderShutter:(BOOL)animate {
+    // The five shutter-bar offsets from the centre line.
+    static const int kShutterOffset[] = {-20, 29, 93, 193, 323}; // @ghidraAddress 0x294244
+    static const float kShutterTensionGain = 435.0f;             // @ghidraAddress 0x292544
+    static const float kShutterTensionScale = 1.0f / 1024.0f;    // @ghidraAddress 0x292540
+    static const double kShutterCentre = 640.0;                  // @ghidraAddress 0x291d80
+
+    // The shutter opens with the score's tension, oscillating on the beat (haku) phase. A replay
+    // backup does not drive it.
+    float tension = 0.0f;
+    double phase = 0.0;
+    if (self.sequence != nil) {
+        if (self.scoreBackup) {
+            return;
+        }
+        const ScoreData *score = [self.sequence getScore];
+        phase = (double)self.sequence.hakuPhase * g_dPi;
+        if (score != nullptr) {
+            tension = (float)score->tension;
+        }
+    }
+
+    if (animate) {
+        float open = tension * kShutterTensionGain * kShutterTensionScale;
+        if (open > 0.0f) {
+            float bounce = tension * 10.0f * kShutterTensionScale + 15.0f;
+            open = open + (bounce - bounce * (float)sin(phase));
+        }
+        // A one-pole low-pass toward the target so the bars ease rather than snap.
+        shutterOpen = (open + shutterOpen) * 0.5f;
+    }
+
+    // Sprite 1's height sets how far the mirrored (left) bar starts inset from the centre.
+    double barHeight = [self.texBeatBg spriteAtIndex:1].size.height;
+    double left = kShutterCentre - barHeight;
+    for (int i = 0; i < 5; ++i) {
+        int sprite = (i == 4) ? 3 : i;
+        // The mirrored (transform 2) bar, pulled in by the offset and the shutter.
+        [self.texBeatBg drawSprite:(NSUInteger)sprite
+                           atPoint:CGPointMake(0.0,
+                                               (double)(float)(left - (double)kShutterOffset[i] -
+                                                               (double)shutterOpen))
+                         transform:2
+                             alpha:1.0f];
+        // The upright bar, pushed out by the same amount from the centre.
+        [self.texBeatBg
+            drawSprite:(NSUInteger)sprite
+               atPoint:CGPointMake(0.0,
+                                   (double)(float)((double)kShutterOffset[i] + kShutterCentre +
+                                                   (double)shutterOpen))
+             transform:0
+                 alpha:1.0f];
     }
 }
 
