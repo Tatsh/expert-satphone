@@ -2930,7 +2930,7 @@ drawDigits:
     int lastDigitIndex = -1;
     for (int i = 0; i < kScoreDigitCount; ++i) {
         if ((unsigned char)(digits[i] - kScoreDigitAsciiBase) < 10) {
-            NSUInteger sprite = (NSUInteger)((int)digits[i] + 6);
+            unsigned int sprite = (unsigned int)((int)digits[i] + 6);
             CGRect s = [self.texFront spriteAtIndex:sprite];
             [self.texFront drawSprite:sprite
                                inRect:CGRectMake(point.x + spacing * (double)(i + 1) + 1.0,
