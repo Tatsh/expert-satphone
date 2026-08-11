@@ -29,7 +29,7 @@ static const float kRequestTimeout = 10.0f;
     [parameters setValue:countryCode forKey:kParameterKeyCountryCode];
     [parameters setValue:url forKey:kParameterKeyReturnURL];
 
-    NSString *query = [ApplilinkUtilities userAgentParametersJoinDictionary:parameters];
+    NSDictionary *query = [ApplilinkUtilities userAgentParametersJoinDictionary:parameters];
 
     ApplilinkWebAPI *webAPI = [[ApplilinkWebAPI alloc] init];
     NSURLRequest *request =

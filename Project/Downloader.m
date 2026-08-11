@@ -1,5 +1,6 @@
 #import "Downloader.h"
 
+#import "CJSONDeserializer.h"
 #import "Downloader_Protected.h"
 #import "JubeatAppDelegate.h"
 

@@ -2,6 +2,7 @@
 
 #import <StoreKit/StoreKit.h>
 
+#import "CJSONDeserializer.h"
 #import "JubeatAppDelegate.h"
 #import "StoreMusicInfo.h"
 #import "StoreMusicListManager.h"
@@ -22,11 +23,6 @@ static NSString *const kStoreURLFormat = @"https://%@%@";
 // name in a comment. Its selectors are messaged dynamically.
 @interface NSObject (StoreUtilScratch)
 + (nullable NSURL *)cubeVerifyReceiptURL;
-@end
-
-// TouchJSON's deserialiser category, used by -checkStoreResponse:.
-@interface NSDictionary (CJSONDeserializer)
-+ (nullable id)dictionaryWithJSONData:(nullable NSData *)data error:(NSError **)error;
 @end
 
 // The lowercase SHA-256 hex of a data buffer; a free function not reconstructed yet. Declared here

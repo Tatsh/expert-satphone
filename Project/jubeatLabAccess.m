@@ -2,14 +2,10 @@
 
 #import <Security/Security.h>
 
+#import "CJSONDeserializer.h"
 #import "CJSONSerializer.h"
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
-
-// TouchJSON's deserialiser category, the same one -[Downloader getDataInJSON] uses.
-@interface NSDictionary (CJSONDeserializer)
-+ (nullable id)dictionaryWithJSONData:(nullable NSData *)data error:(NSError **)error;
-@end
 
 @interface jubeatLabAccess ()
 // De-inlined: cancels and drops the session task. @ghidraAddress 0x1db2d0

@@ -3,37 +3,13 @@
 #import "AlertViewManager.h"
 #import "ChallengeModeRootView.h"
 #import "ChallengePrevRankingListView.h"
+#import "ChallengeRankingListView.h"
 #import "ChallengeStatus.h"
 #import "Downloader.h"
 #import "JubeatAppDelegate.h"
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
 #import "SystemUtilities.h"
-
-// The per-tune ranking sub-list, not reconstructed yet; forward-declare only what this view uses.
-// See TYPES_PENDING.md.
-@class ChallengeRankingListView;
-
-// The ranking sub-list's delegate protocol, not reconstructed yet; forward-declare the selectors
-// this view implements. See TYPES_PENDING.md.
-@protocol ChallengeRankingListViewDelegate <NSObject>
-@optional
-/** The ranking sub-list wants to return to the line-up list. */
-- (void)closeRanking;
-/** A list button was tapped. */
-- (void)selectListButton:(nullable id)sender;
-/** The list was closed. */
-- (void)closeList:(nullable id)sender;
-/** The close button was tapped. */
-- (void)tapClose:(nullable id)sender;
-@end
-
-@interface ChallengeRankingListView : UIView
-- (instancetype)initWithFrame:(CGRect)frame
-                        mDict:(nullable NSDictionary *)mDict
-                    scratchID:(int)scratchID;
-- (void)setADelegate:(nullable id)aDelegate;
-@end
 
 // The challenge root view messaged when a session-error alert is dismissed, reached through
 // ChallengeStatus. Neither is fully declared yet. See TYPES_PENDING.md.
