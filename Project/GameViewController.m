@@ -307,7 +307,10 @@ static NSString *const kAlertYes = @"はい";
 static NSString *const kAlertNo = @"いいえ";
 static NSString *const kAlertOK = @"OK";
 
-@interface GameViewController () {
+@interface GameViewController () <AlertViewManagerDelegate,
+                                  DownloaderDelegate,
+                                  EditorIDManagerDelegate,
+                                  SearchPackIDViewDelegate> {
 @public
     BOOL isPad;                                // Whether the device is a pad idiom.
     BOOL isSession;                            // Whether a local-multiplayer session is active.
@@ -594,7 +597,7 @@ static inline UIImage *GameViewControllerDecipherImage(BFCodec *codec,
                                                        NSData *cipherKey,
                                                        NSString *member) {
     [codec cipherInit:cipherKey];
-    NSData *data = [archive uncompress:member];
+    NSMutableData *data = [archive uncompress:member];
     if (data != nil && [codec decipher:data]) {
         return [[UIImage alloc] initWithData:data];
     }
@@ -1122,7 +1125,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
             BFCodec *codec = [[BFCodec alloc] init];
             NSData *cipherKey = GetBgmCipherKey();
 
-            NSData *sequenceData = [archive uncompress:sequenceName];
+            NSMutableData *sequenceData = [archive uncompress:sequenceName];
             [codec cipherInit:cipherKey];
             [codec decipher:sequenceData];
 
@@ -1162,7 +1165,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
                 [conf setMarkerData:[NSData dataWithData:markerData]];
             }
 
-            NSData *bgm = [archive uncompress:kArchiveBgmMember];
+            NSMutableData *bgm = [archive uncompress:kArchiveBgmMember];
             if (bgm != nil) {
                 [codec cipherInit:cipherKey];
                 [codec decipher:bgm];
@@ -1219,7 +1222,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
 
     if (self->isCustom) {
         self->oldBestScore =
-            [[EditDataManager sharedManager] getScoreData][kScoreDataBestScoreKey].intValue;
+            [[EditDataManager sharedManager].getScoreData[kScoreDataBestScoreKey] intValue];
     }
 
     if ([[JubeatAppDelegate appDelegate] bChallengeMode]) {
@@ -1359,16 +1362,16 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
     self->buttonPressOld = self->buttonPress;
     self->buttonPress = 0;
 
-    BOOL isAuto;
+    BOOL autoPlay;
     if ([self.mainGameRenderer state] == kRendererStateEnding) {
-        isAuto = NO;
+        autoPlay = NO;
         self->isAuto = NO;
     } else {
-        isAuto = self->isAuto;
+        autoPlay = self->isAuto;
     }
 
-    NSArray *touches = [self.glView touches];
-    if (!isAuto) {
+    NSMutableSet *touches = [self.glView touches];
+    if (!autoPlay) {
         for (id touch in touches) {
             CGPoint point = [touch locationInView:self.glView];
             GameViewControllerHitTestPanels(self, point);
@@ -1803,7 +1806,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
         }
         // Fall through to the starting / playing pause handling.
     case kRendererStateStarting:
-    case kRendererStatePlaying:
+    case kRendererStatePlaying: {
         if (self->bRestartFlag) {
             break;
         }
@@ -1816,6 +1819,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
             [audio stopBgm];
         }
         return;
+    }
     case kRendererStateEnding:
         if ([self.mainGameRenderer isSession] &&
             [self.mainGameRenderer subState] == kRendererSubStateSessionWait) {
@@ -2525,7 +2529,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
     int score = self.sequence.getScore->totalPoint;
     unsigned int difficulty = self.currentDiff;
     ChallengeStatus *status = [ChallengeStatus sharedStatus];
-    BOOL fullCombo = self.sequence.isFullcombo | self.sequence.isExcellent;
+    BOOL fullCombo = self.sequence.isFullcombo || self.sequence.isExcellent;
 
     NSDictionary *post = @{
         kScorePostScratchIDKey : status.scratchID,
@@ -2612,7 +2616,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
         }
     }
 
-    if ([downloader tag] == kDownloaderTagChallengeScore) {
+    if ([(Downloader *)downloader tag] == kDownloaderTagChallengeScore) {
         if (status == kServerStatusItemChanceOK || status == 0) {
             if (json[kResponseItemTypeKey] != nil) {
                 self->chanceItemType = [json[kResponseItemTypeKey] intValue];
@@ -2646,7 +2650,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
 
 /** @ghidraAddress 0x1b50c */
 - (void)downloaderError:(id)downloader {
-    if ([downloader tag] == kDownloaderTagChallengeScore) {
+    if ([(Downloader *)downloader tag] == kDownloaderTagChallengeScore) {
         [[AlertViewManager sharedManager] makeAlert:kAlertTypePlain
                                            delegate:self
                                                 tag:kRetrySendAlertTag
