@@ -14,6 +14,10 @@
 
 #include <CoreGraphics/CGGeometry.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Looks up the combo-number scale factor for an animation step and digit count.
  *
@@ -131,6 +135,10 @@ float EvalComboAnimCurve(float flTime, unsigned int dwAnimGroup, int nFrameIndex
  * @ghidraAddress 0x1dff0
  */
 float EvalComboScaleCurve(float flTime, unsigned int dwCurveIndex);
+
+#ifdef __cplusplus
+}
+#endif
 
 // code: language=C++
 // kate: hl C++;

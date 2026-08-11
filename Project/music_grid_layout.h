@@ -15,6 +15,10 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Returns the number of music cells shown on one page of the music-selection grid.
  *
@@ -58,6 +62,10 @@ int GetMusicGridRowCount(int nColumnType);
  * @ghidraAddress 0xfd7cc
  */
 double GetMusicCellScaleForColumnType(int nColumnType);
+
+#ifdef __cplusplus
+}
+#endif
 
 // code: language=C++
 // kate: hl C++;
