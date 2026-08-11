@@ -81,6 +81,12 @@ static const unsigned int kRenderStateResult = 5;
 // The sub-state -endResult parks the result screen in once it is dismissed.
 static const unsigned int kResultEndSubState = 99;
 
+// The result-screen button grid: a button's centre is derived from its 4-wide index at a 192-point
+// pitch, inset 96 horizontally and dropped 352 vertically.
+static const unsigned int kButtonGridPitch = 0xc0;
+static const unsigned int kButtonGridInsetX = 0x60;
+static const unsigned int kButtonGridTopY = 0x160;
+
 // The debug-text overlay lays glyphs out on a 12-point advance and a 20-point line height, capped
 // at 0x200 glyphs; each printable character maps to the font sprite at its ASCII code minus space.
 static const double kDebugGlyphAdvance = 12.0;
@@ -618,6 +624,27 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 /** @ghidraAddress 0x205bac */
 - (unsigned int)storeMoveButtonID {
     return kEvaluateButtonID;
+}
+
+/** @ghidraAddress 0x205ac4 */
+- (CGPoint)goodJobPosition {
+    unsigned int buttonID = self.goodJobButtonID;
+    return CGPointMake((double)((buttonID & 3) * kButtonGridPitch + kButtonGridInsetX),
+                       (double)((buttonID >> 2) * kButtonGridPitch + kButtonGridTopY));
+}
+
+/** @ghidraAddress 0x205b3c */
+- (CGPoint)twitterBtnPosition {
+    unsigned int buttonID = self.twitterSendButtonID;
+    return CGPointMake((double)((buttonID & 3) * kButtonGridPitch + kButtonGridInsetX),
+                       (double)((buttonID >> 2) * kButtonGridPitch + kButtonGridTopY));
+}
+
+/** @ghidraAddress 0x205bb4 */
+- (CGPoint)storeMoveBtnPosition {
+    unsigned int buttonID = self.storeMoveButtonID;
+    return CGPointMake((double)((buttonID & 3) * kButtonGridPitch + kButtonGridInsetX),
+                       (double)((buttonID >> 2) * kButtonGridPitch + kButtonGridTopY));
 }
 
 /** @ghidraAddress 0x202390 */
