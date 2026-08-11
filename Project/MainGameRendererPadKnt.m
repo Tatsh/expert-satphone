@@ -1,5 +1,6 @@
 #import "MainGameRendererPadKnt.h"
 
+#import "AudioManager.h"
 #import "HoldMarkerRender.h"
 #import "JubeatAppDelegate.h"
 #import "RendererConf.h"
@@ -323,6 +324,85 @@ MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *s
                         anchor:CGPointMake(kRatingRankAnchorX, kRatingRankAnchorY)
                      transform:0
                          alpha:rankAlpha];
+}
+
+/** @ghidraAddress 0x2051b8 */
+- (BOOL)renderCleared:(unsigned int)frame {
+    static const float kBannerSlideFrom = 544.0f;                   // @ghidraAddress 0x293e80
+    static const float kBannerTopTo = 352.0f;                       // @ghidraAddress 0x2932d0
+    static const float kBannerMidTo = 928.0f;                       // @ghidraAddress 0x293e8c
+    static const double kFieldWidth = 768.0;                        // @ghidraAddress 0x292460
+    static const double kBannerMidWidth = 576.0;                    // @ghidraAddress 0x291d88
+    static const double kBannerBoxWidth = 192.0;                    // @ghidraAddress 0x28fa00
+    static const double kWordCentreX = 384.0;                       // @ghidraAddress 0x292470
+    static const double kWordCentreY = 544.0;                       // @ghidraAddress 0x292a68
+    static const float kWordScaleFrom = 0.3f;                       // @ghidraAddress 0x28e0b0
+    static const int kPanelPitch = 0xc0;                            // 192, per-panel grid pitch
+    static const int kPanelInsetX = 0x60;                           // 96, grid horizontal inset
+    static const int kPanelGridTopY = 0x160;                        // 352, rows pushed down
+    static const int kPanelReflowStride = 0xc;                      // 12, the 4x4 reflow multiplier
+    static NSString *const kSeResultClear = @"SD_KNT_RESULT_CLEAR"; // @ghidraAddress 0x2df940
+    static NSString *const kSeVoiceClear = @"SD_KNT_CV_CLEAR";      // @ghidraAddress 0x2df960
+
+    float fadeIn = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 8);
+
+    // The banner strips sample sprite 6 only for its height, then draw the wider sprite 7
+    // stretched.
+    double plateH = [self.texResultBg spriteAtIndex:6].size.height;
+    float topY = InterpolateFloatByFrame(kBannerSlideFrom, kBannerTopTo, frame, 0, 0x10);
+    [self.texResultBg drawSprite:7
+                          inRect:CGRectMake(0.0, (double)topY - plateH * 0.5, kFieldWidth, plateH)];
+
+    double midY = (double)InterpolateFloatByFrame(kBannerSlideFrom, kBannerMidTo, frame, 0, 0x10) -
+                  plateH * 0.5;
+    [self.texResultBg drawSprite:7 inRect:CGRectMake(0.0, midY, kBannerMidWidth, plateH)];
+    [self.texResultBg drawSprite:7
+                          inRect:CGRectMake(kBannerMidWidth, midY, kBannerBoxWidth, plateH)
+                       transform:0
+                           alpha:1.0f];
+
+    // The eight clear panels fill the grid's top and bottom rows; the last is drawn full opacity.
+    CGSize panelSize = [self.texResultBg spriteAtIndex:5].size;
+    for (int i = 0; i < 8; ++i) {
+        float cellAlpha = (i == 7) ? 1.0f : fadeIn;
+        int reflowed = i % 4 + (i >> 2) * kPanelReflowStride;
+        double px = (double)((reflowed % 4) * kPanelPitch + kPanelInsetX);
+        double py = (double)((reflowed >> 2) * kPanelPitch + kPanelGridTopY);
+        [self.texResultBg
+            drawSprite:5
+               atPoint:CGPointMake(px - panelSize.width * 0.5, py - panelSize.height * 0.5)
+                 scale:1.0f
+                rotate:0
+                anchor:CGPointMake(px, py)
+             transform:0
+                 alpha:cellAlpha];
+    }
+
+    // The "cleared" word (texResult sprite 0) scales up from 0.3 and fades in over frames 0..6,
+    // anchored at the field centre.
+    float wordAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 6);
+    float wordScale = InterpolateFloatByFrame(kWordScaleFrom, 1.0f, frame, 0, 6);
+    CGSize wordSize = [self.texResult spriteAtIndex:0].size;
+    [self.texResult drawSprite:0
+                       atPoint:CGPointMake(kWordCentreX - wordSize.width * 0.5,
+                                           kWordCentreY - wordSize.height * 0.5)
+                         scale:wordScale
+                        rotate:0
+                        anchor:CGPointMake(kWordCentreX, kWordCentreY)
+                     transform:0
+                         alpha:wordAlpha];
+
+    // The clear jingle and voice play once; from frame 10 the rating tally counts up.
+    if (frame < 10) {
+        if (frame == 0) {
+            [[AudioManager sharedManager] playSeResFile:kSeResultClear inDirectory:nil];
+            [[AudioManager sharedManager] playSeResFile:kSeVoiceClear inDirectory:nil];
+        }
+    } else {
+        [self renderRating:frame - 10];
+    }
+
+    return frame > 0x3b;
 }
 
 /** @ghidraAddress 0x20186c */
