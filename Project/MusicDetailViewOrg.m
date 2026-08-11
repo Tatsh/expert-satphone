@@ -333,11 +333,670 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
     return 9;
 }
 
+// The layout constants used only while building the card in -initWithFrame:. The classic theme
+// lays everything out three ways: pad, retina phone, and non-retina phone.
+
+// The scroll view spans the lower band of the card: its top is (pad 400 / phone 200) minus its own
+// height (pad 100 / phone 50), and it holds two full-width pages.
+static const double kScrollViewTopBasePad = 400.0;         // @ghidraAddress 0x28f2e0
+static const double kScrollViewTopBasePhone = 200.0;       // fmov, 200
+static const double kScrollViewTopInsetPad = 100.0;        // @ghidraAddress 0x28f3f0
+static const double kScrollViewTopInsetPhone = 50.0;       // fmov, 50
+static const double kScrollViewContentHeightPad = 200.0;   // @ghidraAddress 0x28f400
+static const double kScrollViewContentHeightPhone = 100.0; // @ghidraAddress 0x28f3f0
+static const NSInteger kScrollViewAutoresizingMask = 18;
+
+// The card's background and its gradient-layer border and stops.
+static const CGFloat kCardBackgroundWhite = 0.1; // @ghidraAddress 0x28f2b8
+static const CGFloat kCardBackgroundAlpha = 0.9; // @ghidraAddress 0x28f448
+static const CGFloat kCardBorderWidth = 2.0;     // fmov, 2.0
+static const CGFloat kGradientTopWhite = 0.3;    // @ghidraAddress 0x28f248
+static const CGFloat kGradientBottomWhite = 0.0;
+static const CGFloat kGradientAlpha = 0.9; // @ghidraAddress 0x28f448
+
+// The artwork and its reflection. The square artwork is (pad 200 / retina 110 / non-retina 95) on a
+// side, inset (pad 10 / phone 8) from the corner; the reflection sits directly below it (nudged by
+// retina 0.5 / non-retina 1.0) and is a fraction (pad 0.3 / phone 0.2) as tall.
+static const double kArtworkSizePad = 200.0;      // fmov, 200
+static const double kArtworkSizeRetina = 110.0;   // 0x6e
+static const double kArtworkSizeNonRetina = 95.0; // 0x5f
+static const double kArtworkInsetPad = 10.0;      // fmov, 10.0
+static const double kArtworkInsetPhone = 8.0;     // fmov, 8.0
+static const float kReflectionNudgeRetina = 0.5f; // fmov, 0.5
+static const float kReflectionNudgeNonRetina = 1.0f;
+static const float kReflectionFractionPadF = 0.3f;   // @ghidraAddress 0x28e0b0 (g_flComboFadeBase)
+static const float kReflectionFractionPhoneF = 0.2f; // @ghidraAddress 0x28f3c8
+
+// The tune-name image and the iTunes link sit to the right of the artwork. Their left edge is the
+// artwork's right edge plus a small idiom gap; the name box is (pad 340x64 / retina 170x32 /
+// non-retina 204x38) and the link box keeps its own size at a per-idiom Y.
+static const double kTuneNameGapPad = 10.0;
+static const double kTuneNameGapRetina = 5.0;
+static const double kTuneNameGapNonRetina = 6.0;
+static const double kTuneNameWidthPad = 340.0;       // @ghidraAddress 0x28f5e0
+static const double kTuneNameWidthRetina = 170.0;    // @ghidraAddress 0x28f5d8
+static const double kTuneNameWidthNonRetina = 204.0; // @ghidraAddress 0x28f5d0
+static const double kTuneNameHeightPad = 64.0;       // @ghidraAddress 0x28f1f0
+static const double kTuneNameHeightRetina = 32.0;    // @ghidraAddress 0x28f458
+static const double kTuneNameHeightNonRetina = 38.0; // @ghidraAddress 0x28f4f8
+static const double kButtonLinkYPad = 80.0;          // @ghidraAddress 0x28f3f8
+static const double kButtonLinkYPhone = 48.0;        // @ghidraAddress 0x28f450
+
+// The social recommend buttons stack rightwards from the card's right edge, each vertically centred
+// on the link row, with a per-idiom right/inter-button inset.
+static const int kSocialInsetPad = 24;
+static const int kSocialGapPad = 10;
+
+// The four difficulty buttons ride the scroll view. Their centres are: the first at a fixed left
+// edge (pad 110 / phone 60), the second at mid-page (width/2), the third near the right edge
+// (width - (pad 110 / phone 60)), and the fourth (edit) one page over (width + (pad 110 / phone
+// 60)); all at centre Y (pad 100 / phone 50).
+static const double kDiffCenterEdgePad = 110.0;  // @ghidraAddress 0x28f5e8
+static const double kDiffCenterEdgePhone = 60.0; // @ghidraAddress 0x28f258
+static const double kDiffCenterYPad = 100.0;     // @ghidraAddress 0x28f3f0
+static const double kDiffCenterYPhone = 50.0;    // @ghidraAddress 0x28f2c8
+
+// The difficulty-text image over each button is square (pad 160 / retina 80 / non-retina 74).
+static const double kDiffTextSizePad = 160.0;      // 0xa0
+static const double kDiffTextSizeRetina = 80.0;    // 0x50
+static const double kDiffTextSizeNonRetina = 74.0; // 0x4a
+
+// The light-pair image beneath each button and the blink it plays. The classic theme blinks each
+// selected difficulty's two lights forever between full and dim opacity over half a second.
+static const CFTimeInterval kNormalBlinkDuration = 0.5; // fmov, 0.5
+static const float kNormalBlinkFrom = 1.0f;             // fmov, 1.0
+static const float kNormalBlinkTo = 0.2f;               // @ghidraAddress 0x28f3c8
+
+// The start-play and host-share buttons sit below the artwork. Their X is the card centre minus a
+// per-idiom offset (pad 120 / phone 75); their Y and height come from stacking below the artwork.
+static const int kStartButtonXOffsetPad = 120;  // 0x78
+static const int kStartButtonXOffsetPhone = 75; // 0x4b
+// The share-message label and progress bar are 300 wide; the same 300 negated centres them on the
+// host button. The label height and font, and the progress height, are per idiom.
+static const double kShareLabelWidth = 300.0;         // @ghidraAddress 0x28f2d0
+static const double kShareLabelWidthNegated = -300.0; // @ghidraAddress 0x28f3e8
+static const double kShareLabelHeightPad = 20.0;      // 0x4034
+static const double kShareLabelHeightPhone = 16.0;    // 0x4030
+static const double kShareLabelGapPad = 54.0;         // @ghidraAddress 0x28f640
+static const double kShareLabelGapPhone = 28.0;       // fmov, 28
+static const double kShareLabelFontPad = 20.0;        // 0x4034
+static const double kShareLabelFontPhone = 16.0;      // 0x4030
+static const double kShareProgressGapPad = 60.0;      // @ghidraAddress 0x28f258
+static const double kShareProgressGapPhone = 34.0;    // @ghidraAddress 0x28f648
+static const double kShareProgressHeightPad = 12.0;   // 0x4028
+static const double kShareProgressHeightPhone = 8.0;  // 0x4020
+
+// The music bar: its own view (width pad 560 / phone 280, height pad 40 / phone 20) centred at
+// (barWidth/2, pad 294 / phone 144), and 120 dot views spaced across it.
+static const double kMusicBarWidthPad = 560.0;     // @ghidraAddress 0x28f650
+static const double kMusicBarWidthPhone = 280.0;   // @ghidraAddress 0x28f658
+static const double kMusicBarHeightPad = 40.0;     // @ghidraAddress 0x28f1f8
+static const double kMusicBarHeightPhone = 20.0;   // fmov, 20
+static const double kMusicBarCenterYPad = 294.0;   // @ghidraAddress 0x28f668
+static const double kMusicBarCenterYPhone = 144.0; // @ghidraAddress 0x28f660
+static const int kMusicBarDotStartPad = 40;
+static const int kMusicBarDotStartPhone = 30;       // pad-off value 20 at 0x28f... handled inline
+static const double kMusicBarDotYPad = 3.0;         // fmov, 3.0
+static const double kMusicBarDotWidthPad = 6.0;     // fmov, 6.0
+static const double kMusicBarDotHeightPad = 36.0;   // @ghidraAddress 0x28f530
+static const double kMusicBarDotYPhone = 1.0;       // fmov, 1.0
+static const double kMusicBarDotWidthPhone = 2.0;   // fmov, 2.0
+static const double kMusicBarDotHeightPhone = 18.0; // fmov, 18
+
+// The high-score board image and its centre (see kHighscoreBoardX*/Y*), then seven right-justified
+// score digits, a rating image, and a combo image, each at per-idiom coordinates.
+static NSString *const kHighscoreBoardImage = @"msc_hsboard";
+
+// The four difficulty slots take their button/word/light PNG names from a one-letter suffix.
+static const char kDiffButtonLetters[] = {'b', 'a', 'e', 'o'};
+static NSString *const kDiffButtonNameFormat = @"msel_btn_%c";
+static NSString *const kDiffTextNameFormat = @"msel_btn_str_%c";
+static NSString *const kDiffLightNameFormat = @"msel_btn_light_%c";
+
+// Builds one difficulty slot: its button (added to the scroll view and centred), the difficulty
+// word and level-number glyphs, and the two blink lights. All subview frames are within the
+// button's own coordinate system and are laid out three ways. The word glyph is omitted for the
+// fourth (edit) slot. @p center is the button's centre in the scroll view.
+static inline void
+MusicDetailViewOrgBuildDifficultyButton(MusicDetailViewOrg *self, int index, CGPoint center) {
+    BOOL isPad = self.isPad;
+    BOOL isRetina = self.isRetina;
+    char letter = kDiffButtonLetters[index];
+
+    self->btnDiff[index] =
+        [self diffButton:[NSString stringWithFormat:kDiffButtonNameFormat, letter]];
+
+    if (index != kExtendLevelNumIndex) {
+        double textSize =
+            isPad ? kDiffTextSizePad : (isRetina ? kDiffTextSizeRetina : kDiffTextSizeNonRetina);
+        UIImage *wordImage =
+            LoadScaledPngImage([NSString stringWithFormat:kDiffTextNameFormat, letter]);
+        self->diffTextView[index] = [[UIImageView alloc] initWithImage:wordImage];
+        [self->diffTextView[index] setFrame:CGRectMake(0.0, 0.0, textSize, textSize)];
+        [self->diffTextView[index] setAlpha:0.0];
+        [self->btnDiff[index] addSubview:self->diffTextView[index]];
+
+        CGRect wordFrame = isPad    ? CGRectMake(26.0, 90.0, 78.0, 25.0) :
+                           isRetina ? CGRectMake(13.0, 45.0, 39.0, 13.0) :
+                                      CGRectMake(5.0, 41.0, 47.0, 15.0);
+        self->levelTextView[index] = [[UIImageView alloc] initWithFrame:wordFrame];
+        [self->btnDiff[index] addSubview:self->levelTextView[index]];
+    }
+
+    CGRect numFrame = isPad    ? CGRectMake(100.0, 90.0, 28.0, 25.0) :
+                      isRetina ? CGRectMake(50.0, 45.0, 14.0, 13.0) :
+                                 CGRectMake(50.0, 41.0, 17.0, 15.0);
+    self->levelNumView[index] = [[UIImageView alloc] initWithFrame:numFrame];
+    [self->btnDiff[index] addSubview:self->levelNumView[index]];
+
+    UIImage *lightImage =
+        LoadScaledPngImage([NSString stringWithFormat:kDiffLightNameFormat, letter]);
+    CGRect topLightFrame = isPad    ? CGRectMake(-2.0, 0.0, 80.0, 28.0) :
+                           isRetina ? CGRectMake(-1.0, 0.0, 40.0, 14.0) :
+                                      CGRectMake(-4.0, -3.0, 40.0, 14.0);
+    self->lightView[index][0] = [[UIImageView alloc] initWithImage:lightImage];
+    [self->lightView[index][0] setFrame:topLightFrame];
+    [self->btnDiff[index] addSubview:self->lightView[index][0]];
+
+    CGRect bottomLightFrame = isPad    ? CGRectMake(81.0, 132.0, 80.0, 28.0) :
+                              isRetina ? CGRectMake(40.5, 66.0, 40.0, 14.0) :
+                                         CGRectMake(37.0, 63.0, 40.0, 14.0);
+    self->lightView[index][1] = [[UIImageView alloc] initWithImage:lightImage];
+    [self->lightView[index][1] setFrame:bottomLightFrame];
+    [self->btnDiff[index] addSubview:self->lightView[index][1]];
+
+    [self->btnDiff[index] setCenter:center];
+    [self.scrollView addSubview:self->btnDiff[index]];
+}
+
+// The two scroll arrows on the difficulty page.
+static NSString *const kScrollArrowRight = @"btn_edit_scroll_r";
+static NSString *const kScrollArrowLeft = @"btn_edit_scroll_l";
+
+// The pending-download lamps: the scroll lamp reuses the Knit right-arrow image, the difficulty
+// lamp the plain white button image.
+static NSString *const kScrollLampImage = @"btn_edit_scroll_r_knt";
+static NSString *const kDiffButtonLampImage = @"msel_btn_white";
+
+// The edit-page controls: the info button's text image, the two pad-only action buttons, and the
+// three stacked text fields (the comment field, index 2, is the multi-line one).
+static NSString *const kEditInfoTextImage = @"edit_info_text";
+static NSString *const kUploadButtonImage = @"btn_upload";
+static NSString *const kEditButtonImage = @"btn_edit";
+static const int kEditTextFieldCount = 3;
+static const int kEditCommentIndex = 2;
+// The info button drops below the scroll-arrow row by a per-idiom amount.
+static const double kInfoButtonDropPad = 212.0;   // @ghidraAddress 0x28f6d8
+static const double kInfoButtonDropPhone = 114.0; // @ghidraAddress 0x28f6d0
+// The text fields span 95% of the text image, rounded down to an even pixel; the pad action
+// buttons sit 138 points left of the scroll content's right edge.
+static const double kEditFieldWidthFraction = 0.95; // @ghidraAddress 0x28f6e0
+static const double kUploadButtonXOffset = -138.0;  // @ghidraAddress 0x28f6f0
+
+// The hold and extend marks over each difficulty button, keyed by the same difficulty letters used
+// above. Each mark's X is its own image width less the host gap and a per-idiom inset; the Y and
+// height are fixed.
+static NSString *const kHoldMarkFormat = @"hold_ico_%c";
+static NSString *const kExtendMarkFormat = @"add_ico_%c";
+static NSString *const kExtendOnMarkFormat = @"add_ico_%c_on";
+static const double kHostGapNegative = -40.0; // @ghidraAddress 0x28e078
+static const double kMarkInsetPad = 32.0;     // @ghidraAddress 0x28f458
+static const double kMarkInsetPhone = 16.0;   // fmov, 16
+static const double kMarkOffsetY = 4.0;       // fmov, 4
+static const double kMarkHeight = 14.0;       // fmov, 14
+
 @implementation MusicDetailViewOrg
 
 /** @ghidraAddress 0x502bc */
 + (Class)layerClass {
     return [CAGradientLayer class];
+}
+
+/** @ghidraAddress 0x502d0 */
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self == nil) {
+        return nil;
+    }
+    bRandomBak = NO;
+    BOOL isPad = self.isPad;
+    BOOL isRetina = self.isRetina;
+    double width = frame.size.width;
+
+    // The scroll view fills the lower band of the card and holds two full-width pages.
+    double scrollTop = (isPad ? kScrollViewTopBasePad : kScrollViewTopBasePhone) -
+                       (isPad ? kScrollViewTopInsetPad : kScrollViewTopInsetPhone);
+    double scrollHeight = isPad ? kScrollViewContentHeightPad : kScrollViewContentHeightPhone;
+    self.scrollView =
+        [[UIScrollView alloc] initWithFrame:CGRectMake(0.0, scrollTop, width, scrollHeight)];
+    [self.scrollView setUserInteractionEnabled:YES];
+    [self.scrollView setMultipleTouchEnabled:NO];
+    [self.scrollView setAutoresizesSubviews:NO];
+    [self.scrollView setOpaque:NO];
+    [self.scrollView setBounces:NO];
+    [self.scrollView setBackgroundColor:UIColor.clearColor];
+    [self.scrollView setAutoresizingMask:kScrollViewAutoresizingMask];
+    [self.scrollView setShowsVerticalScrollIndicator:NO];
+    [self.scrollView setShowsHorizontalScrollIndicator:NO];
+    [self.scrollView setPagingEnabled:YES];
+    [self.scrollView setDelegate:self];
+    [self.scrollView setContentSize:CGSizeMake(width + width, isPad ? scrollHeight : scrollTop)];
+    self.editPage = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey];
+    [self.scrollView setContentOffset:CGPointMake((double)self.editPage * width, 0.0) animated:NO];
+    [self addSubview:self.scrollView];
+
+    // The card's translucent white background and its gradient-layer border and stops.
+    [self setBackgroundColor:[UIColor colorWithWhite:kCardBackgroundWhite
+                                               alpha:kCardBackgroundAlpha]];
+    CAGradientLayer *gradient = (CAGradientLayer *)self.layer;
+    [gradient setBorderWidth:kCardBorderWidth];
+    [gradient setBorderColor:UIColor.lightGrayColor.CGColor];
+    id topColor = (id)[UIColor colorWithWhite:kGradientTopWhite alpha:kGradientAlpha].CGColor;
+    id bottomColor = (id)[UIColor colorWithWhite:kGradientBottomWhite alpha:kGradientAlpha].CGColor;
+    [gradient setColors:@[ topColor, bottomColor ]];
+
+    // The square artwork and its reflection directly below it.
+    double artworkInset = isPad ? kArtworkInsetPad : kArtworkInsetPhone;
+    double artworkSize =
+        isPad ? kArtworkSizePad : (isRetina ? kArtworkSizeRetina : kArtworkSizeNonRetina);
+    [self.artworkView setFrame:CGRectMake(artworkInset, artworkInset, artworkSize, artworkSize)];
+    float reflectionNudge = isRetina ? kReflectionNudgeRetina : kReflectionNudgeNonRetina;
+    float reflectionFraction = isPad ? kReflectionFractionPadF : kReflectionFractionPhoneF;
+    [self.reflectionArtworkView
+        setFrame:CGRectMake(artworkInset,
+                            (double)((float)(artworkInset + artworkSize) + reflectionNudge),
+                            artworkSize,
+                            (double)((float)artworkSize * reflectionFraction))];
+
+    // The tune-name image sits to the right of the artwork.
+    double artworkRight = artworkSize + artworkInset;
+    double tuneNameGap =
+        isPad ? kTuneNameGapPad : (isRetina ? kTuneNameGapRetina : kTuneNameGapNonRetina);
+    double tuneNameWidth =
+        isPad ? kTuneNameWidthPad : (isRetina ? kTuneNameWidthRetina : kTuneNameWidthNonRetina);
+    double tuneNameHeight =
+        isPad ? kTuneNameHeightPad : (isRetina ? kTuneNameHeightRetina : kTuneNameHeightNonRetina);
+    [self.tuneNameView
+        setFrame:CGRectMake(
+                     artworkRight + tuneNameGap, artworkInset, tuneNameWidth, tuneNameHeight)];
+
+    // The iTunes link keeps the tune-name box's size at its own per-idiom Y (gap 10 on the pad,
+    // 5 on both phones).
+    [self.buttonLink frame];
+    double linkGap = isPad ? kTuneNameGapPad : kTuneNameGapRetina;
+    double linkY = isPad ? kButtonLinkYPad : kButtonLinkYPhone;
+    [self.buttonLink
+        setFrame:CGRectMake(artworkRight + linkGap, linkY, tuneNameWidth, tuneNameHeight)];
+
+    // The social recommend buttons stack rightwards from the card's right edge, each centred on
+    // the link's vertical centre. The Facebook button is present only when the social compose
+    // sheet class exists; it consumes the first slot when so.
+    CGRect linkFrame = self.buttonLink.frame;
+    int socialCenterY = (int)(linkY + tuneNameHeight * 0.5);
+    int socialInset = isPad ? kSocialInsetPad : 0;
+    BOOL hasFacebook = NO;
+    if (NSClassFromString(@"SLComposeViewController") != nil) {
+        [self.btnRecommendFacebook frame];
+        CGRect selfFrame = self.frame;
+        [self.btnRecommendFacebook
+            setFrame:CGRectMake((selfFrame.size.width - linkFrame.size.width) - (double)socialInset,
+                                (double)socialCenterY - linkFrame.size.height * 0.5,
+                                linkFrame.size.width,
+                                linkFrame.size.height)];
+        [self.btnRecommendFacebook frame];
+        socialInset = isPad ? kSocialGapPad : 0;
+        hasFacebook = YES;
+    }
+    CGRect twitterFrame = self.btnRecommendTwitter.frame;
+    double twitterRefWidth = hasFacebook ? linkFrame.size.width : twitterFrame.size.width;
+    double selfWidth = hasFacebook ? self.frame.size.width : self.frame.size.width;
+    [self.btnRecommendTwitter
+        setFrame:CGRectMake((selfWidth - twitterRefWidth) -
+                                (double)(hasFacebook ? kSocialGapPad : 0),
+                            (double)socialCenterY - twitterFrame.size.height * 0.5,
+                            twitterFrame.size.width,
+                            twitterFrame.size.height)];
+
+    // The four difficulty buttons ride the scroll view at a shared centre Y.
+    double diffEdge = isPad ? kDiffCenterEdgePad : kDiffCenterEdgePhone;
+    double diffCenterY = isPad ? kDiffCenterYPad : kDiffCenterYPhone;
+    CGPoint diffCenters[] = {CGPointMake(diffEdge, diffCenterY),
+                             CGPointMake(width * 0.5, diffCenterY),
+                             CGPointMake(width - diffEdge, diffCenterY),
+                             CGPointMake(width + diffEdge, diffCenterY)};
+    for (int i = 0; i < kDiffButtonSlotCount; ++i) {
+        MusicDetailViewOrgBuildDifficultyButton(self, i, diffCenters[i]);
+    }
+
+    // The forever-blinking light animation, added to the first difficulty's two lights.
+    lightBlinkAnim = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    [lightBlinkAnim setDuration:kNormalBlinkDuration];
+    [lightBlinkAnim setFromValue:@(kNormalBlinkFrom)];
+    [lightBlinkAnim setToValue:@(kNormalBlinkTo)];
+    [lightBlinkAnim setAutoreverses:YES];
+    [lightBlinkAnim setRepeatCount:1e30f]; // g_flRepeatForever1e30
+    [lightBlinkAnim
+        setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear]];
+    [lightBlinkAnim setRemovedOnCompletion:NO];
+    [lightView[0][0].layer addAnimation:lightBlinkAnim forKey:kBlinkAnimationKey];
+    [lightView[0][1].layer addAnimation:lightBlinkAnim forKey:kBlinkAnimationKey];
+
+    [self loadImages];
+
+    // The start-play and host-share buttons sit along the bottom of the card, each at its own image
+    // size, the start button left of centre and the host button right of centre.
+    double cardHeight = self.frame.size.height;
+    int startXOffset = isPad ? kStartButtonXOffsetPad : kStartButtonXOffsetPhone;
+    double stackGap = isPad ? 24.0 : 10.0;
+    UIImage *singleImage = [self getSingleImage];
+    [self.buttonStartPlay
+        setFrame:CGRectMake((double)((int)(self.frame.size.width - singleImage.size.width) / 2 -
+                                     startXOffset),
+                            cardHeight - (singleImage.size.height + stackGap),
+                            singleImage.size.width,
+                            singleImage.size.height)];
+    [self.buttonStartPlay setBackgroundImage:singleImage forState:UIControlStateNormal];
+    [self.buttonStartPlay addTarget:self
+                             action:@selector(pushButtonStartPlay:)
+                   forControlEvents:UIControlEventTouchUpInside];
+
+    UIImage *hostImage = [[ImageCache sharedCache] getResPNG:kHostButtonImage];
+    [self.buttonHostSharePlay
+        setFrame:CGRectMake((double)(startXOffset +
+                                     (int)(self.frame.size.width - hostImage.size.width) / 2),
+                            cardHeight - (hostImage.size.height + stackGap),
+                            hostImage.size.width,
+                            hostImage.size.height)];
+    [self.buttonHostSharePlay setBackgroundImage:hostImage forState:UIControlStateNormal];
+    [self.buttonHostSharePlay addTarget:self
+                                 action:@selector(pushButtonShare:)
+                       forControlEvents:UIControlEventTouchUpInside];
+
+    // The share-message label, centred horizontally on the card and just above the buttons.
+    double shareX = (self.frame.size.width + kShareLabelWidthNegated) * 0.5;
+    [self.labelShareMessage
+        setFrame:CGRectMake(shareX,
+                            self.frame.size.height -
+                                (hostImage.size.height +
+                                 (isPad ? kShareLabelGapPad : kShareLabelGapPhone)),
+                            kShareLabelWidth,
+                            (isPad ? kShareLabelHeightPad : kShareLabelHeightPhone))];
+    [self.labelShareMessage
+        setFont:[UIFont boldSystemFontOfSize:(isPad ? kShareLabelFontPad : kShareLabelFontPhone)]];
+    [self.labelShareMessage setHidden:YES];
+    [self.labelShareMessage setBackgroundColor:UIColor.clearColor];
+    [self.labelShareMessage setTextColor:UIColor.whiteColor];
+
+    // The share-data progress bar, on the same centre line a little lower.
+    [self.shareDataProgress
+        setFrame:CGRectMake(shareX,
+                            self.frame.size.height -
+                                (hostImage.size.height +
+                                 (isPad ? kShareProgressGapPad : kShareProgressGapPhone)),
+                            kShareLabelWidth,
+                            (isPad ? kShareProgressHeightPad : kShareProgressHeightPhone))];
+    [self.shareDataProgress setProgressViewStyle:UIProgressViewStyleDefault];
+
+    // The music bar and its 120 dot views.
+    double barWidth = isPad ? kMusicBarWidthPad : kMusicBarWidthPhone;
+    double barHeight = isPad ? kMusicBarHeightPad : kMusicBarHeightPhone;
+    mbarBarView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0, 0.0, barWidth, barHeight)];
+    [self addSubview:mbarBarView];
+    [mbarBarView
+        setCenter:CGPointMake(barWidth * 0.5, isPad ? kMusicBarCenterYPad : kMusicBarCenterYPhone)];
+    int dotX = isPad ? kMusicBarDotStartPad : 30;
+    for (int i = 0; i < kMusicBarDotCount; ++i) {
+        CGRect dotFrame;
+        if (isPad) {
+            dotFrame = CGRectMake(
+                (double)dotX, kMusicBarDotYPad, kMusicBarDotWidthPad, kMusicBarDotHeightPad);
+        } else {
+            int phoneX = i + (isRetina ? kMusicBarDotStartPhone : 20);
+            dotFrame = CGRectMake((double)phoneX,
+                                  kMusicBarDotYPhone,
+                                  kMusicBarDotWidthPhone,
+                                  kMusicBarDotHeightPhone);
+        }
+        mbarDotView[i] = [[UIImageView alloc] initWithFrame:dotFrame];
+        [mbarBarView addSubview:mbarDotView[i]];
+        dotX += 4;
+    }
+    [self addSubview:mbarBarView];
+
+    // The high-score board and its seven right-justified score digits.
+    highscoreBoardView =
+        [[UIImageView alloc] initWithImage:LoadScaledPngImage(kHighscoreBoardImage)];
+    double boardX = isPad ? kHighscoreBoardXPad :
+                            (isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
+    double boardY = isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+    [highscoreBoardView setCenter:CGPointMake(boardX, boardY)];
+    for (int i = 0; i < kHighscoreDigitCount; ++i) {
+        CGRect digitFrame;
+        if (isPad) {
+            digitFrame = CGRectMake((double)(14 + i * 28), 28.0, 28.0, 32.0);
+        } else if (isRetina) {
+            digitFrame = CGRectMake((double)(7 + i * 14), 14.0, 14.0, 16.0);
+        } else {
+            digitFrame = CGRectMake((double)((float)i * 17.5f + 8.0f), 11.0, 17.5, 20.0);
+        }
+        highscoreNumView[i] = [[UIImageView alloc] initWithFrame:digitFrame];
+        [highscoreBoardView addSubview:highscoreNumView[i]];
+    }
+
+    // The rating image on the board.
+    CGRect ratingFrame = isPad    ? CGRectMake(216.0, 2.0, 100.0, 64.0) :
+                         isRetina ? CGRectMake(108.0, 1.0, 50.0, 32.0) :
+                                    CGRectMake(134.0, 2.0, 50.0, 32.0);
+    ratingView = [[UIImageView alloc] initWithFrame:ratingFrame];
+    [highscoreBoardView addSubview:ratingView];
+
+    // The combo image on the board.
+    CGRect comboFrame = isPad    ? CGRectMake(197.0, 36.0, 140.0, 70.0) :
+                        isRetina ? CGRectMake(98.0, 18.0, 70.0, 35.0) :
+                                   CGRectMake(124.0, 12.0, 70.0, 40.0);
+    comboView = [[UIImageView alloc] initWithFrame:comboFrame];
+    [highscoreBoardView addSubview:comboView];
+    [self addSubview:highscoreBoardView];
+    [highscoreBoardView frame];
+
+    // The random marker keeps its own size but is repositioned relative to the rating image: its
+    // left edge one point inside the rating's, and its top the rating's centre line, less a small
+    // idiom inset.
+    CGPoint randCenter = self.randView.center;
+    CGSize randSize = self.randView.frame.size;
+    int randInset = isPad ? 5 : 3;
+    double randX = ratingFrame.origin.x - randCenter.x - 1.0;
+    double randY =
+        (double)((int)(ratingFrame.origin.y + (ratingFrame.size.height - randCenter.y) * 0.5) -
+                 randInset);
+    [self.randView setFrame:CGRectMake(randX, randY, randSize.width, randSize.height)];
+
+    // The two scroll arrows: the right arrow, then the left, each fading out from a page edge.
+    CGRect edgeButtonFrame = btnDiff[0].frame;
+    double scrollBtnY = isPad ? 20.0 : 10.0;
+    NSString *arrowNames[] = {kScrollArrowRight, kScrollArrowLeft};
+    for (int i = 0; i < 2; ++i) {
+        UIImage *arrow = LoadScaledPngImage(arrowNames[i]);
+        detailScrollButton[i] = [UIButton buttonWithType:UIButtonTypeCustom];
+        [self.scrollView frame];
+        double arrowX =
+            self.scrollView.frame.size.width - arrow.size.width + (double)i * arrow.size.width;
+        [detailScrollButton[i]
+            setFrame:CGRectMake(arrowX, scrollBtnY, arrow.size.width, edgeButtonFrame.size.height)];
+        [detailScrollButton[i] setImage:arrow forState:UIControlStateNormal];
+        [detailScrollButton[i] setExclusiveTouch:YES];
+        [detailScrollButton[i] setAdjustsImageWhenHighlighted:YES];
+        [detailScrollButton[i] setAdjustsImageWhenDisabled:YES];
+        [detailScrollButton[i] addTarget:self
+                                  action:@selector(scrollChange:)
+                        forControlEvents:UIControlEventTouchUpInside];
+        [self.scrollView addSubview:detailScrollButton[i]];
+    }
+
+    // The info-edit button on the edit page: below the difficulty buttons at a per-idiom drop, its
+    // width per idiom and height the text image's own.
+    UIImage *infoImage = LoadScaledPngImage(kEditInfoTextImage);
+    double infoY =
+        (double)(float)(scrollBtnY + (isPad ? kInfoButtonDropPad : kInfoButtonDropPhone));
+    int infoWidth = isPad ? 30 : 14;
+    infoBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [infoBtn
+        setFrame:CGRectMake(
+                     edgeButtonFrame.origin.y, infoY, (double)infoWidth, infoImage.size.height)];
+    [infoBtn setBackgroundColor:UIColor.clearColor];
+    [infoBtn setImage:infoImage forState:UIControlStateNormal];
+    [infoBtn setExclusiveTouch:YES];
+    if (!isPad) {
+        [infoBtn setAdjustsImageWhenHighlighted:NO];
+        [infoBtn setAdjustsImageWhenDisabled:NO];
+    }
+    [self.scrollView addSubview:infoBtn];
+    [infoBtn addTarget:self
+                  action:@selector(pushInfoEdit:)
+        forControlEvents:UIControlEventTouchUpInside];
+
+    // The three edit-info text fields stack down the edit page. Their font size is per idiom
+    // (16 on the pad, 11 on the phone), the step between them per idiom (8 / 5), and the comment
+    // field (index 2) is the tall multi-line one. The fields' width comes from the text image
+    // rounded down to an even pixel; their left edge centres that width under the image.
+    int fontSize = isPad ? 16 : 11;
+    int fieldStep = isPad ? 8 : 5;
+    int fieldHeight = (isPad ? 4 : 1) + fontSize;
+    int firstFieldY = infoWidth + 4;
+    double imageWidth = infoImage.size.width;
+    int fieldWidth = (int)(imageWidth * kEditFieldWidthFraction);
+    fieldWidth -= (fieldWidth % 2 == 1) ? 1 : 0;
+    double fieldX = (double)(int)(infoY + (infoImage.size.width - (double)fieldWidth) * 0.5 + 2.0);
+    int fieldY = firstFieldY;
+    for (int i = 0; i < kEditTextFieldCount; ++i) {
+        editTxt[i] = [[UILabel alloc]
+            initWithFrame:CGRectMake(
+                              fieldX, (double)fieldY, (double)fieldWidth, (double)fieldHeight)];
+        [editTxt[i] setFont:[UIFont systemFontOfSize:(double)fontSize]];
+        [editTxt[i] setTextColor:[UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0]];
+        [editTxt[i] setText:@""];
+        if (i == kEditCommentIndex) {
+            int lines = self.isPad ? 3 : 2;
+            [editTxt[i] setFrame:CGRectMake(fieldX,
+                                            (double)fieldY,
+                                            (double)fieldWidth,
+                                            (double)(int)(lines * (fieldHeight + 1)))];
+            [editTxt[i] setNumberOfLines:lines];
+            [editTxt[i] setLineBreakMode:NSLineBreakByCharWrapping];
+        }
+        [editTxt[i] setBackgroundColor:UIColor.clearColor];
+        [self.scrollView addSubview:editTxt[i]];
+        fieldY += fieldHeight + fieldStep;
+    }
+
+    // On the pad the upload and edit buttons follow the text fields, right-aligned to the scroll
+    // content and stacked at the info button's row.
+    if (self.isPad) {
+        double buttonX = self.scrollView.contentSize.width + kUploadButtonXOffset;
+        double buttonY = (double)(firstFieldY - 2);
+        UIImage *uploadImage = LoadScaledPngImage(kUploadButtonImage);
+        uploadBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [uploadBtn setBackgroundImage:uploadImage forState:UIControlStateNormal];
+        [uploadBtn setFrame:CGRectMake((double)(int)buttonX,
+                                       buttonY,
+                                       uploadImage.size.width,
+                                       uploadImage.size.height)];
+        [uploadBtn setExclusiveTouch:YES];
+        [self.scrollView addSubview:uploadBtn];
+        [uploadBtn addTarget:self
+                      action:@selector(pushButtonUpload:)
+            forControlEvents:UIControlEventTouchUpInside];
+
+        UIImage *editImage = LoadScaledPngImage(kEditButtonImage);
+        editBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [editBtn setBackgroundImage:editImage forState:UIControlStateNormal];
+        [editBtn setFrame:CGRectMake((double)(int)buttonX,
+                                     (double)(int)(buttonY + uploadImage.size.height + 8.0),
+                                     editImage.size.width,
+                                     editImage.size.height)];
+        [editBtn setExclusiveTouch:YES];
+        [self.scrollView addSubview:editBtn];
+        [editBtn addTarget:self
+                      action:@selector(pushButtonEdit:)
+            forControlEvents:UIControlEventTouchUpInside];
+    }
+
+    // Apply the remembered difficulty (a stale extreme snaps back to basic) and enable the
+    // difficulty buttons.
+    userTagIcon = nil;
+    int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    if ((unsigned int)difficulty > 2) {
+        [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefDifficultyKey];
+        difficulty = 0;
+    }
+    [btnDiff[0] setEnabled:YES];
+    [btnDiff[1] setEnabled:YES];
+    [btnDiff[2] setEnabled:YES];
+    [self changeDifficulty:difficulty];
+    if (self.editPage != 0) {
+        [self editMusicBar];
+    }
+
+    // The two lamp overlays that pulse to advertise a pending download; both start hidden. The
+    // scroll lamp reuses the Knit right-arrow image, sized to the rating image's width and centred
+    // on the upper half of the scroll view; the difficulty lamp overlays the extend button.
+    UIImage *scrollLampImage = LoadScaledPngImage(kScrollLampImage);
+    scrollLamp = [[UIImageView alloc] initWithImage:scrollLampImage];
+    [scrollLamp setFrame:CGRectMake(0.0, 0.0, scrollLampImage.size.width, ratingFrame.size.width)];
+    double lampCenterY = (double)((int)scrollHeight >> 1);
+    [scrollLamp setCenter:CGPointMake(scrollLampImage.size.width * 0.5, lampCenterY)];
+    [self.scrollView addSubview:scrollLamp];
+    [scrollLamp setHidden:YES];
+
+    UIImage *diffLampImage = LoadScaledPngImage(kDiffButtonLampImage);
+    diffBtnLamp = [[UIImageView alloc] initWithImage:diffLampImage];
+    [diffBtnLamp setFrame:CGRectMake(0.0, 0.0, diffLampImage.size.width, lampCenterY)];
+    [btnDiff[kExtendLevelNumIndex] addSubview:diffBtnLamp];
+    [diffBtnLamp setAlpha:kNormalBlinkDuration];
+    [diffBtnLamp setHidden:YES];
+    if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefJcfDownloadSelectKey] ==
+        kJcfDownloadSelectPending) {
+        [scrollLamp setHidden:NO];
+        [diffBtnLamp setHidden:NO];
+    }
+
+    // The hold marks and the extend/extend-on marks over each difficulty button. Each mark's X is
+    // its own image width shifted left by the host gap (-40) and a per-idiom inset (pad 32 /
+    // phone 16); the Y and height are a fixed small inset. All start hidden.
+    double markInset = isPad ? kMarkInsetPad : kMarkInsetPhone;
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        UIImage *holdImage =
+            LoadScaledPngImage([NSString stringWithFormat:kHoldMarkFormat, kDiffButtonLetters[i]]);
+        holdMark[i] = [[UIImageView alloc] initWithImage:holdImage];
+        double markX = holdImage.size.width + kHostGapNegative - markInset;
+        [holdMark[i] setFrame:CGRectMake(markX, kMarkOffsetY, holdImage.size.width, kMarkHeight)];
+        [holdMark[i] setHidden:YES];
+        [btnDiff[i] addSubview:holdMark[i]];
+    }
+    for (int i = 0; i < kDiffButtonCount; ++i) {
+        UIImage *extendImage = LoadScaledPngImage(
+            [NSString stringWithFormat:kExtendMarkFormat, kDiffButtonLetters[i]]);
+        double extendX = extendImage.size.width + kHostGapNegative - markInset;
+        extendMark[i] = [[UIImageView alloc] initWithFrame:CGRectMake((double)(int)extendX,
+                                                                      kMarkOffsetY,
+                                                                      extendImage.size.width,
+                                                                      kMarkHeight)];
+        [extendMark[i] setHidden:YES];
+        [btnDiff[i] addSubview:extendMark[i]];
+
+        UIImage *extendOnImage = LoadScaledPngImage(
+            [NSString stringWithFormat:kExtendOnMarkFormat, kDiffButtonLetters[i]]);
+        extendOnMark[i] = [[UIImageView alloc] initWithImage:extendOnImage];
+        [extendOnMark[i] setFrame:CGRectMake((double)(int)extendX,
+                                             kMarkOffsetY,
+                                             extendOnImage.size.width,
+                                             kMarkHeight)];
+        [extendOnMark[i] setHidden:YES];
+        [btnDiff[i] addSubview:extendOnMark[i]];
+    }
+    [self addSubview:self.coverView];
+
+    return self;
 }
 
 /** @ghidraAddress 0x5e62c */
