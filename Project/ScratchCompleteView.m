@@ -3,6 +3,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "JubeatAppDelegate.h"
+#import "ScratchInfo.h"
 #import "ScratchUtil.h"
 
 // The reveal cascade's per-stage animation timings: the whole view scales in over 0.05s after a
@@ -24,7 +25,7 @@ static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e
 }
 
 /** @ghidraAddress 0x16dd6c */
-- (instancetype)initWithFrame:(CGRect)frame musicInfo:(id)musicInfo {
+- (instancetype)initWithFrame:(CGRect)frame musicInfo:(ScratchInfo *)musicInfo {
     self = [super initWithFrame:frame];
     if (self) {
         // Background is dimmed, verified at 0x16dd6c: isPad check, colorWithWhite:alpha: then
@@ -170,8 +171,8 @@ static const NSTimeInterval kRevealBannerDuration = 0.2; // @ghidraAddress 0x28e
         completion:^(BOOL finished) {
           /** @ghidraAddress 0x16f3cc */
           (void)finished;
-          if ([weakSelf.delegate respondsToSelector:@selector(scratchCompleteViewDidClose:)]) {
-              [weakSelf.delegate scratchCompleteViewDidClose:weakSelf];
+          if ([weakSelf.aDelegate respondsToSelector:@selector(scratchCompleteViewDidClose:)]) {
+              [weakSelf.aDelegate scratchCompleteViewDidClose:weakSelf];
           }
         }];
 }

@@ -16,6 +16,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class ScratchCompleteView;
+@class ScratchInfo;
 
 /**
  * @brief Delegate for the scratch completion view.
@@ -31,10 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ScratchCompleteView : UIView
 
 /**
- * @brief The delegate.
+ * @brief The delegate. The binary names the accessor pair @c aDelegate / @c setADelegate: over the
+ *        @c _aDelegate ivar.
  * @ghidraAddress 0x34b350
  */
-@property(nonatomic, weak, nullable) id<ScratchCompleteViewDelegate> delegate;
+@property(nonatomic, weak, nullable) id<ScratchCompleteViewDelegate> aDelegate;
 
 /**
  * @brief Builds the view for a completed scratch.
@@ -43,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised view.
  * @ghidraAddress 0x16dd6c
  */
-- (instancetype)initWithFrame:(CGRect)frame musicInfo:(id)musicInfo;
+- (instancetype)initWithFrame:(CGRect)frame musicInfo:(nullable ScratchInfo *)musicInfo;
 
 /**
  * @brief Starts the reveal animation.

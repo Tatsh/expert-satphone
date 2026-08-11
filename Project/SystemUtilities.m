@@ -52,13 +52,13 @@ void SaveStickerToAppGroupContainer(NSString *pszFileName, id pInfo, NSData *pDa
         return;
     }
     NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kAppGroupIdentifier];
-    NSMutableDictionary *stickerList = [defaults[kStickerListKey] mutableCopy];
+    NSMutableDictionary *stickerList = [[defaults objectForKey:kStickerListKey] mutableCopy];
     if (stickerList == nil) {
         stickerList = [[NSMutableDictionary alloc] init];
     }
     // The filename is the key.
     stickerList[pszFileName] = pInfo;
     // NSUserDefaults will not store a mutable container, so an immutable copy is written.
-    defaults[kStickerListKey] = [stickerList copy];
+    [defaults setObject:[stickerList copy] forKey:kStickerListKey];
     [defaults synchronize]; // A no-op since iOS 12, but the binary calls it explicitly.
 }

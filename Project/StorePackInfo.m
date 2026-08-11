@@ -102,8 +102,8 @@ static const NSInteger kPackStrikeThroughStyle = 3;
 - (NSAttributedString *)attributedPriceString {
     // A struck-through regular price is shown before the discounted price, but only for yen pricing
     // where a regular price exists and the product's price is lower than it.
-    BOOL isJPY = [self.product.priceLocale.objectForKey:NSLocaleCurrencyCode
-                                        isEqualToString:kPackCurrencyCodeJPY];
+    BOOL isJPY = [[self.product.priceLocale objectForKey:NSLocaleCurrencyCode]
+        isEqualToString:kPackCurrencyCodeJPY];
     if (isJPY && self.regularPriceJPY &&
         [self.product.price compare:self.regularPriceJPY] == NSOrderedAscending) {
         NSString *regularString = [StoreUtil priceString:self.regularPriceJPY

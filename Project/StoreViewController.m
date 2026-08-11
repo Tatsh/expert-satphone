@@ -536,7 +536,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
         ceiling = -1;
     }
 
-    NSString *currency = product.priceLocale[NSLocaleCurrencyCode];
+    NSString *currency = [product.priceLocale objectForKey:NSLocaleCurrencyCode];
     if ([currency isEqualToString:@"JPY"]) {
         total += (int)product.price.integerValue;
     }

@@ -28,6 +28,18 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, nullable) NSDate *endDate;
 
 /**
+ * @brief The track's title.
+ * @ghidraAddress 0x1cab60
+ */
+@property(nonatomic, copy, nullable) NSString *musicName;
+
+/**
+ * @brief The track's artist.
+ * @ghidraAddress 0x1cab84
+ */
+@property(nonatomic, copy, nullable) NSString *artistName;
+
+/**
  * @brief Builds the track from a store dictionary, looking its details up in the challenge line-up.
  * @param dictionary The store dictionary (carries @c music_id ).
  * @return The initialised track.
