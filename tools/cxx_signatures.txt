@@ -861,3 +861,6 @@
 0x2df84	(^void)(BOOL)
 0x2e210	(^void)(void)
 0x2e4d8	(^void)(void)
+0x32864	(^void)(void)
+0x325b4	(^void)(void)
+0x326fc	(^void)(BOOL)

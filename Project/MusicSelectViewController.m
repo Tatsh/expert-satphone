@@ -138,6 +138,17 @@ static const CGFloat kMarkerSelectWidthPad = 400.0;   // @ghidraAddress 0x28f308
 static const CGFloat kMarkerSelectWidthPhone = 200.0; // @ghidraAddress 0x28f300
 static const CGFloat kMarkerSelectZPosition = 3500.0; // @ghidraAddress 0x28f1e8
 
+// Opening the marker-select overlay slides the overlay and marker button down by a per-idiom
+// offset (phone 250, pad 500) while fading the cover in, over this duration; closing it reverses
+// that over this shorter duration and unlocks interaction after this delay.
+static const CGFloat kMarkerSelectSlideOffsetPhone = 250.0;   // @ghidraAddress 0x28f3a0
+static const CGFloat kMarkerSelectSlideOffsetPad = 500.0;     // @ghidraAddress 0x28f3a8
+static const NSTimeInterval kMarkerSelectOpenDuration = 0.25; // fmov, 0.25
+static const NSTimeInterval kMarkerSelectCloseDuration = 0.2; // @ghidraAddress 0x28e040
+static const NSTimeInterval kMarkerSelectUnlockDelay = 0.3;   // @ghidraAddress 0x28f260
+static NSString *const kMarkerSelectOpenSoundSuffix = @"MUSIC_RIGHT";
+static NSString *const kMarkerSelectCloseSoundSuffix = @"MUSIC_LEFT";
+
 // Encoded strings decode as UTF-8.
 static const NSStringEncoding kLabURLEncoding = NSUTF8StringEncoding;
 static NSString *const kPrefJubeatLabURLKey = @"PrefjubeatLabURL";
@@ -1817,6 +1828,87 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
                   [weakMarker setEnabled:NO];
               }
             }];
+    }
+}
+
+/** @ghidraAddress 0x31e78 */
+- (void)tapMarkerSelect:(nullable id)sender {
+    [self setEnableGesture:YES];
+    __weak MarkerSelectView *weakMarkerSelect = markerSelectView;
+    __weak UIButton *weakMarker = btnMarker;
+    __weak UIView *weakCover = nil;
+    if (!isMarkerSelectOpen) {
+        // Open: reveal the overlay and its cover, slide the overlay and marker button in while
+        // fading the cover up.
+        [markerSelectView startLoadMarker:YES];
+        markerSelectView.hidden = NO;
+        markerSelectCover.hidden = NO;
+        UIView *cover;
+        if (musicDetailView.superview == nil) {
+            cover = coverView;
+        } else {
+            [musicDetailView activateAnim:NO];
+            cover = musicDetailView.coverView;
+        }
+        cover.hidden = NO;
+        cover.alpha = 0.0;
+        weakCover = cover;
+        [UIView animateWithDuration:kMarkerSelectOpenDuration
+                         animations:^{
+                           /** @ghidraAddress 0x32864 */
+                           CGFloat offset =
+                               isPad ? kMarkerSelectSlideOffsetPad : kMarkerSelectSlideOffsetPhone;
+                           CGAffineTransform slide = CGAffineTransformMakeTranslation(0.0, offset);
+                           weakMarkerSelect.transform = slide;
+                           weakMarker.transform = slide;
+                           weakCover.alpha = 1.0;
+                         }
+                         completion:nil];
+        [[AudioManager sharedManager] playSeResFile:[self soundName:kMarkerSelectOpenSoundSuffix]
+                                        inDirectory:nil];
+        isMarkerSelectOpen = YES;
+        [searchBox resignFirstResponder];
+        [self setSearchEnable:NO];
+        [self musicShuffleDisable];
+    } else {
+        // Close: reverse the slide and fade, then re-activate the detail animation and hide the
+        // overlay and covers.
+        [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+        UIView *cover = (musicDetailView.superview == nil) ? coverView : musicDetailView.coverView;
+        cover.alpha = 1.0;
+        weakCover = cover;
+        [markerSelectView close];
+        __weak MusicDetailView *weakDetail = musicDetailView;
+        __weak UIView *weakMarkerCover = markerSelectCover;
+        [UIView animateWithDuration:kMarkerSelectCloseDuration
+            animations:^{
+              /** @ghidraAddress 0x325b4 */
+              weakMarkerSelect.transform = CGAffineTransformIdentity;
+              weakMarker.transform = CGAffineTransformIdentity;
+              weakCover.alpha = 0.0;
+            }
+            completion:^(BOOL finished) {
+              /** @ghidraAddress 0x326fc */
+              if (weakDetail.superview != nil) {
+                  [weakDetail activateAnim:YES];
+              }
+              weakCover.hidden = YES;
+              weakMarkerSelect.hidden = YES;
+              weakMarkerCover.hidden = YES;
+            }];
+        [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                                withObject:nil
+                                                afterDelay:kMarkerSelectUnlockDelay];
+        [[AudioManager sharedManager] playSeResFile:[self soundName:kMarkerSelectCloseSoundSuffix]
+                                        inDirectory:nil];
+        isMarkerSelectOpen = NO;
+        if (self.sharePlayManager == nil) {
+            [self musicShuffleEnable];
+            [self setSearchEnable:YES];
+        } else {
+            [self musicShuffleDisable];
+            [self setSearchEnable:NO];
+        }
     }
 }
 
