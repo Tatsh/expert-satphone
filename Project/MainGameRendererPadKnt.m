@@ -351,15 +351,15 @@ MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *s
 // outward (away from the 640-point centre line) and, from frame 0x8d, ripple on a 48-frame cycle,
 // each drawn as a five-step offset trail (skipping the zero step) plus the particle itself.
 static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPadKnt *self,
-                                                              unsigned int frame) {
-    float rise = InterpolateFloatByFrame(kExcFlourishXFrom, 0.0f, frame, 0x7c, 0x80) + 6.0f;
-    if (frame > 0x7f) {
-        rise -= (float)((int)(frame * 2) - 0x100);
+                                                              unsigned int animFrame) {
+    float rise = InterpolateFloatByFrame(kExcFlourishXFrom, 0.0f, animFrame, 0x7c, 0x80) + 6.0f;
+    if (animFrame > 0x7f) {
+        rise -= (float)((int)(animFrame * 2) - 0x100);
         if (rise < 0.0f) {
             rise = 0.0f;
         }
     }
-    float sweep = InterpolateFloatByFrame(kExcFlourishXSpread, 0.0f, frame, 0x7c, 0x86);
+    float sweep = InterpolateFloatByFrame(kExcFlourishXSpread, 0.0f, animFrame, 0x7c, 0x86);
     for (int i = 0; i < kExcParticleCount; ++i) {
         float x = kExcParticleX[i];
         float y = kExcParticleY[i];
@@ -374,8 +374,8 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
             float dir = (y >= kExcSweepThreshold) ? -1.0f : 1.0f;
             x = x + sweep * dir;
             y = y - sweep * 0.5f * dir;
-            int ripple = ((((i << 3) ^ -1) & 8) - 4) * ((int)(frame - 0x8c) % 0x30);
-            if (frame > 0x8c) {
+            int ripple = ((((i << 3) ^ -1) & 8) - 4) * ((int)(animFrame - 0x8c) % 0x30);
+            if (animFrame > 0x8c) {
                 y = y - (float)ripple;
                 x = (float)(ripple * 2) + x;
             }

@@ -354,13 +354,13 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     // label into the front atlas.
     [self.texFront setSubImage:artwork inRect:[self.texFront spriteAtIndex:kFrontSpriteArtwork]];
     if (index) {
-        CGRect frame = [self.texFront spriteAtIndex:kFrontSpriteIndex];
+        CGRect spriteRect = [self.texFront spriteAtIndex:kFrontSpriteIndex];
         CGSize size = index.size;
         [self.texFront setSubImage:index
-                            inRect:CGRectMake(frame.origin.x,
-                                              frame.origin.y,
-                                              frame.size.width,
-                                              (frame.size.width * size.height) / size.width)];
+                            inRect:CGRectMake(spriteRect.origin.x,
+                                              spriteRect.origin.y,
+                                              spriteRect.size.width,
+                                              (spriteRect.size.width * size.height) / size.width)];
     }
     if (conf.partnerName) {
         UILabel *label =

@@ -157,7 +157,7 @@ static AlertViewManager *g_pAlertViewManagerShared = nil;
         int index = buttonIndex;
         UIAlertAction *action = [UIAlertAction actionWithTitle:buttonTitle
                                                          style:UIAlertActionStyleDefault
-                                                       handler:^(UIAlertAction *action) {
+                                                       handler:^(UIAlertAction *tappedAction) {
                                                          /** @ghidraAddress 0xa9520 */
                                                          [self alertControllerEvent:index];
                                                        }];
