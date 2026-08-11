@@ -11,13 +11,8 @@
 #import "StorePackInfo.h"
 #import "StorePackMusicView.h"
 #import "StoreUtil.h"
+#import "UIDevice+SystemVersionCheck.h"
 #import "UnselectableTextView.h"
-
-// UIDevice gains -systemVersionGreaterEqual: from a category the binary defines elsewhere; declared
-// here so the two content-inset arms compile against it.
-@interface UIDevice (SystemVersion)
-- (BOOL)systemVersionGreaterEqual:(NSString *)version;
-@end
 
 @interface StorePackDetailView ()
 @end

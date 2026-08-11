@@ -1673,9 +1673,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     [self.texFront spriteAtIndex:kUpperBandSprite1];
     double bandY = kUpperBeamY;
     for (int x = 0; x < kUpperTileEnd; x += kUpperTileStep) {
-        [self.texFront drawSprite:kUpperBandSprite1
-                          atPoint:CGPointMake((double)x, bandY)
-                        transform:1];
+        [self.texFront drawSprite:kUpperBandSprite1 atPoint:CGPointMake((double)x, bandY)];
     }
 
     // The beam wipe animates in over the first ten frames when requested.

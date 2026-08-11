@@ -11,6 +11,7 @@
 #import "StoreMusicInfo.h"
 #import "StoreMusicListManager.h"
 #import "StoreUtil.h"
+#import "UIDevice+SystemVersionCheck.h"
 
 // The parent store view controller is not yet reconstructed; it is messaged for its modal dialog
 // and to show/hide it, and it is the back button's target for -storeEnd: .

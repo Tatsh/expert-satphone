@@ -655,6 +655,7 @@ target_sources(jubeat PRIVATE
     TitleViewControllerRpl.h
     TuneInfo.h
     TweetResourceManager.h
+    UIDevice+SystemVersionCheck.h
     UILabel+RenderImage.h
     UnsealDrawController.h
     UnsealViewController.h

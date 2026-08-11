@@ -679,8 +679,8 @@ static const double kNeighbourDriftQuarter = 0.25;
     [UIApplication.sharedApplication beginIgnoringInteractionEvents];
 
     StorePackDetailViewV2 *poppedWindow = detailWindowArray[count - 1];
-    __weak UIView *weakPopped = poppedWindow;
-    UIView *newTopWindow = detailWindowArray[count - 2];
+    __weak StorePackDetailViewV2 *weakPopped = poppedWindow;
+    StorePackDetailViewV2 *newTopWindow = detailWindowArray[count - 2];
     __weak StorePackDetailViewV2 *weakNewTop = newTopWindow;
     UIView *deeperWindow = nil;
     if (count - 3 >= 0) {

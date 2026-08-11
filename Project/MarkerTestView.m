@@ -451,7 +451,8 @@ static NSString *const kSoundKntSlow = @"SD_KNT_CV_SLOW";
         [texture[animFrame % kMarkerTextureCount]
             drawInRect:CGRectMake(inset, inset, drawSize, drawSize)
             fromRegion:CGRectMake(regionX, regionY, drawSize, drawSize)
-             transform:0];
+             transform:0
+                 alpha:1.0f];
         [texture[animFrame % kMarkerTextureCount] commitDraw];
     }
 
@@ -463,7 +464,8 @@ static NSString *const kSoundKntSlow = @"SD_KNT_CV_SLOW";
         drawInRect:CGRectMake(0, 0, buttonSize, buttonSize)
         fromRegion:CGRectMake(
                        cellStride + cellStride, cellStride + cellStride, buttonSize, buttonSize)
-         transform:0];
+         transform:0
+             alpha:1.0f];
     [texture[buttonSlot] commitDraw];
 
     glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);

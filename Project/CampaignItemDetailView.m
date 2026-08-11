@@ -8,6 +8,7 @@
 #import "StoreImageView.h"
 #import "StoreMusicListManager.h"
 #import "StoreUtil.h"
+#import "UIDevice+SystemVersionCheck.h"
 #import "UnselectableTextView.h"
 
 // StoreCampaignViewController owns this card and is only messaged, never sized, here; it is not yet
@@ -16,12 +17,6 @@
 - (void)itemDownload;
 - (void)moveExternalLink;
 - (void)storePackDetailViewClose;
-@end
-
-// UIDevice gains -systemVersionGreaterEqual: from a category the binary defines elsewhere; declared
-// here so the two content-inset arms compile against it.
-@interface UIDevice (SystemVersion)
-- (BOOL)systemVersionGreaterEqual:(NSString *)version;
 @end
 
 // The BGM finish notification the card observes. The typo is the binary's own.

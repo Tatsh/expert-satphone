@@ -8,6 +8,7 @@
 #import "RewardCheck.h"
 #import "SettingsRewardViewController.h"
 #import "TweetResourceManager.h"
+#import "UIDevice+SystemVersionCheck.h"
 
 // A frame row is a positional array; only element 1 (its identifier / file name) is read here.
 enum {

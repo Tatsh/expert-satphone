@@ -15,13 +15,8 @@
 #import "StorePackMusicView.h"
 #import "StoreRecommendPackTableView.h"
 #import "StoreUtil.h"
+#import "UIDevice+SystemVersionCheck.h"
 #import "UnselectableTextViewV2.h"
-
-// UIDevice gains -systemVersionGreaterEqual: from a category the binary defines elsewhere; declared
-// here so the two content-inset arms compile against it.
-@interface UIDevice (SystemVersion)
-- (BOOL)systemVersionGreaterEqual:(NSString *)version;
-@end
 
 // The typed-accessor category the store dictionaries are read through; a category on NSDictionary
 // not reconstructed as its own file yet.
