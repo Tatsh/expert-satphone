@@ -1,5 +1,7 @@
 #import "MusicSelectViewController.h"
 
+#import <QuartzCore/QuartzCore.h>
+
 #import "AlertViewManager.h"
 #import "BFCodec.h"
 #import "BalloonView.h"
@@ -142,6 +144,22 @@ static NSString *const kStoreBalloonAnimationKey = @"STORE_BALLOON_ANIM";
 // The main BGM starts with this fade, and the store balloon fades out over the same duration.
 static const NSTimeInterval kMainBgmStartFade = 0.3;         // @ghidraAddress 0x28f260
 static const NSTimeInterval kStoreBalloonFadeDuration = 0.3; // @ghidraAddress 0x28f260
+
+// Re-showing the store balloon nudges it down by this offset, then fades and re-runs its looping
+// double-bounce hop animation over this duration.
+static const CGFloat kStoreBalloonRetryDropOffset = 10.0;     // fmov, 10.0
+static const NSTimeInterval kStoreBalloonRetryDuration = 0.8; // @ghidraAddress 0x28e060
+static NSString *const kStoreBalloonAnimationKeyPath = @"transform.translation.y";
+// The balloon rests for the first 40% of each five-second cycle, then performs two four-point
+// upward hops before resting again; the animation repeats effectively forever.
+static const CGFloat kStoreBalloonAnimationDuration = 5.0; // fmov, 5.0
+static const CGFloat kStoreBalloonHopOffset = -4.0;        // fmov, -4.0
+static const float kStoreBalloonRepeatForever = 1e30f;     // @ghidraAddress 0x28f3c4
+static const CGFloat kStoreBalloonKeyTime040 = 0.4;        // @ghidraAddress 0x28f3b4
+static const CGFloat kStoreBalloonKeyTime050 = 0.5;        // fmov, 0.5
+static const CGFloat kStoreBalloonKeyTime060 = 0.6;        // @ghidraAddress 0x28f3b8
+static const CGFloat kStoreBalloonKeyTime070 = 0.7;        // @ghidraAddress 0x28f3bc
+static const CGFloat kStoreBalloonKeyTime080 = 0.8;        // @ghidraAddress 0x28f3c0
 
 // The JCF download view and its cover fade out over this (negative, as the binary passes it)
 // duration when the download completes.
@@ -939,6 +957,57 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     [self setupMainBgm];
     [[AudioManager sharedManager] playSeResFile:[self soundName:kMainBgmVoiceSuffix]
                                     inDirectory:nil];
+}
+
+/** @ghidraAddress 0x2838c */
+- (void)checkAndRetryBgm {
+    if (JubeatAppDelegate.appDelegate.bChallengeMode) {
+        return;
+    }
+    if (![AudioManager sharedManager].bgmPlayer.isPlaying) {
+        [self setupMainBgm];
+    }
+    if (balloonView == nil) {
+        return;
+    }
+    balloonView.transform = CGAffineTransformMakeTranslation(0, kStoreBalloonRetryDropOffset);
+    __weak BalloonView *weakBalloon = balloonView;
+    [UIView animateWithDuration:kStoreBalloonRetryDuration
+        animations:^{
+          /** @ghidraAddress 0x2859c */
+          weakBalloon.alpha = 1.0;
+          weakBalloon.transform = CGAffineTransformIdentity;
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x28634 */
+          CAKeyframeAnimation *animation =
+              [CAKeyframeAnimation animationWithKeyPath:kStoreBalloonAnimationKeyPath];
+          animation.duration = kStoreBalloonAnimationDuration;
+          animation.values = @[
+              @(0.0f),
+              @(0.0f),
+              @(kStoreBalloonHopOffset),
+              @(0.0f),
+              @(kStoreBalloonHopOffset),
+              @(0.0f),
+              @(0.0f)
+          ];
+          animation.keyTimes = @[
+              @(0.0f),
+              @(kStoreBalloonKeyTime040),
+              @(kStoreBalloonKeyTime050),
+              @(kStoreBalloonKeyTime060),
+              @(kStoreBalloonKeyTime070),
+              @(kStoreBalloonKeyTime080),
+              @(1.0f)
+          ];
+          animation.repeatCount = kStoreBalloonRepeatForever;
+          animation.timingFunction =
+              [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+          animation.removedOnCompletion = NO;
+          [weakBalloon.layer addAnimation:animation forKey:kStoreBalloonAnimationKey];
+          weakBalloon.userInteractionEnabled = YES;
+        }];
 }
 
 #pragma mark - Share join
