@@ -253,7 +253,8 @@ static inline char MusicDetailViewKntLevelIndex(int level) {
 
 // Moves the high-score text view to its per-idiom resting centre (base x + 40; y -7 on the pad,
 // -6 on the phone). Shared by the difficulty-select and extend-toggle repositioning.
-static inline void MusicDetailViewKntRepositionHighscore(MusicDetailViewKnt *self) {
+static inline void MusicDetailViewKntRepositionHighscore(MusicDetailViewKnt *self,
+                                                         UIImageView *highscoreTextView) {
     double baseX;
     double centerY;
     if (self.isPad) {
@@ -263,36 +264,36 @@ static inline void MusicDetailViewKntRepositionHighscore(MusicDetailViewKnt *sel
         baseX = self.isRetina ? kHighscoreBaseXRetina : kHighscoreBaseXNonRetina;
         centerY = kHighscoreCenterYPhone;
     }
-    [self->highscoreTextView setCenter:CGPointMake(baseX + kHighscoreCenterXNudge, centerY)];
+    [highscoreTextView setCenter:CGPointMake(baseX + kHighscoreCenterXNudge, centerY)];
 }
 
 // Sets the difficulty buttons for a selected difficulty: the selected base button and the extend
 // button are shown full and unscaled, the other two base buttons are dimmed and shrunk. Shared by
 // changeDifficulty: and show:.
-static inline void MusicDetailViewKntSetDifficultyButtons(MusicDetailViewKnt *self, int selected) {
+static inline void MusicDetailViewKntSetDifficultyButtons(UIButton *const *btnDiff, int selected) {
     for (int i = 0; i < kDiffButtonCount; ++i) {
         if (i == selected) {
-            [self->btnDiff[i] setAlpha:1.0];
-            [self->btnDiff[i] setTransform:CGAffineTransformIdentity];
+            [btnDiff[i] setAlpha:1.0];
+            [btnDiff[i] setTransform:CGAffineTransformIdentity];
         } else {
-            [self->btnDiff[i] setAlpha:kDiffButtonDimAlpha];
-            [self->btnDiff[i]
+            [btnDiff[i] setAlpha:kDiffButtonDimAlpha];
+            [btnDiff[i]
                 setTransform:CGAffineTransformMakeScale(kDiffButtonDimScale, kDiffButtonDimScale)];
         }
     }
-    [self->btnDiff[kExtendButtonIndex] setAlpha:1.0];
-    [self->btnDiff[kExtendButtonIndex] setTransform:CGAffineTransformIdentity];
+    [btnDiff[kExtendButtonIndex] setAlpha:1.0];
+    [btnDiff[kExtendButtonIndex] setTransform:CGAffineTransformIdentity];
 }
 
 // Dims and shrinks every base difficulty button except the selected one, used when play starts.
 // The extend button (index 3) is left untouched.
-static inline void MusicDetailViewKntDimUnselectedButtons(MusicDetailViewKnt *self, int selected) {
+static inline void MusicDetailViewKntDimUnselectedButtons(UIButton *const *btnDiff, int selected) {
     CATransform3D shrink =
         CATransform3DMakeScale(kStartPlayShrinkScale, kStartPlayShrinkScale, 1.0);
     for (int i = 0; i < kDiffButtonCount; ++i) {
         if (i != selected) {
-            [self->btnDiff[i] setAlpha:0.0];
-            self->btnDiff[i].layer.transform = shrink;
+            [btnDiff[i] setAlpha:0.0];
+            btnDiff[i].layer.transform = shrink;
         }
     }
 }
@@ -301,26 +302,30 @@ static inline void MusicDetailViewKntDimUnselectedButtons(MusicDetailViewKnt *se
 // extend-on marks and sets their starting alphas (the target mark full, the other transparent),
 // then zeroes the hold mark. Used by changeExtend: for each difficulty that carries an extend
 // chart, with extendOnTarget YES when the app is in extend mode.
-static inline void
-MusicDetailViewKntSeedExtendRow(MusicDetailViewKnt *self, int row, BOOL extendOnTarget) {
-    [self->extendMark[row] setHidden:NO];
-    [self->extendOnMark[row] setHidden:NO];
-    [self->extendMark[row] setAlpha:(extendOnTarget ? 0.0 : 1.0)];
-    [self->extendOnMark[row] setAlpha:(extendOnTarget ? 1.0 : 0.0)];
-    [self->holdMark[row] setAlpha:0.0];
+static inline void MusicDetailViewKntSeedExtendRow(UIImageView *const *extendMark,
+                                                   UIImageView *const *extendOnMark,
+                                                   UIImageView *const *holdMark,
+                                                   int row,
+                                                   BOOL extendOnTarget) {
+    [extendMark[row] setHidden:NO];
+    [extendOnMark[row] setHidden:NO];
+    [extendMark[row] setAlpha:(extendOnTarget ? 0.0 : 1.0)];
+    [extendOnMark[row] setAlpha:(extendOnTarget ? 1.0 : 0.0)];
+    [holdMark[row] setAlpha:0.0];
 }
 
 // The three scroll-settled delegate callbacks share this tail: it snaps the settled page,
 // re-derives the hold flag from the current difficulty's hold mark (except on the edit page),
 // refreshes the start button, records the page, and applies either the difficulty (snapping a stale
 // extreme back to basic) on the detail page or the edit music bar on the edit page.
-static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self) {
+static inline void MusicDetailViewKntSettleScrollPage(MusicDetailViewKnt *self,
+                                                      UIImageView *const *holdMark) {
     [self setEnableButton:YES];
     double width = self.scrollView.frame.size.width;
     int page = (int)((width * 0.5 + self.scrollView.contentOffset.x) / width);
     self.editPage = page;
     int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
-    BOOL holdHidden = self->holdMark[difficulty].isHidden;
+    BOOL holdHidden = holdMark[difficulty].isHidden;
     [JubeatAppDelegate.appDelegate setHoldFlag:(page != 1) && !holdHidden];
     [self refreshStartButton];
     if (self.isStarted) {
@@ -489,11 +494,14 @@ static const double kMarkHeightPad = 16.0;
 
 // Builds one difficulty slot: its button (added to the scroll view and centred) and its
 // level-number image. @p center is the button's centre in the scroll view.
-static inline void
-MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGPoint center) {
+static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self,
+                                                           UIButton *__strong *btnDiff,
+                                                           UIImageView *__strong *levelNumView,
+                                                           int index,
+                                                           CGPoint center) {
     BOOL isPad = self.isPad;
     BOOL isRetina = self.isRetina;
-    self->btnDiff[index] = [self
+    btnDiff[index] = [self
         diffButton:[NSString stringWithFormat:kDiffButtonNameFormat, kDiffButtonLetters[index]]];
     CGRect numFrame;
     if (isPad) {
@@ -503,10 +511,10 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
         double numY = isRetina ? kLevelNumYRetina : kLevelNumXPhone;
         numFrame = CGRectMake(numX, numY, kLevelNumSizePhone, kLevelNumSizePhone);
     }
-    self->levelNumView[index] = [[UIImageView alloc] initWithFrame:numFrame];
-    [self->btnDiff[index] addSubview:self->levelNumView[index]];
-    [self->btnDiff[index] setCenter:center];
-    [self.scrollView addSubview:self->btnDiff[index]];
+    levelNumView[index] = [[UIImageView alloc] initWithFrame:numFrame];
+    [btnDiff[index] addSubview:levelNumView[index]];
+    [btnDiff[index] setCenter:center];
+    [self.scrollView addSubview:btnDiff[index]];
 }
 
 @implementation MusicDetailViewKnt
@@ -639,7 +647,8 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
                              CGPointMake(width - diffEdge, diffCenterY),
                              CGPointMake(width + diffEdge, diffCenterY)};
     for (int i = 0; i < kExtendButtonIndex + 1; ++i) {
-        MusicDetailViewKntBuildDifficultyButton(self, i, diffCenters[i]);
+        MusicDetailViewKntBuildDifficultyButton(
+            self, self->btnDiff, self->levelNumView, i, diffCenters[i]);
     }
 
     [self loadImages];
@@ -1203,7 +1212,7 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
 - (void)show:(BOOL)show {
     self.isShared = show;
     int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
-    MusicDetailViewKntSetDifficultyButtons(self, difficulty);
+    MusicDetailViewKntSetDifficultyButtons(self->btnDiff, difficulty);
     [self.controller resetWillStart];
 
     // The start button and share prompt differ between the solo and host-share presentations.
@@ -1665,7 +1674,7 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
 - (void)changeDifficulty:(int)difficulty {
     // The selected base button and the extend button are full; the other two base buttons dim and
     // shrink.
-    MusicDetailViewKntSetDifficultyButtons(self, difficulty);
+    MusicDetailViewKntSetDifficultyButtons(self->btnDiff, difficulty);
     [self infoChange:difficulty];
 }
 
@@ -1684,19 +1693,19 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
 - (void)scrollViewDidEndScrollingAnimation:(nullable UIScrollView *)scrollView {
     [detailScrollButton[0] setAlpha:1.0];
     [detailScrollButton[1] setAlpha:1.0];
-    MusicDetailViewKntSettleScrollPage(self);
+    MusicDetailViewKntSettleScrollPage(self, self->holdMark);
 }
 
 /** @ghidraAddress 0x1a1434 */
 - (void)scrollViewDidEndDecelerating:(nullable UIScrollView *)scrollView {
-    MusicDetailViewKntSettleScrollPage(self);
+    MusicDetailViewKntSettleScrollPage(self, self->holdMark);
 }
 
 /** @ghidraAddress 0x1a16f8 */
 - (void)scrollViewDidEndDragging:(nullable UIScrollView *)scrollView
                   willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
-        MusicDetailViewKntSettleScrollPage(self);
+        MusicDetailViewKntSettleScrollPage(self, self->holdMark);
     }
 }
 
@@ -1786,7 +1795,7 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
         options:UIViewAnimationOptionBeginFromCurrentState
         animations:^{
           /** @ghidraAddress 0x19f304 */
-          MusicDetailViewKntDimUnselectedButtons(self, difficulty);
+          MusicDetailViewKntDimUnselectedButtons(self->btnDiff, difficulty);
         }
         completion:^(BOOL finished) {
           /** @ghidraAddress 0x19f5a4 */
@@ -1939,15 +1948,17 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
             [JubeatAppDelegate.appDelegate setExtendFlag:!JubeatAppDelegate.appDelegate.isExtend];
             [[AudioManager sharedManager] playSeResFile:kMusicRightSound inDirectory:nil];
             [self changeExtend:current];
-            MusicDetailViewKntRepositionHighscore(self);
+            MusicDetailViewKntRepositionHighscore(self, self->highscoreTextView);
             [highscoreBoardView setAlpha:0.0];
             [NSUserDefaults.standardUserDefaults setInteger:current forKey:kPrefDifficultyKey];
+            UIImageView *textView = highscoreTextView;
+            UIImageView *boardView = highscoreBoardView;
             [UIView animateWithDuration:kExtendModeAnimDuration
                              animations:^{
                                /** @ghidraAddress 0x19bd14 */
                                [weakSelf changeDifficulty:current];
-                               MusicDetailViewKntRepositionHighscore(weakSelf);
-                               [weakSelf->highscoreBoardView setAlpha:1.0];
+                               MusicDetailViewKntRepositionHighscore(weakSelf, textView);
+                               [boardView setAlpha:1.0];
                              }];
             inputLock = kSelectDiffExtendInputLock;
         }
@@ -1959,16 +1970,18 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
 
     // A different difficulty: reposition the board, play the voice cue, persist the choice, and
     // slide the high-score panel into place.
-    MusicDetailViewKntRepositionHighscore(self);
+    MusicDetailViewKntRepositionHighscore(self, self->highscoreTextView);
     [highscoreBoardView setAlpha:0.0];
     [[AudioManager sharedManager] playSeResFile:voiceCue inDirectory:nil];
     [NSUserDefaults.standardUserDefaults setInteger:tapped forKey:kPrefDifficultyKey];
+    UIImageView *textView = highscoreTextView;
+    UIImageView *boardView = highscoreBoardView;
     [UIView animateWithDuration:kExtendModeAnimDuration
                      animations:^{
                        /** @ghidraAddress 0x19bc50 */
                        [weakSelf changeDifficulty:tapped];
-                       MusicDetailViewKntRepositionHighscore(weakSelf);
-                       [weakSelf->highscoreBoardView setAlpha:1.0];
+                       MusicDetailViewKntRepositionHighscore(weakSelf, textView);
+                       [boardView setAlpha:1.0];
                      }];
     [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
                                             withObject:nil
@@ -1991,7 +2004,8 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
         unsigned int extendFlag = self.extendInfo.extendFlag;
         for (int i = 0; i < kDiffButtonCount; ++i) {
             if ((extendFlag & (1 << i)) != 0) {
-                MusicDetailViewKntSeedExtendRow(self, i, isExtend);
+                MusicDetailViewKntSeedExtendRow(
+                    self->extendMark, self->extendOnMark, self->holdMark, i, isExtend);
                 if (isExtend) {
                     mix = 1.0f;
                 }
@@ -1999,15 +2013,18 @@ MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *self, int index, CGP
             [levelNumView[i] setAlpha:0.0];
         }
 
-        __weak MusicDetailViewKnt *weakSelf = self;
+        UIImageView *const *levelNums = levelNumView;
+        UIImageView *const *extendMarks = extendMark;
+        UIImageView *const *extendOnMarks = extendOnMark;
+        UIImageView *const *holdMarks = holdMark;
         [UIView animateWithDuration:kExtendCrossFadeDuration
                          animations:^{
                            /** @ghidraAddress 0x19b22c */
                            for (int i = 0; i < kDiffButtonCount; ++i) {
-                               [weakSelf->levelNumView[i] setAlpha:1.0];
-                               [weakSelf->extendMark[i] setAlpha:(1.0f - mix)];
-                               [weakSelf->extendOnMark[i] setAlpha:mix];
-                               [weakSelf->holdMark[i] setAlpha:1.0];
+                               [levelNums[i] setAlpha:1.0];
+                               [extendMarks[i] setAlpha:(1.0f - mix)];
+                               [extendOnMarks[i] setAlpha:mix];
+                               [holdMarks[i] setAlpha:1.0];
                            }
                          }];
     }

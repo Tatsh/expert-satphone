@@ -150,11 +150,18 @@ target_compile_options(jubeat PRIVATE
     -ftrivial-auto-var-init=zero)
 
 # Warnings: most of Xcode's recommended GCC_WARN_* / CLANG_WARN_* set as real -W
-# flags (warnings only -- there is no -Werror, so the build stays green). The
+# flags. Every warning is an error (-Werror), so the build fails on any of them,
+# with two exceptions kept as printed warnings: -Wdeprecated-declarations (the
+# reconstruction faithfully uses APIs Apple has since deprecated) and
+# -Wunused-parameter (the de-inlined helpers and delegate methods keep the
+# binary's full parameter lists even where a body ignores an argument). The
 # noisy conversion / cast / pedantic families are deliberately left off: this is
 # a faithful binary reconstruction with intentional narrowing, pointer-in-int and
 # reinterpret casts.
 target_compile_options(jubeat PRIVATE
+    -Werror
+    -Wno-error=deprecated-declarations
+    -Wno-error=unused-parameter
     -Wall
     -Wextra
     -Wshadow
