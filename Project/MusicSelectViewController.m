@@ -182,6 +182,24 @@ static NSString *const kShareCancelSoundSuffix = @"SKIP";
 // many screen widths off to the left of centre so it slides in from that side.
 static const CGFloat kDetailPanelOffscreenDirection = -4.0; // fmov, -4.0
 
+// Closing the detail view fades the BGM out over this, flips the cover shut over this longer
+// duration, restores the rank backgrounds after this delay and then the name and artist labels,
+// and unlocks interaction after this final delay.
+static const CGFloat kDetailCloseBgmFadeOut = 0.45;           // @ghidraAddress 0x28f280
+static const NSTimeInterval kDetailCloseFlipDuration = 0.6;   // @ghidraAddress 0x28f288
+static const NSTimeInterval kDetailCloseRankBgDuration = 0.1; // @ghidraAddress 0x28f290
+static const NSTimeInterval kDetailCloseRankBgDelay = 0.7;    // @ghidraAddress 0x28f2a0
+static const NSTimeInterval kDetailCloseLabelDuration = 0.3;  // @ghidraAddress 0x28f260
+static const NSTimeInterval kDetailCloseLabelDelay = 0.3;     // @ghidraAddress 0x28f260
+static const NSTimeInterval kDetailCloseUnlockDelay = 0.8;    // @ghidraAddress 0x28e060
+static const NSTimeInterval kDetailCloseBgmRestartFade = 0.2; // @ghidraAddress 0x28e040
+
+// The rating-chip display preference gates the rank-background restore: 0 restores nothing, 2 also
+// restores the individual chips, any other value restores the six named backgrounds only.
+static NSString *const kPrefRatingChipTypeKey = @"PrefRatingChipType";
+static const int kRatingChipTypeNone = 0;
+static const int kRatingChipTypeWithChips = 2;
+
 // The shuffle animation fades the BGM out over this and plays the themed music-select cue. It runs
 // as a slide (this duration) that pushes the detail view aside, then a flip whose whole duration is
 // divided into thirds for the middle stage that swaps the tune data while the cover is edge-on.
@@ -2073,6 +2091,102 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
               appendCoverView = nil;
           }
         }];
+}
+
+/** @ghidraAddress 0x2d5e8 */
+- (void)closeDetailView {
+    if (self.sharePlayManager != nil || bSuffleAnim) {
+        return;
+    }
+    [self setEnableGesture:NO];
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+    MusicView *detailMusicView = selectedMusicView;
+    [detailMusicView setHidden:NO];
+    [[AudioManager sharedManager] playSeResFile:[self soundName:kShareCancelSoundSuffix]
+                                    inDirectory:nil];
+    [[AudioManager sharedManager] fadeoutBgm:kDetailCloseBgmFadeOut];
+    __weak UIView *weakView = self.view;
+    __weak UIView *weakCover = coverView;
+    __weak MusicDetailView *weakDetail = musicDetailView;
+    [musicDetailView closePopWindow];
+    selectedMusicView = nil;
+    __weak UIImageView *weakImg = detailMusicView.imgView;
+    CGFloat listAlpha = [musicListView getMusicListAlpha];
+    musicDetailView.alpha = 1.0;
+    detailMusicView.imgView.alpha = 1.0;
+    // Flip the artwork back onto the music tile: the shared cover-flip pose, then fade the detail
+    // view and its rank layers back to the music-list alpha, and on completion restore the tile.
+    [UIView animateWithDuration:kDetailCloseFlipDuration
+        delay:0.0
+        options:UIViewAnimationOptionCurveLinear
+        animations:^{
+          /** @ghidraAddress 0x2dbc0 */
+          weakCover.alpha = 0.0;
+          UIImageView *imgView = detailMusicView.imgView;
+          imgView.center = [detailMusicView convertPoint:detailMusicView.centerArtworkImg
+                                                  toView:weakView];
+          CATransform3D perspective = CATransform3DIdentity;
+          perspective.m34 = kCoverFlipPerspectiveM34;
+          imgView.layer.transform = perspective;
+          weakDetail.center = imgView.center;
+          CGFloat scale = isPad ? kCoverFlipScalePad : kCoverFlipScalePhone;
+          CATransform3D scaled = CATransform3DScale(perspective, scale, scale, 1.0);
+          weakDetail.layer.transform = CATransform3DRotate(scaled, g_dPi, 0, 1.0, 0);
+          weakDetail.alpha = listAlpha;
+          weakImg.alpha = listAlpha;
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x2df84 */
+          weakCover.hidden = YES;
+          UIImageView *imgView = detailMusicView.imgView;
+          imgView.userInteractionEnabled = YES;
+          [imgView removeFromSuperview];
+          imgView.alpha = 1.0;
+          imgView.center = detailMusicView.centerArtworkImg;
+          [detailMusicView insertSubview:imgView belowSubview:detailMusicView.rankBgChipArray[0]];
+          [weakDetail removeFromSuperview];
+          [weakDetail clearInfo];
+          [[AudioManager sharedManager] popBgm];
+          [[AudioManager sharedManager] startBgm:YES fadeTime:kDetailCloseBgmRestartFade];
+          bOpenMusicDetail = NO;
+          [self JcfDownLoad];
+          [self setEnableGesture:YES];
+        }];
+    // Restore the rank backgrounds after the flip, then the name and artist labels.
+    [UIView animateWithDuration:kDetailCloseRankBgDuration
+                          delay:kDetailCloseRankBgDelay
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:^{
+                       /** @ghidraAddress 0x2e210 */
+                       NSInteger chipType = [NSUserDefaults.standardUserDefaults
+                           integerForKey:kPrefRatingChipTypeKey];
+                       if (chipType == kRatingChipTypeNone) {
+                           return;
+                       }
+                       detailMusicView.rankBgBas.alpha = 1.0;
+                       detailMusicView.rankBgAdv.alpha = 1.0;
+                       detailMusicView.rankBgExt.alpha = 1.0;
+                       if (chipType == kRatingChipTypeWithChips) {
+                           for (UIView *chip in detailMusicView.rankBgChipArray) {
+                               chip.alpha = 1.0;
+                           }
+                       }
+                       detailMusicView.adRankBgBas.alpha = 1.0;
+                       detailMusicView.adRankBgAdv.alpha = 1.0;
+                       detailMusicView.adRankBgExt.alpha = 1.0;
+                     }
+                     completion:nil];
+    [UIView animateWithDuration:kDetailCloseLabelDuration
+                          delay:kDetailCloseLabelDelay
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:^{
+                       /** @ghidraAddress 0x2e4d8 */
+                       [detailMusicView showNameAndArtist:YES];
+                     }
+                     completion:nil];
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kDetailCloseUnlockDelay];
 }
 
 #pragma mark - Store balloon
