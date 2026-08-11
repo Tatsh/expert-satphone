@@ -9,6 +9,7 @@
 #import "ChallengeStatus.h"
 #import "Downloader.h"
 #import "EditorIDManager.h"
+#import "GameNetworkUtil.h"
 #import "JcfDownloadPageNavController.h"
 #import "JcfDownloadView.h"
 #import "JubeatAppDelegate.h"
@@ -29,11 +30,13 @@
 #import "NotificationPageNavController.h"
 #import "PurchaseManager.h"
 #import "PushNotificationView.h"
+#import "RecommendNetwork.h"
 #import "RootViewController.h"
 #import "RotatableNavigationController.h"
 #import "ScoreRecord.h"
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
+#import "SettingsNavController.h"
 #import "SharePlayManager.h"
 #import "StoreDialogView.h"
 #import "StoreUtil.h"
@@ -49,6 +52,9 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 // The custom-BGM selection preferences: the chosen tune's id and whether the custom BGM is on.
 static NSString *const kPrefCustomBgmIDKey = @"PrefCustomBgmID";
 static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
+
+// The advert location the unread-recommendation count is queried for at startup.
+static NSString *const kRecommendAdLocationTop = @"ADL_TOP";
 
 // The menu BGM resumes with a one-fifth-second fade in when the app comes back to the foreground.
 static const double kMenuBgmResumeFade = 0.2; // @ghidraAddress 0x28e040
@@ -315,6 +321,62 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
 @synthesize sharePlayManager = _sharePlayManager;
 
 #pragma mark - Lifecycle
+
+/** @ghidraAddress 0x207b4 */
+- (instancetype)init {
+    self = [super init];
+    if (self != nil) {
+        (void)NSFileManager.defaultManager; // Yes, the binary discards this call's result.
+        isPad = JubeatAppDelegate.appDelegate.isPad;
+        isRetina = JubeatAppDelegate.appDelegate.isPhoneRetina;
+        isPadRetina = JubeatAppDelegate.appDelegate.isPadRetina;
+        willStart = NO;
+        mainBgmSuspended = NO;
+        bOpenDelegateCover = NO;
+        bOpenModal = NO;
+        bOpenMusicDetail = NO;
+        bSuffleAnim = NO;
+        [self musicShuffleEnable];
+        NSString *searchString = JubeatAppDelegate.appDelegate.searchString ?: @"";
+        searchArray = [NSMutableArray arrayWithArray:[self getSearchArray:searchString]];
+        [self refreshMusicList];
+        settingsNavCtrl = [[SettingsNavController alloc] init];
+        [settingsNavCtrl setSettingsDelegate:self];
+        jcfDLPageViewController = nil;
+        notificationViewController = nil;
+        NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
+        [center addObserver:self
+                   selector:@selector(appSuspended:)
+                       name:UIApplicationDidEnterBackgroundNotification
+                     object:nil];
+        [center addObserver:self
+                   selector:@selector(appResumed:)
+                       name:UIApplicationWillEnterForegroundNotification
+                     object:nil];
+        [self checkLabURL];
+        [JubeatAppDelegate.appDelegate setHasNewRecommendNum:0];
+        [RecommendNetwork
+            getUnreadCountWithAdModel:RecommendAdModelAppList
+                           adLocation:kRecommendAdLocationTop
+                             callback:^(NSInteger status, NSError *error) {
+                               /** @ghidraAddress 0x20bf8 */
+                               if (error != nil) {
+                                   NSLog(@"error=%@", error);
+                                   return;
+                               }
+                               NSLog(@"unreadCount=%d", (int)status);
+                               [JubeatAppDelegate.appDelegate setHasNewRecommendNum:(int)status];
+                             }];
+        challengeCoverView = nil;
+        checkPolicy = NO;
+        missionTasks = nil;
+        // The binary discards these three URL results; the calls prime the network utility.
+        (void)GameNetworkUtil.scoreSendURL;
+        (void)GameNetworkUtil.recommendEnableURL;
+        (void)GameNetworkUtil.rewardEnableURL;
+    }
+    return self;
+}
 
 /** @ghidraAddress 0x38f04 */
 - (void)dealloc {
