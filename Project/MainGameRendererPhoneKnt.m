@@ -2053,6 +2053,222 @@ drawDigits:
                            alpha:rankAlpha];
 }
 
+/** @ghidraAddress 0x1924f8 */
+- (void)renderResult {
+    // The tune-info and upper-region layout, shared with -renderUpper: the jacket sits at x=8 and
+    // its square size is 80 points (88 on the shorter idiom). The score, partner score, and music
+    // bar all slide down by the four-inch upper-background height.
+    static const double kArtworkSize[] = {80.0, 88.0}; // @ghidraAddress 0x292770
+    static const double kTuneInfoX = 8.0;              // fmov, 8.0
+    static const double kTuneInfoYDefault = 10.0;
+    static const double kScoreX = 140.0;           // @ghidraAddress 0x28f6a8
+    static const double kScoreYDefault = 101.0;    // 0x65
+    static const double kPartnerX = 192.0;         // @ghidraAddress 0x28fa00
+    static const double kPartnerYDefault = 75.0;   // 0x4b
+    static const double kPartnerScale = 0.7;       // @ghidraAddress 0x291c98
+    static const double kMusicBarYDefault = 136.0; // 0x88
+
+    // The shutter, if still open, closes in one 18.1-point step per frame down to zero.
+    static const float kShutterCloseThreshold = 18.100000381469727f; // @ghidraAddress 0x293500
+    static const float kShutterCloseStep = -18.100000381469727f;     // @ghidraAddress 0x2934fc
+
+    // Once the result has settled (frame >= 30, live play only), the win/clear/fail banner runs.
+    static const unsigned int kResultBannerStartFrame = 0x1e; // 30
+    static const int kMillionScore = 1000000;
+    static const unsigned int kClearedScoreThreshold = 699999;
+
+    // The new-record stamp slides in over frames 65..73 and its updated-score readout trails it.
+    static const unsigned int kNewRecordGateFrame = 0x40;  // shown once past frame 64
+    static const unsigned int kNewRecordStartFrame = 0x41; // 65
+    static const unsigned int kNewRecordEndFrame = 0x49;   // 73
+    static const float kNewRecordSlideFrom = 80.0f;        // @ghidraAddress 0x28e018
+    static const float kNewRecordSlideTo = 111.0f;         // @ghidraAddress 0x293504
+    static const float kNewRecordXBase = 140.0f;           // @ghidraAddress 0x292b5c
+    static const float kNewRecordXNudge = 2.0f;            // fmov, 2.0
+    static const int kNewRecordYRetina = 0x19;             // 25, the retina stamp-Y bias
+    static const int kNewRecordYNonRetina = 0x17;          // 23, the non-retina stamp-Y bias
+    static const int kNewRecordYBase = 0x65;               // 101
+    static const double kNewRecordScoreXOffset = -72.0;    // @ghidraAddress 0x293550
+    static const double kNewRecordEightNudge = -8.0;       // fmov, -8.0
+    static const NSUInteger kNewRecordStampSprite = 0x15;
+
+    // The retry/vote overlay: the replay-tag sprite, the vote strip swapped in from a resource, and
+    // the good-job image fading to its configured maximum.
+    static const float kResultTagScale = 0.125f; // 1/8, fmov 0x3e000000
+    static const NSUInteger kResultReplayTagSprite = 4;
+    static const double kResultReplayTagX = 242.0; // @ghidraAddress 0x292f80
+    static const int kResultOverlayYBase = 0x196;  // 406, the overlay Y before the +1 nudge
+    static const NSUInteger kResultVoteSprite = 3;
+    static const double kResultVoteX = 162.0; // @ghidraAddress 0x28fa30
+    static NSString *const kResultVoteResourceRetina =
+        @"game_level_vote_knt_pn2"; // @ghidraAddress 0x2df9c0
+    static NSString *const kResultVoteResource =
+        @"game_level_vote_knt_pn";                               // @ghidraAddress 0x2df9e0
+    static const NSTimeInterval kGoodJobFadeDuration = 0.3;      // @ghidraAddress 0x28f260
+    static NSString *const kSeVoiceResult = @"SD_KNT_CV_RESULT"; // @ghidraAddress 0x2dfa00
+    static const unsigned int kResultSubStateComplete = 10;
+
+    const ScoreData *score = self.sequence.getScore;
+    ScoreData backup;
+    if (self.scoreBackup) {
+        backup = self.replayBackupScore;
+        score = &backup;
+    }
+    if (shutterOpen > 0.0f) {
+        shutterOpen =
+            (shutterOpen >= kShutterCloseThreshold) ? shutterOpen + kShutterCloseStep : 0.0f;
+    }
+    [self renderShutter:NO];
+    if (self.sequence.isFullcombo && !self.scoreBackup) {
+        [self renderFullcombo:(int)frame isResult:YES];
+    }
+    [self renderUpperBG:YES];
+
+    double tuneY = kTuneInfoYDefault;
+    double artworkSize = kArtworkSize[0];
+    if (self.is4Inch) {
+        tuneY = (double)((self.upperBgHeight40 >> 2) + 10);
+        artworkSize = kArtworkSize[self.is4Inch];
+    }
+    [self renderTuneInfo:CGPointMake(kTuneInfoX, tuneY) artworkSize:artworkSize alpha:1.0];
+
+    double musicBarY = kMusicBarYDefault;
+    if (self.is4Inch) {
+        musicBarY = (double)(self.upperBgHeight40 + 0x83);
+    }
+    [self renderMusicBar:CGPointMake(0.0, musicBarY) timeline:NO alpha:1.0];
+
+    double scoreY = kScoreYDefault;
+    if (self.is4Inch) {
+        scoreY = (double)(self.upperBgHeight40 + 0x60);
+    }
+    [self renderScore:(unsigned int)score->totalPoint
+              atPoint:CGPointMake(kScoreX, scoreY)
+                alpha:1.0];
+
+    double partnerY = kPartnerYDefault;
+    if (self.is4Inch) {
+        partnerY = (double)(self.upperBgHeight40 + 0x46);
+    }
+    [self renderPartnerScore:self.partnerScore + self.partnerFinalBonus
+                     atPoint:CGPointMake(kPartnerX, partnerY)
+                       scale:kPartnerScale
+                       alpha:1.0];
+
+    float comboAlpha = InterpolateFloatByFrame(1.0f, 0.0f, frame, 0, 10);
+    [self renderCombo:(unsigned int)self.sequence.getScore->curCombo alpha:comboAlpha];
+    [self renderButtons];
+
+    BOOL bannerDone;
+    if (frame < kResultBannerStartFrame || self.scoreBackup) {
+        bannerDone = self.scoreBackup;
+    } else if (score->totalPoint == kMillionScore) {
+        bannerDone = [self renderExcellent:frame - kResultBannerStartFrame];
+    } else if (score->totalPoint > (int)kClearedScoreThreshold) {
+        bannerDone = [self renderCleared:frame - kResultBannerStartFrame];
+    } else {
+        bannerDone = [self renderFailed:frame - kResultBannerStartFrame];
+    }
+
+    // A new record slides its stamp in over frames 65..73 and reads out the recorded score. The
+    // stamp Y follows the score Y (offset by the upper-background height on the four-inch phone)
+    // and carries an extra bias that widens on a retina phone.
+    if (self.isNewRecord && frame > kNewRecordGateFrame && !self.scoreBackup) {
+        float stampAlpha =
+            InterpolateFloatByFrame(0.0f, 1.0f, frame, kNewRecordStartFrame, kNewRecordEndFrame);
+        int heightBase = self.is4Inch ? (self.upperBgHeight40 - 5) : 0;
+        int retinaBias = isRetina ? kNewRecordYRetina : kNewRecordYNonRetina;
+        double stampY = (double)(heightBase + retinaBias + kNewRecordYBase);
+        float stampSlide = InterpolateFloatByFrame(kNewRecordSlideFrom,
+                                                   kNewRecordSlideTo,
+                                                   frame,
+                                                   kNewRecordStartFrame,
+                                                   kNewRecordEndFrame);
+        double stampX = (double)(stampSlide + kNewRecordXBase + kNewRecordXNudge);
+        [self.texFront drawSprite:kNewRecordStampSprite
+                          atPoint:CGPointMake(stampX, stampY)
+                        transform:0
+                            alpha:stampAlpha];
+        [self renderUpdatedScore:self.scoreRecord
+                         atPoint:CGPointMake(stampX + kNewRecordScoreXOffset + kNewRecordEightNudge,
+                                             stampY)
+                           alpha:(double)stampAlpha];
+    }
+
+    // The retry/vote overlay appears with the result sub-state, sliding its tag and score in.
+    if (self.subState != 0) {
+        int margin = self.is4Inch ? [self buttonMarginForScreen40] : 0;
+        double overlayY = (double)(margin + kResultOverlayYBase) + 1.0;
+        unsigned int elapsed = frame - subStateChangeFrame;
+        float slideIn = (elapsed > 7) ? 1.0f : (float)elapsed * kResultTagScale;
+        [self.texFront drawSprite:kResultReplayTagSprite
+                          atPoint:CGPointMake(kResultReplayTagX, overlayY)
+                        transform:0
+                            alpha:slideIn];
+        if (!self.replayPlaying && self.isCustom && self.isDownload && self.hasMusic) {
+            // A downloaded custom tune swaps the vote strip in from a resource once, then fades the
+            // good-job image up. Retina loads the "_pn2" strip with scale-2x toggled off for the
+            // blit; non-retina loads the "_pn" strip without the toggle.
+            if (!self.isTextureChange) {
+                self.isTextureChange = YES;
+                if (isRetina) {
+                    self.texFront.isScale2x = NO;
+                    LoadTextureSubImageFromResource(self.texFront,
+                                                    kResultVoteResourceRetina,
+                                                    [self.texFront spriteAtIndex:3].origin);
+                    self.texFront.isScale2x = YES;
+                } else {
+                    LoadTextureSubImageFromResource(
+                        self.texFront, kResultVoteResource, [self.texFront spriteAtIndex:3].origin);
+                }
+                if (self.goodJobImage != nil) {
+                    __weak UIImageView *weakGoodJob = self.goodJobImage;
+                    float goodJobAlpha = self.goodJobAlphaMax;
+                    [UIView animateWithDuration:kGoodJobFadeDuration
+                                     animations:^{
+                                       /** @ghidraAddress 0x19310c */
+                                       weakGoodJob.alpha = goodJobAlpha;
+                                     }
+                                     completion:nil];
+                }
+            }
+            [self.texFront drawSprite:kResultVoteSprite
+                              atPoint:CGPointMake(kResultVoteX, overlayY)
+                            transform:0
+                                alpha:slideIn];
+        }
+        if (!self.isCustom && self.hasMusic && self.goodJobImage != nil) {
+            __weak UIImageView *weakGoodJob = self.goodJobImage;
+            float goodJobAlpha = self.goodJobAlphaMax;
+            [UIView animateWithDuration:kGoodJobFadeDuration
+                             animations:^{
+                               /** @ghidraAddress 0x193164 */
+                               weakGoodJob.alpha = goodJobAlpha;
+                             }
+                             completion:nil];
+        }
+        if (self.isSession && !self.hasMusic && self.goodJobImage != nil) {
+            __weak UIImageView *weakGoodJob = self.goodJobImage;
+            float goodJobAlpha = self.goodJobAlphaMax;
+            [UIView animateWithDuration:kGoodJobFadeDuration
+                             animations:^{
+                               /** @ghidraAddress 0x1931bc */
+                               weakGoodJob.alpha = goodJobAlpha;
+                             }
+                             completion:nil];
+        }
+    }
+    if (frame == 0) {
+        [[AudioManager sharedManager] playSeResFile:kSeVoiceResult inDirectory:nil];
+    }
+    // Once the banner finishes and the sub-state has not yet advanced, enter the result-complete
+    // sub-state and record the frame it changed on.
+    if (bannerDone && self.subState == 0) {
+        self.subState = kResultSubStateComplete;
+        subStateChangeFrame = frame;
+    }
+}
+
 /** @ghidraAddress 0x18dbc8 */
 - (void)renderScore:(unsigned int)score atPoint:(CGPoint)point alpha:(double)alpha {
     static const int kScoreDigitStride = 0x19;   // 25

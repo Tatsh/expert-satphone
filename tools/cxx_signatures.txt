@@ -878,3 +878,6 @@
 0x20663c	(^void)(void)
 0x206694	(^void)(void)
 0x2066ec	(^void)(void)
+0x19310c	(^void)(void)
+0x193164	(^void)(void)
+0x1931bc	(^void)(void)
