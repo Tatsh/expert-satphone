@@ -50,6 +50,15 @@ static const double kTuneDifficultyBadgeOffsetAdvanced = 160.0; // @ghidraAddres
 static const double kTuneDifficultyBadgeOffsetExtreme = 143.0;  // @ghidraAddress 0x2924a8 (diff 2)
 static const double kTuneDifficultyBadgeOffsetOther = 70.0;     // @ghidraAddress 0x28f6a0 (other)
 
+// The partner's score is drawn only in a session, at half alpha until the partner connects, with a
+// "partner" badge above it. The panels and digits are scaled by their sprite sizes times the scale.
+static const NSUInteger kPartnerSizeSampleSprite = 0xa; // panel size reference
+static const NSUInteger kPartnerDigitSizeSprite = 0x1b; // digit size reference
+static const NSUInteger kPartnerBadgeSprite = 0x1a;
+static const double kPartnerUnconnectedAlphaScale = 0.5; // fmov 0.5
+static const double kPartnerBadgeXOffset = 2.0;          // fmov 2.0
+static const double kPartnerBadgeYOffset = -25.0;        // fmov -25.0
+
 @implementation MainGameRendererPadKnt
 
 /** @ghidraAddress 0x206dcc */
@@ -100,6 +109,61 @@ static const double kTuneDifficultyBadgeOffsetOther = 70.0;     // @ghidraAddres
 /** @ghidraAddress 0x202390 */
 - (CGRect)getMusicBarRect {
     return musicBarRect;
+}
+
+/** @ghidraAddress 0x202060 */
+- (void)renderPartnerScore:(unsigned int)score
+                   atPoint:(CGPoint)point
+                     scale:(double)scale
+                     alpha:(double)alpha {
+    if (!self.isSession) {
+        return;
+    }
+    double effectiveAlpha = self.isConnected ? alpha : alpha * kPartnerUnconnectedAlphaScale;
+    CGSize panelSize = [self.texFront spriteAtIndex:kPartnerSizeSampleSprite].size;
+    CGSize digitSize = [self.texFront spriteAtIndex:kPartnerDigitSizeSprite].size;
+    if (score == 0) {
+        partnerScoreDisplay = 0;
+    } else if (partnerScoreDisplay != score) {
+        int step = (partnerScoreDisplay < score) ? 1 : -1;
+        partnerScoreDisplay =
+            partnerScoreDisplay + (((int)(score - partnerScoreDisplay) + step) >> 1);
+    }
+    char buf[8];
+    snprintf(buf, sizeof(buf), "%7d", partnerScoreDisplay);
+    unsigned int display = partnerScoreDisplay;
+    CGRect panelRect =
+        CGRectMake(point.x, point.y, panelSize.width * scale, panelSize.height * scale);
+    [self.texFront drawSprite:kScorePanelSprite
+                       inRect:panelRect
+                    transform:0
+                        alpha:(float)effectiveAlpha];
+    [self.texFront drawSprite:kScorePanelLabelSprite
+                       inRect:panelRect
+                    transform:0
+                        alpha:(float)effectiveAlpha];
+    int digitBase =
+        (display > kScoreSevenFigureThreshold) ? kScoreDigitBaseLarge : kScoreDigitBaseSmall;
+    int digitX = 0;
+    for (int i = 0; i < kScoreDigitCount; ++i) {
+        unsigned char c = (unsigned char)buf[i];
+        if ((unsigned int)(c - '0') < 10) {
+            [self.texFront
+                drawSprite:(NSUInteger)(digitBase + (char)buf[i])
+                    inRect:CGRectMake(point.x + (double)digitX * scale + kScoreDigitNudge,
+                                      point.y,
+                                      digitSize.width * scale,
+                                      digitSize.height * scale)
+                 transform:0
+                     alpha:(float)effectiveAlpha];
+        }
+        digitX += kResultScoreDigitStride;
+    }
+    [self.texFront
+        drawSprite:kPartnerBadgeSprite
+           atPoint:CGPointMake(point.x + kPartnerBadgeXOffset, point.y + kPartnerBadgeYOffset)
+         transform:0
+             alpha:(float)effectiveAlpha];
 }
 
 /** @ghidraAddress 0x202748 */
