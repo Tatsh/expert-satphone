@@ -7,6 +7,7 @@
 #import "AudioManager.h"
 #import "BFCodec.h"
 #import "EAGLView.h"
+#import "EffectBgKnit.h"
 #import "HoldMarkerRender.h"
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
@@ -22,6 +23,18 @@
 
 // Pi, shared with the engine's rodata pool; the shutter oscillation samples sin over it.
 static const double g_dPi = 3.141592653589793; // @ghidraAddress 0x28f278
+
+// One entry of the knit background-effect schedule: after @c threshold frames, spawn an
+// @c EffectBgKnit of @c effType at (@c startX, @c startY) with the given width range and travel.
+typedef struct {
+    int threshold;
+    int effType;
+    int startX;
+    int startY;
+    int wmin;
+    int wmax;
+    int move;
+} MainGameKntBgEffectSpec;
 
 // The ready/go countdown runs for two and a half seconds on the Knit pad renderer.
 static const double kReadyGoDuration = 2.5; // fmov 0x4004000000000000
@@ -2306,6 +2319,114 @@ digits:
             MainGameRendererPadKntDrawButtonFace(texFront, kButtonFacePressedBase, x, y);
         } else {
             MainGameRendererPadKntDrawButtonFace(texFront, kButtonFaceReleasedBase, x, y);
+        }
+    }
+}
+
+/** @ghidraAddress 0x201124 */
+- (void)renderBG {
+    // The knit background-effect schedule, thirty 28-byte entries. @ghidraAddress 0x293ee0
+    static const MainGameKntBgEffectSpec kBgEffectSchedule[] = {
+        {0, 0, 20, 208, 0, 100, 20},     {0, 5, 380, 1024, 30, 100, 0},
+        {0, 4, 690, 1024, 30, 60, 5},    {0, 4, 695, 1024, 30, 70, -50},
+        {0, 5, 300, 1024, 50, 110, 30},  {0, 4, 0, 1024, 40, 90, 0},
+        {10, 3, 190, 1024, 0, 100, 0},   {20, 1, 390, 0, 0, 70, 1458},
+        {30, 0, 660, 300, 0, 120, 190},  {35, 0, 400, 400, 0, 120, 10},
+        {40, 0, 400, 150, 0, 120, 150},  {40, 2, 10, 0, 0, 100, 1458},
+        {60, 0, 660, 400, 0, 120, 190},  {60, 1, 250, 0, 0, 70, 1458},
+        {65, 0, 460, 490, 0, 120, 130},  {90, 0, 20, 208, 0, 100, 20},
+        {90, 5, 380, 1024, 30, 100, 0},  {90, 4, 690, 1024, 30, 60, 5},
+        {90, 4, 695, 1024, 30, 70, -50}, {90, 5, 300, 1024, 50, 110, 30},
+        {90, 4, 0, 1024, 40, 90, 0},     {100, 3, 190, 1024, 0, 100, 0},
+        {120, 0, 660, 300, 0, 120, 190}, {125, 0, 400, 400, 0, 120, 10},
+        {130, 0, 400, 150, 0, 120, 150}, {150, 0, 660, 400, 0, 120, 190},
+        {155, 0, 460, 490, 0, 120, 130}, {180, 0, 0, 0, 0, 0, 0},
+        {180, 0, 0, 0, 0, 0, 0},         {180, 0, 0, 0, 0, 0, 0}};
+    static const int kBgEffectSlotWrap = 0x1d; // the slot index resets once it passes 29
+
+    static const float kBeatPulseKnee = 0.606061f;     // @ghidraAddress 0x292ab4
+    static const float kBeatPulsePeak = 1.1f;          // @ghidraAddress 0x292ab8
+    static const float kBeatScale = 768.0f;            // @ghidraAddress 0x292550
+    static const float kBeatScaleUnit = 1.0f / 512.0f; // @ghidraAddress 0x292abc
+    static const double kBeatX = 128.0;                // @ghidraAddress 0x28f750
+    static const double kBeatY = 384.0;                // @ghidraAddress 0x292470
+    static const double kBeatAnchorY = 640.0;          // @ghidraAddress 0x291d80
+    static const float kTensionRate = 1.0f / 1024.0f;  // @ghidraAddress 0x292540
+    static const int kBgEffectAreaTop = 0x100;         // 256, added to every spawn's Y
+    static const float kBgEffectSpawnGate = 9.0f; // the beat energy that opens the spawn schedule
+
+    // The beat pulse follows the sequence's haku phase, ramping past the 0.606 knee to its 1.1
+    // peak. A replay backup does not drive the background.
+    const ScoreData *score = nil;
+    float haku = 0.0f;
+    if (self.sequence != nil) {
+        if (self.scoreBackup) {
+            return;
+        }
+        score = [self.sequence getScore];
+        haku = self.sequence.hakuPhase;
+    }
+    float pulse;
+    if (haku >= kBeatPulseKnee) {
+        pulse = InterpolateFloatByPosition(haku, kBeatPulseKnee, 1.0f, kBeatPulsePeak, 1.0f);
+    } else {
+        pulse = InterpolateFloatByPosition(haku, 0.0f, kBeatPulseKnee, kBeatPulsePeak, 1.0f);
+    }
+
+    // The two beat-background layers (sprites 9 and 10), pulsed on the beat about the field centre.
+    float beatScale = pulse * kBeatScale * kBeatScaleUnit;
+    [self.texBeatBg drawSprite:9
+                       atPoint:CGPointMake(kBeatX, kBeatY)
+                         scale:beatScale
+                        rotate:0.0f
+                        anchor:CGPointMake(kBeatY, kBeatAnchorY)
+                     transform:0
+                         alpha:1.0f];
+    // The upper layer fades in with the score's tension.
+    float tensionFrame = 0.0f;
+    if (score != nullptr) {
+        tensionFrame = (float)score->tension * 10.0f * kTensionRate;
+    }
+    float layer2Alpha = InterpolateFloatByFrame(0.0f, 1.0f, (int)tensionFrame, 7, 9);
+    [self.texBeatBg drawSprite:10
+                       atPoint:CGPointMake(kBeatX, kBeatY)
+                         scale:beatScale
+                        rotate:0.0f
+                        anchor:CGPointMake(kBeatY, kBeatAnchorY)
+                     transform:0
+                         alpha:layer2Alpha];
+
+    // Spawn and advance the knit background effects once the beat energy passes the gate.
+    if (tensionFrame <= kBgEffectSpawnGate) {
+        self->effFrame = 0;
+    } else {
+        const MainGameKntBgEffectSpec *spec = &kBgEffectSchedule[self->effSlot];
+        if ((unsigned int)spec->threshold < self->effFrame) {
+            EffectBgKnit *eff = [[EffectBgKnit alloc] init];
+            [eff init:self.texBeatBg
+                 effType:spec->effType
+                startPos:CGPointMake((double)spec->startX,
+                                     (double)(spec->startY + kBgEffectAreaTop))
+                    wmin:spec->wmin
+                    wmax:spec->wmax
+                    move:spec->move];
+            [self.arrayBgEff addObject:eff];
+            ++self->effSlot;
+            if (self->effSlot > (unsigned int)kBgEffectSlotWrap) {
+                self->effSlot = 0;
+                self->effFrame = 0;
+            }
+        }
+        ++self->effFrame;
+    }
+
+    // Render every live effect, culling those that report themselves finished.
+    NSInteger count = self.arrayBgEff.count;
+    for (int i = 0; i < count; ++i) {
+        if ([self.arrayBgEff[i] renderEffect]) {
+            [self.arrayBgEff removeObjectAtIndex:i];
+            --i;
+            --count;
         }
     }
 }
