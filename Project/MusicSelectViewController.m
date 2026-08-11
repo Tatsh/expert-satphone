@@ -475,6 +475,49 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     [self changeMusicListView:listType musicID:musicID isFirst:NO];
 }
 
+/** @ghidraAddress 0x22994 */
+- (void)changeMusicListView:(NSInteger)listType musicID:(NSUInteger)musicID isFirst:(BOOL)isFirst {
+    // Snapshot the list before the change so the add/delete diff can be computed against it.
+    NSArray<TuneInfo *> *oldList = (arrayCurrentPlaylist == nil) ?
+                                       [NSArray arrayWithArray:arrayAllTune] :
+                                       [NSArray arrayWithArray:arrayCurrentPlaylist];
+    [self preparePlaylistArray:listType];
+    playListIndex = (int)listType;
+    NSArray<TuneInfo *> *newList = arrayCurrentPlaylist ?: arrayAllTune;
+    NSUInteger targetIndex = 0;
+    if (musicID != 0 && newList.count != 0) {
+        NSUInteger i = 0;
+        while (i + 1 < newList.count && (unsigned int)newList[i].tuneID != musicID) {
+            ++i;
+        }
+        targetIndex = ((unsigned int)newList[i].tuneID == musicID) ? i : 0;
+    }
+    arrayAddList = nil;
+    arrayDeleteList = nil;
+    arrayDeleteList = [[NSMutableArray alloc] init];
+    arrayAddList = [[NSMutableArray alloc] init];
+    if (!isFirst) {
+        // Rows in the old list that are gone from the new list are deletions.
+        NSInteger row = 0;
+        for (TuneInfo *tune in oldList) {
+            if ([newList indexOfObject:tune] == NSNotFound) {
+                [arrayDeleteList addObject:[NSIndexPath indexPathForRow:row inSection:0]];
+            }
+            ++row;
+        }
+        // Rows in the new list that were absent from the old list are insertions.
+        row = 0;
+        for (TuneInfo *tune in newList) {
+            if ([oldList indexOfObject:tune] == NSNotFound) {
+                [arrayAddList addObject:[NSIndexPath indexPathForRow:row inSection:0]];
+            }
+            ++row;
+        }
+    }
+    [musicListView reloadPageContainsMusicForIndex:targetIndex playlistIndex:listType];
+    [musicListView updateViews];
+}
+
 /** @ghidraAddress 0x29fbc */
 - (unsigned int)numberOfMusic {
     NSArray *list = arrayCurrentPlaylist ?: arrayAllTune;
