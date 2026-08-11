@@ -2574,9 +2574,8 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
             NSMutableArray *scoredIDs =
                 [[NSMutableArray alloc] initWithCapacity:kNotYetPlayedRecordCapacity];
             for (ScoreRecord *record in records) {
-                if (![scoredIDs containsObject:@(record.tuneID)] &&
-                    [ScoreRecord checkScore:record]) {
-                    [scoredIDs addObject:@(record.tuneID)];
+                if (![scoredIDs containsObject:record.tuneID] && [ScoreRecord checkScore:record]) {
+                    [scoredIDs addObject:record.tuneID];
                 }
             }
             NSMutableArray *aliasIDs = [[NSMutableArray alloc] init];

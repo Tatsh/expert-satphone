@@ -2099,7 +2099,6 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     // per iteration over four grid rows.
     int cornerY = 0x60;
     int rowFromTop = 0xf;
-    int animFrame = animFrame;
     for (int row = 0; row < 4; ++row) {
         if (animFrame >= 0) {
             float scale;

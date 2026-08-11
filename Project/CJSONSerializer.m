@@ -21,10 +21,6 @@ static NSString *const kErrorDomain = @"CJSONSerializerErrorDomain";
 static NSString *const kCannotSerializeFormat = @"Cannot serialize data of type '%@'";
 static NSString *const kCouldNotSerializeFormat = @"Could not serialize object '%@'";
 
-// The CFNumber type code for a boxed BOOL (kCFNumberCharType); such a number serialises to a JSON
-// keyword rather than a numeral.
-static const int kCFNumberCharType = 7;
-
 // The comma between array elements and dictionary pairs. -serializeString: escapes the forward
 // slash only when the low bit of options is set.
 static const NSUInteger kOptionEscapeSlash = 1;

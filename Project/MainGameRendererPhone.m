@@ -1167,7 +1167,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
         scoreDisplay = 0;
     } else if (scoreDisplay != score) {
         int step = (scoreDisplay < score) ? 1 : -1;
-        scoreDisplay = scoreDisplay + ((int)(score - scoreDisplay) + step >> 1);
+        scoreDisplay = scoreDisplay + (((int)(score - scoreDisplay) + step) >> 1);
     }
     char digits[8];
     snprintf(digits, sizeof(digits), "%7d", scoreDisplay);
@@ -1183,7 +1183,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     } else if (partnerScoreDisplay != partnerScore) {
         int step = (partnerScoreDisplay < partnerScore) ? 1 : -1;
         partnerScoreDisplay =
-            partnerScoreDisplay + ((int)(partnerScore - partnerScoreDisplay) + step >> 1);
+            partnerScoreDisplay + (((int)(partnerScore - partnerScoreDisplay) + step) >> 1);
     }
     char partnerDigits[8];
     snprintf(partnerDigits, sizeof(partnerDigits), "%7d", partnerScoreDisplay);

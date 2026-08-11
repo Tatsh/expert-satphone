@@ -2164,7 +2164,6 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     // four grid rows.
     int cornerX = 0x28;
     int mirrorRow = 0xf;
-    int animFrame = animFrame;
     for (int row = 0; row < 4; ++row) {
         if (animFrame >= 0) {
             float baseAlpha;
