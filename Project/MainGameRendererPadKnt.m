@@ -5,6 +5,7 @@
 #import "RendererConf.h"
 #import "Sequence.h"
 #import "Texture2D.h"
+#import "neEngineBridge.h"
 
 // The ready/go countdown runs for two and a half seconds on the Knit pad renderer.
 static const double kReadyGoDuration = 2.5; // fmov 0x4004000000000000
@@ -111,6 +112,29 @@ static const int kMarkerHighlightSector = 0x96; // 150
 static const int kMarkerFadeClampSectors = 100; // clamp to 1.0 at/after this many sectors
 static const float kMarkerFadeDivisor = 100.0f; // @ghidraAddress 0x28f4e0
 
+// The start-mark intro burst on each first-marker panel: three clipped burst glyphs plus the
+// rising centre glyph. The rise and fade-in run over frames 4..8; the pulse runs up over the first
+// fifty of each 120-frame cycle then down over the next thirty; the sweep runs -100..100 over the
+// first eighty frames.
+static const NSUInteger kStartMarkBurstMidSprite = 0x16;
+static const NSUInteger kStartMarkBurstTopSprite = 0x17;
+static const NSUInteger kStartMarkBurstBottomSprite = 0x15;
+static const NSUInteger kStartMarkCentreSprite = 0x14;
+static const double kStartMarkClipInset = -11.0;     // fmov -11.0
+static const double kStartMarkClipSize = 178.0;      // @ghidraAddress 0x291cf8
+static const double kStartMarkTopYOffset = 15.0;     // fmov 15.0
+static const double kStartMarkBottomYOffset = 120.0; // @ghidraAddress 0x28f210
+static const double kStartMarkAnchorSize = 80.0;     // @ghidraAddress 0x28f3f8
+static const float kStartMarkSweepDivisor = 5.0f;    // fmov 5.0
+static const float kStartMarkRiseFrom = 8.0f;        // fmov 8.0
+static const unsigned int kStartMarkRiseStartFrame = 4;
+static const unsigned int kStartMarkRiseEndFrame = 8;
+static const unsigned int kStartMarkCycleLength = 0x78; // 120
+static const unsigned int kStartMarkPulsePeak = 0x32;   // 50
+static const unsigned int kStartMarkPulseEnd = 0x50;    // 80
+static const float kStartMarkSweepFrom = -100.0f;       // @ghidraAddress 0x2934a4
+static const float kStartMarkSweepTo = 100.0f;          // @ghidraAddress 0x28f4e0
+
 // The origin of grid panel @p index within the Knit marker grid.
 static inline CGPoint MainGameRendererPadKntPanelOrigin(int index) {
     int x = (index % kMarkerGridColumns) * kMarkerPanelPitch | kMarkerPanelInset;
@@ -191,6 +215,64 @@ MainGameRendererPadKntMarkerSprite(unsigned int phase, unsigned int slot, int *s
 /** @ghidraAddress 0x202390 */
 - (CGRect)getMusicBarRect {
     return musicBarRect;
+}
+
+/** @ghidraAddress 0x200a40 */
+- (void)renderStartMark:(float)alpha {
+    unsigned int frame = (unsigned int)startMarkFrame;
+    // The rise offset (8 -> 0 over frames 4..8) and the fade-in alpha (0 -> 1 over frames 4..8).
+    float rise = InterpolateFloatByFrame(
+        kStartMarkRiseFrom, 0.0f, frame, kStartMarkRiseStartFrame, kStartMarkRiseEndFrame);
+    float fadeIn = InterpolateFloatByFrame(
+                       0.0f, 1.0f, frame, kStartMarkRiseStartFrame, kStartMarkRiseEndFrame) *
+                   alpha;
+    // The pulse, cycling every 120 frames: up over 0..50, then down over 50..80.
+    unsigned int cyc = (unsigned int)(float)((int)frame % (int)kStartMarkCycleLength);
+    float pulse = InterpolateFloatByFrame(0.0f, 1.0f, cyc, 0, kStartMarkPulsePeak);
+    if ((int)frame > (int)kStartMarkPulsePeak) {
+        pulse = InterpolateFloatByFrame(1.0f, 0.0f, cyc, kStartMarkPulsePeak, kStartMarkPulseEnd);
+    }
+    // The horizontal sweep, -100 -> 100 over frames 0..80.
+    float sweep =
+        InterpolateFloatByFrame(kStartMarkSweepFrom, kStartMarkSweepTo, cyc, 0, kStartMarkPulseEnd);
+    for (unsigned int i = 0; i < kMainGameGridPanelCount; ++i) {
+        if (([self.sequence firstMarker] & (1u << (i & 0x1f))) == 0) {
+            continue;
+        }
+        CGPoint cell = MainGameRendererPadKntPanelOrigin((int)i);
+        double cellX = cell.x;
+        double cellY = cell.y;
+        CGRect area = CGRectMake(cellX + kStartMarkClipInset,
+                                 cellY + kStartMarkClipInset,
+                                 kStartMarkClipSize,
+                                 kStartMarkClipSize);
+        [self drawClip:kStartMarkBurstMidSprite
+            drawPosition:CGPointMake(cellX, cellY + kStartMarkTopYOffset)
+                drawArea:area
+                   alpha:fadeIn];
+        [self drawClip:kStartMarkBurstTopSprite
+            drawPosition:CGPointMake((double)sweep + cellX, cellY + kStartMarkTopYOffset)
+                drawArea:area
+                   alpha:pulse * alpha];
+        [self drawClip:kStartMarkBurstBottomSprite
+            drawPosition:CGPointMake(cellX, cellY + kStartMarkBottomYOffset)
+                drawArea:area
+                   alpha:fadeIn];
+        [self drawClip:kStartMarkBurstMidSprite
+            drawPosition:CGPointMake(cellX - (double)(sweep / kStartMarkSweepDivisor),
+                                     cellY + kStartMarkBottomYOffset)
+                drawArea:area
+                   alpha:pulse * alpha];
+        [self.texFront
+            drawSprite:kStartMarkCentreSprite
+               atPoint:CGPointMake(cellX, cellY - (double)rise)
+                 scale:1.0f
+                rotate:0
+                anchor:CGPointMake(cellX + kStartMarkAnchorSize, cellY + kStartMarkAnchorSize)
+             transform:0
+                 alpha:fadeIn];
+    }
+    startMarkFrame = startMarkFrame + 1;
 }
 
 /** @ghidraAddress 0x200db4 */
