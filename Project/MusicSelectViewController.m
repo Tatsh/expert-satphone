@@ -175,6 +175,9 @@ static const CGFloat kJoinViewHeightPhone = 360.0;       // @ghidraAddress 0x28f
 static const NSTimeInterval kJoinViewFadeDuration = 0.2; // @ghidraAddress 0x28e040
 static NSString *const kJoinSoundSuffix = @"MUSIC_SELECT";
 
+// Cancelling a client share plays this cue and fades the share views out over the join duration.
+static NSString *const kShareCancelSoundSuffix = @"SKIP";
+
 // When the last-played tune sits on an earlier page, the stand-in detail music view is parked this
 // many screen widths off to the left of centre so it slides in from that side.
 static const CGFloat kDetailPanelOffscreenDirection = -4.0; // fmov, -4.0
@@ -1036,6 +1039,76 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     [self.sharePlayManager setDelegate:self];
     [self.sharePlayManager startHostModeWithMusicInfo:musicInfo filePath:filePath];
     [self musicShuffleDisable];
+}
+
+/** @ghidraAddress 0x2f17c */
+- (void)cancelShare:(BOOL)disconnect {
+    if (self.sharePlayManager == nil) {
+        return;
+    }
+    if (!self.sharePlayManager.isHost) {
+        [self setSearchEnable:YES];
+        [[AudioManager sharedManager] playSeResFile:[self soundName:kShareCancelSoundSuffix]
+                                        inDirectory:nil];
+        // The cover is only faded when the marker-select overlay is not up.
+        UIView *cover = isMarkerSelectOpen ? nil : coverView;
+        if (shareClientView.superview == nil) {
+            // A host is presenting the detail view: fade the detail view and cover out, then
+            // clear and remove the detail view and hide the cover.
+            if (musicDetailView.superview != nil) {
+                __weak MusicDetailView *weakDetail = musicDetailView;
+                [UIView animateWithDuration:kJoinViewFadeDuration
+                    animations:^{
+                      /** @ghidraAddress 0x2f7bc */
+                      cover.alpha = 0.0;
+                      weakDetail.alpha = 0.0;
+                    }
+                    completion:^(BOOL finished) {
+                      /** @ghidraAddress 0x2f864 */
+                      [weakDetail clearInfo];
+                      [weakDetail removeFromSuperview];
+                      cover.hidden = YES;
+                    }];
+            }
+        } else {
+            // A client is showing the share view: detach it, then fade it and the cover out and
+            // remove it, hiding the cover.
+            MusicShareView *shareView = shareClientView;
+            [shareView setController:nil];
+            shareClientView = nil;
+            [UIView animateWithDuration:kJoinViewFadeDuration
+                animations:^{
+                  /** @ghidraAddress 0x2f6a4 */
+                  cover.alpha = 0.0;
+                  shareView.alpha = 0.0;
+                }
+                completion:^(BOOL finished) {
+                  /** @ghidraAddress 0x2f730 */
+                  [shareView removeFromSuperview];
+                  cover.hidden = YES;
+                }];
+        }
+        if (!isMarkerSelectOpen) {
+            [self showButtonMarker:YES];
+        }
+        if ([[AudioManager sharedManager] popBgm]) {
+            if (disconnect) {
+                mainBgmSuspended = YES;
+            } else {
+                [[AudioManager sharedManager] startBgm:YES fadeTime:kJoinViewFadeDuration];
+                mainBgmSuspended = NO;
+            }
+        }
+    } else {
+        [musicDetailView hostShareCancelled];
+    }
+    [self.sharePlayManager connectCancel];
+    self.sharePlayManager = nil;
+    shareMusicData = nil;
+    if (musicDetailView != nil) {
+        [musicDetailView setStartButtonEnable];
+    }
+    [self musicShuffleEnable];
 }
 
 /** @ghidraAddress 0x3073c */

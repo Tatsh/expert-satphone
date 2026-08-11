@@ -853,3 +853,7 @@
 0x33eb4	(^void)(BOOL)
 0x34020	(^void)(void)
 0x20bf8	(^void)(NSInteger, NSError *)
+0x2f6a4	(^void)(void)
+0x2f730	(^void)(BOOL)
+0x2f7bc	(^void)(void)
+0x2f864	(^void)(BOOL)
