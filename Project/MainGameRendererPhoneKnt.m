@@ -468,7 +468,163 @@ static inline void MainGameRendererPhoneKntBuildComboTexture(MainGameRendererPho
     self.texCombo.isScale2x = self->isRetina;
 }
 
-// ==== METHOD ====
+// The Excellent (perfect-million) result banner's final sparkle burst (frame >= 0x7c): twenty
+// particles from four parallel tables (sprite, base x, base y, scale), drawn at a shared -0.4746
+// rotation. Particles 0..14 rise or fall relative to the 320-point centre line (offset by the
+// four-inch button margin); the last five sweep outward and, from frame 0x8d, ripple on a 20-frame
+// cycle, each drawn as an eight-step offset trail plus itself.
+static const int kExcParticleSprite[] = { // @ghidraAddress 0x293938
+    14, 14, 14, 15, 16, 16, 16, 17, 17, 14, 16, 15, 14, 16, 17, 0, 0, 0, 0, 0};
+static const float kExcParticleX[] = { // @ghidraAddress 0x293988
+    -19.7f, -20.6f, -12.2f, -11.4f, -7.7f,  -14.3f, -4.9f,  46.6f,  57.6f, 100.4f,
+    41.8f,  140.4f, 147.9f, 145.4f, 108.6f, 76.1f,  158.0f, 235.9f, 74.5f, -4.7f};
+static const float kExcParticleY[] = { // @ghidraAddress 0x2939d8
+    40.1f,  78.6f,  18.8f,  66.7f,  11.6f,  104.4f, 308.3f, 315.1f, 313.8f, 352.4f,
+    326.0f, 312.2f, 361.8f, 354.5f, 326.0f, 284.6f, 282.6f, 288.8f, 38.9f,  42.1f};
+static const float kExcParticleScale[] = { // @ghidraAddress 0x293a28
+    1.58f, 1.53f, 0.84f, 0.68f, 0.66f, 1.25f, 1.9f, 1.59f, 1.59f, 1.2f,
+    1.59f, 1.84f, 1.23f, 1.0f,  1.07f, 1.0f,  1.0f, 1.0f,  1.0f,  1.0f};
+static const int kExcParticleCount = 20;
+static const int kExcSweepParticleFirst = 15;
+static const float kExcParticleRotate = -0.47459015f; // @ghidraAddress 0x2934c4
+static const float kExcParticleYBias = 6.0f;          // fmov, 6.0
+static const float kExcParticleTrailStep = 80.0f;     // @ghidraAddress 0x28e018
+static const float kExcParticleTrailYScale = 1.02f;   // @ghidraAddress 0x2934f4
+
+// The Excellent panels fill the grid rows in this reflow order (a 16-entry table read every other
+// frame), on the phone's 80-point grid pitch inset 6, dropped 160 (plus the four-inch margin),
+// minus a 6-point half.
+static const int kExcPanelOrder[] = { // @ghidraAddress 0x2938f8
+    0,
+    4,
+    8,
+    12,
+    13,
+    14,
+    15,
+    11,
+    7,
+    3,
+    2,
+    1,
+    5,
+    9,
+    10,
+    6};
+static const int kExcPanelPitch = 0x50; // 80
+static const int kExcPanelInset = 6;
+static const int kExcPanelGridTopY = 0xa0;       // 160
+static const double kExcPanelHalf = -6.0;        // fmov, -6.0
+static const double kExcPanelSpread = 80.0;      // @ghidraAddress 0x28f3f8
+static const int kExcSweepThresholdBase = 0x140; // 320, before the four-inch margin
+
+// The two Excellent title glyphs (texResultBg sprite 9) slide in from the sides; their Y is the
+// four-inch button margin plus a per-side offset, else a fixed default.
+static const NSUInteger kExcTitleSprite = 9;
+static const float kExcTitleSlideFrom = 48.0f;      // @ghidraAddress 0x28f8f4
+static const double kExcTitleXOffset = 120.0;       // @ghidraAddress 0x28f210
+static const double kExcTitleGlyphNudge = -24.0;    // fmov, -24.0
+static const double kExcTitleLeftYDefault = 280.0;  // @ghidraAddress 0x28f658
+static const double kExcTitleRightYDefault = 360.0; // @ghidraAddress 0x292918
+static const int kExcTitleLeftY4Inch = 0x118;       // 280
+static const int kExcTitleRightY4Inch = 0x168;      // 360
+static const double kExcTitleRightBaseX = 40.0;     // @ghidraAddress 0x28f1f8
+static const NSUInteger kExcPanelSprite = 0xb;
+static const NSUInteger kExcWordSprite = 0x1a;
+static const float kExcWordScale = 1.04f; // @ghidraAddress 0x292b38
+// The Excellent word (texFront sprite 0x1a) flies in as four glyph pairs over frames 0x60..0x74.
+static const float kExcWordScatterY = -160.0f;      // @ghidraAddress 0x2926d8
+static const float kExcWord1Target = 40.0f;         // @ghidraAddress 0x292568
+static const float kExcWord1From = 360.0f;          // @ghidraAddress 0x292418
+static const float kExcWord1XOffset = -62.4f;       // @ghidraAddress 0x2934bc
+static const float kExcWord1YOffset = 25.7f;        // @ghidraAddress 0x2934c0
+static const float kExcWord2From = 200.0f;          // @ghidraAddress 0x292b24
+static const float kExcWord2YFrom = -80.0f;         // @ghidraAddress 0x28f468
+static const float kExcWord3YFrom = 160.0f;         // @ghidraAddress 0x28f438
+static const float kExcWord3XOffset = -38.7f;       // @ghidraAddress 0x2934cc
+static const float kExcWord3YOffset = 2.4f;         // @ghidraAddress 0x2934d0
+static const float kExcWord3Scale = 0.507f;         // @ghidraAddress 0x2934d4
+static const float kExcWord4From = -120.0f;         // @ghidraAddress 0x2934d8
+static const float kExcWord5XOffset = -16.2f;       // @ghidraAddress 0x2934dc
+static const float kExcWord5YOffset = 26.6f;        // @ghidraAddress 0x2934e0
+static const float kExcWord5Scale = 0.78f;          // @ghidraAddress 0x2934e4
+static const float kExcWord3XFrom = -280.0f;        // @ghidraAddress 0x2934c8
+static const double kExcWordTitleXOffset = -24.0;   // fmov, -24.0
+static const double kExcTitleGlyphSpacing = 166.0;  // @ghidraAddress 0x29275c
+static const int kExcTitleGlyphSpacing4Inch = 0xa6; // 166
+static const NSUInteger kExcRatingFrame = 0x14;
+static const NSUInteger kExcPanelFrame = 0x28;
+static const NSUInteger kExcStringFrame0 = 0x60;
+static const NSUInteger kExcStringFrame1 = 0x67;
+static const NSUInteger kExcStringFrame2 = 0x6e;
+static const NSUInteger kExcVoiceFrame = 0x7c;
+static NSString *const kSeExcRating = @"SD_KNT_CV_RATING";   // @ghidraAddress 0x2df8a0
+static NSString *const kSeExcPanel = @"SD_KNT_EXC_PANEL";    // @ghidraAddress 0x2df8c0
+static NSString *const kSeExcString = @"SD_KNT_EXC_STRING";  // @ghidraAddress 0x2df8e0
+static NSString *const kSeExcResult = @"SD_KNT_RESULT_EXC";  // @ghidraAddress 0x2df900
+static NSString *const kSeExcVoice = @"SD_KNT_CV_EXCELLENT"; // @ghidraAddress 0x2df920
+
+// The Excellent burst: twenty particles, the last five sweeping outward with an offset trail.
+static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRendererPhoneKnt *self,
+                                                                unsigned int frame) {
+    static const float kExcFlourishRiseFrom = -86.0f; // @ghidraAddress 0x2934e8
+    static const float kExcFlourishSweep = 640.0f;    // @ghidraAddress 0x2934ec
+    static const float kExcTrailXScale = -1.02f;      // @ghidraAddress 0x2934f0
+    int margin = self->is4Inch ? [self buttonMarginForScreen40] : 0;
+    float titleSpacing = self->is4Inch ?
+                             (float)([self buttonMarginForScreen40] + kExcTitleGlyphSpacing4Inch) :
+                             (float)kExcTitleGlyphSpacing;
+    float rise =
+        InterpolateFloatByFrame(kExcFlourishRiseFrom, 0.0f, frame, 0x7c, 0x80) + kExcParticleYBias;
+    if (frame > 0x7f) {
+        rise -= (float)((int)(frame * 2) - 0x100);
+        if (rise < 0.0f) {
+            rise = 0.0f;
+        }
+    }
+    float sweep = InterpolateFloatByFrame(kExcFlourishSweep, 0.0f, frame, 0x7c, 0x86);
+    float threshold = (float)(margin + kExcSweepThresholdBase);
+    for (int i = 0; i < kExcParticleCount; ++i) {
+        float x = kExcParticleX[i];
+        float y = titleSpacing + kExcParticleY[i];
+        if (i < kExcSweepParticleFirst) {
+            y = (y >= threshold) ? y - rise : rise + y;
+        }
+        x = x + kExcParticleYBias; // Yes, the binary adds the 6.0 bias to x here.
+        if ((unsigned int)(i - kExcSweepParticleFirst) < 5) {
+            float dir = (y >= threshold) ? -1.0f : 1.0f;
+            x = x + sweep * dir;
+            y = y - sweep * 0.5f * dir;
+            if (frame > 0x8c) {
+                int ripple = ((((i << 2) ^ -1) & 4) - 2) * ((int)(frame - 0x8c) % 0x14);
+                x = (float)(ripple * 2) + x;
+                y = y + (float)ripple * kExcTrailXScale;
+            }
+            for (int step = -4; step <= 4; ++step) {
+                if (step == 0) {
+                    continue;
+                }
+                double sx = (double)(x + (float)step * kExcParticleTrailStep);
+                double sy = (double)(y + (float)step * kExcParticleTrailStep * -0.5f *
+                                             kExcParticleTrailYScale);
+                [self.texResultBg drawSprite:(NSUInteger)kExcParticleSprite[i]
+                                     atPoint:CGPointMake(sx, sy)
+                                       scale:kExcParticleScale[i]
+                                      rotate:kExcParticleRotate
+                                      anchor:CGPointMake(sx, sy)
+                                   transform:0
+                                       alpha:1.0f];
+            }
+        }
+        [self.texResultBg drawSprite:(NSUInteger)kExcParticleSprite[i]
+                             atPoint:CGPointMake((double)x, (double)y)
+                               scale:kExcParticleScale[i]
+                              rotate:kExcParticleRotate
+                              anchor:CGPointMake((double)x, (double)y)
+                           transform:0
+                               alpha:1.0f];
+    }
+}
 
 @implementation MainGameRendererPhoneKnt
 
@@ -1070,6 +1226,170 @@ static inline void MainGameRendererPhoneKntBuildComboTexture(MainGameRendererPho
             --count;
         }
     }
+}
+
+/** @ghidraAddress 0x190674 */
+- (BOOL)renderExcellent:(unsigned int)frame {
+    switch (frame) {
+    case kExcRatingFrame:
+        [[AudioManager sharedManager] playSeResFile:kSeExcRating inDirectory:nil];
+        break;
+    case kExcPanelFrame:
+        [[AudioManager sharedManager] playSeResFile:kSeExcPanel inDirectory:nil];
+        break;
+    case kExcStringFrame0:
+    case kExcStringFrame1:
+    case kExcStringFrame2:
+        [[AudioManager sharedManager] playSeResFile:kSeExcString inDirectory:nil];
+        break;
+    case kExcVoiceFrame:
+        [[AudioManager sharedManager] playSeResFile:kSeExcResult inDirectory:nil];
+        [[AudioManager sharedManager] playSeResFile:kSeExcVoice inDirectory:nil];
+        break;
+    default:
+        break;
+    }
+
+    // The two title glyphs slide in from the sides and fade in over frames 0..8, fading out after
+    // frame 40. Each side's Y is the four-inch button margin plus an offset, else a default.
+    float titleSlide = InterpolateFloatByFrame(kExcTitleSlideFrom, 0.0f, frame, 0, 8);
+    float titleAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 8);
+    if (frame > kExcPanelFrame) {
+        titleAlpha = InterpolateFloatByFrame(1.0f, 0.0f, frame, 0x28, 0x32);
+    }
+    double titleH = [self.texResultBg spriteAtIndex:kExcTitleSprite].size.height;
+    double leftY = self->is4Inch ? (double)([self buttonMarginForScreen40] + kExcTitleLeftY4Inch) :
+                                   kExcTitleLeftYDefault;
+    [self.texResultBg
+        drawSprite:kExcTitleSprite
+           atPoint:CGPointMake((double)titleSlide + kExcTitleXOffset + kExcTitleGlyphNudge,
+                               leftY - titleH * 0.5)
+         transform:0
+             alpha:titleAlpha];
+    double rightY = self->is4Inch ?
+                        (double)([self buttonMarginForScreen40] + kExcTitleRightY4Inch) :
+                        kExcTitleRightYDefault;
+    [self.texResultBg
+        drawSprite:kExcTitleSprite
+           atPoint:CGPointMake((kExcTitleRightBaseX - (double)titleSlide) + kExcTitleGlyphNudge,
+                               rightY - titleH * 0.5)
+         transform:0
+             alpha:titleAlpha];
+
+    // The eight excellent panels fill the grid rows as the frame passes each.
+    for (int i = 0; i < 16; i += 2) {
+        if (i / 2 > (int)(frame - kExcPanelFrame)) {
+            continue;
+        }
+        int panel = kExcPanelOrder[i / 2];
+        int margin = self->is4Inch ? [self buttonMarginForScreen40] : 0;
+        double px = (double)((panel % 4) * kExcPanelPitch | kExcPanelInset) + kExcPanelHalf;
+        double py = (double)(((panel >> 2) * kExcPanelPitch | kExcPanelInset) + margin +
+                             kExcPanelGridTopY) +
+                    kExcPanelHalf;
+        [self.texResultBg drawSprite:kExcPanelSprite
+                              inRect:CGRectMake(px, py, kExcPanelSpread, kExcPanelSpread)];
+    }
+
+    // The Excellent word flies in as glyph pairs across frames 0x60..0x74.
+    if (frame >= kExcStringFrame0) {
+        double base1 = self->is4Inch ?
+                           (double)([self buttonMarginForScreen40] + kExcTitleRightY4Inch) :
+                           kExcTitleRightYDefault;
+        float g1x = InterpolateFloatByFrame(kExcWord1From, kExcWord1Target, frame, 0x60, 0x67) +
+                    kExcWord1XOffset;
+        float g1y = InterpolateFloatByFrame(
+                        (float)(base1 + kExcWordScatterY), (float)base1, frame, 0x60, 0x67) +
+                    kExcWord1YOffset;
+        [self.texFront drawSprite:kExcWordSprite
+                          atPoint:CGPointMake((double)g1x, (double)g1y)
+                            scale:kExcWordScale
+                           rotate:kExcParticleRotate
+                           anchor:CGPointMake((double)g1x, (double)g1y)
+                        transform:0
+                            alpha:1.0f];
+        float g2x = InterpolateFloatByFrame(kExcWord2From, kExcWord1Target, frame, 0x60, 0x67) +
+                    kExcWord1XOffset;
+        float g2y = InterpolateFloatByFrame(
+                        (float)(base1 + kExcWord2YFrom), (float)base1, frame, 0x60, 0x67) +
+                    kExcWord1YOffset;
+        float g2a = InterpolateFloatByFrame(0.0f, 0.5f, frame - 0x60, 0, 4);
+        [self.texFront drawSprite:kExcWordSprite
+                          atPoint:CGPointMake((double)g2x, (double)g2y)
+                            scale:kExcWordScale
+                           rotate:kExcParticleRotate
+                           anchor:CGPointMake((double)g2x, (double)g2y)
+                        transform:0
+                            alpha:g2a];
+        if (frame > kExcStringFrame1) {
+            double base2 = self->is4Inch ?
+                               (double)([self buttonMarginForScreen40] + kExcTitleLeftY4Inch) :
+                               kExcTitleLeftYDefault;
+            float g3x =
+                InterpolateFloatByFrame(kExcWord3XFrom, kExcWord1Target, frame, 0x67, 0x6e) +
+                kExcWord3XOffset;
+            float g3y = InterpolateFloatByFrame(
+                            (float)(base2 + kExcWord3YFrom), (float)base2, frame, 0x67, 0x6e) +
+                        kExcWord3YOffset;
+            [self.texFront drawSprite:kExcWordSprite
+                              atPoint:CGPointMake((double)g3x, (double)g3y)
+                                scale:kExcWord3Scale
+                               rotate:kExcParticleRotate
+                               anchor:CGPointMake((double)g3x, (double)g3y)
+                            transform:0
+                                alpha:1.0f];
+            float g4x = InterpolateFloatByFrame(kExcWord4From, kExcWord1Target, frame, 0x67, 0x6e) +
+                        kExcWord3XOffset;
+            float g4y = InterpolateFloatByFrame(
+                            (float)(base2 + kExcTitleXOffset), (float)base2, frame, 0x67, 0x6e) +
+                        kExcWord3YOffset;
+            float g4a = InterpolateFloatByFrame(0.0f, 0.5f, frame - 0x67, 0, 4);
+            [self.texFront drawSprite:kExcWordSprite
+                              atPoint:CGPointMake((double)g4x, (double)g4y)
+                                scale:kExcWord3Scale
+                               rotate:kExcParticleRotate
+                               anchor:CGPointMake((double)g4x, (double)g4y)
+                            transform:0
+                                alpha:g4a];
+            if (frame > kExcStringFrame2) {
+                double base3 = self->is4Inch ?
+                                   (double)([self buttonMarginForScreen40] + kExcTitleLeftY4Inch) :
+                                   kExcTitleLeftYDefault;
+                float g5x =
+                    InterpolateFloatByFrame(kExcWord1From, kExcWord1Target, frame, 0x6e, 0x75) +
+                    kExcWord5XOffset;
+                float g5y =
+                    InterpolateFloatByFrame(
+                        (float)(base3 + kExcWordScatterY), (float)base3, frame, 0x6e, 0x75) +
+                    kExcWord5YOffset;
+                [self.texFront drawSprite:kExcWordSprite
+                                  atPoint:CGPointMake((double)g5x, (double)g5y)
+                                    scale:kExcWord5Scale
+                                   rotate:kExcParticleRotate
+                                   anchor:CGPointMake((double)g5x, (double)g5y)
+                                transform:0
+                                    alpha:1.0f];
+                float g6x =
+                    InterpolateFloatByFrame(kExcWord2From, kExcWord1Target, frame, 0x6e, 0x75) +
+                    kExcWord5XOffset;
+                float g6y = InterpolateFloatByFrame(
+                                (float)(base3 + kExcWord2YFrom), (float)base3, frame, 0x6e, 0x75) +
+                            kExcWord5YOffset;
+                float g6a = InterpolateFloatByFrame(0.0f, 0.5f, frame - 0x6e, 0, 4);
+                [self.texFront drawSprite:kExcWordSprite
+                                  atPoint:CGPointMake((double)g6x, (double)g6y)
+                                    scale:kExcWord5Scale
+                                   rotate:kExcParticleRotate
+                                   anchor:CGPointMake((double)g6x, (double)g6y)
+                                transform:0
+                                    alpha:g6a];
+            }
+        }
+    }
+    if (frame > 0x7b) {
+        MainGameRendererPhoneKntRenderExcellentBurst(self, frame);
+    }
+    return frame > 0x95;
 }
 
 /** @ghidraAddress 0x1917fc */
