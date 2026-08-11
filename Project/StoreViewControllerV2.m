@@ -1010,6 +1010,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
                        weakPolicy.alpha = 1.0;
                      }
                      completion:^(BOOL finished){
+                         /** @ghidraAddress 0xf720c */
                      }];
 }
 
@@ -1022,6 +1023,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
                        weakPolicy.alpha = 0.0;
                      }
                      completion:^(BOOL finished){
+                         /** @ghidraAddress 0xf7328 */
                      }];
 }
 

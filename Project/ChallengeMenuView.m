@@ -257,7 +257,9 @@ static const UIViewAnimationOptions kVerifyFadeOptions = UIViewAnimationOptionCu
                        /** @ghidraAddress 0x434dc */
                        weakDialog.alpha = 1.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x43528 */
+                     }];
 }
 
 /** @ghidraAddress 0x4352c */

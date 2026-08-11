@@ -1,5 +1,6 @@
 #import "ApplilinkConsts.h"
 
+#import "AnalysisNetworkCore.h"
 #import "Crypto.h"
 
 // The applilink SDK collaborators. Not reconstructed in this tree yet; declared here as forward
@@ -101,6 +102,11 @@ static const NSInteger kErrorTrackingDisabled = 0x404;
 
 // The cached, decrypted user identifier.
 static NSString *g_userId = nil;
+
+// Whether the user identifier has already been posted once. Set on the first -setUserId: whose
+// identifier matches the cached one, so the analysis POST for an unchanged identifier only fires
+// once for the process.
+static BOOL g_didPostUserId = NO;
 
 // The country code, and whether the SDK itself supplied it (which locks out later overrides).
 static NSString *g_countryCode = nil;
@@ -208,7 +214,14 @@ static NSString *g_adId = nil;
         [[NSUserDefaults standardUserDefaults] synchronize];
         return;
     }
-    if (![userId isEqualToString:g_userId]) {
+    // The comparison uses the previous cached identifier, then the cache is refreshed regardless.
+    BOOL changed = ![userId isEqualToString:g_userId];
+    g_userId = [NSString stringWithString:userId];
+    if (changed) {
+        [AnalysisNetworkCore postSetUserIDWithCallback:^(NSError *error){
+            /** @ghidraAddress 0x22f0d0 */
+            // The binary passes an empty completion block here.
+        }];
         NSData *value = [userId dataUsingEncoding:NSUTF8StringEncoding];
         NSData *key = [kCryptoKeyUserId dataUsingEncoding:NSUTF8StringEncoding];
         NSData *encrypted = [Crypto cryptorToData:kCryptoModeEncrypt value:value key:key];
@@ -220,8 +233,13 @@ static NSString *g_adId = nil;
             /** @ghidraAddress 0x22f0d4 */
             // The binary passes an empty completion block here.
         }];
+    } else if (!g_didPostUserId) {
+        [AnalysisNetworkCore postSetUserIDWithCallback:^(NSError *error){
+            /** @ghidraAddress 0x22f0d8 */
+            // The binary passes an empty completion block here.
+        }];
     }
-    g_userId = [NSString stringWithString:userId];
+    g_didPostUserId = YES;
 }
 
 /** @ghidraAddress 0x22f0dc */

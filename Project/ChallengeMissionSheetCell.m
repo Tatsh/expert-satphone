@@ -466,6 +466,7 @@ static NSString *const kMissionIconNames[] = {
                            weakCompleteImage.alpha = kStampShown;
                          }
                          completion:^(BOOL finished){
+                             /** @ghidraAddress 0x85cb4 */
                              // The original passes an empty global completion block here.
                          }];
     }

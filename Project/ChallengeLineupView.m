@@ -205,7 +205,9 @@ static const CGFloat kHalf = 0.5;
                        /** @ghidraAddress 0x146a0c */
                        weakSelf.alpha = 1.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x146a58 */
+                     }];
 }
 
 #pragma mark - Actions

@@ -163,7 +163,9 @@ static const CGFloat kHalf = 0.5;
                        /** @ghidraAddress 0x73708 */
                        weakSelf.alpha = 1.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x73754 */
+                     }];
 }
 
 #pragma mark - UITableViewDataSource

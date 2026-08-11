@@ -1044,7 +1044,9 @@ static const double kNeighbourDriftQuarter = 0.25;
                            /** @ghidraAddress 0x17e7a4 */
                            weakTable.alpha = 1.0;
                          }
-                         completion:nil];
+                         completion:^(BOOL finished){
+                             /** @ghidraAddress 0x17e7f0 */
+                         }];
     }
     if (showPack) {
         [self showDetailForPackInfo:showPack];

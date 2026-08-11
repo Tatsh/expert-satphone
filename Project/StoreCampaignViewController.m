@@ -414,6 +414,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                            weakArtwork.alpha = 1.0;
                          }
                          completion:^(BOOL finished){
+                             /** @ghidraAddress 0xbf76c */
                          }];
     }
 
@@ -460,6 +461,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                        weakDetail.alpha = 1.0;
                      }
                      completion:^(BOOL finished){
+                         /** @ghidraAddress 0xc022c */
                      }];
     [UIApplication.sharedApplication performSelector:@selector(endIgnoringInteractionEvents)
                                           withObject:nil
@@ -496,6 +498,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                        weakDetail.alpha = 1.0;
                      }
                      completion:^(BOOL finished){
+                         /** @ghidraAddress 0xc0608 */
                      }];
     [UIApplication.sharedApplication performSelector:@selector(endIgnoringInteractionEvents)
                                           withObject:nil
@@ -1262,6 +1265,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                                                  weakArtwork.alpha = 1.0;
                                                }
                                                completion:^(BOOL finished){
+                                                   /** @ghidraAddress 0xc4548 */
                                                }];
                               break;
                           }

@@ -773,7 +773,9 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
                        /** @ghidraAddress 0x156be0 */
                        weakTitleView.alpha = 1.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x156c2c */
+                     }];
     selectArea = area;
     [areaBtn[kAreaCountry] setAlpha:(area == kAreaCountry) ? 1.0 : kDimmedAlpha];
     [areaBtn[kAreaRival] setAlpha:(area == kAreaRival) ? 1.0 : kDimmedAlpha];
@@ -1077,7 +1079,9 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
                            weakRivalAddView.alpha = 1.0;
                            weakRivalCover.alpha = 1.0;
                          }
-                         completion:nil];
+                         completion:^(BOOL finished){
+                             /** @ghidraAddress 0x15925c */
+                         }];
     } else {
         NSString *ok = [NSBundle.mainBundle localizedStringForKey:kBundleKeyOK value:@"" table:nil];
         [[AlertViewManager sharedManager] makeAlert:kPlainAlertType
@@ -1253,7 +1257,9 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
                              /** @ghidraAddress 0x159a8c */
                              weakAddMessage.alpha = 1.0;
                            }
-                           completion:nil];
+                           completion:^(BOOL innerFinished){
+                               /** @ghidraAddress 0x159ad8 */
+                           }];
         }];
 }
 
@@ -1305,7 +1311,9 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
                              weakAddMessage.alpha = 1.0;
                              weakEndBtn.alpha = 1.0;
                            }
-                           completion:nil];
+                           completion:^(BOOL innerFinished){
+                               /** @ghidraAddress 0x15a868 */
+                           }];
         }];
 }
 

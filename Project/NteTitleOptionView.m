@@ -132,6 +132,7 @@ extern const double g_dAnimDuration020;
                        weakSmog.transform = rest;
                      }
                      completion:^(BOOL finished){
+                         /** @ghidraAddress 0x207fd0 */
                      }];
 
     nextCarFunc = YES;

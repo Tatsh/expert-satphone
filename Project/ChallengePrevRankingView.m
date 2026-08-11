@@ -266,7 +266,9 @@ static inline void ChallengePrevRankingViewHandleListLoadResponse(ChallengePrevR
                              /** @ghidraAddress 0x1419c0 */
                              weakLineupListView.alpha = 1.0;
                            }
-                           completion:nil];
+                           completion:^(BOOL innerFinished){
+                               /** @ghidraAddress 0x141a0c */
+                           }];
         }];
 }
 

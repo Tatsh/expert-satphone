@@ -185,7 +185,9 @@ static inline UIColor *StoreGenreBannerViewFallbackBorderColor(void) {
                        /** @ghidraAddress 0x1fdd80 */
                        weakArtwork.alpha = 1.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x1fddcc */
+                     }];
 }
 
 @end

@@ -165,7 +165,9 @@ static const NSTimeInterval kPushDisplayDuration = 5.0;
                        weakSelf.transform = CGAffineTransformMakeTranslation(
                            0, -(weakSelf.frame.size.height + kPushSlideMargin));
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0xc9c58 */
+                     }];
     dispTimer = nil;
     bActive = NO;
 }

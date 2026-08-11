@@ -918,7 +918,9 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
                            weakTouch.transform =
                                CGAffineTransformMakeTranslation(0.0, (double)(long)self->tapDelayY);
                          }
-                         completion:nil];
+                         completion:^(BOOL finished){
+                             /** @ghidraAddress 0x18888c */
+                         }];
     }
 }
 

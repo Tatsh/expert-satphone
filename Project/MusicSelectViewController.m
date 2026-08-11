@@ -1309,6 +1309,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     playlistNavCtrl = nil;
     [self dismissViewControllerAnimated:YES
                              completion:^{
+                                 /** @ghidraAddress 0x2af94 */
                              }];
     bOpenModal = NO;
     [self musicShuffleEnable];
@@ -2957,7 +2958,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                            weakMarker.transform = slide;
                            weakCover.alpha = 1.0;
                          }
-                         completion:nil];
+                         completion:^(BOOL finished){
+                             /** @ghidraAddress 0x141758 */
+                         }];
         [[AudioManager sharedManager] playSeResFile:[self soundName:kMarkerSelectOpenSoundSuffix]
                                         inDirectory:nil];
         isMarkerSelectOpen = YES;
@@ -3529,7 +3532,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                        detailMusicView.adRankBgAdv.alpha = 1.0;
                        detailMusicView.adRankBgExt.alpha = 1.0;
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         /** @ghidraAddress 0x158528 */
+                     }];
     [UIView animateWithDuration:kDetailCloseLabelDuration
                           delay:kDetailCloseLabelDelay
                         options:UIViewAnimationOptionCurveLinear

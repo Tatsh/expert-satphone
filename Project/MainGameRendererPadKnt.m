@@ -401,6 +401,32 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 
 @implementation MainGameRendererPadKnt
 
+/** @ghidraAddress 0x206ddc */
+- (void)replaySelect {
+    if (self.isCustom && self.isDownload && self.hasMusic) {
+        self.replayPlaying = YES;
+        // spriteAtIndex: is called only for its side effect on the shared draw scratch; the point
+        // then read is the atlas origin, so the start mark reloads at (0, 0).
+        [self.texFront spriteAtIndex:20];
+        LoadTextureSubImageFromResource(
+            self.texFront, @"game_start_mark_knt", CGPointMake(0.0, 0.0));
+        self.isTextureChange = NO;
+
+        /** @ghidraAddress 0x28f260 */
+        static const NSTimeInterval kGoodJobFadeDuration = 0.3;
+        __weak UIImageView *goodJob = self.goodJobImage;
+        [UIView animateWithDuration:kGoodJobFadeDuration
+                         animations:^{
+                           /** @ghidraAddress 0x206f98 */
+                           [goodJob setAlpha:0.0f];
+                         }
+                         completion:^(BOOL finished){
+                             /** @ghidraAddress 0x206fe4 */
+                             // The completion block is the shared empty global block.
+                         }];
+    }
+}
+
 /** @ghidraAddress 0x206dcc */
 - (void)replayEnd {
     self.replayPlaying = NO;

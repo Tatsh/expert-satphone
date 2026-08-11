@@ -165,6 +165,7 @@ static const CGFloat kLogoVisible = 1.0;
     // Replaced by whichever step runs. The default is an empty block, and the default timings are
     // zero, so an unhandled step would animate nothing for no time.
     void (^animations)(void) = ^{
+      /** @ghidraAddress 0x82e18 */
     };
     NSTimeInterval duration = 0.0;
     NSTimeInterval delay = 0.0;

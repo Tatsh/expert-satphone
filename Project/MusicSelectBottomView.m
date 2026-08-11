@@ -464,6 +464,7 @@ static const NSTimeInterval kMarqueeStepDuration = 0.6;
                              weakScroll.contentOffset = CGPointMake(distance, 0);
                            }
                            completion:^(BOOL innerFinished){
+                               /** @ghidraAddress 0x1d7978 */
                            }];
         }];
 }
