@@ -5,6 +5,7 @@
 #import "AlertViewManager.h"
 #import "BFCodec.h"
 #import "BalloonView.h"
+#import "CJSONSerializer.h"
 #import "ChallengeModeRootView.h"
 #import "ChallengeStatus.h"
 #import "Downloader.h"
@@ -55,6 +56,22 @@ static NSString *const kPrefCustomBgmOnKey = @"PrefCustomBgmON";
 
 // The advert location the unread-recommendation count is queried for at startup.
 static NSString *const kRecommendAdLocationTop = @"ADL_TOP";
+
+// Tapping a push notification posts a read-response to the scratch server carrying the editor id,
+// the notification's push id, and this "tapped" status, keyed under these names.
+static NSString *const kPushResponseUserIDKey = @"user_id";
+static NSString *const kPushResponsePushIDKey = @"push_id";
+static NSString *const kPushResponseStatusKey = @"status";
+static NSString *const kPushURLKey = @"url";
+static NSString *const kPushIDKey = @"id";
+static const int kPushResponseStatusTapped = 3;
+// The notification URL's own scheme selects the store or challenge flow; a store URL path of
+// /pack/<id> or /genre/<id> turns to that store target.
+static NSString *const kPushSchemeStore = @"jbtstore";
+static NSString *const kPushSchemeChallenge = @"jbtchallenge";
+static NSString *const kPushStorePackComponent = @"pack";
+static NSString *const kPushStoreGenreComponent = @"genre";
+static const NSUInteger kPushStorePathComponentCount = 3;
 
 // The menu BGM resumes with a one-fifth-second fade in when the app comes back to the foreground.
 static const double kMenuBgmResumeFade = 0.2; // @ghidraAddress 0x28e040
@@ -2075,6 +2092,45 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     bOpenInfo = YES;
     bOpenModal = YES;
     [[AudioManager sharedManager] playSeResFile:kNotificationOpenSound inDirectory:nil];
+}
+
+/** @ghidraAddress 0x27734 */
+- (void)tapNotification:(nullable id)notification {
+    NSString *urlString = notification[kPushURLKey];
+    NSString *userID = [EditorIDManager getKeyString:[EditorIDManager getEditorIDKey]];
+    id pushID = notification[kPushIDKey];
+    NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
+    [response setValue:userID forKey:kPushResponseUserIDKey];
+    [response setValue:pushID forKey:kPushResponsePushIDKey];
+    [response setValue:@(kPushResponseStatusTapped) forKey:kPushResponseStatusKey];
+    NSData *json = [[CJSONSerializer serializer] serializeDictionary:response error:nullptr];
+    Downloader *downloader = [[Downloader alloc] initWithURL:ScratchUtil.pushNotificationResponseURL
+                                                postJsonData:json
+                                                    delegate:nil];
+    [downloader startDownloading];
+    if (urlString == nil) {
+        return;
+    }
+    NSURL *url = [NSURL URLWithString:urlString];
+    if (url == nil) {
+        return;
+    }
+    if ([url.scheme isEqualToString:kPushSchemeStore]) {
+        NSDictionary *storeTarget = nil;
+        if (url.pathComponents.count == kPushStorePathComponentCount) {
+            if ([url.pathComponents[1] isEqualToString:kPushStorePackComponent]) {
+                storeTarget = @{kPushStorePackComponent : url.pathComponents[2]};
+            }
+            if ([url.pathComponents[1] isEqualToString:kPushStoreGenreComponent]) {
+                storeTarget = @{kPushStoreGenreComponent : url.pathComponents[2]};
+            }
+        }
+        [self turnToStore:storeTarget];
+    } else if ([url.scheme isEqualToString:kPushSchemeChallenge]) {
+        [self downloadChallengeInfo];
+    } else {
+        [[UIApplication sharedApplication] openURL:url];
+    }
 }
 
 /** @ghidraAddress 0x34040 */
