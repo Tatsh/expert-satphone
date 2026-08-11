@@ -1820,15 +1820,18 @@ static const double kMarkHeight = 14.0;       // fmov, 14
             [levelNumView[i] setAlpha:0.0];
         }
 
-        __weak MusicDetailViewOrg *weakSelf = self;
+        UIImageView *const *levelNums = levelNumView;
+        UIImageView *const *extendMarks = extendMark;
+        UIImageView *const *extendOnMarks = extendOnMark;
+        UIImageView *const *holdMarks = holdMark;
         [UIView animateWithDuration:kExtendCrossFadeDuration
                          animations:^{
                            /** @ghidraAddress 0x565f8 */
                            for (int i = 0; i < kDiffButtonCount; ++i) {
-                               [weakSelf->levelNumView[i] setAlpha:1.0];
-                               [weakSelf->extendMark[i] setAlpha:(1.0f - mix)];
-                               [weakSelf->extendOnMark[i] setAlpha:mix];
-                               [weakSelf->holdMark[i] setAlpha:1.0];
+                               [levelNums[i] setAlpha:1.0];
+                               [extendMarks[i] setAlpha:(1.0f - mix)];
+                               [extendOnMarks[i] setAlpha:mix];
+                               [holdMarks[i] setAlpha:1.0];
                            }
                          }];
     }

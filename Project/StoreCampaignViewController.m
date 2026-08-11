@@ -528,7 +528,8 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
           [weakCover removeFromSuperview];
           [weakDetail removeCampaignInfo];
           [weakDetail removeFromSuperview];
-          weakSelf->working_index = kNoWorkingRow;
+          StoreCampaignViewController *strongSelf = weakSelf;
+          strongSelf->working_index = kNoWorkingRow;
         }];
     [UIApplication.sharedApplication performSelector:@selector(endIgnoringInteractionEvents)
                                           withObject:nil
@@ -1228,6 +1229,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                 if (!data) {
                     return;
                 }
+                StoreCampaignViewController *strongSelf = weakSelf;
                 UIImage *image = [[UIImage alloc] initWithData:data];
                 if (image) {
                     if (UIScreen.mainScreen.scale != 1.0) {
@@ -1235,25 +1237,26 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                                                     scale:UIScreen.mainScreen.scale
                                               orientation:UIImageOrientationUp];
                     }
-                    [weakSelf->artworkCache setObject:image forKey:campaignID];
+                    [strongSelf->artworkCache setObject:image forKey:campaignID];
                 }
                 dispatch_async(dispatch_get_main_queue(), ^{
                   /** @ghidraAddress 0xc40fc */
-                  UIImage *cached = [weakSelf->artworkCache objectForKey:campaignID];
+                  StoreCampaignViewController *innerSelf = weakSelf;
+                  UIImage *cached = [innerSelf->artworkCache objectForKey:campaignID];
                   if (cached) {
-                      for (StoreCampaignTableViewCell *cell in weakSelf->tableView.visibleCells) {
+                      for (StoreCampaignTableViewCell *cell in innerSelf->tableView.visibleCells) {
                           if (cell.campaignID == campaignID.intValue) {
                               cell.artworkView.image = cached;
                               CGSize size = cached.size;
                               if (size.width == size.height) {
-                                  CGSize margin = [cell getArtworkMargin:weakSelf->isPad];
+                                  CGSize margin = [cell getArtworkMargin:innerSelf->isPad];
                                   CGFloat side =
-                                      weakSelf->isPad ? kArtworkSidePad : kArtworkSidePhone;
-                                  CGFloat yInset = weakSelf->isPad ? 0.0 : kArtworkPhoneYInset;
+                                      innerSelf->isPad ? kArtworkSidePad : kArtworkSidePhone;
+                                  CGFloat yInset = innerSelf->isPad ? 0.0 : kArtworkPhoneYInset;
                                   cell.artworkView.frame =
                                       CGRectMake(margin.width, margin.height - yInset, side, side);
                               } else {
-                                  CGSize itemSize = [cell getItemSize:weakSelf->isPad];
+                                  CGSize itemSize = [cell getItemSize:innerSelf->isPad];
                                   cell.artworkView.frame =
                                       CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);
                               }
@@ -1271,7 +1274,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
                           }
                       }
                   }
-                  [weakSelf->downloadingList removeObject:campaignID];
+                  [innerSelf->downloadingList removeObject:campaignID];
                 });
               }];
         [task resume];

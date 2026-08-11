@@ -1449,15 +1449,18 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
             [levelNumView[i] setAlpha:0.0];
         }
 
-        __weak MusicDetailViewRpl *weakSelf = self;
+        UIImageView *const *levelNums = levelNumView;
+        UIImageView *const *extendMarks = extendMark;
+        UIImageView *const *extendOnMarks = extendOnMark;
+        UIImageView *const *holdMarks = holdMark;
         [UIView animateWithDuration:kExtendCrossFadeDuration
                          animations:^{
                            /** @ghidraAddress 0x130958 */
                            for (int i = 0; i < kDiffButtonCount; ++i) {
-                               [weakSelf->levelNumView[i] setAlpha:1.0];
-                               [weakSelf->extendMark[i] setAlpha:(1.0f - mix)];
-                               [weakSelf->extendOnMark[i] setAlpha:mix];
-                               [weakSelf->holdMark[i] setAlpha:1.0];
+                               [levelNums[i] setAlpha:1.0];
+                               [extendMarks[i] setAlpha:(1.0f - mix)];
+                               [extendOnMarks[i] setAlpha:mix];
+                               [holdMarks[i] setAlpha:1.0];
                            }
                          }];
     }
