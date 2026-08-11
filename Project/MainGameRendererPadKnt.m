@@ -5,6 +5,7 @@
 #import <UIKit/UIKit.h>
 
 #import "AudioManager.h"
+#import "BFCodec.h"
 #import "EAGLView.h"
 #import "HoldMarkerRender.h"
 #import "JubeatAppDelegate.h"
@@ -13,6 +14,7 @@
 #import "Texture2D.h"
 #import "TextureLoading.h"
 #import "UpperBGKnit.h"
+#import "cipher_keys.h"
 #import "neEngineBridge.h"
 
 // Pi, shared with the engine's rodata pool; the shutter oscillation samples sin over it.
@@ -526,6 +528,52 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
 - (void)dealloc {
     [self releaseTexture];
     // [super dealloc] is compiler-emitted (ARC).
+}
+
+/** @ghidraAddress 0x20004c */
+- (void)loadResultTex:(short)rank {
+    // The rank rating overlays blitted into the result atlas, indexed by rank 0..7. A rank of 8 or
+    // more instead blits the end mark. @ghidraAddress 0x2df700
+    static NSString *const kRankOverlayNames[] = {
+        @"res_rtg_e_knt",
+        @"res_rtg_d_knt",
+        @"res_rtg_c_knt",
+        @"res_rtg_b_knt",
+        @"res_rtg_a_knt",
+        @"res_rtg_s_knt",
+        @"res_rtg_ss_knt",
+        @"res_rtg_sss_knt",
+    };
+    enum { kRankCount = 8 };
+    static const double kResultClipY = 256.0;    // @ghidraAddress 0x28e030
+    static const double kResultClipSize = 768.0; // @ghidraAddress 0x292460
+    enum {
+        kResultRankSprite = 0x10,    // where a rank overlay blits into the result atlas
+        kResultEndMarkSprite = 0x11, // where the end mark blits when there is no rank
+    };
+
+    if (self.texResult != nil) {
+        self.texResult = nil;
+    }
+    if (self.texResultBg != nil) {
+        self.texResultBg = nil;
+    }
+    BFCodec *codec = [[BFCodec alloc] init];
+    [codec cipherInit:CreateTextureCipherKey()];
+    self.texResult = CreateTexture2DFromEncryptedTexResource(@"game_result_knt_tex", codec);
+    self.texResultBg = CreateTexture2DFromEncryptedTexResource(@"game_result_knt_tex", codec);
+    [self.texResult setClipRect:CGRectMake(0.0, kResultClipY, kResultClipSize, kResultClipSize)];
+    if (rank < kRankCount) {
+        // An 8-way jump table picks the rank overlay name; every arm falls to this common blit into
+        // the result atlas's rank sprite.
+        LoadTextureSubImageFromResource(self.texResult,
+                                        kRankOverlayNames[rank],
+                                        [self.texResult spriteAtIndex:kResultRankSprite].origin);
+    } else {
+        LoadTextureSubImageFromResource(self.texResult,
+                                        @"game_end_mark_knt",
+                                        [self.texResult spriteAtIndex:kResultEndMarkSprite].origin);
+    }
 }
 
 /** @ghidraAddress 0x20048c */
