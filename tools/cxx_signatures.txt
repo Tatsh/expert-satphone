@@ -845,3 +845,4 @@
 0x34c2c	(^void)(BOOL)
 0x34dbc	(^void)(void)
 0x34e40	(^void)(BOOL)
+0x37bd4	(^void)(void)

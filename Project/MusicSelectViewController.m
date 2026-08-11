@@ -66,6 +66,12 @@ static const CGFloat kChallengeRootViewZPosition = 4000.0; // @ghidraAddress 0x2
 // The challenge cover fades out over this duration.
 static const NSTimeInterval kChallengeCoverFadeDuration = 0.3; // @ghidraAddress 0x28f260
 
+// The challenge cover is a 40%-opaque black overlay carrying a 50-point activity indicator centred
+// in it, and a one-second load-timeout timer.
+static const CGFloat kChallengeCoverBackgroundAlpha = 0.4; // @ghidraAddress 0x28f2c0
+static const CGFloat kChallengeIndicatorSize = 50.0;       // @ghidraAddress 0x28f2c8
+static const NSTimeInterval kChallengeLoadTimeout = 1.0;   // fmov, 1.0
+
 // The store update-time preference records the newest seen store timestamp.
 static NSString *const kPrefStoreUpdateTimeKey = @"PrefStoreUpdateTime";
 
@@ -1994,6 +2000,43 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
           [weakCover removeFromSuperview];
           challengeCoverView = nil;
         }];
+}
+
+/** @ghidraAddress 0x37844 */
+- (void)showChallengeCoverView {
+    if (challengeCoverView != nil) {
+        return;
+    }
+    bOpenChallenge = YES;
+    challengeCoverView = [[UIView alloc] initWithFrame:self.view.frame];
+    challengeCoverView.opaque = NO;
+    // The original built this with colorWithWhite:0 alpha:0.4.
+    challengeCoverView.backgroundColor = [UIColor colorWithWhite:0
+                                                           alpha:kChallengeCoverBackgroundAlpha];
+    [self.view addSubview:challengeCoverView];
+    challengeCoverView.layer.zPosition = kChallengeRootViewZPosition;
+    indicatorChallenge = [[UIActivityIndicatorView alloc]
+        initWithFrame:CGRectMake(0, 0, kChallengeIndicatorSize, kChallengeIndicatorSize)];
+    indicatorChallenge.center = CGPointMake(challengeCoverView.frame.size.width * 0.5,
+                                            challengeCoverView.frame.size.height * 0.5);
+    indicatorChallenge.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
+    indicatorChallenge.hidesWhenStopped = YES;
+    [challengeCoverView addSubview:indicatorChallenge];
+    indicatorTimer = [NSTimer scheduledTimerWithTimeInterval:kChallengeLoadTimeout
+                                                      target:self
+                                                    selector:@selector(loadTimeOver:)
+                                                    userInfo:nil
+                                                     repeats:NO];
+    challengeCoverView.alpha = 0.0;
+    __weak UIView *weakCover = challengeCoverView;
+    [UIView animateWithDuration:kChallengeCoverFadeDuration
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:^{
+                       /** @ghidraAddress 0x37bd4 */
+                       weakCover.alpha = 1.0;
+                     }
+                     completion:nil];
 }
 
 /** @ghidraAddress 0x371a4 */
