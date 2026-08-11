@@ -21,6 +21,9 @@
 #import "MarkerSelectView.h"
 #import "Md5Utilities.h"
 #import "MusicDetailView.h"
+#import "MusicDetailViewKnt.h"
+#import "MusicDetailViewOrg.h"
+#import "MusicDetailViewRpl.h"
 #import "MusicListView.h"
 #import "MusicPlaylistManager.h"
 #import "MusicPlaylistViewController.h"
@@ -146,6 +149,62 @@ static const CGFloat kChallengeRootViewZPosition = 4000.0; // @ghidraAddress 0x2
 
 // The challenge cover fades out over this duration.
 static const NSTimeInterval kChallengeCoverFadeDuration = 0.3; // @ghidraAddress 0x28f260
+
+// Layout constants used only while building the screen in -loadView. Several are indexed by device
+// idiom (isPad) or theme.
+// On the retina phone the still background image sits 44 points up.
+static const double kBgImageYRetina = -44.0; // @ghidraAddress 0x28f1d0
+// The music list's top inset (pad 60 / phone 55) and the height it leaves for the bottom controls.
+static const double kMusicListTopPad = 60.0;   // @ghidraAddress 0x28f2f8
+static const double kMusicListTopPhone = 55.0; // @ghidraAddress 0x28f2f0
+// The marker-select panel and its cover: the panel is a square (pad 500 / phone 250) sitting off
+// the top, at a per-idiom width table, on a very high layer.
+static const double kMarkerSelectYPad = 400.0;   // @ghidraAddress 0x28f308
+static const double kMarkerSelectYPhone = 200.0; // @ghidraAddress 0x28f300
+static const CGFloat kMarkerZPosition = 3500.0;  // @ghidraAddress 0x28f1e8
+static const double kMarkerBannerWidth = 64.0;   // @ghidraAddress 0x28f1f0
+static const double kMarkerBannerHeight = 40.0;  // @ghidraAddress 0x28f1f8
+// The hidden far-open helper music view: origin size per idiom and device, artwork per idiom.
+static const double kFarOpenYRetina = 100.0;     // @ghidraAddress 0x28f310
+static const double kFarOpenXRetina = 106.0;     // @ghidraAddress 0x28f320
+static const double kFarOpenX4Inch = 101.0;      // @ghidraAddress 0x28f328
+static const double kFarOpenArtworkPad = 160.0;  // @ghidraAddress 0x28f338
+static const double kFarOpenArtworkPhone = 80.0; // @ghidraAddress 0x28f330
+// The store "new" badge is rotated by this angle (radians).
+static const CGFloat kStoreNewRotation = -0.376991110004367; // @ghidraAddress 0x28f208
+// The detail-card dimming cover alpha.
+static const CGFloat kCoverAlpha = 0.5;
+// The playlist list-type sentinels used when no saved playlist matches.
+static const NSInteger kListTypeLevel = -10;
+static const NSInteger kListTypeHold = -11;
+static const NSInteger kListTypeNotHold = -12;
+static const NSInteger kListTypeNotPlayed = -2;
+// The store-promotion balloon: width, per-idiom height, per-idiom horizontal offset from the store
+// button, and its layer shadow.
+static const double kBalloonWidth = 120.0;       // @ghidraAddress 0x28f210
+static const double kBalloonHeightPad = 290.0;   // @ghidraAddress 0x28f348
+static const double kBalloonHeightPhone = 210.0; // @ghidraAddress 0x28f340
+static const double kBalloonXPad = 200.0;        // @ghidraAddress 0x28f358
+static const double kBalloonXPhone = 280.0;      // @ghidraAddress 0x28f350
+static const CGFloat kBalloonShadowRadius = 3.0; // fmov, 3.0
+static const float kBalloonShadowOpacity = 0.9f; // @ghidraAddress 0x28f3b0
+// The search bar's fixed height and pad width, and its cancel-button inset (pad 98 / phone 48).
+static const double kSearchBarWidth = 670.0;  // @ghidraAddress 0x28f218
+static const double kSearchBarHeight = 52.0;  // @ghidraAddress 0x28f220
+static const double kSearchInsetPad = 98.0;   // @ghidraAddress 0x28f368
+static const double kSearchInsetPhone = 48.0; // @ghidraAddress 0x28f360
+// The search and extend tutorial overlays sit at this alpha and layer, above everything.
+static const CGFloat kTutorialAlpha = 0.6;        // @ghidraAddress 0x28f230
+static const CGFloat kTutorialZPosition = 4000.0; // @ghidraAddress 0x28f238
+// The extend-tutorial description image sits at these fractions of the frame.
+static const double kExtendDescXFraction = 0.3;  // @ghidraAddress 0x28f248
+static const double kExtendDescYFraction = 0.72; // @ghidraAddress 0x28f250
+// The push-token registration downloader carries this tag.
+static const NSInteger kPushIDDownloaderTag = 4;
+// The notification banner: per-idiom width (pad 640 / phone 320) and fixed height.
+static const int kNotifyWidthPad = 640;   // 0x280
+static const int kNotifyWidthPhone = 320; // 0x140
+static const double kNotifyHeight = 60.0; // @ghidraAddress 0x28f258
 
 // The challenge cover is a 40%-opaque black overlay carrying a 50-point activity indicator centred
 // in it, and a one-second load-timeout timer.
@@ -535,6 +594,581 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
         (void)GameNetworkUtil.rewardEnableURL;
     }
     return self;
+}
+
+/** @ghidraAddress 0x22e78 */
+- (void)loadView {
+    JubeatTheme theme = JubeatAppDelegate.appDelegate.currentTheme;
+    [super loadView];
+    self.view.contentScaleFactor = UIScreen.mainScreen.scale;
+    [self.view setClipsToBounds:YES];
+    [self.view setAutoresizesSubviews:YES];
+    [self.view
+        setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+    CGRect bounds = UIScreen.mainScreen.bounds;
+    double boundsWidth = bounds.size.width;
+    double boundsHeight = bounds.size.height;
+    [JubeatAppDelegate.appDelegate moveChallengeOpenFlag];
+
+    // The card background is theme-specific: the reflec-beat and knit themes use a full-screen
+    // background image (with Naga Cora and Hinabita variants for the reflec-beat theme), while the
+    // classic theme uses a device-specific texture over black.
+    if (theme == JubeatThemeReflecBeatPlus) {
+        [self.view setBackgroundColor:UIColor.whiteColor];
+        bgImageView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"msel_bg_rpl")];
+        if (JubeatAppDelegate.appDelegate.deviceType == JubeatDeviceTypePhoneRetina) {
+            [bgImageView setFrame:CGRectMake(0.0,
+                                             kBgImageYRetina,
+                                             bgImageView.frame.size.width,
+                                             bgImageView.frame.size.height)];
+        }
+    } else if (theme == JubeatThemeKnit) {
+        [self.view setBackgroundColor:UIColor.whiteColor];
+        bgImageView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"msel_bg_knt")];
+        if (JubeatAppDelegate.appDelegate.isNagaCoraMode) {
+            // The Naga Cora skin swaps the background for a device-specific encrypted texture.
+            UIImage *nagaImage =
+                (JubeatAppDelegate.appDelegate.deviceType == JubeatDeviceTypePhoneRetina) ?
+                    LoadScaledEncryptedTexImage(@"select_back35") :
+                    LoadScaledEncryptedTexImage(@"select_back");
+            bgImageView = [[UIImageView alloc] initWithImage:nagaImage];
+        }
+        if (JubeatAppDelegate.appDelegate.isHinabitaMode) {
+            // The Hinabita skin replaces the still background with a non-scrolling five-page strip.
+            bgImageView = nil;
+            scrollBg = [[UIScrollView alloc] initWithFrame:self.view.bounds];
+            int pageWidth = (int)scrollBg.frame.size.width;
+            NSArray *hinaNames = @[
+                @"select_back_hina01",
+                @"select_back_hina02",
+                @"select_back_hina03",
+                @"select_back_hina04",
+                @"select_back_hina05"
+            ];
+            scrollPageNum = (int)hinaNames.count;
+            for (int i = 0; i <= scrollPageNum; ++i) {
+                NSString *name = hinaNames[i % scrollPageNum];
+                UIImageView *page;
+                if (JubeatAppDelegate.appDelegate.deviceType == JubeatDeviceTypePhoneRetina) {
+                    page = [[UIImageView alloc] initWithImage:LoadScaledPngImage(name)];
+                    [page setFrame:CGRectMake(0.0,
+                                              kBgImageYRetina,
+                                              page.frame.size.width,
+                                              page.frame.size.height)];
+                } else {
+                    page = [[UIImageView alloc] initWithFrame:self.view.bounds];
+                    [page setImage:LoadScaledPngImage(name)];
+                    [page setContentMode:UIViewContentModeScaleToFill];
+                }
+                [page setFrame:CGRectMake((double)(i * pageWidth),
+                                          page.frame.origin.y,
+                                          page.frame.size.width,
+                                          page.frame.size.height)];
+                [scrollBg addSubview:page];
+            }
+            [scrollBg setContentSize:CGSizeMake((double)(pageWidth * 6), boundsHeight)];
+            [scrollBg setScrollEnabled:NO];
+        }
+        if (bgImageView != nil &&
+            JubeatAppDelegate.appDelegate.deviceType == JubeatDeviceTypePhoneRetina &&
+            !JubeatAppDelegate.appDelegate.isNagaCoraMode) {
+            [bgImageView setFrame:CGRectMake(0.0,
+                                             kBgImageYRetina,
+                                             bgImageView.frame.size.width,
+                                             bgImageView.frame.size.height)];
+        }
+    } else {
+        [self.view setBackgroundColor:UIColor.blackColor];
+        BOOL wide = (JubeatAppDelegate.appDelegate.deviceType == JubeatDeviceTypePhoneRetina) ||
+                    JubeatAppDelegate.appDelegate.isPad;
+        if (wide) {
+            bgImageView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"msel_bg")];
+        } else {
+            bgImageView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"msel_bg_40")];
+            [bgImageView setFrame:CGRectMake(0.0,
+                                             0.0,
+                                             bgImageView.frame.size.width,
+                                             bgImageView.frame.size.height)];
+        }
+    }
+
+    // The music list fills the screen below a per-idiom top inset.
+    double listWidth = boundsWidth;
+    double listHeight = boundsHeight - (isPad ? 110.0 : 100.0);
+    double listTop = isPad ? kMusicListTopPad : kMusicListTopPhone;
+    musicListView =
+        [[MusicListView alloc] initWithFrame:CGRectMake(0.0, listTop, listWidth, listHeight)];
+    [musicListView setMusicViewDelegate:self];
+    [musicListView setDelegate:self];
+
+    // The marker-select panel slides down from off-screen; it is off by default.
+    UIImage *markerBg = LoadScaledPngImage(@"playlist_btn");
+    if (isPad) {
+        markerBg = [markerBg resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 45.0)];
+    }
+    double markerSize = isPad ? 500.0 : 250.0;
+    double markerY = isPad ? kMarkerSelectYPad : kMarkerSelectYPhone;
+    markerSelectView =
+        [[MarkerSelectView alloc] initWithFrame:CGRectMake(0.0, -markerSize, markerY, markerSize)];
+    [markerSelectView setDelegate:self];
+    [markerSelectView setHidden:YES];
+    isMarkerSelectOpen = NO;
+    markerSelectView.layer.zPosition = kMarkerZPosition;
+
+    // The dimming cover behind the marker panel.
+    markerSelectCover =
+        [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, boundsWidth, boundsHeight)];
+    [markerSelectCover setOpaque:NO];
+    [markerSelectCover setBackgroundColor:UIColor.clearColor];
+    [markerSelectCover setHidden:YES];
+
+    // The marker button, carrying the current banner image.
+    UIImage *markerImage = (theme == JubeatThemeReflecBeatPlus) ?
+                               LoadScaledPngImage(@"menu_button_mar_rpl") :
+                           (theme == JubeatThemeKnit) ? LoadScaledPngImage(@"menu_button_mar_knt") :
+                                                        LoadScaledPngImage(@"menu_button_mar");
+    btnMarker = [UIButton buttonWithType:UIButtonTypeCustom];
+    [btnMarker setFrame:CGRectMake(0.0, 0.0, markerImage.size.width, markerImage.size.height)];
+    [btnMarker setBackgroundImage:markerImage forState:UIControlStateNormal];
+    [btnMarker setExclusiveTouch:YES];
+    [btnMarker setAdjustsImageWhenDisabled:NO];
+    [btnMarker addTarget:self
+                  action:@selector(tapMarkerSelect:)
+        forControlEvents:UIControlEventTouchUpInside];
+    [btnMarker addTarget:self
+                  action:@selector(btnTouchesBegan:)
+        forControlEvents:UIControlEventTouchDown];
+    [btnMarker addTarget:self
+                  action:@selector(btnTouchesCancel:)
+        forControlEvents:UIControlEventTouchCancel];
+    btnMarkerImg = [[UIImageView alloc]
+        initWithFrame:CGRectMake(6.0, 4.0, kMarkerBannerWidth, kMarkerBannerHeight)];
+    [btnMarkerImg setImage:[markerSelectView getCurrentBanner]];
+    [btnMarker addSubview:btnMarkerImg];
+    btnMarker.layer.zPosition = kMarkerZPosition;
+    if (!MarkerManager.enableMarkerSelect) {
+        [btnMarker setEnabled:NO];
+    }
+
+    // A hidden helper music view used for the far-open animation.
+    JubeatDeviceType farDevice = JubeatAppDelegate.appDelegate.deviceType;
+    double farY = isPad ? 210.0 : kFarOpenYRetina;
+    double farX =
+        isPad ? 210.0 :
+                (farDevice == JubeatDeviceTypePhoneRetina4Inch ? kFarOpenX4Inch : kFarOpenXRetina);
+    double farArtwork = isPad ? kFarOpenArtworkPad : kFarOpenArtworkPhone;
+    farOpenMusicView = [[MusicView alloc] initWithFrame:CGRectMake(0.0, 0.0, farY, farX)
+                                            artworkSize:farArtwork
+                                                colType:0
+                                              labelDisp:YES];
+    [farOpenMusicView setHidden:YES];
+
+    // The store button, bottom-right, with a rotated "new" badge.
+    UIImage *storeImage = (theme == JubeatThemeReflecBeatPlus) ?
+                              LoadScaledPngImage(@"menu_button_sto_rpl") :
+                          (theme == JubeatThemeKnit) ? LoadScaledPngImage(@"menu_button_sto_knt") :
+                                                       LoadScaledPngImage(@"menu_button_sto");
+    double storeX = (double)(int)boundsHeight - storeImage.size.width;
+    btnStore = [UIButton buttonWithType:UIButtonTypeCustom];
+    [btnStore setBackgroundImage:storeImage forState:UIControlStateNormal];
+    [btnStore
+        setFrame:CGRectMake(
+                     (double)(int)storeX, 0.0, storeImage.size.width, (double)(int)boundsHeight)];
+    [btnStore setExclusiveTouch:YES];
+    [btnStore addTarget:self
+                  action:@selector(tapStore:)
+        forControlEvents:UIControlEventTouchUpInside];
+    [btnStore addTarget:self
+                  action:@selector(btnTouchesBegan:)
+        forControlEvents:UIControlEventTouchDown];
+    [btnStore addTarget:self
+                  action:@selector(btnTouchesCancel:)
+        forControlEvents:UIControlEventTouchCancel];
+
+    UIImage *storeNewImage =
+        (theme == JubeatThemeReflecBeatPlus) ? LoadScaledPngImage(@"word_store_new_rpl") :
+        (theme == JubeatThemeKnit)           ? LoadScaledPngImage(@"word_store_new_knt") :
+                                               LoadScaledPngImage(@"word_store_new");
+    imgStoreNew = [[UIImageView alloc] initWithImage:storeNewImage];
+    [imgStoreNew setHidden:YES];
+    double storeNewX = btnStore.frame.origin.x + (isPad ? -30.0 : -20.0);
+    double storeNewNudge = isPad ? 5.0 : 10.0;
+    [imgStoreNew setCenter:CGPointMake(storeNewX, btnStore.frame.origin.y * 0.5 + storeNewNudge)];
+    [imgStoreNew setTransform:CGAffineTransformMakeRotation(kStoreNewRotation)];
+    [btnStore addSubview:imgStoreNew];
+
+    // A second, hidden "new" badge reused for the challenge button.
+    imgChallengeNew = [[UIImageView alloc] initWithImage:storeNewImage];
+    [imgChallengeNew setHidden:YES];
+    double challengeNewX = btnStore.frame.origin.x + (isPad ? -30.0 : -20.0);
+    [imgChallengeNew
+        setCenter:CGPointMake(challengeNewX, btnStore.frame.origin.y * 0.5 + storeNewNudge)];
+    [imgChallengeNew setTransform:CGAffineTransformMakeRotation(kStoreNewRotation)];
+
+    // The music detail card, built from the theme-specific subclass and hidden until a tune opens.
+    double detailArtwork = musicListView.artworkSize * (isPad ? 4.0 : 3.75);
+    Class detailClass = (theme == JubeatThemeReflecBeatPlus) ? [MusicDetailViewRpl class] :
+                        (theme == JubeatThemeKnit)           ? [MusicDetailViewKnt class] :
+                                                               [MusicDetailViewOrg class];
+    musicDetailView =
+        [[detailClass alloc] initWithFrame:CGRectMake(0.0, 0.0, detailArtwork, detailArtwork)];
+    [musicDetailView setHidden:NO];
+    musicDetailView.layer.doubleSided = NO;
+    [musicDetailView setController:self];
+
+    // The dimming cover behind the detail card; tapping it closes the card.
+    coverView = [[UIView alloc] initWithFrame:self.view.bounds];
+    [coverView setHidden:NO];
+    [coverView setBackgroundColor:[UIColor colorWithWhite:0 alpha:kCoverAlpha]];
+    [coverView setHidden:YES];
+    [coverView
+        addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:musicDetailView
+                                                                     action:@selector(close)]];
+
+    // The background (still or scrolling), then the list and marker button.
+    if (bgImageView != nil) {
+        [self.view addSubview:bgImageView];
+    } else if (scrollBg != nil) {
+        [self.view addSubview:scrollBg];
+    }
+    [self.view addSubview:musicListView];
+    [self.view addSubview:btnMarker];
+
+    // Restore the last-played playlist/level/hold selection and open it.
+    NSString *lastPlaylist = [NSUserDefaults.standardUserDefaults stringForKey:@"PrefLastPlaylist"];
+    NSInteger listType = [playlistManager indexOfPlaylistWithIdentifier:lastPlaylist];
+    if (listType == NSIntegerMax) {
+        if ([NSUserDefaults.standardUserDefaults integerForKey:@"PrefPlayListLevel"] != 0) {
+            listType = kListTypeLevel;
+        } else {
+            NSInteger holdPref =
+                [NSUserDefaults.standardUserDefaults integerForKey:@"PrefPlayListHold"];
+            listType = (holdPref == 1) ? kListTypeHold :
+                       (holdPref == 2) ? kListTypeNotHold :
+                                         kListTypeNotPlayed;
+        }
+    }
+    NSUInteger lastID =
+        (NSUInteger)[NSUserDefaults.standardUserDefaults integerForKey:@"PrefLastPlayedID"];
+    [self changeMusicListView:listType musicID:lastID isFirst:YES];
+
+    // The bottom bar (playlist controls).
+    bottomView =
+        [[MusicSelectBottomView alloc] initWithFrame:CGRectMake((double)((int)boundsHeight - 30),
+                                                                self.view.frame.origin.y,
+                                                                30.0,
+                                                                boundsWidth)];
+    [bottomView setADelegate:self];
+    [bottomView setPlaylistManager:playlistManager];
+    [bottomView playlistButtonChanged:listType];
+    [self.view addSubview:bottomView];
+    [self.view addSubview:btnStore];
+
+    // The challenge button, left of the store button, carrying the challenge "new" badge.
+    UIImage *challengeImage =
+        (theme == JubeatThemeReflecBeatPlus) ? LoadScaledPngImage(@"menu_button_challenge_rpl") :
+        (theme == JubeatThemeKnit)           ? LoadScaledPngImage(@"menu_button_challenge_knt") :
+                                               LoadScaledPngImage(@"menu_button_challenge");
+    btnChallenge = [UIButton buttonWithType:UIButtonTypeCustom];
+    [btnChallenge setBackgroundImage:challengeImage forState:UIControlStateNormal];
+    double challengeX = (double)(int)(storeX - challengeImage.size.width);
+    [btnChallenge
+        setFrame:CGRectMake(
+                     challengeX, 0.0, challengeImage.size.width, challengeImage.size.height)];
+    [btnChallenge setExclusiveTouch:YES];
+    [btnChallenge addTarget:self
+                     action:@selector(tapChallengeMode:)
+           forControlEvents:UIControlEventTouchUpInside];
+    [btnChallenge addTarget:self
+                     action:@selector(btnTouchesBegan:)
+           forControlEvents:UIControlEventTouchDown];
+    [btnChallenge addTarget:self
+                     action:@selector(btnTouchesCancel:)
+           forControlEvents:UIControlEventTouchCancel];
+    [self.view addSubview:btnChallenge];
+    [btnChallenge addSubview:imgChallengeNew];
+
+    // A store-promotion balloon, shown only when the player owns no purchased music but has
+    // records for built-in music.
+    if ([StoreMusicListManager sharedManager].purchasedMusic.count == 0) {
+        NSArray *builtin = [StoreMusicListManager sharedManager].builtinMusic;
+        if ([ScoreRecord recordsForTuneIDs:builtin].count != 0) {
+            double balloonHeight = isPad ? kBalloonHeightPad : kBalloonHeightPhone;
+            double balloonY = challengeImage.size.height + 4.0;
+            balloonView = [[BalloonView alloc]
+                initWithFrame:CGRectMake(storeX - (isPad ? kBalloonXPad : kBalloonXPhone),
+                                         balloonY,
+                                         kBalloonWidth,
+                                         balloonHeight)];
+            balloonView.layer.shadowColor = UIColor.blackColor.CGColor;
+            balloonView.layer.shadowRadius = kBalloonShadowRadius;
+            balloonView.layer.shadowOpacity = kBalloonShadowOpacity;
+            balloonView.layer.shadowOffset = CGSizeMake(0.0, 1.0);
+            [balloonView setArrowDirection:0];
+            [balloonView setArrowPosision:balloonHeight - (double)(int)(balloonHeight * 0.5)];
+            [balloonView setArrowSize:CGSizeMake(16.0, 12.0)];
+            [balloonView setContentEdgeInsets:UIEdgeInsetsMake(12.0, 12.0, 12.0, 12.0)];
+            NSString *message =
+                [NSString stringWithFormat:[NSBundle.mainBundle
+                                               localizedStringForKey:@"StoreBalloonMessage(%@)"
+                                                               value:@""
+                                                               table:nil]];
+            UILabel *label = [[UILabel alloc] initWithFrame:balloonView.contentRect];
+            [label setOpaque:NO];
+            [label setBackgroundColor:UIColor.clearColor];
+            [label setTextColor:UIColor.whiteColor];
+            [label setFont:[UIFont boldSystemFontOfSize:16.0]];
+            [label setTextAlignment:NSTextAlignmentCenter];
+            [label setNumberOfLines:0];
+            if (!isPad) {
+                [label setText:[message stringByReplacingOccurrencesOfString:@"\n" withString:@""]];
+            } else {
+                [label setText:message];
+            }
+            [balloonView addSubview:label];
+            [balloonView addGestureRecognizer:[[UITapGestureRecognizer alloc]
+                                                  initWithTarget:self
+                                                          action:@selector(hideStoreBalloon)]];
+            [balloonView setUserInteractionEnabled:NO];
+            [balloonView setAlpha:0.0];
+            [self.view addSubview:balloonView];
+        }
+    }
+
+    // The join-session button, left of the challenge button.
+    UIImage *joinImage = (theme == JubeatThemeReflecBeatPlus) ?
+                             LoadScaledPngImage(@"menu_button_join_rpl") :
+                         (theme == JubeatThemeKnit) ? LoadScaledPngImage(@"menu_button_join_knt") :
+                                                      LoadScaledPngImage(@"menu_button_join");
+    btnJoinSession = [UIButton buttonWithType:UIButtonTypeCustom];
+    [btnJoinSession setBackgroundImage:joinImage forState:UIControlStateNormal];
+    double joinX = (double)(int)(challengeX - joinImage.size.width);
+    [btnJoinSession setFrame:CGRectMake(joinX, 0.0, joinImage.size.width, joinImage.size.height)];
+    [btnJoinSession setExclusiveTouch:YES];
+    [btnJoinSession addTarget:self
+                       action:@selector(pushBtnJoin:)
+             forControlEvents:UIControlEventTouchUpInside];
+    [btnJoinSession addTarget:self
+                       action:@selector(btnTouchesBegan:)
+             forControlEvents:UIControlEventTouchDown];
+    [btnJoinSession addTarget:self
+                       action:@selector(btnTouchesCancel:)
+             forControlEvents:UIControlEventTouchCancel];
+    [self.view addSubview:btnJoinSession];
+
+    // The settings button, left of the join button.
+    UIImage *settingsImage =
+        (theme == JubeatThemeReflecBeatPlus) ? LoadScaledPngImage(@"menu_button_set_rpl") :
+        (theme == JubeatThemeKnit)           ? LoadScaledPngImage(@"menu_button_set_knt") :
+                                               LoadScaledPngImage(@"menu_button_set");
+    btnSettings = [UIButton buttonWithType:UIButtonTypeCustom];
+    [btnSettings setBackgroundImage:settingsImage forState:UIControlStateNormal];
+    double settingsX = joinX - settingsImage.size.width;
+    [btnSettings setFrame:CGRectMake((double)(int)settingsX,
+                                     0.0,
+                                     settingsImage.size.width,
+                                     settingsImage.size.height)];
+    [btnSettings setExclusiveTouch:YES];
+    [btnSettings addTarget:self
+                    action:@selector(tapSettings:)
+          forControlEvents:UIControlEventTouchUpInside];
+    [btnSettings addTarget:self
+                    action:@selector(btnTouchesBegan:)
+          forControlEvents:UIControlEventTouchDown];
+    [btnSettings addTarget:self
+                    action:@selector(btnTouchesCancel:)
+          forControlEvents:UIControlEventTouchCancel];
+    [self.view addSubview:btnSettings];
+
+    // Up/down swipes on the whole view open and close the search box.
+    UISwipeGestureRecognizer *swipeUp =
+        [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
+    [swipeUp setDirection:UISwipeGestureRecognizerDirectionUp];
+    [self.view addGestureRecognizer:swipeUp];
+    [self.view setMultipleTouchEnabled:NO];
+    [self.view setExclusiveTouch:YES];
+    UISwipeGestureRecognizer *swipeDown =
+        [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
+    [swipeDown setDirection:UISwipeGestureRecognizerDirectionDown];
+    [self.view addGestureRecognizer:swipeDown];
+    [self.view setMultipleTouchEnabled:NO];
+    [self.view setExclusiveTouch:YES];
+    arraySwipeRecognizer = @[ swipeUp, swipeDown ];
+
+    // The search bar, sized from a stretched background image, initially slid up off-screen.
+    double searchWidth = kSearchBarWidth;
+    if (!isPad) {
+        searchWidth = (double)(int)(boundsWidth - (isPad ? kSearchInsetPad : kSearchInsetPhone));
+    }
+    double searchHeight = kSearchBarHeight;
+    UIImage *searchBg = [LoadScaledPngImage(@"search_bg")
+        resizableImageWithCapInsets:UIEdgeInsetsMake(0, 40.0, 0, 40.0)];
+    UIGraphicsBeginImageContext(CGSizeMake(searchWidth, searchHeight));
+    [searchBg drawInRect:CGRectMake(0.0, 0.0, searchWidth, searchHeight)];
+    UIImage *searchBarImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    searchBox = [[UISearchBar alloc] initWithFrame:CGRectMake(0.0, 0.0, searchWidth, searchHeight)];
+    [searchBox setText:@""];
+    if (JubeatAppDelegate.appDelegate.searchString != nil) {
+        [searchBox setText:JubeatAppDelegate.appDelegate.searchString];
+    }
+    [searchBox setDelegate:self];
+    [searchBox setBackgroundColor:UIColor.whiteColor];
+    [searchBox setBarStyle:UIBarStyleDefault];
+    [searchBox setKeyboardType:UIKeyboardTypeDefault];
+    [searchBox setBackgroundImage:searchBarImage];
+    [searchBox setPlaceholder:[NSBundle.mainBundle localizedStringForKey:@"Music Search."
+                                                                   value:@""
+                                                                   table:nil]];
+    backUpString = @"";
+
+    // The search cancel button, right of the search bar.
+    searchCancelBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [searchCancelBtn setBackgroundImage:LoadScaledPngImage(@"search_cancel_btn")
+                               forState:UIControlStateNormal];
+    double cancelWidth = isPad ? kSearchInsetPad : kSearchInsetPhone;
+    [searchCancelBtn setFrame:CGRectMake(searchWidth, 0.0, cancelWidth, searchHeight)];
+    [searchCancelBtn setExclusiveTouch:YES];
+    [searchCancelBtn addTarget:self
+                        action:@selector(tapSearchCancel:)
+              forControlEvents:UIControlEventTouchUpInside];
+    [searchCancelBtn addTarget:self
+                        action:@selector(btnTouchesBegan:)
+              forControlEvents:UIControlEventTouchDown];
+    [searchCancelBtn addTarget:self
+                        action:@selector(btnTouchesCancel:)
+              forControlEvents:UIControlEventTouchCancel];
+    if (searchArray.count == 0) {
+        // With no active search, both are slid up out of view.
+        [searchBox setTransform:CGAffineTransformMakeTranslation(0.0, g_dSlideOffsetYMinus52)];
+        [searchCancelBtn
+            setTransform:CGAffineTransformMakeTranslation(0.0, g_dSlideOffsetYMinus52)];
+    } else {
+        bOpenSearchBox = YES;
+        [self showButtonMarker:NO];
+    }
+
+    // A one-time search tutorial overlay, shown when the library is large and the tutorial has not
+    // yet been seen.
+    searchTutorialView = nil;
+    if (![NSUserDefaults.standardUserDefaults boolForKey:@"PrefSearchTutorialFinish"] &&
+        (NSInteger)([musicListView currentViewsPerPage] * 2) < (NSInteger)arrayAllTune.count) {
+        [NSUserDefaults.standardUserDefaults setBool:YES forKey:@"PrefSearchTutorialFinish"];
+        searchTutorialView =
+            [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, searchWidth, searchHeight)];
+        [searchTutorialView setBackgroundColor:[UIColor colorWithWhite:0 alpha:kTutorialAlpha]];
+        searchTutorialView.layer.zPosition = kTutorialZPosition;
+        UIImageView *arrow =
+            [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"search_tutorial")];
+        double arrowY = (searchHeight * 3.0) / 7.0;
+        [arrow setCenter:CGPointMake(searchWidth * 0.5, arrowY)];
+        double mesGap =
+            (JubeatAppDelegate.appDelegate.deviceType == JubeatDeviceTypePhoneRetina4Inch) ? 16.0 :
+                                                                                             10.0;
+        double mesY = mesGap + arrowY + arrowY * 0.5;
+        [searchTutorialView addSubview:arrow];
+        UIImageView *mes =
+            [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"search_tutorial_mes")];
+        [mes setCenter:CGPointMake(searchWidth * 0.5, (double)(int)mesY + 16.0 * 0.5)];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, 16.0, searchHeight)];
+        [label setTextAlignment:NSTextAlignmentCenter];
+        [label setTextColor:UIColor.whiteColor];
+        [label setBackgroundColor:UIColor.clearColor];
+        if (!isPad) {
+            [label setFont:[UIFont systemFontOfSize:16.0]];
+            [label setText:[NSString stringWithFormat:[NSBundle.mainBundle
+                                                          localizedStringForKey:@"Swipe down Search"
+                                                                          value:@""
+                                                                          table:nil]]];
+        } else {
+            [label setFont:[UIFont systemFontOfSize:18.0]];
+            [label setText:[NSString
+                               stringWithFormat:[NSBundle.mainBundle
+                                                    localizedStringForKey:@"Swipe down Search Long"
+                                                                    value:@""
+                                                                    table:nil]]];
+        }
+        [mes addSubview:label];
+        [searchTutorialView addSubview:mes];
+    }
+
+    // The extend-mode tutorial overlay (hidden until the extend feature is offered).
+    extendTutorialView = nil;
+    extendTutorialView = [[UIView alloc] initWithFrame:self.view.bounds];
+    [extendTutorialView setHidden:NO];
+    [extendTutorialView setBackgroundColor:[UIColor colorWithWhite:0 alpha:g_dAnimDuration020]];
+    [extendTutorialView setHidden:YES];
+    [extendTutorialView setAlpha:0.0];
+    extendTutorialView.layer.zPosition = kTutorialZPosition;
+    UIImage *extendFrameImage = LoadScaledPngImage(@"extend_frame");
+    extendTutorialFrame = [[UIButton alloc]
+        initWithFrame:CGRectMake(
+                          0.0, 0.0, extendFrameImage.size.width, extendFrameImage.size.height)];
+    [extendTutorialFrame setBackgroundImage:extendFrameImage forState:UIControlStateNormal];
+    [extendTutorialFrame setHidden:YES];
+    [extendTutorialFrame setAdjustsImageWhenHighlighted:NO];
+    [extendTutorialFrame setAdjustsImageWhenDisabled:NO];
+    [extendTutorialFrame addTarget:self
+                            action:@selector(tapChangeMode:)
+                  forControlEvents:UIControlEventTouchUpInside];
+    [extendTutorialView addSubview:extendTutorialFrame];
+    UIImage *extendDescImage = LoadScaledPngImage(@"extend_description");
+    double descX = extendTutorialFrame.frame.size.width * (isPad ? 0.5 : kExtendDescXFraction);
+    double descY = extendTutorialFrame.frame.size.height * kExtendDescYFraction;
+    extendTutorialDescription = [[UIImageView alloc]
+        initWithFrame:CGRectMake(
+                          descX, descY, extendDescImage.size.width, extendDescImage.size.height)];
+    [extendTutorialDescription setImage:extendDescImage];
+    [extendTutorialFrame addSubview:extendTutorialDescription];
+
+    // Layer the interactive views above the background.
+    [self.view addSubview:btnJoinSession];
+    [self.view addSubview:btnSettings];
+    [self.view addSubview:coverView];
+    [self.view addSubview:markerSelectCover];
+    [self.view addSubview:btnMarker];
+    [self.view addSubview:markerSelectView];
+    if (searchTutorialView != nil) {
+        [self.view addSubview:searchTutorialView];
+    }
+
+    // Register this device's push token once, if an editor ID exists and it has not been sent.
+    if (!JubeatAppDelegate.appDelegate.bSendPushID && [EditorIDManager isExistEditorID] &&
+        JubeatAppDelegate.appDelegate.deviceToken != nil) {
+        NSString *url = ScratchUtil.pushNotificationIDSendURL;
+        NSString *editorID = [EditorIDManager getKeyString:[EditorIDManager getEditorIDKey]];
+        NSDictionary *post = [NSDictionary
+            dictionaryWithObjects:@[ editorID, JubeatAppDelegate.appDelegate.deviceToken ]
+                          forKeys:@[ @"user_id", @"token" ]];
+        SessionDownloader *downloader = [[SessionDownloader alloc] initWithURL:url
+                                                                postDictionary:post
+                                                                      delegate:self];
+        [downloader setTag:kPushIDDownloaderTag];
+        [downloader startDownloading];
+    }
+
+    // The notification banner view, centred at the top of the screen.
+    int notifyWidth = isPad ? kNotifyWidthPad : kNotifyWidthPhone;
+    int notifyX = ((int)boundsWidth - notifyWidth);
+    if (notifyX < 0) {
+        notifyX += 1;
+    }
+    notificationView = [[PushNotificationView alloc]
+        initWithFrame:CGRectMake((double)(notifyX >> 1), 0.0, (double)notifyWidth, kNotifyHeight)
+             delegate:self];
+    notificationView.layer.zPosition = kTutorialZPosition;
+    [self.view addSubview:notificationView];
+    if (JubeatAppDelegate.appDelegate.notificationURL == nil &&
+        !JubeatAppDelegate.appDelegate.bChallengeMode) {
+        [notificationView startNotification];
+    }
+
+    // Enter challenge mode immediately if the app launched into it.
+    bOpenChallenge = NO;
+    if (JubeatAppDelegate.appDelegate.bChallengeMode) {
+        bOpenChallenge = YES;
+        [self downloadChallengeInfo];
+    }
 }
 
 /** @ghidraAddress 0x38f04 */
