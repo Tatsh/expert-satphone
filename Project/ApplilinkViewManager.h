@@ -13,6 +13,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "ApplilinkStore.h"
+
 @class ApplilinkParameters;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -21,6 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief The Applilink in-app video-player host singleton.
  */
 @interface ApplilinkViewManager : NSObject
+
+/**
+ * @brief The SDK delegate that opened-notice and close-notice callbacks are relayed to.
+ * @ghidraAddress 0x2486e4
+ */
+@property(weak, nonatomic, nullable) id<SdkViewDelegate> sdkDelegate;
 
 /**
  * @brief The shared instance, creating the private serial queue on first use.

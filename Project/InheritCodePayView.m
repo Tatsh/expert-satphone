@@ -7,6 +7,7 @@
 #import "EditorIDManager.h"
 #import "ImageLoading.h"
 #import "ScratchUtil.h"
+#import "SessionDownloader.h"
 
 // The issue-request downloader is not reconstructed as a class yet, so it is reached by name, as in
 // PurchaseManager.

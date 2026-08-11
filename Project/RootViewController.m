@@ -201,6 +201,9 @@ static inline void RootViewControllerBeginFadeInForAnimation(RootViewController 
 
 @implementation RootViewController
 
+// The readonly active flag is backed by the binary's _isActive ivar.
+@synthesize active = _isActive;
+
 #pragma mark - Construction
 
 /** @ghidraAddress 0x1a751c */

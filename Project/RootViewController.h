@@ -368,6 +368,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)autoMovePackDownload;
 
+/**
+ * @brief Whether a scene is up and transitions run immediately; when clear, a transition parks its
+ *        name in @c suspendedAnimID instead. Backed by the @c _isActive ivar.
+ * @ghidraAddress 0x1ab3f8
+ */
+@property(nonatomic, readonly, getter=isActive) BOOL active;
+
 @end
 
 NS_ASSUME_NONNULL_END

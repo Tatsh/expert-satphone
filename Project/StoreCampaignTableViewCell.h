@@ -58,6 +58,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)setInfo:(nullable id)info tag:(int)tag;
 
+/**
+ * @brief The top-left inset of the square artwork banner for the device idiom.
+ * @param isPad Whether the pad metrics apply.
+ * @ghidraAddress 0xcb71c
+ */
+- (CGSize)getArtworkMargin:(BOOL)isPad;
+
+/**
+ * @brief The full item size of a non-square banner for the device idiom.
+ * @param isPad Whether the pad metrics apply.
+ * @ghidraAddress 0xcb73c
+ */
+- (CGSize)getItemSize:(BOOL)isPad;
+
 @end
 
 NS_ASSUME_NONNULL_END
