@@ -919,8 +919,8 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
         codec = [[BFCodec alloc] init];
         [codec cipherInit:CreateTuneInfoCipherKey()];
         [codec decipher:infoData];
-        infoData = [infoData subdataWithRange:NSMakeRange(4, infoData.length - 4)];
-        NSDictionary *infoDict = [NSDictionary dictionaryFromPropertyListData:infoData];
+        NSData *body = [infoData subdataWithRange:NSMakeRange(4, infoData.length - 4)];
+        NSDictionary *infoDict = [NSDictionary dictionaryFromPropertyListData:body];
         if (infoDict) {
             _tuneInfo = [[TuneInfo alloc] initWithfilePath:itemPath dictionary:infoDict];
         }
@@ -1021,15 +1021,3 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
 }
 
 @end
-
-// The tune levels 2..9 map to digit images 1..8; anything below 2 blanks (0), 10 or above clamps
-// to the top image (9).
-static inline char ScratchMusicDetailViewLevelIndex(int level) {
-    if (level < 2) {
-        return 0;
-    }
-    if (level < 10) {
-        return (char)(level - 1);
-    }
-    return 9;
-}
