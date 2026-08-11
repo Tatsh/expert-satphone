@@ -1623,6 +1623,29 @@ digits:
     }
 }
 
+/** @ghidraAddress 0x20293c */
+- (void)renderUpperBG:(BOOL)isResult {
+    // Each pressed button rises its knit column; the button grid is 4 wide, index i mapping to
+    // row i>>2, column i%4.
+    for (unsigned int i = 0; i < kMainGameGridPanelCount; ++i) {
+        if ((self.btnDown & (1 << (i & 0x1f))) != 0) {
+            [self.upperBgKnt riseUp:(int)(i >> 2) riseColumn:(int)(i % 4)];
+        }
+    }
+    // The wave tension follows the live score's tension, dropped to zero during a replay backup.
+    int tension = 0;
+    if (self.sequence != nil) {
+        const ScoreData *score = [self.sequence getScore];
+        if (score != NULL) {
+            tension = score->tension;
+        }
+    }
+    if (self.scoreBackup) {
+        tension = 0;
+    }
+    [self.upperBgKnt renderUpperBg:self.texWaveAr tension:tension isResult:isResult];
+}
+
 /** @ghidraAddress 0x2023a8 */
 - (void)renderMusicBar:(CGPoint)pos timeline:(BOOL)timeline alpha:(double)alpha {
     [self.texFront drawSprite:kMusicBarBackdropSprite
