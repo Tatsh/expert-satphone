@@ -16,6 +16,7 @@
 #import "Sequence.h"
 #import "Texture2D.h"
 #import "TextureLoading.h"
+#import "UILabel+RenderImage.h"
 #import "cipher_keys.h"
 #import "combo_display.h"
 #import "neEngineBridge.h"

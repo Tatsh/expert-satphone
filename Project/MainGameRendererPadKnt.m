@@ -9,10 +9,13 @@
 #import "EAGLView.h"
 #import "HoldMarkerRender.h"
 #import "JubeatAppDelegate.h"
+#import "KUnzip.h"
+#import "MarkerManager.h"
 #import "RendererConf.h"
 #import "Sequence.h"
 #import "Texture2D.h"
 #import "TextureLoading.h"
+#import "UILabel+RenderImage.h"
 #import "UpperBGKnit.h"
 #import "cipher_keys.h"
 #import "neEngineBridge.h"
@@ -495,6 +498,306 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
     }
 }
 
+// ==== -loadTexure: atlas geometry ====
+
+// The square texel dimension of each pad atlas texture.
+enum {
+    kWaveTexturePixelSize = 0x40,   // Each of the six knit-wave layers.
+    kFrontTexturePixelSize = 0x400, // texFront and texCombo.
+    kAtlasPixelSize = 0x800,        // texBeatBg, texMarker, and texHoldMarker.
+};
+
+// The knit renderer builds six stacked wave layers, all sharing one sprite table.
+enum { kWaveTextureCount = 6 };
+
+// The user-default the knit colour theme is read from, clamped to the four packaged variants.
+static NSString *const kPrefColorKnitKey = @"PrefColorKnit";
+enum { kPrefColorKnitMax = 3 };
+
+// Beat-background atlas sprite indices for the two packaged theme layers.
+enum {
+    kBeatBgSpriteLayer1 = 9,  // "game_bg_knt_%d_1".
+    kBeatBgSpriteLayer2 = 10, // "game_bg_knt_%d_2".
+};
+
+// The renderer clamps the requested difficulty and level to the packaged range.
+enum {
+    kMaxDifficulty = 3,
+    kMaxLevel = 10,
+};
+
+// Front-atlas sprite indices for the knit pad theme.
+enum {
+    kFrontSpriteArtwork = 0xe,      // The jacket artwork.
+    kFrontSpriteIndex = 0xf,        // The index image.
+    kFrontSpriteMusicBar = 0xb,     // "game_mbar_%s_knt".
+    kFrontSpriteDiffWord = 0x10,    // "game_diff_%s_knt".
+    kFrontSpriteLevelWord = 0x11,   // "game_lv_%d_knt".
+    kFrontSpriteStartMark = 0x14,   // "game_start_mark_knt".
+    kFrontSpritePartnerName = 0x1a, // The rendered partner-name label.
+};
+
+// The note-marker and hold-marker archive frame counts and bank geometry.
+enum {
+    kMarkerFrameCount = 0x18,      // "ma%02d", 24 frames.
+    kMarkerSpriteBase = 4,         // "ma" frames start at sprite 4 on the pad atlas.
+    kHoldBankCount = 4,            // Four "h" hold banks.
+    kHoldBankFrameCount = 0x10,    // 16 frames per bank.
+    kHoldMarkerRowCount = 6,       // "m%d%02d", 6 rows.
+    kHoldMarkerColumnCount = 0x10, // 16 columns.
+    kHoldMarkerTailCount = 8,      // "m6%02d", 8 frames.
+    kHoldMarkerTailBase = 0x60,    // "m6" sprites start at index 96.
+};
+
+// The result-screen music bar's fixed origin; its size comes from front sprite 0xb.
+static const double kMusicBarRectX = 8.0;   // @ghidraAddress 0x293eb0
+static const double kMusicBarRectY = 208.0; // @ghidraAddress 0x293eb8
+
+// The one-letter difficulty code spliced into "game_diff_%s_knt" and "game_mbar_%s_knt": basic,
+// advanced, extreme, or (for anything else) the fallback code. From a run of single-character C
+// strings at 0x280488..0x28048e.
+static inline const char *MainGameRendererPadKntDiffCode(int diff) {
+    switch (diff) {
+    case 0:
+        return "b"; // @ghidraAddress 0x280488
+    case 1:
+        return "a"; // @ghidraAddress 0x28048a
+    case 2:
+        return "e"; // @ghidraAddress 0x28048c
+    default:
+        return "o"; // @ghidraAddress 0x28048e
+    }
+}
+
+// Builds the six knit-wave texture layers, all sharing the one wave sprite table, then blits the
+// encrypted wave image into each. De-inlined from the wave section of -loadTexure:artwork:index:.
+static inline void MainGameRendererPadKntBuildWaveTextures(MainGameRendererPadKnt *self,
+                                                           BFCodec *codec,
+                                                           NSData *cipherKey) {
+    self.texWaveAr = [[NSMutableArray alloc] init];
+    NSString *plist = [NSBundle.mainBundle pathForResource:@"game_wave_knt_0_tex" ofType:@"plist"];
+    NSArray *sprites = [[NSArray alloc] initWithContentsOfFile:plist];
+    for (int i = 0; i < kWaveTextureCount; ++i) {
+        Texture2D *layer = [[Texture2D alloc] initWithData:nullptr
+                                               pixelFormat:Texture2DPixelFormatRGBA8888
+                                                 pixelSize:kWaveTexturePixelSize];
+        [layer setSprites:sprites];
+        [self.texWaveAr addObject:layer];
+    }
+    // The cipher is keyed once and the six layers decode from the running stream, matching the
+    // binary; it is not re-initialised per layer.
+    [codec cipherInit:cipherKey];
+    for (int i = 0; i < kWaveTextureCount; ++i) {
+        LoadTextureSubImageFromEncryptedTex(
+            self.texWaveAr[i], @"game_wave_knt_0_tex", codec, CGPointMake(0.0, 0.0));
+    }
+}
+
+// Builds the beat-background atlas and blits its base layer, then composites the two theme layers
+// selected by the packaged colour preference. De-inlined from the beat-background section of
+// -loadTexure:artwork:index:.
+static inline void MainGameRendererPadKntBuildBeatBgTexture(MainGameRendererPadKnt *self,
+                                                            BFCodec *codec) {
+    self.texBeatBg = [[Texture2D alloc] initWithData:nullptr
+                                         pixelFormat:Texture2DPixelFormatRGBA8888
+                                           pixelSize:kAtlasPixelSize];
+    NSString *plistPath = [NSBundle.mainBundle pathForResource:@"game_beatbg_knt_tex"
+                                                        ofType:@"plist"];
+    [self.texBeatBg setSprites:[[NSArray alloc] initWithContentsOfFile:plistPath]];
+    LoadTextureSubImageFromEncryptedTex(
+        self.texBeatBg, @"game_beatbg_knt_tex_1", codec, CGPointMake(0.0, 0.0));
+    // The knit colour theme selects the two overlay layers; it is clamped to the four packaged
+    // variants, an out-of-range value falling back to variant 0.
+    NSInteger colorKnit = [NSUserDefaults.standardUserDefaults integerForKey:kPrefColorKnitKey];
+    if ((NSUInteger)colorKnit > kPrefColorKnitMax) {
+        colorKnit = 0;
+    }
+    NSString *layer1Name = [NSString stringWithFormat:@"game_bg_knt_%d_1", (int)colorKnit];
+    NSString *layer1Path = [NSBundle.mainBundle pathForResource:layer1Name ofType:@"png"];
+    if (layer1Path) {
+        UIImage *layer1 = [[UIImage alloc] initWithContentsOfFile:layer1Path];
+        [self.texBeatBg setSubImage:layer1
+                             inRect:[self.texBeatBg spriteAtIndex:kBeatBgSpriteLayer1]];
+    }
+    NSString *layer2Name = [NSString stringWithFormat:@"game_bg_knt_%d_2", (int)colorKnit];
+    NSString *layer2Path = [NSBundle.mainBundle pathForResource:layer2Name ofType:@"png"];
+    if (layer2Path) {
+        UIImage *layer2 = [[UIImage alloc] initWithContentsOfFile:layer2Path];
+        [self.texBeatBg setSubImage:layer2
+                             inRect:[self.texBeatBg spriteAtIndex:kBeatBgSpriteLayer2]];
+    }
+}
+
+// Unzips the note-marker frames into the marker atlas: one bank of twenty-four "ma" frames (based
+// at sprite 4), then four banks of sixteen "h" hold frames. De-inlined from the marker section of
+// -loadTexure:artwork:index:.
+static inline void MainGameRendererPadKntLoadMarkerTexture(MainGameRendererPadKnt *self,
+                                                           RendererConf *conf,
+                                                           BFCodec *codec,
+                                                           NSData *cipherKey) {
+    // The base sprite index for each of the four "h" hold banks. @ghidraAddress 0x293ed0
+    static const int kHoldBankBase[] = {28, 44, 60, 76};
+    @autoreleasepool {
+        if (self.texMarker) {
+            self.texMarker = nil;
+        }
+        self.texMarker = [[Texture2D alloc] initWithData:nullptr
+                                             pixelFormat:Texture2DPixelFormatRGBA8888
+                                               pixelSize:kAtlasPixelSize];
+        NSString *plist = [NSBundle.mainBundle pathForResource:@"game_marker_tex" ofType:@"plist"];
+        [self.texMarker setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
+    }
+    // A downloaded marker arrives as in-memory data over a range; a packaged one is opened by path.
+    KUnzip *unzip;
+    if (conf.markerData != nil) {
+        unzip = [[KUnzip alloc] initWithData:conf.markerData
+                                       range:NSMakeRange(0, conf.markerData.length)];
+    } else {
+        unzip = [[KUnzip alloc] initWithPath:[MarkerManager getMarkerPath:conf.markerID]];
+    }
+    for (unsigned int i = 0; i < kMarkerFrameCount; ++i) {
+        [codec cipherInit:cipherKey];
+        NSMutableData *data = [unzip uncompress:[NSString stringWithFormat:@"ma%02d", i]];
+        UIImage *image = CreateImageFromEncryptedData(codec, data);
+        if (image) {
+            [self.texMarker
+                setSubImage:image
+                    atPoint:[self.texMarker spriteAtIndex:(i + kMarkerSpriteBase)].origin];
+        }
+    }
+    for (int bank = 0; bank < kHoldBankCount; ++bank) {
+        @autoreleasepool {
+            for (int i = 0; i < kHoldBankFrameCount; ++i) {
+                [codec cipherInit:cipherKey];
+                NSMutableData *data =
+                    [unzip uncompress:[NSString stringWithFormat:@"h%d%02d", bank, i]];
+                UIImage *image = CreateImageFromEncryptedData(codec, data);
+                if (image) {
+                    unsigned int spriteIndex = (unsigned int)(i + kHoldBankBase[bank]);
+                    [self.texMarker setSubImage:image
+                                        atPoint:[self.texMarker spriteAtIndex:spriteIndex].origin];
+                }
+            }
+        }
+    }
+}
+
+// Builds the hold-marker atlas and its sub-renderer, then unzips the "m" and "m6" hold-marker
+// frames from hm0001.zip. De-inlined from the hold-marker section of -loadTexure:artwork:index:.
+static inline void
+MainGameRendererPadKntBuildHoldMarkerTexture(MainGameRendererPadKnt *self,
+                                             HoldMarkerRender *__strong *holdMarkerRender,
+                                             BFCodec *codec,
+                                             NSData *cipherKey) {
+    @autoreleasepool {
+        if (self.texHoldMarker) {
+            self.texHoldMarker = nil;
+        }
+        self.texHoldMarker = [[Texture2D alloc] initWithData:nullptr
+                                                 pixelFormat:Texture2DPixelFormatRGBA8888
+                                                   pixelSize:kAtlasPixelSize];
+        NSString *plist = [NSBundle.mainBundle pathForResource:@"game_hold_marker_tex"
+                                                        ofType:@"plist"];
+        [self.texHoldMarker setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
+        [codec cipherInit:cipherKey];
+        if (!*holdMarkerRender) {
+            *holdMarkerRender = [[HoldMarkerRender alloc] init:self.texHoldMarker
+                                                         isPad:YES
+                                                 gameAreaDelay:0];
+        }
+    }
+    NSString *zipPath = [NSBundle.mainBundle pathForResource:@"hm0001" ofType:@"zip"];
+    KUnzip *unzip = [[KUnzip alloc] initWithPath:zipPath];
+    for (int row = 0; row < kHoldMarkerRowCount; ++row) {
+        for (int col = 0; col < kHoldMarkerColumnCount; ++col) {
+            [codec cipherInit:cipherKey];
+            NSMutableData *data =
+                [unzip uncompress:[NSString stringWithFormat:@"m%d%02d", row, col]];
+            UIImage *image = CreateImageFromEncryptedData(codec, data);
+            if (image) {
+                unsigned int spriteIndex = (unsigned int)(row * kHoldMarkerColumnCount + col);
+                [self.texHoldMarker
+                    setSubImage:image
+                        atPoint:[self.texHoldMarker spriteAtIndex:spriteIndex].origin];
+            }
+        }
+    }
+    for (int i = 0; i < kHoldMarkerTailCount; ++i) {
+        [codec cipherInit:cipherKey];
+        NSMutableData *data = [unzip uncompress:[NSString stringWithFormat:@"m6%02d", i]];
+        UIImage *image = CreateImageFromEncryptedData(codec, data);
+        if (image) {
+            unsigned int spriteIndex = (unsigned int)(i + kHoldMarkerTailBase);
+            [self.texHoldMarker setSubImage:image
+                                    atPoint:[self.texHoldMarker spriteAtIndex:spriteIndex].origin];
+        }
+    }
+}
+
+// Rebuilds the combo atlas from its encrypted texture. De-inlined from the combo section of
+// -loadTexure:artwork:index:.
+static inline void MainGameRendererPadKntBuildComboTexture(MainGameRendererPadKnt *self,
+                                                           BFCodec *codec,
+                                                           NSData *cipherKey) {
+    @autoreleasepool {
+        if (self.texCombo) {
+            self.texCombo = nil;
+        }
+        self.texCombo = [[Texture2D alloc] initWithData:nullptr
+                                            pixelFormat:Texture2DPixelFormatRGBA8888
+                                              pixelSize:kFrontTexturePixelSize];
+        NSString *plist = [NSBundle.mainBundle pathForResource:@"game_combo_knt_tex"
+                                                        ofType:@"plist"];
+        [self.texCombo setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
+        [codec cipherInit:cipherKey];
+        LoadTextureSubImageFromEncryptedTex(
+            self.texCombo, @"game_combo_knt_tex", codec, CGPointMake(0.0, 0.0));
+    }
+}
+
+// Blits the difficulty, music-bar, level, and start-mark words into the front atlas, stashes the
+// music-bar rectangle, then composites the jacket artwork, the index image, and the optional
+// partner-name label. De-inlined from the composite section of -loadTexure:artwork:index:.
+static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *self,
+                                                        RendererConf *conf,
+                                                        UIImage *artwork,
+                                                        UIImage *index) {
+    const char *diffCode = MainGameRendererPadKntDiffCode(conf.diff);
+    LoadTextureSubImageFromResource(self.texFront,
+                                    [NSString stringWithFormat:@"game_diff_%s_knt", diffCode],
+                                    [self.texFront spriteAtIndex:kFrontSpriteDiffWord].origin);
+    LoadTextureSubImageFromResource(self.texFront,
+                                    [NSString stringWithFormat:@"game_mbar_%s_knt", diffCode],
+                                    [self.texFront spriteAtIndex:kFrontSpriteMusicBar].origin);
+    // The result-screen music bar keeps a fixed origin but the loaded bar's size.
+    CGRect musicBarSprite = [self.texFront spriteAtIndex:kFrontSpriteMusicBar];
+    self->musicBarRect = CGRectMake(
+        kMusicBarRectX, kMusicBarRectY, musicBarSprite.size.width, musicBarSprite.size.height);
+    LoadTextureSubImageFromResource(self.texFront,
+                                    [NSString stringWithFormat:@"game_lv_%d_knt", conf.level],
+                                    [self.texFront spriteAtIndex:kFrontSpriteLevelWord].origin);
+    LoadTextureSubImageFromResource(self.texFront,
+                                    @"game_start_mark_knt",
+                                    [self.texFront spriteAtIndex:kFrontSpriteStartMark].origin);
+    [self.texFront setSubImage:artwork
+                       atPoint:[self.texFront spriteAtIndex:kFrontSpriteArtwork].origin];
+    [self.texFront setSubImage:index
+                       atPoint:[self.texFront spriteAtIndex:kFrontSpriteIndex].origin];
+    if (conf.partnerName) {
+        CGRect labelFrame = [self.texFront spriteAtIndex:kFrontSpritePartnerName];
+        UILabel *label = [[UILabel alloc] initWithFrame:labelFrame];
+        label.opaque = NO;
+        label.backgroundColor = UIColor.clearColor; // The original used +clearColor.
+        label.textColor = UIColor.blackColor;       // The original used +blackColor.
+        label.textAlignment = NSTextAlignmentRight; // 2.
+        label.font = [UIFont boldSystemFontOfSize:0];
+        label.text = conf.partnerName;
+        UIImage *rendered = [label renderImage];
+        [self.texFront setSubImage:rendered
+                           atPoint:[self.texFront spriteAtIndex:kFrontSpritePartnerName].origin];
+    }
+}
+
 @implementation MainGameRendererPadKnt
 
 /** @ghidraAddress 0x1fdf14 */
@@ -591,6 +894,67 @@ static inline void MainGameRendererPadKntRenderExcellentBurst(MainGameRendererPa
     [self.texReady1 commitDraw];
     [self.texResult commitDraw];
     ++frame;
+}
+
+/** @ghidraAddress 0x1fe04c */
+- (void)loadTexure:(RendererConf *)conf artwork:(UIImage *)artwork index:(UIImage *)index {
+    NSData *cipherKey = CreateTextureCipherKey();
+    BFCodec *codec = [[BFCodec alloc] init];
+    if (!self.texDebugFont) {
+        self.texDebugFont = CreateTexture2DFromPngResource(@"debugfont");
+    }
+    if (!self.texWaveAr) {
+        MainGameRendererPadKntBuildWaveTextures(self, codec, cipherKey);
+    }
+    @autoreleasepool {
+        if (!self.texBeatBg) {
+            MainGameRendererPadKntBuildBeatBgTexture(self, codec);
+        }
+        if (!self.texReady0) {
+            [codec cipherInit:cipherKey];
+            self.texReady0 =
+                CreateTexture2DFromEncryptedTexResource(@"game_ready_knt_0_tex", codec);
+        }
+        if (!self.texReady1) {
+            [codec cipherInit:cipherKey];
+            self.texReady1 =
+                CreateTexture2DFromEncryptedTexResource(@"game_ready_knt_1_tex", codec);
+        }
+    }
+    if (conf.diff > kMaxDifficulty) {
+        conf.diff = kMaxDifficulty;
+    }
+    if (conf.level > kMaxLevel) {
+        conf.level = kMaxLevel;
+    }
+    // The front atlas and its dependent atlases are rebuilt unless the requested marker,
+    // difficulty, level, and tune all match the one already loaded.
+    if (self.texFront && [conf.markerID isEqualToString:self.rendererConf.markerID] &&
+        conf.diff == self.rendererConf.diff && conf.level == self.rendererConf.level &&
+        conf.tuneID == self.rendererConf.tuneID) {
+        return;
+    }
+    @autoreleasepool {
+        if (self.texFront) {
+            self.texFront = nil;
+        }
+        self.texFront = [[Texture2D alloc] initWithData:nullptr
+                                            pixelFormat:Texture2DPixelFormatRGBA8888
+                                              pixelSize:kFrontTexturePixelSize];
+        NSString *plist = [NSBundle.mainBundle pathForResource:@"game_front_knt_tex"
+                                                        ofType:@"plist"];
+        [self.texFront setSprites:[[NSArray alloc] initWithContentsOfFile:plist]];
+        [codec cipherInit:cipherKey];
+        LoadTextureSubImageFromEncryptedTex(
+            self.texFront, @"game_front_knt_tex", codec, CGPointMake(0.0, 0.0));
+    }
+    @autoreleasepool {
+        MainGameRendererPadKntLoadMarkerTexture(self, conf, codec, cipherKey);
+    }
+    MainGameRendererPadKntBuildHoldMarkerTexture(self, &self->holdMarkerRender, codec, cipherKey);
+    MainGameRendererPadKntBuildComboTexture(self, codec, cipherKey);
+    MainGameRendererPadKntCompositeFront(self, conf, artwork, index);
+    self.rendererConf = conf;
 }
 
 /** @ghidraAddress 0x20004c */
@@ -1881,7 +2245,7 @@ digits:
     int tension = 0;
     if (self.sequence != nil) {
         const ScoreData *score = [self.sequence getScore];
-        if (score != NULL) {
+        if (score != nullptr) {
             tension = score->tension;
         }
     }

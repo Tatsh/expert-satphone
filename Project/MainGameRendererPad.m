@@ -16,6 +16,7 @@
 #import "Sequence.h"
 #import "Texture2D.h"
 #import "TextureLoading.h"
+#import "UILabel+RenderImage.h"
 #import "cipher_keys.h"
 #import "combo_display.h"
 #import "neEngineBridge.h"
@@ -31,10 +32,6 @@ static const float g_flKeyTime070 = 0.7f;    // @ghidraAddress 0x28f3bc
 // -renderImage renders a view into a UIImage. It is a category the binary provides on UIView whose
 // declaring class is not established; declared here so the partner-name label can be messaged,
 // mirroring the inline UIView categories in RootViewController.m.
-@interface UIView (RenderImage)
-- (nullable UIImage *)renderImage;
-@end
-
 // The high-level render states, dispatched on by -draw and -setState:.
 static const unsigned int kRenderStatePreStart = 1;
 static const unsigned int kRenderStateReadyGo = 2;

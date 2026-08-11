@@ -3092,13 +3092,13 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     // a set, and drop empty terms.
     NSMutableString *normalised = [searchString mutableCopy];
     CFStringTransform(
-        (CFMutableStringRef)normalised, NULL, kCFStringTransformHiraganaKatakana, false);
+        (CFMutableStringRef)normalised, nullptr, kCFStringTransformHiraganaKatakana, false);
     CFStringTransform(
-        (CFMutableStringRef)normalised, NULL, kCFStringTransformFullwidthHalfwidth, false);
+        (CFMutableStringRef)normalised, nullptr, kCFStringTransformFullwidthHalfwidth, false);
     CFStringTransform(
-        (CFMutableStringRef)normalised, NULL, kCFStringTransformHiraganaKatakana, false);
+        (CFMutableStringRef)normalised, nullptr, kCFStringTransformHiraganaKatakana, false);
     CFStringTransform(
-        (CFMutableStringRef)normalised, NULL, kCFStringTransformFullwidthHalfwidth, false);
+        (CFMutableStringRef)normalised, nullptr, kCFStringTransformFullwidthHalfwidth, false);
     NSArray *terms = [normalised componentsSeparatedByString:@" "];
     NSMutableArray *unique = [NSMutableArray arrayWithArray:[NSSet setWithArray:terms].allObjects];
     [unique removeObject:@""];

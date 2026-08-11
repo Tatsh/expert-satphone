@@ -19,6 +19,7 @@
 #import "Sequence.h"
 #import "Texture2D.h"
 #import "TextureLoading.h"
+#import "UILabel+RenderImage.h"
 #import "UpperBGRipple.h"
 #import "cipher_keys.h"
 #import "combo_display.h"
@@ -36,10 +37,6 @@ static const float kComboFadeBase = 0.3f; // An fmov immediate.
 
 // -renderImage renders a view into a UIImage. It is a category the binary provides on UIView whose
 // declaring class is not established; declared here so the partner-name label can be messaged.
-@interface UIView (RenderImage)
-- (nullable UIImage *)renderImage;
-@end
-
 // The high-level render states, dispatched on by -draw and -setState:.
 static const unsigned int kRenderStatePreStart = 1;
 static const unsigned int kRenderStateReadyGo = 2;
