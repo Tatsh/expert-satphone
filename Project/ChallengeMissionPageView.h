@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised view.
  * @ghidraAddress 0xaa91c
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame;
+- (instancetype)initWithFrame:(CGRect)frame;
 
 /**
  * @brief List-button callback: records the tapped list, swaps the two button images, downloads
@@ -138,8 +138,8 @@ NS_ASSUME_NONNULL_BEGIN
  * formatting the sheet's period.
  * @ghidraAddress 0xad12c
  */
-- (nullable UITableViewCell *)tableView:(nonnull UITableView *)tableView
-                  cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath;
+- (UITableViewCell *)tableView:(nonnull UITableView *)tableView
+         cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath;
 
 /**
  * @brief Empty @c UITableViewDelegate hook.

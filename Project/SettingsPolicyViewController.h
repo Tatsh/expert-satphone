@@ -37,7 +37,7 @@ typedef NS_ENUM(int, SettingsPolicyType) {
  * @return The initialised controller.
  * @ghidraAddress 0x1d3bf4
  */
-- (nullable instancetype)initViewController:(SettingsPolicyType)type;
+- (instancetype)initViewController:(SettingsPolicyType)type;
 
 /**
  * @brief Builds the view: a white background and a non-editable @c UITextView, then kicks off the

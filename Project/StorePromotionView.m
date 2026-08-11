@@ -114,7 +114,7 @@ static const CGFloat kSampleButtonPadY = 170.0;
 #pragma mark - Initialisation
 
 /** @ghidraAddress 0x1bb4a8 */
-- (nullable instancetype)initWithFrame:(CGRect)frame promotions:(nullable NSArray *)promotions {
+- (instancetype)initWithFrame:(CGRect)frame promotions:(nullable NSArray *)promotions {
     self = [super initWithFrame:frame];
     if (!self) {
         return nil;

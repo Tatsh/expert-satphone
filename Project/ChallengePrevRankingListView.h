@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised view.
  * @ghidraAddress 0x72ee8
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame lineup:(nullable NSArray *)lineup;
+- (instancetype)initWithFrame:(CGRect)frame lineup:(nullable NSArray *)lineup;
 
 /**
  * @brief Reloads the table.

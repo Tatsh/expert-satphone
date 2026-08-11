@@ -81,10 +81,10 @@ static const NSTimeInterval kFadeDuration = 0.6;
 }
 
 /** @ghidraAddress 0xfab78 */
-- (nullable instancetype)init:(nullable id<MessageTextViewDelegate>)delegateArg
-                        title:(nullable NSString *)title
-                          url:(nullable NSURL *)url
-                         send:(nullable NSDictionary *)send {
+- (instancetype)init:(nullable id<MessageTextViewDelegate>)delegateArg
+               title:(nullable NSString *)title
+                 url:(nullable NSURL *)url
+                send:(nullable NSDictionary *)send {
     BOOL isPad = JubeatAppDelegate.appDelegate.isPad;
     fScale = kBoardScalePhone;
     titleString = title;
@@ -104,9 +104,9 @@ static const NSTimeInterval kFadeDuration = 0.6;
 }
 
 /** @ghidraAddress 0xfad40 */
-- (nullable instancetype)init:(nullable id<MessageTextViewDelegate>)delegateArg
-                        title:(nullable NSString *)title
-                      message:(nullable id)message {
+- (instancetype)init:(nullable id<MessageTextViewDelegate>)delegateArg
+               title:(nullable NSString *)title
+             message:(nullable id)message {
     BOOL isPad = JubeatAppDelegate.appDelegate.isPad;
     fScale = kBoardScalePhone;
     titleString = title;

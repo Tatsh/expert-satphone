@@ -66,10 +66,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised board.
  * @ghidraAddress 0xfab78
  */
-- (nullable instancetype)init:(nullable id<MessageTextViewDelegate>)delegate
-                        title:(nullable NSString *)title
-                          url:(nullable NSURL *)url
-                         send:(nullable NSDictionary *)send;
+- (instancetype)init:(nullable id<MessageTextViewDelegate>)delegate
+               title:(nullable NSString *)title
+                 url:(nullable NSURL *)url
+                send:(nullable NSDictionary *)send;
 
 /**
  * @brief Builds the board immediately from a title and a ready message body.
@@ -82,9 +82,9 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised board.
  * @ghidraAddress 0xfad40
  */
-- (nullable instancetype)init:(nullable id<MessageTextViewDelegate>)delegate
-                        title:(nullable NSString *)title
-                      message:(nullable id)message;
+- (instancetype)init:(nullable id<MessageTextViewDelegate>)delegate
+               title:(nullable NSString *)title
+             message:(nullable id)message;
 
 /**
  * @brief Forwards a download failure to the delegate, if it responds.

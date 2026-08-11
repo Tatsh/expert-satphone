@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x1b4324
  */
-- (nullable instancetype)initWithParent:(nullable StoreViewController *)parent;
+- (instancetype)initWithParent:(nullable StoreViewController *)parent;
 
 /**
  * @brief Clears the resolved and unresolved pack lists and the table's current genre.

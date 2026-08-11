@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised card, or @c nil.
  * @ghidraAddress 0x126714
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame;
+- (instancetype)initWithFrame:(CGRect)frame;
 
 /**
  * @brief Stores the base-chart tune; the score argument is ignored.

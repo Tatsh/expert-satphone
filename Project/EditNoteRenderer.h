@@ -51,7 +51,7 @@ enum { kEditNoteGridPanelCount = 16 };
  * @return The initialised renderer, or @c nil.
  * @ghidraAddress 0x20add0
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 #pragma mark - Textures
 

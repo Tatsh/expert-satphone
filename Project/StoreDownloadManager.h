@@ -63,8 +63,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised manager, or nil when @p tasks is nil.
  * @ghidraAddress 0xd7c04
  */
-- (nullable instancetype)initWithTasks:(nullable NSArray *)tasks
-                              delegate:(nullable id<StoreDownloadManagerDelegate>)delegate;
+- (instancetype)initWithTasks:(nullable NSArray *)tasks
+                     delegate:(nullable id<StoreDownloadManagerDelegate>)delegate;
 
 /**
  * @brief Starts downloading the first task.

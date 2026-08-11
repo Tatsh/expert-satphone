@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised container.
  * @ghidraAddress 0x89460
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief Reads the startup parameters and opens the deep-linked genre or pack (and, when present, a

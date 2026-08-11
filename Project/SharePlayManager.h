@@ -159,7 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised manager.
  * @ghidraAddress 0xc51e4
  */
-- (nullable instancetype)initWithScreenName:(nullable NSString *)screenName;
+- (instancetype)initWithScreenName:(nullable NSString *)screenName;
 
 /** @brief Creates the MCSession bound to this device's peer. @ghidraAddress 0xc5324 */
 - (void)sessionCreate;

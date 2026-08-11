@@ -65,8 +65,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param reuseIdentifier The reuse identifier forwarded to @c UITableViewCell.
  * @ghidraAddress 0xfbec8
  */
-- (nullable instancetype)initWithStyle:(UITableViewCellStyle)style
-                       reuseIdentifier:(nullable NSString *)reuseIdentifier;
+- (instancetype)initWithStyle:(UITableViewCellStyle)style
+              reuseIdentifier:(nullable NSString *)reuseIdentifier;
 
 /**
  * @brief Sets the background image behind the whole cell.

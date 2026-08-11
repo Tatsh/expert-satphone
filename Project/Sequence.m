@@ -309,7 +309,7 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
 
 #pragma mark - Initialisers
 
-- (nullable instancetype)initWithData:(NSData *)data {
+- (instancetype)initWithData:(NSData *)data {
     [self createRandomTable];
     if (data == nil || data.length < kSequenceHeaderMagicLength + 1) {
         return nil;
@@ -380,7 +380,7 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
     return self;
 }
 
-- (nullable instancetype)initWithCustomData:(NSDictionary *)data tableData:(NSArray *)tableData {
+- (instancetype)initWithCustomData:(NSDictionary *)data tableData:(NSArray *)tableData {
     self = [super init];
     if (self == nil) {
         return nil;

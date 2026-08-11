@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised manager, or @c nil if @c [super init] fails.
  * @ghidraAddress 0x164804
  */
-- (nullable instancetype)initWithFile:(nonnull NSString *)file;
+- (instancetype)initWithFile:(nonnull NSString *)file;
 
 /**
  * @brief Writes the current playlists back to the file, atomically.

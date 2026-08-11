@@ -51,9 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
  * @param rankType The initial area (0 = country, 1 = rival).
  * @ghidraAddress 0x156254
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame
-                                 mInfo:(nullable ScratchInfo *)mInfo
-                              rankType:(int)rankType;
+- (instancetype)initWithFrame:(CGRect)frame
+                        mInfo:(nullable ScratchInfo *)mInfo
+                     rankType:(int)rankType;
 
 /**
  * @brief Builds the list for a line-up dictionary from the previous-event listing.
@@ -62,9 +62,9 @@ NS_ASSUME_NONNULL_BEGIN
  * @param scratchID The event's scratch id, boxed for the request body.
  * @ghidraAddress 0x1564cc
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame
-                                 mDict:(nullable NSDictionary *)mDict
-                             scratchID:(int)scratchID;
+- (instancetype)initWithFrame:(CGRect)frame
+                        mDict:(nullable NSDictionary *)mDict
+                    scratchID:(int)scratchID;
 
 @end
 

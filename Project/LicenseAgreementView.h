@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised view.
  * @ghidraAddress 0x1f528c
  */
-- (nullable instancetype)init:(nullable id)delegate keyString:(nullable NSString *)keyString;
+- (instancetype)init:(nullable id)delegate keyString:(nullable NSString *)keyString;
 
 /**
  * @brief Reports whether the given key participates in the pad-scaled layout.

@@ -103,7 +103,7 @@ static const NSTimeInterval kMarqueeStepDuration = 0.6;
 #pragma mark - Construction
 
 /** @ghidraAddress 0x1d5824 */
-- (nullable instancetype)initWithFrame:(CGRect)frame {
+- (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
         isPad = JubeatAppDelegate.appDelegate.isPad;

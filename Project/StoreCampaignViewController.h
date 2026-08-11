@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0xbe580
  */
-- (nullable instancetype)initWithParent:(nullable StoreViewController *)parent;
+- (instancetype)initWithParent:(nullable StoreViewController *)parent;
 
 /**
  * @brief Builds the view: a full-bounds vertical gradient, a non-selectable table, a loading

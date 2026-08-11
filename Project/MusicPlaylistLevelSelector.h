@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x1c2d04
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief Loads the view by chaining up to the superclass.

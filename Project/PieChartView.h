@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised view.
  * @ghidraAddress 0x9f8e0
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame;
+- (instancetype)initWithFrame:(CGRect)frame;
 
 /**
  * @brief Sets the fill, base-ring, and border colours.

@@ -192,7 +192,7 @@ static const CGFloat kHighscoreTextSlideOffset = 40.0;  // @ghidraAddress 0x28f1
 #pragma mark - Construction
 
 /** @ghidraAddress 0x15f658 */
-- (nullable instancetype)initWithFrame:(CGRect)frame {
+- (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (!self) {
         return self;

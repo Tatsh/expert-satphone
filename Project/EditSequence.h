@@ -416,8 +416,8 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
  * @return The initialised editor, or @c nil if any difficulty entry is malformed.
  * @ghidraAddress 0x21725c
  */
-- (nullable instancetype)initWithData:(nullable KUnzip *)data
-                         sequenceData:(nullable NSArray<NSNumber *> *)sequenceData;
+- (instancetype)initWithData:(nullable KUnzip *)data
+                sequenceData:(nullable NSArray<NSNumber *> *)sequenceData;
 
 /**
  * @brief Resets the play state and clears every recorded judgement.

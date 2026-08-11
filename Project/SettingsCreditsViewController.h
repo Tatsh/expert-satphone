@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0xe90b4
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief Builds the credits column: a black background and a stack of white role and name labels,

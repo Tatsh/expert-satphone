@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised view.
  * @ghidraAddress 0x426d4
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame;
+- (instancetype)initWithFrame:(CGRect)frame;
 
 /**
  * @brief The close button's action: tells the delegate to close the root menu.

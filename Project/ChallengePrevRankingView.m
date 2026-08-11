@@ -28,9 +28,9 @@
 @end
 
 @interface ChallengeRankingListView : UIView
-- (nullable instancetype)initWithFrame:(CGRect)frame
-                                 mDict:(nullable NSDictionary *)mDict
-                             scratchID:(int)scratchID;
+- (instancetype)initWithFrame:(CGRect)frame
+                        mDict:(nullable NSDictionary *)mDict
+                    scratchID:(int)scratchID;
 - (void)setADelegate:(nullable id)aDelegate;
 @end
 

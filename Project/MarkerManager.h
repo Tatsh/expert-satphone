@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised instance, or nil.
  * @ghidraAddress 0x1b749c
  */
-- (nullable instancetype)initWithDelegate:(nullable id)delegate;
+- (instancetype)initWithDelegate:(nullable id)delegate;
 
 /**
  * @brief Replaces the download list with a mutable copy of @p list.

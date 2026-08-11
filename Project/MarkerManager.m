@@ -56,7 +56,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0x1b749c */
-- (nullable instancetype)initWithDelegate:(nullable id)aDelegate {
+- (instancetype)initWithDelegate:(nullable id)aDelegate {
     self = [super init];
     if (self) {
         delegate = aDelegate;

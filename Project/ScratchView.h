@@ -42,8 +42,8 @@ typedef NS_ENUM(int, ScratchViewState) {
 - (BOOL)isScratchEnable;
 /** @brief Enables or disables scratching across the host. */
 - (void)scratchEnable:(BOOL)enable;
-/** @brief The host's modal download dialog. */
-- (StoreDialogView *)modalDialog;
+/** @brief The host's modal download dialog, or @c nil before it has been built. */
+- (nullable StoreDialogView *)modalDialog;
 /** @brief Shows the modal download dialog over the given sender. */
 - (void)showModalDialog:(id)sender;
 /** @brief Hides the modal download dialog. */

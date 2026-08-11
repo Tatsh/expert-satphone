@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised container, or @c nil.
  * @ghidraAddress 0x27882c
  */
-- (nullable instancetype)initWithCoder:(NSCoder *)coder;
+- (instancetype)initWithCoder:(NSCoder *)coder;
 
 /**
  * @brief Apply the shared container configuration (transparent, non-opaque, fully flexible

@@ -159,8 +159,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 }
 
 /** @ghidraAddress 0x1ce444 */
-- (nullable instancetype)initWithNameArray:(nullable NSArray<NSString *> *)nameArray
-                                    bounds:(CGRect)bounds {
+- (instancetype)initWithNameArray:(nullable NSArray<NSString *> *)nameArray bounds:(CGRect)bounds {
     self = [super init];
     if (self) {
         bgBounds = bounds;

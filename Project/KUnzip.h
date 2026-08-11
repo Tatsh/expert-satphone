@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The opened archive, or nil when the archive cannot be opened.
  * @ghidraAddress 0x760a0
  */
-- (nullable instancetype)initWithPath:(nullable NSString *)path;
+- (instancetype)initWithPath:(nullable NSString *)path;
 
 /**
  * @brief Opens an archive at a path, skipping a fixed-size trailer.
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The opened archive, or nil when the file is not larger than @p tail or cannot be opened.
  * @ghidraAddress 0x76150
  */
-- (nullable instancetype)initWithPath:(nullable NSString *)path tail:(NSUInteger)tail;
+- (instancetype)initWithPath:(nullable NSString *)path tail:(NSUInteger)tail;
 
 /**
  * @brief Opens an archive held in memory over a byte range.
@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
  *         opened.
  * @ghidraAddress 0x766cc
  */
-- (nullable instancetype)initWithData:(nullable NSData *)data range:(NSRange)range;
+- (instancetype)initWithData:(nullable NSData *)data range:(NSRange)range;
 
 /**
  * @brief Reports whether the archive contains an entry with the given name.

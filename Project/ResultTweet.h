@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised composer.
  * @ghidraAddress 0xbbf94
  */
-- (nullable instancetype)initWithInfo:(Sequence *)info conf:(RendererConf *)conf;
+- (instancetype)initWithInfo:(Sequence *)info conf:(RendererConf *)conf;
 
 /**
  * @brief Sets the two title images, one drawn over a dark plate and one over a light plate.

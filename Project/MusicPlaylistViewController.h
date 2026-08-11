@@ -114,7 +114,7 @@ typedef NS_ENUM(NSUInteger, MusicPlaylistListMode) {
  * @return The initialised controller, or @c nil if @c [super initWithStyle:] fails.
  * @ghidraAddress 0x15ca34
  */
-- (nullable instancetype)initWithStyle:(UITableViewStyle)style;
+- (instancetype)initWithStyle:(UITableViewStyle)style;
 
 /**
  * @brief Height for a section's footer.

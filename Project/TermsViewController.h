@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x1132a0
  */
-- (nullable instancetype)initWithStyle:(UITableViewStyle)style;
+- (instancetype)initWithStyle:(UITableViewStyle)style;
 
 /**
  * @brief Maps a menu value to its index path within a given section, or @c nil when absent.

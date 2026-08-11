@@ -59,8 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x1ce444
  */
-- (nullable instancetype)initWithNameArray:(nullable NSArray<NSString *> *)nameArray
-                                    bounds:(CGRect)bounds;
+- (instancetype)initWithNameArray:(nullable NSArray<NSString *> *)nameArray bounds:(CGRect)bounds;
 
 /**
  * @brief Loads and decrypts the page background image at @p index.

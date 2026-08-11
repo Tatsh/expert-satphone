@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0xe52b8
  */
-- (nullable instancetype)initWithStyle:(UITableViewStyle)style;
+- (instancetype)initWithStyle:(UITableViewStyle)style;
 
 /**
  * @brief Loads the table view and creates the combo-display switch (a 94x27 @c UISwitch wired to
@@ -71,8 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The configured cell.
  * @ghidraAddress 0xe5678
  */
-- (nullable UITableViewCell *)tableView:(nonnull UITableView *)tableView
-                  cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath;
+- (UITableViewCell *)tableView:(nonnull UITableView *)tableView
+         cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath;
 
 /**
  * @brief Returns the number of sections, i.e. @c menuTable.count.

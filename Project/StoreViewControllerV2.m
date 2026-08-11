@@ -193,7 +193,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0xf1ba0 */
-- (nullable instancetype)init {
+- (instancetype)init {
     self = [super init];
     if (self) {
         storeMainViewCtrl = [[StoreMainViewControllerV2 alloc] initWithParent:self];

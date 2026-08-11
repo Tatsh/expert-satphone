@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised table.
  * @ghidraAddress 0x1b0eb8
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style;
+- (instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style;
 
 /**
  * @brief Ends the "load more" spinner state, re-enables selection, and optionally reloads the
@@ -119,8 +119,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The configured cell.
  * @ghidraAddress 0x1b223c
  */
-- (nullable UITableViewCell *)tableView:(UITableView *)tableView
-                  cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
  * @brief The number of sections. Always one.

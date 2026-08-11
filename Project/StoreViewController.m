@@ -212,7 +212,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 #pragma mark - Init and initial load
 
 /** @ghidraAddress 0x89460 */
-- (nullable instancetype)init {
+- (instancetype)init {
     self = [super init];
     if (self) {
         storeMainViewCtrl = [[StoreMainViewController alloc] initWithParent:self];

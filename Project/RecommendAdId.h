@@ -24,8 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised record.
  * @ghidraAddress 0x22ba00
  */
-- (nullable instancetype)initWithCountryCode:(nullable NSString *)countryCode
-                                  categoryId:(nullable NSString *)categoryId;
+- (instancetype)initWithCountryCode:(nullable NSString *)countryCode
+                         categoryId:(nullable NSString *)categoryId;
 
 /**
  * @brief Loads the stored advertising identifier for a country code and category id.

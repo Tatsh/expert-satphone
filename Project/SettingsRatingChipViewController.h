@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x9673c
  */
-- (nullable instancetype)initWithStyle:(UITableViewStyle)style;
+- (instancetype)initWithStyle:(UITableViewStyle)style;
 
 /**
  * @brief Loads the table view, setting its row height per idiom and hiding the separators.

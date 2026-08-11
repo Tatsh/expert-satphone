@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0xfc10
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief The current BGM playback position, less the adjust-time offset, clamped to zero.

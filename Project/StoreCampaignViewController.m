@@ -217,7 +217,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0xbe580 */
-- (nullable instancetype)initWithParent:(nullable StoreViewController *)parent {
+- (instancetype)initWithParent:(nullable StoreViewController *)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;

@@ -367,9 +367,9 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
 #pragma mark - Construction
 
 /** @ghidraAddress 0x156254 */
-- (nullable instancetype)initWithFrame:(CGRect)frame
-                                 mInfo:(nullable ScratchInfo *)mInfo
-                              rankType:(int)rankType {
+- (instancetype)initWithFrame:(CGRect)frame
+                        mInfo:(nullable ScratchInfo *)mInfo
+                     rankType:(int)rankType {
     self = [super initWithFrame:frame];
     if (!self) {
         return self;
@@ -392,9 +392,9 @@ static inline void ChallengeRankingListViewHandleRankingLoadResponse(ChallengeRa
 }
 
 /** @ghidraAddress 0x1564cc */
-- (nullable instancetype)initWithFrame:(CGRect)frame
-                                 mDict:(nullable NSDictionary *)mDict
-                             scratchID:(int)scratchID {
+- (instancetype)initWithFrame:(CGRect)frame
+                        mDict:(nullable NSDictionary *)mDict
+                    scratchID:(int)scratchID {
     self = [super initWithFrame:frame];
     if (!self) {
         return self;

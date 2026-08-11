@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised row.
  * @ghidraAddress 0x84144
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame;
+- (instancetype)initWithFrame:(CGRect)frame;
 
 /**
  * @brief Renders the achievement percentage into the three digit views and centres it.

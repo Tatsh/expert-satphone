@@ -127,7 +127,7 @@ static const int kNoSampleRow = -1;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0xece2c */
-- (nullable instancetype)init {
+- (instancetype)init {
     self = [super init];
     if (self) {
         self.navigationItem.title = kNavigationTitle;

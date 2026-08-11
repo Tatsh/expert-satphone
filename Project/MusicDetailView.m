@@ -77,7 +77,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 #pragma mark - Construction
 
 /** @ghidraAddress 0x126714 */
-- (nullable instancetype)initWithFrame:(CGRect)frame {
+- (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
         JubeatAppDelegate *appDelegate = [JubeatAppDelegate appDelegate];

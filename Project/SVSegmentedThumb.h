@@ -129,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised thumb.
  * @ghidraAddress 0x16f508
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame;
+- (instancetype)initWithFrame:(CGRect)frame;
 
 /**
  * @brief Restores the thumb to its unselected look, showing the primary label unless the control

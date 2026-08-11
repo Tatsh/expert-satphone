@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised view.
  * @ghidraAddress 0x1bb4a8
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame promotions:(nullable NSArray *)promotions;
+- (instancetype)initWithFrame:(CGRect)frame promotions:(nullable NSArray *)promotions;
 
 /**
  * @brief Updates the sample button's image and the track label's opacity for the current mode.

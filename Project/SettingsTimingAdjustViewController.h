@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x1745e0
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief Builds the whole calibration UI: the background image, the four labels, the slider, the

@@ -158,7 +158,7 @@ typedef struct {
  * @return The initialised engine, or @c nil if the blob is missing or malformed.
  * @ghidraAddress 0x1abe24
  */
-- (nullable instancetype)initWithData:(nullable NSData *)data;
+- (instancetype)initWithData:(nullable NSData *)data;
 
 /**
  * @brief Initialises the engine from an editor's custom chart dictionary and note table.
@@ -167,8 +167,8 @@ typedef struct {
  * @return The initialised engine, or @c nil.
  * @ghidraAddress 0x1ac3a0
  */
-- (nullable instancetype)initWithCustomData:(nullable NSDictionary *)data
-                                  tableData:(nullable NSArray *)tableData;
+- (instancetype)initWithCustomData:(nullable NSDictionary *)data
+                         tableData:(nullable NSArray *)tableData;
 
 /**
  * @brief Resets the play state for a replay, preserving the recorded replay-judge tables.

@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised view, or @c nil if the GL context could not be created.
  * @ghidraAddress 0x802a8
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame;
+- (instancetype)initWithFrame:(CGRect)frame;
 
 /**
  * @brief Creates the framebuffer, colour renderbuffer, and shared quad index buffer, and configures

@@ -85,7 +85,7 @@ typedef struct {
  * @return The initialised renderer, or @c nil.
  * @ghidraAddress 0xf6b4
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief Loads the textures for a play session. The base implementation does nothing; each concrete

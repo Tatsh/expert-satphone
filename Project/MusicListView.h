@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised list view.
  * @ghidraAddress 0x3b314
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame;
+- (instancetype)initWithFrame:(CGRect)frame;
 
 /**
  * @brief The centre of a tile in a page for a list index.

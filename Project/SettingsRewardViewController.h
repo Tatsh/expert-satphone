@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x20a250
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 @end
 

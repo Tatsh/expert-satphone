@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x152590
  */
-- (nullable instancetype)initWithStyle:(UITableViewStyle)style;
+- (instancetype)initWithStyle:(UITableViewStyle)style;
 
 /**
  * @brief Loads the table view, setting its row height to 42 points and hiding the separators.

@@ -176,7 +176,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0x17b488 */
-- (nullable instancetype)initWithParent:(nullable StoreViewControllerV2 *)parent {
+- (instancetype)initWithParent:(nullable StoreViewControllerV2 *)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;

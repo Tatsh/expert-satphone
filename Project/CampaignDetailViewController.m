@@ -301,8 +301,8 @@ typedef enum : NSInteger {
 }
 
 /** @ghidraAddress 0x1e9924 */
-- (nullable UITableViewCell *)tableView:(nonnull UITableView *)tableView
-                  cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(nonnull UITableView *)tableView
+         cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     if (indexPath.row == CampaignDetailRowCopyright) {
         UITableViewCell *cell =
             [tableView dequeueReusableCellWithIdentifier:kCopyrightCellReuseIdentifier];

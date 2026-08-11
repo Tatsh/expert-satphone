@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised view.
  * @ghidraAddress 0xdb214
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame backEnable:(BOOL)backEnable;
+- (instancetype)initWithFrame:(CGRect)frame backEnable:(BOOL)backEnable;
 
 @end
 

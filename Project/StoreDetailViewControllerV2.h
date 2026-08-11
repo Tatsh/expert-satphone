@@ -121,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0xdc94c
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief Builds the gradient-backed root view, the three tables (tune list, recommended-pack list,

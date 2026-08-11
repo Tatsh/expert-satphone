@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised card, or @c nil.
  * @ghidraAddress 0x15f658
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame;
+- (instancetype)initWithFrame:(CGRect)frame;
 
 /**
  * @brief Builds a difficulty button from a resource image, targeting @c -selectDiff:.

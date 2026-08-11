@@ -80,10 +80,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised tile.
  * @ghidraAddress 0x44528
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame
-                           artworkSize:(double)artworkSize
-                               colType:(int)colType
-                             labelDisp:(BOOL)labelDisp;
+- (instancetype)initWithFrame:(CGRect)frame
+                  artworkSize:(double)artworkSize
+                      colType:(int)colType
+                    labelDisp:(BOOL)labelDisp;
 
 /**
  * @brief The centre point of the artwork image view for the current scale.

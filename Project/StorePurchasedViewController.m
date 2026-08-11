@@ -59,7 +59,7 @@ static const UIViewAnimationOptions kOverlayAnimationOptions =
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0x1b4324 */
-- (nullable instancetype)initWithParent:(nullable StoreViewController *)parent {
+- (instancetype)initWithParent:(nullable StoreViewController *)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;

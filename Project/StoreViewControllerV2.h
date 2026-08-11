@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0xf1ba0
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief Opens the main tab on its startup pack or genre, and the campaign tab on its startup

@@ -116,7 +116,7 @@ extern int KUnzip_ferror_mem_func(voidpf opaque, voidpf stream); // 0x76b34
     unsigned char buffer[kReadBufferSize];
 }
 
-- (nullable instancetype)initWithPath:(nullable NSString *)path {
+- (instancetype)initWithPath:(nullable NSString *)path {
     self = [super init];
     if (self) {
         zipfile = unzOpen(path.UTF8String);
@@ -127,7 +127,7 @@ extern int KUnzip_ferror_mem_func(voidpf opaque, voidpf stream); // 0x76b34
     return self;
 }
 
-- (nullable instancetype)initWithPath:(nullable NSString *)path tail:(NSUInteger)tail {
+- (instancetype)initWithPath:(nullable NSString *)path tail:(NSUInteger)tail {
     NSDictionary<NSFileAttributeKey, id> *attributes =
         [NSFileManager.defaultManager attributesOfItemAtPath:path error:nil];
     NSUInteger fileSize = [attributes[NSFileSize] unsignedIntegerValue];
@@ -155,7 +155,7 @@ extern int KUnzip_ferror_mem_func(voidpf opaque, voidpf stream); // 0x76b34
     return self;
 }
 
-- (nullable instancetype)initWithData:(nullable NSData *)data range:(NSRange)range {
+- (instancetype)initWithData:(nullable NSData *)data range:(NSRange)range {
     if (data == nil || range.location + range.length > data.length) {
         return nil;
     }

@@ -1195,8 +1195,7 @@ done:
     [editHistory removeAllObjects];
 }
 
-- (nullable instancetype)initWithData:(KUnzip *)data
-                         sequenceData:(NSArray<NSNumber *> *)sequenceData {
+- (instancetype)initWithData:(KUnzip *)data sequenceData:(NSArray<NSNumber *> *)sequenceData {
     BFCodec *codec = [[BFCodec alloc] init];
     NSData *key = GetBgmCipherKey();
     [codec cipherInit:key];

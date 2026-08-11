@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x209894
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief Builds the paging scroll view, its two help images, and the page indicator.

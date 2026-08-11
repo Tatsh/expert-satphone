@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller, or @c nil.
  * @ghidraAddress 0x1f8d10
  */
-- (nullable instancetype)initWithSize:(CGSize)size;
+- (instancetype)initWithSize:(CGSize)size;
 
 /**
  * @brief Builds (or dequeues) a menu cell for one of the top-section entries.

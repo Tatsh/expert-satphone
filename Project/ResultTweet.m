@@ -119,7 +119,7 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0xbbf94 */
-- (nullable instancetype)initWithInfo:(Sequence *)info conf:(RendererConf *)conf {
+- (instancetype)initWithInfo:(Sequence *)info conf:(RendererConf *)conf {
     self = [super init];
     if (self) {
         sequenceData = info;

@@ -22,7 +22,7 @@
 // Sequence plays the note chart and reports the per-panel marker state; it is not reconstructed
 // yet. Only the members this view messages are declared here.
 @interface Sequence : NSObject
-- (nullable instancetype)initWithData:(nullable NSData *)data;
+- (instancetype)initWithData:(nullable NSData *)data;
 - (void)reset;
 - (void)seekToTime:(double)time;
 - (void)judge:(unsigned int)btnState btnPress:(unsigned int)btnPress;

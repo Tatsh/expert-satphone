@@ -129,7 +129,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
  * @return The initialised texture, or @c nil if @p image is @c nil or rounds to a zero size.
  * @ghidraAddress 0xdf6c
  */
-- (nullable instancetype)initWithImage:(nullable UIImage *)image;
+- (instancetype)initWithImage:(nullable UIImage *)image;
 
 /**
  * @brief Replaces a sub-rectangle of the texture with an image's pixels.

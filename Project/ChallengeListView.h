@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised view.
  * @ghidraAddress 0x208b30
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame listPosY:(int)listPosY;
+- (instancetype)initWithFrame:(CGRect)frame listPosY:(int)listPosY;
 
 /**
  * @brief Sets the title image.

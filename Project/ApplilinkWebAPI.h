@@ -51,7 +51,7 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
  * @return The initialised instance.
  * @ghidraAddress 0x251250
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief The parameters common to every applilink request.

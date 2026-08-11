@@ -63,7 +63,7 @@ static const int kConfirmButtonIndex = 1;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0x90c58 */
-- (nullable instancetype)initWithParent:(nullable StoreViewController *)parent {
+- (instancetype)initWithParent:(nullable StoreViewController *)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;

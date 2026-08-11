@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x184f48
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief Builds the view hierarchy: the GL view, the jubeat logo, the touch prompt, the copyright

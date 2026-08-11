@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0xd8ccc
  */
-- (nullable instancetype)initWithURL:(nullable NSString *)url;
+- (instancetype)initWithURL:(nullable NSString *)url;
 
 /**
  * @brief Clears the shared URL cache when a load starts.

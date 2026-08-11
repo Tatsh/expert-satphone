@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised controller.
  * @ghidraAddress 0x17b488
  */
-- (nullable instancetype)initWithParent:(nullable StoreViewControllerV2 *)parent;
+- (instancetype)initWithParent:(nullable StoreViewControllerV2 *)parent;
 
 /**
  * @brief Builds the view: a vertical grey gradient behind a pack table, plus (on pad) a rounded

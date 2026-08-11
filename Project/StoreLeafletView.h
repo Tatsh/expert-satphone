@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised view.
  * @ghidraAddress 0x124844
  */
-- (nullable instancetype)initWithFrame:(CGRect)frame;
+- (instancetype)initWithFrame:(CGRect)frame;
 
 /**
  * @brief The number of pack rows the table would show. Always @c 0 as shipped.
@@ -62,8 +62,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return @c nil.
  * @ghidraAddress 0x124ac8
  */
-- (nullable UITableViewCell *)tableView:(UITableView *)tableView
-                  cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
  * @brief The number of sections in the table.

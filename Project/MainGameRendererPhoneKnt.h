@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised renderer, or @c nil.
  * @ghidraAddress 0x189460
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 #pragma mark - Textures
 

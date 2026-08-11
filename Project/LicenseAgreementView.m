@@ -125,7 +125,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 #pragma mark - Initialisation
 
 /** @ghidraAddress 0x1f528c */
-- (nullable instancetype)init:(nullable id)aDelegate keyString:(nullable NSString *)keyString {
+- (instancetype)init:(nullable id)aDelegate keyString:(nullable NSString *)keyString {
     BOOL pad = JubeatAppDelegate.appDelegate.isPad;
     fScale = kPhoneScale;
     _weakCoverView = nil;

@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The initialised renderer, or @c nil.
  * @ghidraAddress 0x1fdf14
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief Releases the session textures, then chains to the superclass deallocation.

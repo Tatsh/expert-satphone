@@ -81,7 +81,7 @@ typedef struct EditSequenceEvent {
  * @return The initialised renderer, or @c nil.
  * @ghidraAddress 0x20b214
  */
-- (nullable instancetype)init;
+- (instancetype)init;
 
 /**
  * @brief Deletes the atlas textures, then chains to the superclass deallocation.
