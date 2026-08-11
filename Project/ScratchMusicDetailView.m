@@ -32,7 +32,6 @@ enum {
 static const int kRankingDigitCount = 6;
 static const int kHighscoreDigitCount = 7;
 static const int kDigitAtlasCount = 10;
-static const int kRatingImageCount = 8;
 
 // The number of music-bar dots and the packed layouts feeding them.
 static const int kMusicBarDotCount = 120;
