@@ -193,6 +193,15 @@ static NSString *const kShareCancelSoundSuffix = @"SKIP";
 // many screen widths off to the left of centre so it slides in from that side.
 static const CGFloat kDetailPanelOffscreenDirection = -4.0; // fmov, -4.0
 
+// A received shared-music payload flips the detail view in over this duration and fades the BGM out
+// over the detail-close fade; the connected/receiving prompts are these localised strings.
+static const NSTimeInterval kShareReceiveFadeInDuration = 0.4; // @ghidraAddress 0x28f2a8
+static NSString *const kShareReceivingMessageKey = @"Receiving music data";
+static NSString *const kShareConnectedMessageFormatKey = @"Connected to %@";
+// A received music-info dictionary carries the ciphered BGM data under this key when the client
+// does not already own the tune.
+static NSString *const kShareMusicInfoIndexKey = @"index";
+
 // Closing the detail view fades the BGM out over this, flips the cover shut over this longer
 // duration, restores the rank backgrounds after this delay and then the name and artist labels,
 // and unlocks interaction after this final delay.
@@ -1208,6 +1217,110 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
         setText:[NSBundle.mainBundle localizedStringForKey:@"Sending music data"
                                                      value:@""
                                                      table:nil]];
+}
+
+/** @ghidraAddress 0x30ba4 */
+- (BOOL)sharePlayManager:(nullable id)manager receiveMusicInfo:(nullable id)musicInfo {
+    TuneInfo *received = [[TuneInfo alloc] initWithfilePath:nil dictionary:musicInfo];
+    // Match the received tune against the local catalogue; when it is present the client already
+    // owns the data and can start immediately.
+    BOOL owned = NO;
+    TuneInfo *tune = received;
+    for (TuneInfo *candidate in arrayAllTune) {
+        if ((unsigned int)candidate.tuneID == received.tuneID) {
+            owned = YES;
+            tune = candidate;
+            break;
+        }
+    }
+    ScoreRecord *record = [ScoreRecord recordForTuneID:tune.tuneID];
+    [musicDetailView setInfo:tune score:record];
+    [musicDetailView loadContentFromDictionary:musicInfo];
+    musicDetailView.coverView.hidden = YES;
+    // Flip the detail view fully around (2*pi) at the cover-flip scale, centred on the cover, so it
+    // faces forward once the animation runs.
+    CGFloat viewerDistance = isPad ? kCoverFlipViewerDistancePad : kCoverFlipViewerDistancePhone;
+    CATransform3D perspective = CATransform3DIdentity;
+    perspective.m34 = kCoverFlipPerspectiveM34;
+    perspective = CATransform3DTranslate(perspective, 0, 0, viewerDistance);
+    CGFloat scale = isPad ? kCoverFlipScalePad : kCoverFlipScalePhone;
+    CATransform3D scaled = CATransform3DScale(perspective, scale, scale, 1.0);
+    musicDetailView.layer.transform = CATransform3DRotate(scaled, g_dTwoPi, 0, 1.0, 0);
+    musicDetailView.center = coverView.center;
+    // Detach the client share view and fade it out, then reveal the detail view over the cover.
+    MusicShareView *shareView = shareClientView;
+    [shareView setController:nil];
+    shareClientView = nil;
+    [UIView animateWithDuration:g_dAnimDuration020
+        animations:^{
+          /** @ghidraAddress 0x316a4 */
+          shareView.alpha = 0.0;
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x316c8 */
+          [shareView removeFromSuperview];
+        }];
+    [self showButtonMarker:YES];
+    [musicDetailView show:YES];
+    musicDetailView.alpha = 0.0;
+    [self.view insertSubview:musicDetailView aboveSubview:coverView];
+    NSData *bgmData = nil;
+    if (!owned) {
+        // The client lacks the tune: disable start, show the receiving-data progress prompt.
+        [musicDetailView.buttonStartPlay setEnabled:NO];
+        [musicDetailView setIsSharedStartable:NO];
+        bgmData = musicInfo[kShareMusicInfoIndexKey];
+        musicDetailView.labelShareMessage.text =
+            [NSBundle.mainBundle localizedStringForKey:kShareReceivingMessageKey
+                                                 value:@""
+                                                 table:nil];
+        [musicDetailView showDataProgress:YES animated:NO];
+    } else {
+        // The client owns the tune: enable start, decode its BGM, and show the connected prompt.
+        [musicDetailView.buttonStartPlay setEnabled:YES];
+        [musicDetailView setIsSharedStartable:YES];
+        [musicDetailView setStartButtonEnable];
+        KUnzip *archive = [[KUnzip alloc] initWithPath:tune.filePath tail:kTuneInfoArchiveTail];
+        NSMutableData *bgm = archive != nil ? [archive uncompress:kTuneBgmEntryName] : nil;
+        if (bgm != nil) {
+            BFCodec *codec = [[BFCodec alloc] init];
+            [codec cipherInit:GetBgmCipherKey()];
+            [codec decipher:bgm];
+        }
+        bgmData = bgm;
+        NSString *connected =
+            [NSString stringWithFormat:[NSBundle.mainBundle
+                                           localizedStringForKey:kShareConnectedMessageFormatKey
+                                                           value:@""
+                                                           table:nil],
+                                       self.sharePlayManager.partnerScreenName];
+        musicDetailView.labelShareMessage.text = connected;
+        [musicDetailView showDataProgress:NO animated:NO];
+    }
+    if (bgmData != nil) {
+        [[AudioManager sharedManager] fadeoutBgm:kDetailCloseBgmFadeOut];
+    }
+    __weak MusicDetailView *weakDetail = musicDetailView;
+    [UIView animateWithDuration:kShareReceiveFadeInDuration
+        delay:g_dAnimDuration020
+        options:UIViewAnimationOptionCurveLinear
+        animations:^{
+          /** @ghidraAddress 0x316e8 */
+          weakDetail.alpha = 1.0;
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x31734 */
+          if (bgmData != nil) {
+              [[AudioManager sharedManager] pushBgm];
+              [[AudioManager sharedManager] loadBgmData:bgmData];
+              [[AudioManager sharedManager] startBgm:YES fadeTime:0.0];
+          }
+        }];
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kDetailCloseRankBgDelay];
+    return owned;
 }
 
 #pragma mark - BGM
