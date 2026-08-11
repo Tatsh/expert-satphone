@@ -17,12 +17,11 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol AlertViewManagerDelegate;
-@protocol DownloaderDelegate;
-@protocol StoreDialogViewDelegate;
-@protocol StoreDownloadManagerDelegate;
+#import "AlertViewManager.h"
+#import "Downloader.h"
+#import "StoreDialogView.h"
+#import "StoreDownloadManager.h"
 
-@class StoreDownloadManager;
 @class StoreViewController;
 
 NS_ASSUME_NONNULL_BEGIN

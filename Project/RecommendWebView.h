@@ -22,10 +22,11 @@
 
 #import <UIKit/UIKit.h>
 
+#import "ApplilinkViewDelegate.h"
+
 @class ApplilinkParameters;
 @class RecommendAdAreaView;
 @class RecommendAdWebView;
-@protocol ApplilinkViewDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 

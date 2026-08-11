@@ -14,10 +14,10 @@
 #import <UIKit/UIKit.h>
 
 #import "ApplilinkParameters.h"
+#import "ApplilinkViewDelegate.h"
 
 @class RecommendFullScreenController;
 @class RecommendWebViewController;
-@protocol ApplilinkViewDelegate;
 @protocol InterstitiaViewDelegate;
 
 NS_ASSUME_NONNULL_BEGIN

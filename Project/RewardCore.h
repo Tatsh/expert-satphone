@@ -23,9 +23,10 @@
 
 #import <UIKit/UIKit.h>
 
+#import "ApplilinkViewDelegate.h"
+
 @class ApplilinkParameters;
 @class RewardWebViewController;
-@protocol ApplilinkViewDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 

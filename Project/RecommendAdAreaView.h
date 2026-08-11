@@ -23,8 +23,7 @@
 #import <UIKit/UIKit.h>
 
 #import "ApplilinkStore.h"
-
-@protocol ApplilinkViewDelegate;
+#import "ApplilinkViewDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

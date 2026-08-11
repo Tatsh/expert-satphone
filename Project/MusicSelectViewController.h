@@ -15,6 +15,12 @@
 #import <GameKit/GameKit.h>
 #import <UIKit/UIKit.h>
 
+#import "MusicListView.h"
+#import "MusicPlaylistViewController.h"
+#import "MusicView.h"
+#import "PurchaseManager.h"
+#import "SharePlayManager.h"
+
 @class BalloonView;
 @class ChallengeModeRootView;
 @class Downloader;
@@ -24,25 +30,15 @@
 @class JcfUpLoadView;
 @class MarkerSelectView;
 @class MusicDetailView;
-@class MusicListView;
 @class MusicPlaylistManager;
-@class MusicPlaylistViewController;
 @class MusicSelectBottomView;
 @class MusicShareView;
-@class MusicView;
 @class NotificationPageNavController;
 @class PushNotificationView;
 @class RotatableNavigationController;
 @class SessionDownloader;
 @class SettingsNavController;
-@class SharePlayManager;
 @class StoreDialogView;
-
-@protocol MusicViewDelegate;
-@protocol MusicListViewDelegate;
-@protocol MusicPlaylistViewControllerDelegate;
-@protocol SharePlayManagerDelegate;
-@protocol PurchaseManagerDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -19,7 +19,7 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol ApplilinkViewDelegate;
+#import "ApplilinkViewDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
