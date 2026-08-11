@@ -72,6 +72,10 @@ static NSString *const kPrefExtendTutorialFinishKey = @"PrefExtendTutorialFinish
 static const CGFloat kExtendTutorialArtworkScalePad = 3.75;  // fmov, 3.75
 static const CGFloat kExtendTutorialArtworkScalePhone = 4.0; // fmov, 4.0
 static const int kEditSelectActive = 1;
+// Opening a tune's detail panel plays this cue and fades the extend tutorial overlay in over this
+// duration.
+static NSString *const kMusicSelectDetailSoundSuffix = @"MUSIC_SELECT";
+static const NSTimeInterval kExtendTutorialShowDuration = 0.2; // @ghidraAddress 0x28e040
 // g_anExtendTutorialOffsetByThemeAndDevice at 0x28f3d0: [theme][isPad ? 0 : 1] (indexed isPad ^ 1).
 static const int kExtendTutorialInsetByThemeAndDevice[][2] = {
     {14, 8},  // original: pad, phone
@@ -2459,6 +2463,169 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
               appendCoverView = nil;
           }
         }];
+}
+
+/** @ghidraAddress 0x2af98 */
+- (void)musicViewTapped:(nullable id)view {
+    MusicView *musicView = view;
+    searchBox.text = [NSString stringWithString:backUpString];
+    [searchBox resignFirstResponder];
+    [self setSearchEnable:NO];
+    if (selectedMusicView != nil) {
+        return;
+    }
+    selectedMusicView = musicView;
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+    [[AudioManager sharedManager] playSeResFile:[self soundName:kMusicSelectDetailSoundSuffix]
+                                    inDirectory:nil];
+    [musicListView hideAllPlaylistAction];
+    coverView.hidden = NO;
+    coverView.alpha = 1.0;
+    musicDetailView.alpha = 1.0;
+    musicDetailView.coverView.hidden = YES;
+    // Lift the tapped tile's artwork out of the tile and onto the controller's view at the same
+    // screen point, then flip it and the detail view onto the cover with the shared cover-flip
+    // pose.
+    UIImageView *artwork = musicView.imgView;
+    artwork.userInteractionEnabled = NO;
+    artwork.center = [musicView convertPoint:musicView.imgView.center toView:self.view];
+    [artwork removeFromSuperview];
+    [self.view addSubview:artwork];
+    CGFloat scale = isPad ? kCoverFlipScalePad : kCoverFlipScalePhone;
+    CATransform3D perspective = CATransform3DIdentity;
+    perspective.m34 = kCoverFlipPerspectiveM34;
+    CATransform3D scaled = CATransform3DScale(perspective, scale, scale, 1.0);
+    musicDetailView.center = artwork.center;
+    musicDetailView.layer.transform = CATransform3DRotate(scaled, g_dPi, 0, 1.0, 0);
+    ScoreRecord *record = [ScoreRecord recordForTuneID:musicView.tuneInfo.tuneID];
+    [musicDetailView setInfo:musicView.tuneInfo score:record];
+    TuneInfo *tune = musicView.tuneInfo;
+    BOOL hasExtend = NO;
+    if (tune.extendID != 0 && [StoreUtil existMusicFile:(int)tune.extendID]) {
+        hasExtend = YES;
+        TuneInfo *extend = dictAllExtendTune[@(tune.extendID)];
+        ScoreRecord *extendRecord = [ScoreRecord recordForTuneID:tune.extendID];
+        [musicDetailView setExtendInfo:extend score:extendRecord];
+        if (![NSUserDefaults.standardUserDefaults boolForKey:kPrefExtendTutorialFinishKey]) {
+            if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey] ==
+                kEditSelectActive) {
+                [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefEditSelectKey];
+            }
+            NSInteger difficulty =
+                [NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+            if ((extend.extendFlag & (1u << ((unsigned int)difficulty & 0x1f))) == 0) {
+                // No extend chart for this difficulty: the binary reads the flag three more times
+                // and discards each. Kept for fidelity.
+                (void)extend.extendFlag;
+                (void)extend.extendFlag;
+                (void)extend.extendFlag;
+            } else if ((int)difficulty >= 0) {
+                extendTutorialView.alpha = 0.0;
+                [NSUserDefaults.standardUserDefaults setInteger:difficulty
+                                                         forKey:kPrefDifficultyKey];
+                [self.view addSubview:extendTutorialView];
+            }
+        }
+    } else {
+        [musicDetailView setExtendInfo:nil score:nil];
+    }
+    [musicDetailView show:NO];
+    [self.view insertSubview:musicDetailView aboveSubview:coverView];
+    [[AudioManager sharedManager] fadeoutBgm:kDetailCloseBgmFadeOut];
+    __weak UIView *weakCover = coverView;
+    __weak MusicDetailView *weakDetail = musicDetailView;
+    __weak MusicView *weakSelected = musicView;
+    __weak UIImageView *weakArtwork = musicView.imgView;
+    __weak UIView *weakTutorial = extendTutorialView;
+    CGFloat listAlpha = [musicListView getMusicListAlpha];
+    musicView.imgView.alpha = listAlpha;
+    musicDetailView.alpha = listAlpha;
+    [UIView animateWithDuration:kDetailCloseFlipDuration
+        delay:0.0
+        options:UIViewAnimationOptionCurveLinear
+        animations:^{
+          /** @ghidraAddress 0x2bc9c */
+          CGFloat innerScale = isPad ? kCoverFlipScalePad : kCoverFlipScalePhone;
+          CGFloat viewerDistance =
+              isPad ? kCoverFlipViewerDistancePad : kCoverFlipViewerDistancePhone;
+          CATransform3D flip = CATransform3DIdentity;
+          flip.m34 = kCoverFlipPerspectiveM34;
+          flip = CATransform3DTranslate(flip, 0, 0, viewerDistance);
+          weakArtwork.alpha = 1.0;
+          weakArtwork.center = weakSelected.center;
+          weakArtwork.layer.transform = CATransform3DRotate(flip, g_dPi, 0, -1.0, 0);
+          CATransform3D scaledFlip = CATransform3DScale(flip, innerScale, innerScale, 1.0);
+          weakDetail.center = weakSelected.center;
+          weakDetail.layer.transform = CATransform3DRotate(scaledFlip, g_dTwoPi, 0, 1.0, 0);
+          weakCover.alpha = 1.0;
+          weakDetail.alpha = 1.0;
+        }
+        completion:^(BOOL finished) {
+          /** @ghidraAddress 0x2c0b0 */
+          if (hasExtend &&
+              ![NSUserDefaults.standardUserDefaults boolForKey:kPrefExtendTutorialFinishKey]) {
+              weakSelected.hidden = YES;
+              NSInteger difficulty =
+                  [NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+              weakTutorial.hidden = NO;
+              CGFloat side = musicListView.artworkSize * (isPad ? kExtendTutorialArtworkScalePad :
+                                                                  kExtendTutorialArtworkScalePhone);
+              CGRect bounds = self.view.bounds;
+              int originX = (int)((bounds.size.width - side) * 0.5);
+              int originY = (int)((bounds.size.height - side) * 0.5);
+              CGPoint pos = [musicDetailView getDifficultyPos:(int)difficulty];
+              JubeatTheme theme = JubeatAppDelegate.appDelegate.currentTheme;
+              int inset = kExtendTutorialInsetByThemeAndDevice[theme][isPad ? 0 : 1];
+              CGRect frame = extendTutorialFrame.frame;
+              extendTutorialFrame.frame = CGRectMake((double)originX + pos.x - inset,
+                                                     (double)originY + pos.y - inset,
+                                                     frame.size.width,
+                                                     frame.size.height);
+              [UIView animateWithDuration:kExtendTutorialShowDuration
+                               animations:^{
+                                 /** @ghidraAddress 0x2c5f8 */
+                                 weakTutorial.alpha = 1.0;
+                                 [NSUserDefaults.standardUserDefaults
+                                     setBool:YES
+                                      forKey:kPrefExtendTutorialFinishKey];
+                               }];
+          }
+          // Decode and start the tune's own BGM under the pushed menu BGM.
+          [[AudioManager sharedManager] pushBgm];
+          KUnzip *archive = [[KUnzip alloc] initWithPath:weakSelected.tuneInfo.filePath
+                                                    tail:kTuneInfoArchiveTail];
+          NSMutableData *bgm = archive != nil ? [archive uncompress:kTuneBgmEntryName] : nil;
+          if (bgm != nil) {
+              BFCodec *codec = [[BFCodec alloc] init];
+              [codec cipherInit:GetBgmCipherKey()];
+              [codec decipher:bgm];
+              [[AudioManager sharedManager] loadBgmData:bgm];
+              [[AudioManager sharedManager] startBgm:YES fadeTime:0.0];
+          }
+        }];
+    // The rank backgrounds fade out and the name/artist labels hide alongside the flip.
+    [UIView animateWithDuration:kDetailCloseRankBgDuration
+                     animations:^{
+                       /** @ghidraAddress 0x2c700 */
+                       weakSelected.rankBgBas.alpha = 0.0;
+                       weakSelected.rankBgAdv.alpha = 0.0;
+                       weakSelected.rankBgExt.alpha = 0.0;
+                       for (UIView *chip in weakSelected.rankBgChipArray) {
+                           chip.alpha = 0.0;
+                       }
+                       weakSelected.adRankBgBas.alpha = 0.0;
+                       weakSelected.adRankBgAdv.alpha = 0.0;
+                       weakSelected.adRankBgExt.alpha = 0.0;
+                     }];
+    [UIView animateWithDuration:kDetailCloseLabelDuration
+                     animations:^{
+                       /** @ghidraAddress 0x2c9d4 */
+                       [weakSelected showNameAndArtist:NO];
+                     }];
+    [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                            withObject:nil
+                                            afterDelay:kDetailCloseUnlockDelay];
+    bOpenMusicDetail = YES;
 }
 
 /** @ghidraAddress 0x2d5e8 */

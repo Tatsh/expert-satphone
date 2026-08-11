@@ -868,3 +868,8 @@
 0x316c8	(^void)(BOOL)
 0x316e8	(^void)(void)
 0x31734	(^void)(BOOL)
+0x2bc9c	(^void)(void)
+0x2c0b0	(^void)(BOOL)
+0x2c5f8	(^void)(void)
+0x2c700	(^void)(void)
+0x2c9d4	(^void)(void)
