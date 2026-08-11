@@ -135,6 +135,10 @@ static const CGFloat kJoinViewHeightPhone = 360.0;       // @ghidraAddress 0x28f
 static const NSTimeInterval kJoinViewFadeDuration = 0.2; // @ghidraAddress 0x28e040
 static NSString *const kJoinSoundSuffix = @"MUSIC_SELECT";
 
+// When the last-played tune sits on an earlier page, the stand-in detail music view is parked this
+// many screen widths off to the left of centre so it slides in from that side.
+static const CGFloat kDetailPanelOffscreenDirection = -4.0; // fmov, -4.0
+
 // The custom-BGM archive member (ciphered with the BGM key, skipping the 16-byte trailer), the
 // default menu BGM resource suffix, and the store-balloon animation key.
 static NSString *const kCustomBgmEntryName = @"bgm";
@@ -1843,6 +1847,41 @@ static BOOL MusicSelectTuneIsHold(MusicSelectViewController *self, TuneInfo *tun
     bOpenInfo = YES;
     bOpenModal = YES;
     [[AudioManager sharedManager] playSeResFile:kNotificationOpenSound inDirectory:nil];
+}
+
+/** @ghidraAddress 0x34040 */
+- (void)startOpenDetailPanel {
+    if (notificationView.isActive) {
+        [notificationView stopNotification];
+    }
+    int lastPlayedID =
+        (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefLastPlayedIDKey];
+    MusicView *musicView = [musicListView getMusicView:lastPlayedID];
+    if (musicView != nil) {
+        // The last-played tune is on the current page; open its detail panel directly.
+        [self musicViewTapped:musicView];
+        return;
+    }
+    // The last-played tune is off-page: find its index in the full tune list, work out which page
+    // that is, and open a stand-in music view sliding in from whichever side that page lies on.
+    int currentPage = [musicListView getCurrentPage];
+    TuneInfo *foundTune = nil;
+    int tunePage = 0;
+    int index = 0;
+    for (TuneInfo *tune in arrayAllTune) {
+        if (tune.tuneID == lastPlayedID) {
+            foundTune = tune;
+            int viewsPerPage = [musicListView currentViewsPerPage];
+            tunePage = viewsPerPage != 0 ? index / viewsPerPage : 0;
+            break;
+        }
+        ++index;
+    }
+    CGFloat width = self.view.frame.size.width;
+    CGFloat direction = tunePage > currentPage ? 1.0 : kDetailPanelOffscreenDirection;
+    farOpenMusicView.center = CGPointMake(width * 0.5 + direction * width, width * 0.5);
+    [farOpenMusicView setInfo:foundTune];
+    [self musicViewTapped:farOpenMusicView];
 }
 
 /** @ghidraAddress 0x338c0 */
