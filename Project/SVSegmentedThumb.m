@@ -44,15 +44,15 @@ static const CGFloat kThumbSelectedAlpha = 0.8; // @ghidraAddress 0x28e060
 @synthesize backgroundImage = backgroundImage;
 @synthesize highlightedBackgroundImage = highlightedBackgroundImage;
 @synthesize tintColor = tintColor;
-@synthesize textColor = textColor;
-@synthesize textShadowColor = textShadowColor;
-@synthesize textShadowOffset = textShadowOffset;
-@synthesize shouldCastShadow = shouldCastShadow;
+@dynamic textColor;
+@dynamic textShadowColor;
+@dynamic textShadowOffset;
+@dynamic shouldCastShadow;
 @synthesize selected = selected;
 @synthesize shadowColor = shadowColor;
 @synthesize shadowOffset = shadowOffset;
 @synthesize castsShadow = castsShadow;
-@synthesize font = font;
+@dynamic font;
 @synthesize label = label;
 @synthesize secondLabel = secondLabel;
 
