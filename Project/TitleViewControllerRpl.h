@@ -7,8 +7,8 @@
  * The superclass is @c TitleViewController , from the dyld bind at the class object's superclass
  * slot (0x348a70 + 8) and confirmed by the super calls at 0x13d140, 0x13ff9c, and 0x13fea0.
  *
- * The class is complete: all twenty-four hand-written members are recovered. The ripple background
- * built by @c -addRippleLayers is still a stub; see the STATUS tables.
+ * The class is complete: all twenty-four hand-written members are recovered, including the ripple
+ * background built by @c -addRippleLayers .
  */
 
 #import <UIKit/UIKit.h>

@@ -9,6 +9,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [unreleased]
 
+### Added
+
+- Animated ripple background on the title screen's ripples (Rpl) theme.
+  `-[TitleViewControllerRpl addRippleLayers]` was a stub, so only the static sky and reflection
+  gradients were drawn; it now builds the forty drifting ripple sprites and their dimmed mirrored
+  copies below the horizon.
+
 ### Fixed
 
 - Low-resolution app icon on installation. `CFBundleIconFiles` listed only the 29x29 `icon.png`

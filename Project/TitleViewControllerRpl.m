@@ -88,6 +88,51 @@ static const CGFloat kTouchCenterYFraction = 0.55;
 static const CGFloat kCopyrightBottomInsetPhone = 40.0;
 static const CGFloat kCopyrightBottomInsetPad = 120.0;
 
+// The forty ripple sprites drawn over the sky, each mirrored once below the horizon. Every layer
+// picks one of four source frames at random (CFString 0x2dd520); the mirrored copy reuses it.
+static const int kRippleLayerCount = 40;
+static const int kRippleFrameCount = 4;
+static NSString *const kRippleFrameNameFormat = @"title_rip_%d";
+// The animation key paths and the keys they are added under (CFStrings 0x2dd540, 0x2dd560,
+// 0x2dd580, 0x2dd5a0).
+static NSString *const kRipplePositionXKeyPath = @"position.x";
+static NSString *const kRipplePositionYKeyPath = @"position.y";
+static NSString *const kRippleAnimationXKey = @"animX";
+static NSString *const kRippleAnimationYKey = @"animY";
+// Each sprite drifts from off the right edge (pooled floats 0x292eb0 phone, 0x292eb4 pad) to just
+// past the left one (an fmov immediate on phone, pooled 0x292ed8 on pad), forever (0x292edc).
+static const float kRippleStartXPhone = 350.0f;
+static const float kRippleStartXPad = 832.0f;
+static const float kRippleEndXPhone = -30.0f;
+static const float kRippleEndXPad = -64.0f;
+static const float kRippleRepeatCount = 1e38f;
+// The sprite is scaled to a random 1/256ths of the source image (pooled float 0x292a90).
+static const float kRippleSizeScale = 0.00390625f;
+static const unsigned int kRippleSizeRangePhone = 128;
+static const unsigned int kRippleSizeMinPhone = 96;
+static const unsigned int kRippleSizeRangePad = 192;
+static const unsigned int kRippleSizeMinPad = 128;
+// The sky band each sprite sits in: from the minimum y down to the horizon less the top margin.
+static const int kRippleTopMarginPhone = 50;
+static const int kRippleTopMarginPad = 120;
+static const int kRippleMinYPhone = 20;
+static const int kRippleMinYPad = 50;
+// How far a sprite bobs either side of its resting y.
+static const unsigned int kRippleAmplitudeRangePhone = 12;
+static const unsigned int kRippleAmplitudeMinPhone = 8;
+static const unsigned int kRippleAmplitudeRangePad = 30;
+static const unsigned int kRippleAmplitudeMinPad = 20;
+// The drift durations in seconds, each started at a random phase offset within itself so the forty
+// sprites do not move in step.
+static const unsigned int kRippleDriftXDurationRange = 50;
+static const unsigned int kRippleDriftXDurationMin = 20;
+static const unsigned int kRippleDriftYDurationRange = 10;
+static const unsigned int kRippleDriftYDurationMin = 5;
+// The mirrored copy sits the reflection gap below the doubled horizon, at 40% opacity (0x28f3b4).
+static const CGFloat kRippleReflectionGapPhone = 4.0;
+static const CGFloat kRippleReflectionGapPad = 10.0;
+static const float kRippleReflectionOpacity = 0.4f;
+
 /** @ghidraAddress 0x13d140 */
 - (instancetype)init {
     self = [super init];
@@ -175,15 +220,117 @@ static const CGFloat kCopyrightBottomInsetPad = 120.0;
     [self.view addSubview:view];
 }
 
+// One ripple sprite: a layer scaled to a random fraction of its source frame and parked at the
+// off-screen start x. Only the mirrored copy below the horizon is dimmed.
+static inline CALayer *
+MakeRippleLayer(UIImage *image, CGFloat scale, CGPoint position, BOOL reflected) {
+    CALayer *layer = CALayer.layer;
+    CGSize size = image.size;
+    layer.bounds = CGRectMake(0.0, 0.0, scale * size.width, scale * size.height);
+    if (reflected) {
+        layer.opacity = kRippleReflectionOpacity;
+    }
+    layer.position = position;
+    layer.contents = (__bridge id)image.CGImage;
+    return layer;
+}
+
+// The horizontal drift: a constant-rate sweep across the screen that never reverses and carries no
+// timing function.
+static inline CABasicAnimation *
+MakeRippleDriftX(float fromX, float toX, NSTimeInterval duration, NSTimeInterval timeOffset) {
+    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:kRipplePositionXKeyPath];
+    anim.duration = duration;
+    anim.timeOffset = timeOffset;
+    anim.autoreverses = NO;
+    anim.repeatCount = kRippleRepeatCount;
+    anim.fromValue = @(fromX);
+    anim.toValue = @(toX);
+    anim.removedOnCompletion = NO;
+    return anim;
+}
+
+// The vertical bob: an eased swing about the sprite's resting y that reverses on every repeat.
+static inline CABasicAnimation *
+MakeRippleDriftY(double fromY, double toY, NSTimeInterval duration, NSTimeInterval timeOffset) {
+    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:kRipplePositionYKeyPath];
+    anim.timingFunction =
+        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    anim.duration = duration;
+    anim.timeOffset = timeOffset;
+    anim.autoreverses = YES;
+    anim.repeatCount = kRippleRepeatCount;
+    anim.fromValue = @(fromY);
+    anim.toValue = @(toY);
+    anim.removedOnCompletion = NO;
+    return anim;
+}
+
 /** @ghidraAddress 0x13d250 */
 - (void)addRippleLayers {
-    // Rpl-only: forty ripple sprites drift up the sky and forty mirrored copies drift down the
-    // reflection below the horizon, each with a forever-repeating position.x/position.y pair. The
-    // four source frames are title_rip_0..3 (0x13d2e0), picked at random per layer. The per-layer
-    // random ranges, positions, and the two animations' from/to/duration/timeOffset values are
-    // aliased in the decompile and must be transcribed from the disassembly at 0x13d250 before this
-    // is filled in; leaving it a stub for now keeps the sky and reflection gradients (built in
-    // -loadView) as the visible background rather than shipping a mis-derived animation.
+    UIImage *frames[kRippleFrameCount];
+    for (int i = 0; i < kRippleFrameCount; ++i) {
+        frames[i] = LoadScaledPngImage([NSString stringWithFormat:kRippleFrameNameFormat, i]);
+    }
+    const float startX = isPad ? kRippleStartXPad : kRippleStartXPhone;
+    const float endX = isPad ? kRippleEndXPad : kRippleEndXPhone;
+    CALayer *rippleLayers[kRippleLayerCount];
+    CALayer *reflectedLayers[kRippleLayerCount];
+    for (int i = 0; i < kRippleLayerCount; ++i) {
+        UIImage *image = frames[arc4random() & (kRippleFrameCount - 1)];
+        unsigned int baseY;
+        unsigned int amplitude;
+        unsigned int sizePercent;
+        if (isPad) {
+            baseY = arc4random() % (unsigned int)(yHorizon - kRippleTopMarginPad) + kRippleMinYPad;
+            amplitude = arc4random() % kRippleAmplitudeRangePad + kRippleAmplitudeMinPad;
+            sizePercent = arc4random() % kRippleSizeRangePad + kRippleSizeMinPad;
+        } else {
+            baseY =
+                arc4random() % (unsigned int)(yHorizon - kRippleTopMarginPhone) + kRippleMinYPhone;
+            amplitude = arc4random() % kRippleAmplitudeRangePhone + kRippleAmplitudeMinPhone;
+            sizePercent = arc4random() % kRippleSizeRangePhone + kRippleSizeMinPhone;
+        }
+        // The binary scales in single precision and only widens afterwards.
+        CGFloat scale = (float)sizePercent * kRippleSizeScale;
+        unsigned int xDuration =
+            arc4random() % kRippleDriftXDurationRange + kRippleDriftXDurationMin;
+        unsigned int yDuration =
+            arc4random() % kRippleDriftYDurationRange + kRippleDriftYDurationMin;
+        unsigned int xTimeOffset = arc4random() % xDuration;
+        unsigned int yTimeOffset = arc4random() % yDuration;
+
+        // The sky copy starts below its resting y and swings up through it.
+        CGFloat skyY = (CGFloat)amplitude + (CGFloat)baseY;
+        CALayer *skyLayer = MakeRippleLayer(image, scale, CGPointMake(startX, skyY), NO);
+        [skyLayer addAnimation:MakeRippleDriftX(startX, endX, xDuration, xTimeOffset)
+                        forKey:kRippleAnimationXKey];
+        [skyLayer
+            addAnimation:MakeRippleDriftY(
+                             skyY, (CGFloat)baseY - (CGFloat)amplitude, yDuration, yTimeOffset)
+                  forKey:kRippleAnimationYKey];
+        [self.view.layer insertSublayer:skyLayer below:jubeatLogoView.layer];
+        rippleLayers[i] = skyLayer;
+
+        // The reflected copy hangs as far below the horizon as the sky copy sits above it, less a
+        // small gap, and swings the opposite way so the pair meet at the waterline.
+        CGFloat mirroredY = (CGFloat)(yHorizon * 2) - (CGFloat)baseY -
+                            (isPad ? kRippleReflectionGapPad : kRippleReflectionGapPhone);
+        CGFloat reflectedY = mirroredY - (CGFloat)amplitude;
+        CALayer *reflectedLayer =
+            MakeRippleLayer(image, scale, CGPointMake(startX, reflectedY), YES);
+        [reflectedLayer addAnimation:MakeRippleDriftX(startX, endX, xDuration, xTimeOffset)
+                              forKey:kRippleAnimationXKey];
+        [reflectedLayer
+            addAnimation:MakeRippleDriftY(
+                             reflectedY, (CGFloat)amplitude + mirroredY, yDuration, yTimeOffset)
+                  forKey:kRippleAnimationYKey];
+        [self.view.layer insertSublayer:reflectedLayer below:jubeatLogoView.layer];
+        reflectedLayers[i] = reflectedLayer;
+    }
+    arrayRippleLayer = [NSArray arrayWithObjects:(const id *)rippleLayers count:kRippleLayerCount];
+    arrayReflectedRippleLayer = [NSArray arrayWithObjects:(const id *)reflectedLayers
+                                                    count:kRippleLayerCount];
 }
 
 /** @ghidraAddress 0x13e918 */
@@ -402,7 +549,7 @@ static const CGFloat kCopyrightBottomInsetPad = 120.0;
     [AudioManager.sharedManager playSeResFile:kKonamiRevealSeName inDirectory:nil];
     // The scale-bounce transform applied to the logo and every ripple layer is a decorative cheat
     // effect; its animation is not reconstructed here and, unlike -nextScene, it does not leave the
-    // title. The ripple-layer loops depend on -addRippleLayers, which is still a stub.
+    // title. The layers it walks are the two arrays -addRippleLayers fills.
 }
 
 // The start flow shared by an ordinary tap and a completed Konami sequence, de-inlined from the
