@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The applilink recommend-advert web-view container.
  */
-@interface RecommendWebView : UIView
+@interface RecommendWebView : UIView <ApplilinkViewDelegate>
 
 /**
  * @brief The loading activity indicator overlaid while the advert loads.

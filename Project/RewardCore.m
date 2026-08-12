@@ -759,7 +759,9 @@ static dispatch_queue_t gRewardCoreQueue;
     if (segments.count == 0) {
         return kRedirectResultNotHandled;
     }
-    if ([ApplilinkCore showAppStoreId:storeId appParam:nil delegate:self]) {
+    // RewardCore is handed to the store view as its delegate even though it implements none of the
+    // all-optional SdkViewDelegate methods; the binary passes the raw self pointer here.
+    if ([ApplilinkCore showAppStoreId:storeId appParam:nil delegate:(id<SdkViewDelegate>)self]) {
         return kRedirectResultStoreShown;
     }
     NSString *first = [NSStringURLEncoding URLDecodedString:segments[0]];
