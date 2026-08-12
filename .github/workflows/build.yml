@@ -42,6 +42,7 @@ jobs:
             -DIOS_ARCHS="$IOS_ARCHS"
             -DPLATFORM=OS64
             -DENABLE_PATCHES=ON
+            -DJBDBG=ON
           )
           [ -n "$RESOURCES_DIR" ] && CMAKE_ARGS+=( -DRESOURCES_DIR="$RESOURCES_DIR" )
           cmake "${CMAKE_ARGS[@]}"
