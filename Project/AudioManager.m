@@ -210,13 +210,17 @@ static const NSInteger kBgmLoopForever = 2000000000;
     fadeDuration = 0.0;
     fadeInterval = fadeTime;
 
-    fadeTimer = [NSTimer timerWithTimeInterval:kFadeTickInterval
-                                        target:self
-                                      selector:@selector(onFadeinTimer:)
-                                      userInfo:nil
-                                       repeats:YES];
+    // Held strongly across scheduling (the binary's objc_retainAutoreleasedReturnValue into a
+    // local, released only at the end): fadeTimer is weak, so without this the autoreleased timer
+    // would be gone before it is added to the run loop, which then takes ownership.
+    NSTimer *timer = [NSTimer timerWithTimeInterval:kFadeTickInterval
+                                             target:self
+                                           selector:@selector(onFadeinTimer:)
+                                           userInfo:nil
+                                            repeats:YES];
+    fadeTimer = timer;
     [_bgmPlayer play];
-    [NSRunLoop.currentRunLoop addTimer:fadeTimer forMode:NSRunLoopCommonModes];
+    [NSRunLoop.currentRunLoop addTimer:timer forMode:NSRunLoopCommonModes];
 }
 
 /** @ghidraAddress 0x78690 */
@@ -289,12 +293,15 @@ static const NSInteger kBgmLoopForever = 2000000000;
     fadeInOrOut = NO;
     fadeDuration = 0.0;
     fadeInterval = fadeTime;
-    fadeTimer = [NSTimer timerWithTimeInterval:kFadeTickInterval
-                                        target:self
-                                      selector:@selector(onFadeoutTimer:)
-                                      userInfo:nil
-                                       repeats:YES];
-    [NSRunLoop.currentRunLoop addTimer:fadeTimer forMode:NSRunLoopCommonModes];
+    // Held strongly across scheduling (see -fadeinBgm:): the weak fadeTimer would otherwise let the
+    // autoreleased timer deallocate before the run loop takes ownership, faulting in addTimer:.
+    NSTimer *timer = [NSTimer timerWithTimeInterval:kFadeTickInterval
+                                             target:self
+                                           selector:@selector(onFadeoutTimer:)
+                                           userInfo:nil
+                                            repeats:YES];
+    fadeTimer = timer;
+    [NSRunLoop.currentRunLoop addTimer:timer forMode:NSRunLoopCommonModes];
 }
 
 /** @ghidraAddress 0x78b6c */
