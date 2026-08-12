@@ -139,7 +139,7 @@ discards this call's result.`). Do not write an extensive explanation.
   decompile reads like normal C++ — the full signature, every local, the return, every global, and
   every struct it reads or writes (per the rules above); (3) if the routine shows any hint of NEON /
   vectorisation, from that point work the disassembly only; (4) write the reconstruction into
-  `rbplus-src/`; (5) verify the reconstruction against the disassembly. It is slow but accurate, and
+  `Project/`; (5) verify the reconstruction against the disassembly. It is slow but accurate, and
   it is a long task. Do not begin writing the equivalent code until the routine is well-typed.
   `InitializeBackgroundSceneNodes` is the reference example of the target state: it has been fully
   typed in Ghidra (real `this`/struct types, named struct fields, no `in_*`, no `pnVar1`/`lVar2`
