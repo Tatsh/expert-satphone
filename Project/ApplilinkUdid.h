@@ -6,8 +6,7 @@
  * is not visible to static analysis), reports the advertising-tracking permission, generates and
  * hashes UDIDs, and persists them both in the iOS keychain (through the @c Security framework's
  * @c SecItem C API) and in a shared @c ApplilinkPasteBoard. It is a lazily-created singleton whose
- * @c +sharedInstance owns a serial dispatch queue and one @c ApplilinkPasteBoard. This is the same
- * closed SDK class the sibling @c ../rbplus-src tree reconstructs.
+ * @c +sharedInstance owns a serial dispatch queue and one @c ApplilinkPasteBoard.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The class object is at 0x352668.

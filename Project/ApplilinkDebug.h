@@ -6,8 +6,7 @@
  * — identity and configuration values, the recommend frequency and display-spec state, and the
  * debug reset actions. The concrete work lives in @c ApplilinkConsts , @c ApplilinkCore ,
  * @c RewardCore , @c RecommendCore , @c AnalysisNetworkCore , @c RecommendAdCache , and
- * @c RecommendDebug . This is the same closed SDK class the sibling @c ../rbplus-src tree
- * reconstructs.
+ * @c RecommendDebug .
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The class object is at 0x352488.

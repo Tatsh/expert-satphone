@@ -616,8 +616,8 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     double boundsHeight = bounds.size.height;
     [JubeatAppDelegate.appDelegate moveChallengeOpenFlag];
 
-    // The card background is theme-specific: the reflec-beat and knit themes use a full-screen
-    // background image (with Naga Cora and Hinabita variants for the reflec-beat theme), while the
+    // The card background is theme-specific: the ripples and knit themes use a full-screen
+    // background image (with Naga Cora and Hinabita variants for the ripples theme), while the
     // classic theme uses a device-specific texture over black.
     if (theme == JubeatThemeRipples) {
         [self.view setBackgroundColor:UIColor.whiteColor];

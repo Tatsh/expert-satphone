@@ -5,7 +5,7 @@
  * @c UIPasteboard slots so they survive an app reinstall. Each slot stores an @c NSKeyedArchiver
  * archive of a small record dictionary (an encrypted @c Value , an @c EntryDate , a @c LastAccess
  * date, and a schema @c Version ), whose payload is additionally enciphered through the @c Crypto
- * helper. This is the same closed SDK class the sibling @c rbplus-src tree reconstructs.
+ * helper.
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The class object is at 0x352758.
  */

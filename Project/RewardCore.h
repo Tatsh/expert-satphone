@@ -11,8 +11,8 @@
  * its Applilink delegate through @c ApplilinkCore. The public @c RewardNetwork facade forwards to
  * @c [RewardCore sharedInstance].
  *
- * This is Konami's applilink SDK; the sibling
- * @c ../rbplus-src tree reconstructs the same class from the other binary. This build diverges:
+ * This is Konami's applilink SDK. This build diverges from the other shipped build of the same
+ * class:
  * @c clearInitialize also clears the reward authentication-session expiry, there is an extra
  * @c showVideoViewWithQuery: relay into @c ApplilinkViewManager, and
  * @c redirectWithRequest: returns a different set of result codes.

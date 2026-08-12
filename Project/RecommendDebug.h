@@ -6,9 +6,9 @@
  * banner-display-status, banner, icon, and movie lists in place of the archived production data,
  * persists the debug-mode flag in @c NSUserDefaults, and exposes the recorded interstitial
  * frequency and display-specification state for inspection. The canned records are the Applilink
- * sandbox test fixtures. This is the same closed SDK class the sibling @c ../rbplus-src tree
- * reconstructs, though jubeat's canned records carry ASCII placeholder genre/title/introduction
- * values and jubeat adds a @c movieList the sibling lacks.
+ * sandbox test fixtures. This is a closed SDK class, though jubeat's canned records carry ASCII
+ * placeholder genre/title/introduction values and jubeat adds a @c movieList the other shipped
+ * build lacks.
  *
  * Reconstructed from Ghidra program Jubeat (class RecommendDebug, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

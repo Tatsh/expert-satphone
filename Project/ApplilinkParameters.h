@@ -4,9 +4,9 @@
  * Reconstructed from Ghidra program Jubeat (class ApplilinkParameters, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
  *
- * The sibling `../rbplus-src` reconstructs the same class from the other binary. Both bodies agree,
- * including that the four-argument setter never stores its @c verticalAlign argument — so that is
- * a property of the SDK rather than of one build.
+ * The other binary that embeds the SDK carries the same class, and both bodies agree, including
+ * that the four-argument setter never stores its @c verticalAlign argument — so that is a property
+ * of the SDK rather than of one build.
  */
 
 #import <Foundation/Foundation.h>

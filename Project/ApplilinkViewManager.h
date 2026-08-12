@@ -8,7 +8,7 @@
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkViewManager, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. This is a jubeat-specific SDK
- * class with no counterpart in the sibling @c ../rbplus-src tree.
+ * class.
  */
 
 #import <UIKit/UIKit.h>

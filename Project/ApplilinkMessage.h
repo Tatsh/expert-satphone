@@ -9,9 +9,8 @@
  *
  * The superclass binds to @c _OBJC_CLASS_$_NSObject at load time; it is not stored in the file.
  *
- * The sibling ../rbplus-src tree reconstructs this class from the other binary that embeds the SDK,
- * and the two disagree in two substantive ways — see the implementation. This build carries the
- * later revision.
+ * The other binary that embeds the SDK carries this class too, and the two disagree in two
+ * substantive ways — see the implementation. This build carries the later revision.
  */
 
 #import <Foundation/Foundation.h>

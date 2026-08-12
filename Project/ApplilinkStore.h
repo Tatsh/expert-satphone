@@ -4,8 +4,7 @@
  * @c ApplilinkStore is created once, presents the store through an @c ApplilinkViewController
  * (which owns the @c SKStoreProductViewController), and is itself the @c SdkViewDelegate of that
  * view controller: when the view controller reports the open, close, closed, or load-failure
- * notices, the store forwards them to the caller's own @c sdkDelegate. This is the same closed SDK
- * class the sibling @c ../rbplus-src tree reconstructs.
+ * notices, the store forwards them to the caller's own @c sdkDelegate.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The class object is at 0x3523e8.

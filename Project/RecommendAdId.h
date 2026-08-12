@@ -3,8 +3,8 @@
  *
  * @c RecommendAdId persists the advertising identifier keyed by country code and category id, and
  * resolves the identifier used for an inbound advert redirect. The Applilink SDK ships as a closed
- * third-party library shared with the sibling @c rbplus-src tree, so only the methods reachable
- * here are declared. Reconstructed from Ghidra program Jubeat (image base 0x100000000). All
+ * third-party library, so only the methods reachable here are declared. Reconstructed from Ghidra
+ * program Jubeat (image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x351d08.
  */
 

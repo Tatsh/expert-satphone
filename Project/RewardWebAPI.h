@@ -3,8 +3,7 @@
  *
  * A stateless class-method facade over @c ApplilinkWebAPI that builds, signs, and posts the reward
  * server's install, login, application-list, status-flag, install-report, and banner requests, and
- * maps each JSON response to a localised error. This is the same closed SDK class the sibling
- * @c ../rbplus-src tree reconstructs.
+ * maps each JSON response to a localised error.
  *
  * Reconstructed from Ghidra program Jubeat (class RewardWebAPI, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x352578.

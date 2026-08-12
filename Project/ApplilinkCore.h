@@ -10,8 +10,8 @@
  * session regeneration, the advert-delegate fan-out (including the sound and movie relays), and the
  * device-hardware information collection reported to @c AnalysisNetworkCore.
  *
- * This is Konami's applilink SDK; the sibling
- * @c ../rbplus-src tree reconstructs the same class from the other binary. This build diverges:
+ * This is Konami's applilink SDK. This build diverges from the other shipped build of the same
+ * class:
  * @c initializeWithAppliId:env:resume:callback: saves the device info before anything else,
  * @c resume also closes the video view through @c ApplilinkViewManager, @c clearInitialize also
  * clears the DAU counter through @c AnalysisNetworkCore, and the SDK signature key and development

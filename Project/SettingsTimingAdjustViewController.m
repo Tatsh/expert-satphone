@@ -44,7 +44,7 @@ static NSString *const kButtonPlayImageName = @"timing_btn_play";
 static NSString *const kButtonPausedImageName = @"timing_btn_paused";
 
 // The theme-prefixed sound-effect base names (see -soundName:).
-static NSString *const kSoundNameReflecFormat = @"SD_RPL_%@";
+static NSString *const kSoundNameRipplesFormat = @"SD_RPL_%@";
 static NSString *const kSoundNameKnitFormat = @"SD_KNT_%@";
 static NSString *const kSoundNameDefaultFormat = @"SD_%@";
 // The two test sounds fed to -soundName:.
@@ -527,7 +527,7 @@ static const int kPhoneTopOffset = -10;
 - (NSString *)soundName:(NSString *)name {
     JubeatTheme theme = JubeatAppDelegate.appDelegate.currentTheme;
     if (theme == JubeatThemeRipples) {
-        return [NSString stringWithFormat:kSoundNameReflecFormat, name];
+        return [NSString stringWithFormat:kSoundNameRipplesFormat, name];
     }
     if (theme == JubeatThemeKnit) {
         return [NSString stringWithFormat:kSoundNameKnitFormat, name];

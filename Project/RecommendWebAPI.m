@@ -115,8 +115,8 @@ static const float kRecommendWebAPIStandardTimeout = 10.0f;
 static const NSTimeInterval kRecommendWebAPIDefaultCacheExpiry = 1.0;
 
 // Lifetime, in seconds, of the cached advert-external detail (ten minutes). The pooled double at
-// 0x291c30 is 0x4082C00000000000 = 600.0; this binary uses a far shorter stamp than the sibling
-// rbplus build, which caches for seven days.
+// 0x291c30 is 0x4082C00000000000 = 600.0; this binary uses a far shorter stamp than the other
+// shipped build, which caches for seven days.
 /** @ghidraAddress 0x291c30 */
 static const NSTimeInterval kRecommendWebAPIAdDetailCacheExpiry = 600.0;
 

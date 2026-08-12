@@ -13,8 +13,8 @@
  * persisted to @c NSUserDefaults under the @c ApplilinkAnalysis.initialize and
  * @c ApplilinkAnalysis.dauMeasurementDate keys.
  *
- * @c AnalysisNetwork is the guarded facade in front of this class; the sibling @c ../rbplus-src
- * tree reconstructs the same SDK class from the other binary, but this build carries five more
+ * @c AnalysisNetwork is the guarded facade in front of this class. Compared with the other shipped
+ * build of the same SDK class, this build carries five more
  * methods (device-data, external and appli browsers, the sync-URL opener, and the click-movie
  * registration).
  */

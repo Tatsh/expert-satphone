@@ -250,7 +250,7 @@ enum {
 // rotation transform to a free-standing (window or detached) presentation. The original is a long
 // branch-heavy frame-arithmetic routine keyed on system version, Xcode-6 build, and hosting mode;
 // this reconstruction preserves that structure and the observable frames rather than every
-// intermediate register (matching the sibling ../rbplus-src reconstruction of the same class).
+// intermediate register.
 /** @ghidraAddress 0x24e100 */
 - (void)rotateWebViewWithInterfaceOrientation:(UIInterfaceOrientation)orientation
                                      duration:(NSTimeInterval)duration {

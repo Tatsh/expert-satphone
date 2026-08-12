@@ -15,8 +15,7 @@
  * persisted in @c NSUserDefaults under the @c ApplilinkRecommend.bannerInfo default, and the
  * advert-external detail freshness stamp under @c ApplilinkRecommend.adDetail. The class is
  * stateless: it exposes only class methods. The applilink SDK ships as a closed third-party
- * library. The sibling @c ../rbplus-src tree reconstructs the same SDK class from the other binary.
- * Reconstructed from Ghidra program Jubeat, image base 0x100000000.
+ * library. Reconstructed from Ghidra program Jubeat, image base 0x100000000.
  */
 
 #import <Foundation/Foundation.h>

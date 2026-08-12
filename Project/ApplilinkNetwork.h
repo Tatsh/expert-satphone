@@ -4,8 +4,7 @@
  * Reconstructed from Ghidra program Jubeat (class ApplilinkNetwork, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x3529d8.
  *
- * This is Konami's applilink SDK; its full reconstruction
- * exists in the sibling @c ../rbplus-src tree. Every member is a thin class-method facade that
+ * This is Konami's applilink SDK. Every member is a thin class-method facade that
  * forwards to an internal SDK collaborator (@c ApplilinkCore , @c ApplilinkConsts , @c RewardCore ,
  * @c RecommendCore , @c ApplilinkViewManager ); the class holds no instance state.
  */

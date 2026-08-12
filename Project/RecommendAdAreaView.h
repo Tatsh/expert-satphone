@@ -13,8 +13,8 @@
  *
  * Reconstructed from Ghidra program Jubeat (class @c RecommendAdAreaView, image base
  * @c 0x100000000). All @ghidraAddress values are offsets relative to that image base. This is the
- * same closed SDK class the sibling @c ../rbplus-src tree reconstructs from the other binary that
- * embeds it; the jubeat build differs in that its advert-tap intercept additionally recognises the
+ * closed SDK class; the jubeat build differs from the other binary that embeds it in that its
+ * advert-tap intercept additionally recognises the
  * @c applilink://ext-app:80/movie link and routes it to @c -showVideoViewWithQuery:, its
  * scheme-open path returns a distinct route code, and its click registration runs through a
  * completion block.

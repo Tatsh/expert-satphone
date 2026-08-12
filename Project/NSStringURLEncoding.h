@@ -7,8 +7,8 @@
  * Despite the name this is a standalone @c NSObject subclass, not a category on @c NSString: the
  * runtime metadata carries it as its own class with two class methods and no ivars.
  *
- * The sibling `../rbplus-src` reconstructs the same class from the other binary. Both bodies agree
- * line for line, including the escape set and the empty leave-escaped string, so this reading is
+ * The other binary that embeds the SDK carries the same class, and both bodies agree line for
+ * line, including the escape set and the empty leave-escaped string, so this reading is
  * corroborated rather than merely self-consistent.
  */
 

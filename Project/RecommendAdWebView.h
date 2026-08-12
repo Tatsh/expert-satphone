@@ -12,9 +12,9 @@
  *
  * Reconstructed from Ghidra program Jubeat (class @c RecommendAdWebView, image base
  * @c 0x100000000). All @ghidraAddress values are offsets relative to that image base. This is the
- * same closed SDK class the sibling @c ../rbplus-src tree reconstructs from the other binary that
- * embeds it; the jubeat build differs in that its custom-scheme intercept additionally recognises
- * an @c applilink://ext-app:80/movie link and routes it to @c -showVideoViewWithQuery:.
+ * closed SDK class; the jubeat build differs from the other binary that embeds it in that its
+ * custom-scheme intercept additionally recognises an @c applilink://ext-app:80/movie link and
+ * routes it to @c -showVideoViewWithQuery:.
  */
 
 #import <UIKit/UIKit.h>

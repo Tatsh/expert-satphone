@@ -46,8 +46,9 @@ static NSString *const kEmptyDefault = @"";
         defaultValue = kAppListCloseButtonDefault;
     }
 
-    // Guarded, unlike the version in ../rbplus-src, which sends to the bundle unconditionally and
-    // relies on a nil receiver returning nil. Here a missing bundle yields the built-in default.
+    // Guarded, unlike the other shipped build of this class, which sends to the bundle
+    // unconditionally and relies on a nil receiver returning nil. Here a missing bundle yields the
+    // built-in default.
     if (bundle != nil) {
         return [bundle localizedStringForKey:localizedMessage
                                        value:defaultValue

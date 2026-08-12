@@ -24,7 +24,7 @@ typedef struct {
 // de-inlined form; the per-entry behaviour is unchanged, including the two separate
 // +[ApplilinkBundle rewardBundle] sends each entry makes.
 //
-// Codes 1040 to 1042 do not exist in the sibling ../rbplus-src reconstruction, which stops at 1039.
+// Codes 1040 to 1042 do not exist in the other shipped build, which stops at 1039.
 // The localisation key for 1040 really is spelled "Caache".
 static const ApplilinkErrorMessageEntry kApplilinkErrorMessages[] = {
     {1000, @"ApplilinkUnexpectedError", @"Unexpected error."},

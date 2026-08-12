@@ -10,8 +10,8 @@
  * lifecycle back to its @c SdkViewDelegate. It is created and driven by @c RewardCore.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
- * offsets relative to that image base. This is the same closed SDK class the sibling
- * @c ../rbplus-src tree reconstructs, but the jubeat build routes @c ext-app movie links to
+ * offsets relative to that image base. This is a closed SDK class, but the jubeat build routes
+ * @c ext-app movie links to
  * @c RewardCore -showVideoViewWithQuery:, injects the applilink cookies on a redirect reload, and
  * carries a @c -closeNotice: relay into @c ApplilinkViewManager.
  */

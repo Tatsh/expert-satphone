@@ -35,8 +35,9 @@ static NSString *const kLocalizedBundlePathFormat = @"%@/%@.lproj";
       if (bundle == nil) {
           bundle = [[NSBundle alloc] initWithPath:path];
       }
-      // The same class in ../rbplus-src ends with an NSLog when the bundle is still nil here. This
-      // build has no such call: the store at 0x2374e4 falls straight through to the epilogue.
+      // The other shipped build of this class ends with an NSLog when the bundle is still nil
+      // here. This build has no such call: the store at 0x2374e4 falls straight through to the
+      // epilogue.
     });
     return bundle;
 }

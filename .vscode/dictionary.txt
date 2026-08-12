@@ -393,7 +393,6 @@ pylock
 pyproject
 pzlib
 quary
-rbplus
 rctool
 rdparty
 readwrite
@@ -408,8 +407,6 @@ rect's
 rects
 redy
 refetches
-reflec
-reflecbeat
 reflesh
 reflow
 reflowed

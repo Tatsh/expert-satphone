@@ -10,9 +10,8 @@
  * @c ApplilinkViewManager owns and presents it.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
- * offsets relative to that image base. This is the same closed Konami applilink SDK class the
- * sibling @c ../rbplus-src tree ships; it had not been reconstructed there, so this recovery is
- * from the jubeat binary alone.
+ * offsets relative to that image base. This is a closed Konami applilink SDK class, recovered from
+ * the jubeat binary alone.
  *
  * The @c posterUrlRect ivar/property name is the binary's own (the "poster_url_rect" query key);
  * @c movieVoiceFlg , @c installFlg , and @c movieEndViewReadyFlg likewise keep the SDK's "Flg"

@@ -6,8 +6,7 @@
  * @c GradationView strips, and a remaining-time label) over the video. It resolves the media from
  * the applilink cache or streams it, drives a periodic time observer and a GCD cache-poll timer,
  * watches for a streaming timeout, and reports the movie and store lifecycle back to a
- * @c VideoViewDelegate. This is the same closed SDK class the sibling @c ../rbplus-src tree ships;
- * it had not been reconstructed there, so this recovery is from the jubeat binary alone.
+ * @c VideoViewDelegate. This is a closed SDK class, recovered from the jubeat binary alone.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.

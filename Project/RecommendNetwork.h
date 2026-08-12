@@ -3,8 +3,7 @@
  *
  * A thin class-method facade over the private @c RecommendCore singleton: each entry point asks
  * @c ApplilinkConsts whether it may run, then forwards to @c RecommendCore (dispatching the status
- * queries onto a global queue) or reports a localised error to the caller. This is the same closed
- * SDK class the sibling @c ../rbplus-src tree reconstructs.
+ * queries onto a global queue) or reports a localised error to the caller.
  *
  * Reconstructed from Ghidra program Jubeat (class RecommendNetwork, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x352078.

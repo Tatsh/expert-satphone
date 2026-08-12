@@ -317,7 +317,7 @@ static inline char MusicDetailViewRplLevelIndex(int level) {
     return 9;
 }
 
-// The layout constants used only while building the card in -initWithFrame:. The reflec-beat theme
+// The layout constants used only while building the card in -initWithFrame:. The ripples theme
 // lays everything out three ways: pad, retina phone, and non-retina phone.
 
 // The scroll view's top band is (pad 410 / phone 210) minus its own height (pad 100 / phone 50); it
@@ -441,7 +441,7 @@ static const double kInfoButtonDropPhone = 114.0;   // @ghidraAddress 0x28f6d0
 static const double kUploadContentPad = -128.0;     // @ghidraAddress 0x292e80
 
 // The pending-download lamps: the scroll lamp reuses the Knit right-arrow image; the difficulty
-// lamp the reflec-beat white button. The difficulty lamp is sized per idiom.
+// lamp the ripples white button. The difficulty lamp is sized per idiom.
 static NSString *const kScrollLampImage = @"btn_edit_scroll_r_knt";
 static NSString *const kDiffButtonLampImage = @"msel_btn_white_rpl";
 static const double kDiffLampWidthPad = 142.0;   // @ghidraAddress 0x292e88

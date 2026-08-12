@@ -13,8 +13,8 @@
  *
  * Reconstructed from Ghidra program Jubeat (image base @c 0x100000000). All @ghidraAddress values
  * are offsets relative to that image base. The applilink SDK ships as a closed third-party library;
- * this interface is recovered in full from the class metadata. This is the same closed SDK class
- * the sibling @c ../rbplus-src tree reconstructs, but the jubeat build additionally opens a movie
+ * this interface is recovered in full from the class metadata. This is a closed SDK class, but
+ * the jubeat build additionally opens a movie
  * interstitial (@c -openMovieWithAdModel:… and @c -showVideoViewWithQuery:), threads the impression
  * identifier through @c RecommendAdCache and @c ApplilinkFile, sets the advert-area tag and
  * impression identifier, and carries the extra sound-use and @c -closeNotice: relays.

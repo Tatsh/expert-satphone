@@ -14,7 +14,7 @@
  *
  * Reconstructed from Ghidra program Jubeat (class @c RecommendWebView, image base
  * @c 0x100000000). All @ghidraAddress values are offsets relative to that image base. This is the
- * same closed SDK class the sibling @c ../rbplus-src tree reconstructs, but the jubeat build
+ * closed SDK class, but the jubeat build
  * carries two extra sound-use callbacks (@c -appListSoundUseStart and @c -appListSoundUseFinish),
  * fires the sound-use-finish notice from @c -appListDidDisappear, and generates the cached-advert
  * HTML through an impression identifier and an @c ApplilinkFile template path.

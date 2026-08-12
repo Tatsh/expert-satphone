@@ -7,9 +7,9 @@
  * The class owns the applilink error domain and a table mapping each error code to a localised
  * message, built once on the first call and cached in a file-scope global.
  *
- * The sibling `../rbplus-src` reconstructs the same class from the other binary and carries **40**
- * error codes; this build carries **43**, adding 1040 to 1042. That is the same version divergence
- * already recorded for `+[ApplilinkMessage localizedMessage:]`, so the disagreement is evidence
+ * The other binary that embeds the SDK carries **40** error codes; this build carries **43**,
+ * adding 1040 to 1042. That is the same version divergence already recorded for
+ * `+[ApplilinkMessage localizedMessage:]`, so the disagreement is evidence
  * about SDK revisions rather than a reason to doubt either reading.
  */
 

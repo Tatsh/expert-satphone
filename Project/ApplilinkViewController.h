@@ -9,8 +9,8 @@
  * opened, close, closed, and load-failure notices to the delegate.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
- * offsets relative to that image base. This is the same closed SDK class the sibling
- * @c ../rbplus-src tree reconstructs, but the jubeat build presents the product page first and
+ * offsets relative to that image base. This is a closed SDK class, but the jubeat build differs
+ * from the other binary that embeds it: it presents the product page first and
  * loads the product from the presentation-completion block, and it carries both the
  * @c -productViewControllerDidFinish: delegate callback and a no-argument
  * @c -productViewControllerDidFinish forced-teardown entry point.
