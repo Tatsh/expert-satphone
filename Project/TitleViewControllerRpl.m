@@ -7,6 +7,7 @@
 #import "JubeatAppDelegate.h"
 #import "LicenseAgreementView.h"
 #import "MarkerDownloadView.h"
+#import "RootViewController.h"
 
 @implementation TitleViewControllerRpl {
     BOOL isPad;                            // offset global 0x34ae80
@@ -32,6 +33,42 @@ static NSString *const kCopyrightImageName = @"copyright_rpl";
 // The title BGM and welcome voice, from the CFStrings at 0x2dd620 and 0x2dd640.
 static NSString *const kTitleBgmName = @"SD_RPL_BGM_TITLE";
 static NSString *const kWelcomeVoiceName = @"SD_RPL_CV_WELCOME";
+// The confirm SE played when the title is dismissed (CFString 0x2dd260).
+static NSString *const kConfirmSeName = @"SD_RPL_OK";
+
+// The touch-prompt blink animations and their layer keys (CFStrings 0x2dd4a0, 0x2dd4e0). The slow
+// blink runs while waiting; -nextScene swaps in a fast blink as it starts the game.
+static NSString *const kOpacityKeyPath = @"opacity";
+static NSString *const kBlinkAnimationKey = @"AnimationBlink";
+static NSString *const kFastBlinkAnimationKey = @"AnimationBlinkFast";
+static const CGFloat kBgmFadeOutTime = 1.5; // pooled double 0x3ff8000000000000
+static const NSTimeInterval kFastBlinkDuration = 0.1;
+static const float kFastBlinkMinOpacity = 0.1f;
+static const float kFastBlinkRepeatCount = 10.0f;
+// The SE played when the hidden Konami sequence completes (CFString 0x2dd4c0).
+static NSString *const kKonamiRevealSeName = @"SD_GRA";
+
+// The half-black cover dropped over the title as the start transition begins (alpha at 0x3fe0).
+static const CGFloat kCoverViewAlpha = 0.5;
+
+// The hidden Konami sequence's tap phase. Swipes advance kcState to 8; the two logo hot-spots then
+// take it 8 -> 9 -> 10. A tap outside the armed states starts the title instead.
+static const int kKonamiTapArmedState = 9;
+static const int kKonamiTapFirstState = 8;
+static const int kKonamiTapSecondState = 9;
+static const int kKonamiCompleteState = 10;
+// The two logo hot-spot rects, in jubeatLogoView coordinates, per idiom (pooled doubles 0x292ee0..
+// 0x292f10, with the shared y at 0x28f6c8 == 35 on pad, 14 on phone).
+static const CGFloat kKonamiRectYPad = 35.0;
+static const CGFloat kKonamiRectYPhone = 14.0;
+static const CGFloat kKonamiFirstSpotXPad = 189.0;
+static const CGFloat kKonamiFirstSpotXPhone = 87.0;
+static const CGFloat kKonamiFirstSpotWPad = 88.0;
+static const CGFloat kKonamiFirstSpotWPhone = 44.0;
+static const CGFloat kKonamiSpotHeightPad = 89.0;
+static const CGFloat kKonamiSpotHeightPhone = 44.0;
+static const CGFloat kKonamiSecondSpotXPad = 401.0;
+static const CGFloat kKonamiSecondSpotXPhone = 188.0;
 
 // The horizon sits at 70% of the view height (pooled double 0x291c98); the sky gradient fills above
 // it and the reflection gradient below.
@@ -98,11 +135,32 @@ static const CGFloat kCopyrightBottomInsetPad = 120.0;
 
 /** @ghidraAddress 0x140018 */
 - (void)nextScene {
-    // Same as Org: fast-enumerates arraySwipeRecognizer and removes each from the view.
-    // Verified at 0x140018 via countByEnumeratingWithState: and removeGestureRecognizer:.
+    // The start action: drop every gesture recogniser, play the confirm SE, fade the BGM out,
+    // switch the touch prompt from its slow blink to a fast one, and hand off to the root
+    // controller to leave the title.
     for (UISwipeGestureRecognizer *recognizer in arraySwipeRecognizer) {
         [self.view removeGestureRecognizer:recognizer];
     }
+    [self.view removeGestureRecognizer:tapRecognizer];
+    tapRecognizer = nil;
+
+    [AudioManager.sharedManager playSeResFile:kConfirmSeName inDirectory:nil];
+    [AudioManager.sharedManager fadeoutBgm:kBgmFadeOutTime];
+
+    [touchView.layer removeAnimationForKey:kBlinkAnimationKey];
+    touchView.alpha = 1.0;
+    CABasicAnimation *fastBlink = [CABasicAnimation animationWithKeyPath:kOpacityKeyPath];
+    fastBlink.duration = kFastBlinkDuration;
+    fastBlink.fromValue = @(1.0f);
+    fastBlink.toValue = @(kFastBlinkMinOpacity);
+    fastBlink.autoreverses = YES;
+    fastBlink.repeatCount = kFastBlinkRepeatCount;
+    fastBlink.timingFunction =
+        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    fastBlink.removedOnCompletion = NO;
+    [touchView.layer addAnimation:fastBlink forKey:kFastBlinkAnimationKey];
+
+    [JubeatAppDelegate.appDelegate.rootViewCtrl endTitle];
 }
 
 /** @ghidraAddress 0x140454 */
@@ -299,26 +357,71 @@ static const CGFloat kCopyrightBottomInsetPad = 120.0;
 
 /** @ghidraAddress 0x13f13c */
 - (void)handleTap:(UITapGestureRecognizer *)sender {
-    // Identical to Org's Konami tap handler, verified at 0x13f13c via locationOfTouch:inView:
-    // and two CGRectContainsPoint checks with fcsel for isPad vs 0x402c.
-    if (kcState >= 10) {
+    // A tap either advances the hidden Konami sequence (tapping the two logo hot-spots after the
+    // swipe run) or, on any other tap, begins the start flow. The two hot-spots are on the logo, in
+    // per-idiom rects, and only matter while the swipe sequence has reached kcState 8/9.
+    if (kcState <= kKonamiTapArmedState) {
+        CGPoint loc = [sender locationOfTouch:0 inView:jubeatLogoView];
+        CGFloat rectY = isPad ? kKonamiRectYPad : kKonamiRectYPhone;
+        CGRect firstSpot = CGRectMake(isPad ? kKonamiFirstSpotXPad : kKonamiFirstSpotXPhone,
+                                      rectY,
+                                      isPad ? kKonamiFirstSpotWPad : kKonamiFirstSpotWPhone,
+                                      isPad ? kKonamiSpotHeightPad : kKonamiSpotHeightPhone);
+        if (CGRectContainsPoint(firstSpot, loc)) {
+            if (kcState == kKonamiTapFirstState) {
+                kcState = kKonamiTapSecondState;
+                return;
+            }
+            [self startTitleTransition];
+            return;
+        }
+        CGRect secondSpot = CGRectMake(isPad ? kKonamiSecondSpotXPad : kKonamiSecondSpotXPhone,
+                                       rectY,
+                                       isPad ? kKonamiSpotHeightPad : kKonamiSpotHeightPhone,
+                                       isPad ? kKonamiSpotHeightPad : kKonamiSpotHeightPhone);
+        if (!CGRectContainsPoint(secondSpot, loc) || kcState != kKonamiTapSecondState) {
+            [self startTitleTransition];
+            return;
+        }
+        // The sequence is complete: play the reveal SE and bounce the logo and every ripple layer.
+        // This is the hidden cheat's own effect and does not leave the title.
+        kcState = kKonamiCompleteState;
+        [self playKonamiCompleteEffect];
         return;
     }
-    CGPoint loc = [sender locationOfTouch:0 inView:jubeatLogoView];
-    CGRect rect1 = CGRectMake(44, 34, 188, 80);
-    if (CGRectContainsPoint(rect1, loc)) {
-        if (kcState == 8) {
-            kcState = 9;
-        }
+    [self startTitleTransition];
+}
+
+// The completed-Konami flourish, de-inlined from -handleTap: at 0x13f2a0: removes the swipe
+// recognisers, plays SD_GRA, and runs a scale-bounce transform on the logo and on every ripple and
+// reflected-ripple layer.
+- (void)playKonamiCompleteEffect {
+    for (UISwipeGestureRecognizer *recognizer in arraySwipeRecognizer) {
+        [self.view removeGestureRecognizer:recognizer];
+    }
+    [AudioManager.sharedManager playSeResFile:kKonamiRevealSeName inDirectory:nil];
+    // The scale-bounce transform applied to the logo and every ripple layer is a decorative cheat
+    // effect; its animation is not reconstructed here and, unlike -nextScene, it does not leave the
+    // title. The ripple-layer loops depend on -addRippleLayers, which is still a stub.
+}
+
+// The start flow shared by an ordinary tap and a completed Konami sequence, de-inlined from the
+// tail of -handleTap: at 0x13f7bc: guarded by an existing licence view, it drops a half-black cover
+// over the title and then either shows the challenge policy (when an editor identity already
+// exists) or kicks off the editor-ID download.
+- (void)startTitleTransition {
+    if (licenseAgree) {
         return;
     }
-    CGRect rect2 = CGRectMake(44, 34, 80, 80);
-    if (CGRectContainsPoint(rect2, loc) && kcState == 9) {
-        kcState = 10;
-        for (UISwipeGestureRecognizer *r in arraySwipeRecognizer) {
-            [self.view removeGestureRecognizer:r];
-        }
-        [self nextScene];
+    coverView = [[UIView alloc] initWithFrame:self.view.bounds];
+    coverView.opaque = NO;
+    coverView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:kCoverViewAlpha];
+    coverView.alpha = 0.0;
+    [self.view addSubview:coverView];
+    if (EditorIDManager.isExistEditorID) {
+        [self createPolicyView];
+    } else {
+        idManager = [[EditorIDManager alloc] initWithDelegate:self];
     }
 }
 

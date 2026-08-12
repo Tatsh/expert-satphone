@@ -7,12 +7,13 @@
  * The superclass is @c TitleViewController , from the dyld bind at the class object's superclass
  * slot (0x348a70 + 8) and confirmed by the super calls at 0x13d140, 0x13ff9c, and 0x13fea0.
  *
- * The class is complete: all twenty-four hand-written members are recovered. The view construction,
- * animation control, and input handling are declared but not reconstructed; see the STATUS tables.
+ * The class is complete: all twenty-four hand-written members are recovered. The ripple background
+ * built by @c -addRippleLayers is still a stub; see the STATUS tables.
  */
 
 #import <UIKit/UIKit.h>
 
+#import "EditorIDManager.h"
 #import "MarkerDownloadView.h"
 #import "TitleViewController.h"
 
@@ -21,7 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The title screen in REFLEC BEAT plus livery.
  */
-@interface TitleViewControllerRpl : TitleViewController <MarkerDownloadViewDelegate>
+@interface TitleViewControllerRpl
+    : TitleViewController <EditorIDManagerDelegate, MarkerDownloadViewDelegate>
 
 /**
  * @brief Builds the controller, records whether this is a pad, and subscribes to notifications.
@@ -39,8 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds the view hierarchy.
  *
- * Sets white background, stores yHorizon, and builds the jubeat logo, touch, copyright, and marker
- * views.
+ * Stores yHorizon, builds the sky and reflection gradient layers, and the jubeat logo, touch,
+ * copyright, and marker views.
  * @ghidraAddress 0x13e17c
  */
 - (void)loadView;
