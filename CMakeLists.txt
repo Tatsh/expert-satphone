@@ -77,6 +77,18 @@ set(RESOURCES_DIR    "" CACHE PATH "Directory of the ORIGINAL extracted .app who
 # -DENABLE_PATCHES=ON.
 option(ENABLE_PATCHES "Compile in preservation patches (skip dead service flows)" OFF)
 
+# JBDBG compiles in the optional runtime os_log diagnostics (tagged "JBDBG"; see
+# Project/neDebugLog.h). It is NOT part of the original binary, so it defaults OFF; with it off
+# every logging helper collapses to a no-op and each translation unit matches the reconstructed
+# original exactly. It is a plain cache option, so it can be enabled in ANY build configuration
+# with -DJBDBG=ON. Call sites need no #ifdef.
+option(JBDBG "Compile in the JBDBG runtime diagnostics (os_log)" OFF)
+
+# JBDBGINFO emits DWARF and keeps the frame pointer, so a debugger can read locals and struct
+# fields, without changing optimisation. It defaults OFF because a crash under investigation has to
+# reproduce identically to the build that showed it.
+option(JBDBGINFO "Emit debug info (DWARF) without altering optimisation" OFF)
+
 # ---------------------------------------------------------------------------
 # Toolchain discovery (informational)
 # ---------------------------------------------------------------------------
@@ -199,6 +211,28 @@ target_compile_definitions(jubeat PRIVATE GLES_SILENCE_DEPRECATION)
 # generator expression is config-agnostic, so it applies in Debug, Release, and
 # any other configuration alike.
 target_compile_definitions(jubeat PRIVATE $<$<BOOL:${ENABLE_PATCHES}>:ENABLE_PATCHES=1>)
+
+# When JBDBG is enabled, define it for every translation unit; the generator expression is
+# config-agnostic, so it applies in Debug, Release, and any other configuration alike.
+target_compile_definitions(jubeat PRIVATE $<$<BOOL:${JBDBG}>:JBDBG=1>)
+
+# JBDBGINFO emits debug info without altering optimisation, so a debugger can read locals.
+if(JBDBGINFO)
+    target_compile_options(jubeat PRIVATE -g -fstandalone-debug -fno-omit-frame-pointer)
+    target_link_options(jubeat PRIVATE -g)
+endif()
+
+# Build git SHA, captured at configure time for the JBDBG startup banner so a captured log always
+# identifies exactly which build produced it. Diagnostics only (the banner is compiled out unless
+# JBDBG); falls back to "unknown" when git is unavailable.
+execute_process(COMMAND git -C ${CMAKE_SOURCE_DIR} rev-parse --short=12 HEAD
+                OUTPUT_VARIABLE JBDBG_BUILD_SHA
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                ERROR_QUIET)
+if(NOT JBDBG_BUILD_SHA)
+    set(JBDBG_BUILD_SHA "unknown")
+endif()
+target_compile_definitions(jubeat PRIVATE JBDBG_BUILD_SHA="${JBDBG_BUILD_SHA}")
 
 set_target_properties(jubeat PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${INFO_PLIST}"

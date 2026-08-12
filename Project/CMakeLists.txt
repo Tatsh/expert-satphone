@@ -688,6 +688,7 @@ target_sources(jubeat PRIVATE
     jubeatLabAccess.h
     kunzip_filefunc.h
     music_grid_layout.h
+    neDebugLog.h
     neEngineBridge.h
     note_timing_grade.h
     nullptr_compat.h
