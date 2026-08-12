@@ -11,16 +11,10 @@
   helpers of its one class (a file-private struct, a delegate protocol it defines), but not a second
   independent class.
 - Place a reconstructed source file in the subdirectory of `Project/` that mirrors the binary's
-  embedded `__FILE__` path, with two elisions: drop the
-  `/Users/.../Program/Games/REFLECBEAT/` prefix, and drop the `Classess/` path segment (a typo in
-  the shipped tree — do not create a `Classess` directory). Keep the binary's original file
-  basename verbatim, which is `snake_case` for the C++ engine/layer/model/scene files and the RB
-  CamelCase name for the view/UI files. Examples:
-  `.../Classess/OpenGL/Layer/Classic/full_combo_classic_layer.mm` →
-  `Project/OpenGL/Layer/Classic/full_combo_classic_layer.mm`;
-  `.../Classess/Views/Music/RBMusicView.mm` → `Project/Views/Music/RBMusicView.mm`;
-  `.../GameSystem/src/OpenGL/neGLES.cpp` → `Project/GameSystem/src/OpenGL/neGLES.cpp`. A file with
-  no embedded path stays at the `Project/` root.
+  embedded `__FILE__` path, dropping the leading build-machine prefix and keeping the binary's
+  original file basename verbatim. This binary embeds no such paths — it contains no `/Users/`
+  strings — so in practice every reconstructed file sits at the `Project/` root, which is flat.
+  The rule applies only if an embedded path ever surfaces.
 - 4 space indents with no tabs. This overrides the repository-wide 2-space default in
   [general.md](general.md): every C, C++, and Objective-C source and header file (`.c`, `.h`, `.m`,
   `.mm`, `.cpp`) is indented with 4 spaces, never 2. The 2-space default applies only to the
