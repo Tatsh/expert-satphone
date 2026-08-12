@@ -11,10 +11,67 @@
     <string>Jubeat</string>
     <key>CFBundleIconFiles</key>
     <array>
-      <string>icon.png</string>
-      <string>icon@2x.png</string>
-      <string>icon@3x.png</string>
+      <string>icon-167.png</string>
+      <string>icon-60@3x.png</string>
+      <string>Icon-76@2x.png</string>
+      <string>Icon-72@2x.png</string>
+      <string>Icon-60@2x.png</string>
+      <string>Icon-57@2x.png</string>
+      <string>Icon-50@2x.png</string>
+      <string>icon-29@3x.png</string>
+      <string>Icon-40@2x.png</string>
+      <string>Icon-76.png</string>
+      <string>Icon-72.png</string>
+      <string>AppIcon-220x20@3x.png</string>
+      <string>Icon-57.png</string>
+      <string>Icon-50.png</string>
+      <string>Icon-40.png</string>
+      <string>Icon-29@2x.png</string>
+      <string>Icon-29.png</string>
     </array>
+    <key>CFBundleIcons</key>
+    <dict>
+      <key>CFBundlePrimaryIcon</key>
+      <dict>
+        <key>CFBundleIconFiles</key>
+        <array>
+          <string>icon-60@3x.png</string>
+          <string>Icon-60@2x.png</string>
+          <string>Icon-57@2x.png</string>
+          <string>icon-29@3x.png</string>
+          <string>Icon-40@2x.png</string>
+          <string>Icon-57.png</string>
+          <string>AppIcon-220x20@3x.png</string>
+          <string>Icon-29@2x.png</string>
+          <string>Icon-40.png</string>
+          <string>Icon-29.png</string>
+        </array>
+        <key>UIPrerenderedIcon</key>
+        <true />
+      </dict>
+    </dict>
+    <key>CFBundleIcons~ipad</key>
+    <dict>
+      <key>CFBundlePrimaryIcon</key>
+      <dict>
+        <key>CFBundleIconFiles</key>
+        <array>
+          <string>icon-167.png</string>
+          <string>Icon-76@2x.png</string>
+          <string>Icon-72@2x.png</string>
+          <string>Icon-50@2x.png</string>
+          <string>Icon-40@2x.png</string>
+          <string>Icon-76.png</string>
+          <string>Icon-72.png</string>
+          <string>Icon-50.png</string>
+          <string>Icon-40.png</string>
+          <string>Icon-29@2x.png</string>
+          <string>Icon-29.png</string>
+        </array>
+        <key>UIPrerenderedIcon</key>
+        <true />
+      </dict>
+    </dict>
     <key>CFBundleIdentifier</key>
     <string>@APP_BUNDLE_ID@</string>
     <key>UIFileSharingEnabled</key>
@@ -27,8 +84,6 @@
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
     <string>@APP_VERSION@</string>
-    <key>CFBundleSignature</key>
-    <string>????</string>
     <key>CFBundleVersion</key>
     <string>@APP_BUILD@</string>
     <key>LSRequiresIPhoneOS</key>
@@ -44,11 +99,6 @@
     <key>UIBackgroundModes</key>
     <array>
       <string>remote-notification</string>
-    </array>
-    <key>UIDeviceFamily</key>
-    <array>
-      <integer>1</integer>
-      <integer>2</integer>
     </array>
     <key>UILaunchImages</key>
     <array>
@@ -127,8 +177,7 @@
     <true />
     <key>UIRequiredDeviceCapabilities</key>
     <array>
-      <string>armv7</string>
-      <string>opengles-2</string>
+      <string>opengles-1</string>
     </array>
     <key>UIRequiresFullScreen</key>
     <true />

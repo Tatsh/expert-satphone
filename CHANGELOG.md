@@ -9,6 +9,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [unreleased]
 
+### Fixed
+
+- Low-resolution app icon on installation. `CFBundleIconFiles` listed only the 29x29 `icon.png`
+  variants, so iOS upscaled a 29px image into the iPad home-screen slot. The correctly sized icons
+  already shipped in the bundle are now referenced, and per-idiom `CFBundleIcons` and
+  `CFBundleIcons~ipad` dictionaries give iPad its own icon list.
+
 ## [0.0.1] - 2026-00-00
 
 First version.
