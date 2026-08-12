@@ -18,8 +18,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The delegate the SDK's advert and App Store views report back through. Every method is
- * optional; the SDK guards each dispatch with @c -respondsToSelector: .
+ * @brief The delegate the SDK's advert, App Store, and web views all report back through. The
+ * binary's single @c SdkViewDelegate protocol (protocol_t at 0x353fa0) declares all sixteen of
+ * these methods; every one is optional and the SDK guards each dispatch with
+ * @c -respondsToSelector: . Both the no-argument advert @c closeNotice and the web view's
+ * @c closeNotice: are members.
  */
 @protocol SdkViewDelegate <NSObject>
 @optional
@@ -29,6 +32,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)openedNotice;
 /** @brief The advert closed. */
 - (void)closeNotice;
+/** @brief An @c ApplilinkWebView "close" link was followed. */
+- (void)closeNotice:(nonnull id)webView;
+/** @brief An @c ApplilinkWebView finished loading and is ready. */
+- (void)viewReady:(nonnull id)webView;
+/** @brief An @c ApplilinkWebView "repeat" link was followed. */
+- (void)repeatNotice:(nonnull id)webView;
+/** @brief An @c ApplilinkWebView "store" link was followed. */
+- (void)storeNotice:(nonnull id)webView;
+/** @brief An @c ApplilinkWebView load error occurred. */
+- (void)linkErrorNotice:(nonnull id)webView error:(nonnull NSError *)error;
 /** @brief An advert open failed. */
 - (void)failOpenNoticeWithError:(nullable NSError *)error;
 /** @brief An advert link failed. */

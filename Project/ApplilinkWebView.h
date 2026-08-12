@@ -8,31 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+#import "ApplilinkStore.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What an @c ApplilinkWebView tells its SDK delegate.
- *
- * The protocol's name is the binary's own, from the delegate ivar's encoding
- * @c \@"<SdkViewDelegate>" .
- */
-@protocol SdkViewDelegate <NSObject>
-@optional
-/** @brief The view finished loading and is ready. */
-- (void)viewReady:(nonnull id)webView;
-/** @brief A "close" link was followed. */
-- (void)closeNotice:(nonnull id)webView;
-/** @brief A "repeat" link was followed. */
-- (void)repeatNotice:(nonnull id)webView;
-/** @brief A "store" link was followed. */
-- (void)storeNotice:(nonnull id)webView;
-/** @brief A load error occurred. */
-- (void)linkErrorNotice:(nonnull id)webView error:(nonnull NSError *)error;
-@end
-
-/**
  * @brief A UIWebView that hosts applilink recommendation content and routes its custom link
- * schemes to an SDK delegate.
+ * schemes to an SDK delegate. The @c SdkViewDelegate protocol it messages (@c viewReady: ,
+ * @c closeNotice: , @c repeatNotice: , @c storeNotice: , @c linkErrorNotice:error: ) is the single
+ * SDK-wide protocol declared in @c ApplilinkStore.h , not a separate web-view protocol.
  */
 @interface ApplilinkWebView : UIWebView <UIWebViewDelegate>
 
