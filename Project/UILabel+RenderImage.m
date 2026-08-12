@@ -12,7 +12,7 @@
 @implementation UILabel (RenderImage)
 
 /** @ghidraAddress 0x1255c4 */
-- (nullable UIImage *)renderImage {
+- (UIImage *)renderImage {
     CGRect frame = self.frame;
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CGContextRef context = CGBitmapContextCreate(nullptr,

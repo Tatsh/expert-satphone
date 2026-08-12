@@ -12,25 +12,25 @@
 // The SDK collaborators whose reconstructed headers do not yet declare these members. See
 // TYPES_PENDING.md.
 @interface ApplilinkWebAPI (Asynchronous)
-+ (void)requestAsynchronousWithURL:(nullable NSString *)url
-                            method:(nullable NSString *)method
-                        parameters:(nullable NSDictionary *)parameters
-                          userInfo:(nullable id)userInfo
++ (void)requestAsynchronousWithURL:(NSString *)url
+                            method:(NSString *)method
+                        parameters:(NSDictionary *)parameters
+                          userInfo:(id)userInfo
                                tag:(NSInteger)tag
-                       cachePolicy:(nullable id)cachePolicy
+                       cachePolicy:(id)cachePolicy
                            timeout:(float)timeout
                              retry:(BOOL)retry
-                     finishedBlock:(nullable void (^)(id request, id response))finishedBlock
-                       failedBlock:(nullable void (^)(id request, id error))failedBlock;
+                     finishedBlock:(void (^)(id request, id response))finishedBlock
+                       failedBlock:(void (^)(id request, id error))failedBlock;
 @end
 
 @interface ApplilinkUtilities (Reward)
-+ (nullable NSDictionary *)userAgentParameters;
++ (NSDictionary *)userAgentParameters;
 @end
 
 @interface ApplilinkCore (Reward)
-+ (nullable NSString *)currentUdid;
-+ (nullable NSString *)signatureKey;
++ (NSString *)currentUdid;
++ (NSString *)signatureKey;
 + (void)updatePasteBoard;
 @end
 

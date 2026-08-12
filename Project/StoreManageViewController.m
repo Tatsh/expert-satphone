@@ -64,7 +64,7 @@ static const int kConfirmButtonIndex = 1;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0x90c58 */
-- (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent {
+- (instancetype)initWithParent:(id<StoreParentViewController>)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;
@@ -269,7 +269,7 @@ static const int kConfirmButtonIndex = 1;
 #pragma mark - Row action
 
 /** @ghidraAddress 0x91cb0 */
-- (void)pushCellButton:(nullable id)sender {
+- (void)pushCellButton:(id)sender {
     if (working_index != kNoWorkingRow) {
         return;
     }

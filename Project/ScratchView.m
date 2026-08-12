@@ -15,8 +15,8 @@ static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 @interface ScratchInfo (ScratchView)
 - (unsigned int)musicID;
 - (BOOL)bOpen;
-- (nullable NSString *)imgURL;
-- (nullable NSString *)itemURL;
+- (NSString *)imgURL;
+- (NSString *)itemURL;
 @end
 
 // The default fallback jacket, shown before the real artwork arrives.

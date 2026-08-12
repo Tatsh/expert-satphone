@@ -2,20 +2,15 @@
 
 #import "Downloader.h"
 #import "MarkerManager.h"
-
-// Verifies a trailing MD5 digest over a data buffer; a free function not reconstructed yet. See
-// TYPES_PENDING.md.
-FOUNDATION_EXTERN BOOL VerifyMd5Digest(const void *_Nullable data,
-                                       size_t length,
-                                       const unsigned char *_Nullable expectedDigest);
+#import "Md5Utilities.h"
 
 // The extra MarkerManager class methods this manager uses that its header does not yet declare. See
 // TYPES_PENDING.md.
 @interface MarkerManager (MarkerDownload)
-+ (nullable NSString *)getMarkerPath:(nullable NSString *)markerID;
-+ (void)saveMarker:(nullable NSData *)data markerID:(nullable NSString *)markerID;
-+ (void)pullOutMarkerBanner:(nullable NSString *)markerPath bannerID:(nullable NSString *)bannerID;
-+ (void)setMarkerInfo:(nullable NSDictionary *)info;
++ (NSString *)getMarkerPath:(NSString *)markerID;
++ (void)saveMarker:(NSData *)data markerID:(NSString *)markerID;
++ (void)pullOutMarkerBanner:(NSString *)markerPath bannerID:(NSString *)bannerID;
++ (void)setMarkerInfo:(NSDictionary *)info;
 @end
 
 // The task dictionary keys.

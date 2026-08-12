@@ -4,12 +4,8 @@
 #import "Downloader_Protected.h"
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
+#import "Md5Utilities.h"
 #import "ScratchUtil.h"
-
-// The lowercase SHA-256 hex of a data buffer; a free function not reconstructed yet. See
-// TYPES_PENDING.md.
-FOUNDATION_EXTERN NSString *_Nullable CreateSha256HexStringFromData(NSData *_Nullable data,
-                                                                    BOOL uppercase);
 
 // The request timeout in seconds; the pooled double at 0x28f258.
 static const NSTimeInterval kSessionTimeout = 60.0;
@@ -45,10 +41,9 @@ static NSData *sSessionResponse = nil;
     int retryCnt;             // +0x60, ivar-offset global 0x34aa90
     NSString *receiveHash;    // +0x58, ivar-offset global 0x34aa9c
 }
-- (NSString *)dataHash:(nullable NSData *)bodyData;
-- (nullable NSURLRequest *)createPostRequest:(nullable NSURL *)url
-                                    postData:(nullable NSData *)bodyData;
-- (nullable NSURLRequest *)getSessionRequest;
+- (NSString *)dataHash:(NSData *)bodyData;
+- (NSURLRequest *)createPostRequest:(NSURL *)url postData:(NSData *)bodyData;
+- (NSURLRequest *)getSessionRequest;
 @end
 
 // De-inlined from the two 0x18b5x arms: re-open the session against getSessionRequest and resume a

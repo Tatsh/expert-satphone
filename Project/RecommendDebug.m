@@ -3,7 +3,7 @@
 // The interstitial display specifications, read to annotate the inspection dictionaries. Not
 // reconstructed in this tree yet, so forward-declared. See TYPES_PENDING.md.
 @interface RecommendAdData : NSObject
-+ (nullable NSDictionary *)getInterstitialSpecList;
++ (NSDictionary *)getInterstitialSpecList;
 @end
 
 // The Applilink sandbox test fixtures use these dictionary keys.

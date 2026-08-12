@@ -16,13 +16,13 @@
 
 // MarkerManager vends the marker's data-archive path; it is not reconstructed yet.
 @interface MarkerManager : NSObject
-+ (nullable NSString *)getMarkerPath:(nullable NSString *)markerID;
++ (NSString *)getMarkerPath:(NSString *)markerID;
 @end
 
 // Sequence plays the note chart and reports the per-panel marker state; it is not reconstructed
 // yet. Only the members this view messages are declared here.
 @interface Sequence : NSObject
-- (instancetype)initWithData:(nullable NSData *)data;
+- (instancetype)initWithData:(NSData *)data;
 - (void)reset;
 - (void)seekToTime:(double)time;
 - (void)judge:(unsigned int)btnState btnPress:(unsigned int)btnPress;

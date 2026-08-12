@@ -104,21 +104,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-/**
- * @brief TouchJSON's convenience category vending a deserialised dictionary in one call.
- */
-@interface NSDictionary (CJSONDeserializer)
-
-/**
- * @brief Deserialises JSON data to a dictionary via a fresh @c CJSONDeserializer.
- * @param data The JSON text.
- * @param error Where to report a parse failure.
- * @return The parsed dictionary, or nil.
- */
-+ (nullable id)dictionaryWithJSONData:(nullable NSData *)data error:(NSError **)error;
-
-@end
-
 NS_ASSUME_NONNULL_END
 
 // code: language=Objective-C

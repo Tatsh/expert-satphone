@@ -924,11 +924,11 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
 
 #pragma mark - Event tables
 
-- (nullable NSArray *)getPlayEvents {
+- (NSArray *)getPlayEvents {
     return playEventTable;
 }
 
-- (nullable NSArray *)getHoldEvents {
+- (NSArray *)getHoldEvents {
     return holdEventTable;
 }
 

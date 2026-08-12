@@ -313,7 +313,7 @@ static NSString *const kChallengeLaboMenuSE = @"SD_LABO_MENU";
 #pragma mark - Child-view delegate callbacks
 
 /** @ghidraAddress 0x102424 */
-- (void)selectMenu:(nullable NSNumber *)menu {
+- (void)selectMenu:(NSNumber *)menu {
     int index = menu.intValue;
     [[AudioManager sharedManager] playSeResFile:kChallengeLaboMenuSE inDirectory:nil];
     [self createMenuView:index];

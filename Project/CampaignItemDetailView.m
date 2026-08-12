@@ -309,7 +309,7 @@ static const int kSampleAlertTag = 4;
 #pragma mark - Button state
 
 /** @ghidraAddress 0x171ca0 */
-- (nullable UIColor *)getButtonColor:(int)buttonType {
+- (UIColor *)getButtonColor:(int)buttonType {
     switch (buttonType) {
     case CampaignItemDetailButtonTypeDownload:
         return UIColor.blueColor;
@@ -327,7 +327,7 @@ static const int kSampleAlertTag = 4;
 }
 
 /** @ghidraAddress 0x171de0 */
-- (nullable NSString *)getButtonName:(int)buttonType {
+- (NSString *)getButtonName:(int)buttonType {
     switch (buttonType) {
     case CampaignItemDetailButtonTypeDownload:
     case CampaignItemDetailButtonTypeLocked:
@@ -354,12 +354,12 @@ static const int kSampleAlertTag = 4;
 #pragma mark - Content
 
 /** @ghidraAddress 0x173474 */
-- (void)setCampaignInfo:(nullable CampaignItemInfo *)campaignInfo {
+- (void)setCampaignInfo:(CampaignItemInfo *)campaignInfo {
     itemInfo = campaignInfo;
 }
 
 /** @ghidraAddress 0x173288 */
-- (void)updateCampaignState:(nullable CampaignItemInfo *)campaignInfo {
+- (void)updateCampaignState:(CampaignItemInfo *)campaignInfo {
     itemInfo = campaignInfo;
     [self dlButtonUpdate];
 }
@@ -448,19 +448,19 @@ static const int kSampleAlertTag = 4;
 #pragma mark - Actions
 
 /** @ghidraAddress 0x17384c */
-- (void)doPurchase:(nullable id)sender {
+- (void)doPurchase:(id)sender {
     [self.viewController itemDownload];
 }
 
 /** @ghidraAddress 0x17388c */
-- (void)handleLink:(nullable id)sender {
+- (void)handleLink:(id)sender {
     [self.viewController moveExternalLink];
 }
 
 #pragma mark - Sample tune
 
 /** @ghidraAddress 0x1738cc */
-- (void)handleSample:(nullable id)sender {
+- (void)handleSample:(id)sender {
     if (samplePlaying == CampaignItemSampleStateStopped) {
         samplePlaying = CampaignItemSampleStateDownloading;
         sampleDownloader = [[Downloader alloc] initWithURL:itemInfo.sampleURL delegate:self];
@@ -483,7 +483,7 @@ static const int kSampleAlertTag = 4;
 }
 
 /** @ghidraAddress 0x1739f8 */
-- (void)finishBgm:(nullable NSNotification *)notification {
+- (void)finishBgm:(NSNotification *)notification {
     samplePlaying = CampaignItemSampleStateStopped;
     [self sampleStop];
 }
@@ -566,7 +566,7 @@ static const int kSampleAlertTag = 4;
 #pragma mark - AlertViewManagerDelegate
 
 /** @ghidraAddress 0x1740f4 */
-- (void)alertClose:(nonnull NSDictionary *)info {
+- (void)alertClose:(NSDictionary *)info {
     if ([info[@"Tag"] intValue] == kInfoAlertTag) {
         if ([self.viewController respondsToSelector:@selector(storePackDetailViewClose)]) {
             [self.viewController performSelector:@selector(storePackDetailViewClose)];
@@ -575,7 +575,7 @@ static const int kSampleAlertTag = 4;
 }
 
 /** @ghidraAddress 0x1741f0 */
-- (void)alertSelect:(nonnull NSDictionary *)info {
+- (void)alertSelect:(NSDictionary *)info {
     if ([info[@"Tag"] intValue] == kInfoAlertTag) {
         if ([self.viewController respondsToSelector:@selector(storePackDetailViewClose)]) {
             [self.viewController performSelector:@selector(storePackDetailViewClose)];

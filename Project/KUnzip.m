@@ -22,7 +22,7 @@ enum {
     unsigned char buffer[kReadBufferSize];
 }
 
-- (instancetype)initWithPath:(nullable NSString *)path {
+- (instancetype)initWithPath:(NSString *)path {
     self = [super init];
     if (self) {
         zipfile = unzOpen(path.UTF8String);
@@ -33,7 +33,7 @@ enum {
     return self;
 }
 
-- (instancetype)initWithPath:(nullable NSString *)path tail:(NSUInteger)tail {
+- (instancetype)initWithPath:(NSString *)path tail:(NSUInteger)tail {
     NSDictionary<NSFileAttributeKey, id> *attributes =
         [NSFileManager.defaultManager attributesOfItemAtPath:path error:nil];
     NSUInteger fileSize = [attributes[NSFileSize] unsignedIntegerValue];
@@ -61,7 +61,7 @@ enum {
     return self;
 }
 
-- (instancetype)initWithData:(nullable NSData *)data range:(NSRange)range {
+- (instancetype)initWithData:(NSData *)data range:(NSRange)range {
     if (data == nil || range.location + range.length > data.length) {
         return nil;
     }
@@ -86,14 +86,14 @@ enum {
     return self;
 }
 
-- (BOOL)fileExists:(nullable NSString *)name {
+- (BOOL)fileExists:(NSString *)name {
     if (zipfile == nullptr) {
         return NO;
     }
     return unzLocateFile(zipfile, name.UTF8String, 0) == 0;
 }
 
-- (NSUInteger)uncompressedSize:(nullable NSString *)name {
+- (NSUInteger)uncompressedSize:(NSString *)name {
     if (zipfile == nullptr) {
         return 0;
     }
@@ -107,7 +107,7 @@ enum {
     return info.uncompressed_size;
 }
 
-- (nullable NSArray<NSString *> *)fileList {
+- (NSArray<NSString *> *)fileList {
     unz_global_info64 globalInfo;
     if (zipfile == nullptr || unzGetGlobalInfo64(zipfile, &globalInfo) != 0 ||
         globalInfo.number_entry == 0 || unzGoToFirstFile(zipfile) != 0) {
@@ -130,7 +130,7 @@ enum {
     return [NSArray arrayWithArray:names];
 }
 
-- (nullable NSMutableData *)uncompress:(nullable NSString *)name {
+- (NSMutableData *)uncompress:(NSString *)name {
     if (zipfile == nullptr) {
         return nil;
     }

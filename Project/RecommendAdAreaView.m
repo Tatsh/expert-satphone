@@ -111,7 +111,7 @@ static NSString *const kRecommendAdAreaViewPrefixAppliIdTo = @"appli_id_to=";
 @interface RecommendAdAreaView ()
 
 // Redeclared writable so the class can assign it internally; publicly read-only.
-@property(nonatomic, strong, readwrite, nullable) NSString *impressionId;
+@property(nonatomic, strong, readwrite) NSString *impressionId;
 
 @end
 
@@ -279,7 +279,7 @@ static inline NSString *RecommendAdAreaViewDecodedValueFrom(NSString *component,
     }
     [RecommendWebAPI readRegistWithAdType:_adType
                                  adIdList:adIdList
-                                 callback:^(NSError *_Nullable __attribute__((unused)) error){
+                                 callback:^(NSError *__attribute__((unused)) error){
                                      /** @ghidraAddress 0x2729b4 */
                                  }];
     // The impression identifier is only assigned once; a reload keeps the first one.
@@ -542,7 +542,7 @@ static inline NSString *RecommendAdAreaViewDecodedValueFrom(NSString *component,
                             displayNumber:displayNumber
                             incentiveType:incentiveType
                                installFlg:installFlg
-                                 callback:^(NSError *_Nullable __attribute__((unused)) error) {
+                                 callback:^(NSError *__attribute__((unused)) error) {
                                    /** @ghidraAddress 0x2744d4 */
                                    NSURL *schemeUrl = [NSURL
                                        URLWithString:[NSString stringWithFormat:

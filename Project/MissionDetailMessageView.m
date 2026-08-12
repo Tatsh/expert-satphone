@@ -312,7 +312,7 @@ static const CGFloat kPhoneMissionTextY = 32.0; // 0x28f458 -> 32.0
 }
 
 /** @ghidraAddress 0xeb274 */
-- (nullable NSString *)getMusicName:(int)musicID {
+- (NSString *)getMusicName:(int)musicID {
     for (NSDictionary *entry in lineup) {
         if ([entry[kLineupKeyMusicID] intValue] == musicID) {
             return entry[kLineupKeyName];
@@ -322,7 +322,7 @@ static const CGFloat kPhoneMissionTextY = 32.0; // 0x28f458 -> 32.0
 }
 
 /** @ghidraAddress 0xeb40c */
-- (void)setPlayTerm:(nullable ChallengeMissionPlayTerm *)playTerm {
+- (void)setPlayTerm:(ChallengeMissionPlayTerm *)playTerm {
     switchBtn.enabled = NO;
     if (playTerm) {
         NSString *detail = @"";
@@ -499,7 +499,7 @@ static const CGFloat kPhoneMissionTextY = 32.0; // 0x28f458 -> 32.0
 #pragma mark - Downloader delegate
 
 /** @ghidraAddress 0xeca48 */
-- (void)downloaderError:(nullable id)downloader {
+- (void)downloaderError:(id)downloader {
     [UIApplication.sharedApplication endIgnoringInteractionEvents];
     NSString *message = [NSBundle.mainBundle localizedStringForKey:kLocalizationServerError
                                                              value:@""
@@ -516,7 +516,7 @@ static const CGFloat kPhoneMissionTextY = 32.0; // 0x28f458 -> 32.0
 }
 
 /** @ghidraAddress 0xecbc4 */
-- (void)downloaderFinished:(nullable id)downloader {
+- (void)downloaderFinished:(id)downloader {
     // Empty in the binary.
 }
 

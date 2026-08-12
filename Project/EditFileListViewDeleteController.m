@@ -7,7 +7,7 @@
 
 // Not yet reconstructed. Vends -initWithMusicID:delegate: and -setBFromNavigate:.
 @interface JcfDownloadPageViewController : UIViewController
-- (instancetype)initWithMusicID:(int)musicID delegate:(nullable id)delegate;
+- (instancetype)initWithMusicID:(int)musicID delegate:(id)delegate;
 - (void)setBFromNavigate:(BOOL)bFromNavigate;
 @end
 
@@ -299,7 +299,7 @@ enum { kSectionMenu = 0, kSectionFiles = 1, kSectionBlank = 2, kSectionCount = 3
     return 1.0;
 }
 
-- (nullable UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
     /** @ghidraAddress 0x1fa3f0 */
     if (self.fileList.count < (NSUInteger)slotLim) {
         return nil;
@@ -375,12 +375,12 @@ enum { kSectionMenu = 0, kSectionFiles = 1, kSectionBlank = 2, kSectionCount = 3
 
 #pragma mark - Data
 
-- (void)setTargetFileName:(nullable NSString *)targetFileName {
+- (void)setTargetFileName:(NSString *)targetFileName {
     /** @ghidraAddress 0x1faa34 */
     selectName = targetFileName;
 }
 
-- (void)setFileList:(nullable NSMutableArray *)fileList {
+- (void)setFileList:(NSMutableArray *)fileList {
     /** @ghidraAddress 0x1faa48 */
     [super setFileList:fileList];
     fileCnt = (int)self.fileList.count;

@@ -14,19 +14,18 @@
 // as forward categories/classes. See TYPES_PENDING.md.
 @interface ApplilinkCore (Recommend)
 + (BOOL)isInitializeStatusFlg;
-+ (nullable UIColor *)getIndicatorColor;
-+ (void)toDelegateDidStart:(nullable ApplilinkParameters *)appParam delegate:(nullable id)delegate;
-+ (void)toDelegateDidAppear:(nullable ApplilinkParameters *)appParam delegate:(nullable id)delegate;
-+ (void)toDelegateDidDisappear:(nullable ApplilinkParameters *)appParam
-                      delegate:(nullable id)delegate;
-+ (void)toDelegateFailLoadWithError:(nullable NSError *)error
-                           appParam:(nullable ApplilinkParameters *)appParam
-                           delegate:(nullable id)delegate;
-+ (void)toDelegateFailLinkWithError:(nullable NSError *)error
-                           appParam:(nullable ApplilinkParameters *)appParam
-                           delegate:(nullable id)delegate;
-+ (void)toDelegateSoundUseStart:(nullable id)delegate;
-+ (void)toDelegateSoundUseFinish:(nullable id)delegate;
++ (UIColor *)getIndicatorColor;
++ (void)toDelegateDidStart:(ApplilinkParameters *)appParam delegate:(id)delegate;
++ (void)toDelegateDidAppear:(ApplilinkParameters *)appParam delegate:(id)delegate;
++ (void)toDelegateDidDisappear:(ApplilinkParameters *)appParam delegate:(id)delegate;
++ (void)toDelegateFailLoadWithError:(NSError *)error
+                           appParam:(ApplilinkParameters *)appParam
+                           delegate:(id)delegate;
++ (void)toDelegateFailLinkWithError:(NSError *)error
+                           appParam:(ApplilinkParameters *)appParam
+                           delegate:(id)delegate;
++ (void)toDelegateSoundUseStart:(id)delegate;
++ (void)toDelegateSoundUseFinish:(id)delegate;
 @end
 
 @interface RecommendCore : NSObject
@@ -35,39 +34,38 @@
 @end
 
 @interface RecommendAdData : NSObject
-+ (int)getAdTypeWithAdModel:(int)adModel adLocation:(nullable NSString *)adLocation;
++ (int)getAdTypeWithAdModel:(int)adModel adLocation:(NSString *)adLocation;
 @end
 
 @interface RecommendAdCache : NSObject
-+ (nullable NSError *)createHtmlWithAdModel:(int)adModel
-                                 adLocation:(nullable NSString *)adLocation
-                              verticalAlign:(int)verticalAlign
-                               impressionId:(nullable NSString *)impressionId;
++ (NSError *)createHtmlWithAdModel:(int)adModel
+                        adLocation:(NSString *)adLocation
+                     verticalAlign:(int)verticalAlign
+                      impressionId:(NSString *)impressionId;
 @end
 
 @interface ApplilinkFile : NSObject
-+ (nullable NSString *)getTemplatePathWithAdModel:(int)adModel
-                                       adLocation:(nullable NSString *)adLocation;
++ (NSString *)getTemplatePathWithAdModel:(int)adModel adLocation:(NSString *)adLocation;
 @end
 
 @interface RecommendAdWebView : UIView
 - (void)loadRequestWithAdModel:(int)adModel
-                    adLocation:(nullable NSString *)adLocation
+                    adLocation:(NSString *)adLocation
                  verticalAlign:(int)verticalAlign
-                   requestCode:(nullable id)requestCode
-                      delegate:(nullable id)delegate;
+                   requestCode:(id)requestCode
+                      delegate:(id)delegate;
 - (void)closeAdArea;
 - (void)setScrollEnabled:(BOOL)scrollEnabled;
 @end
 
 @interface RecommendAdAreaView : UIView
 - (void)setAdModel:(int)adModel
-        adLocation:(nullable NSString *)adLocation
+        adLocation:(NSString *)adLocation
             adType:(int)adType
-       requestCode:(nullable id)requestCode
-          delegate:(nullable id)delegate;
-- (void)setImpressionId:(nullable NSString *)impressionId;
-- (void)startPath:(nullable NSString *)path;
+       requestCode:(id)requestCode
+          delegate:(id)delegate;
+- (void)setImpressionId:(NSString *)impressionId;
+- (void)startPath:(NSString *)path;
 - (void)closeAdArea;
 @end
 

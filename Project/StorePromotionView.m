@@ -114,7 +114,7 @@ static const CGFloat kSampleButtonPadY = 170.0;
 #pragma mark - Initialisation
 
 /** @ghidraAddress 0x1bb4a8 */
-- (instancetype)initWithFrame:(CGRect)frame promotions:(nullable NSArray *)promotions {
+- (instancetype)initWithFrame:(CGRect)frame promotions:(NSArray *)promotions {
     self = [super initWithFrame:frame];
     if (!self) {
         return nil;
@@ -246,7 +246,7 @@ static const CGFloat kSampleButtonPadY = 170.0;
 #pragma mark - Hit testing
 
 /** @ghidraAddress 0x1bc294 */
-- (nullable UIView *)hitTest:(CGPoint)point withEvent:(nullable UIEvent *)event {
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
     UIView *hit = [super hitTest:point withEvent:event];
     if (hit == self) {
         return scrollView;
@@ -315,7 +315,7 @@ static const CGFloat kSampleButtonPadY = 170.0;
 #pragma mark - Actions
 
 /** @ghidraAddress 0x1bc710 */
-- (void)bannerTapped:(nonnull UITapGestureRecognizer *)recognizer {
+- (void)bannerTapped:(UITapGestureRecognizer *)recognizer {
     BannerView *banner = (BannerView *)recognizer.view;
     StorePromotion *promotion = banner.promotion;
     if (promotion.packInfo) {
@@ -330,7 +330,7 @@ static const CGFloat kSampleButtonPadY = 170.0;
 }
 
 /** @ghidraAddress 0x1bc8b8 */
-- (void)tapSampleBtn:(nullable id)sender {
+- (void)tapSampleBtn:(id)sender {
     const BOOL wasEnabled = bEnableThumbnailPlay;
     bEnableThumbnailPlay = !wasEnabled;
     [self thumbnailMute:!wasEnabled];
@@ -353,7 +353,7 @@ static const CGFloat kSampleButtonPadY = 170.0;
 #pragma mark - UIScrollViewDelegate
 
 /** @ghidraAddress 0x1bc990 */
-- (void)scrollViewWillBeginDragging:(nonnull UIScrollView *)aScrollView {
+- (void)scrollViewWillBeginDragging:(UIScrollView *)aScrollView {
     if (paused) {
         return;
     }
@@ -362,7 +362,7 @@ static const CGFloat kSampleButtonPadY = 170.0;
 }
 
 /** @ghidraAddress 0x1bc9f0 */
-- (void)scrollViewDidScroll:(nonnull UIScrollView *)aScrollView {
+- (void)scrollViewDidScroll:(UIScrollView *)aScrollView {
     const CGPoint offset = scrollView.contentOffset;
     const double span = (double)(arrayBannerView.count - 2) * pageWidth;
     const double halfPage = pageWidth * 0.5;
@@ -379,16 +379,15 @@ static const CGFloat kSampleButtonPadY = 170.0;
 }
 
 /** @ghidraAddress 0x1bcaac */
-- (void)scrollViewDidEndDragging:(nonnull UIScrollView *)aScrollView
-                  willDecelerate:(BOOL)decelerate {
+- (void)scrollViewDidEndDragging:(UIScrollView *)aScrollView willDecelerate:(BOOL)decelerate {
 }
 
 /** @ghidraAddress 0x1bcab0 */
-- (void)scrollViewWillBeginDecelerating:(nonnull UIScrollView *)aScrollView {
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)aScrollView {
 }
 
 /** @ghidraAddress 0x1bcab4 */
-- (void)scrollViewDidEndDecelerating:(nonnull UIScrollView *)aScrollView {
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)aScrollView {
     if (paused) {
         return;
     }
@@ -433,7 +432,7 @@ static const CGFloat kSampleButtonPadY = 170.0;
 }
 
 /** @ghidraAddress 0x1bcd48 */
-- (nullable NSData *)getThumbnailData:(nullable StorePromotion *)promotion {
+- (NSData *)getThumbnailData:(StorePromotion *)promotion {
     NSString *name = promotion.getSampleName;
     if (!name) {
         return nil;
@@ -465,7 +464,7 @@ static const CGFloat kSampleButtonPadY = 170.0;
 }
 
 /** @ghidraAddress 0x1bcfb4 */
-- (void)downloadImageSync:(nonnull NSArray *)args {
+- (void)downloadImageSync:(NSArray *)args {
     @autoreleasepool {
         NSURL *url = args[0];
         NSString *key = args[1];
@@ -479,7 +478,7 @@ static const CGFloat kSampleButtonPadY = 170.0;
         // session; the latter is only used for the banner artwork.
         NSURLSessionDataTask *task = [NSURLSession.sharedSession
             dataTaskWithRequest:request
-              completionHandler:^(NSData *_Nullable data,
+              completionHandler:^(NSData *data,
                                   NSURLResponse *__attribute__((unused)) response,
                                   NSError *__attribute__((unused)) error) {
                 /** @ghidraAddress 0x1bd1b4 */
@@ -501,7 +500,7 @@ static const CGFloat kSampleButtonPadY = 170.0;
 }
 
 /** @ghidraAddress 0x1bd3c8 */
-- (void)playThumbnail:(nullable NSString *)name data:(nullable NSData *)data {
+- (void)playThumbnail:(NSString *)name data:(NSData *)data {
     if (bThumbnailPlaying && name && data) {
         if (![currentThumbNail isEqualToString:name]) {
             bIsSoundPlaying = YES;

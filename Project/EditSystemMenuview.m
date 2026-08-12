@@ -15,7 +15,7 @@
 @protocol EditSystemMenuDelegate <NSObject>
 @optional
 - (void)selectExit;
-- (void)selectLoadSlot:(nullable NSNumber *)slot;
+- (void)selectLoadSlot:(NSNumber *)slot;
 @end
 
 // The two reuse identifiers: the EXIT command cell and the saved-chart load cells.

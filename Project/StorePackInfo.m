@@ -3,16 +3,9 @@
 #import <UIKit/UIKit.h>
 
 #import "JubeatAppDelegate.h"
+#import "NSDictionary+TypedLookupExtension.h"
 #import "StoreMusicInfo.h"
 #import "StoreUtil.h"
-
-// The typed-accessor category the store dictionaries are read through; a category on NSDictionary
-// not reconstructed as its own file yet. See TYPES_PENDING.md.
-@interface NSDictionary (TypedAccessors)
-- (nullable NSNumber *)numberForKey:(nonnull id)key;
-- (nullable NSString *)stringForKey:(nonnull id)key;
-- (nullable NSArray *)arrayForKey:(nonnull id)key;
-@end
 
 // The store dictionary keys.
 static NSString *const kPackKeyID = @"ID";

@@ -81,10 +81,10 @@ static const NSTimeInterval kFadeDuration = 0.6;
 }
 
 /** @ghidraAddress 0xfab78 */
-- (instancetype)init:(nullable id<MessageTextViewDelegate>)delegateArg
-               title:(nullable NSString *)title
-                 url:(nullable NSURL *)url
-                send:(nullable NSDictionary *)send {
+- (instancetype)init:(id<MessageTextViewDelegate>)delegateArg
+               title:(NSString *)title
+                 url:(NSURL *)url
+                send:(NSDictionary *)send {
     BOOL isPad = JubeatAppDelegate.appDelegate.isPad;
     fScale = kBoardScalePhone;
     titleString = title;
@@ -104,9 +104,9 @@ static const NSTimeInterval kFadeDuration = 0.6;
 }
 
 /** @ghidraAddress 0xfad40 */
-- (instancetype)init:(nullable id<MessageTextViewDelegate>)delegateArg
-               title:(nullable NSString *)title
-             message:(nullable id)message {
+- (instancetype)init:(id<MessageTextViewDelegate>)delegateArg
+               title:(NSString *)title
+             message:(id)message {
     BOOL isPad = JubeatAppDelegate.appDelegate.isPad;
     fScale = kBoardScalePhone;
     titleString = title;
@@ -123,7 +123,7 @@ static const NSTimeInterval kFadeDuration = 0.6;
 }
 
 /** @ghidraAddress 0xfaeb0 */
-- (void)sendErrorDelegate:(nullable NSString *)msgStr {
+- (void)sendErrorDelegate:(NSString *)msgStr {
     if ([delegate respondsToSelector:@selector(messageDownloadError:msgStr:)]) {
         [delegate performSelector:@selector(messageDownloadError:msgStr:)
                        withObject:self
@@ -132,7 +132,7 @@ static const NSTimeInterval kFadeDuration = 0.6;
 }
 
 /** @ghidraAddress 0xfaf58 */
-- (void)downloaderFinished:(nullable id)downloader {
+- (void)downloaderFinished:(id)downloader {
     NSDictionary *json = [downloader getDataInJSON];
     NSString *errorMessage = [NSBundle.mainBundle localizedStringForKey:@"NetworkErrorMsg"
                                                                   value:@""
@@ -158,20 +158,20 @@ static const NSTimeInterval kFadeDuration = 0.6;
 }
 
 /** @ghidraAddress 0xfb1c8 */
-- (void)downloaderError:(nullable id)downloader {
+- (void)downloaderError:(id)downloader {
     [self sendErrorDelegate:nil];
 }
 
 /** @ghidraAddress 0xfb1d8 */
-- (void)downloaderProceed:(nullable id)downloader {
+- (void)downloaderProceed:(id)downloader {
 }
 
 /** @ghidraAddress 0xfb1dc */
-- (void)displayMessage:(nullable id)message {
+- (void)displayMessage:(id)message {
 }
 
 /** @ghidraAddress 0xfb1e0 */
-- (void)createMessageBoard:(nullable id)message {
+- (void)createMessageBoard:(id)message {
     CGFloat boardWidth = self.frame.size.width;
     CGFloat boardHeight = self.frame.size.height;
 
@@ -255,7 +255,7 @@ static const NSTimeInterval kFadeDuration = 0.6;
 }
 
 /** @ghidraAddress 0xfbc98 */
-- (void)pushAgree:(nullable id)sender {
+- (void)pushAgree:(id)sender {
     [UIView animateWithDuration:kFadeDuration
         animations:^{
           /** @ghidraAddress 0xfbd54 */

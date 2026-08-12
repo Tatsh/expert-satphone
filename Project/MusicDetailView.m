@@ -197,13 +197,13 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 #pragma mark - Info
 
 /** @ghidraAddress 0x127790 */
-- (void)setInfo:(nullable TuneInfo *)info score:(nullable id)score {
+- (void)setInfo:(TuneInfo *)info score:(id)score {
     // The score argument is accepted but discarded in this build.
     self.info = info;
 }
 
 /** @ghidraAddress 0x1277d0 */
-- (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable id)score {
+- (void)setExtendInfo:(TuneInfo *)info score:(id)score {
     // The score argument is accepted but discarded in this build.
     self.extendInfo = info;
 }
@@ -213,11 +213,11 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 }
 
 /** @ghidraAddress 0x127814 */
-- (void)loadContentFromDictionary:(nullable NSDictionary *)dict {
+- (void)loadContentFromDictionary:(NSDictionary *)dict {
 }
 
 /** @ghidraAddress 0x127818 */
-- (void)loadContentFromPath:(nullable NSString *)path orData:(nullable NSData *)data {
+- (void)loadContentFromPath:(NSString *)path orData:(NSData *)data {
 }
 
 /** @ghidraAddress 0x12781c */
@@ -239,14 +239,14 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 #pragma mark - Link and recommend
 
 /** @ghidraAddress 0x12782c */
-- (void)pushLink:(nullable id)sender {
+- (void)pushLink:(id)sender {
     if (self.info.iTunesURL) {
         [UIApplication.sharedApplication openURL:[NSURL URLWithString:self.info.iTunesURL]];
     }
 }
 
 /** @ghidraAddress 0x127958 */
-- (void)pushRecommend:(nullable id)sender {
+- (void)pushRecommend:(id)sender {
     self.socialType = SLServiceTypeFacebook;
     if ([(UIView *)sender tag] == kRecommendTagTwitter) {
         self.socialType = SLServiceTypeTwitter;
@@ -284,7 +284,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 }
 
 /** @ghidraAddress 0x127fb0 */
-- (void)packIDSearchEnd:(nullable SearchPackIDView *)view {
+- (void)packIDSearchEnd:(SearchPackIDView *)view {
     NSString *recommendString = [self getRecommendString];
     __weak SearchPackIDView *weakSearch = self.searchPackView;
     __weak UIView *weakTopcover = self.topcover;
@@ -304,7 +304,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 }
 
 /** @ghidraAddress 0x128308 */
-- (void)packIDSearchCancel:(nullable SearchPackIDView *)view {
+- (void)packIDSearchCancel:(SearchPackIDView *)view {
     __weak SearchPackIDView *weakSearch = self.searchPackView;
     __weak UIView *weakTopcover = self.topcover;
     weakSearch.alpha = 1.0;
@@ -323,7 +323,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 }
 
 /** @ghidraAddress 0x128638 */
-- (nullable NSString *)getRecommendString {
+- (NSString *)getRecommendString {
     if (self.searchPackView == nil) {
         return nil;
     }
@@ -341,7 +341,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 #pragma mark - Social share
 
 /** @ghidraAddress 0x128768 */
-- (void)socialSend:(nullable NSString *)service sendText:(nullable NSString *)text {
+- (void)socialSend:(NSString *)service sendText:(NSString *)text {
     SLComposeViewController *composer =
         [SLComposeViewController composeViewControllerForServiceType:service];
     [composer setInitialText:(text ? text : @"")];
@@ -355,7 +355,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 }
 
 /** @ghidraAddress 0x128928 */
-- (void)sendTwitter:(nullable NSString *)text {
+- (void)sendTwitter:(NSString *)text {
     [self socialSend:SLServiceTypeTwitter sendText:text];
 }
 
@@ -384,7 +384,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 }
 
 /** @ghidraAddress 0x128ac4 */
-- (void)putScore:(nullable ScoreRecord *)score {
+- (void)putScore:(ScoreRecord *)score {
     if (![ScoreRecord checkScore:score]) {
         return;
     }
@@ -415,7 +415,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 }
 
 /** @ghidraAddress 0x128f98 */
-- (void)putExtendScore:(nullable ScoreRecord *)score {
+- (void)putExtendScore:(ScoreRecord *)score {
     if (![ScoreRecord checkScore:score]) {
         return;
     }
@@ -466,7 +466,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 #pragma mark - Share dictionary
 
 /** @ghidraAddress 0x1295c0 */
-- (nullable NSDictionary *)infoDictForShare {
+- (NSDictionary *)infoDictForShare {
     KUnzip *archive = [[KUnzip alloc] initWithPath:self.info.filePath tail:kShareArchiveTail];
     if (archive == nil) {
         return self.info.infoDict;
@@ -603,7 +603,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 #pragma mark - Download and store
 
 /** @ghidraAddress 0x12a074 */
-- (void)downloadEnd:(nullable id)sender {
+- (void)downloadEnd:(id)sender {
     if (self.isPad) {
         return;
     }
@@ -615,7 +615,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 }
 
 /** @ghidraAddress 0x12a198 */
-- (void)moveStore:(nullable id)store packID:(nullable NSString *)packID {
+- (void)moveStore:(id)store packID:(NSString *)packID {
     [self.controller dismissViewControllerAnimated:YES completion:nil];
     [self.controller turnToPackPurchase:packID];
 }
@@ -627,7 +627,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 }
 
 /** @ghidraAddress 0x12a23c */
-- (void)dtpGesture:(nullable UITapGestureRecognizer *)gesture {
+- (void)dtpGesture:(UITapGestureRecognizer *)gesture {
     [self.controller setRandomSelect];
 }
 
@@ -636,7 +636,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 }
 
 /** @ghidraAddress 0x12a280 */
-- (void)lpGesture:(nullable UILongPressGestureRecognizer *)gesture {
+- (void)lpGesture:(UILongPressGestureRecognizer *)gesture {
     if (gesture.state == UIGestureRecognizerStateBegan) {
         JubeatAppDelegate *appDelegate = [JubeatAppDelegate appDelegate];
         [appDelegate setRandomFlag:!appDelegate.isRandom];

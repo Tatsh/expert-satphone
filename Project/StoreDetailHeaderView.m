@@ -6,10 +6,6 @@
 #import "ImageLoading.h"
 #import "StoreUtil.h"
 
-// Builds a vertically-flipped, gradient-faded reflection of an image; a free function not
-// reconstructed yet. See TYPES_PENDING.md.
-FOUNDATION_EXTERN UIImage *_Nullable CreateReflectedImage(UIImage *_Nullable image, int height);
-
 // The background art and its uniform resizable cap inset.
 static NSString *const kDetailBackgroundImageName = @"store_pack_bg_0";
 static const CGFloat kDetailBackgroundCapInset = 4.0;

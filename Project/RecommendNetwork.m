@@ -10,54 +10,54 @@
 @interface RecommendCore : NSObject
 + (instancetype)sharedInstance;
 - (int)initializeFlg;
-- (void)getAdStatusWithAdModel:(int)adModel callback:(nullable RecommendAdStatusCallback)callback;
+- (void)getAdStatusWithAdModel:(int)adModel callback:(RecommendAdStatusCallback)callback;
 - (void)getUnreadCountWithAdModel:(int)adModel
-                       adLocation:(nullable NSString *)adLocation
-                         callback:(nullable RecommendAdStatusCallback)callback;
+                       adLocation:(NSString *)adLocation
+                         callback:(RecommendAdStatusCallback)callback;
 - (void)getAdDisplayStatusWithAdModel:(int)adModel
-                           adLocation:(nullable NSString *)adLocation
-                             callback:(nullable RecommendAdDisplayStatusCallback)callback;
-- (void)showOwnAdWithAdLocation:(nullable NSString *)adLocation
-                      toAppliId:(nullable NSString *)appliId
-                     creativeId:(nullable NSString *)creativeId;
-- (void)showOwnAdWithAdLocation:(nullable NSString *)adLocation
+                           adLocation:(NSString *)adLocation
+                             callback:(RecommendAdDisplayStatusCallback)callback;
+- (void)showOwnAdWithAdLocation:(NSString *)adLocation
+                      toAppliId:(NSString *)appliId
+                     creativeId:(NSString *)creativeId;
+- (void)showOwnAdWithAdLocation:(NSString *)adLocation
                         adModel:(int)adModel
-                      toAppliId:(nullable NSString *)appliId
-                     creativeId:(nullable NSString *)creativeId;
-- (void)touchOwnAdWithAdLocation:(nullable NSString *)adLocation
-                       toAppliId:(nullable NSString *)appliId
-                      creativeId:(nullable NSString *)creativeId
-                     requestCode:(nullable id)requestCode
-                        delegate:(nullable id)delegate;
-- (void)touchOwnAdWithAdLocation:(nullable NSString *)adLocation
+                      toAppliId:(NSString *)appliId
+                     creativeId:(NSString *)creativeId;
+- (void)touchOwnAdWithAdLocation:(NSString *)adLocation
+                       toAppliId:(NSString *)appliId
+                      creativeId:(NSString *)creativeId
+                     requestCode:(id)requestCode
+                        delegate:(id)delegate;
+- (void)touchOwnAdWithAdLocation:(NSString *)adLocation
                          adModel:(int)adModel
-                       toAppliId:(nullable NSString *)appliId
-                      creativeId:(nullable NSString *)creativeId
-                     requestCode:(nullable id)requestCode
-                        delegate:(nullable id)delegate;
-- (void)openAdScreenWithParentView:(nullable UIView *)parentView
+                       toAppliId:(NSString *)appliId
+                      creativeId:(NSString *)creativeId
+                     requestCode:(id)requestCode
+                        delegate:(id)delegate;
+- (void)openAdScreenWithParentView:(UIView *)parentView
                            adModel:(int)adModel
-                        adLocation:(nullable NSString *)adLocation
+                        adLocation:(NSString *)adLocation
                      verticalAlign:(int)verticalAlign
-                       requestCode:(nullable id)requestCode
-                          delegate:(nullable id)delegate;
-- (void)openAdAreaWithParentView:(nullable UIView *)parentView
+                       requestCode:(id)requestCode
+                          delegate:(id)delegate;
+- (void)openAdAreaWithParentView:(UIView *)parentView
                             rect:(CGRect)rect
                          adModel:(int)adModel
-                      adLocation:(nullable NSString *)adLocation
+                      adLocation:(NSString *)adLocation
                    verticalAlign:(int)verticalAlign
-                     requestCode:(nullable id)requestCode
-                        delegate:(nullable id)delegate;
+                     requestCode:(id)requestCode
+                        delegate:(id)delegate;
 - (void)openFullViewControllerWithAdModel:(int)adModel
-                               adLocation:(nullable NSString *)adLocation
+                               adLocation:(NSString *)adLocation
                             verticalAlign:(int)verticalAlign
-                              requestCode:(nullable id)requestCode
-                                 delegate:(nullable id)delegate;
+                              requestCode:(id)requestCode
+                                 delegate:(id)delegate;
 - (void)openMovieViewControllerWithAdModel:(int)adModel
-                                adLocation:(nullable NSString *)adLocation
+                                adLocation:(NSString *)adLocation
                              verticalAlign:(int)verticalAlign
-                               requestCode:(nullable id)requestCode
-                                  delegate:(nullable id)delegate;
+                               requestCode:(id)requestCode
+                                  delegate:(id)delegate;
 - (void)closeAdScreen;
 @end
 

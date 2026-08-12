@@ -206,7 +206,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0xa1bc0 */
-- (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent {
+- (instancetype)initWithParent:(id<StoreParentViewController>)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;
@@ -582,7 +582,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 #pragma mark - Detail presentation
 
 /** @ghidraAddress 0xa3598 */
-- (void)showDetailForPackInfo:(nullable StorePackInfo *)packInfo {
+- (void)showDetailForPackInfo:(StorePackInfo *)packInfo {
     [promotionView thumbnailMute:NO];
     ++recommendCnt;
     if (!isPad) {
@@ -687,7 +687,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 }
 
 /** @ghidraAddress 0xa050c */
-- (BOOL)tapReccommendPack:(nullable StorePackInfo *)packInfo {
+- (BOOL)tapReccommendPack:(StorePackInfo *)packInfo {
     if (!isPad) {
         if (recommendCnt < kMaxOpenDetail) {
             ++recommendCnt;
@@ -730,7 +730,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 #pragma mark - Pad detail-window stack
 
 /** @ghidraAddress 0xa088c */
-- (void)pushDetailList:(nullable StorePackDetailViewV2 *)detailView {
+- (void)pushDetailList:(StorePackDetailViewV2 *)detailView {
     NSInteger count = (NSInteger)detailWindowArray.count;
     if (count - 1 < 0) {
         return;
@@ -905,13 +905,13 @@ static const double kNeighbourDriftQuarter = 0.25;
 }
 
 /** @ghidraAddress 0xa6e84 */
-- (void)pushOpenDetail:(nullable NSNumber *)packID {
+- (void)pushOpenDetail:(NSNumber *)packID {
     (void)[packTableView.currentGenre packList][0]; // Yes, the binary reads and discards this.
     [storeViewCtrl openDetail:packID];
 }
 
 /** @ghidraAddress 0xa34d8 */
-- (void)handleTapCoverView:(nullable UITapGestureRecognizer *)recognizer {
+- (void)handleTapCoverView:(UITapGestureRecognizer *)recognizer {
     [UIApplication.sharedApplication beginIgnoringInteractionEvents];
     [packDetailViewPad cancelLoading];
     [packDetailViewPad stopSample];
@@ -921,12 +921,12 @@ static const double kNeighbourDriftQuarter = 0.25;
 }
 
 /** @ghidraAddress 0xa3584 */
-- (void)hideGenreSelect:(nullable id)sender {
+- (void)hideGenreSelect:(id)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 /** @ghidraAddress 0xa3fa8 */
-- (void)handleBackButton:(nullable id)sender {
+- (void)handleBackButton:(id)sender {
     bAlreadyBack = YES;
     [promotionView stop];
     [storeViewCtrl storeEnd:sender];
@@ -937,7 +937,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 }
 
 /** @ghidraAddress 0xa4080 */
-- (void)handleTapPolicyButton:(nullable id)sender {
+- (void)handleTapPolicyButton:(id)sender {
     [self presentViewController:termsNavCtrl animated:YES completion:nil];
 }
 
@@ -981,7 +981,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 /** @ghidraAddress 0xa40bc */
 - (void)packListDownloadSuccess:(StorePackListController *)controller
                       isInitial:(BOOL)isInitial
-                       showPack:(nullable StorePackInfo *)showPack {
+                       showPack:(StorePackInfo *)showPack {
     if (isInitial) {
         CGFloat listHeight = [StoreUtil storeCategoryListHeight];
         CGFloat titleHeight = [StoreUtil storeCategoryTitleHeight];
@@ -1184,7 +1184,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 
 /** @ghidraAddress 0xa5554 */
 - (void)additionPackInfoDownloadSuccess:(StorePackListController *)controller
-                               showPack:(nullable StorePackInfo *)showPack {
+                               showPack:(StorePackInfo *)showPack {
     if (showPack) {
         [self showDetailForPackInfo:showPack];
     }
@@ -1192,7 +1192,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 
 /** @ghidraAddress 0xa5640 */
 - (void)packListDownloadError:(StorePackListController *)controller
-                 errorMessage:(nullable NSString *)errorMessage {
+                 errorMessage:(NSString *)errorMessage {
     if (!errorMessage) {
         errorMessage = [NSBundle.mainBundle localizedStringForKey:kLocKeyNetworkErrorMessage
                                                             value:kEmptyValue
@@ -1261,7 +1261,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 }
 
 /** @ghidraAddress 0xa5a88 */
-- (void)storePackTableViewShowDetail:(nullable StorePackInfo *)packInfo {
+- (void)storePackTableViewShowDetail:(StorePackInfo *)packInfo {
     if (packInfo) {
         [self showDetailForPackInfo:packInfo];
     }
@@ -1273,7 +1273,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 }
 
 /** @ghidraAddress 0xa5aac */
-- (void)storePackDetailViewOpenItunesWithURL:(nullable NSURL *)url {
+- (void)storePackDetailViewOpenItunesWithURL:(NSURL *)url {
     if (!url) {
         return;
     }
@@ -1304,7 +1304,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 }
 
 /** @ghidraAddress 0xa0220 */
-- (void)detailViewStartPurchase:(nullable StoreDetailViewControllerV2 *)packInfo {
+- (void)detailViewStartPurchase:(StoreDetailViewControllerV2 *)packInfo {
     StorePackInfo *info = nil;
     if (!isPad) {
         currentPurchaseViewPhone = packInfo;
@@ -1319,7 +1319,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 }
 
 /** @ghidraAddress 0xa0344 */
-- (void)detailViewStartRedownload:(nullable StoreDetailViewControllerV2 *)packInfo {
+- (void)detailViewStartRedownload:(StoreDetailViewControllerV2 *)packInfo {
     StorePackInfo *info = nil;
     if (!isPad) {
         currentPurchaseViewPhone = packInfo;
@@ -1334,7 +1334,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 }
 
 /** @ghidraAddress 0xa0468 */
-- (void)detailViewStartExtendDownload:(nullable StorePackInfo *)packInfo {
+- (void)detailViewStartExtendDownload:(StorePackInfo *)packInfo {
     if ([storeViewCtrl respondsToSelector:@selector(detailViewStartExtendDownload:)]) {
         [storeViewCtrl performSelector:@selector(detailViewStartExtendDownload:)
                             withObject:packInfo];
@@ -1344,13 +1344,13 @@ static const double kNeighbourDriftQuarter = 0.25;
 #pragma mark - EditorIDManagerDelegate
 
 /** @ghidraAddress 0xa6fec */
-- (void)successIDDownload:(nullable id)manager {
+- (void)successIDDownload:(id)manager {
     idManager = nil;
     [packListCtrl startFetchGenre:packTableView.currentGenre];
 }
 
 /** @ghidraAddress 0xa7064 */
-- (void)errorIDDownload:(nullable id)manager msgStr:(nullable NSString *)msgStr {
+- (void)errorIDDownload:(id)manager msgStr:(NSString *)msgStr {
     idManager = nil;
     [packListCtrl startFetchGenre:packTableView.currentGenre];
 }
@@ -1358,7 +1358,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 #pragma mark - AlertViewManagerDelegate
 
 /** @ghidraAddress 0xa556c */
-- (void)alertSelect:(nonnull NSDictionary *)info {
+- (void)alertSelect:(NSDictionary *)info {
     if ([info[kAlertKeyButtonMessage] intValue] == kAlertButtonRestore) {
         [storeViewCtrl firstRestore];
         self.tabBarController.selectedIndex = kLibraryTabIndex;
@@ -1368,7 +1368,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 #pragma mark - SettingsNavControllerDelegate
 
 /** @ghidraAddress 0xa40a0 */
-- (void)settingsNavViewClose:(nullable id)controller {
+- (void)settingsNavViewClose:(id)controller {
     [self dismissViewControllerAnimated:YES
                              completion:^{
                                  /** @ghidraAddress 0xa40b8 */

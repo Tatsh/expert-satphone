@@ -57,7 +57,7 @@ static const NSUInteger kMarkerNumberLength = 4;
 
 // MarkerManager vends the installed list and its default size; neither is reconstructed yet.
 @interface MarkerManager (MarkerDownloadViewPending)
-+ (nullable NSMutableArray *)getMarkerList;
++ (NSMutableArray *)getMarkerList;
 + (int)getDefaultMarkerSize;
 @end
 

@@ -10,17 +10,17 @@
 // The advertising-udid accessor; ApplilinkUdid is not reconstructed in this tree yet. See
 // TYPES_PENDING.md.
 @interface ApplilinkUdid : NSObject
-+ (nullable NSString *)getAdUdid;
++ (NSString *)getAdUdid;
 @end
 
 // The synchronous web-API entry point ApplilinkWebAPI vends; not yet declared in its header. See
 // TYPES_PENDING.md.
 @interface ApplilinkWebAPI (Synchronous)
-+ (nullable NSDictionary *)requestSynchronousWithURL:(nullable NSString *)url
-                                              method:(nullable NSString *)method
-                                          parameters:(nullable NSDictionary *)parameters
-                                         cachePolicy:(nullable id)cachePolicy
-                                               error:(NSError *_Nullable *_Nullable)error;
++ (NSDictionary *)requestSynchronousWithURL:(NSString *)url
+                                     method:(NSString *)method
+                                 parameters:(NSDictionary *)parameters
+                                cachePolicy:(id)cachePolicy
+                                      error:(NSError **)error;
 @end
 
 // The lowest iOS version whose ad-identifier record is stored server-side (through the Applilink
@@ -101,21 +101,21 @@ enum {
     // The local device pasteboard name; also the Crypto hashing key for locally stored records.
     NSString *_serviceName;
 }
-- (nullable NSDictionary *)convertToData:(nullable NSDictionary *)data;
-- (nullable NSDictionary *)getPasteboardWithUdid:(nullable NSString *)udid
-                                     countryCode:(nullable NSString *)countryCode
-                                      categoryId:(nullable NSString *)categoryId
-                                           error:(NSError *_Nullable *_Nullable)error;
-- (void)setPasteboardWithUdid:(nullable NSString *)udid
-                  countryCode:(nullable NSString *)countryCode
-                   categoryId:(nullable NSString *)categoryId
-                     adIdFrom:(nullable NSString *)adIdFrom
-                       adType:(nullable NSString *)adType
-                        error:(NSError *_Nullable *_Nullable)error;
-- (void)deletePasteboardWithUdid:(nullable NSString *)udid
-                     countryCode:(nullable NSString *)countryCode
-                      categoryId:(nullable NSString *)categoryId
-                           error:(NSError *_Nullable *_Nullable)error;
+- (NSDictionary *)convertToData:(NSDictionary *)data;
+- (NSDictionary *)getPasteboardWithUdid:(NSString *)udid
+                            countryCode:(NSString *)countryCode
+                             categoryId:(NSString *)categoryId
+                                  error:(NSError **)error;
+- (void)setPasteboardWithUdid:(NSString *)udid
+                  countryCode:(NSString *)countryCode
+                   categoryId:(NSString *)categoryId
+                     adIdFrom:(NSString *)adIdFrom
+                       adType:(NSString *)adType
+                        error:(NSError **)error;
+- (void)deletePasteboardWithUdid:(NSString *)udid
+                     countryCode:(NSString *)countryCode
+                      categoryId:(NSString *)categoryId
+                           error:(NSError **)error;
 @end
 
 @implementation RecommendAdId
@@ -137,7 +137,7 @@ enum {
 /** @ghidraAddress 0x22bad8 */
 - (NSDictionary *)getWithCountryCode:(NSString *)countryCode
                           categoryId:(NSString *)categoryId
-                               error:(NSError *_Nullable *)error {
+                               error:(NSError **)error {
     if ([UIDevice currentDevice].systemVersion.floatValue >= kServerStorageMinimumSystemVersion) {
         NSString *udid = [ApplilinkUdid getAdUdid];
         if (udid == nil) {
@@ -185,7 +185,7 @@ enum {
             countryCode:(NSString *)countryCode
              categoryId:(NSString *)categoryId
                  adType:(NSString *)adType
-                  error:(NSError *_Nullable *)error {
+                  error:(NSError **)error {
     if ([UIDevice currentDevice].systemVersion.floatValue >= kServerStorageMinimumSystemVersion) {
         NSString *udid = [ApplilinkUdid getAdUdid];
         if (udid == nil) {
@@ -282,7 +282,7 @@ enum {
 /** @ghidraAddress 0x22c5a4 */
 - (BOOL)deleteWithCountryCode:(NSString *)countryCode
                    categoryId:(NSString *)categoryId
-                        error:(NSError *_Nullable *)error {
+                        error:(NSError **)error {
     if ([UIDevice currentDevice].systemVersion.floatValue >= kServerStorageMinimumSystemVersion) {
         NSString *udid = [ApplilinkUdid getAdUdid];
         if (udid == nil) {
@@ -413,7 +413,7 @@ static NSInteger ErrorCodeForResponse(NSDictionary *response) {
 - (NSDictionary *)getPasteboardWithUdid:(NSString *)udid
                             countryCode:(NSString *)countryCode
                              categoryId:(NSString *)categoryId
-                                  error:(NSError *_Nullable *)error {
+                                  error:(NSError **)error {
     NSMutableDictionary *body = [NSMutableDictionary dictionaryWithCapacity:3];
     if (udid != nil) {
         [body setValue:udid forKey:kRequestKeyUdid];
@@ -478,7 +478,7 @@ static NSInteger ErrorCodeForResponse(NSDictionary *response) {
                    categoryId:(NSString *)categoryId
                      adIdFrom:(NSString *)adIdFrom
                        adType:(NSString *)adType
-                        error:(NSError *_Nullable *)error {
+                        error:(NSError **)error {
     NSMutableDictionary *body = [NSMutableDictionary dictionaryWithCapacity:5];
     if (udid != nil) {
         [body setValue:udid forKey:kRequestKeyUdid];
@@ -526,7 +526,7 @@ static NSInteger ErrorCodeForResponse(NSDictionary *response) {
 - (void)deletePasteboardWithUdid:(NSString *)udid
                      countryCode:(NSString *)countryCode
                       categoryId:(NSString *)categoryId
-                           error:(NSError *_Nullable *)error {
+                           error:(NSError **)error {
     NSMutableDictionary *body = [NSMutableDictionary dictionaryWithCapacity:3];
     if (udid != nil) {
         [body setValue:udid forKey:kRequestKeyUdid];

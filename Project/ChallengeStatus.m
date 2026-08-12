@@ -105,14 +105,14 @@ static NSString *const kNotificationExpireKey = @"expire";
 }
 
 // Redeclared readwrite for internal mutation.
-@property(nonatomic, strong, readwrite, nullable) NSNumber *scratchID;
-@property(nonatomic, strong, readwrite, nullable) NSString *personalInfoURL;
-@property(nonatomic, strong, readwrite, nullable) NSArray *enableMissionSheets;
+@property(nonatomic, strong, readwrite) NSNumber *scratchID;
+@property(nonatomic, strong, readwrite) NSString *personalInfoURL;
+@property(nonatomic, strong, readwrite) NSArray *enableMissionSheets;
 @property(nonatomic, assign, readwrite) BOOL bInitialized;
 @property(nonatomic, assign, readwrite) int presentNum;
 @property(nonatomic, assign, readwrite) BOOL bItemDownload;
 @property(nonatomic, assign, readwrite) float phoneScreenRate;
-@property(nonatomic, weak, readwrite, nullable) ChallengeModeRootView *rootView;
+@property(nonatomic, weak, readwrite) ChallengeModeRootView *rootView;
 
 @end
 

@@ -6,13 +6,13 @@
 // The recommend ad-area API this controller drives, and the informal view-delegate callbacks it
 // implements. RecommendNetwork is not reconstructed in this tree yet. See TYPES_PENDING.md.
 @interface RecommendNetwork : NSObject
-+ (void)openAdAreaWithParentView:(nullable UIView *)parentView
++ (void)openAdAreaWithParentView:(UIView *)parentView
                             rect:(CGRect)rect
                          adModel:(int)adModel
-                      adLocation:(nullable NSString *)adLocation
+                      adLocation:(NSString *)adLocation
                    verticalAlign:(int)verticalAlign
-                        delegate:(nullable id)delegate;
-+ (void)closeAdAreaWithParentView:(nullable UIView *)parentView;
+                        delegate:(id)delegate;
++ (void)closeAdAreaWithParentView:(UIView *)parentView;
 @end
 
 // The ad location the settings recommend area is opened at.
@@ -38,7 +38,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 }
 - (void)appListDidAppear;
 - (void)appListDidDisappear;
-- (void)appListFailLoadWithError:(nullable NSError *)error;
+- (void)appListFailLoadWithError:(NSError *)error;
 @end
 
 @implementation SettingsRecommendViewController

@@ -56,7 +56,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0x1b749c */
-- (instancetype)initWithDelegate:(nullable id)aDelegate {
+- (instancetype)initWithDelegate:(id)aDelegate {
     self = [super init];
     if (self) {
         delegate = aDelegate;
@@ -66,7 +66,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 }
 
 /** @ghidraAddress 0x1b7520 */
-- (void)setDownloadList:(nullable NSArray *)list {
+- (void)setDownloadList:(NSArray *)list {
     if (downloadList != nil) {
         downloadList = nil;
     }
@@ -89,7 +89,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 #pragma mark - List queries
 
 /** @ghidraAddress 0x1b75b8 */
-+ (int)getMarkerIndex:(nullable NSString *)markerID {
++ (int)getMarkerIndex:(NSString *)markerID {
     NSArray<NSDictionary<NSString *, NSString *> *> *list = [self getCurrentMarkerList];
     int index = 0;
     for (NSDictionary<NSString *, NSString *> *info in list) {
@@ -102,7 +102,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 }
 
 /** @ghidraAddress 0x1b775c */
-+ (nullable NSMutableArray<NSDictionary<NSString *, NSString *> *> *)getMarkerList {
++ (NSMutableArray<NSDictionary<NSString *, NSString *> *> *)getMarkerList {
     NSMutableData *data =
         [[NSUserDefaults.standardUserDefaults objectForKey:kPrefMarkerInfoList] mutableCopy];
     if (data == nil) {
@@ -117,7 +117,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 }
 
 /** @ghidraAddress 0x1b78b4 */
-+ (void)setMarkerList:(nullable NSArray<NSDictionary<NSString *, NSString *> *> *)list {
++ (void)setMarkerList:(NSArray<NSDictionary<NSString *, NSString *> *> *)list {
     NSArray *snapshot = [NSArray arrayWithArray:list];
     NSData *archived = [NSKeyedArchiver archivedDataWithRootObject:snapshot];
     NSMutableData *data = [NSMutableData dataWithData:archived];
@@ -129,7 +129,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 }
 
 /** @ghidraAddress 0x1b7a04 */
-+ (nullable NSMutableArray<NSDictionary<NSString *, NSString *> *> *)getCurrentMarkerList {
++ (NSMutableArray<NSDictionary<NSString *, NSString *> *> *)getCurrentMarkerList {
     NSMutableArray<NSDictionary<NSString *, NSString *> *> *current = [[NSMutableArray alloc] init];
     NSArray<NSDictionary<NSString *, NSString *> *> *list = [self getMarkerList];
     for (NSDictionary<NSString *, NSString *> *info in list) {
@@ -141,12 +141,12 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 }
 
 /** @ghidraAddress 0x1b7bb8 */
-+ (nullable NSDictionary<NSString *, NSString *> *)getMarkerInfo:(int)index {
++ (NSDictionary<NSString *, NSString *> *)getMarkerInfo:(int)index {
     return [self getCurrentMarkerList][index];
 }
 
 /** @ghidraAddress 0x1b7c1c */
-+ (void)setMarkerInfo:(nullable NSDictionary<NSString *, NSString *> *)info {
++ (void)setMarkerInfo:(NSDictionary<NSString *, NSString *> *)info {
     NSString *markerID = info[kMarkerInfoKeyMarkerID];
     NSMutableArray<NSDictionary<NSString *, NSString *> *> *list = [self getMarkerList];
     for (NSUInteger i = 0; i < list.count; ++i) {
@@ -175,12 +175,12 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 #pragma mark - Data checks
 
 /** @ghidraAddress 0x1b7ef8 */
-+ (BOOL)checkMarkerBannerData:(nullable NSString *)name {
++ (BOOL)checkMarkerBannerData:(NSString *)name {
     return YES;
 }
 
 /** @ghidraAddress 0x1b7f00 */
-+ (BOOL)checkMarkerData:(nullable NSString *)name {
++ (BOOL)checkMarkerData:(NSString *)name {
     NSFileManager *fileManager = NSFileManager.defaultManager;
     NSString *path = [self getMarkerPath:name];
     if (![fileManager fileExistsAtPath:path]) {
@@ -202,7 +202,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 #pragma mark - Backup exclusion
 
 /** @ghidraAddress 0x1b80a8 */
-+ (void)setIgnoreSave:(nullable NSURL *)url {
++ (void)setIgnoreSave:(NSURL *)url {
     NSError *error = nil;
     [url setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&error];
 }
@@ -210,7 +210,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 #pragma mark - Installation
 
 /** @ghidraAddress 0x1b8144 */
-+ (void)pullOutMarkerBanner:(nullable NSString *)path bannerID:(nullable NSString *)bannerID {
++ (void)pullOutMarkerBanner:(NSString *)path bannerID:(NSString *)bannerID {
     KUnzip *archive = [[KUnzip alloc] initWithPath:path];
     if (![archive fileExists:kBannerArchiveEntryName]) {
         [self copyMarkerItem:bannerID isBanner:YES];
@@ -223,7 +223,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 }
 
 /** @ghidraAddress 0x1b82ac */
-+ (void)saveMarker:(nullable NSData *)data markerID:(nullable NSString *)markerID {
++ (void)saveMarker:(NSData *)data markerID:(NSString *)markerID {
     NSString *path = [self getMarkerPath:markerID];
     NSURL *url = [[NSURL alloc] initFileURLWithPath:path isDirectory:NO];
     [data writeToURL:url atomically:YES];
@@ -231,7 +231,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 }
 
 /** @ghidraAddress 0x1b8378 */
-+ (void)copyMarkerItem:(nullable NSString *)name isBanner:(BOOL)isBanner {
++ (void)copyMarkerItem:(NSString *)name isBanner:(BOOL)isBanner {
     NSString *directory = [self getMarkerDirectoryPath];
     if (isBanner) {
         directory = [directory stringByAppendingPathComponent:kBannerDirectoryComponent];
@@ -252,17 +252,17 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 }
 
 /** @ghidraAddress 0x1b8634 */
-+ (void)copyMarker:(nullable NSString *)name {
++ (void)copyMarker:(NSString *)name {
     [self copyMarkerItem:name isBanner:NO];
 }
 
 /** @ghidraAddress 0x1b8644 */
-+ (void)copyMarkerBanner:(nullable NSString *)name {
++ (void)copyMarkerBanner:(NSString *)name {
     [self copyMarkerItem:name isBanner:YES];
 }
 
 /** @ghidraAddress 0x1b8654 */
-+ (void)markerMove:(nullable NSString *)markerID bannerID:(nullable NSString *)bannerID {
++ (void)markerMove:(NSString *)markerID bannerID:(NSString *)bannerID {
     [self copyMarkerItem:markerID isBanner:NO];
     [self copyMarkerItem:bannerID isBanner:YES];
 }
@@ -270,7 +270,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 #pragma mark - Path building
 
 /** @ghidraAddress 0x1b86d0 */
-+ (nullable NSString *)getMarkerDirectoryPath {
++ (NSString *)getMarkerDirectoryPath {
     NSFileManager *fileManager = NSFileManager.defaultManager;
     NSString *libraryDirectory = JubeatAppDelegate.appLibraryDirectory;
     NSString *privateDocuments =
@@ -296,14 +296,14 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 }
 
 /** @ghidraAddress 0x1b884c */
-+ (nullable NSString *)getMarkerPath:(nullable NSString *)name {
++ (NSString *)getMarkerPath:(NSString *)name {
     NSString *directory = [self getMarkerDirectoryPath];
     NSString *fileName = [NSString stringWithFormat:kMarkerFileNameFormat, name];
     return [directory stringByAppendingPathComponent:fileName];
 }
 
 /** @ghidraAddress 0x1b8910 */
-+ (nullable NSString *)getMarkerBannerPath:(nullable NSString *)name {
++ (NSString *)getMarkerBannerPath:(NSString *)name {
     NSString *bannerDirectory =
         [[self getMarkerDirectoryPath] stringByAppendingPathComponent:kBannerDirectoryComponent];
     NSString *fileName = [NSString stringWithFormat:kBannerFileNameFormat, name];

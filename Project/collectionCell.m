@@ -9,11 +9,11 @@
                   artworkSize:(double)artworkSize
                       colType:(int)colType
                     labelDisp:(BOOL)labelDisp;
-- (void)setInfo:(nullable id)info bArtistNameDisp:(BOOL)artistNameDisp;
-- (void)setDelegate:(nullable id)delegate;
-- (nullable UIImageView *)imgView;
+- (void)setInfo:(id)info bArtistNameDisp:(BOOL)artistNameDisp;
+- (void)setDelegate:(id)delegate;
+- (UIImageView *)imgView;
 - (void)clearInfo;
-- (nullable id)tuneInfo;
+- (id)tuneInfo;
 @end
 
 @interface MusicTuneInfoStub : NSObject

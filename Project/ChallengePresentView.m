@@ -14,8 +14,8 @@
 
 @interface ChallengePresentListView : UIView
 - (instancetype)initWithFrame:(CGRect)frame;
-- (void)setListArray:(nullable NSArray *)listArray;
-- (void)setADelegate:(nullable id)delegate;
+- (void)setListArray:(NSArray *)listArray;
+- (void)setADelegate:(id)delegate;
 @end
 
 // The challenge root view messaged when a session-error alert is dismissed, and the extra

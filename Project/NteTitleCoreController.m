@@ -160,7 +160,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 }
 
 /** @ghidraAddress 0x1ce444 */
-- (instancetype)initWithNameArray:(nullable NSArray<NSString *> *)nameArray bounds:(CGRect)bounds {
+- (instancetype)initWithNameArray:(NSArray<NSString *> *)nameArray bounds:(CGRect)bounds {
     self = [super init];
     if (self) {
         bgBounds = bounds;
@@ -241,7 +241,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 #pragma mark - Background images
 
 /** @ghidraAddress 0x1ce9f8 */
-- (nullable UIImage *)getBgImage:(int)index {
+- (UIImage *)getBgImage:(int)index {
     NSString *base = fileNameArray[(NSUInteger)index];
     NSString *name = [NSString stringWithFormat:kBgImageNameFormat, base];
     return LoadScaledEncryptedTexImage(name);
@@ -413,7 +413,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 #pragma mark - Display-link loop
 
 /** @ghidraAddress 0x1cfab0 */
-- (void)loop:(nullable CADisplayLink *)sender {
+- (void)loop:(CADisplayLink *)sender {
     [glView prepareToRender];
     if (motionManager.isAccelerometerAvailable) {
         CMAccelerometerData *data = motionManager.accelerometerData;
@@ -549,7 +549,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 #pragma mark - Gestures
 
 /** @ghidraAddress 0x1d06cc */
-- (void)handleTap:(nullable UITapGestureRecognizer *)recognizer {
+- (void)handleTap:(UITapGestureRecognizer *)recognizer {
     if (!bEnableTap) {
         return;
     }
@@ -663,7 +663,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 }
 
 /** @ghidraAddress 0x1d0d58 */
-- (void)handleSwipe:(nullable UISwipeGestureRecognizer *)recognizer {
+- (void)handleSwipe:(UISwipeGestureRecognizer *)recognizer {
     // The four-direction code walks kcState/hnState in lock-step. Right/left advance the horizontal
     // legs (states 5-7), up/down the vertical legs (states 1-4).
     int next;
@@ -734,7 +734,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 #pragma mark - Suspend and resume
 
 /** @ghidraAddress 0x1d1118 */
-- (void)suspend:(nullable NSNotification *)notification {
+- (void)suspend:(NSNotification *)notification {
     if (tapRecognizer != nil) {
         [touchView.layer removeAllAnimations];
     }
@@ -745,7 +745,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 }
 
 /** @ghidraAddress 0x1d11bc */
-- (void)resume:(nullable NSNotification *)notification {
+- (void)resume:(NSNotification *)notification {
     if (tapRecognizer != nil) {
         [self blinkPrompt];
     }
@@ -794,7 +794,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 }
 
 /** @ghidraAddress 0x1d1520 */
-- (void)dropAnimEnd:(nullable NteTitleOptionDropView *)dropView {
+- (void)dropAnimEnd:(NteTitleOptionDropView *)dropView {
     [dropView removeFromSuperview];
     [addOptionView removeObject:dropView];
 }
@@ -818,7 +818,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 
 /** @ghidraAddress 0x1d1604 */
 - (void)viewWillTransitionToSize:(CGSize)size
-       withTransitionCoordinator:(nullable id<UIViewControllerTransitionCoordinator>)coordinator {
+       withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     isPortrait = YES;
     if (UIApplication.sharedApplication.statusBarOrientation !=
         UIInterfaceOrientationLandscapeRight) {
@@ -927,7 +927,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 }
 
 /** @ghidraAddress 0x1d1f8c */
-- (void)agreementError:(nullable id)manager msgStr:(nullable NSString *)msgStr {
+- (void)agreementError:(id)manager msgStr:(NSString *)msgStr {
     if (msgStr == nil || [msgStr isEqualToString:@""]) {
         msgStr = [NSBundle.mainBundle localizedStringForKey:kNetworkErrorMsgKey
                                                       value:@""
@@ -949,7 +949,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 }
 
 /** @ghidraAddress 0x1d2168 */
-- (void)agreementSuccess:(nullable id)sender {
+- (void)agreementSuccess:(id)sender {
     [licenseAgree removeFromSuperview];
     licenseAgree = nil;
     [coverView removeFromSuperview];
@@ -958,7 +958,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 }
 
 /** @ghidraAddress 0x1d21e0 */
-- (void)agreementFailed:(nullable id)sender {
+- (void)agreementFailed:(id)sender {
     [licenseAgree removeFromSuperview];
     licenseAgree = nil;
     [coverView removeFromSuperview];
@@ -966,7 +966,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 }
 
 /** @ghidraAddress 0x1d2248 */
-- (void)errorIDDownload:(nullable id)manager msgStr:(nullable NSString *)msgStr {
+- (void)errorIDDownload:(id)manager msgStr:(NSString *)msgStr {
     if (msgStr == nil || [msgStr isEqualToString:@""]) {
         msgStr = [NSBundle.mainBundle localizedStringForKey:kNetworkErrorMsgKey
                                                       value:@""
@@ -985,7 +985,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 }
 
 /** @ghidraAddress 0x1d23f0 */
-- (void)successIDDownload:(nullable id)manager {
+- (void)successIDDownload:(id)manager {
     idManager = nil;
     NSString *editorId = [EditorIDManager getKeyString:EditorIDManager.getEditorIDKey];
     if (editorId != nil) {
@@ -997,7 +997,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 #pragma mark - Motion (shake) events
 
 /** @ghidraAddress 0x1d24a4 */
-- (BOOL)checkShakeEvent:(nullable UIEvent *)event {
+- (BOOL)checkShakeEvent:(UIEvent *)event {
     return event.type == UIEventTypeMotion && event.subtype == UIEventSubtypeMotionShake;
 }
 
@@ -1007,17 +1007,17 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 }
 
 /** @ghidraAddress 0x1d2514 */
-- (void)motionBegan:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event {
+- (void)motionBegan:(UIEventSubtype)motion withEvent:(UIEvent *)event {
     [self checkShakeEvent:event];
 }
 
 /** @ghidraAddress 0x1d2524 */
-- (void)motionCancelled:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event {
+- (void)motionCancelled:(UIEventSubtype)motion withEvent:(UIEvent *)event {
     [self checkShakeEvent:event];
 }
 
 /** @ghidraAddress 0x1d2534 */
-- (void)motionEnded:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event {
+- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event {
     if ([self checkShakeEvent:event]) {
         [sePlayer sePlay];
     }

@@ -4,8 +4,8 @@
 // TYPES_PENDING.md.
 @interface RecommendCore : NSObject
 @property(class, nonatomic, readonly) RecommendCore *sharedInstance;
-- (int)redirectViewContollerWithRequest:(nullable NSURLRequest *)request;
-- (void)showVideoViewWithQuery:(nullable id)query;
+- (int)redirectViewContollerWithRequest:(NSURLRequest *)request;
+- (void)showVideoViewWithQuery:(id)query;
 @end
 
 // The binary defines a -removeFromSuperview on this controller (a coincidental selector name, not

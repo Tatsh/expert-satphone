@@ -1,18 +1,8 @@
 #import "SettingsCreditsViewController.h"
 
 #import "JubeatAppDelegate.h"
-
-// The property-list decoding helpers the credits rows lean on. NSArray parses a plist blob into an
-// array; NSDictionary exposes typed lookups. Both are reconstructed as categories elsewhere in the
-// tree (ChallengeResourceManager.m, StorePackInfo.m); declared here for this file's use.
-@interface NSArray (PropertyList)
-+ (nullable NSArray *)arrayFromPropertyListData:(nullable NSData *)data;
-@end
-
-@interface NSDictionary (TypedAccessors)
-- (nullable NSString *)stringForKey:(nonnull id)key;
-- (nullable NSArray *)arrayForKey:(nonnull id)key;
-@end
+#import "NSArray+FromData.h"
+#import "NSDictionary+TypedLookupExtension.h"
 
 // The navigation-bar title shown on the credits screen.
 static NSString *const kTitle = @"CREDITS";
@@ -53,7 +43,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 
 // Lays out one credit block, returning the vertical advance it consumed. The block is a plist
 // string of either a name array or an array of {title, value} entries.
-- (CGFloat)addCredit:(nullable const char *)credit
+- (CGFloat)addCredit:(const char *)credit
              atPoint:(CGPoint)point
                 span:(CGFloat)span
             nameSpan:(CGFloat)nameSpan;
@@ -166,7 +156,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
         CGFloat x = 170.0;
         [self addCredit:"(    { title = \"Server Programmers\";  value = ( \"Kazuki Shimizu\", "
                         "\"Kenji Maeda\", \"Makoto Harada\" ); },    { title = \"Sound "
-                        "Designers\";     value = ( \"Eri Arakawa\" ); },)"
+                        "Designers\";     value = ( \"Eri Arakawa\" ); })"
                 atPoint:CGPointMake(x, deviceType == JubeatDeviceTypePhoneRetina4Inch ? 71.0 : 47.0)
                    span:0.0
                nameSpan:0.0];
@@ -178,7 +168,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
                                      "Seino\" ); },    { title = Artist;                  value = "
                                      "( \"Takamitsu Kinjo\", \"Miho Matsuo\" ); },    { title = "
                                      "Programmers;             value = ( \"Shogo Yoshida\", "
-                                     "\"Takuji Terada\" ); },)"
+                                     "\"Takuji Terada\" ); })"
                              atPoint:CGPointMake(15.0, 44.0)
                                 span:0.0
                             nameSpan:0.0];
@@ -189,7 +179,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
                                      "Seino\" ); },    { title = Artist;                  value = "
                                      "( \"Takamitsu Kinjo\", \"Miho Matsuo\" ); },    { title = "
                                      "Programmers;             value = ( \"Shogo Yoshida\", "
-                                     "\"Takuji Terada\" ); },)"
+                                     "\"Takuji Terada\" ); })"
                              atPoint:CGPointMake(15.0, 20.0)
                                 span:0.0
                             nameSpan:0.0];
@@ -206,14 +196,14 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
         [self addCredit:"(    { title = Director;           value = ( \"Yuto Nishino\" ); },    { "
                         "title = \"Art Director\";   value = ( \"Erina Takeda\" ); },    { title = "
                         "\"Sound Director\"; value = ( \"Shigeharu Saeki\" ); },    { title = "
-                        "Producer;           value = ( \"Hiroyuki Masuda\" ); },)"
+                        "Producer;           value = ( \"Hiroyuki Masuda\" ); })"
                 atPoint:CGPointMake(35.0, cursor)
                    span:1.0
                nameSpan:-1.0];
         cursor += 12.0;
 
         cursor = [self addCredit:"(    \"Yoshito Fukuda\",    \"Shohei Sakuraba\",    \"Hitomi "
-                                 "Isono\",    \"Michi Ryu\",    \"Natsumi Otsuka\",)"
+                                 "Isono\",    \"Michi Ryu\",    \"Natsumi Otsuka\")"
                          atPoint:CGPointMake(180.0, cursor)
                             span:1.0
                         nameSpan:0.0] +
@@ -230,7 +220,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
                       "Miyahara\"); },    { title = \"Licensing Manager\";       value = ( "
                       "\"Kazuko Kuwabata\"); },    { title = \"QA Manager\";              value = "
                       "( \"Naoki Suya\" ); },    { title = \"Sales Promotion\";         value = ( "
-                      "\"Hiroyuki Kabasawa\", \"Akira Goshima\", \"Kazuya Imura\" ); },)"
+                      "\"Hiroyuki Kabasawa\", \"Akira Goshima\", \"Kazuya Imura\" ); })"
               atPoint:CGPointMake(15.0, cursor)
                  span:3.0
              nameSpan:-2.0];
@@ -238,14 +228,14 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 
         cursor = [self addCredit:"(    { title = \"Special Thanks\";      value = ( \"Daji "
                                  "Takeuchi\", \"Hidetoshi Kuraishi\", \"Manami Kochi\", "
-                                 "\"Shinsaku Inukai\" ); },)"
+                                 "\"Shinsaku Inukai\" ); })"
                          atPoint:CGPointMake(x, cursor)
                             span:4.0
                         nameSpan:-1.0] +
                  cursor + 6.0;
 
         [self addCredit:"(    { title = Producer;                value = ( \"Katsuyoshi Tanabe\" "
-                        "); },)"
+                        "); })"
                 atPoint:CGPointMake(x, cursor)
                    span:6.0
                nameSpan:0.0];
@@ -258,7 +248,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
         CGFloat x = 290.0;
         [self addCredit:"(    { title = \"Server Programmers\";  value = ( \"Kazuki Shimizu\", "
                         "\"Kenji Maeda\", \"Makoto Harada\" ); },    { title = \"Sound "
-                        "Designers\";     value = ( \"Eri Arakawa\" ); },)"
+                        "Designers\";     value = ( \"Eri Arakawa\" ); })"
                 atPoint:CGPointMake(x, 72.0)
                    span:0.0
                nameSpan:0.0];
@@ -267,7 +257,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
                                          "\"Hideyuki Seino\" ); },    { title = Artist;            "
                                          "      value = ( \"Takamitsu Kinjo\", \"Miho Matsuo\" ); "
                                          "},    { title = Programmers;             value = ( "
-                                         "\"Shogo Yoshida\", \"Takuji Terada\" ); },)"
+                                         "\"Shogo Yoshida\", \"Takuji Terada\" ); })"
                                  atPoint:CGPointMake(70.0, 40.0)
                                     span:0.0
                                 nameSpan:0.0];
@@ -282,14 +272,14 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
         [self addCredit:"(    { title = Director;           value = ( \"Yuto Nishino\" ); },    { "
                         "title = \"Art Director\";   value = ( \"Erina Takeda\" ); },    { title = "
                         "\"Sound Director\"; value = ( \"Shigeharu Saeki\" ); },    { title = "
-                        "Producer;           value = ( \"Hiroyuki Masuda\" ); },)"
+                        "Producer;           value = ( \"Hiroyuki Masuda\" ); })"
                 atPoint:CGPointMake(100.0, cursor)
                    span:2.0
                nameSpan:-1.0];
         cursor += 14.0;
 
         cursor = [self addCredit:"(    \"Yoshito Fukuda\",    \"Shohei Sakuraba\",    \"Hitomi "
-                                 "Isono\",    \"Michi Ryu\",    \"Natsumi Otsuka\",)"
+                                 "Isono\",    \"Michi Ryu\",    \"Natsumi Otsuka\")"
                          atPoint:CGPointMake(310.0, cursor)
                             span:2.0
                         nameSpan:0.0] +
@@ -306,7 +296,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
                       "Miyahara\"); },    { title = \"Licensing Manager\";       value = ( "
                       "\"Kazuko Kuwabata\"); },    { title = \"QA Manager\";              value = "
                       "( \"Naoki Suya\" ); },    { title = \"Sales Promotion\";         value = ( "
-                      "\"Hiroyuki Kabasawa\", \"Akira Goshima\", \"Kazuya Imura\" ); },)"
+                      "\"Hiroyuki Kabasawa\", \"Akira Goshima\", \"Kazuya Imura\" ); })"
               atPoint:CGPointMake(70.0, cursor)
                  span:4.0
              nameSpan:-1.0];
@@ -314,14 +304,14 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 
         cursor = [self addCredit:"(    { title = \"Special Thanks\";      value = ( \"Daji "
                                  "Takeuchi\", \"Hidetoshi Kuraishi\", \"Manami Kochi\", "
-                                 "\"Shinsaku Inukai\" ); },)"
+                                 "\"Shinsaku Inukai\" ); })"
                          atPoint:CGPointMake(x, cursor)
                             span:6.0
                         nameSpan:0.0] +
                  cursor + 8.0;
 
         [self addCredit:"(    { title = Producer;                value = ( \"Katsuyoshi Tanabe\" "
-                        "); },)"
+                        "); })"
                 atPoint:CGPointMake(x, cursor)
                    span:6.0
                nameSpan:0.0];

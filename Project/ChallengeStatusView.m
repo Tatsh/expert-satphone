@@ -7,8 +7,8 @@
 #import "JubeatAppDelegate.h"
 @interface ChallengeStatusView ()
 - (void)setNumberImage:(int)type num:(int)number;
-- (void)tapBuyCube:(nonnull id)sender;
-- (void)alertSelect:(nonnull NSDictionary *)info;
+- (void)tapBuyCube:(id)sender;
+- (void)alertSelect:(NSDictionary *)info;
 @end
 
 // The number-type selectors passed to -setNumberImage:num:.

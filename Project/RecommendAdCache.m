@@ -9,33 +9,31 @@
 // they are forward-declared. See TYPES_PENDING.md.
 @interface RecommendCore : NSObject
 + (instancetype)sharedInstance;
-- (void)startSessionWithCallback:(nullable void (^)(NSError *_Nullable error))callback;
+- (void)startSessionWithCallback:(void (^)(NSError *error))callback;
 @end
 
 @interface RecommendWebAPI : NSObject
-+ (void)layoutIndexWithCallback:(nullable void (^)(NSError *_Nullable error))callback;
-+ (void)allAdDataWithCallBack:(nullable void (^)(NSDictionary *_Nullable data,
-                                                 NSError *_Nullable error))callback;
++ (void)layoutIndexWithCallback:(void (^)(NSError *error))callback;
++ (void)allAdDataWithCallBack:(void (^)(NSDictionary *data, NSError *error))callback;
 @end
 
 @interface RecommendAdData : NSObject
-+ (int)getAdTypeWithAdModel:(int)adModel adLocation:(nullable NSString *)adLocation;
-+ (nullable NSError *)lotteryInterstitialWithAdLocation:(nullable NSString *)adLocation;
-+ (nullable NSArray *)getAppInterstitialList:(int)flag;
-+ (nullable NSArray *)getAppIconList;
-+ (nullable NSArray *)getAppBannerList;
-+ (nullable NSArray *)getSelfList;
-+ (nullable id)getResponseNsData;
-+ (nullable NSArray *)getAdListByAdType:(int)adType;
-+ (nullable NSArray *)getAdListTermForList:(nullable NSArray *)list;
-+ (nullable NSArray *)getAdBannerListForList:(nullable NSArray *)list;
-+ (nullable NSArray *)getInterstitialSpecPriorityList;
-+ (nullable NSArray *)getInterstitialSpecCountForAdDisplaySpecList:(nullable NSArray *)list;
-+ (nullable NSArray *)getInterstitialSpecInstallForAdDisplaySpecList:(nullable NSArray *)list
-                                                            movieFlg:(int)movieFlg;
-+ (nullable NSArray *)getAdInterstitialUrlListTermForList:(nullable NSArray *)list;
-+ (nullable NSArray *)getPosterUrlList;
-+ (nullable NSArray *)getMovieUrlList;
++ (int)getAdTypeWithAdModel:(int)adModel adLocation:(NSString *)adLocation;
++ (NSError *)lotteryInterstitialWithAdLocation:(NSString *)adLocation;
++ (NSArray *)getAppInterstitialList:(int)flag;
++ (NSArray *)getAppIconList;
++ (NSArray *)getAppBannerList;
++ (NSArray *)getSelfList;
++ (id)getResponseNsData;
++ (NSArray *)getAdListByAdType:(int)adType;
++ (NSArray *)getAdListTermForList:(NSArray *)list;
++ (NSArray *)getAdBannerListForList:(NSArray *)list;
++ (NSArray *)getInterstitialSpecPriorityList;
++ (NSArray *)getInterstitialSpecCountForAdDisplaySpecList:(NSArray *)list;
++ (NSArray *)getInterstitialSpecInstallForAdDisplaySpecList:(NSArray *)list movieFlg:(int)movieFlg;
++ (NSArray *)getAdInterstitialUrlListTermForList:(NSArray *)list;
++ (NSArray *)getPosterUrlList;
++ (NSArray *)getMovieUrlList;
 @end
 
 #pragma mark - Advert-type identifiers
@@ -200,7 +198,7 @@ static NSData *g_pAllAdDataExpiryArchive = nil;
         return;
     }
     [ApplilinkFile createFolder];
-    [RecommendWebAPI layoutIndexWithCallback:^(NSError *_Nullable error) {
+    [RecommendWebAPI layoutIndexWithCallback:^(NSError *error) {
       /** @ghidraAddress 0x274e40 */
       if (error == nil) {
           [RecommendAdCache getTemplateFiles];
@@ -209,8 +207,8 @@ static NSData *g_pAllAdDataExpiryArchive = nil;
       // guarded.
       [ApplilinkFile clearCacheBannerImage];
       [ApplilinkFile clearCacheData];
-      [RecommendAdCache getAllAdDataWithCallBack:^(id _Nullable __attribute__((unused)) data,
-                                                   NSError *_Nullable innerError) {
+      [RecommendAdCache getAllAdDataWithCallBack:^(id __attribute__((unused)) data,
+                                                   NSError *innerError) {
         /** @ghidraAddress 0x274eec */
         // The advert data has already been committed to RecommendAdData; this stage ignores it.
         if (innerError == nil) {
@@ -265,14 +263,13 @@ static NSData *g_pAllAdDataExpiryArchive = nil;
 }
 
 + (void)getAllAdDataWithCallBack:(RecommendAdCacheAllAdDataCallback)callBack {
-    [[RecommendCore sharedInstance] startSessionWithCallback:^(NSError *_Nullable error) {
+    [[RecommendCore sharedInstance] startSessionWithCallback:^(NSError *error) {
       /** @ghidraAddress 0x275320 */
       if (error != nil) {
           callBack(nil, error);
           return;
       }
-      [RecommendWebAPI allAdDataWithCallBack:^(NSDictionary *_Nullable data,
-                                               NSError *_Nullable fetchError) {
+      [RecommendWebAPI allAdDataWithCallBack:^(NSDictionary *data, NSError *fetchError) {
         /** @ghidraAddress 0x2753c8 */
         if (fetchError != nil) {
             callBack(nil, fetchError);
@@ -339,7 +336,7 @@ static NSData *g_pAllAdDataExpiryArchive = nil;
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kRecommendAdCacheAllAdDataKey];
 }
 
-+ (nullable NSDate *)getAllAdDataInfoExpire {
++ (NSDate *)getAllAdDataInfoExpire {
     if (g_pAllAdDataExpiryArchive == nil) {
         return nil;
     }
@@ -436,10 +433,10 @@ static NSData *g_pAllAdDataExpiryArchive = nil;
 
 #pragma mark - HTML rendering
 
-+ (nullable NSError *)createHtmlWithAdModel:(int)adModel
-                                 adLocation:(NSString *)adLocation
-                              verticalAlign:(int)verticalAlign
-                               impressionId:(NSString *)impressionId {
++ (NSError *)createHtmlWithAdModel:(int)adModel
+                        adLocation:(NSString *)adLocation
+                     verticalAlign:(int)verticalAlign
+                      impressionId:(NSString *)impressionId {
     int adType = [RecommendAdData getAdTypeWithAdModel:adModel adLocation:adLocation];
     NSArray *bannerList;
     switch (adType) {
@@ -500,14 +497,14 @@ static NSData *g_pAllAdDataExpiryArchive = nil;
     return nil;
 }
 
-+ (nullable NSString *)convertHtmlWithAdModel:(int)adModel
-                                   adLocation:(NSString *)adLocation
-                                       adType:(int)adType
-                                verticalAlign:(int)verticalAlign
-                                   bannerList:(id)bannerList
-                                 impressionId:(NSString *)impressionId
-                                     selfList:(id)selfList
-                                   comResData:(id)comResData {
++ (NSString *)convertHtmlWithAdModel:(int)adModel
+                          adLocation:(NSString *)adLocation
+                              adType:(int)adType
+                       verticalAlign:(int)verticalAlign
+                          bannerList:(id)bannerList
+                        impressionId:(NSString *)impressionId
+                            selfList:(id)selfList
+                          comResData:(id)comResData {
     NSString *templateName =
         [NSString stringWithFormat:kRecommendAdCacheFormatTemplateName, adType];
     NSString *templatePath =
@@ -712,7 +709,7 @@ static NSData *g_pAllAdDataExpiryArchive = nil;
     [defaults synchronize];
 }
 
-+ (nullable NSArray *)getHtmlAdDataWithAdModel:(int)adModel adLocation:(NSString *)adLocation {
++ (NSArray *)getHtmlAdDataWithAdModel:(int)adModel adLocation:(NSString *)adLocation {
     NSData *data =
         [[NSUserDefaults standardUserDefaults] dataForKey:kRecommendAdCacheAdDataListKey];
     if (data == nil) {
@@ -740,11 +737,11 @@ static NSData *g_pAllAdDataExpiryArchive = nil;
     return [RecommendAdCache getResourceDataWithList:urls];
 }
 
-+ (nullable id)getMoviewQuaryWithAdModel:(int)adModel
-                              adLocation:(NSString *)adLocation
-                           verticalAlign:(int)verticalAlign
-                            impressionId:(NSString *)impressionId
-                                errorObj:(NSError *_Nullable *_Nullable)errorObj {
++ (id)getMoviewQuaryWithAdModel:(int)adModel
+                     adLocation:(NSString *)adLocation
+                  verticalAlign:(int)verticalAlign
+                   impressionId:(NSString *)impressionId
+                       errorObj:(NSError **)errorObj {
     // verticalAlign and impressionId are accepted but never read.
     int adType = [RecommendAdData getAdTypeWithAdModel:adModel adLocation:adLocation];
     if (adType != RecommendAdCacheAdTypeInterstitial) {

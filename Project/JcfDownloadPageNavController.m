@@ -5,9 +5,9 @@
 // The custom-sequence download page view controller hosted here. Not reconstructed in this tree
 // yet, so it is forward-declared. See TYPES_PENDING.md.
 @interface JcfDownloadPageViewController : UIViewController
-- (instancetype)initWithMusicID:(unsigned int)musicID delegate:(nullable id)delegate;
-- (instancetype)initWithSequenceID:(nullable NSString *)sequenceID delegate:(nullable id)delegate;
-- (instancetype)initWithURL:(nullable NSString *)url delegate:(nullable id)delegate;
+- (instancetype)initWithMusicID:(unsigned int)musicID delegate:(id)delegate;
+- (instancetype)initWithSequenceID:(NSString *)sequenceID delegate:(id)delegate;
+- (instancetype)initWithURL:(NSString *)url delegate:(id)delegate;
 @end
 
 // The local web page resource loaded from the app documents directory.

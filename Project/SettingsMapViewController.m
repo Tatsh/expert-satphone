@@ -3,17 +3,10 @@
 #import "ImageCache.h"
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
+#import "NSDictionary+TypedLookupExtension.h"
 #import "ScratchUtil.h"
 #import "SettingsMapItem.h"
 #import "StringUtilities.h"
-
-// The typed-accessor category the spot dictionaries are read through; a category on NSDictionary
-// not reconstructed as its own file yet. See TYPES_PENDING.md.
-@interface NSDictionary (TypedAccessors)
-- (nullable NSNumber *)numberForKey:(nonnull id)key;
-- (nullable NSString *)stringForKey:(nonnull id)key;
-- (nullable NSArray *)arrayForKey:(nonnull id)key;
-@end
 
 @interface SettingsMapViewController () {
     MKCoordinateRegion _lastRegion;  // The last region requested from the spot list.
@@ -478,8 +471,7 @@ static const int kMapConfirmAlertTag = 1;
 }
 
 /** @ghidraAddress 0x1179f4 */
-- (nullable MKAnnotationView *)mapView:(MKMapView *)mapView
-                     viewForAnnotation:(id<MKAnnotation>)annotation {
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
     if (self.mapView.userLocation == annotation) {
         return nil;
     }

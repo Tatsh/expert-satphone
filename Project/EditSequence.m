@@ -135,7 +135,7 @@ static inline void EditSequenceWriteConflictNibble(char *table, int segment) {
 
 #pragma mark - Event data
 
-- (nullable NSMutableArray<NSNumber *> *)getEventData {
+- (NSMutableArray<NSNumber *> *)getEventData {
     NSMutableArray<NSNumber *> *result = [[NSMutableArray alloc] init];
     // Always re-encodes the full 2000-entry event array, matching the binary's fixed loop count.
     for (int i = 0; i < kEditSequenceMaxEvents; ++i) {

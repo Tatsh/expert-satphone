@@ -82,17 +82,17 @@ static NSString *const kRecommendHtmlFileCreateErrorValue = @"html file create e
 @interface RecommendFullScreenController () <ApplilinkViewManagerSdkDelegate, ShadeViewDelegate>
 
 // The advert base view that hosts the advert area, sized for the current orientation.
-@property(nonatomic, strong, nullable) UIView *baseView;
+@property(nonatomic, strong) UIView *baseView;
 // The full-screen shade view that dims the screen behind the advert.
-@property(nonatomic, strong, nullable) ShadeView *shadeView;
+@property(nonatomic, strong) ShadeView *shadeView;
 // The large loading spinner shown while the advert area loads.
-@property(nonatomic, strong, nullable) UIActivityIndicatorView *indicator;
+@property(nonatomic, strong) UIActivityIndicatorView *indicator;
 // The advert request parameters the interstitial was opened with.
-@property(copy, nonatomic, nullable) ApplilinkParameters *applilinkParams;
+@property(copy, nonatomic) ApplilinkParameters *applilinkParams;
 // The applilink delegate notified of the advert lifecycle and failures.
-@property(nonatomic, weak, nullable) id applilinkDelegate;
+@property(nonatomic, weak) id applilinkDelegate;
 // The full-view delegate (the presenting RecommendCore) asked to release this controller on close.
-@property(nonatomic, weak, nullable) id applilinkFullViewDelegate;
+@property(nonatomic, weak) id applilinkFullViewDelegate;
 // Set while the advert is on screen, so -closeShadeView reports the disappearance only once.
 @property(nonatomic) BOOL appearFlg;
 
@@ -547,13 +547,13 @@ static NSString *const kRecommendHtmlFileCreateErrorValue = @"html file create e
 }
 
 /** @ghidraAddress 0x27bb88 */
-- (void)closeNotice:(nullable id)view {
+- (void)closeNotice:(id)view {
     [ApplilinkCore toDelegateSoundUseFinish:self.applilinkDelegate];
     [self appListDidDisappear];
 }
 
 /** @ghidraAddress 0x27bbf8 */
-- (void)viewReady:(nullable id)view {
+- (void)viewReady:(id)view {
     [self webViewDidStartLoad];
 }
 

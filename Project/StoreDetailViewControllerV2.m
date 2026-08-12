@@ -5,6 +5,7 @@
 #import "ImageCache.h"
 #import "ImageDownloader.h"
 #import "ImageLoading.h"
+#import "NSDictionary+TypedLookupExtension.h"
 #import "PurchaseManager.h"
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
@@ -18,13 +19,6 @@
 #import "StorePackInfo.h"
 #import "StoreRecommendPackTableView.h"
 #import "StoreUtil.h"
-
-// The typed-accessor category the store dictionaries are read through; a category on NSDictionary
-// not reconstructed as its own file yet. See TYPES_PENDING.md.
-@interface NSDictionary (TypedAccessors)
-- (nullable NSNumber *)numberForKey:(nonnull id)key;
-- (nullable NSArray *)arrayForKey:(nonnull id)key;
-@end
 
 // The cell reuse identifiers, both taken verbatim from __const.
 static NSString *const kMusicCellReuseIdentifier = @"StoreDetailTableMusicCell";
@@ -519,7 +513,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xdea10 */
-- (void)finishBgm:(nullable NSNotification *)notification {
+- (void)finishBgm:(NSNotification *)notification {
     int row = rowSamplePlayed;
     if (row >= 0 && (NSUInteger)row < self.packInfo.musicInfos.count) {
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:0];
@@ -533,7 +527,7 @@ static const int kNoSampleRow = -1;
 #pragma mark - Purchase actions
 
 /** @ghidraAddress 0xdeb1c */
-- (void)doPurchase:(nullable id)sender {
+- (void)doPurchase:(id)sender {
     [self stopSample];
     if (allowsRedownload) {
         if ([self.delegate respondsToSelector:@selector(detailViewStartRedownload:)]) {
@@ -547,7 +541,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xdec34 */
-- (void)downloadExtendMusic:(nullable id)sender {
+- (void)downloadExtendMusic:(id)sender {
     [self stopSample];
     for (NSUInteger i = 0; i < kHeaderCount; ++i) {
         ((StoreDetailHeaderViewV2 *)headerViewArray[i]).buttonExtendDownload.hidden = YES;
@@ -559,7 +553,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xdee30 */
-- (void)storeDetailViewOpenItunesWithURL:(nullable NSURL *)url {
+- (void)storeDetailViewOpenItunesWithURL:(NSURL *)url {
     if (url == nil) {
         return;
     }
@@ -582,7 +576,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xdf010 */
-- (void)productViewControllerDidFinish:(nonnull SKStoreProductViewController *)viewController {
+- (void)productViewControllerDidFinish:(SKStoreProductViewController *)viewController {
     [self dismissViewControllerAnimated:YES
                              completion:^{
                                /** @ghidraAddress 0xdf078 */
@@ -594,7 +588,7 @@ static const int kNoSampleRow = -1;
 #pragma mark - DownloaderDelegate
 
 /** @ghidraAddress 0xdf0a0 */
-- (void)downloaderFinished:(nullable id)downloader {
+- (void)downloaderFinished:(id)downloader {
     if (infoDownloader == downloader) {
         NSDictionary *response = [StoreUtil checkStoreResponse:[downloader getData]];
         if (![self.packInfo setPackDetailInfo:response]) {
@@ -670,7 +664,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xdf994 */
-- (void)downloaderError:(nullable id)downloader {
+- (void)downloaderError:(id)downloader {
     // Both arms present the identical network-error alert, differing only in the tag: the info
     // downloader tags it so the delegate callbacks pop the navigation stack, the sample downloader
     // tags it 0. The recommend downloader's failure raises no alert.
@@ -711,7 +705,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xdfd3c */
-- (void)downloaderProceed:(nullable id)downloader {
+- (void)downloaderProceed:(id)downloader {
     // The shipped body is empty.
 }
 
@@ -770,7 +764,7 @@ static const int kNoSampleRow = -1;
 #pragma mark - ImageDownloaderDelegate
 
 /** @ghidraAddress 0xe0f9c */
-- (void)imageDownloader:(nonnull ImageDownloader *)downloader didLoad:(nullable id)key {
+- (void)imageDownloader:(ImageDownloader *)downloader didLoad:(id)key {
     NSIndexPath *indexPath = (NSIndexPath *)key;
     if (indexPath.section == 0) {
         UITableViewCell *cell = [detailTableView cellForRowAtIndexPath:indexPath];
@@ -788,7 +782,7 @@ static const int kNoSampleRow = -1;
 #pragma mark - AlertViewManagerDelegate
 
 /** @ghidraAddress 0xe11f0 */
-- (void)alertSelect:(nonnull NSDictionary *)info {
+- (void)alertSelect:(NSDictionary *)info {
     int buttonMessage = [info[kAlertKeyButtonMessage] intValue];
     int tag = [info[kAlertKeyTag] intValue];
     if (buttonMessage == kConfirmButtonIndex && tag == kInfoErrorAlertTag && !bDismissing) {
@@ -800,7 +794,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xe1350 */
-- (void)alertClose:(nonnull NSDictionary *)info {
+- (void)alertClose:(NSDictionary *)info {
     if (self.navigationController) {
         [self.navigationController popViewControllerAnimated:YES];
     }
@@ -834,7 +828,7 @@ static const int kNoSampleRow = -1;
 #pragma mark - Relation-tab switching
 
 /** @ghidraAddress 0xe1d48 */
-- (void)tapRelationButton:(nullable id)sender {
+- (void)tapRelationButton:(id)sender {
     int index = (int)((UIView *)sender).tag;
     if (index == currentList) {
         return;

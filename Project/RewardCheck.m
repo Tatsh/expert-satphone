@@ -4,22 +4,18 @@
 #import "Downloader.h"
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
-
-// A random-string generator; a free function declared in PurchaseManager.m too. See
-// TYPES_PENDING.md.
-FOUNDATION_EXTERN NSString *_Nullable CreateRandomString(int length);
+#import "StringUtilities.h"
 
 // TouchJSON's JSON encoder and the game-server URL/store helpers are reached by name; neither is
 // reconstructed as its own file here. See TYPES_PENDING.md.
 @interface CJSONSerializer : NSObject
 @property(class, nonatomic, readonly) CJSONSerializer *serializer;
-- (nullable NSData *)serializeDictionary:(nullable NSDictionary *)dictionary
-                                   error:(NSError **)error;
+- (NSData *)serializeDictionary:(NSDictionary *)dictionary error:(NSError **)error;
 @end
 
 @interface GameNetworkUtil : NSObject
-@property(class, nonatomic, readonly, nullable) NSURL *rewardCheckURL;
-@property(class, nonatomic, readonly, nullable) NSString *getStoreTarget;
+@property(class, nonatomic, readonly) NSURL *rewardCheckURL;
+@property(class, nonatomic, readonly) NSString *getStoreTarget;
 + (void)fillInstallAppNum:(int)num;
 @end
 
@@ -59,10 +55,10 @@ static NSString *const kRewardPrefKey = @"PrefRewardApplicationList";
 static NSString *const kRewardInstallAlertFormat = @"アプリが%d個インストールされました。";
 
 @interface RewardCheck ()
-- (nullable NSDictionary *)makeRewardCheckData:(int)rewardID;
+- (NSDictionary *)makeRewardCheckData:(int)rewardID;
 - (void)checkEnd;
-- (void)downloaderError:(nonnull id)downloader;
-- (void)downloaderFinished:(nonnull id)downloader;
+- (void)downloaderError:(id)downloader;
+- (void)downloaderFinished:(id)downloader;
 @end
 
 @implementation RewardCheck {

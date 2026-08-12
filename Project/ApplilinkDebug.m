@@ -6,14 +6,14 @@
 // The applilink SDK collaborators this facade forwards to that are not reconstructed in this tree
 // yet, or whose reconstructed headers do not yet declare these members. See TYPES_PENDING.md.
 @interface ApplilinkConsts (Debug)
-+ (nullable NSString *)countryCode;
-+ (nullable NSString *)categoryId;
++ (NSString *)countryCode;
++ (NSString *)categoryId;
 @end
 
 @interface ApplilinkCore (Debug)
-+ (nullable NSString *)udid_cache;
-+ (nullable NSString *)ad_udid_cache;
-+ (nullable NSString *)old_udid_cache;
++ (NSString *)udid_cache;
++ (NSString *)ad_udid_cache;
++ (NSString *)old_udid_cache;
 + (void)clearUDID;
 + (void)clearKeyChainOldUDID;
 + (void)clearAdUDID;
@@ -41,10 +41,10 @@
 @end
 
 @interface RecommendDebug : NSObject
-+ (void)debugMode:(nullable id)debugMode;
-+ (nullable id)getDebugMode;
-+ (nullable NSMutableDictionary *)getFrequencyStatus;
-+ (nullable NSMutableDictionary *)getDisplaySpec;
++ (void)debugMode:(id)debugMode;
++ (id)getDebugMode;
++ (NSMutableDictionary *)getFrequencyStatus;
++ (NSMutableDictionary *)getDisplaySpec;
 @end
 
 // The Applilink SDK version this debug build reports, combined as "<base>.<build>".

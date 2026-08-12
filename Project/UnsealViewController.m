@@ -82,15 +82,15 @@ static NSString *const kUnsealPageNameFormat = @"%@_0";
 #pragma mark - UIPageViewControllerDataSource
 
 /** @ghidraAddress 0x15c66c */
-- (nullable UIViewController *)pageViewController:(UIPageViewController *)pageViewController
-                viewControllerAfterViewController:(UIViewController *)viewController {
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
+       viewControllerAfterViewController:(UIViewController *)viewController {
     // There is never a page after the current one; a turn only ever goes backwards.
     return nil;
 }
 
 /** @ghidraAddress 0x15c674 */
-- (nullable UIViewController *)pageViewController:(UIPageViewController *)pageViewController
-               viewControllerBeforeViewController:(UIViewController *)viewController {
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
+      viewControllerBeforeViewController:(UIViewController *)viewController {
     bDrawNextPage = YES;
     int currentTag = ((UnsealDrawController *)viewController).pageTag;
     int index = rand();

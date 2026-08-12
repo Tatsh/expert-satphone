@@ -34,7 +34,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 - (void)openRewardView;
 - (void)appListDidAppear;
 - (void)appListDidDisappear;
-- (void)appListFailLoadWithError:(nullable NSError *)error;
+- (void)appListFailLoadWithError:(NSError *)error;
 @end
 
 @implementation SettingsRewardViewController

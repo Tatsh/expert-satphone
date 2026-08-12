@@ -11,8 +11,8 @@
 // One mission sheet in the title payload: a named group of mission terms. Forward-declared until
 // ChallengeMissionSheet is reconstructed (class name from the binary at 0x288417).
 @interface ChallengeMissionSheet : NSObject
-@property(nonatomic, readonly, nullable) NSString *sheetName;
-@property(nonatomic, readonly, nullable) NSArray<ChallengeMissionTerms *> *missionTable;
+@property(nonatomic, readonly) NSString *sheetName;
+@property(nonatomic, readonly) NSArray<ChallengeMissionTerms *> *missionTable;
 @end
 
 // The completion sound played as the banner enters. From the CFString at 0x2d6960.
@@ -351,7 +351,7 @@ static const int kMissionIconWrapThreshold = 24;
 #pragma mark - Attributed text
 
 /** @ghidraAddress 0x4fcf0 */
-- (nullable NSAttributedString *)createAchiveText:(id)title {
+- (NSAttributedString *)createAchiveText:(id)title {
     // Two attribute sets, both bold at the current font size: the sheet name and line breaks are
     // white, the achieved sub-titles are orange. Verified at 0x4fd50 (orange) and 0x4fe04 (white).
     UIFont *font = [UIFont boldSystemFontOfSize:fontSize];

@@ -121,7 +121,7 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
 }
 
 /** @ghidraAddress 0x16a8e4 */
-- (void)willMoveToSuperview:(nullable UIView *)newSuperview {
+- (void)willMoveToSuperview:(UIView *)newSuperview {
     if (newSuperview == nil) {
         return;
     }
@@ -304,7 +304,7 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
 }
 
 /** @ghidraAddress 0x16be34 */
-- (nullable id)accessibilityElementAtIndex:(NSInteger)index {
+- (id)accessibilityElementAtIndex:(NSInteger)index {
     UIAccessibilityElement *element = self.accessibilityElements[index];
 
     double posY =
@@ -420,7 +420,7 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
 }
 
 /** @ghidraAddress 0x16c82c */
-- (void)cancelTrackingWithEvent:(nullable UIEvent *)event {
+- (void)cancelTrackingWithEvent:(UIEvent *)event {
     [super cancelTrackingWithEvent:event];
 
     if (self.trackingThumb) {
@@ -556,7 +556,7 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
 #pragma mark - Custom setters
 
 /** @ghidraAddress 0x16d7e8 */
-- (void)setBackgroundImage:(nullable UIImage *)newImage {
+- (void)setBackgroundImage:(UIImage *)newImage {
     if (backgroundImage) {
         backgroundImage = nil;
     }
@@ -580,7 +580,7 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
 }
 
 /** @ghidraAddress 0x16d898 */
-- (void)setShadowColor:(nullable UIColor *)newColor {
+- (void)setShadowColor:(UIColor *)newColor {
     self.textShadowColor = newColor;
 }
 

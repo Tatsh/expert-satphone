@@ -229,7 +229,7 @@ typedef enum {
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser
     didReceiveInvitationFromPeer:(MCPeerID *)peerID
                      withContext:(NSData *)context
-               invitationHandler:(void (^)(BOOL accept, MCSession *_Nullable session))handler {
+               invitationHandler:(void (^)(BOOL accept, MCSession *session))handler {
     if (bAccept) {
         handler(YES, self.session);
         partnerName = peerID.displayName;

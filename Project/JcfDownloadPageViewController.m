@@ -118,7 +118,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 
 /** @ghidraAddress 0x1e699c */
 - (instancetype)initWithMusicID:(unsigned int)musicID
-                       delegate:(nullable id<JcfDownloadPageViewControllerDelegate>)delegateArg {
+                       delegate:(id<JcfDownloadPageViewControllerDelegate>)delegateArg {
     self = [super init];
     if (self) {
         bURLStart = NO;
@@ -132,8 +132,8 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 }
 
 /** @ghidraAddress 0x1e6ad4 */
-- (instancetype)initWithSequenceID:(nullable NSString *)sequenceIDArg
-                          delegate:(nullable id<JcfDownloadPageViewControllerDelegate>)delegateArg {
+- (instancetype)initWithSequenceID:(NSString *)sequenceIDArg
+                          delegate:(id<JcfDownloadPageViewControllerDelegate>)delegateArg {
     self = [super init];
     if (self) {
         bURLStart = NO;
@@ -146,8 +146,8 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 }
 
 /** @ghidraAddress 0x1e6c1c */
-- (instancetype)initWithURL:(nullable NSString *)url
-                   delegate:(nullable id<JcfDownloadPageViewControllerDelegate>)delegateArg {
+- (instancetype)initWithURL:(NSString *)url
+                   delegate:(id<JcfDownloadPageViewControllerDelegate>)delegateArg {
     self = [super init];
     if (self) {
         bURLStart = YES;
@@ -161,11 +161,11 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 #pragma mark - UIWebView resource loading
 
 /** @ghidraAddress 0x1e6d68 */
-- (nullable NSURLRequest *)uiWebView:(nullable id)webView
-                            resource:(nullable id)resource
-                     willSendRequest:(nullable NSURLRequest *)request
-                    redirectResponse:(nullable NSURLResponse *)redirectResponse
-                      fromDataSource:(nullable id)dataSource {
+- (NSURLRequest *)uiWebView:(id)webView
+                   resource:(id)resource
+            willSendRequest:(NSURLRequest *)request
+           redirectResponse:(NSURLResponse *)redirectResponse
+             fromDataSource:(id)dataSource {
     NSString *userAgent = JubeatAppDelegate.appDelegate.userAgent;
     if (EditorIDManager.isExistEditorID) {
         userAgent = [NSString stringWithFormat:@"%@", JubeatAppDelegate.appDelegate.userAgent];
@@ -177,13 +177,13 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 #pragma mark - UIWebViewDelegate
 
 /** @ghidraAddress 0x1e6eb0 */
-- (void)webViewDidStartLoad:(nullable UIWebView *)webView {
+- (void)webViewDidStartLoad:(UIWebView *)webView {
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
 }
 
 /** @ghidraAddress 0x1e6fe8 */
-- (BOOL)webView:(nullable UIWebView *)webView
-    shouldStartLoadWithRequest:(nullable NSURLRequest *)request
+- (BOOL)webView:(UIWebView *)webView
+    shouldStartLoadWithRequest:(NSURLRequest *)request
                 navigationType:(UIWebViewNavigationType)navigationType {
     if ([request.URL isEqual:[jubeatLabAccess getUserPageSessionFailedURL]]) {
         sessionDownloader = [[jubeatLabAccess alloc] initTopPageSessionApi:self];
@@ -250,7 +250,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 }
 
 /** @ghidraAddress 0x1e7820 */
-- (void)webViewDidFinishLoad:(nullable UIWebView *)webView {
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
     if (indicatorView != nil) {
         [indicatorView stopAnimating];
         [indicatorView removeFromSuperview];
@@ -259,7 +259,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 }
 
 /** @ghidraAddress 0x1e787c */
-- (void)webView:(nullable UIWebView *)webView didFailLoadWithError:(nullable NSError *)error {
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
     NSString *okTitle = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     // The default "communication error" message, read from __const at 0x2d7200.
     [[AlertViewManager sharedManager] makeAlert:0
@@ -289,7 +289,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 }
 
 /** @ghidraAddress 0x1e7a4c */
-- (void)jcfDownloadEnd:(nullable JcfDownloadView *)view {
+- (void)jcfDownloadEnd:(JcfDownloadView *)view {
     __weak UIView *weakTopcover = topcover;
     __weak JcfDownloadView *weakDownloadView = downloadView;
     [UIView animateWithDuration:kHideDownloadOverlayDuration
@@ -317,7 +317,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 }
 
 /** @ghidraAddress 0x1e7de8 */
-- (void)jcfDownloadMoveStore:(nullable JcfDownloadView *)view packID:(nullable NSString *)packID {
+- (void)jcfDownloadMoveStore:(JcfDownloadView *)view packID:(NSString *)packID {
     __weak UIView *weakTopcover = topcover;
     __weak JcfDownloadView *weakDownloadView = downloadView;
     [UIView animateWithDuration:kHideDownloadOverlayDuration
@@ -379,11 +379,11 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 }
 
 /** @ghidraAddress 0x1e8200 */
-- (void)jubeatLabAccessProceed:(nullable jubeatLabAccess *)access {
+- (void)jubeatLabAccessProceed:(jubeatLabAccess *)access {
 }
 
 /** @ghidraAddress 0x1e8204 */
-- (void)jubeatLabAccessError:(nullable jubeatLabAccess *)access {
+- (void)jubeatLabAccessError:(jubeatLabAccess *)access {
     if (sessionDownloader == access) {
         sessionDownloader = nil;
     }
@@ -400,7 +400,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 }
 
 /** @ghidraAddress 0x1e8328 */
-- (void)jubeatLabAccessFinished:(nullable jubeatLabAccess *)access {
+- (void)jubeatLabAccessFinished:(jubeatLabAccess *)access {
     if (sessionDownloader != access) {
         return;
     }
@@ -440,7 +440,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 #pragma mark - EditorIDManagerDelegate
 
 /** @ghidraAddress 0x1e8538 */
-- (void)successIDDownload:(nullable id)manager {
+- (void)successIDDownload:(id)manager {
     eidMan = nil;
     if (EditorIDManager.isExistEditorID) {
         [self sessionCreate];
@@ -450,7 +450,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 }
 
 /** @ghidraAddress 0x1e85bc */
-- (void)errorIDDownload:(nullable id)manager msgStr:(nullable NSString *)msgStr {
+- (void)errorIDDownload:(id)manager msgStr:(NSString *)msgStr {
     eidMan = nil;
     NSString *msg = msgStr;
     if (msg == nil) {
@@ -492,7 +492,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 #pragma mark - Social sharing
 
 /** @ghidraAddress 0x1e8738 */
-- (void)socialSend:(nullable NSString *)serviceType {
+- (void)socialSend:(NSString *)serviceType {
     SLComposeViewController *composer =
         [SLComposeViewController composeViewControllerForServiceType:serviceType];
     [composer setInitialText:socialString ? socialString : @""];
@@ -527,7 +527,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 }
 
 /** @ghidraAddress 0x1e8904 */
-- (void)appSuspended:(nullable NSNotification *)notification {
+- (void)appSuspended:(NSNotification *)notification {
     if (bOpenTwitter) {
         [self dismissViewControllerAnimated:NO
                                  completion:^{
@@ -540,7 +540,7 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 #pragma mark - Navigation
 
 /** @ghidraAddress 0x1e6ef8 */
-- (void)pushClose:(nullable id)sender {
+- (void)pushClose:(id)sender {
     if (downloadView == nil) {
         [[NSUserDefaults standardUserDefaults] synchronize];
         if ([delegate respondsToSelector:@selector(customWebViewClose:seqIndex:)]) {

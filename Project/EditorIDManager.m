@@ -30,10 +30,10 @@ static const int kAccountSwitchStatus = 0x75da;
 
 // The selectors the provisioning client is messaged through and reports back on.
 @interface NSObject (JubeatLabAccess)
-- (instancetype)initUIDApi:(nullable id)delegate;
+- (instancetype)initUIDApi:(id)delegate;
 - (void)startAccess;
 - (void)cancel;
-- (nullable NSDictionary *)getDataInJSON;
+- (NSDictionary *)getDataInJSON;
 @end
 
 @interface EditorIDManager () {

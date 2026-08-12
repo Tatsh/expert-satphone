@@ -4,23 +4,16 @@
 #import "Downloader.h"
 #import "KUnzip.h"
 #import "LabUtilities.h"
-#import "NSDictionary+PropertyList.h"
+#import "Md5Utilities.h"
+#import "NSDictionary+FromData.h"
 #import "StoreDownloadTask.h"
 #import "StoreMusicListManager.h"
-
-// Verifies a trailing MD5 digest over a data buffer; a free function not reconstructed yet. See
-// TYPES_PENDING.md.
-FOUNDATION_EXTERN BOOL VerifyMd5Digest(const void *_Nullable data,
-                                       size_t length,
-                                       const unsigned char *_Nullable expectedDigest);
-
-// The tune-info cipher key; a free function not reconstructed yet. See TYPES_PENDING.md.
-FOUNDATION_EXTERN NSData *_Nullable CreateTuneInfoCipherKey(void);
+#import "cipher_keys.h"
 
 // The hold-marker probe over an opened archive; Sequence is not reconstructed yet. See
 // TYPES_PENDING.md.
 @interface Sequence : NSObject
-+ (unsigned int)checkExistHoldMarkerFlag:(nullable KUnzip *)unzip;
++ (unsigned int)checkExistHoldMarkerFlag:(KUnzip *)unzip;
 @end
 
 // The tune-info archive entries, tried newest-first.

@@ -82,14 +82,14 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 
 // Resolves the on-disk archive path of a marker set. Not yet reconstructed.
 @interface MarkerManager : NSObject
-+ (nullable NSString *)getMarkerPath:(nullable NSString *)markerID;
++ (NSString *)getMarkerPath:(NSString *)markerID;
 @end
 
 @interface ResultTweet ()
 /** @ghidraAddress 0xbd034 */
-+ (nullable NSString *)getTwitterImagePathOrg:(nullable NSString *)fileName;
++ (NSString *)getTwitterImagePathOrg:(NSString *)fileName;
 /** @ghidraAddress 0xbd2e0 */
-+ (nullable NSString *)getAppendDataDirectoryPath;
++ (NSString *)getAppendDataDirectoryPath;
 /** @ghidraAddress 0xbc250 */
 - (void)drawBg;
 /** @ghidraAddress 0xbc31c */
@@ -99,9 +99,9 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 /** @ghidraAddress 0xbc69c */
 - (void)drawResult;
 /** @ghidraAddress 0xbce5c */
-- (nullable UIImage *)getResPNG:(nullable NSString *)name;
+- (UIImage *)getResPNG:(NSString *)name;
 /** @ghidraAddress 0xbcf0c */
-- (nullable UIImage *)getImage:(nullable NSString *)name;
+- (UIImage *)getImage:(NSString *)name;
 @end
 
 @implementation ResultTweet {
@@ -137,7 +137,7 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 }
 
 /** @ghidraAddress 0xbc14c */
-- (void)setTitle:(nullable UIImage *)title white:(nullable UIImage *)white {
+- (void)setTitle:(UIImage *)title white:(UIImage *)white {
     titleBImg = title;
     titleWImg = white;
 }
@@ -145,7 +145,7 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 #pragma mark - Composition
 
 /** @ghidraAddress 0xbc1c8 */
-- (nullable UIImage *)generateTweetImage {
+- (UIImage *)generateTweetImage {
     UIGraphicsBeginImageContext(CGSizeMake(kTweetImageWidth, kTweetImageHeight));
     [self drawBg];
     [self drawMusicInfo];
@@ -260,7 +260,7 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 #pragma mark - Resource loading
 
 /** @ghidraAddress 0xbce5c */
-- (nullable UIImage *)getResPNG:(nullable NSString *)name {
+- (UIImage *)getResPNG:(NSString *)name {
     if (!name) {
         return nil;
     }
@@ -275,7 +275,7 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 }
 
 /** @ghidraAddress 0xbcf0c */
-- (nullable UIImage *)getImage:(nullable NSString *)name {
+- (UIImage *)getImage:(NSString *)name {
     if (!resourceData) {
         return nil;
     }
@@ -292,7 +292,7 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 #pragma mark - Sample images
 
 /** @ghidraAddress 0xbcbc8 */
-+ (nullable UIImage *)getSampleImage:(nullable NSString *)frameName {
++ (UIImage *)getSampleImage:(NSString *)frameName {
     KUnzip *resource = [TweetResourceManager getResourceData:frameName];
     NSData *key = CreateTextureCipherKey();
     BFCodec *codec = [[BFCodec alloc] init];
@@ -303,7 +303,7 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 }
 
 /** @ghidraAddress 0xbcce0 */
-+ (nullable UIImage *)getAccessoryImage:(nullable NSString *)accessoryName {
++ (UIImage *)getAccessoryImage:(NSString *)accessoryName {
     // The argument is ignored; the accessory comes from the current marker default.
     NSString *markerID = [NSUserDefaults.standardUserDefaults objectForKey:@"PrefCurrentMarkerID"];
     NSString *path = [MarkerManager getMarkerPath:markerID];
@@ -317,7 +317,7 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 #pragma mark - Paths
 
 /** @ghidraAddress 0xbd034 */
-+ (nullable NSString *)getTwitterImagePathOrg:(nullable NSString *)fileName {
++ (NSString *)getTwitterImagePathOrg:(NSString *)fileName {
     NSString *frame = [NSUserDefaults.standardUserDefaults objectForKey:@"PrefTwitterBgFrame"];
     NSString *directory = [ResultTweet getAppendDataDirectoryPath];
     if (!directory) {
@@ -332,7 +332,7 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 }
 
 /** @ghidraAddress 0xbd19c */
-+ (nullable NSString *)getTwitterImagePath:(NSString *)fileName {
++ (NSString *)getTwitterImagePath:(NSString *)fileName {
     NSString *original = [ResultTweet getTwitterImagePathOrg:fileName];
     if (original) {
         return original;
@@ -348,7 +348,7 @@ static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
 }
 
 /** @ghidraAddress 0xbd2e0 */
-+ (nullable NSString *)getAppendDataDirectoryPath {
++ (NSString *)getAppendDataDirectoryPath {
     NSFileManager *fileManager = NSFileManager.defaultManager;
     NSString *library = JubeatAppDelegate.appLibraryDirectory;
     NSString *privateDocuments = [library stringByAppendingPathComponent:@"Private Documents"];

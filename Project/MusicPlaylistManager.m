@@ -1,13 +1,7 @@
 #import "MusicPlaylistManager.h"
 
 #import "Md5Utilities.h"
-
-// The typed-accessor category the playlist dictionaries are read through on load; a category on
-// NSDictionary not reconstructed as its own file yet. See TYPES_PENDING.md.
-@interface NSDictionary (TypedAccessors)
-- (nullable NSString *)stringForKey:(nonnull id)key;
-- (nullable NSArray *)arrayForKey:(nonnull id)key;
-@end
+#import "NSDictionary+TypedLookupExtension.h"
 
 // The playlist-dictionary keys, resolved from __const CFStrings: PLID at 0x2862ee, NAME at
 // 0x2862f3, and LIST at 0x2862f8.

@@ -10,7 +10,7 @@
 // the sibling tree; only this method is needed here, so it is declared locally rather than added to
 // the shared header.
 @interface ApplilinkCore (DeviceInfo)
-+ (nullable NSDictionary *)getDeviceInfo;
++ (NSDictionary *)getDeviceInfo;
 @end
 
 // User-agent parameter dictionary keys.

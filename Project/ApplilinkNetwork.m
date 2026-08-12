@@ -8,25 +8,25 @@
 // RecommendCore, and ApplilinkViewManager are not reconstructed at all. They are declared here as
 // forward categories/classes. See TYPES_PENDING.md.
 @interface ApplilinkCore (Network)
-+ (void)initializeWithAppliId:(nullable NSString *)appliId
-                          env:(nullable NSString *)env
++ (void)initializeWithAppliId:(NSString *)appliId
+                          env:(NSString *)env
                        resume:(BOOL)resume
-                     callback:(nullable void (^)(NSError *_Nullable error))callback;
+                     callback:(void (^)(NSError *error))callback;
 + (void)resume;
 + (void)setNavigationBarCommonAppearance:(BOOL)navigationBarCommonAppearance;
 + (void)setPriorityDeviceLanguages:(BOOL)priorityDeviceLanguages;
-+ (void)setIndicatorColor:(nullable UIColor *)indicatorColor;
++ (void)setIndicatorColor:(UIColor *)indicatorColor;
 + (void)unusedInStore;
 + (void)buildUnderXcode6;
-+ (nullable NSString *)versionDev;
-+ (nullable NSString *)currentUdid;
++ (NSString *)versionDev;
++ (NSString *)currentUdid;
 + (void)collectDeviceInfoCore;
 @end
 
 @interface ApplilinkConsts (Network)
-+ (void)setUserId:(nullable NSString *)userId;
-+ (nullable NSString *)appliId;
-+ (nullable NSString *)version;
++ (void)setUserId:(NSString *)userId;
++ (NSString *)appliId;
++ (NSString *)version;
 @end
 
 @interface RewardCore : NSObject
@@ -54,7 +54,7 @@
 /** @ghidraAddress 0x27c1ac */
 + (void)initializeWithAppliId:(NSString *)appliId
                           env:(NSString *)env
-                     callback:(void (^)(NSError *_Nullable error))callback {
+                     callback:(void (^)(NSError *error))callback {
     [ApplilinkCore initializeWithAppliId:appliId env:env resume:NO callback:callback];
 }
 

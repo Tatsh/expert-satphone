@@ -127,18 +127,18 @@ static const double kTitleSwitchFadeDuration = 1.5;
 - (void)resume;
 - (void)end;
 - (void)storeClose;
-- (void)openDetail:(nullable id)packID;
-- (void)openCampaignDetail:(nullable id)campaignID;
-- (void)setStartupParameters:(nullable id)parameters;
+- (void)openDetail:(id)packID;
+- (void)openCampaignDetail:(id)campaignID;
+- (void)setStartupParameters:(id)parameters;
 - (void)loadInitialStoreInfo;
 - (void)resumeJcfDownload;
 - (void)schemeMoveStore;
-- (void)setCurrentTune:(nullable id)tune;
+- (void)setCurrentTune:(id)tune;
 - (void)setCurrentDiff:(NSInteger)difficulty;
-- (void)setCurrentMarker:(nullable id)markerID;
-- (void)setShareManager:(nullable id)shareManager;
-- (void)setMusicData:(nullable id)musicData;
-- (void)setDelegate:(nullable id)delegate;
+- (void)setCurrentMarker:(id)markerID;
+- (void)setShareManager:(id)shareManager;
+- (void)setMusicData:(id)musicData;
+- (void)setDelegate:(id)delegate;
 @end
 
 // De-inlined from -openStore: and -endStore:. Installs the perspective sublayer transform on the

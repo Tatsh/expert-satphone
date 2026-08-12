@@ -1,18 +1,10 @@
 #import "StorePackListController.h"
 
 #import "JubeatAppDelegate.h"
+#import "NSDictionary+TypedLookupExtension.h"
 #import "StorePackListGenre.h"
 #import "StorePromotion.h"
 #import "StoreUtil.h"
-
-// The typed-accessor category the store dictionaries are read through; a category on NSDictionary
-// not reconstructed as its own file yet. See TYPES_PENDING.md.
-@interface NSDictionary (TypedAccessors)
-- (nullable NSNumber *)numberForKey:(nonnull id)key;
-- (nullable NSString *)stringForKey:(nonnull id)key;
-- (nullable NSArray *)arrayForKey:(nonnull id)key;
-- (nullable NSDictionary *)dictionaryForKey:(nonnull id)key;
-@end
 
 // The catalogue-response dictionary keys.
 static NSString *const kResponseKeyPackList = @"PackList";
@@ -92,7 +84,7 @@ static NSString *_storeCountry = nil;
 #pragma mark - Store country
 
 /** @ghidraAddress 0xcb86c */
-+ (nullable NSString *)storeCountry {
++ (NSString *)storeCountry {
     if (_storeCountry) {
         return [NSString stringWithString:_storeCountry];
     }
@@ -154,7 +146,7 @@ static NSString *_storeCountry = nil;
 }
 
 /** @ghidraAddress 0xccc80 */
-- (nullable StorePackListGenre *)packListForGenreID:(NSInteger)genreID {
+- (StorePackListGenre *)packListForGenreID:(NSInteger)genreID {
     if (genreID >= 0) {
         for (NSUInteger index = 0; index < arrayGenre.count; ++index) {
             StorePackListGenre *genre = arrayGenre[index];
@@ -167,7 +159,7 @@ static NSString *_storeCountry = nil;
 }
 
 /** @ghidraAddress 0xccd44 */
-- (nullable StorePackListGenre *)packListForGenreIndex:(NSUInteger)genreIndex {
+- (StorePackListGenre *)packListForGenreIndex:(NSUInteger)genreIndex {
     if (genreIndex < arrayGenre.count) {
         return arrayGenre[genreIndex];
     }
@@ -177,7 +169,7 @@ static NSString *_storeCountry = nil;
 #pragma mark - Genre building
 
 /** @ghidraAddress 0xcbb48 */
-- (void)addGenres:(nullable NSArray *)genreList {
+- (void)addGenres:(NSArray *)genreList {
     if (genreList.count != 2) {
         return;
     }
@@ -208,7 +200,7 @@ static NSString *_storeCountry = nil;
 }
 
 /** @ghidraAddress 0xcbe80 */
-- (void)addGenres:(nullable NSArray *)genreList extendList:(nullable NSDictionary *)extendList {
+- (void)addGenres:(NSArray *)genreList extendList:(NSDictionary *)extendList {
     if (genreList.count != 2) {
         return;
     }
@@ -254,8 +246,7 @@ static NSString *_storeCountry = nil;
 #pragma mark - Promotions
 
 /** @ghidraAddress 0xcc3e8 */
-- (void)addPromotions:(nullable NSArray *)promotionList
-        validProducts:(nullable NSArray<SKProduct *> *)validProducts {
+- (void)addPromotions:(NSArray *)promotionList validProducts:(NSArray<SKProduct *> *)validProducts {
     if (!promotionList.count) {
         return;
     }
@@ -307,7 +298,7 @@ static NSString *_storeCountry = nil;
 }
 
 /** @ghidraAddress 0xccba4 */
-- (nullable NSArray<StorePromotion *> *)promotions {
+- (NSArray<StorePromotion *> *)promotions {
     return arrayPromotions;
 }
 
@@ -334,7 +325,7 @@ static NSString *_storeCountry = nil;
 }
 
 /** @ghidraAddress 0xccfd0 */
-- (void)startFetchGenre:(nullable StorePackListGenre *)genre {
+- (void)startFetchGenre:(StorePackListGenre *)genre {
     NSUInteger index = [arrayGenre indexOfObjectIdenticalTo:genre];
     if (index == NSNotFound) {
         return;
@@ -343,7 +334,7 @@ static NSString *_storeCountry = nil;
 }
 
 /** @ghidraAddress 0xcd030 */
-- (void)startFetchAdditionalPack:(nullable NSNumber *)packID {
+- (void)startFetchAdditionalPack:(NSNumber *)packID {
     if (packID) {
         _additionalPackID = packID;
         NSMutableSet *productIDs = [[NSMutableSet alloc] init];

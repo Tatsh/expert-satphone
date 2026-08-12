@@ -2,18 +2,10 @@
 
 #import "BFCodec.h"
 #import "JubeatAppDelegate.h"
+#import "NSArray+FromData.h"
 #import "ScratchUtil.h"
+#import "SystemUtilities.h"
 #import "cipher_keys.h"
-
-// Marks a file URL as excluded from iCloud backup; a free function not reconstructed yet. See
-// TYPES_PENDING.md.
-FOUNDATION_EXTERN void ExcludeUrlFromICloudBackup(NSURL *_Nullable url);
-
-// Apple's private property-list deserialiser category, as the binary calls it. See
-// TYPES_PENDING.md.
-@interface NSArray (PropertyList)
-+ (nullable NSArray *)arrayFromPropertyListData:(nullable NSData *)data;
-@end
 
 // The resource-list file's name in the documents directory.
 static NSString *const kResourceListFileName = @"pnlres";

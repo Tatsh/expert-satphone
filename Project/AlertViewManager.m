@@ -29,12 +29,12 @@ static AlertViewManager *g_pAlertViewManagerShared = nil;
     int alertType;                                  // +0x24
     NSString *alertText;                            // +0x28
 }
-- (void)setAlert:(nullable UIAlertView *)alert;
-- (void)setAlert:(nullable UIAlertView *)alert tag:(int)tag show:(BOOL)show;
+- (void)setAlert:(UIAlertView *)alert;
+- (void)setAlert:(UIAlertView *)alert tag:(int)tag show:(BOOL)show;
 - (void)showAlert;
-- (void)changeDelegate:(nullable id<AlertViewManagerDelegate>)delegate;
+- (void)changeDelegate:(id<AlertViewManagerDelegate>)delegate;
 - (void)alertControllerEvent:(int)buttonIndex;
-- (void)alertTextFieldTextDidChangeNotification:(nonnull NSNotification *)notification;
+- (void)alertTextFieldTextDidChangeNotification:(NSNotification *)notification;
 @end
 
 @implementation AlertViewManager

@@ -7,11 +7,11 @@
 // The applilink view controller that owns the SKStoreProductViewController; not reconstructed in
 // this tree yet, so it is forward-declared. See TYPES_PENDING.md.
 @interface ApplilinkViewController : NSObject
-- (void)showSKStore:(nullable NSString *)appStoreId
-           appParam:(nullable ApplilinkParameters *)appParam
-           delegate:(nullable id)delegate;
+- (void)showSKStore:(NSString *)appStoreId
+           appParam:(ApplilinkParameters *)appParam
+           delegate:(id)delegate;
 - (void)productViewControllerDidFinish;
-- (void)setSdkDelegate:(nullable id)delegate;
+- (void)setSdkDelegate:(id)delegate;
 @end
 
 // The one and only ApplilinkStore instance and its dispatch_once tokens. File-scope rather than

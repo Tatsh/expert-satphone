@@ -160,33 +160,33 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
 
 #pragma mark - Archived payload accessors
 
-+ (nullable NSArray *)getBannerDisplayStatusList {
++ (NSArray *)getBannerDisplayStatusList {
     if (RecommendDebug.getDebugMode) {
         return RecommendDebug.bannerDisplayStatusList;
     }
     return RecommendAdDataUnarchivedAllAdDataObjectForKey(kBannerDisplayStatusListKey);
 }
 
-+ (nullable NSArray *)getAdModelSettingList {
++ (NSArray *)getAdModelSettingList {
     if (RecommendDebug.getDebugMode) {
         return RecommendDebug.adModelSettingList;
     }
     return RecommendAdDataUnarchivedAllAdDataObjectForKey(kAdModelSettingListKey);
 }
 
-+ (nullable NSArray *)getAdList {
++ (NSArray *)getAdList {
     return RecommendAdDataUnarchivedAllAdDataObjectForKey(kAdListKey);
 }
 
-+ (nullable NSArray *)getSelfList {
++ (NSArray *)getSelfList {
     return RecommendAdDataUnarchivedAllAdDataObjectForKey(kSelfListKey);
 }
 
-+ (nullable NSData *)getResponseNsData {
++ (NSData *)getResponseNsData {
     return [NSUserDefaults.standardUserDefaults objectForKey:kResponseNsDataKey];
 }
 
-+ (nullable NSDictionary *)getInterstitialSpecList {
++ (NSDictionary *)getInterstitialSpecList {
     return RecommendAdDataUnarchivedAllAdDataObjectForKey(kInterstitialSpecListKey);
 }
 
@@ -207,7 +207,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return [status intValue];
 }
 
-+ (nullable NSArray *)getAdDataByAdId:(int)adId {
++ (NSArray *)getAdDataByAdId:(int)adId {
     NSString *identifier = [NSString stringWithFormat:kIntegerFormat, adId];
     NSArray *list = [ApplilinkUtilities narrowedListWithList:[self getAdList]
                                                       object:identifier
@@ -218,7 +218,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return list;
 }
 
-+ (nullable NSDictionary *)getAdDataList:(nullable NSArray *)list adType:(int)adType {
++ (NSDictionary *)getAdDataList:(NSArray *)list adType:(int)adType {
     NSString *type = [NSString stringWithFormat:kIntegerFormat, adType];
     for (NSDictionary *record in list) {
         if ([type isEqualToString:record[kAdTypeKey]]) {
@@ -228,7 +228,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return nil;
 }
 
-+ (nullable NSDictionary *)getAdDataWithAppliId:(nullable NSString *)appliId {
++ (NSDictionary *)getAdDataWithAppliId:(NSString *)appliId {
     NSArray *list = [ApplilinkUtilities narrowedListWithList:[self getAdList]
                                                       object:appliId
                                                       forKey:kAppliIdKey];
@@ -243,14 +243,14 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return list[0];
 }
 
-+ (nullable NSArray *)getAdListByAdType:(int)adType {
++ (NSArray *)getAdListByAdType:(int)adType {
     NSString *type = [NSString stringWithFormat:kIntegerFormat, adType];
     return [ApplilinkUtilities narrowedListWithList:[self getAdList] object:type forKey:kAdTypeKey];
 }
 
 #pragma mark - Application list builders
 
-+ (nullable NSArray *)getAppBannerList {
++ (NSArray *)getAppBannerList {
     NSMutableArray *result = [NSMutableArray array];
     NSDictionary *bannerData = [self getLotteryBannerData];
     if (bannerData.count == 0) {
@@ -277,7 +277,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return result;
 }
 
-+ (nullable NSArray *)getAppIconList {
++ (NSArray *)getAppIconList {
     NSMutableArray *result = [NSMutableArray array];
     for (NSDictionary *iconData in [self getLotteryIconData]) {
         NSMutableDictionary *record = RecommendAdDataMutableRecordEscapingNewlines(iconData);
@@ -298,7 +298,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return result;
 }
 
-+ (nullable NSArray *)getAppInterstitialList:(BOOL)movieFlg {
++ (NSArray *)getAppInterstitialList:(BOOL)movieFlg {
     NSMutableArray *result = [NSMutableArray array];
     NSDictionary *interstitialData = [self getLotteryInterstitialDataForMovie:movieFlg];
     if (interstitialData.count == 0) {
@@ -350,7 +350,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
 
 #pragma mark - Lottery draws
 
-+ (nullable NSDictionary *)getLotteryBannerData {
++ (NSDictionary *)getLotteryBannerData {
     NSArray *list = [self getAdListByAdType:kRecommendAdTypeLotteryBanner];
     if (list.count == 0) {
         return nil;
@@ -362,7 +362,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return list[arc4random() % list.count];
 }
 
-+ (nullable NSArray *)getLotteryIconData {
++ (NSArray *)getLotteryIconData {
     NSArray *list = [self getAdListByAdType:kRecommendAdTypeLotteryIcon];
     if (list.count == 0) {
         return nil;
@@ -377,7 +377,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return [list objectsAtIndexes:indexes];
 }
 
-+ (nullable NSDictionary *)getLotteryInterstitialDataForMovie:(BOOL)movieFlg {
++ (NSDictionary *)getLotteryInterstitialDataForMovie:(BOOL)movieFlg {
     NSArray *list = [self getInterstitialSpecList][kAdDisplaySpecKey];
     if (list.count == 0) {
         return nil;
@@ -393,7 +393,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return [self getLotteryInterstitialDataWithList:list];
 }
 
-+ (nullable NSDictionary *)getLotteryInterstitialDataWithList:(nullable NSArray *)list {
++ (NSDictionary *)getLotteryInterstitialDataWithList:(NSArray *)list {
     NSUInteger totalPriority = 0;
     for (NSDictionary *record in list) {
         totalPriority += [[record valueForKeyPath:kPriorityKey] integerValue];
@@ -416,14 +416,14 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
 
 #pragma mark - Interstitial specification filtering
 
-+ (nullable NSArray *)getInterstitialSpecPriorityList {
++ (NSArray *)getInterstitialSpecPriorityList {
     NSArray *specs = [self getInterstitialSpecList][kAdDisplaySpecKey];
     NSSortDescriptor *descriptor = [[NSSortDescriptor alloc] initWithKey:kPriorityKeyPath
                                                                ascending:NO];
     return [specs sortedArrayUsingDescriptors:@[ descriptor ]];
 }
 
-+ (nullable NSArray *)getInterstitialSpecCountForAdDisplaySpecList:(nullable NSArray *)list {
++ (NSArray *)getInterstitialSpecCountForAdDisplaySpecList:(NSArray *)list {
     NSMutableArray *result = [NSMutableArray array];
     NSDictionary *dailyCounts = [self getAdDisplayCountDailyDictionary];
     NSDictionary *totalCounts = [self getAdDisplayCountTotalDictionary];
@@ -461,8 +461,8 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return result;
 }
 
-+ (nullable NSArray *)getInterstitialSpecInstallForAdDisplaySpecList:(nullable NSArray *)list
-                                                            movieFlg:(BOOL)movieFlg {
++ (NSArray *)getInterstitialSpecInstallForAdDisplaySpecList:(NSArray *)list
+                                                   movieFlg:(BOOL)movieFlg {
     NSMutableArray *result = [NSMutableArray array];
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     formatter.dateFormat = kDateTimeFormat;
@@ -509,7 +509,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
 
 #pragma mark - Movie and interstitial URL extraction
 
-+ (BOOL)checkMovieWithAdData:(nullable NSDictionary *)adData {
++ (BOOL)checkMovieWithAdData:(NSDictionary *)adData {
     id contentKind = adData[kExternalAdDispMngKey][kAdContentKindKey];
     if ([contentKind isKindOfClass:NSString.class]) {
         if (![contentKind isEqualToString:kMovieContentKindString]) {
@@ -525,7 +525,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return [movieUrl length] != 0;
 }
 
-+ (nullable NSArray *)getAdInterstitialUrlListTermForAdDisplaySpecList:(nullable NSArray *)list {
++ (NSArray *)getAdInterstitialUrlListTermForAdDisplaySpecList:(NSArray *)list {
     NSMutableArray *records = [NSMutableArray array];
     for (NSDictionary *spec in list) {
         if (![spec isKindOfClass:NSDictionary.class]) {
@@ -550,7 +550,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return [NSMutableArray arrayWithArray:[NSSet setWithArray:records].allObjects];
 }
 
-+ (nullable NSArray *)getPosterUrlList {
++ (NSArray *)getPosterUrlList {
     NSMutableArray *posters = [NSMutableArray array];
     for (NSDictionary *record in [self getAdList]) {
         id contentKind = record[kExternalAdDispMngKey][kAdContentKindKey];
@@ -572,7 +572,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return [NSSet setWithArray:posters].allObjects;
 }
 
-+ (nullable NSArray *)getAdInterstitialUrlListTermForList:(nullable NSArray *)list {
++ (NSArray *)getAdInterstitialUrlListTermForList:(NSArray *)list {
     NSMutableArray *urls = [NSMutableArray array];
     for (NSDictionary *record in list) {
         if (![record isKindOfClass:NSDictionary.class]) {
@@ -587,7 +587,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return [NSMutableArray arrayWithArray:[NSSet setWithArray:urls].allObjects];
 }
 
-+ (nullable NSArray *)getMovieUrlList {
++ (NSArray *)getMovieUrlList {
     NSMutableArray *urls = [NSMutableArray array];
     for (NSDictionary *record in [self getAdList]) {
         for (id entry in record[kMovieUrlListKey]) {
@@ -615,7 +615,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
 
 #pragma mark - Display-count dictionaries
 
-+ (nullable NSDictionary *)getAdDisplayCountDailyDictionary {
++ (NSDictionary *)getAdDisplayCountDailyDictionary {
     NSData *data = [NSUserDefaults.standardUserDefaults dataForKey:kAdDisplayCountDailyKey];
     if (data == nil) {
         return nil;
@@ -632,7 +632,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return nil;
 }
 
-+ (nullable NSDictionary *)getAdDisplayCountTotalDictionary {
++ (NSDictionary *)getAdDisplayCountTotalDictionary {
     NSData *data = [NSUserDefaults.standardUserDefaults dataForKey:kAdDisplayCountTotalKey];
     if (data == nil) {
         return nil;
@@ -642,7 +642,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
 
 #pragma mark - Advert type
 
-+ (int)getAdTypeWithAdModel:(int)adModel adLocation:(nullable NSString *)adLocation {
++ (int)getAdTypeWithAdModel:(int)adModel adLocation:(NSString *)adLocation {
     for (NSDictionary *setting in [self getAdModelSettingList]) {
         id location = setting[kAdLocationKey];
         if (![location isKindOfClass:NSString.class] || ![location isEqualToString:adLocation]) {
@@ -662,7 +662,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
 
 #pragma mark - List filters
 
-+ (nullable NSArray *)getAdListTermForList:(nullable NSArray *)list {
++ (NSArray *)getAdListTermForList:(NSArray *)list {
     NSMutableArray *result = [NSMutableArray array];
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     formatter.dateFormat = kDateTimeFormat;
@@ -681,7 +681,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return result;
 }
 
-+ (nullable NSArray *)getAdBannerListForList:(nullable NSArray *)list {
++ (NSArray *)getAdBannerListForList:(NSArray *)list {
     NSMutableArray *urls = [NSMutableArray array];
     for (NSDictionary *record in list) {
         if (![record isKindOfClass:NSDictionary.class]) {
@@ -696,7 +696,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
     return urls;
 }
 
-+ (nullable NSArray *)shuffled:(nullable NSArray *)list {
++ (NSArray *)shuffled:(NSArray *)list {
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:list.count];
     for (id object in list) {
         NSUInteger index = arc4random() % (result.count + 1);
@@ -707,7 +707,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
 
 #pragma mark - Interstitial frequency lottery
 
-+ (nullable NSError *)lotteryInterstitialWithAdLocation:(nullable NSString *)adLocation {
++ (NSError *)lotteryInterstitialWithAdLocation:(NSString *)adLocation {
     NSDictionary *specList = [self getInterstitialSpecList];
     if (specList.count == 0) {
         NSDictionary *userInfo = @{kErrorUserInfoKey : kInterstitialSpecListIsZeroMessage};
@@ -780,7 +780,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
 
 #pragma mark - Install flag
 
-+ (nullable NSString *)getInstallFlgWithAdData:(nullable NSDictionary *)adData {
++ (NSString *)getInstallFlgWithAdData:(NSDictionary *)adData {
     if (adData == nil) {
         return kInstallFlgOff;
     }
@@ -808,7 +808,7 @@ RecommendAdDataMutableRecordEscapingNewlines(NSDictionary *source) {
 
 #pragma mark - Debug movie lookup
 
-+ (nullable NSDictionary *)getMovieAdData:(nullable NSString *)movieUrl {
++ (NSDictionary *)getMovieAdData:(NSString *)movieUrl {
     for (NSDictionary *record in RecommendDebug.movieList) {
         id candidate = record[kMovieUrlKey];
         if (![candidate isKindOfClass:NSString.class] || ![candidate isEqualToString:movieUrl]) {

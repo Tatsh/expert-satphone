@@ -11,56 +11,56 @@
 // are declared; the full class is not reconstructed as its own file yet. See TYPES_PENDING.md.
 @interface ApplilinkCore : NSObject
 + (BOOL)isBuildXcode6;
-+ (void)toDelegateMovieFinish:(nullable id)delegate;
-+ (void)toDelegateSoundUseStart:(nullable id)delegate;
-+ (void)toDelegateFailOpenWithError:(nullable NSError *)error
-                           appParam:(nullable ApplilinkParameters *)appParam
-                           delegate:(nullable id)delegate;
-+ (void)toDelegateFailLinkWithError:(nullable NSError *)error
-                           appParam:(nullable ApplilinkParameters *)appParam
-                           delegate:(nullable id)delegate;
++ (void)toDelegateMovieFinish:(id)delegate;
++ (void)toDelegateSoundUseStart:(id)delegate;
++ (void)toDelegateFailOpenWithError:(NSError *)error
+                           appParam:(ApplilinkParameters *)appParam
+                           delegate:(id)delegate;
++ (void)toDelegateFailLinkWithError:(NSError *)error
+                           appParam:(ApplilinkParameters *)appParam
+                           delegate:(id)delegate;
 @end
 
 // The applilink network error factory. Not reconstructed as its own file yet.
 @interface ApplilinkNetworkError : NSObject
-+ (nullable NSError *)localizedApplilinkErrorWithCode:(NSInteger)code;
++ (NSError *)localizedApplilinkErrorWithCode:(NSInteger)code;
 @end
 
 // The analysis network core the click reports are posted to. Not reconstructed as its own file yet.
 @interface AnalysisNetworkCore : NSObject
-+ (void)postAnalysisClickMovieWithAdType:(nullable NSString *)adType
-                                 adModel:(nullable NSString *)adModel
-                              adLocation:(nullable NSString *)adLocation
-                            impressionId:(nullable NSString *)impressionId
-                               appliIdTo:(nullable NSString *)appliIdTo
-                              creativeId:(nullable NSString *)creativeId
-                           displayNumber:(nullable NSString *)displayNumber
-                           incentiveType:(nullable NSString *)incentiveType
-                              installFlg:(nullable NSString *)installFlg
++ (void)postAnalysisClickMovieWithAdType:(NSString *)adType
+                                 adModel:(NSString *)adModel
+                              adLocation:(NSString *)adLocation
+                            impressionId:(NSString *)impressionId
+                               appliIdTo:(NSString *)appliIdTo
+                              creativeId:(NSString *)creativeId
+                           displayNumber:(NSString *)displayNumber
+                           incentiveType:(NSString *)incentiveType
+                              installFlg:(NSString *)installFlg
                              movieStatus:(int)movieStatus
-                                callback:(nullable void (^)(NSError *_Nullable error))callback;
+                                callback:(void (^)(NSError *error))callback;
 @end
 
 // RecommendCore routes a link-scheme action and vends the movie-end URL. Not reconstructed as its
 // own file yet. See TYPES_PENDING.md.
 @interface RecommendCore : NSObject
 @property(class, nonatomic, readonly) RecommendCore *sharedInstance;
-- (void)linkActionWithURL:(nullable NSString *)url delegate:(nullable id)delegate;
-- (nullable NSString *)getMovideEndUrlWithAdIdFrom:(nullable NSString *)adIdFrom
-                                            adIdTo:(nullable NSString *)adIdTo
-                                           adModel:(nullable NSString *)adModel
-                                        adLocation:(nullable NSString *)adLocation
-                                      impressionId:(nullable NSString *)impressionId
-                                        creativeId:(nullable NSString *)creativeId
-                                     displayNumber:(nullable NSString *)displayNumber
-                                        installFlg:(nullable NSString *)installFlg;
+- (void)linkActionWithURL:(NSString *)url delegate:(id)delegate;
+- (NSString *)getMovideEndUrlWithAdIdFrom:(NSString *)adIdFrom
+                                   adIdTo:(NSString *)adIdTo
+                                  adModel:(NSString *)adModel
+                               adLocation:(NSString *)adLocation
+                             impressionId:(NSString *)impressionId
+                               creativeId:(NSString *)creativeId
+                            displayNumber:(NSString *)displayNumber
+                               installFlg:(NSString *)installFlg;
 @end
 
 // ApplilinkViewManager relays the video controller's close notice. Its full reconstruction lives in
 // ApplilinkViewManager.m; only -closeNotice: is used here.
 @interface ApplilinkViewManager : NSObject
 + (instancetype)sharedInstance;
-- (void)closeNotice:(nullable id)view;
+- (void)closeNotice:(id)view;
 @end
 
 // The query separator and the recognised key prefixes, exactly as the binary stores them as
@@ -497,8 +497,7 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 #pragma mark - Analysis
 
 /** @ghidraAddress 0x225688 */
-- (void)analysisWithStatus:(int)movieStatus
-                  callback:(nullable void (^)(NSError *_Nullable error))callback {
+- (void)analysisWithStatus:(int)movieStatus callback:(void (^)(NSError *error))callback {
     [AnalysisNetworkCore postAnalysisClickMovieWithAdType:self.adType
                                                   adModel:self.adModel
                                                adLocation:self.adLocation
@@ -517,7 +516,7 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 /** @ghidraAddress 0x225740 */
 - (void)movieStart {
     [self analysisWithStatus:kApplilinkMovieStatusStart
-                    callback:^(NSError *_Nullable __attribute__((unused)) error){
+                    callback:^(NSError *__attribute__((unused)) error){
                         /** @ghidraAddress 0x22575c */
                         // Empty error handler; failures are swallowed.
                     }];
@@ -527,7 +526,7 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 - (void)movieEnd {
     [ApplilinkCore toDelegateMovieFinish:self.applilinkDelegate];
     [self analysisWithStatus:kApplilinkMovieStatusEnd
-                    callback:^(NSError *_Nullable __attribute__((unused)) error) {
+                    callback:^(NSError *__attribute__((unused)) error) {
                       /** @ghidraAddress 0x225820 */
                       // Once the movie has ended, either show the ready end card or pin the player
                       // on its finished frame.
@@ -574,7 +573,7 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 #pragma mark - VideoView / SdkView delegate: ready and store
 
 /** @ghidraAddress 0x225dec */
-- (void)viewReady:(nullable id)view {
+- (void)viewReady:(id)view {
     if (self.videoView == view) {
         [self.appliView setHidden:NO];
     }
@@ -590,17 +589,17 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 }
 
 /** @ghidraAddress 0x22609c */
-- (void)storeNotice:(nullable id)view {
+- (void)storeNotice:(id)view {
     if (self.videoView == view) {
         [self analysisWithStatus:kApplilinkMovieStatusStoreFromVideo
-                        callback:^(NSError *_Nullable __attribute__((unused)) error) {
+                        callback:^(NSError *__attribute__((unused)) error) {
                           /** @ghidraAddress 0x2261b0 */
                           [self toStore];
                         }];
     }
     if (self.webView == view) {
         [self analysisWithStatus:kApplilinkMovieStatusStoreFromEndCard
-                        callback:^(NSError *_Nullable __attribute__((unused)) error) {
+                        callback:^(NSError *__attribute__((unused)) error) {
                           /** @ghidraAddress 0x2261d4 */
                           [self toStore];
                         }];
@@ -608,7 +607,7 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 }
 
 /** @ghidraAddress 0x2261f8 */
-- (void)closeNotice:(nullable id)view {
+- (void)closeNotice:(id)view {
     if (self.webView != view && self.videoView != view) {
         return;
     }
@@ -635,7 +634,7 @@ static const float kApplilinkXcode6LayoutVersion = 8.0f;
 }
 
 /** @ghidraAddress 0x22635c */
-- (void)appStoreFailLoadNoticeWithError:(nullable NSError *)error {
+- (void)appStoreFailLoadNoticeWithError:(NSError *)error {
     // Empty in the binary.
 }
 

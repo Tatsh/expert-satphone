@@ -11,7 +11,7 @@
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "LabUtilities.h"
-#import "NSDictionary+PropertyList.h"
+#import "NSDictionary+FromData.h"
 #import "ScratchInfo.h"
 #import "ScratchUtil.h"
 #import "Sequence.h"
@@ -423,7 +423,7 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
 #pragma mark - Difficulty buttons
 
 /** @ghidraAddress 0x160b00 */
-- (nullable UIButton *)diffButton:(nullable NSString *)imageName {
+- (UIButton *)diffButton:(NSString *)imageName {
     UIImage *image = LoadScaledPngImage(imageName);
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     button.frame = CGRectMake(0, 0, image.size.width, image.size.height);
@@ -480,14 +480,14 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
 }
 
 /** @ghidraAddress 0x163074 */
-- (nullable UIImage *)getStartImage {
+- (UIImage *)getStartImage {
     return [[ImageCache sharedCache] getResPNG:kResStartButton];
 }
 
 #pragma mark - Content loading
 
 /** @ghidraAddress 0x161194 */
-- (void)loadContentFromDictionary:(nullable NSDictionary *)dict {
+- (void)loadContentFromDictionary:(NSDictionary *)dict {
     UIImage *artwork = [UIImage imageWithData:dict[kContentArtwork]];
     if (artwork) {
         [self.artworkView setImage:artwork];
@@ -519,7 +519,7 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
 }
 
 /** @ghidraAddress 0x161528 */
-- (void)loadContentFromPath:(nullable NSString *)path orData:(nullable NSData *)data {
+- (void)loadContentFromPath:(NSString *)path orData:(NSData *)data {
     KUnzip *archive = nil;
     if (path) {
         archive = [[KUnzip alloc] initWithPath:path tail:kArchiveTail];
@@ -577,7 +577,7 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
 }
 
 /** @ghidraAddress 0x161a64 */
-- (void)loadExtendMusicBar:(nullable NSString *)path {
+- (void)loadExtendMusicBar:(NSString *)path {
     BFCodec *codec = [[BFCodec alloc] init];
     [codec cipherInit:GetBgmCipherKey()];
     if (path == nil) {
@@ -593,7 +593,7 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
 #pragma mark - Info
 
 /** @ghidraAddress 0x161c40 */
-- (void)setInfo:(nullable TuneInfo *)info score:(nullable id)scoreArg {
+- (void)setInfo:(TuneInfo *)info score:(id)scoreArg {
     [super setInfo:info score:scoreArg];
     if (info == nil) {
         return;
@@ -748,7 +748,7 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
 }
 
 /** @ghidraAddress 0x16245c */
-- (void)selectDiff:(nullable id)sender {
+- (void)selectDiff:(id)sender {
     if (self.isStarted) {
         return;
     }
@@ -809,7 +809,7 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
 }
 
 /** @ghidraAddress 0x162f18 */
-- (void)setMusicBarDot:(nullable char *)mbar mbarRes:(nullable char *)mbarRes {
+- (void)setMusicBarDot:(char *)mbar mbarRes:(char *)mbarRes {
     if (mbar == nullptr) {
         for (int i = 0; i < kMusicBarDotCount; ++i) {
             [mbarDotView[i] setImage:nil];
@@ -950,7 +950,7 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
 #pragma mark - Sound
 
 /** @ghidraAddress 0x16236c */
-- (nullable NSString *)soundName:(nullable NSString *)name {
+- (NSString *)soundName:(NSString *)name {
     unsigned int theme = [JubeatAppDelegate appDelegate].currentTheme;
     if (theme == kThemeRPL) {
         return [NSString stringWithFormat:@"SD_RPL_CV_%@", name];
@@ -964,7 +964,7 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
 #pragma mark - Actions
 
 /** @ghidraAddress 0x163d50 */
-- (void)pushButtonStartPlay:(nullable id)sender {
+- (void)pushButtonStartPlay:(id)sender {
     if (![self.buttonStartPlay isEnabled]) {
         return;
     }
@@ -973,7 +973,7 @@ static inline char ScratchMusicDetailViewLevelIndex(int level) {
 }
 
 /** @ghidraAddress 0x163e24 */
-- (void)tapRanking:(nullable id)sender {
+- (void)tapRanking:(id)sender {
     [[AudioManager sharedManager] playSeResFile:kSeRankingMenu inDirectory:nil];
     [self.aDelegate openRanking];
 }

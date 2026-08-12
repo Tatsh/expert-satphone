@@ -12,8 +12,8 @@
 // panel is cancelled. It is not yet reconstructed, so only the selectors messaged here are
 // declared.
 @interface MusicSelectViewController (MusicShareViewPending)
-- (void)cancelShare:(nullable id)sender;
-- (void)shareHostSelected:(nonnull MCPeerID *)host;
+- (void)cancelShare:(id)sender;
+- (void)shareHostSelected:(MCPeerID *)host;
 @end
 
 // The gradient-backed board's layer styling.

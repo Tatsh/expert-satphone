@@ -2,10 +2,10 @@
 
 #import <Security/Security.h>
 
-#import "CJSONDeserializer.h"
 #import "CJSONSerializer.h"
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
+#import "NSDictionary+JSONExtensions.h"
 
 @interface jubeatLabAccess ()
 // De-inlined: cancels and drops the session task. @ghidraAddress 0x1db2d0
@@ -14,12 +14,12 @@
 
 // StoreUtil is reached only for the recommended-pack URL; not reconstructed yet.
 @interface NSObject (JubeatLabStoreUtil)
-+ (nullable NSURL *)recommendPackURL:(unsigned int)tuneID;
++ (NSURL *)recommendPackURL:(unsigned int)tuneID;
 @end
 
 // TouchJSON's base64 category on NSData, used to encode an uploaded sequence.
 @interface NSData (Base64)
-- (nullable NSString *)base64EncodedString;
+- (NSString *)base64EncodedString;
 @end
 
 // The API host and the versioned path prefix every endpoint hangs off. From the CFString at

@@ -125,7 +125,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 #pragma mark - Initialisation
 
 /** @ghidraAddress 0x1f528c */
-- (instancetype)init:(nullable id)aDelegate keyString:(nullable NSString *)keyString {
+- (instancetype)init:(id)aDelegate keyString:(NSString *)keyString {
     BOOL pad = JubeatAppDelegate.appDelegate.isPad;
     fScale = kPhoneScale;
     _weakCoverView = nil;
@@ -183,7 +183,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 }
 
 /** @ghidraAddress 0x1f51ec */
-- (BOOL)enablePadScale:(nullable NSString *)key {
+- (BOOL)enablePadScale:(NSString *)key {
     if ([key isEqualToString:kPrefTitleAgreeLicenseVersion]) {
         return YES;
     }
@@ -196,8 +196,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 #pragma mark - Licence-date comparison
 
 /** @ghidraAddress 0x1f64c8 */
-- (BOOL)checkLicenseUpdate:(nullable NSString *)agreedDate
-               currentDate:(nullable NSString *)currentDate {
+- (BOOL)checkLicenseUpdate:(NSString *)agreedDate currentDate:(NSString *)currentDate {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     formatter.dateFormat = kDateFormat;
     NSDate *current = [formatter dateFromString:currentDate];
@@ -213,17 +212,17 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 /**
  * @ghidraAddress 0x1f59d0
  */
-- (void)jubeatLabAccessProceed:(nullable id)access {
+- (void)jubeatLabAccessProceed:(id)access {
     // Empty in the shipped binary.
 }
 
 /** @ghidraAddress 0x1f59d4 */
-- (void)jubeatLabAccessError:(nullable id)access {
+- (void)jubeatLabAccessError:(id)access {
     [self sendErrorDelegate:nil];
 }
 
 /** @ghidraAddress 0x1f59e4 */
-- (void)jubeatLabAccessFinished:(nullable id)access {
+- (void)jubeatLabAccessFinished:(id)access {
     NSDictionary *data = [access getDataInJSON];
     if (!data) {
         [self sendErrorDelegate:nil];
@@ -264,17 +263,17 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 /**
  * @ghidraAddress 0x1f64c4
  */
-- (void)downloaderProceed:(nullable id)downloader {
+- (void)downloaderProceed:(id)downloader {
     // Empty in the shipped binary.
 }
 
 /** @ghidraAddress 0x1f64b4 */
-- (void)downloaderError:(nullable id)downloader {
+- (void)downloaderError:(id)downloader {
     [self sendErrorDelegate:nil];
 }
 
 /** @ghidraAddress 0x1f5cd0 */
-- (void)downloaderFinished:(nullable id)downloader {
+- (void)downloaderFinished:(id)downloader {
     NSDictionary *data = nil;
     int tag = (int)[(Downloader *)downloader tag];
     if (tag == kChallengePolicyTag) {
@@ -376,7 +375,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 #pragma mark - Error routing
 
 /** @ghidraAddress 0x1f5928 */
-- (void)sendErrorDelegate:(nullable NSString *)msgStr {
+- (void)sendErrorDelegate:(NSString *)msgStr {
     if ([delegate respondsToSelector:@selector(agreementError:msgStr:)]) {
         [delegate performSelector:@selector(agreementError:msgStr:)
                        withObject:self
@@ -387,14 +386,14 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 /**
  * @ghidraAddress 0x1f6600
  */
-- (void)displayMessage:(nullable NSString *)message {
+- (void)displayMessage:(NSString *)message {
     // Empty in the shipped binary.
 }
 
 #pragma mark - Board construction
 
 /** @ghidraAddress 0x1f6604 */
-- (void)createLicenseBoard:(nullable NSString *)message {
+- (void)createLicenseBoard:(NSString *)message {
     CGRect frame = self.frame;
     CAGradientLayer *layer = (CAGradientLayer *)self.layer;
     layer.cornerRadius = kCornerRadius;
@@ -528,7 +527,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 #pragma mark - Button actions
 
 /** @ghidraAddress 0x1f76c4 */
-- (void)pushAgree:(nullable id)sender {
+- (void)pushAgree:(id)sender {
     [[NSUserDefaults standardUserDefaults] setValue:currentLicenseDateString forKey:licenseDateKey];
     [UIView animateWithDuration:kAnimationDuration
         animations:^{
@@ -544,7 +543,7 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 }
 
 /** @ghidraAddress 0x1f78b0 */
-- (void)pushDisAgree:(nullable id)sender {
+- (void)pushDisAgree:(id)sender {
     if ([delegate respondsToSelector:@selector(agreementFailed:)]) {
         [delegate performSelector:@selector(agreementFailed:) withObject:self];
     }

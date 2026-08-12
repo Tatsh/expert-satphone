@@ -50,7 +50,7 @@ enum { kFrameTermTypeFree = 0, kFrameTermTypeInstallCount = 1 };
 
 @interface TweetResourceManager ()
 /** @ghidraAddress 0x79580 */
-- (nullable NSArray<NSDictionary *> *)readResourceList;
+- (NSArray<NSDictionary *> *)readResourceList;
 @end
 
 @implementation TweetResourceManager {

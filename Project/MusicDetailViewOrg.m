@@ -1023,12 +1023,12 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5b3ec */
-- (void)pushButtonEdit:(nullable id)sender {
+- (void)pushButtonEdit:(id)sender {
     [self editStart];
 }
 
 /** @ghidraAddress 0x5b3a8 */
-- (void)pushButtonUpload:(nullable id)sender {
+- (void)pushButtonUpload:(id)sender {
     if ([self checkEnableUpload]) {
         [self uploadStart];
     }
@@ -1042,13 +1042,13 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 
 /** @ghidraAddress 0x5e2b4 */
 - (void)popoverPresentationControllerDidDismissPopover:
-    (nullable UIPopoverPresentationController *)popoverPresentationController {
+    (UIPopoverPresentationController *)popoverPresentationController {
     [self loadListRelease];
     [self.controller enableCoverTap];
 }
 
 /** @ghidraAddress 0x5c4fc */
-- (void)scrollViewWillBeginDragging:(nullable UIScrollView *)scrollView {
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
 }
 
 /** @ghidraAddress 0x57170 */
@@ -1073,7 +1073,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x537b0 */
-- (nullable UIButton *)diffButton:(nullable NSString *)imageName {
+- (UIButton *)diffButton:(NSString *)imageName {
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     double size = self.isPad ? kDiffButtonSizePad :
                                (self.isRetina ? kDiffButtonSizeRetina : kDiffButtonSizeNonRetina);
@@ -1166,7 +1166,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5dfe4 */
-- (void)editFileListViewDeleteFile:(nullable id)fileName {
+- (void)editFileListViewDeleteFile:(id)fileName {
     EditDataManager *manager = [EditDataManager sharedManager];
     NSString *lastEdit = [manager getLastEditFileName:(int)self.info.tuneID];
     NSString *path =
@@ -1181,7 +1181,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5e780 */
-- (void)downloadEnd:(nullable id)sender {
+- (void)downloadEnd:(id)sender {
     if (!self.isPad && self.jcfMan != nil) {
         [self loadEditFile];
         NSMutableArray<NSMutableDictionary *> *files =
@@ -1210,13 +1210,13 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5e308 */
-- (void)editFileListViewCancel:(nullable id)sender {
+- (void)editFileListViewCancel:(id)sender {
     [self.controller enableCoverTap];
     [self.controller dismissViewControllerAnimated:YES completion:nil];
 }
 
 /** @ghidraAddress 0x5e1d8 */
-- (void)selectEditFile:(nullable id)fileName {
+- (void)selectEditFile:(id)fileName {
     [[EditDataManager sharedManager] setLastEditFileName:(int)self.info.tuneID fileName:fileName];
     [self.controller enableCoverTap];
 }
@@ -1230,7 +1230,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5e38c */
-- (void)errorSequenceDownload:(nullable id)sender {
+- (void)errorSequenceDownload:(id)sender {
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:nil
@@ -1243,7 +1243,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5e46c */
-- (void)finishedSequenceDownload:(nullable id)sender {
+- (void)finishedSequenceDownload:(id)sender {
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:nil
@@ -1256,7 +1256,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5e54c */
-- (void)finishedSequenceOverCap:(nullable id)sender {
+- (void)finishedSequenceOverCap:(id)sender {
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:nil
@@ -1279,7 +1279,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5e664 */
-- (void)customWebViewClose:(nullable id)webView seqIndex:(nullable id)seqIndex {
+- (void)customWebViewClose:(id)webView seqIndex:(id)seqIndex {
     [self resetTextField:(int)self.info.tuneID isFirst:NO];
     [self setStartButtonEnable];
     [[AudioManager sharedManager] playSeResFile:kMusicLeftSound inDirectory:nil];
@@ -1288,7 +1288,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5c500 */
-- (void)scrollViewDidScroll:(nullable UIScrollView *)scrollView {
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     float offsetX = (float)scrollView.contentOffset.x;
     float half = (float)(scrollView.contentSize.width * 0.5);
     float denom = half * kScrollFadeSpanFraction;
@@ -1297,7 +1297,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x57aa4 */
-- (void)setMusicBarDot:(nullable char *)dots mbarRes:(nullable char *)mbarRes {
+- (void)setMusicBarDot:(char *)dots mbarRes:(char *)mbarRes {
     if (dots == nullptr) {
         for (int i = 0; i < kMusicBarDotCount; ++i) {
             [mbarDotView[i] setImage:nil];
@@ -1471,7 +1471,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x56850 */
-- (void)selectDiff:(nullable id)sender {
+- (void)selectDiff:(id)sender {
     if (self.isStarted) {
         return;
     }
@@ -1565,7 +1565,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5a1c0 */
-- (void)pushButtonStartPlay:(nullable id)sender {
+- (void)pushButtonStartPlay:(id)sender {
     if (!self.buttonStartPlay.isEnabled) {
         return;
     }
@@ -1934,7 +1934,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x55bbc */
-- (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable id)score {
+- (void)setExtendInfo:(TuneInfo *)info score:(id)score {
     [super setExtendInfo:info score:score];
     [self loadExtendMusicBar:info.filePath];
 
@@ -1966,7 +1966,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5b914 */
-- (void)pushButtonShare:(nullable id)sender {
+- (void)pushButtonShare:(id)sender {
     if (self.controller.sharePlayManager == nil) {
         // Begin hosting a share: swap the host button to a cancel image, lock the play and social
         // buttons, show the waiting prompt, and hand the packed chart to the controller.
@@ -2075,7 +2075,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x54ad8 */
-- (void)loadExtendMusicBar:(nullable NSString *)path {
+- (void)loadExtendMusicBar:(NSString *)path {
     BFCodec *codec = [[BFCodec alloc] init];
     NSData *cipherKey = GetBgmCipherKey();
     [codec cipherInit:cipherKey];
@@ -2152,7 +2152,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x544f0 */
-- (void)loadContentFromPath:(nullable NSString *)path orData:(nullable NSData *)data {
+- (void)loadContentFromPath:(NSString *)path orData:(NSData *)data {
     // The packed content comes from a file (skipping the 16-byte trailer) or, failing that, from an
     // in-memory range covering all but the trailer.
     KUnzip *archive = nil;
@@ -2219,7 +2219,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x54dac */
-- (void)setInfo:(nullable TuneInfo *)info score:(nullable id)score {
+- (void)setInfo:(TuneInfo *)info score:(id)score {
     [super setInfo:info score:score];
     if (info == nil) {
         return;
@@ -2244,7 +2244,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5415c */
-- (void)loadContentFromDictionary:(nullable NSDictionary *)dict {
+- (void)loadContentFromDictionary:(NSDictionary *)dict {
     UIImage *artwork = [UIImage imageWithData:dict[kContentArtwork]];
     if (artwork != nil) {
         [self.artworkView setImage:artwork];
@@ -2339,7 +2339,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5ea20 */
-- (void)uploadEnd:(nullable id)sender {
+- (void)uploadEnd:(id)sender {
     __weak UIView *weakCover = topcover;
     __weak JcfUpLoadView *weakUpload = upLoadView;
     // The binary passes a negative fade duration here; kept as-is.
@@ -2357,7 +2357,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5786c */
-- (void)scrollChange:(nullable id)sender {
+- (void)scrollChange:(id)sender {
     if (self.isStarted) {
         return;
     }
@@ -2383,20 +2383,19 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5c5dc */
-- (void)scrollViewDidEndScrollingAnimation:(nullable UIScrollView *)scrollView {
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
     [detailScrollButton[0] setAlpha:1.0];
     [detailScrollButton[1] setAlpha:1.0];
     MusicDetailViewOrgSettleScrollPage(self, self->holdMark);
 }
 
 /** @ghidraAddress 0x5c8c8 */
-- (void)scrollViewDidEndDecelerating:(nullable UIScrollView *)scrollView {
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     MusicDetailViewOrgSettleScrollPage(self, self->holdMark);
 }
 
 /** @ghidraAddress 0x5cb8c */
-- (void)scrollViewDidEndDragging:(nullable UIScrollView *)scrollView
-                  willDecelerate:(BOOL)decelerate {
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
         MusicDetailViewOrgSettleScrollPage(self, self->holdMark);
     }
@@ -2461,7 +2460,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5d1b4 */
-- (void)pushInfoEdit:(nullable id)sender {
+- (void)pushInfoEdit:(id)sender {
     if (![self checkDownloadFile] && self.isPad) {
         [[AudioManager sharedManager] playSeResFile:kMusicRightSound inDirectory:nil];
         self.pEditModalView = [[EditModalView alloc] initWithType:0];
@@ -2473,7 +2472,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5ce5c */
-- (void)editModalViewClose:(nullable id)sender {
+- (void)editModalViewClose:(id)sender {
     [[AudioManager sharedManager] playSeResFile:kMusicLeftSound inDirectory:nil];
     NSMutableDictionary *editorInfo = [[EditDataManager sharedManager] getEditorInfo];
     [editTxt[0] setText:editorInfo[@"fumenName"]];
@@ -2489,7 +2488,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5ecac */
-- (nullable id)getStartImage {
+- (id)getStartImage {
     if (![JubeatAppDelegate.appDelegate isRandom]) {
         return [[ImageCache sharedCache] getResPNG:kStartButtonImage];
     }
@@ -2500,7 +2499,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5ede4 */
-- (nullable id)getSingleImage {
+- (id)getSingleImage {
     if (![JubeatAppDelegate.appDelegate isRandom]) {
         return [[ImageCache sharedCache] getResPNG:kSingleButtonImage];
     }

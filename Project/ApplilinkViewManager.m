@@ -6,12 +6,12 @@
 // forward-declared. See TYPES_PENDING.md.
 @interface ApplilinkVideoController : NSObject
 - (void)parentWindowFlag:(BOOL)parentWindowFlag;
-- (nullable UIView *)view;
-- (void)setSdkDelegate:(nullable id)delegate;
-- (void)setQuery:(nullable NSString *)query
+- (UIView *)view;
+- (void)setSdkDelegate:(id)delegate;
+- (void)setQuery:(NSString *)query
            autoPlay:(BOOL)autoPlay
-    applilinkParams:(nullable ApplilinkParameters *)applilinkParams
-           delegate:(nullable id)delegate;
+    applilinkParams:(ApplilinkParameters *)applilinkParams
+           delegate:(id)delegate;
 - (void)viewDealloc;
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation
                                          duration:(NSTimeInterval)duration;

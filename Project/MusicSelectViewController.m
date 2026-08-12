@@ -32,8 +32,8 @@
 #import "MusicSelectBottomView.h"
 #import "MusicShareView.h"
 #import "MusicView.h"
-#import "NSDictionary+PropertyList.h"
-#import "NSDictionary+TypedAccessors.h"
+#import "NSDictionary+FromData.h"
+#import "NSDictionary+TypedLookupExtension.h"
 #import "NotificationPageNavController.h"
 #import "PurchaseManager.h"
 #import "PushNotificationView.h"
@@ -1224,7 +1224,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x31b98 */
-- (void)appSuspended:(nullable id)notification {
+- (void)appSuspended:(id)notification {
     [self hiddenCoverView];
     [markerSelectView pauseAnimation];
     [self stopStoreInfo];
@@ -1247,7 +1247,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x31da4 */
-- (void)appResumed:(nullable id)notification {
+- (void)appResumed:(id)notification {
     [markerSelectView resumeAnimation];
     if (mainBgmSuspended) {
         [[AudioManager sharedManager] startBgm:YES fadeTime:kMenuBgmResumeFade];
@@ -1313,7 +1313,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2aeec */
-- (void)musicPlaylistViewControllerWillClosed:(nullable id)controller {
+- (void)musicPlaylistViewControllerWillClosed:(id)controller {
     if (playlistViewCtrl.listMode == MusicPlaylistListModeAddToPlaylist) {
         [musicListView hideAllPlaylistAction];
     }
@@ -1335,17 +1335,17 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x33330 */
-- (void)downloadEnd:(nullable id)sender musicID:(nullable id)musicID {
+- (void)downloadEnd:(id)sender musicID:(id)musicID {
     [musicListView addDownloadMark:[musicID intValue]];
 }
 
 /** @ghidraAddress 0x329d4 */
-- (void)markerSelectChanged:(nullable id)sender {
+- (void)markerSelectChanged:(id)sender {
     [btnMarkerImg setImage:[markerSelectView getCurrentBanner]];
 }
 
 /** @ghidraAddress 0x2ca38 */
-- (void)musicViewSelectBgmAction:(nullable id)musicView {
+- (void)musicViewSelectBgmAction:(id)musicView {
     // Re-tapping the current custom-BGM tune clears the preference; any other tune sets it.
     unsigned int tuneID = ((MusicView *)musicView).tuneInfo.tuneID;
     NSInteger current = [NSUserDefaults.standardUserDefaults integerForKey:kPrefCustomBgmIDKey];
@@ -1362,17 +1362,17 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2a228 */
-- (nullable id)extendMusicInfoForMusicID:(unsigned int)musicID {
+- (id)extendMusicInfoForMusicID:(unsigned int)musicID {
     return dictAllExtendTune[@(musicID)];
 }
 
 /** @ghidraAddress 0x2a298 */
-- (nullable id)addMusicArray {
+- (id)addMusicArray {
     return arrayAddList;
 }
 
 /** @ghidraAddress 0x2a2a8 */
-- (nullable id)removeMusicArray {
+- (id)removeMusicArray {
     return arrayDeleteList;
 }
 
@@ -1402,24 +1402,24 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x35854 */
-- (BOOL)checkShakeEvent:(nullable id)event {
+- (BOOL)checkShakeEvent:(id)event {
     // A shake counts only while shuffle is enabled and the event is a motion-shake.
     return bEnableShuffle && ((UIEvent *)event).type == UIEventTypeMotion &&
            ((UIEvent *)event).subtype == UIEventSubtypeMotionShake;
 }
 
 /** @ghidraAddress 0x358dc */
-- (void)motionBegan:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event {
+- (void)motionBegan:(UIEventSubtype)motion withEvent:(UIEvent *)event {
     [self checkShakeEvent:event];
 }
 
 /** @ghidraAddress 0x358ec */
-- (void)motionCancelled:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event {
+- (void)motionCancelled:(UIEventSubtype)motion withEvent:(UIEvent *)event {
     [self checkShakeEvent:event];
 }
 
 /** @ghidraAddress 0x358fc */
-- (void)motionEnded:(UIEventSubtype)motion withEvent:(nullable UIEvent *)event {
+- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event {
     if ([self checkShakeEvent:event]) {
         [self setRandomSelect];
     }
@@ -1428,12 +1428,12 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Buttons
 
 /** @ghidraAddress 0x3478c */
-- (void)btnTouchesBegan:(nullable id)sender {
+- (void)btnTouchesBegan:(id)sender {
     [self setEnableGesture:NO];
 }
 
 /** @ghidraAddress 0x3479c */
-- (void)btnTouchesCancel:(nullable id)sender {
+- (void)btnTouchesCancel:(id)sender {
     [self setEnableGesture:YES];
 }
 
@@ -1446,12 +1446,12 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2ca20 */
-- (void)musicViewPressed:(nullable id)sender {
+- (void)musicViewPressed:(id)sender {
     [musicListView hideAllPlaylistAction];
 }
 
 /** @ghidraAddress 0x2cfac */
-- (NSUInteger)musicViewGetPlaylistActionType:(nullable id)musicView {
+- (NSUInteger)musicViewGetPlaylistActionType:(id)musicView {
     // The not-played, level, hold, and not-hold system lists offer no add/remove action; a real
     // user playlist reports action type 1.
     id source = currentPlaylistSource;
@@ -1505,20 +1505,20 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Search
 
 /** @ghidraAddress 0x36b30 */
-- (void)searchBar:(nullable UISearchBar *)searchBar
+- (void)searchBar:(UISearchBar *)searchBar
     selectedScopeButtonIndexDidChange:(NSInteger)selectedScope {
 }
 
 #pragma mark - Lab, challenge, and store
 
 /** @ghidraAddress 0x34754 */
-- (void)tapJubeatLab:(nullable id)sender {
+- (void)tapJubeatLab:(id)sender {
     [self setEnableGesture:YES];
     [self JcfDownLoadTopPage];
 }
 
 /** @ghidraAddress 0x38a50 */
-- (void)agreementFailed:(nullable id)sender {
+- (void)agreementFailed:(id)sender {
     [sender removeFromSuperview];
     [self hideChallengeCoverView];
 }
@@ -1530,7 +1530,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x37ee8 */
-- (void)showVerifyDialog:(nullable id)message {
+- (void)showVerifyDialog:(id)message {
     CGRect viewFrame = self.view.frame;
     if (JubeatAppDelegate.appDelegate.isPad) {
         verifyDialog = [[StoreDialogView alloc]
@@ -1562,14 +1562,14 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x36d04 */
-- (void)tapChallengeMode:(nullable id)sender {
+- (void)tapChallengeMode:(id)sender {
     [[AudioManager sharedManager] playSeResFile:[self soundName:kChallengeTapSoundKey]
                                     inDirectory:nil];
     [self downloadChallengeInfo];
 }
 
 /** @ghidraAddress 0x27694 */
-- (void)tapStoreInfo:(nullable id)info {
+- (void)tapStoreInfo:(id)info {
     [self setEnableGesture:YES];
     if (info != nil) {
         // A store-info entry that carries no challenge marker opens the store; otherwise it starts
@@ -1583,27 +1583,27 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x32a34 */
-- (void)tapStore:(nullable id)sender {
+- (void)tapStore:(id)sender {
     [self setEnableGesture:YES];
     [[AudioManager sharedManager] playSeResFile:[self soundName:kStoreTapSoundKey] inDirectory:nil];
     [self turnToStore:nil];
 }
 
 /** @ghidraAddress 0x387d0 */
-- (void)successIDDownload:(nullable id)sender {
+- (void)successIDDownload:(id)sender {
     idManager = nil;
     [self downloadChallengeInfo];
 }
 
 /** @ghidraAddress 0x389e4 */
-- (void)agreementSuccess:(nullable id)sender {
+- (void)agreementSuccess:(id)sender {
     checkPolicy = YES;
     [self downloadChallengeInfo];
     [sender removeFromSuperview];
 }
 
 /** @ghidraAddress 0x38a88 */
-- (void)restoreFailed:(nullable id)sender {
+- (void)restoreFailed:(id)sender {
     [self hideChallengeCoverView];
     PurchaseManager.sharedManager.delegate = nil;
     [self hideVerifyDialog];
@@ -1632,7 +1632,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x37c24 */
-- (void)loadTimeOver:(nullable id)sender {
+- (void)loadTimeOver:(id)sender {
     [indicatorTimer invalidate];
     indicatorTimer = nil;
     [indicatorChallenge startAnimating];
@@ -1642,7 +1642,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
 /** @ghidraAddress 0x275dc */
 - (BOOL)popoverPresentationControllerShouldDismissPopover:
-    (nullable UIPopoverPresentationController *)popoverPresentationController {
+    (UIPopoverPresentationController *)popoverPresentationController {
     if (playlistViewCtrl.listMode == MusicPlaylistListModeAddToPlaylist) {
         [musicListView hideAllPlaylistAction];
     }
@@ -1651,7 +1651,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
 /** @ghidraAddress 0x27634 */
 - (void)popoverPresentationControllerDidDismissPopover:
-    (nullable UIPopoverPresentationController *)popoverPresentationController {
+    (UIPopoverPresentationController *)popoverPresentationController {
     playlistViewCtrl = nil;
     playlistNavCtrl = nil;
     [self JcfDownLoad];
@@ -1698,7 +1698,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Search
 
 /** @ghidraAddress 0x36720 */
-- (void)handleSwipe:(nullable UISwipeGestureRecognizer *)recognizer {
+- (void)handleSwipe:(UISwipeGestureRecognizer *)recognizer {
     // A downward swipe pulls the search box in; a rightward swipe pushes it away.
     if (recognizer.direction == UISwipeGestureRecognizerDirectionDown) {
         [self pullSearchBox];
@@ -1708,7 +1708,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x36780 */
-- (void)tapSearchCancel:(nullable id)sender {
+- (void)tapSearchCancel:(id)sender {
     [self setEnableGesture:YES];
     [searchBox setText:@""];
     backUpString = @"";
@@ -1716,7 +1716,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x36aa8 */
-- (void)searchBarSearchButtonClicked:(nullable UISearchBar *)searchBar {
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     if ([self searchStringChanged:searchBar.text]) {
         [self exeSearchPickUp];
     }
@@ -1726,7 +1726,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Host select
 
 /** @ghidraAddress 0x31b30 */
-- (void)sharePlayManagerHostSelectStart:(nullable id)manager {
+- (void)sharePlayManagerHostSelectStart:(id)manager {
     willStart = YES;
     [self startPlay:musicDetailView.info];
 }
@@ -1734,37 +1734,37 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Share play
 
 /** @ghidraAddress 0x2ff10 */
-- (void)shareHostSelected:(nullable id)host {
+- (void)shareHostSelected:(id)host {
     [self.sharePlayManager sendConnectRequest:host];
     [shareClientView changeClientModeConnecting];
 }
 
 /** @ghidraAddress 0x30480 */
-- (void)sharePlayManagerFailedSendMusicData:(nullable id)manager {
+- (void)sharePlayManagerFailedSendMusicData:(id)manager {
 }
 
 /** @ghidraAddress 0x30948 */
-- (void)sharePlayManagerConnectHost:(nullable id)manager {
+- (void)sharePlayManagerConnectHost:(id)manager {
     [shareClientView changeClientModeConnected];
 }
 
 /** @ghidraAddress 0x31818 */
-- (void)sharePlayManager:(nullable id)manager receiveProgress:(float)progress {
+- (void)sharePlayManager:(id)manager receiveProgress:(float)progress {
     [musicDetailView.shareDataProgress setProgress:progress];
 }
 
 /** @ghidraAddress 0x30b6c */
-- (void)sharePlayManager:(nullable id)manager findHostID:(nullable id)hostID {
+- (void)sharePlayManager:(id)manager findHostID:(id)hostID {
     [shareClientView addHost:hostID];
 }
 
 /** @ghidraAddress 0x30b88 */
-- (void)sharePlayManager:(nullable id)manager lostHostID:(nullable id)hostID {
+- (void)sharePlayManager:(id)manager lostHostID:(id)hostID {
     [shareClientView removeHostTmp:hostID];
 }
 
 /** @ghidraAddress 0x30484 */
-- (void)sharePlayManagerAllClientReady:(nullable id)manager {
+- (void)sharePlayManagerAllClientReady:(id)manager {
     [musicDetailView.labelShareMessage
         setText:[NSBundle.mainBundle localizedStringForKey:@"Ready to start" value:@"" table:nil]];
     [musicDetailView.buttonStartPlay setEnabled:YES];
@@ -1773,7 +1773,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x31874 */
-- (BOOL)sharePlayManager:(nullable id)manager musicDataReceived:(nullable id)musicData {
+- (BOOL)sharePlayManager:(id)manager musicDataReceived:(id)musicData {
     // The payload carries a trailing MD5 digest over the music bytes; reject a mismatch.
     NSData *data = musicData;
     if (data.length > kShareMusicDigestLength) {
@@ -1800,7 +1800,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x30140 */
-- (void)sharePlayManagerConnectClient:(nullable id)manager {
+- (void)sharePlayManagerConnectClient:(id)manager {
     [musicDetailView.labelShareMessage
         setText:[NSString
                     stringWithFormat:[NSBundle.mainBundle localizedStringForKey:@"Connected to %@"
@@ -1810,7 +1810,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x30340 */
-- (void)sharePlayManagerSuccessSendMusicData:(nullable id)manager {
+- (void)sharePlayManagerSuccessSendMusicData:(id)manager {
     [musicDetailView.labelShareMessage
         setText:[NSString
                     stringWithFormat:[NSBundle.mainBundle localizedStringForKey:@"Connected to %@"
@@ -1820,7 +1820,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2effc */
-- (void)startHostShare:(nullable id)musicInfo filePath:(nullable id)filePath {
+- (void)startHostShare:(id)musicInfo filePath:(id)filePath {
     NSString *screenName = JubeatAppDelegate.appDelegate.gameCenterName;
     [musicDetailView setIsSharedStartable:NO];
     self.sharePlayManager = [[SharePlayManager alloc] initWithScreenName:screenName];
@@ -1900,7 +1900,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x3073c */
-- (void)sharePlayManager:(nullable id)manager disconnectClient:(nullable id)client {
+- (void)sharePlayManager:(id)manager disconnectClient:(id)client {
     // A host that has started drops the session; otherwise the host is told a client disconnected.
     if (willStart) {
         [self.sharePlayManager disconnect];
@@ -1921,7 +1921,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x30960 */
-- (void)sharePlayManagerDisconnect:(nullable id)manager {
+- (void)sharePlayManagerDisconnect:(id)manager {
     // A host that has already started simply drops the session; otherwise the client is told the
     // host disconnected.
     if (willStart) {
@@ -1943,7 +1943,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x305a0 */
-- (void)sharePlayManagerConnectFailed:(nullable id)manager {
+- (void)sharePlayManagerConnectFailed:(id)manager {
     [[AlertViewManager sharedManager]
         makeAlert:0
          delegate:self
@@ -1958,7 +1958,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x30280 */
-- (void)sharePlayManager:(nullable id)manager receiveExistMusicData:(BOOL)exist {
+- (void)sharePlayManager:(id)manager receiveExistMusicData:(BOOL)exist {
     // Only when the client lacks the music does the host show the sending-data prompt.
     if (exist) {
         return;
@@ -1970,7 +1970,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x30ba4 */
-- (BOOL)sharePlayManager:(nullable id)manager receiveMusicInfo:(nullable id)musicInfo {
+- (BOOL)sharePlayManager:(id)manager receiveMusicInfo:(id)musicInfo {
     TuneInfo *received = [[TuneInfo alloc] initWithfilePath:nil dictionary:musicInfo];
     // Match the received tune against the local catalogue; when it is present the client already
     // owns the data and can start immediately.
@@ -2107,7 +2107,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x274f8 */
-- (void)tapBgmSwitch:(nullable id)sender {
+- (void)tapBgmSwitch:(id)sender {
     BOOL on = [NSUserDefaults.standardUserDefaults boolForKey:kPrefCustomBgmOnKey];
     [NSUserDefaults.standardUserDefaults setBool:!on forKey:kPrefCustomBgmOnKey];
     [NSUserDefaults.standardUserDefaults synchronize];
@@ -2178,7 +2178,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Share join
 
 /** @ghidraAddress 0x2f930 */
-- (void)pushBtnJoin:(nullable id)sender {
+- (void)pushBtnJoin:(id)sender {
     [[AudioManager sharedManager] playSeResFile:[self soundName:kJoinSoundSuffix] inDirectory:nil];
     [self showButtonMarker:NO];
     [coverView setHidden:NO];
@@ -2242,7 +2242,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x20c84 */
-- (nullable id)soundName:(nullable id)suffix {
+- (id)soundName:(id)suffix {
     // The sound-effect name carries the current theme's prefix.
     switch (JubeatAppDelegate.appDelegate.currentTheme) {
     case JubeatThemeReflecBeatPlus:
@@ -2255,7 +2255,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x272ac */
-- (void)tapPlaylists:(nullable id)sender {
+- (void)tapPlaylists:(id)sender {
     [self setEnableGesture:YES];
     playlistViewCtrl = [[MusicPlaylistViewController alloc] initWithStyle:UITableViewStylePlain];
     [playlistViewCtrl setListMode:MusicPlaylistListModePlaylists];
@@ -2280,7 +2280,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x26f98 */
-- (void)turnToStore:(nullable id)params {
+- (void)turnToStore:(id)params {
     storeParams = params;
     // A pending consume receipt must be verified first; otherwise the store opens immediately.
     if ([[PurchaseManager sharedManager] verifyPendingConsumeReceipt]) {
@@ -2293,22 +2293,22 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x26b30 */
-- (void)turnToGenreOpen:(nullable id)sender {
+- (void)turnToGenreOpen:(id)sender {
     [self turnToStore:@{@"genre" : sender}];
 }
 
 /** @ghidraAddress 0x26bf8 */
-- (void)turnToPackPurchase:(nullable id)sender {
+- (void)turnToPackPurchase:(id)sender {
     [self turnToStore:@{@"pack" : sender}];
 }
 
 /** @ghidraAddress 0x26cc0 */
-- (void)turnToCampaignDetail:(nullable id)sender {
+- (void)turnToCampaignDetail:(id)sender {
     [self turnToStore:@{@"campaign" : sender}];
 }
 
 /** @ghidraAddress 0x27098 */
-- (void)clickPackInfomation:(nullable id)sender {
+- (void)clickPackInfomation:(id)sender {
     [self dismissViewControllerAnimated:YES
                              completion:^{
                                /** @ghidraAddress 0x27188 */
@@ -2321,7 +2321,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2d2e0 */
-- (void)tapLeaderboard:(nullable id)sender {
+- (void)tapLeaderboard:(id)sender {
     [self setEnableGesture:YES];
     if (!GKLocalPlayer.localPlayer.isAuthenticated) {
         return;
@@ -2358,7 +2358,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x33374 */
-- (void)moveStore:(nullable id)store packID:(nullable NSString *)packID {
+- (void)moveStore:(id)store packID:(NSString *)packID {
     [self dismissViewControllerAnimated:YES
                              completion:^{
                                /** @ghidraAddress 0x33428 */
@@ -2705,7 +2705,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Edit and shuffle
 
 /** @ghidraAddress 0x2ea1c */
-- (void)startPlay:(nullable id)tune {
+- (void)startPlay:(id)tune {
     [self stopStoreInfo];
     [musicListView releaseArtworks];
     [[AudioManager sharedManager] fadeoutBgm:1.0];
@@ -2735,7 +2735,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2ee04 */
-- (void)startEdit:(nullable id)tune {
+- (void)startEdit:(id)tune {
     [self stopStoreInfo];
     [musicListView releaseArtworks];
     [[AudioManager sharedManager] fadeoutBgm:1.0];
@@ -2776,7 +2776,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x3486c */
-- (void)shuffleAnimation:(nullable id)tune {
+- (void)shuffleAnimation:(id)tune {
     int slideOffset = isPad ? kShuffleSlideOffsetPad : kShuffleSlideOffsetPhone;
     bSuffleAnim = YES;
     __weak UIView *weakCover = coverView;
@@ -2938,7 +2938,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x31e78 */
-- (void)tapMarkerSelect:(nullable id)sender {
+- (void)tapMarkerSelect:(id)sender {
     [self setEnableGesture:YES];
     __weak MarkerSelectView *weakMarkerSelect = markerSelectView;
     __weak UIButton *weakMarker = btnMarker;
@@ -3047,7 +3047,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Search
 
 /** @ghidraAddress 0x221fc */
-- (BOOL)matchTitle:(nullable id)tune {
+- (BOOL)matchTitle:(id)tune {
     // Every search term must appear (case-insensitively) in at least one of the tune's search
     // strings, looked up by tune id. No terms matches everything.
     NSArray<NSString *> *strings = searchDictionary[@(((TuneInfo *)tune).tuneID)];
@@ -3068,7 +3068,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x35a9c */
-- (BOOL)searchStringChanged:(nullable id)searchString {
+- (BOOL)searchStringChanged:(id)searchString {
     // Recompute the search terms; the query changed when the term count differs or any new term is
     // absent from the previous set.
     NSArray *previous = [NSArray arrayWithArray:searchArray];
@@ -3094,7 +3094,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x35944 */
-- (nullable id)getSearchArray:(nullable NSString *)searchString {
+- (id)getSearchArray:(NSString *)searchString {
     // Normalise kana and width (twice each, matching the binary), split on spaces, de-duplicate via
     // a set, and drop empty terms.
     NSMutableString *normalized = [searchString mutableCopy];
@@ -3138,7 +3138,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x369f8 */
-- (void)searchBar:(nullable UISearchBar *)searchBar textDidChange:(nullable NSString *)searchText {
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
     backUpString = [NSString stringWithString:searchText];
     if ([self searchStringChanged:searchText]) {
         [self exeSearchPickUp];
@@ -3187,7 +3187,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Settings
 
 /** @ghidraAddress 0x2d030 */
-- (void)tapSettings:(nullable id)sender {
+- (void)tapSettings:(id)sender {
     if (notificationView.isActive) {
         [notificationView stopNotification];
     }
@@ -3202,7 +3202,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2d160 */
-- (void)settingsNavViewClose:(nullable id)sender {
+- (void)settingsNavViewClose:(id)sender {
     [[AudioManager sharedManager] playSeResFile:[self soundName:@"MUSIC_LEFT"] inDirectory:nil];
     [self dismissViewControllerAnimated:YES
                              completion:^{
@@ -3218,7 +3218,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Cover view
 
 /** @ghidraAddress 0x2a2b8 */
-- (void)showCoverView:(nullable id)appendViews addGesture:(nullable id)gesture {
+- (void)showCoverView:(id)appendViews addGesture:(id)gesture {
     if (bOpenDelegateCover) {
         return;
     }
@@ -3299,7 +3299,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2af98 */
-- (void)musicViewTapped:(nullable id)view {
+- (void)musicViewTapped:(id)view {
     MusicView *musicView = view;
     searchBox.text = [NSString stringWithString:backUpString];
     [searchBox resignFirstResponder];
@@ -3582,7 +3582,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Popover and challenge mode
 
 /** @ghidraAddress 0x36e5c */
-- (void)challengeMusicStart:(nullable id)tune diff:(int)difficulty {
+- (void)challengeMusicStart:(id)tune diff:(int)difficulty {
     [self stopStoreInfo];
     [JubeatAppDelegate.appDelegate setChallengeMusic:((TuneInfo *)tune).tuneID diff:difficulty];
     [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
@@ -3671,7 +3671,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Playlist actions
 
 /** @ghidraAddress 0x2cbfc */
-- (void)musicViewPlaylistAction:(nullable id)view {
+- (void)musicViewPlaylistAction:(id)view {
     MusicView *musicView = view;
     // On a built-in playlist source, open the add-to-playlist picker; on a named playlist, remove
     // the tune from it.
@@ -3725,7 +3725,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x3433c */
-- (void)customWebViewClose:(nullable id)webView seqIndex:(nullable id)seqIndex {
+- (void)customWebViewClose:(id)webView seqIndex:(id)seqIndex {
     [[AudioManager sharedManager] playSeResFile:kWebViewCloseSound inDirectory:nil];
     [self dismissViewControllerAnimated:YES
                              completion:^{
@@ -3753,7 +3753,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x27734 */
-- (void)tapNotification:(nullable id)notification {
+- (void)tapNotification:(id)notification {
     NSString *urlString = notification[kPushURLKey];
     NSString *userID = [EditorIDManager getKeyString:[EditorIDManager getEditorIDKey]];
     id pushID = notification[kPushIDKey];
@@ -3981,7 +3981,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - JCF download and purchases
 
 /** @ghidraAddress 0x33084 */
-- (void)jcfDownloadEnd:(nullable id)sender {
+- (void)jcfDownloadEnd:(id)sender {
     __weak UIView *weakCover = coverView;
     __weak JcfDownloadView *weakDownload = jcfDownloadView;
     [musicListView addDownloadMark:[jcfDownloadView getDownloadMusicID]];
@@ -4000,7 +4000,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x32d10 */
-- (void)JcfDownLoad:(nullable id)sequenceID {
+- (void)JcfDownLoad:(id)sequenceID {
     if (sequenceID == nil) {
         return;
     }
@@ -4092,7 +4092,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2d4a8 */
-- (void)gameCenterViewControllerDidFinish:(nullable id)controller {
+- (void)gameCenterViewControllerDidFinish:(id)controller {
     [[AudioManager sharedManager] playSeResFile:[self soundName:@"MUSIC_LEFT"] inDirectory:nil];
     [self dismissViewControllerAnimated:YES
                              completion:^{
@@ -4105,7 +4105,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x36b4c */
-- (void)tapChangeMode:(nullable id)sender {
+- (void)tapChangeMode:(id)sender {
     [musicDetailView changeExtendMode];
     __weak UIView *weakTutorial = extendTutorialView;
     // The binary passes a negative fade duration here; kept as-is.
@@ -4117,7 +4117,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2ff94 */
-- (void)alertSelect:(nullable id)alert {
+- (void)alertSelect:(id)alert {
     // Each tag selects an action performed by the shared tail; the restore and cancel paths return
     // early instead.
     int tag = [alert[kAlertTagKey] intValue];
@@ -4148,7 +4148,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x28e84 */
-- (void)challengeConnectError:(nullable id)response {
+- (void)challengeConnectError:(id)response {
     int status = [response[kChallengeStatusKey] intValue];
     if (response[kChallengeStatusKey] != nil) {
         if (status == kChallengeStatusUpdateRequired) {
@@ -4190,7 +4190,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x38618 */
-- (void)errorIDDownload:(nullable id)sender msgStr:(nullable NSString *)message {
+- (void)errorIDDownload:(id)sender msgStr:(NSString *)message {
     if (message == nil || [message isEqualToString:@""]) {
         message = [NSBundle.mainBundle localizedStringForKey:@"NetworkErrorMsg"
                                                        value:@""
@@ -4211,7 +4211,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x291f0 */
-- (void)downloaderFinished:(nullable Downloader *)downloader {
+- (void)downloaderFinished:(Downloader *)downloader {
     NSDictionary *json = [downloader getDataInJSON];
     int status = json[@"status"] != nil ? [json[@"status"] intValue] : -1;
     switch (downloader.tag) {
@@ -4313,7 +4313,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x29df8 */
-- (void)downloaderError:(nullable id)downloader {
+- (void)downloaderError:(id)downloader {
     int tag = ((Downloader *)downloader).tag;
     if ((unsigned int)(tag - 1) < 3) {
         [self hideChallengeCoverView];
@@ -4337,7 +4337,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x3880c */
-- (void)agreementError:(nullable id)view msgStr:(nullable NSString *)message {
+- (void)agreementError:(id)view msgStr:(NSString *)message {
     if (message == nil || [message isEqualToString:@""]) {
         message = [NSBundle.mainBundle localizedStringForKey:@"NetworkErrorMsg"
                                                        value:@""
@@ -4358,7 +4358,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x38434 */
-- (void)purchaseFailed:(nullable id)productID error:(nullable NSError *)error {
+- (void)purchaseFailed:(id)productID error:(NSError *)error {
     [[PurchaseManager sharedManager] setDelegate:nil];
     // A network failure (code 1) shows the error and then hides the challenge cover; any other
     // failure re-requests the challenge info. Either way the verify dialog is hidden last.
@@ -4423,7 +4423,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x3830c */
-- (void)purchaseSucceeded:(nullable id)sender {
+- (void)purchaseSucceeded:(id)sender {
     [[PurchaseManager sharedManager] setDelegate:nil];
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:self
@@ -4440,7 +4440,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Music list
 
 /** @ghidraAddress 0x2ae28 */
-- (NSInteger)musicPlaylistViewControllerCurrentSelection:(nullable id)controller {
+- (NSInteger)musicPlaylistViewControllerCurrentSelection:(id)controller {
     // The built-in playlists map to sentinel selection indices; a manager playlist maps to its
     // index, and anything else (or none) is the default.
     id source = currentPlaylistSource;
@@ -4466,7 +4466,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2a9e4 */
-- (void)musicPlaylistViewController:(nullable id)controller
+- (void)musicPlaylistViewController:(id)controller
                    playlistSelected:(NSInteger)selection
                     selectedMusicID:(NSUInteger)musicID {
     // In add-to-playlist mode a real playlist index adds the music and the picker's actions hide.
@@ -4539,7 +4539,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x352ac */
-- (BOOL)changeMusicData:(nullable id)tune {
+- (BOOL)changeMusicData:(id)tune {
     // Load the tune's base info and score into the detail view.
     ScoreRecord *record = [ScoreRecord recordForTuneID:((TuneInfo *)tune).tuneID];
     [musicDetailView setInfo:tune score:record];
@@ -4569,7 +4569,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x20d74 */
-- (nullable id)getTuneInfo:(nullable id)path {
+- (id)getTuneInfo:(id)path {
     KUnzip *archive = [[KUnzip alloc] initWithPath:path tail:kTuneInfoArchiveTail];
     if (archive == nil) {
         return nil;
@@ -4626,7 +4626,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 }
 
 /** @ghidraAddress 0x2a004 */
-- (nullable id)musicInfoForIndex:(NSUInteger)index {
+- (id)musicInfoForIndex:(NSUInteger)index {
     // Prefer the current playlist; without one, index the full tune array.
     if (arrayCurrentPlaylist == nil) {
         if (index < arrayAllTune.count) {
@@ -4641,7 +4641,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #pragma mark - Game Center
 
 /** @ghidraAddress 0x2d260 */
-- (void)gameCenterStateChanged:(nullable id)sender {
+- (void)gameCenterStateChanged:(id)sender {
     [btnLeaderboard setEnabled:GKLocalPlayer.localPlayer.isAuthenticated];
 }
 

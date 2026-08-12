@@ -16,7 +16,7 @@
 
 // MarkerManager vends the marker's data-archive path; it is not reconstructed yet.
 @interface MarkerManager : NSObject
-+ (nullable NSString *)getMarkerPath:(nullable NSString *)markerID;
++ (NSString *)getMarkerPath:(NSString *)markerID;
 @end
 
 // The number of sprite-sheet textures the marker animation is packed into: nine animation frames

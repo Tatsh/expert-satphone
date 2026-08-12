@@ -4,7 +4,7 @@
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "LabUtilities.h"
-#import "NSDictionary+PropertyList.h"
+#import "NSDictionary+FromData.h"
 #import "StoreMusicListManager.h"
 #import "StoreUtil.h"
 #import "TuneInfo.h"

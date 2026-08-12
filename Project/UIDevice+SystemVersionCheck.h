@@ -3,9 +3,7 @@
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The runtime metadata records this as category
- * @c SystemVersionCheck on @c UIDevice (category_t at 0x32f640). Only the declaration is
- * reconstructed here: the implementation is supplied outside this tree, so this header exists to
- * type the message sends faithfully.
+ * @c SystemVersionCheck on @c UIDevice (category_t at 0x32f640).
  */
 
 #import <UIKit/UIKit.h>
@@ -23,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return @c YES when the running version is greater than or equal to @p version.
  * @ghidraAddress 0x1fde90
  */
-- (BOOL)systemVersionGreaterEqual:(nonnull NSString *)version;
+- (BOOL)systemVersionGreaterEqual:(NSString *)version;
 
 @end
 

@@ -1,11 +1,7 @@
 #import "SearchExpandEditor.h"
 
 #import "JubeatAppDelegate.h"
-
-// TouchJSON's deserialiser category, used by -loadDictionary.
-@interface NSDictionary (CJSONDeserializer)
-+ (nullable id)dictionaryWithJSONString:(nullable NSString *)string error:(NSError **)error;
-@end
+#import "NSDictionary+JSONExtensions.h"
 
 // The persisted dictionary's filename in the documents directory.
 static NSString *const kDictionaryFileName = @"SearchExpandDict.txt";

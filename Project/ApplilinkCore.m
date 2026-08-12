@@ -17,17 +17,16 @@
 // live in ../rbplus-src.
 @interface RewardCore : NSObject
 + (instancetype)sharedInstance;
-- (void)startWithCallback:(nullable void (^)(NSError *_Nullable error))callback;
+- (void)startWithCallback:(void (^)(NSError *error))callback;
 - (void)clearInitialize;
 @end
 
 @interface RecommendCore : NSObject
 + (instancetype)sharedInstance;
-- (void)startWithCallback:(nullable void (^)(NSError *_Nullable error))callback;
+- (void)startWithCallback:(void (^)(NSError *error))callback;
 - (void)clearInitialize;
-- (void)getAllAdStatusWithCallback:(nullable void (^)(NSError *_Nullable error))callback;
-- (void)appliListWithCallBack:(nullable void (^)(NSArray *_Nullable list,
-                                                 NSError *_Nullable error))callback;
+- (void)getAllAdStatusWithCallback:(void (^)(NSError *error))callback;
+- (void)appliListWithCallBack:(void (^)(NSArray *list, NSError *error))callback;
 @end
 
 // The advert-delegate callbacks the fan-out methods dispatch through respondsToSelector:. In the
@@ -36,23 +35,23 @@
 @protocol ApplilinkCoreAdDelegate <NSObject>
 @optional
 - (void)appListDidStart;
-- (void)appListDidStart:(nullable ApplilinkParameters *)appParam;
+- (void)appListDidStart:(ApplilinkParameters *)appParam;
 - (void)appListDidAppear;
-- (void)appListDidAppear:(nullable ApplilinkParameters *)appParam;
+- (void)appListDidAppear:(ApplilinkParameters *)appParam;
 - (void)appListDidDisappear;
-- (void)appListDidDisappear:(nullable ApplilinkParameters *)appParam;
-- (void)appListFailOpenWithError:(nullable NSError *)error;
-- (void)appListFailOpenWithError:(nullable NSError *)error
-         withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
-- (void)appListFailLoadWithError:(nullable NSError *)error;
-- (void)appListFailLoadWithError:(nullable NSError *)error
-         withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
-- (void)appListFailWithError:(nullable NSError *)error;
-- (void)appListFailWithError:(nullable NSError *)error
-     withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
-- (void)appListFailLinkWithError:(nullable NSError *)error;
-- (void)appListFailLinkWithError:(nullable NSError *)error
-         withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
+- (void)appListDidDisappear:(ApplilinkParameters *)appParam;
+- (void)appListFailOpenWithError:(NSError *)error;
+- (void)appListFailOpenWithError:(NSError *)error
+         withApplilinkParameters:(ApplilinkParameters *)appParam;
+- (void)appListFailLoadWithError:(NSError *)error;
+- (void)appListFailLoadWithError:(NSError *)error
+         withApplilinkParameters:(ApplilinkParameters *)appParam;
+- (void)appListFailWithError:(NSError *)error;
+- (void)appListFailWithError:(NSError *)error
+     withApplilinkParameters:(ApplilinkParameters *)appParam;
+- (void)appListFailLinkWithError:(NSError *)error;
+- (void)appListFailLinkWithError:(NSError *)error
+         withApplilinkParameters:(ApplilinkParameters *)appParam;
 - (void)appListSoundUseStart;
 - (void)appListSoundUseFinish;
 - (void)appListMovieFinish;
@@ -165,7 +164,7 @@ static NSString *sPasteBoardUdidCache;      // 0x3542d8
 + (void)initializeWithAppliId:(NSString *)appliId
                           env:(NSString *)env
                        resume:(BOOL)resume
-                     callback:(void (^)(NSError *_Nullable error))callback {
+                     callback:(void (^)(NSError *error))callback {
     [self saveDeviceInfo];
     if (![ApplilinkConsts canUseApplilinkSdk]) {
         if (callback) {
@@ -201,40 +200,38 @@ static NSString *sPasteBoardUdidCache;      // 0x3542d8
         // the callback.
         env = [NSString stringWithString:kApplilinkDefaultEnv];
     }
-    [self appAuthSessionRegenerateWithBlock:^(NSError *_Nullable
-                                              __attribute__((unused)) authError) {
+    [self appAuthSessionRegenerateWithBlock:^(NSError *__attribute__((unused)) authError) {
       /** @ghidraAddress 0x2422c8 */
       // The auth error is intentionally ignored: initialisation proceeds to the reward core
       // regardless of a session-regeneration failure.
-      [[RewardCore sharedInstance] startWithCallback:^(NSError *_Nullable rewardError) {
+      [[RewardCore sharedInstance] startWithCallback:^(NSError *rewardError) {
         /** @ghidraAddress 0x242370 */
         if (rewardError && callback) {
             sInitializingFlg = NO;
             callback(rewardError);
             return;
         }
-        [[RecommendCore sharedInstance] startWithCallback:^(NSError *_Nullable recommendError) {
+        [[RecommendCore sharedInstance] startWithCallback:^(NSError *recommendError) {
           /** @ghidraAddress 0x24245c */
           if (recommendError && callback) {
               sInitializingFlg = NO;
               callback(recommendError);
               return;
           }
-          [AnalysisNetworkCore postAnalysisDataWithCallback:^(NSError *_Nullable analysisError) {
+          [AnalysisNetworkCore postAnalysisDataWithCallback:^(NSError *analysisError) {
             /** @ghidraAddress 0x24251c */
             if (callback) {
                 callback(analysisError);
             }
             sInitializingFlg = NO;
             [[RecommendCore sharedInstance]
-                getAllAdStatusWithCallback:^(NSError *_Nullable
-                                             __attribute__((unused)) adStatusError) {
+                getAllAdStatusWithCallback:^(NSError *__attribute__((unused)) adStatusError) {
                   /** @ghidraAddress 0x2425b8 */
                   // After the ad-status refresh, prefetch the installed-application list (its
                   // result is discarded — a warm-up of the appli-list cache).
                   [[RecommendCore sharedInstance]
-                      appliListWithCallBack:^(NSArray *_Nullable __attribute__((unused)) list,
-                                              NSError *_Nullable __attribute__((unused)) listError){
+                      appliListWithCallBack:^(NSArray *__attribute__((unused)) list,
+                                              NSError *__attribute__((unused)) listError){
                           /** @ghidraAddress 0x242610 */
                       }];
                 }];
@@ -259,7 +256,7 @@ static NSString *sPasteBoardUdidCache;      // 0x3542d8
     [self initializeWithAppliId:appliId env:env resume:YES callback:nil];
 }
 
-+ (void)appAuthSessionRegenerateWithBlock:(void (^)(NSError *_Nullable error))block {
++ (void)appAuthSessionRegenerateWithBlock:(void (^)(NSError *error))block {
     if (sSessionValid) {
         // Unlike initializeWithAppliId:…:callback:, this method invokes its block without a nil
         // check, so a nil block is a caller error rather than a no-op.
@@ -719,7 +716,7 @@ static NSString *sPasteBoardUdidCache;      // 0x3542d8
 + (void)collectDeviceInfoCore {
     [ApplilinkCore saveDeviceInfo];
     [AnalysisNetworkCore
-        postAnalysisDeviceDataWithActionType:^(NSError *_Nullable __attribute__((unused)) error){
+        postAnalysisDeviceDataWithActionType:^(NSError *__attribute__((unused)) error){
             /** @ghidraAddress 0x2446a0 */
             // A no-op completion handler; the analytics post's result is not observed here.
         }];

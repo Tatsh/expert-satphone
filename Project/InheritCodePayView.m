@@ -94,7 +94,7 @@ static NSString *const kUserIDTitleText = @"あなたのユーザーID";
 }
 
 /** @ghidraAddress 0x39b40 */
-- (void)tapCodeOutput:(nullable id)sender {
+- (void)tapCodeOutput:(id)sender {
     // Verified at 0x39b40: getInheritOutputURL, then the editor identity keys drive a two-entry
     // POST dictionary {"user_id": id, "pass": passphrase} passed to SessionDownloader.
     NSURL *url = [ScratchUtil getInheritOutputURL];

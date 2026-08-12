@@ -267,7 +267,7 @@ enum {
 }
 
 /** @ghidraAddress 0x121e68 */
-- (nullable NSString *)getButtonName:(int)state {
+- (NSString *)getButtonName:(int)state {
     switch (state) {
     case kCampaignButtonTypeGet:
     case kCampaignButtonTypeBuy:

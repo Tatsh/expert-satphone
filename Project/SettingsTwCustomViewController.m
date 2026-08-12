@@ -7,8 +7,8 @@
 // 0x348268 and only +getTwitterImagePath: is declared in its header so far. These two class
 // factories are declared here until ResultTweet is fully reconstructed.
 @interface ResultTweet (SettingsTwCustomPreview)
-+ (nullable UIImage *)getSampleImage:(nullable NSString *)frameName;
-+ (nullable UIImage *)getAccessoryImage:(nullable NSString *)accessoryName;
++ (UIImage *)getSampleImage:(NSString *)frameName;
++ (UIImage *)getAccessoryImage:(NSString *)accessoryName;
 @end
 
 // The private preview helpers and the ivars, none of which the header exposes.
@@ -26,7 +26,7 @@
  * @return The matching row, or @c nil when none matches.
  * @ghidraAddress 0x1c511c
  */
-- (nullable NSArray *)getSelectedFrame;
+- (NSArray *)getSelectedFrame;
 
 /**
  * @brief Reloads the frame image from the stored selected-frame default.

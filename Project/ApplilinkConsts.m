@@ -11,23 +11,21 @@
 
 @interface ApplilinkParameters : NSObject
 - (void)setRequestWithAdModel:(int)adModel
-                   adLocation:(nullable NSString *)adLocation
-                  requestCode:(nullable id)requestCode;
+                   adLocation:(NSString *)adLocation
+                  requestCode:(id)requestCode;
 @end
 
 @interface ApplilinkCore : NSObject
-+ (void)toDelegateFailOpenWithError:(nullable NSError *)error
-                           appParam:(nullable id)appParam
-                           delegate:(nullable id)delegate;
++ (void)toDelegateFailOpenWithError:(NSError *)error appParam:(id)appParam delegate:(id)delegate;
 @end
 
 @interface ApplilinkNetworkError : NSObject
-+ (nullable NSError *)localizedApplilinkErrorWithCode:(NSInteger)code;
++ (NSError *)localizedApplilinkErrorWithCode:(NSInteger)code;
 @end
 
 @interface RecommendCore : NSObject
 + (instancetype)sharedInstance;
-- (void)startSessionWithCallback:(nullable void (^)(NSError *_Nullable error))callback;
+- (void)startSessionWithCallback:(void (^)(NSError *error))callback;
 @end
 
 // The server environment name is compared against these string keys, each selecting a base URL.

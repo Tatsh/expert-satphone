@@ -1,8 +1,8 @@
 #import "Downloader.h"
 
-#import "CJSONDeserializer.h"
 #import "Downloader_Protected.h"
 #import "JubeatAppDelegate.h"
+#import "NSDictionary+JSONExtensions.h"
 
 // The ivars are declared in Downloader_Protected.h so the SessionDownloader subclass can reach
 // them, matching how the binary indexes the shared slots by offset.

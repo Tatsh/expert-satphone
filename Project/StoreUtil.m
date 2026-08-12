@@ -2,8 +2,10 @@
 
 #import <StoreKit/StoreKit.h>
 
-#import "CJSONDeserializer.h"
 #import "JubeatAppDelegate.h"
+#import "Md5Utilities.h"
+#import "NSDictionary+JSONExtensions.h"
+#import "ScratchUtil.h"
 #import "StoreMusicInfo.h"
 #import "StoreMusicListManager.h"
 
@@ -18,17 +20,6 @@ static const char *const kStoreCGIPath = "/agx/main/cgi";
 static const char *const kStoreRegion = "JP";
 static NSString *const kStoreHost = @"agx.s.konaminet.jp";
 static NSString *const kStoreURLFormat = @"https://%@%@";
-
-// The block that appends one query pair; declared so -queryStringForDictionary: can reference it by
-// name in a comment. Its selectors are messaged dynamically.
-@interface NSObject (StoreUtilScratch)
-+ (nullable NSURL *)cubeVerifyReceiptURL;
-@end
-
-// The lowercase SHA-256 hex of a data buffer; a free function not reconstructed yet. Declared here
-// so -checkStoreResponse: can call it. See TYPES_PENDING.md.
-FOUNDATION_EXTERN NSString *_Nullable CreateSha256HexStringFromData(NSData *_Nullable data,
-                                                                    BOOL uppercase);
 
 // The salt written over the signature prefix before hashing. Kept verbatim from 0xba9a4.
 static const char *const kStoreResponseSalt =

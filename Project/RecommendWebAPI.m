@@ -179,7 +179,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 #pragma mark - Login
 
 + (void)checkLoginWithCallback:
-    (void (^)(BOOL loginStatus, BOOL userIdPresent, NSError *_Nullable error))callback {
+    (void (^)(BOOL loginStatus, BOOL userIdPresent, NSError *error))callback {
     if ([ApplilinkConsts isNeedRecommendLogin]) {
         // The binary passes a third positional argument here even though callers read only the
         // login state and error.
@@ -226,7 +226,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
         }];
 }
 
-+ (void)startLoginWithCallback:(void (^)(NSError *_Nullable error))callback {
++ (void)startLoginWithCallback:(void (^)(NSError *error))callback {
     NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];
     if (![ApplilinkUdid setUdidParameters:parameters]) {
         NSError *error = [ApplilinkNetworkError
@@ -271,9 +271,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 
 #pragma mark - Advert detail
 
-+ (void)getAdDetailWithCallback:(void (^)(id _Nullable categoryId,
-                                          id _Nullable countryCode,
-                                          NSError *_Nullable error))callback {
++ (void)getAdDetailWithCallback:(void (^)(id categoryId, id countryCode, NSError *error))callback {
     id cachedData =
         [[NSUserDefaults standardUserDefaults] objectForKey:kRecommendWebAPIDefaultsAdDetail];
     if (cachedData != nil) {
@@ -357,8 +355,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 
 #pragma mark - Installed-application list
 
-+ (void)installAppliListWithCallBack:(void (^)(id _Nullable list,
-                                               NSError *_Nullable error))callback {
++ (void)installAppliListWithCallBack:(void (^)(id list, NSError *error))callback {
     NSString *url =
         [[ApplilinkConsts baseUrlSsl] stringByAppendingString:kRecommendWebAPIPathAdidIndex];
     [ApplilinkWebAPI requestAsynchronousWithURL:url
@@ -433,7 +430,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 }
 
 + (void)appliListWithParameters:(NSDictionary *)parameters
-                       callBack:(void (^)(id _Nullable list, NSError *_Nullable error))callBack {
+                       callBack:(void (^)(id list, NSError *error))callBack {
     NSMutableDictionary *merged = [NSMutableDictionary dictionaryWithDictionary:parameters];
     [merged setValue:kRecommendWebAPIParamTrue forKey:kRecommendWebAPIParamTestFlg];
     NSString *url =
@@ -479,7 +476,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
                                 categoryId:(NSString *)categoryId
                                     adType:(NSString *)adType
                                   priority:(int)priority
-                                  callback:(void (^)(NSError *_Nullable error))callback {
+                                  callback:(void (^)(NSError *error))callback {
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity:4];
     if (adIdFrom != nil) {
         [parameters setValue:adIdFrom forKey:kRecommendWebAPIParamAdIdFrom];
@@ -534,7 +531,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 #pragma mark - Advert status queries
 
 + (void)getBannerDetailWithAdModel:(int)adModel
-                          callback:(void (^)(NSInteger status, NSError *_Nullable error))callback {
+                          callback:(void (^)(NSInteger status, NSError *error))callback {
     id cached = [self getTemporaryCacheWithAdModel:adModel];
     if ([cached intValue] == kRecommendWebAPIBannerAvailable) {
         callback([cached intValue], nil);
@@ -599,7 +596,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 
 + (void)readRegistWithAdType:(int)adType
                     adIdList:(NSArray *)adIdList
-                    callback:(void (^)(NSError *_Nullable error))callback {
+                    callback:(void (^)(NSError *error))callback {
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity:2];
     if (adType != 0) {
         [parameters setValue:[NSString stringWithFormat:kRecommendWebAPIIntegerFormat, adType]
@@ -645,7 +642,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 
 + (void)getUnreadCountWithAdModel:(int)adModel
                        adLocation:(NSString *)adLocation
-                         callback:(void (^)(NSInteger status, NSError *_Nullable error))callback {
+                         callback:(void (^)(NSInteger status, NSError *error))callback {
     if (adLocation == nil || adModel == 0) {
         NSError *error = [ApplilinkNetworkError
             localizedApplilinkErrorWithCode:kRecommendWebAPINetworkErrorParameter];
@@ -693,8 +690,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 
 + (void)getPreInfoWithAdModel:(int)adModel
                    adLocation:(NSString *)adLocation
-                     callback:(void (^)(NSDictionary *_Nullable status,
-                                        NSError *_Nullable error))callback {
+                     callback:(void (^)(NSDictionary *status, NSError *error))callback {
     NSMutableDictionary *status = [NSMutableDictionary dictionaryWithCapacity:2];
     [status setValue:@(0) forKey:kRecommendWebAPIStatusKeyUnreadCount];
     [status setValue:@(0) forKey:kRecommendWebAPIStatusKeyBannerDisplayStatus];
@@ -810,8 +806,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 + (void)clickRegistWithAdIdFrom:(NSString *)adIdFrom
                          adIdTo:(NSString *)adIdTo
                         adModel:(int)adModel
-                       callback:
-                           (void (^)(id _Nullable location, NSError *_Nullable error))callback {
+                       callback:(void (^)(id location, NSError *error))callback {
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity:4];
     [parameters setValue:adIdFrom forKey:kRecommendWebAPIParamAdIdFrom];
     [parameters setValue:adIdTo forKey:kRecommendWebAPIParamAdIdTo];
@@ -850,7 +845,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 + (void)appStartWithAdIdFrom:(NSString *)adIdFrom
                       adIdTo:(NSString *)adIdTo
                       adType:(int)adType
-                    callback:(void (^)(NSError *_Nullable error))callback {
+                    callback:(void (^)(NSError *error))callback {
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithCapacity:3];
     [parameters setValue:adIdFrom forKey:kRecommendWebAPIParamAdIdFrom];
     [parameters setValue:adIdTo forKey:kRecommendWebAPIParamAdIdTo];
@@ -893,7 +888,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 
 #pragma mark - All advert data
 
-+ (void)allAdDataWithCallBack:(void (^)(id _Nullable data, NSError *_Nullable error))callback {
++ (void)allAdDataWithCallBack:(void (^)(id data, NSError *error))callback {
     NSString *url = [[ApplilinkConsts baseUrlSsl]
         stringByAppendingString:kRecommendWebAPIPathAllAdDataForDisplay];
     [ApplilinkWebAPI requestAsynchronousWithURL:url
@@ -934,7 +929,7 @@ static inline NSError *RecommendWebAPIErrorForResponse(id response, int errorCod
 
 #pragma mark - Layout index
 
-+ (void)layoutIndexWithCallback:(void (^)(NSError *_Nullable error))callback {
++ (void)layoutIndexWithCallback:(void (^)(NSError *error))callback {
     NSString *url =
         [[ApplilinkConsts baseUrlSsl] stringByAppendingString:kRecommendWebAPIPathLayoutIndex];
     [ApplilinkWebAPI requestAsynchronousWithURL:url

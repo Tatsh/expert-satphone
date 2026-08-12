@@ -6,7 +6,7 @@
 // it.
 @interface SettingsViewController : UITableViewController
 - (void)settingClose;
-- (void)setSettingsDelegate:(nullable id)settingsDelegate;
+- (void)setSettingsDelegate:(id)settingsDelegate;
 @end
 
 // The navigation bar's two greys: the first tints the bar background (or, on an older SDK without a

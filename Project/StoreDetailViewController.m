@@ -397,7 +397,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xee1a0 */
-- (void)finishBgm:(nullable NSNotification *)notification {
+- (void)finishBgm:(NSNotification *)notification {
     int row = rowSamplePlayed;
     if (row >= 0 && (NSUInteger)row < self.packInfo.musicInfos.count) {
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:0];
@@ -411,7 +411,7 @@ static const int kNoSampleRow = -1;
 #pragma mark - Purchase actions
 
 /** @ghidraAddress 0xee2ac */
-- (void)doPurchase:(nullable id)sender {
+- (void)doPurchase:(id)sender {
     [self stopSample];
     if (allowsRedownload) {
         if ([self.delegate respondsToSelector:@selector(detailViewStartRedownload:)]) {
@@ -427,7 +427,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xee408 */
-- (void)downloadExtendMusic:(nullable id)sender {
+- (void)downloadExtendMusic:(id)sender {
     [self stopSample];
     headerView.buttonExtendDownload.hidden = YES;
     if ([self.delegate respondsToSelector:@selector(detailViewStartExtendDownload:)]) {
@@ -437,7 +437,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xee530 */
-- (void)storeDetailViewOpenItunesWithURL:(nullable NSURL *)url {
+- (void)storeDetailViewOpenItunesWithURL:(NSURL *)url {
     if (url == nil) {
         return;
     }
@@ -460,7 +460,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xee710 */
-- (void)productViewControllerDidFinish:(nonnull SKStoreProductViewController *)viewController {
+- (void)productViewControllerDidFinish:(SKStoreProductViewController *)viewController {
     [self dismissViewControllerAnimated:YES
                              completion:^{
                                /** @ghidraAddress 0xee778 */
@@ -472,7 +472,7 @@ static const int kNoSampleRow = -1;
 #pragma mark - DownloaderDelegate
 
 /** @ghidraAddress 0xee7a0 */
-- (void)downloaderFinished:(nullable id)downloader {
+- (void)downloaderFinished:(id)downloader {
     if (infoDownloader == downloader) {
         NSDictionary *response = [StoreUtil checkStoreResponse:[downloader getData]];
         if (![self.packInfo setPackDetailInfo:response]) {
@@ -512,7 +512,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xeeb58 */
-- (void)downloaderError:(nullable id)downloader {
+- (void)downloaderError:(id)downloader {
     // Both arms present the identical network-error alert, differing only in the tag: the info
     // downloader tags it so the delegate callbacks pop the navigation stack, the sample downloader
     // tags it 0.
@@ -553,14 +553,14 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xeef00 */
-- (void)downloaderProceed:(nullable id)downloader {
+- (void)downloaderProceed:(id)downloader {
     // The shipped body is empty.
 }
 
 #pragma mark - ImageDownloaderDelegate
 
 /** @ghidraAddress 0xf0138 */
-- (void)imageDownloader:(nonnull ImageDownloader *)downloader didLoad:(nullable id)key {
+- (void)imageDownloader:(ImageDownloader *)downloader didLoad:(id)key {
     NSIndexPath *indexPath = (NSIndexPath *)key;
     if (indexPath.section == 0) {
         UITableViewCell *cell = [detailTableView cellForRowAtIndexPath:indexPath];
@@ -576,7 +576,7 @@ static const int kNoSampleRow = -1;
 #pragma mark - AlertViewManagerDelegate
 
 /** @ghidraAddress 0xf02ac */
-- (void)alertSelect:(nonnull NSDictionary *)info {
+- (void)alertSelect:(NSDictionary *)info {
     int buttonMessage = [info[kAlertKeyButtonMessage] intValue];
     int tag = [info[kAlertKeyTag] intValue];
     if (buttonMessage == kConfirmButtonIndex && tag == kInfoErrorAlertTag && !bDismissing) {
@@ -588,7 +588,7 @@ static const int kNoSampleRow = -1;
 }
 
 /** @ghidraAddress 0xf040c */
-- (void)alertClose:(nonnull NSDictionary *)info {
+- (void)alertClose:(NSDictionary *)info {
     if (self.navigationController) {
         [self.navigationController popViewControllerAnimated:YES];
     }

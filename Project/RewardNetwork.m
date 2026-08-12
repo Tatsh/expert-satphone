@@ -10,25 +10,20 @@
 // yet, or whose reconstructed headers do not yet declare these members. See TYPES_PENDING.md.
 @interface ApplilinkCore (RewardNetwork)
 + (BOOL)isInitializeStatusFlg;
-+ (void)toDelegateFailOpenWithError:(nullable NSError *)error
-                           appParam:(nullable id)appParam
-                           delegate:(nullable id)delegate;
++ (void)toDelegateFailOpenWithError:(NSError *)error appParam:(id)appParam delegate:(id)delegate;
 @end
 
 @interface RewardCore : NSObject
 + (instancetype)sharedInstance;
 - (int)initializeFlg;
-- (void)openAdScreenWithParentView:(nullable UIView *)parentView
-                        adLocation:(nullable NSString *)adLocation
-                       requestCode:(nullable id)requestCode
-                          delegate:(nullable id)delegate;
+- (void)openAdScreenWithParentView:(UIView *)parentView
+                        adLocation:(NSString *)adLocation
+                       requestCode:(id)requestCode
+                          delegate:(id)delegate;
 - (void)closeAdScreen;
-- (void)allInstallFlgWithCallback:(nullable void (^)(NSInteger flg,
-                                                     NSError *_Nullable error))callback;
-- (void)getAdDisplayStatusWithCallback:(nullable void (^)(NSDictionary *_Nullable status,
-                                                          NSError *_Nullable error))callback;
-- (void)getAppListStatusWithBlock:(nullable void (^)(NSInteger status,
-                                                     NSError *_Nullable error))block;
+- (void)allInstallFlgWithCallback:(void (^)(NSInteger flg, NSError *error))callback;
+- (void)getAdDisplayStatusWithCallback:(void (^)(NSDictionary *status, NSError *error))callback;
+- (void)getAppListStatusWithBlock:(void (^)(NSInteger status, NSError *error))block;
 - (void)setNavigationBarHidden:(BOOL)navigationBarHidden;
 @end
 

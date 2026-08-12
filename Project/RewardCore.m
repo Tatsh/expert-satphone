@@ -24,36 +24,35 @@
 @interface ApplilinkCore : NSObject
 + (BOOL)checkUdid;
 + (BOOL)isInitializeStatusFlg;
-+ (nullable NSString *)udid;
-+ (nullable NSString *)ad_udid;
-+ (nullable NSString *)old_udid;
-+ (nullable NSString *)currentUdid;
-+ (void)appAuthSessionRegenerateWithBlock:(nullable void (^)(NSError *_Nullable error))block;
-+ (BOOL)showAppStoreId:(nullable NSString *)appStoreId
-              appParam:(nullable ApplilinkParameters *)appParam
-              delegate:(nullable id)delegate;
-+ (void)toDelegateDidStart:(nullable ApplilinkParameters *)appParam delegate:(nullable id)delegate;
-+ (void)toDelegateDidAppear:(nullable ApplilinkParameters *)appParam delegate:(nullable id)delegate;
-+ (void)toDelegateDidDisappear:(nullable ApplilinkParameters *)appParam
-                      delegate:(nullable id)delegate;
-+ (void)toDelegateFailOpenWithError:(nullable NSError *)error
-                           appParam:(nullable ApplilinkParameters *)appParam
-                           delegate:(nullable id)delegate;
-+ (void)toDelegateFailLoadWithError:(nullable NSError *)error
-                           appParam:(nullable ApplilinkParameters *)appParam
-                           delegate:(nullable id)delegate;
-+ (void)toDelegateFailLinkWithError:(nullable NSError *)error
-                           appParam:(nullable ApplilinkParameters *)appParam
-                           delegate:(nullable id)delegate;
++ (NSString *)udid;
++ (NSString *)ad_udid;
++ (NSString *)old_udid;
++ (NSString *)currentUdid;
++ (void)appAuthSessionRegenerateWithBlock:(void (^)(NSError *error))block;
++ (BOOL)showAppStoreId:(NSString *)appStoreId
+              appParam:(ApplilinkParameters *)appParam
+              delegate:(id)delegate;
++ (void)toDelegateDidStart:(ApplilinkParameters *)appParam delegate:(id)delegate;
++ (void)toDelegateDidAppear:(ApplilinkParameters *)appParam delegate:(id)delegate;
++ (void)toDelegateDidDisappear:(ApplilinkParameters *)appParam delegate:(id)delegate;
++ (void)toDelegateFailOpenWithError:(NSError *)error
+                           appParam:(ApplilinkParameters *)appParam
+                           delegate:(id)delegate;
++ (void)toDelegateFailLoadWithError:(NSError *)error
+                           appParam:(ApplilinkParameters *)appParam
+                           delegate:(id)delegate;
++ (void)toDelegateFailLinkWithError:(NSError *)error
+                           appParam:(ApplilinkParameters *)appParam
+                           delegate:(id)delegate;
 @end
 
 // RewardWebViewController hosts the reward advert web view; it is not yet reconstructed in this
 // tree, so only the selectors this file messages are forward-declared. See TYPES_PENDING.md.
 @interface RewardWebViewController : UIViewController
-- (void)setParentView:(nullable UIView *)parentView;
+- (void)setParentView:(UIView *)parentView;
 - (void)setNavigationBarHidden:(BOOL)hidden;
-- (void)setSdkDelegate:(nullable id)delegate;
-- (void)loadRequestWithURL:(nullable NSString *)url parameters:(nullable NSDictionary *)parameters;
+- (void)setSdkDelegate:(id)delegate;
+- (void)loadRequestWithURL:(NSString *)url parameters:(NSDictionary *)parameters;
 - (void)appliListClosed;
 - (void)viewDealloc;
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation
@@ -397,7 +396,7 @@ static dispatch_queue_t gRewardCoreQueue;
 }
 
 // @ghidraAddress 0x2323bc.
-- (BOOL)createCFUdidWithError:(NSError *_Nullable *_Nullable)error {
+- (BOOL)createCFUdidWithError:(NSError **)error {
     if ([ApplilinkCore udid] != nil && [ApplilinkCore old_udid] == nil) {
         [ApplilinkUdid setUdidKeychainFromPasteBoard];
     }

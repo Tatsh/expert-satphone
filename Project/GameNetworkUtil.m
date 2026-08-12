@@ -14,9 +14,9 @@
 // The Blowfish codec used to cipher the persisted install-count record. Forward-declared; see
 // TYPES_PENDING.md.
 @interface BFCodec : NSObject
-- (void)cipherInit:(nullable NSData *)key;
-- (BOOL)decipher:(nullable NSMutableData *)data;
-- (BOOL)encipher:(nullable NSMutableData *)data;
+- (void)cipherInit:(NSData *)key;
+- (BOOL)decipher:(NSMutableData *)data;
+- (BOOL)encipher:(NSMutableData *)data;
 @end
 
 // The Konami "agx" host and CGI path every endpoint is built from.

@@ -4,7 +4,7 @@
 // yet. See TYPES_PENDING.md.
 @interface RecommendCore : NSObject
 @property(class, nonatomic, readonly) RecommendCore *sharedInstance;
-- (int)redirectWithRequest:(nullable NSURLRequest *)request;
+- (int)redirectWithRequest:(NSURLRequest *)request;
 @end
 
 // The load states.

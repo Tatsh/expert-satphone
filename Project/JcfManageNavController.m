@@ -6,9 +6,9 @@
 // forward-declared. See TYPES_PENDING.md.
 @interface EditFileListViewDeleteController : UIViewController
 - (instancetype)initWithSize:(CGSize)size;
-- (void)setFileList:(nullable NSArray *)fileList;
-- (void)setDelegate:(nullable id)delegate;
-- (void)setTargetFileName:(nullable NSString *)targetFileName;
+- (void)setFileList:(NSArray *)fileList;
+- (void)setDelegate:(id)delegate;
+- (void)setTargetFileName:(NSString *)targetFileName;
 - (void)setIsShared:(BOOL)isShared;
 - (void)setTuneID:(unsigned int)tuneID;
 - (unsigned int)tuneID;
@@ -19,7 +19,7 @@
 // TYPES_PENDING.md.
 @interface EditDataManager : NSObject
 + (instancetype)sharedManager;
-- (nullable NSString *)getLastEditFileName:(int)tuneID;
+- (NSString *)getLastEditFileName:(int)tuneID;
 @end
 
 // The navigation-bar tint white components (from the __const pool). The alpha (1.0) arrives as an

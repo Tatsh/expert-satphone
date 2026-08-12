@@ -43,8 +43,8 @@ static const NSTimeInterval kPushDisplayDuration = 5.0;
     __weak id aDelegate;         // +0x38
 }
 - (void)popNotification;
-- (void)onDrawTimer:(nullable NSTimer *)timer;
-- (void)tapNotification:(nonnull id)sender;
+- (void)onDrawTimer:(NSTimer *)timer;
+- (void)tapNotification:(id)sender;
 @end
 
 @implementation PushNotificationView

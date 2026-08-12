@@ -4,17 +4,12 @@
 #import "ImageLoading.h"
 #import "InfoLabel.h"
 #import "JubeatAppDelegate.h"
+#import "NSDictionary+TypedLookupExtension.h"
 
 // The playlist model consulted to name a custom playlist. Its own header is not reconstructed yet;
 // only the one selector this bar sends is declared here.
 @interface MusicPlaylistManager : NSObject
-- (nullable NSString *)nameOfPlaylistAtIndex:(NSInteger)index;
-@end
-
-// The typed-accessor category the store-info dictionaries are read through; a category on
-// NSDictionary not reconstructed as its own file yet. See TYPES_PENDING.md.
-@interface NSDictionary (TypedAccessors)
-- (nullable NSString *)stringForKey:(nonnull id)key;
+- (NSString *)nameOfPlaylistAtIndex:(NSInteger)index;
 @end
 
 // The store-info message-dictionary keys.
@@ -270,21 +265,21 @@ static const NSTimeInterval kMarqueeStepDuration = 0.6;
 #pragma mark - Button actions
 
 /** @ghidraAddress 0x1d672c */
-- (void)tapPlaylists:(nullable id)sender {
+- (void)tapPlaylists:(id)sender {
     if ([self.aDelegate respondsToSelector:@selector(tapPlaylists:)]) {
         [self.aDelegate tapPlaylists:sender];
     }
 }
 
 /** @ghidraAddress 0x1d67dc */
-- (void)btnTouchesBegan:(nullable id)sender {
+- (void)btnTouchesBegan:(id)sender {
     if ([self.aDelegate respondsToSelector:@selector(btnTouchesBegan:)]) {
         [self.aDelegate btnTouchesBegan:sender];
     }
 }
 
 /** @ghidraAddress 0x1d688c */
-- (void)btnTouchesCancel:(nullable id)sender {
+- (void)btnTouchesCancel:(id)sender {
     if ([self.aDelegate respondsToSelector:@selector(btnTouchesCancel:)]) {
         [self.aDelegate btnTouchesCancel:sender];
     }
@@ -367,7 +362,7 @@ static const NSTimeInterval kMarqueeStepDuration = 0.6;
 #pragma mark - Store-info ticker
 
 /** @ghidraAddress 0x1d6dec */
-- (void)tapStoreInfo:(nullable id)sender {
+- (void)tapStoreInfo:(id)sender {
     NSDictionary *result = nil;
     NSString *link = [arrayStoreInfo[indexStoreInfo] stringForKey:kStoreInfoLinkKey];
     if (link) {
@@ -395,7 +390,7 @@ static const NSTimeInterval kMarqueeStepDuration = 0.6;
 }
 
 /** @ghidraAddress 0x1d7278 */
-- (void)setCommentTable:(nullable NSArray *)table {
+- (void)setCommentTable:(NSArray *)table {
     if (table.count != 0) {
         arrayStoreInfo = [[NSArray alloc] initWithArray:table];
         indexStoreInfo = (arc4random() & 0xff) % (unsigned int)table.count;
@@ -495,7 +490,7 @@ static const NSTimeInterval kMarqueeStepDuration = 0.6;
 }
 
 /** @ghidraAddress 0x1d7c0c */
-- (void)tapJubeatLab:(nullable id)sender {
+- (void)tapJubeatLab:(id)sender {
     if ([self.aDelegate respondsToSelector:@selector(tapJubeatLab:)]) {
         [self.aDelegate tapJubeatLab:sender];
     }

@@ -281,7 +281,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
 
 #pragma mark - Start and session
 
-- (void)startWithCallback:(void (^)(NSError *_Nullable error))callback {
+- (void)startWithCallback:(void (^)(NSError *error))callback {
     if ([ApplilinkConsts appliId] == nil) {
         // Unguarded in the binary: unlike the other exits, this one calls the block without a nil
         // test.
@@ -349,7 +349,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
                                     categoryId:categoryId
                                         adType:adType
                                       priority:kRecommendCoreInstallPriority
-                                      callback:^(NSError *_Nullable postError) {
+                                      callback:^(NSError *postError) {
                                         /** @ghidraAddress 0x269720 */
                                         if (postError != nil) {
                                             if (callback) {
@@ -372,14 +372,14 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
     });
 }
 
-- (void)startSessionWithCallback:(void (^)(NSError *_Nullable error))callback {
+- (void)startSessionWithCallback:(void (^)(NSError *error))callback {
     // Unlike -startWithCallback:, nothing on this path nil-tests the block before invoking it.
     if (![ApplilinkUdid isAdvertisingTrackingEnabled]) {
         callback([ApplilinkNetworkError
             localizedApplilinkErrorWithCode:RecommendCoreErrorCodeAdTrackingDisabled]);
         return;
     }
-    [ApplilinkCore appAuthSessionRegenerateWithBlock:^(NSError *_Nullable error) {
+    [ApplilinkCore appAuthSessionRegenerateWithBlock:^(NSError *error) {
       /** @ghidraAddress 0x269a38 */
       if (error != nil) {
           callback(error);
@@ -398,7 +398,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
                 return;
             }
             if (!loggedIn) {
-                [RecommendWebAPI startLoginWithCallback:^(NSError *_Nullable loginError) {
+                [RecommendWebAPI startLoginWithCallback:^(NSError *loginError) {
                   /** @ghidraAddress 0x269c68 */
                   if (loginError != nil) {
                       callback(loginError);
@@ -424,8 +424,8 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
 
 #pragma mark - Installed-application list
 
-- (void)appliListWithCallBack:(void (^)(id _Nullable list, NSError *_Nullable error))callback {
-    [self startSessionWithCallback:^(NSError *_Nullable error) {
+- (void)appliListWithCallBack:(void (^)(id list, NSError *error))callback {
+    [self startSessionWithCallback:^(NSError *error) {
       /** @ghidraAddress 0x269e1c */
       if (error != nil) {
           callback(nil, error);
@@ -435,7 +435,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
     }];
 }
 
-- (void)appliListCacheWithCallBack:(void (^)(id _Nullable list, NSError *_Nullable error))callback {
+- (void)appliListCacheWithCallBack:(void (^)(id list, NSError *error))callback {
     id list = [ApplilinkConsts appInstallList];
     if (list == nil) {
         [RecommendWebAPI installAppliListWithCallBack:callback];
@@ -447,7 +447,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
 #pragma mark - Advert status queries
 
 - (void)getAdStatusWithAdModel:(int)adModel
-                      callback:(void (^)(NSInteger status, NSError *_Nullable error))callback {
+                      callback:(void (^)(NSInteger status, NSError *error))callback {
     NSError *error;
     if (adModel == 0) {
         error =
@@ -465,7 +465,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
             callback([cached intValue], nil); // Yes, the binary sends -intValue a second time.
             return;
         }
-        [self startSessionWithCallback:^(NSError *_Nullable sessionError) {
+        [self startSessionWithCallback:^(NSError *sessionError) {
           /** @ghidraAddress 0x26a160 */
           if (sessionError != nil) {
               callback(0, sessionError);
@@ -480,7 +480,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
 
 - (void)getUnreadCountWithAdModel:(int)adModel
                        adLocation:(NSString *)adLocation
-                         callback:(void (^)(NSInteger status, NSError *_Nullable error))callback {
+                         callback:(void (^)(NSInteger status, NSError *error))callback {
     NSError *error;
     if (adLocation == nil || adModel == 0) {
         error =
@@ -493,7 +493,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
         error = [ApplilinkNetworkError
             localizedApplilinkErrorWithCode:RecommendCoreErrorCodeAdTrackingDisabled];
     } else {
-        [self startSessionWithCallback:^(NSError *_Nullable sessionError) {
+        [self startSessionWithCallback:^(NSError *sessionError) {
           /** @ghidraAddress 0x26a39c */
           if (sessionError != nil) {
               callback(0, sessionError);
@@ -510,8 +510,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
 
 - (void)getAdDisplayStatusWithAdModel:(int)adModel
                            adLocation:(NSString *)adLocation
-                             callback:(void (^)(NSDictionary *_Nullable status,
-                                                NSError *_Nullable error))callback {
+                             callback:(void (^)(NSDictionary *status, NSError *error))callback {
     NSMutableDictionary *status = [NSMutableDictionary dictionaryWithCapacity:2];
     [status setValue:@(0) forKey:kRecommendCoreKeyUnreadCount];
     [status setValue:@(0) forKey:kRecommendCoreKeyBannerDisplayStatus];
@@ -527,7 +526,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
         error = [ApplilinkNetworkError
             localizedApplilinkErrorWithCode:RecommendCoreErrorCodeAdTrackingDisabled];
     } else {
-        [self startSessionWithCallback:^(NSError *_Nullable sessionError) {
+        [self startSessionWithCallback:^(NSError *sessionError) {
           /** @ghidraAddress 0x26a700 */
           if (sessionError != nil) {
               callback(status, sessionError);
@@ -540,7 +539,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
     callback(status, error);
 }
 
-- (void)getAllAdStatusWithCallback:(void (^)(NSError *_Nullable error))callback {
+- (void)getAllAdStatusWithCallback:(void (^)(NSError *error))callback {
     NSError *error;
     if ([RecommendCore sharedInstance].initializeFlg == 0 &&
         ![ApplilinkCore isInitializeStatusFlg]) {
@@ -550,7 +549,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
         error = [ApplilinkNetworkError
             localizedApplilinkErrorWithCode:RecommendCoreErrorCodeAdTrackingDisabled];
     } else {
-        [self startSessionWithCallback:^(NSError *_Nullable sessionError) {
+        [self startSessionWithCallback:^(NSError *sessionError) {
           /** @ghidraAddress 0x26a924 */
           if (sessionError == nil) {
               (void)[RecommendAdCache getAllAdStatus]; // Yes, the binary discards this result.
@@ -570,7 +569,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
     [RecommendAdCache clearAllAdData];
     [ApplilinkFile delateFolder];
     [RecommendAdCache clearAllAdDataInfoExpire];
-    [self getAllAdStatusWithCallback:^(NSError *_Nullable __attribute__((unused)) error){
+    [self getAllAdStatusWithCallback:^(NSError *__attribute__((unused)) error){
         /** @ghidraAddress 0x26aa1c */
         // The binary passes a global no-op block here.
     }];
@@ -642,7 +641,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
                                 delegate:self];
           g_fAdScreenOpenInProgress = NO;
       } else {
-          [self appliListWithCallBack:^(id _Nullable list, NSError *_Nullable error) {
+          [self appliListWithCallBack:^(id list, NSError *error) {
             /** @ghidraAddress 0x26b05c */
             RecommendCoreLoadAdScreenRequest(
                 self, list, error, delegate, adLocation, adModel, verticalAlign);
@@ -1237,7 +1236,7 @@ static void RecommendCoreLoadAdScreenRequest(RecommendCore *core,
                           creativeIdList:creativeIdList
                        incentiveTypeList:incentiveTypeList
                           installFlgList:installFlgList
-                                callback:^(NSError *_Nullable error) {
+                                callback:^(NSError *error) {
                                   /** @ghidraAddress 0x26e9f0 */
                                   if (error != nil) {
                                       return;
@@ -1269,7 +1268,7 @@ static void RecommendCoreLoadAdScreenRequest(RecommendCore *core,
         return;
     }
     int adType = [RecommendAdData getAdTypeWithAdModel:adModel adLocation:adLocation];
-    [self startSessionWithCallback:^(NSError *_Nullable error) {
+    [self startSessionWithCallback:^(NSError *error) {
       /** @ghidraAddress 0x26ecb0 */
       RecommendCorePostOwnAdImpression(
           self, error, adLocation, appliId, creativeId, adType, adModel);
@@ -1316,8 +1315,7 @@ static void RecommendCorePostOwnAdImpression(RecommendCore *core,
                           creativeIdList:creativeIdList
                        incentiveTypeList:incentiveTypeList
                           installFlgList:installFlgList
-                                callback:^(NSError *_Nullable
-                                           __attribute__((unused)) registerError){
+                                callback:^(NSError *__attribute__((unused)) registerError){
                                     /** @ghidraAddress 0x26ef8c */
                                     // The binary passes a global no-op block here.
                                 }];
@@ -1355,7 +1353,7 @@ static void RecommendCorePostOwnAdImpression(RecommendCore *core,
             localizedApplilinkErrorWithCode:RecommendCoreErrorCodeAdTrackingDisabled];
     } else {
         int adType = [RecommendAdData getAdTypeWithAdModel:adModel adLocation:adLocation];
-        [self startSessionWithCallback:^(NSError *_Nullable sessionError) {
+        [self startSessionWithCallback:^(NSError *sessionError) {
           /** @ghidraAddress 0x26f424 */
           RecommendCorePostOwnAdClickRegist(self,
                                             sessionError,
@@ -1426,7 +1424,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
                             displayNumber:kRecommendCoreDisplayNumberDefault
                             incentiveType:kRecommendCoreKeyRewardNone
                                installFlg:installFlg
-                                 callback:^(NSError *_Nullable clickError) {
+                                 callback:^(NSError *clickError) {
                                    /** @ghidraAddress 0x26f8d8 */
                                    if (clickError != nil) {
                                        ApplilinkParameters *appParam =

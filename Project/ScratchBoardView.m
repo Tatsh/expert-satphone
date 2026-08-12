@@ -12,7 +12,7 @@
 
 @interface ScratchView : UIView
 - (instancetype)initWithFrame:(CGRect)frame;
-- (void)setADelegate:(nullable id)delegate;
+- (void)setADelegate:(id)delegate;
 - (void)updateView:(BOOL)animated;
 - (int)getState;
 - (void)setButtonEnable:(BOOL)enable;

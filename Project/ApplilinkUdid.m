@@ -11,11 +11,11 @@
 // The ApplilinkCore accessors this class reads; ApplilinkCore's header is still a stub here. See
 // TYPES_PENDING.md.
 @interface ApplilinkCore (Udid)
-+ (nullable NSString *)ad_udid;
-+ (nullable NSString *)udid;
-+ (nullable NSString *)old_udid;
-+ (nullable NSString *)pasteBoard_udid;
-+ (void)setAdUdid:(nullable NSString *)adUdid;
++ (NSString *)ad_udid;
++ (NSString *)udid;
++ (NSString *)old_udid;
++ (NSString *)pasteBoard_udid;
++ (void)setAdUdid:(NSString *)adUdid;
 + (void)clearInitialize;
 @end
 

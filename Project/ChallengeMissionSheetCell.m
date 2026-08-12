@@ -11,9 +11,9 @@
 // reconstructed.
 @protocol ChallengeMissionSheetCellDelegate <NSObject>
 @optional
-- (void)tapStampCell:(nullable ChallengeMissionSheetCell *)cell;
-- (void)pressStampCell:(nullable ChallengeMissionSheetCell *)cell;
-- (void)stampAnimationEnd:(nullable ChallengeMissionSheetCell *)cell;
+- (void)tapStampCell:(ChallengeMissionSheetCell *)cell;
+- (void)pressStampCell:(ChallengeMissionSheetCell *)cell;
+- (void)stampAnimationEnd:(ChallengeMissionSheetCell *)cell;
 @end
 
 // The row's content sits five points in from every edge, so each subview is that much smaller than

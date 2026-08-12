@@ -117,7 +117,7 @@ static const NSCalendarUnit kSvTimeCalendarUnits =
 }
 
 /** @ghidraAddress 0x1e6dc */
-- (void)tapCorporateButton:(nullable id)sender {
+- (void)tapCorporateButton:(id)sender {
     bEnableTap = (BOOL *)NO;
     // Only presents a Safari view controller when the class is available (iOS 9+).
     // Verified at 0x1e6f0: NSClassFromString(@"SFSafariViewController") guards the whole body.
@@ -137,7 +137,7 @@ static const NSCalendarUnit kSvTimeCalendarUnits =
 #pragma mark - Payment-services message overlay
 
 /** @ghidraAddress 0x1e190 */
-- (void)tapExplain:(nullable id)sender {
+- (void)tapExplain:(id)sender {
     bEnableTap = (BOOL *)NO;
     // A dimming backdrop over the whole view, half-transparent black, faded in from alpha 0.
     coverView = [[UIView alloc] initWithFrame:self.view.bounds];
@@ -180,7 +180,7 @@ static const NSCalendarUnit kSvTimeCalendarUnits =
 }
 
 /** @ghidraAddress 0x1e7c4 */
-- (void)closeMessage:(nullable id)sender {
+- (void)closeMessage:(id)sender {
     [coverView removeFromSuperview];
     coverView = nil;
     [textView removeFromSuperview];
@@ -189,7 +189,7 @@ static const NSCalendarUnit kSvTimeCalendarUnits =
 }
 
 /** @ghidraAddress 0x1e840 */
-- (void)messageDownloadError:(nullable id)sender msgStr:(nullable NSString *)msgStr {
+- (void)messageDownloadError:(id)sender msgStr:(NSString *)msgStr {
     // The alert always uses the localized "OK" as its only button. The msgStr argument is the
     // message body, with an empty title. Verified at 0x1e840: makeAlert:0 delegate:0 tag:0
     // title:@"" (CFString at 0x1002d42e0) msg:msgStr cancel:localized(@"OK") btnText:0 show:YES.
@@ -244,12 +244,12 @@ static const NSCalendarUnit kSvTimeCalendarUnits =
 #pragma mark - Lab access callbacks
 
 /** @ghidraAddress 0x1eb04 */
-- (void)jubeatLabAccessError:(nullable id)access {
+- (void)jubeatLabAccessError:(id)access {
     labAccess = nil;
 }
 
 /** @ghidraAddress 0x1eb1c */
-- (void)jubeatLabAccessFinished:(nullable id)access {
+- (void)jubeatLabAccessFinished:(id)access {
     // Ignore a stale callback from a request we no longer hold.
     if (labAccess != access) {
         return;
@@ -268,7 +268,7 @@ static const NSCalendarUnit kSvTimeCalendarUnits =
 }
 
 /** @ghidraAddress 0x1ec5c */
-- (void)downloaderFinished:(nullable id)downloader {
+- (void)downloaderFinished:(id)downloader {
     // Ignore a stale callback from a request we no longer hold.
     if (infoDownloader != downloader) {
         return;

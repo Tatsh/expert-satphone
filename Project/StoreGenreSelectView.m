@@ -41,7 +41,7 @@ static const CGFloat kBorderWidth = 1.0;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0x1db4fc */
-- (instancetype)initWithFrame:(CGRect)frame genreList:(nullable NSArray *)genreList {
+- (instancetype)initWithFrame:(CGRect)frame genreList:(NSArray *)genreList {
     self = [super initWithFrame:frame];
     if (self) {
         isPad = JubeatAppDelegate.appDelegate.isPad;

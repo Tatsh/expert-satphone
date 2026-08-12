@@ -11,16 +11,16 @@
 // TYPES_PENDING.md.
 @interface EditDataManager : NSObject
 + (instancetype)sharedManager;
-- (nullable NSDictionary *)pickUpEditorInfoFromData:(nullable NSData *)data;
-- (void)localSaveDLFile:(nullable NSData *)data serial:(nullable NSString *)serial usrTag:(int)tag;
-- (nullable NSArray *)getFileInfoList:(unsigned int)tuneID;
+- (NSDictionary *)pickUpEditorInfoFromData:(NSData *)data;
+- (void)localSaveDLFile:(NSData *)data serial:(NSString *)serial usrTag:(int)tag;
+- (NSArray *)getFileInfoList:(unsigned int)tuneID;
 - (int)getEditSlotLimit;
-- (void)setLastEditFileName:(unsigned int)tuneID fileName:(nullable NSString *)fileName;
+- (void)setLastEditFileName:(unsigned int)tuneID fileName:(NSString *)fileName;
 @end
 
 // TouchJSON / NSData's base64 decoder category.
 @interface NSData (Base64)
-+ (nullable NSData *)dataFromBase64String:(nullable NSString *)string;
++ (NSData *)dataFromBase64String:(NSString *)string;
 @end
 
 // The jubeatLab JSON response keys.

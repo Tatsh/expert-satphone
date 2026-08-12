@@ -3,6 +3,7 @@
 #import "AudioManager.h"
 #import "EditorIDManager.h"
 #import "ImageCache.h"
+#import "NSDictionary+TypedLookupExtension.h"
 #import "PurchaseManager.h"
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
@@ -17,13 +18,6 @@
 #import "StoreUtil.h"
 #import "UIDevice+SystemVersionCheck.h"
 #import "UnselectableTextViewV2.h"
-
-// The typed-accessor category the store dictionaries are read through; a category on NSDictionary
-// not reconstructed as its own file yet.
-@interface NSDictionary (TypedAccessors)
-- (nullable NSNumber *)numberForKey:(nonnull id)key;
-- (nullable NSArray *)arrayForKey:(nonnull id)key;
-@end
 
 // The BGM finish notification the card observes. The typo is the binary's own.
 static NSString *const kFinishBgmNotificationName = @"JubeatAudioManagerFinishBgmNotifacation";
@@ -817,7 +811,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
 #pragma mark - Relation tabs
 
 /** @ghidraAddress 0x1dddd4 */
-- (void)tapRelationButton:(nullable id)sender {
+- (void)tapRelationButton:(id)sender {
     int tag = (int)[(UIView *)sender tag];
     if (tag == currentList) {
         return;
@@ -1013,7 +1007,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
 #pragma mark - Purchase actions
 
 /** @ghidraAddress 0x1e0330 */
-- (void)doPurchase:(nullable id)sender {
+- (void)doPurchase:(id)sender {
     [self stopSample];
     if (allowsRedownload) {
         if ([self.delegate respondsToSelector:@selector(detailViewStartRedownload:)]) {
@@ -1029,7 +1023,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
 }
 
 /** @ghidraAddress 0x1e0448 */
-- (void)downloadExtendMusic:(nullable id)sender {
+- (void)downloadExtendMusic:(id)sender {
     [self stopSample];
     [buttonExtendDownload setHidden:YES];
     if ([self.delegate respondsToSelector:@selector(detailViewStartExtendDownload:)]) {
@@ -1041,7 +1035,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
 #pragma mark - Link
 
 /** @ghidraAddress 0x1e0550 */
-- (void)handleLink:(nullable id)sender {
+- (void)handleLink:(id)sender {
     NSString *urlString = nil;
     NSString *alertTitle = nil;
     NSString *alertMessage = nil;
@@ -1097,7 +1091,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
 #pragma mark - Sample tune
 
 /** @ghidraAddress 0x1e0b8c */
-- (void)handleSample:(nullable id)sender {
+- (void)handleSample:(id)sender {
     __block int matchedIndex = kNoSamplePlaying;
     [arrayMusicView
         enumerateObjectsUsingBlock:^(StorePackMusicView *musicView, NSUInteger index, BOOL *stop) {
@@ -1135,7 +1129,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
 }
 
 /** @ghidraAddress 0x1e0fdc */
-- (void)finishBgm:(nullable NSNotification *)notification {
+- (void)finishBgm:(NSNotification *)notification {
     for (StorePackMusicView *musicView in arrayMusicView) {
         [musicView sampleStop];
     }
@@ -1251,7 +1245,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
 #pragma mark - AlertViewManagerDelegate
 
 /** @ghidraAddress 0x1e1c0c */
-- (void)alertSelect:(nonnull NSDictionary *)info {
+- (void)alertSelect:(NSDictionary *)info {
     int buttonMessage = [info[kAlertKeyButtonMessage] intValue];
     int tag = [info[kAlertKeyTag] intValue];
     if (tag == kErrorAlertTag) {
@@ -1268,7 +1262,7 @@ static const NSStringDrawingOptions kCommentMeasureOptions =
 }
 
 /** @ghidraAddress 0x1e1df8 */
-- (void)alertClose:(nonnull NSDictionary *)info {
+- (void)alertClose:(NSDictionary *)info {
     if ([info[kAlertKeyTag] intValue] == kErrorAlertTag) {
         if ([self.viewController respondsToSelector:@selector(storePackDetailViewClose)]) {
             [self.viewController performSelector:@selector(storePackDetailViewClose)];

@@ -10,6 +10,7 @@
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
 #import "LicenseAgreementView.h"
+#import "NSDictionary+TypedLookupExtension.h"
 #import "PurchaseManager.h"
 #import "RootViewController.h"
 #import "RotatableNavigationController.h"
@@ -26,12 +27,6 @@
 #import "StorePackInfo.h"
 #import "StorePurchasedViewController.h"
 #import "StoreUtil.h"
-
-// The typed-accessor category the startup-parameter dictionary is read through; a category on
-// NSDictionary not reconstructed as its own file yet. See TYPES_PENDING.md.
-@interface NSDictionary (TypedAccessors)
-- (nullable NSString *)stringForKey:(nonnull id)key;
-@end
 
 // The tab indices of the four navigation controllers, in the order they are set on the tab bar.
 enum {
@@ -340,7 +335,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 #pragma mark - EditorIDManagerDelegate
 
 /** @ghidraAddress 0xf2640 */
-- (void)successIDDownload:(nullable id)manager {
+- (void)successIDDownload:(id)manager {
     idManager = nil;
     CGRect screen = [UIScreen mainScreen].bounds;
     CGRect navFrame = storeMainNavCtrl.navigationBar.bounds;
@@ -362,7 +357,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf2404 */
-- (void)errorIDDownload:(nullable id)manager msgStr:(nullable NSString *)msgStr {
+- (void)errorIDDownload:(id)manager msgStr:(NSString *)msgStr {
     if (!msgStr || [msgStr isEqualToString:kEmptyValue]) {
         msgStr = [[NSBundle mainBundle] localizedStringForKey:kLocKeyNetworkErrorMsg
                                                         value:kEmptyValue
@@ -383,7 +378,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 #pragma mark - Modal dialog
 
 /** @ghidraAddress 0xf2d0c */
-- (void)showModalDialog:(nullable id)delegate {
+- (void)showModalDialog:(id)delegate {
     coverView.alpha = 0.0;
     [self.view addSubview:coverView];
     [self.modalDialog.indicatorView startAnimating];
@@ -525,7 +520,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 #pragma mark - Purchase / restore
 
 /** @ghidraAddress 0xf4444 */
-- (void)performRestore:(nullable id)sender {
+- (void)performRestore:(id)sender {
     NSString *title = [[NSBundle mainBundle] localizedStringForKey:kLocKeyRestorePurchases
                                                              value:kEmptyValue
                                                              table:nil];
@@ -549,7 +544,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf4690 */
-- (void)detailViewStartRedownload:(nullable StorePackInfo *)packInfo {
+- (void)detailViewStartRedownload:(StorePackInfo *)packInfo {
     purchasingPackInfo = packInfo;
     addPurchasePackInfo = nil;
     NSString *msg = [[NSBundle mainBundle] localizedStringForKey:kLocKeyAlreadyPurchasedMsg
@@ -575,7 +570,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf4920 */
-- (BOOL)checkAttainLimitPurchase:(nullable SKProduct *)product {
+- (BOOL)checkAttainLimitPurchase:(SKProduct *)product {
     int total = [JubeatAppDelegate appDelegate].totalPurchaseAmount;
     NSInteger limitType =
         [[NSUserDefaults standardUserDefaults] integerForKey:kPrefPurchaseLimitType];
@@ -625,7 +620,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf4c9c */
-- (void)detailViewStartPurchase:(nullable StorePackInfo *)packInfo {
+- (void)detailViewStartPurchase:(StorePackInfo *)packInfo {
     if (!PurchaseManager.isPurchasable || !packInfo.product) {
         NSString *msg = [[NSBundle mainBundle] localizedStringForKey:kLocKeyCannotPurchaseMsg
                                                                value:kEmptyValue
@@ -661,7 +656,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf507c */
-- (void)detailViewStartExtendDownload:(nullable StorePackInfo *)packInfo {
+- (void)detailViewStartExtendDownload:(StorePackInfo *)packInfo {
     purchasingPackInfo = packInfo;
     [self showModalDialog:self];
     [self startDownloadExtendMusics:purchasingPackInfo.packID];
@@ -670,7 +665,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 #pragma mark - PurchaseManagerDelegate
 
 /** @ghidraAddress 0xf5104 */
-- (void)purchaseSucceeded:(nullable NSString *)productID {
+- (void)purchaseSucceeded:(NSString *)productID {
     [PurchaseManager sharedManager].delegate = nil;
     if (self.selectedViewController == storeMainNavCtrl) {
         [purchasedViewCtrl resetPurchasedList];
@@ -682,7 +677,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf5214 */
-- (void)purchaseFailed:(nullable NSString *)productID error:(nullable NSError *)error {
+- (void)purchaseFailed:(NSString *)productID error:(NSError *)error {
     [self hideModalDialog];
     NSString *msg;
     if (![error.domain isEqualToString:@"jp.konami.PurchaseManagerErrorDomain"]) {
@@ -772,7 +767,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf5990 */
-- (void)restoreFailed:(nullable NSError *)error {
+- (void)restoreFailed:(NSError *)error {
     [PurchaseManager sharedManager].delegate = nil;
     [self hideModalDialog];
     NSString *cancelMsg = [[NSBundle mainBundle] localizedStringForKey:kLocKeyRestoreCancelMsg
@@ -833,7 +828,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 #pragma mark - AlertViewManagerDelegate
 
 /** @ghidraAddress 0xf5f58 */
-- (void)alertSelect:(nonnull NSDictionary *)info {
+- (void)alertSelect:(NSDictionary *)info {
     int button = [info[kAlertKeyButtonMessage] intValue];
     int tag = [info[kAlertKeyTag] intValue];
     if (tag == kAlertTagRestoreComplete) {
@@ -894,7 +889,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 #pragma mark - StoreDialogViewDelegate
 
 /** @ghidraAddress 0xf66b0 */
-- (void)storeDialogCancel:(nullable id)dialogView {
+- (void)storeDialogCancel:(id)dialogView {
     [dlManager cancel];
     dlManager = nil;
     [self hideModalDialog];
@@ -909,7 +904,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 #pragma mark - StoreDownloadManagerDelegate
 
 /** @ghidraAddress 0xf67cc */
-- (void)downloadManagerStartTask:(nullable id)manager {
+- (void)downloadManagerStartTask:(id)manager {
     NSArray *entry = downloadNameList[dlManager.currentIndex];
     NSString *format = [[NSBundle mainBundle] localizedStringForKey:kLocKeyDownloading
                                                               value:kEmptyValue
@@ -926,13 +921,13 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf6a58 */
-- (void)downloadManagerCompleted:(nullable id)manager {
+- (void)downloadManagerCompleted:(id)manager {
     dlManager = nil;
     [self hideModalDialog];
 }
 
 /** @ghidraAddress 0xf6a94 */
-- (void)downloadManagerFailed:(nullable id)manager {
+- (void)downloadManagerFailed:(id)manager {
     dlManager = nil;
     int packID = purchasingPackInfo.packID;
     if (self.selectedViewController == storeMainNavCtrl) {
@@ -961,14 +956,14 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf6d00 */
-- (void)downloadManagerProceed:(nullable id)manager {
+- (void)downloadManagerProceed:(id)manager {
     [self.modalDialog.progressView setProgress:dlManager.overallProgress];
 }
 
 #pragma mark - Detail routing
 
 /** @ghidraAddress 0xf6d88 */
-- (void)openDetail:(nullable NSNumber *)packID {
+- (void)openDetail:(NSNumber *)packID {
     [[AlertViewManager sharedManager] closeAlert];
     [storeMainViewCtrl addOpenDetail:packID.integerValue];
     if (self.selectedViewController != storeMainNavCtrl) {
@@ -977,7 +972,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf6ed4 */
-- (void)openCampaignDetail:(nullable NSNumber *)campaignID {
+- (void)openCampaignDetail:(NSNumber *)campaignID {
     [[AlertViewManager sharedManager] closeAlert];
     [campaignViewCtrl addOpenDetail:campaignID.integerValue];
     if (self.selectedViewController != campaignNavCtrl) {
@@ -995,7 +990,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf2ca4 */
-- (void)storeEnd:(nullable id)sender {
+- (void)storeEnd:(id)sender {
     [[JubeatAppDelegate appDelegate].rootViewCtrl endStore];
 }
 
@@ -1029,7 +1024,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf732c */
-- (void)dispErrorLabel:(nullable NSString *)message {
+- (void)dispErrorLabel:(NSString *)message {
     CGFloat width = usrPolicyView.frame.size.width;
     CGFloat height = usrPolicyView.frame.size.height - kErrorLabelBottomInset;
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, width, height)];
@@ -1054,7 +1049,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 #pragma mark - LicenseAgreementView callbacks
 
 /** @ghidraAddress 0xf75a4 */
-- (void)agreementSuccess:(nullable id)agreement {
+- (void)agreementSuccess:(id)agreement {
     NSInteger limitType =
         [[NSUserDefaults standardUserDefaults] integerForKey:kPrefPurchaseLimitType];
     (void)[[NSUserDefaults standardUserDefaults] integerForKey:kPrefTotalPurchase];
@@ -1075,7 +1070,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf84ac */
-- (void)agreementFailed:(nullable id)agreement {
+- (void)agreementFailed:(id)agreement {
     __weak UIView *weakAgreement = agreement;
     [(UIView *)agreement setAlpha:1.0];
     [UIView animateWithDuration:kCoverFadeOutDuration
@@ -1090,12 +1085,12 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf8664 */
-- (void)becomePolicyAgreement:(nullable id)agreement {
+- (void)becomePolicyAgreement:(id)agreement {
     [self becomeCoverView];
 }
 
 /** @ghidraAddress 0xf8670 */
-- (void)agreementError:(nullable id)agreement msgStr:(nullable NSString *)msgStr {
+- (void)agreementError:(id)agreement msgStr:(NSString *)msgStr {
     CGFloat width = usrPolicyView.frame.size.width;
     CGFloat height = usrPolicyView.frame.size.height - kErrorLabelBottomInset;
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, width, height)];
@@ -1120,7 +1115,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 #pragma mark - SessionDownloader / DownloaderDelegate
 
 /** @ghidraAddress 0xf7878 */
-- (void)downloaderFinished:(nullable id)downloader {
+- (void)downloaderFinished:(id)downloader {
     NSDictionary *json = [downloader getDataInJSON];
     int status;
     if (!json[kJSONKeyStatus]) {
@@ -1209,7 +1204,7 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
 }
 
 /** @ghidraAddress 0xf7fc0 */
-- (void)downloaderError:(nullable id)downloader {
+- (void)downloaderError:(id)downloader {
     if ([(Downloader *)downloader tag] == kSessionTagMissionCheck) {
         NSString *ok = [[NSBundle mainBundle] localizedStringForKey:kLocKeyOK
                                                               value:kEmptyValue

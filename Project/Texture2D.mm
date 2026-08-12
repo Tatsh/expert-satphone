@@ -95,7 +95,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                        height:pixelSize];
 }
 
-- (instancetype)initWithImage:(nullable UIImage *)image {
+- (instancetype)initWithImage:(UIImage *)image {
     /** @ghidraAddress 0xdf6c */
     CGImageRef cgImage = image.CGImage;
     if (!image) {
@@ -273,7 +273,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
              height:pixelSize];
 }
 
-- (void)setSubImage:(nullable UIImage *)image inRect:(CGRect)rect {
+- (void)setSubImage:(UIImage *)image inRect:(CGRect)rect {
     /** @ghidraAddress 0xe2dc */
     if (!image) {
         return;
@@ -350,7 +350,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     }
 }
 
-- (void)setSubImage:(nullable UIImage *)image atPoint:(CGPoint)point {
+- (void)setSubImage:(UIImage *)image atPoint:(CGPoint)point {
     /** @ghidraAddress 0xe52c */
     if (!image) {
         return;
@@ -403,7 +403,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
 - (void)drawInRect:(CGRect)rect
         fromRegion:(CGRect)region
          transform:(char)transform
-             color:(nullable UIColor *)color {
+             color:(UIColor *)color {
     /** @ghidraAddress 0xe694 */
     if (currentPolys >= kMaxQuads) {
         return;
@@ -668,7 +668,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                alpha:1.0f];
 }
 
-- (void)drawSprite:(NSUInteger)sprite inRect:(CGRect)rect color:(nullable UIColor *)color {
+- (void)drawSprite:(NSUInteger)sprite inRect:(CGRect)rect color:(UIColor *)color {
     /** @ghidraAddress 0xef24 */
     if (sprite >= static_cast<NSUInteger>(numSprite)) {
         return;
@@ -719,7 +719,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
 
 #pragma mark - Sprite table
 
-- (void)setSprites:(nullable NSArray<NSArray<NSNumber *> *> *)sprites {
+- (void)setSprites:(NSArray<NSArray<NSNumber *> *> *)sprites {
     /** @ghidraAddress 0xf0dc */
     if (!sprites || sprites.count == 0) {
         return;

@@ -9,9 +9,9 @@
 // The Blowfish codec and the mission-data cipher key, used to persist a saved sheet. Not
 // reconstructed in this tree yet, so they are forward-declared. See TYPES_PENDING.md.
 @interface BFCodec : NSObject
-- (void)cipherInit:(nullable NSData *)key;
-- (BOOL)decipher:(nullable NSMutableData *)data;
-- (BOOL)encipher:(nullable NSMutableData *)data;
+- (void)cipherInit:(NSData *)key;
+- (BOOL)decipher:(NSMutableData *)data;
+- (BOOL)encipher:(NSMutableData *)data;
 @end
 
 // The server's sheet wire keys, in the order -generateMissionSheetDictionary emits them.

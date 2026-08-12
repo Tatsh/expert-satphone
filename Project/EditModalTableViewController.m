@@ -4,7 +4,7 @@
 // EvaluateJcfView.m, JcfDownloader.m, and TYPES_PENDING.md.
 @interface EditDataManager : NSObject
 + (instancetype)sharedManager;
-- (nullable NSMutableDictionary *)getEditorInfo;
+- (NSMutableDictionary *)getEditorInfo;
 @end
 
 // The reuse identifier shared by every row's cell.
@@ -106,7 +106,7 @@ static NSString *const kFieldTitles[] = {@"譜面名", @"作成者名", @"コメ
  * @return The stored chart name, editor name, or comment, or @c nil for an unknown index.
  * @ghidraAddress 0x1e2f9c
  */
-- (nullable NSString *)getStringPointer:(int)index;
+- (NSString *)getStringPointer:(int)index;
 
 /**
  * @brief Copies the active field's text back into @c editText , clamped to the field limit.
@@ -128,7 +128,7 @@ static NSString *const kFieldTitles[] = {@"譜面名", @"作成者名", @"コメ
  * @return @c YES when the text does not survive a Shift-JIS round-trip.
  * @ghidraAddress 0x1e470c
  */
-- (BOOL)isPictText:(nullable NSString *)text;
+- (BOOL)isPictText:(NSString *)text;
 
 /**
  * @brief The copy-permission switch's action.

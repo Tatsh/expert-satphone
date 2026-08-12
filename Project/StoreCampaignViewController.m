@@ -217,7 +217,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0xbe580 */
-- (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent {
+- (instancetype)initWithParent:(id<StoreParentViewController>)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;
@@ -469,7 +469,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
 }
 
 /** @ghidraAddress 0xc0230 */
-- (void)pushCellButton:(nullable id)sender {
+- (void)pushCellButton:(id)sender {
     if (working_index != kNoWorkingRow) {
         return;
     }
@@ -506,7 +506,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
 }
 
 /** @ghidraAddress 0xbf82c */
-- (void)handleTapCoverView:(nullable UITapGestureRecognizer *)recognizer {
+- (void)handleTapCoverView:(UITapGestureRecognizer *)recognizer {
     [UIApplication.sharedApplication beginIgnoringInteractionEvents];
     [itemDetailViewPad cancelLoading];
     [itemDetailViewPad stopSample];
@@ -595,7 +595,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
 #pragma mark - External links
 
 /** @ghidraAddress 0xbfc60 */
-- (void)pushExternalLink:(nullable id)sender {
+- (void)pushExternalLink:(id)sender {
     int tag = (int)[(UIView *)sender tag];
     if (tag < 0) {
         return;
@@ -702,7 +702,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
 }
 
 /** @ghidraAddress 0xc0a04 */
-- (void)displayTerm:(nullable id)sender {
+- (void)displayTerm:(id)sender {
     [AlertViewManager.sharedManager makeAlert:kAlertTypePlain
                                      delegate:nil
                                           tag:kAlertTagNotUnlockable
@@ -1192,7 +1192,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
 #pragma mark - Artwork
 
 /** @ghidraAddress 0xc2f28 */
-- (nullable UIImage *)getArtwork:(nullable id)info {
+- (UIImage *)getArtwork:(id)info {
     NSNumber *key = @([info campaignID]);
     UIImage *cached = [artworkCache objectForKey:key];
     if (!cached) {
@@ -1212,7 +1212,7 @@ static const NSUInteger kMarkerBannerSubstringLength = 4;
 }
 
 /** @ghidraAddress 0xc3d14 */
-- (void)downloadImageSync:(nullable NSArray *)arguments {
+- (void)downloadImageSync:(NSArray *)arguments {
     @autoreleasepool {
         NSURL *url = arguments[0];
         NSNumber *campaignID = arguments[1];

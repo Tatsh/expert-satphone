@@ -51,8 +51,7 @@ static int TermValue(ChallengeMissionTerms *data, NSUInteger row, NSUInteger col
 //
 // Returns nil rather than an empty array when nothing was collected, because the binary leaves the
 // destination ivar untouched in that case rather than nilling it.
-static NSArray *_Nullable CollectAchieveColumn(ChallengeMissionAchieve *achieve,
-                                               NSUInteger column) {
+static NSArray *CollectAchieveColumn(ChallengeMissionAchieve *achieve, NSUInteger column) {
     NSMutableArray *collected = [[NSMutableArray alloc] init];
     for (id key in achieve.achieveDetail) {
         [collected

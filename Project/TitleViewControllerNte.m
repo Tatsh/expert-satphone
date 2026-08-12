@@ -6,7 +6,7 @@
 // the messages this controller sends to its bottom child type-check; drop this once the class
 // lands.
 @interface NteTitleCoreController : UIViewController
-- (instancetype)initWithNameArray:(nullable NSArray<NSString *> *)nameArray bounds:(CGRect)bounds;
+- (instancetype)initWithNameArray:(NSArray<NSString *> *)nameArray bounds:(CGRect)bounds;
 - (void)setUnsealHeight:(NSInteger)unsealHeight;
 - (void)start;
 - (void)showLogo;
@@ -212,12 +212,12 @@ static const CGFloat kBottomStripOriginYPhone35 = 54.0;
 #pragma mark - Notifications
 
 /** @ghidraAddress 0x7248c */
-- (void)suspend:(nullable NSNotification *)notification {
+- (void)suspend:(NSNotification *)notification {
     // Intentionally empty.
 }
 
 /** @ghidraAddress 0x72490 */
-- (void)resume:(nullable NSNotification *)notification {
+- (void)resume:(NSNotification *)notification {
     // Intentionally empty.
 }
 

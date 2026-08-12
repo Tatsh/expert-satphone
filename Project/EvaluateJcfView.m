@@ -11,9 +11,9 @@
 // JcfDownloader.m and TYPES_PENDING.md.
 @interface EditDataManager : NSObject
 + (instancetype)sharedManager;
-- (nullable NSMutableDictionary *)getEditorInfo;
-- (nullable NSString *)getLastEditFilePath:(int)tuneID;
-- (void)saveJCF:(nullable NSString *)path;
+- (NSMutableDictionary *)getEditorInfo;
+- (NSString *)getLastEditFilePath:(int)tuneID;
+- (void)saveJCF:(NSString *)path;
 @end
 
 // The panel size, chosen by device idiom.

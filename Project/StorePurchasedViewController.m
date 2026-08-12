@@ -59,7 +59,7 @@ static const UIViewAnimationOptions kOverlayAnimationOptions =
 #pragma mark - Lifecycle
 
 /** @ghidraAddress 0x1b4324 */
-- (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent {
+- (instancetype)initWithParent:(id<StoreParentViewController>)parent {
     self = [super init];
     if (self) {
         storeViewCtrl = parent;
@@ -293,7 +293,7 @@ static const UIViewAnimationOptions kOverlayAnimationOptions =
 #pragma mark - iPad overlay
 
 /** @ghidraAddress 0x1b5738 */
-- (void)handleTapCoverView:(nullable UITapGestureRecognizer *)recognizer {
+- (void)handleTapCoverView:(UITapGestureRecognizer *)recognizer {
     [UIApplication.sharedApplication beginIgnoringInteractionEvents];
     [packDetailViewPad cancelLoading];
     [packDetailViewPad stopSample];
@@ -353,7 +353,7 @@ static const UIViewAnimationOptions kOverlayAnimationOptions =
 }
 
 /** @ghidraAddress 0x1b5cf8 */
-- (void)showError:(nullable NSString *)message {
+- (void)showError:(NSString *)message {
     if (!message) {
         message = [NSBundle.mainBundle localizedStringForKey:@"NetworkErrorMsg"
                                                        value:@""
@@ -384,7 +384,7 @@ static const UIViewAnimationOptions kOverlayAnimationOptions =
 }
 
 /** @ghidraAddress 0x1b5f50 */
-- (void)storePackTableViewShowDetail:(nullable StorePackInfo *)packInfo {
+- (void)storePackTableViewShowDetail:(StorePackInfo *)packInfo {
     if (!packInfo) {
         return;
     }

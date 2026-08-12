@@ -89,7 +89,7 @@ enum {
 - (void)appListDidDisappear;
 - (void)appListFailLoadWithError:(NSError *)error;
 - (void)appListFailLinkWithError:(NSError *)error;
-- (void)btnCloseClicked:(nullable id)sender;
+- (void)btnCloseClicked:(id)sender;
 - (BOOL)hasParentViewController:(UIResponder *)responder;
 - (void)rotateWebViewWithInterfaceOrientation:(UIInterfaceOrientation)orientation
                                      duration:(NSTimeInterval)duration;

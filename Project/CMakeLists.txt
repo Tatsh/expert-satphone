@@ -175,7 +175,11 @@ target_sources(jubeat PRIVATE
     MusicSelectViewController.m
     MusicShareView.m
     MusicView.m
+    NSArray+FromData.m
     NSData+Base64.m
+    NSDictionary+FromData.m
+    NSDictionary+JSONExtensions.m
+    NSDictionary+TypedLookupExtension.m
     NSStringURLEncoding.m
     NoMenuTextView.m
     NotificationPageNavController.m
@@ -319,6 +323,7 @@ target_sources(jubeat PRIVATE
     TitleViewControllerRpl.m
     TuneInfo.m
     TweetResourceManager.m
+    UIDevice+SystemVersionCheck.m
     UILabel+RenderImage.m
     UnsealDrawController.m
     UnsealViewController.m
@@ -515,9 +520,11 @@ target_sources(jubeat PRIVATE
     MusicSelectViewController.h
     MusicShareView.h
     MusicView.h
+    NSArray+FromData.h
     NSData+Base64.h
-    NSDictionary+PropertyList.h
-    NSDictionary+TypedAccessors.h
+    NSDictionary+FromData.h
+    NSDictionary+JSONExtensions.h
+    NSDictionary+TypedLookupExtension.h
     NSStringURLEncoding.h
     NoMenuTextView.h
     NotificationPageNavController.h

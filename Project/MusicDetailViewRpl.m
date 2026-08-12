@@ -920,12 +920,12 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x135630 */
-- (void)pushButtonEdit:(nullable id)sender {
+- (void)pushButtonEdit:(id)sender {
     [self editStart];
 }
 
 /** @ghidraAddress 0x13554c */
-- (void)pushButtonUpload:(nullable id)sender {
+- (void)pushButtonUpload:(id)sender {
     if ([self checkEnableUpload]) {
         [self uploadStart];
     }
@@ -939,17 +939,17 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 
 /** @ghidraAddress 0x1384d4 */
 - (void)popoverPresentationControllerDidDismissPopover:
-    (nullable UIPopoverPresentationController *)popoverPresentationController {
+    (UIPopoverPresentationController *)popoverPresentationController {
     [self loadListRelease];
     [self.controller enableCoverTap];
 }
 
 /** @ghidraAddress 0x1366a0 */
-- (void)scrollViewWillBeginDragging:(nullable UIScrollView *)scrollView {
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
 }
 
 /** @ghidraAddress 0x12f0dc */
-- (void)setInfo:(nullable TuneInfo *)info score:(nullable id)score {
+- (void)setInfo:(TuneInfo *)info score:(id)score {
     [super setInfo:info score:score];
     if (info == nil) {
         return;
@@ -999,7 +999,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x12dc84 */
-- (nullable UIButton *)diffButton:(nullable NSString *)imageName {
+- (UIButton *)diffButton:(NSString *)imageName {
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     double width = self.isPad ? kDiffButtonWidthPad : kDiffButtonWidthPhone;
     double height = self.isPad ? kDiffButtonHeightPad : kDiffButtonHeightPhone;
@@ -1104,7 +1104,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x130dc0 */
-- (void)selectDiff:(nullable id)sender {
+- (void)selectDiff:(id)sender {
     if (self.isStarted) {
         return;
     }
@@ -1197,7 +1197,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x134524 */
-- (void)pushButtonStartPlay:(nullable id)sender {
+- (void)pushButtonStartPlay:(id)sender {
     if (!self.buttonStartPlay.isEnabled) {
         return;
     }
@@ -1564,7 +1564,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x138204 */
-- (void)editFileListViewDeleteFile:(nullable id)fileName {
+- (void)editFileListViewDeleteFile:(id)fileName {
     EditDataManager *manager = [EditDataManager sharedManager];
     NSString *lastEdit = [manager getLastEditFileName:(int)self.info.tuneID];
     NSString *path =
@@ -1579,7 +1579,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x1389a0 */
-- (void)downloadEnd:(nullable id)sender {
+- (void)downloadEnd:(id)sender {
     if (!self.isPad && self.jcfMan != nil) {
         [self loadEditFile];
         NSMutableArray<NSMutableDictionary *> *files =
@@ -1608,13 +1608,13 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x138528 */
-- (void)editFileListViewCancel:(nullable id)sender {
+- (void)editFileListViewCancel:(id)sender {
     [self.controller enableCoverTap];
     [self.controller dismissViewControllerAnimated:YES completion:nil];
 }
 
 /** @ghidraAddress 0x1383f8 */
-- (void)selectEditFile:(nullable id)fileName {
+- (void)selectEditFile:(id)fileName {
     [[EditDataManager sharedManager] setLastEditFileName:(int)self.info.tuneID fileName:fileName];
     [self.controller enableCoverTap];
 }
@@ -1628,7 +1628,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x1385ac */
-- (void)errorSequenceDownload:(nullable id)sender {
+- (void)errorSequenceDownload:(id)sender {
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:nil
@@ -1641,7 +1641,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x13868c */
-- (void)finishedSequenceDownload:(nullable id)sender {
+- (void)finishedSequenceDownload:(id)sender {
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:nil
@@ -1654,7 +1654,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x13876c */
-- (void)finishedSequenceOverCap:(nullable id)sender {
+- (void)finishedSequenceOverCap:(id)sender {
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:nil
@@ -1677,7 +1677,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x138884 */
-- (void)customWebViewClose:(nullable id)webView seqIndex:(nullable id)seqIndex {
+- (void)customWebViewClose:(id)webView seqIndex:(id)seqIndex {
     [self resetTextField:(int)self.info.tuneID isFirst:NO];
     [self setStartButtonEnable];
     [[AudioManager sharedManager] playSeResFile:kMusicLeftSound inDirectory:nil];
@@ -1686,7 +1686,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x1366a4 */
-- (void)scrollViewDidScroll:(nullable UIScrollView *)scrollView {
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     float offsetX = (float)scrollView.contentOffset.x;
     float half = (float)(scrollView.contentSize.width * 0.5);
     float denom = half * kScrollFadeSpanFraction;
@@ -1695,7 +1695,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x131ed8 */
-- (void)setMusicBarDot:(nullable char *)dots mbarRes:(nullable char *)mbarRes {
+- (void)setMusicBarDot:(char *)dots mbarRes:(char *)mbarRes {
     if (dots == nullptr) {
         for (int i = 0; i < kMusicBarDotCount; ++i) {
             [mbarDotView[i] setImage:nil];
@@ -1892,7 +1892,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x12ff1c */
-- (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable id)score {
+- (void)setExtendInfo:(TuneInfo *)info score:(id)score {
     [super setExtendInfo:info score:score];
     [self loadExtendMusicBar:info.filePath];
 
@@ -1924,7 +1924,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x135ab8 */
-- (void)pushButtonShare:(nullable id)sender {
+- (void)pushButtonShare:(id)sender {
     if (self.controller.sharePlayManager == nil) {
         // Begin hosting a share: swap the host button to a cancel image, lock the play and social
         // buttons, show the waiting prompt, and hand the packed chart to the controller.
@@ -2033,7 +2033,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x12ee08 */
-- (void)loadExtendMusicBar:(nullable NSString *)path {
+- (void)loadExtendMusicBar:(NSString *)path {
     BFCodec *codec = [[BFCodec alloc] init];
     NSData *cipherKey = GetBgmCipherKey();
     [codec cipherInit:cipherKey];
@@ -2069,7 +2069,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x12e820 */
-- (void)loadContentFromPath:(nullable NSString *)path orData:(nullable NSData *)data {
+- (void)loadContentFromPath:(NSString *)path orData:(NSData *)data {
     // The packed content comes from a file (skipping the 16-byte trailer) or, failing that, from an
     // in-memory range covering all but the trailer.
     KUnzip *archive = nil;
@@ -2136,7 +2136,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x12e48c */
-- (void)loadContentFromDictionary:(nullable NSDictionary *)dict {
+- (void)loadContentFromDictionary:(NSDictionary *)dict {
     UIImage *artwork = [UIImage imageWithData:dict[kContentArtwork]];
     if (artwork != nil) {
         [self.artworkView setImage:artwork];
@@ -2231,7 +2231,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x138c40 */
-- (void)uploadEnd:(nullable id)sender {
+- (void)uploadEnd:(id)sender {
     __weak UIView *weakCover = topcover;
     __weak JcfUpLoadView *weakUpload = upLoadView;
     // The binary passes a negative fade duration here; kept as-is.
@@ -2249,7 +2249,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x131ca0 */
-- (void)scrollChange:(nullable id)sender {
+- (void)scrollChange:(id)sender {
     if (self.isStarted) {
         return;
     }
@@ -2275,20 +2275,19 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x136780 */
-- (void)scrollViewDidEndScrollingAnimation:(nullable UIScrollView *)scrollView {
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
     [detailScrollButton[0] setAlpha:1.0];
     [detailScrollButton[1] setAlpha:1.0];
     MusicDetailViewRplSettleScrollPage(self, self->holdMark);
 }
 
 /** @ghidraAddress 0x136a80 */
-- (void)scrollViewDidEndDecelerating:(nullable UIScrollView *)scrollView {
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     MusicDetailViewRplSettleScrollPage(self, self->holdMark);
 }
 
 /** @ghidraAddress 0x136d54 */
-- (void)scrollViewDidEndDragging:(nullable UIScrollView *)scrollView
-                  willDecelerate:(BOOL)decelerate {
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
         MusicDetailViewRplSettleScrollPage(self, self->holdMark);
     }
@@ -2339,7 +2338,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x137378 */
-- (void)pushInfoEdit:(nullable id)sender {
+- (void)pushInfoEdit:(id)sender {
     if (![self checkDownloadFile] && self.isPad) {
         [[AudioManager sharedManager] playSeResFile:kMusicRightSound inDirectory:nil];
         self.pEditModalView = [[EditModalView alloc] initWithType:0];
@@ -2351,7 +2350,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x137024 */
-- (void)editModalViewClose:(nullable id)sender {
+- (void)editModalViewClose:(id)sender {
     [[AudioManager sharedManager] playSeResFile:kMusicLeftSound inDirectory:nil];
     NSMutableDictionary *editorInfo = [[EditDataManager sharedManager] getEditorInfo];
     [editTxt[0] setText:editorInfo[@"fumenName"]];
@@ -2365,7 +2364,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x138ecc */
-- (nullable id)getStartImage {
+- (id)getStartImage {
     if (![JubeatAppDelegate.appDelegate isRandom]) {
         return [[ImageCache sharedCache] getResPNG:kStartButtonImage];
     }
@@ -2376,7 +2375,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x139004 */
-- (nullable id)getSingleImage {
+- (id)getSingleImage {
     if (![JubeatAppDelegate.appDelegate isRandom]) {
         return [[ImageCache sharedCache] getResPNG:kSingleButtonImage];
     }

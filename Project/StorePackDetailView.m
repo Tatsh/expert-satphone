@@ -706,7 +706,7 @@ static const int kNoSamplePlaying = -1;
 #pragma mark - Purchase actions
 
 /** @ghidraAddress 0xb34b8 */
-- (void)doPurchase:(nullable id)sender {
+- (void)doPurchase:(id)sender {
     [self stopSample];
     if (allowsRedownload) {
         if ([self.delegate respondsToSelector:@selector(detailViewStartRedownload:)]) {
@@ -722,7 +722,7 @@ static const int kNoSamplePlaying = -1;
 }
 
 /** @ghidraAddress 0xb3614 */
-- (void)downloadExtendMusic:(nullable id)sender {
+- (void)downloadExtendMusic:(id)sender {
     [self stopSample];
     [buttonExtendDownload setHidden:YES];
     if ([self.delegate respondsToSelector:@selector(detailViewStartExtendDownload:)]) {
@@ -734,7 +734,7 @@ static const int kNoSamplePlaying = -1;
 #pragma mark - Link
 
 /** @ghidraAddress 0xb371c */
-- (void)handleLink:(nullable id)sender {
+- (void)handleLink:(id)sender {
     NSString *urlString = nil;
     NSString *alertTitle = nil;
     NSString *alertMessage = nil;
@@ -789,7 +789,7 @@ static const int kNoSamplePlaying = -1;
 #pragma mark - Sample tune
 
 /** @ghidraAddress 0xb3d58 */
-- (void)handleSample:(nullable id)sender {
+- (void)handleSample:(id)sender {
     __block int matchedIndex = kNoSamplePlaying;
     [arrayMusicView
         enumerateObjectsUsingBlock:^(StorePackMusicView *musicView, NSUInteger index, BOOL *stop) {
@@ -837,7 +837,7 @@ static const int kNoSamplePlaying = -1;
 }
 
 /** @ghidraAddress 0xb41a8 */
-- (void)finishBgm:(nullable NSNotification *)notification {
+- (void)finishBgm:(NSNotification *)notification {
     for (StorePackMusicView *musicView in arrayMusicView) {
         [musicView sampleStop];
     }
@@ -929,7 +929,7 @@ static const int kNoSamplePlaying = -1;
 #pragma mark - AlertViewManagerDelegate
 
 /** @ghidraAddress 0xb4a68 */
-- (void)alertSelect:(nonnull NSDictionary *)info {
+- (void)alertSelect:(NSDictionary *)info {
     int buttonMessage = [info[kAlertKeyButtonMessage] intValue];
     int tag = [info[kAlertKeyTag] intValue];
     if (tag == kErrorAlertTag) {
@@ -946,7 +946,7 @@ static const int kNoSamplePlaying = -1;
 }
 
 /** @ghidraAddress 0xb4c54 */
-- (void)alertClose:(nonnull NSDictionary *)info {
+- (void)alertClose:(NSDictionary *)info {
     if ([info[kAlertKeyTag] intValue] == kErrorAlertTag) {
         if ([self.viewController respondsToSelector:@selector(storePackDetailViewClose)]) {
             [self.viewController performSelector:@selector(storePackDetailViewClose)];

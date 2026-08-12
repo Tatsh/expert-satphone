@@ -4,7 +4,7 @@
 
 // An object may opt into serialisation by vending its own JSON data; TouchJSON's extension point.
 @protocol CJSONDataRepresentation <NSObject>
-- (nullable NSData *)JSONDataRepresentation;
+- (NSData *)JSONDataRepresentation;
 @end
 
 // The shared token data for the three JSON keywords, primed once by +initialize and kept for the

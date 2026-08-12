@@ -12,10 +12,10 @@ static NSString *const kPauseSoundResume = @"SKIP";
 static NSString *const kPauseSoundConfirm = @"OK";
 
 @interface GamePauseView ()
-- (nonnull NSString *)soundName:(nonnull NSString *)token;
-- (void)pushBtnResume:(nonnull id)sender;
-- (void)pushBtnRestart:(nonnull id)sender;
-- (void)pushBtnEnd:(nonnull id)sender;
+- (NSString *)soundName:(NSString *)token;
+- (void)pushBtnResume:(id)sender;
+- (void)pushBtnRestart:(id)sender;
+- (void)pushBtnEnd:(id)sender;
 @end
 
 // The dimming backdrop's alpha and the frame panel's size and border.

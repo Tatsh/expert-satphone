@@ -189,7 +189,7 @@ typedef enum : NSInteger {
 #pragma mark - Campaign item
 
 /** @ghidraAddress 0x1e9430 */
-- (void)setCampaignInfo:(nullable CampaignItemInfo *)campaignInfo {
+- (void)setCampaignInfo:(CampaignItemInfo *)campaignInfo {
     itemInfo = campaignInfo;
 }
 
@@ -199,13 +199,13 @@ typedef enum : NSInteger {
 }
 
 /** @ghidraAddress 0x1e945c */
-- (void)updateCampaignState:(nullable CampaignItemInfo *)campaignInfo {
+- (void)updateCampaignState:(CampaignItemInfo *)campaignInfo {
     itemInfo = campaignInfo;
     [headerView updateCampaignState:campaignInfo];
 }
 
 /** @ghidraAddress 0x1e94bc */
-- (void)refreshCampaignItem:(nullable CampaignItemInfo *)campaignInfo {
+- (void)refreshCampaignItem:(CampaignItemInfo *)campaignInfo {
     [self stopDownloadArtworks];
     [headerView stopSample];
     itemInfo = campaignInfo;
@@ -251,19 +251,19 @@ typedef enum : NSInteger {
 #pragma mark - Header delegate
 
 /** @ghidraAddress 0x1e9800 */
-- (void)doPurchase:(nullable id)sender {
+- (void)doPurchase:(id)sender {
     [self.viewController itemDownload];
 }
 
 /** @ghidraAddress 0x1e9840 */
-- (void)handleLink:(nullable id)sender {
+- (void)handleLink:(id)sender {
     [self.viewController moveExternalLink];
 }
 
 #pragma mark - SKStoreProductViewController delegate
 
 /** @ghidraAddress 0x1e9880 */
-- (void)productViewControllerDidFinish:(nonnull SKStoreProductViewController *)viewController {
+- (void)productViewControllerDidFinish:(SKStoreProductViewController *)viewController {
     [self dismissViewControllerAnimated:YES
                              completion:^{
                                /** @ghidraAddress 0x1e98e8 */
@@ -277,32 +277,32 @@ typedef enum : NSInteger {
 #pragma mark - Downloader delegate
 
 /** @ghidraAddress 0x1e9910 */
-- (void)downloaderProceed:(nullable id)downloader {
+- (void)downloaderProceed:(id)downloader {
     // The shipped body is empty.
 }
 
 #pragma mark - ImageDownloader delegate
 
 /** @ghidraAddress 0x1e9cb0 */
-- (void)imageDownloader:(nonnull ImageDownloader *)downloader didLoad:(nullable id)key {
+- (void)imageDownloader:(ImageDownloader *)downloader didLoad:(id)key {
     [headerView setArtwork:[downloader getImage]];
 }
 
 #pragma mark - Table data source
 
 /** @ghidraAddress 0x1e9914 */
-- (NSInteger)numberOfSectionsInTableView:(nonnull UITableView *)tableView {
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
 
 /** @ghidraAddress 0x1e991c */
-- (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return 2;
 }
 
 /** @ghidraAddress 0x1e9924 */
-- (UITableViewCell *)tableView:(nonnull UITableView *)tableView
-         cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == CampaignDetailRowCopyright) {
         UITableViewCell *cell =
             [tableView dequeueReusableCellWithIdentifier:kCopyrightCellReuseIdentifier];
@@ -329,8 +329,7 @@ typedef enum : NSInteger {
 #pragma mark - Table delegate
 
 /** @ghidraAddress 0x1e9b04 */
-- (CGFloat)tableView:(nonnull UITableView *)tableView
-    heightForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == CampaignDetailRowCopyright) {
         if (!itemInfo.lisenceText) {
             return kCopyrightRowDefaultHeight;
@@ -347,9 +346,9 @@ typedef enum : NSInteger {
 }
 
 /** @ghidraAddress 0x1e9bd4 */
-- (void)tableView:(nonnull UITableView *)tableView
-      willDisplayCell:(nonnull UITableViewCell *)cell
-    forRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tableView
+      willDisplayCell:(UITableViewCell *)cell
+    forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == CampaignDetailRowCopyright) {
         cell.backgroundColor = [UIColor colorWithWhite:kCopyrightRowBackgroundWhite alpha:1.0f];
         return;
@@ -362,8 +361,7 @@ typedef enum : NSInteger {
 }
 
 /** @ghidraAddress 0x1e9cac */
-- (void)tableView:(nonnull UITableView *)tableView
-    didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // The shipped body is empty.
 }
 

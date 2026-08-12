@@ -13,7 +13,7 @@
 // The advertising-identifier accessor is not yet reconstructed in this tree's ApplilinkCore stub;
 // declare the class method the browser posters call. The full class lives in ../rbplus-src.
 @interface ApplilinkCore (AnalysisNetworkCore)
-+ (nullable NSString *)ad_udid;
++ (NSString *)ad_udid;
 @end
 
 // Analytics action-type codes posted in the request's action_type parameter.

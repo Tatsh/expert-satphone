@@ -8,6 +8,7 @@
 #import "ChallengeStatus.h"
 #import "JubeatAppDelegate.h"
 #import "LicenseAgreementView.h"
+#import "NSDictionary+TypedLookupExtension.h"
 #import "RootViewController.h"
 #import "RotatableNavigationController.h"
 #import "ScratchUtil.h"
@@ -179,12 +180,6 @@ static NSString *const kAgeRegisterFailedMessage =
 // The affiliate fall-back URL opened when the mission-error alert's link button is tapped.
 static NSString *const kKonamiURL = @"http://www.konami.jp/";
 
-// A file-private typed-accessor category the startup dictionary is read through; a category on
-// NSDictionary not reconstructed as its own file yet.
-@interface NSDictionary (StoreViewControllerTypedAccessors)
-- (nullable NSString *)stringForKey:(nonnull id)key;
-@end
-
 @implementation StoreViewController {
     StoreMainViewController *storeMainViewCtrl;
     StorePurchasedViewController *purchasedViewCtrl;
@@ -319,7 +314,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 #pragma mark - Store end
 
 /** @ghidraAddress 0x8a584 */
-- (void)storeEnd:(nullable id)sender {
+- (void)storeEnd:(id)sender {
     [storeMainViewCtrl storeClose];
     [JubeatAppDelegate.appDelegate.rootViewCtrl endStore];
 }
@@ -327,7 +322,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 #pragma mark - Modal dialog
 
 /** @ghidraAddress 0x8a604 */
-- (void)showModalDialog:(nullable id<StoreDialogViewDelegate>)delegate {
+- (void)showModalDialog:(id<StoreDialogViewDelegate>)delegate {
     [coverView setAlpha:0.0];
     [self.view addSubview:coverView];
     [self.modalDialog.indicatorView startAnimating];
@@ -475,7 +470,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 #pragma mark - Purchase entry points
 
 /** @ghidraAddress 0x8bd3c */
-- (void)performRestore:(nullable id)sender {
+- (void)performRestore:(id)sender {
     NSString *title = [NSBundle.mainBundle localizedStringForKey:kLocKeyRestorePurchases
                                                            value:kEmptyValue
                                                            table:nil];
@@ -499,7 +494,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8bf88 */
-- (void)detailViewStartRedownload:(nullable StoreDetailViewControllerV2 *)packInfo {
+- (void)detailViewStartRedownload:(StoreDetailViewControllerV2 *)packInfo {
     purchasingPackInfo = (StorePackInfo *)packInfo;
     addPurchasePackInfo = nil;
     NSString *message = [NSBundle.mainBundle localizedStringForKey:kLocKeyAlreadyPurchasedMessage
@@ -525,7 +520,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8c218 */
-- (BOOL)checkAttainLimitPurchase:(nullable SKProduct *)product {
+- (BOOL)checkAttainLimitPurchase:(SKProduct *)product {
     int total = JubeatAppDelegate.appDelegate.totalPurchaseAmount;
     NSInteger limitType =
         [NSUserDefaults.standardUserDefaults integerForKey:kPrefPurchaseLimitType];
@@ -575,7 +570,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8c594 */
-- (void)detailViewStartPurchase:(nullable StoreDetailViewControllerV2 *)packInfo {
+- (void)detailViewStartPurchase:(StoreDetailViewControllerV2 *)packInfo {
     if (!PurchaseManager.isPurchasable || !((StorePackInfo *)packInfo).product) {
         NSString *message = [NSBundle.mainBundle localizedStringForKey:kLocKeyCannotPurchaseMessage
                                                                  value:kEmptyValue
@@ -613,7 +608,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8c974 */
-- (void)detailViewStartExtendDownload:(nullable StorePackInfo *)packInfo {
+- (void)detailViewStartExtendDownload:(StorePackInfo *)packInfo {
     purchasingPackInfo = packInfo;
     [self showModalDialog:self];
     [self startDownloadExtendMusics:(int)purchasingPackInfo.packID];
@@ -622,7 +617,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 #pragma mark - PurchaseManagerDelegate
 
 /** @ghidraAddress 0x8c9fc */
-- (void)purchaseSucceeded:(nullable NSString *)productID {
+- (void)purchaseSucceeded:(NSString *)productID {
     PurchaseManager.sharedManager.delegate = nil;
     if (self.selectedViewController == storeMainNavCtrl) {
         [purchasedViewCtrl resetPurchasedList];
@@ -634,7 +629,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8cb0c */
-- (void)purchaseFailed:(nullable NSString *)productID error:(nullable NSError *)error {
+- (void)purchaseFailed:(NSString *)productID error:(NSError *)error {
     [self hideModalDialog];
     NSString *message;
     if (![error.domain isEqualToString:kPurchaseErrorDomain]) {
@@ -723,7 +718,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8d288 */
-- (void)restoreFailed:(nullable NSError *)error {
+- (void)restoreFailed:(NSError *)error {
     PurchaseManager.sharedManager.delegate = nil;
     [self hideModalDialog];
     NSString *cancel = [NSBundle.mainBundle localizedStringForKey:kLocKeyRestoreCancelMessage
@@ -784,7 +779,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 #pragma mark - AlertViewManagerDelegate
 
 /** @ghidraAddress 0x8d850 */
-- (void)alertSelect:(nonnull NSDictionary *)info {
+- (void)alertSelect:(NSDictionary *)info {
     int button = [info[kAlertKeyButtonMessage] intValue];
     int tag = [info[kAlertKeyTag] intValue];
 
@@ -848,7 +843,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 #pragma mark - StoreDialogViewDelegate
 
 /** @ghidraAddress 0x8dfa8 */
-- (void)storeDialogCancel:(nullable id)dialogView {
+- (void)storeDialogCancel:(id)dialogView {
     [dlManager cancel];
     dlManager = nil;
     [self hideModalDialog];
@@ -863,7 +858,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 #pragma mark - StoreDownloadManagerDelegate
 
 /** @ghidraAddress 0x8e0c4 */
-- (void)downloadManagerStartTask:(nonnull StoreDownloadManager *)manager {
+- (void)downloadManagerStartTask:(StoreDownloadManager *)manager {
     NSArray *entry = downloadNameList[dlManager.currentIndex];
     NSString *format = [NSBundle.mainBundle localizedStringForKey:kLocKeyDownloading
                                                             value:kEmptyValue
@@ -879,13 +874,13 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8e350 */
-- (void)downloadManagerCompleted:(nonnull StoreDownloadManager *)manager {
+- (void)downloadManagerCompleted:(StoreDownloadManager *)manager {
     dlManager = nil;
     [self hideModalDialog];
 }
 
 /** @ghidraAddress 0x8e38c */
-- (void)downloadManagerFailed:(nonnull StoreDownloadManager *)manager {
+- (void)downloadManagerFailed:(StoreDownloadManager *)manager {
     dlManager = nil;
     int packID = (int)purchasingPackInfo.packID;
     if (self.selectedViewController == storeMainNavCtrl) {
@@ -914,14 +909,14 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8e5f8 */
-- (void)downloadManagerProceed:(nonnull StoreDownloadManager *)manager {
+- (void)downloadManagerProceed:(StoreDownloadManager *)manager {
     [self.modalDialog.progressView setProgress:dlManager.overallProgress];
 }
 
 #pragma mark - Deep-link detail opening
 
 /** @ghidraAddress 0x8e680 */
-- (void)openDetail:(nullable NSNumber *)packID {
+- (void)openDetail:(NSNumber *)packID {
     [AlertViewManager.sharedManager closeAlert];
     [storeMainViewCtrl addOpenDetail:packID.integerValue];
     if (self.selectedViewController != storeMainNavCtrl) {
@@ -930,7 +925,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8e7cc */
-- (void)openCampaignDetail:(nullable NSNumber *)campaignID {
+- (void)openCampaignDetail:(NSNumber *)campaignID {
     [AlertViewManager.sharedManager closeAlert];
     [campaignViewCtrl addOpenDetail:campaignID.integerValue];
     if (self.selectedViewController != campaignNavCtrl) {
@@ -977,7 +972,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8ec24 */
-- (void)dispErrorLabel:(nullable NSString *)msg {
+- (void)dispErrorLabel:(NSString *)msg {
     CGRect frame = usrPolicyView.frame;
     CGFloat labelHeight = frame.size.height - kErrorLabelBottomInset;
     UILabel *label =
@@ -1001,7 +996,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8ee9c */
-- (void)agreementSuccess:(nullable id)sender {
+- (void)agreementSuccess:(id)sender {
     NSInteger limitType =
         [NSUserDefaults.standardUserDefaults integerForKey:kPrefPurchaseLimitType];
     // The binary reads PrefTotalPurchase here and discards it.
@@ -1023,7 +1018,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8fda4 */
-- (void)agreementFailed:(nullable id)sender {
+- (void)agreementFailed:(id)sender {
     __weak UIView *weakSender = sender;
     [sender setAlpha:1.0];
     [UIView animateWithDuration:kCoverFadeOutDuration
@@ -1038,12 +1033,12 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8ff5c */
-- (void)becomePolicyAgreement:(nullable id)sender {
+- (void)becomePolicyAgreement:(id)sender {
     [self becomeCoverView];
 }
 
 /** @ghidraAddress 0x8ff68 */
-- (void)agreementError:(nullable id)sender msgStr:(nullable NSString *)msg {
+- (void)agreementError:(id)sender msgStr:(NSString *)msg {
     CGRect frame = usrPolicyView.frame;
     CGFloat labelHeight = frame.size.height - kErrorLabelBottomInset;
     UILabel *label =
@@ -1069,7 +1064,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 #pragma mark - DownloaderDelegate
 
 /** @ghidraAddress 0x8f170 */
-- (void)downloaderFinished:(nullable id)downloader {
+- (void)downloaderFinished:(id)downloader {
     NSDictionary *json = [(Downloader *)downloader getDataInJSON];
     int status;
     if (!json[kResponseKeyStatus]) {
@@ -1159,7 +1154,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x8f8b8 */
-- (void)downloaderError:(nullable id)downloader {
+- (void)downloaderError:(id)downloader {
     if ([(Downloader *)downloader tag] == kSessionTagMissionCheck) {
         NSString *ok = [NSBundle.mainBundle localizedStringForKey:kLocKeyOK
                                                             value:kEmptyValue
@@ -1218,7 +1213,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 #pragma mark - EditorIDManagerDelegate
 
 /** @ghidraAddress 0x89f10 */
-- (void)successIDDownload:(nullable id)manager {
+- (void)successIDDownload:(id)manager {
     idManager = nil;
     CGRect screen = UIScreen.mainScreen.bounds;
     CGFloat navHeight = storeMainNavCtrl.navigationBar.bounds.size.height;
@@ -1243,7 +1238,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 }
 
 /** @ghidraAddress 0x89cd4 */
-- (void)errorIDDownload:(nullable id)manager msgStr:(nullable NSString *)msg {
+- (void)errorIDDownload:(id)manager msgStr:(NSString *)msg {
     if (!msg || [msg isEqualToString:kEmptyValue]) {
         msg = [NSBundle.mainBundle localizedStringForKey:kLocKeyNetworkErrorMessage
                                                    value:kEmptyValue
