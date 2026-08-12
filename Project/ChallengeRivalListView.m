@@ -11,11 +11,6 @@
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
 
-// The challenge root view messaged when a session-error alert is dismissed. Not reconstructed yet.
-// See TYPES_PENDING.md.
-@protocol ChallengeRootView <NSObject>
-- (void)closeChallengeModeSessionError;
-@end
 // The rival-list request's post-body keys and values.
 static NSString *const kPostUserIDKey = @"user_id";
 static NSString *const kPostTargetKey = @"target";

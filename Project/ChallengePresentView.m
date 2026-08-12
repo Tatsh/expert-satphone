@@ -18,12 +18,6 @@
 - (void)setADelegate:(id)delegate;
 @end
 
-// The challenge root view messaged when a session-error alert is dismissed, and the extra
-// ChallengeStatus methods this modal reads and updates. Not reconstructed yet. See
-// TYPES_PENDING.md.
-@protocol ChallengeRootView <NSObject>
-- (void)closeChallengeModeSessionError;
-@end
 // The present-list request's post-body keys and values.
 static NSString *const kPostUserIDKey = @"user_id";
 static NSString *const kPostTargetKey = @"target";

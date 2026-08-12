@@ -185,14 +185,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @param msgStr The error message.
  * @ghidraAddress 0x140820
  */
-- (void)errorIDDownload:(id)download msgStr:(NSString *)msgStr;
+- (void)errorIDDownload:(nullable id)download msgStr:(nullable NSString *)msgStr;
 
 /**
  * @brief Handles a successful ID download.
  * @param download The download.
  * @ghidraAddress 0x1409c8
  */
-- (void)successIDDownload:(id)download;
+- (void)successIDDownload:(nullable id)download;
 
 @end
 

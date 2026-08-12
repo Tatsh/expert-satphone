@@ -11,11 +11,6 @@
 #import "SessionDownloader.h"
 #import "SystemUtilities.h"
 
-// The challenge root view messaged when a session-error alert is dismissed, reached through
-// ChallengeStatus. Neither is fully declared yet. See TYPES_PENDING.md.
-@protocol ChallengeRootView <NSObject>
-- (void)closeChallengeModeSessionError;
-@end
 // The previous-scratch request's post-body key and the "全曲ランキング" head row it prepends.
 static NSString *const kPostPrevKey = @"prev";
 static NSString *const kAllTunesRowTitle = @"全曲ランキング";

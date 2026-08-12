@@ -11,11 +11,6 @@
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
 
-// The challenge root view messaged when a session-error alert is dismissed. Not reconstructed yet;
-// only the one selector this sheet sends is declared. See TYPES_PENDING.md.
-@protocol ChallengeRootView <NSObject>
-- (void)closeChallengeModeSessionError;
-@end
 // The three background/button images.
 static NSString *const kBackgroundImageName = @"scratch_sheet_name";
 static NSString *const kChangeButtonImageName = @"scratch_btn_name";

@@ -11,11 +11,6 @@
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
 
-// The challenge root view messaged when a session-error alert is dismissed. Not fully reconstructed
-// yet; only the accessors this modal reads are declared. See TYPES_PENDING.md.
-@protocol ChallengeRootView <NSObject>
-- (void)closeChallengeModeSessionError;
-@end
 // The background, message, and button artwork.
 static NSString *const kSearchSheetImageName = @"scratch_sheet_Search";
 static NSString *const kSearchButtonImageName = @"scratch_btn_Search";
