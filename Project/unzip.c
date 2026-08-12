@@ -1,18 +1,16 @@
-/** @file
- * IO for reading .zip files, the subset of minizip's @c unz* API that @c KUnzip drives.
- *
- * This is upstream third-party library code, not a routine reconstructed from the binary. It is
- * Gilles Vollant's minizip @c unzip.c (zlib's @c contrib/minizip), recovered as the library the way
- * @c NSData+Base64 and @c ioapi.c are. The shipped @c KUnzip was built against a hybrid variant:
- * the classic 1.01e reader with its 32-bit @c zlib_filefunc_def I/O table (see @c ioapi.h) and a
- * two-argument internal open, but with the public info structures widened to the Zip64 @c *64
- * names, so the two size fields and the entry count are @c ZPOS64_T. The K&R function definitions
- * of the original are written here as ANSI prototypes so the file compiles as C23, the password/raw
- * variants @c KUnzip never uses are dropped, and braces are added to the nested if/else chains; the
- * logic is otherwise the original.
- *
- * Condition of use and distribution are the same as zlib.
- */
+// IO for reading .zip files, the subset of minizip's unz* API that KUnzip drives.
+//
+// This is upstream third-party library code, not a routine reconstructed from the binary. It is
+// Gilles Vollant's minizip unzip.c (zlib's contrib/minizip), recovered as the library the way
+// NSData+Base64 and ioapi.c are. The shipped KUnzip was built against a hybrid variant: the classic
+// 1.01e reader with its 32-bit zlib_filefunc_def I/O table (see ioapi.h) and a two-argument
+// internal open, but with the public info structures widened to the Zip64 *64 names, so the two
+// size fields and the entry count are ZPOS64_T. The K&R function definitions of the original are
+// written here as ANSI prototypes so the file compiles as C23, the password/raw variants KUnzip
+// never uses are dropped, and braces are added to the nested if/else chains; the logic is otherwise
+// the original.
+//
+// Condition of use and distribution are the same as zlib.
 
 #include "unzip.h"
 
