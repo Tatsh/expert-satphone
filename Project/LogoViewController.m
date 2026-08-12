@@ -153,13 +153,18 @@ static const CGFloat kLogoVisible = 1.0;
         if (endTimer) {
             return;
         }
-        endTimer = [NSTimer timerWithTimeInterval:kNonageCautionHold
-                                           target:self
-                                         selector:@selector(end:)
-                                         userInfo:nil
-                                          repeats:NO];
+        // The timer is held strongly for the duration of scheduling (x19 in the binary, an
+        // objc_retainAutoreleasedReturnValue released only at the end of the method): the ivar is
+        // weak, so without this local the autoreleased timer would be gone by the time it is added
+        // to the run loop. -addTimer:forMode: then hands ownership to the run loop.
+        NSTimer *timer = [NSTimer timerWithTimeInterval:kNonageCautionHold
+                                                 target:self
+                                               selector:@selector(end:)
+                                               userInfo:nil
+                                                repeats:NO];
+        endTimer = timer;
         // Added to the common modes so the countdown survives a scroll or a tracking run loop.
-        [NSRunLoop.currentRunLoop addTimer:endTimer forMode:NSRunLoopCommonModes];
+        [NSRunLoop.currentRunLoop addTimer:timer forMode:NSRunLoopCommonModes];
         return;
     }
 
