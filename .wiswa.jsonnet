@@ -79,13 +79,13 @@
       'PROVISIONING_PROFILE_SPECIFIER=""',
     ],
     local cmake_package_ipa_commands = [
-      'app=$(find build -type d -name "REFLEC BEAT plus.app" -print -quit)',
+      'app=$(find build -type d -name "Jubeat.app" -print -quit)',
       'test -n "${app}"',
       'codesign --force --sign - --timestamp=none "${app}"',
       'codesign --verify --verbose=2 "${app}"',
       'mkdir -p build/ipa/Payload',
       'cp -R "${app}" build/ipa/Payload/',
-      '/usr/bin/zip -qry build/Rbplus-latest.ipa build/ipa/Payload',
+      '/usr/bin/zip -qry build/Jubeat-latest.ipa build/ipa/Payload',
     ],
     local cmake_build_commands = [
       'if ! [ -d .ios-cmake ]; then git clone --depth 1 --branch "$IOS_CMAKE_REF" https://github.com/leetal/ios-cmake.git .ios-cmake; fi',
