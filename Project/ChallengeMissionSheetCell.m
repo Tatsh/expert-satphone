@@ -5,17 +5,6 @@
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 
-// The cell's delegate: told when the row is tapped or long-pressed, and when the stamp animation
-// finishes. Every callback is optional and reached through -respondsToSelector:/-performSelector:,
-// so the protocol is forward-declared here rather than imported; its owner is not yet
-// reconstructed.
-@protocol ChallengeMissionSheetCellDelegate <NSObject>
-@optional
-- (void)tapStampCell:(ChallengeMissionSheetCell *)cell;
-- (void)pressStampCell:(ChallengeMissionSheetCell *)cell;
-- (void)stampAnimationEnd:(ChallengeMissionSheetCell *)cell;
-@end
-
 // The row's content sits five points in from every edge, so each subview is that much smaller than
 // the cell in both dimensions.
 static const CGFloat kContentOrigin = 5.0;

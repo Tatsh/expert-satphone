@@ -13,6 +13,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ * @brief An object may opt into serialisation by vending its own JSON data; TouchJSON's extension
+ *        point.
+ */
+@protocol CJSONDataRepresentation <NSObject>
+- (NSData *)JSONDataRepresentation;
+@end
+
+/**
  * @brief Turns Foundation objects into JSON data.
  */
 @interface CJSONSerializer : NSObject

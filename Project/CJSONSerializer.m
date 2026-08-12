@@ -2,11 +2,6 @@
 
 #import <CoreFoundation/CoreFoundation.h>
 
-// An object may opt into serialisation by vending its own JSON data; TouchJSON's extension point.
-@protocol CJSONDataRepresentation <NSObject>
-- (NSData *)JSONDataRepresentation;
-@end
-
 // The shared token data for the three JSON keywords, primed once by +initialize and kept for the
 // lifetime of the process (created with +initWithBytesNoCopy:length:freeWhenDone: over the string
 // literals, so their backing bytes are never freed).

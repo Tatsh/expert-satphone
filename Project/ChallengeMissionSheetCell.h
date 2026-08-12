@@ -19,7 +19,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class ChallengeMissionTerms;
 @class ChallengeMissionAchieve;
-@protocol ChallengeMissionSheetCellDelegate;
+@class ChallengeMissionSheetCell;
+
+/**
+ * @brief The cell's delegate: told when the row is tapped or long-pressed, and when the stamp
+ *        animation finishes. Every callback is optional and reached through
+ *        @c -respondsToSelector: / @c -performSelector: .
+ */
+@protocol ChallengeMissionSheetCellDelegate <NSObject>
+@optional
+- (void)tapStampCell:(ChallengeMissionSheetCell *)cell;
+- (void)pressStampCell:(ChallengeMissionSheetCell *)cell;
+- (void)stampAnimationEnd:(ChallengeMissionSheetCell *)cell;
+@end
 
 /**
  * @brief A mission row: an icon in a progress ring, a percentage, a stamp, and a marker.
