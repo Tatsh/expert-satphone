@@ -8,17 +8,6 @@
 #import "ApplilinkNetworkError.h"
 #import "ApplilinkPasteBoard.h"
 
-// The ApplilinkCore accessors this class reads; ApplilinkCore's header is still a stub here. See
-// TYPES_PENDING.md.
-@interface ApplilinkCore (Udid)
-+ (NSString *)ad_udid;
-+ (NSString *)udid;
-+ (NSString *)old_udid;
-+ (NSString *)pasteBoard_udid;
-+ (void)setAdUdid:(NSString *)adUdid;
-+ (void)clearInitialize;
-@end
-
 // The Applilink error codes this class reports. They index into the localised-message table owned
 // by ApplilinkNetworkError.
 typedef enum {

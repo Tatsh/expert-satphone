@@ -9,12 +9,7 @@
 #import "ApplilinkMessage.h"
 #import "ApplilinkUtilities.h"
 #import "GradationView.h"
-
-// RecommendAdCache is a not-yet-reconstructed applilink cache class; only the icon-availability
-// query is used here.
-@interface RecommendAdCache : NSObject
-+ (BOOL)getMoviePlayerIcon;
-@end
+#import "RecommendAdCache.h"
 
 // KVO key paths observed on the player item and player layer.
 static NSString *const kKeyPathStatus = @"status";

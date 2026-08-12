@@ -1,11 +1,6 @@
 #import "ApplilinkWebView.h"
 
-// RecommendCore routes a request to a link-scheme action code; not reconstructed as its own file
-// yet. See TYPES_PENDING.md.
-@interface RecommendCore : NSObject
-@property(class, nonatomic, readonly) RecommendCore *sharedInstance;
-- (int)redirectWithRequest:(NSURLRequest *)request;
-@end
+#import "RecommendCore.h"
 
 // The load states.
 static const int kWebViewStatusIdle = 0;

@@ -5,27 +5,7 @@
 #import "ApplilinkMessage.h"
 #import "ApplilinkNetworkError.h"
 #import "ApplilinkParameters.h"
-
-// The applilink SDK collaborators this facade forwards to that are not reconstructed in this tree
-// yet, or whose reconstructed headers do not yet declare these members. See TYPES_PENDING.md.
-@interface ApplilinkCore (RewardNetwork)
-+ (BOOL)isInitializeStatusFlg;
-+ (void)toDelegateFailOpenWithError:(NSError *)error appParam:(id)appParam delegate:(id)delegate;
-@end
-
-@interface RewardCore : NSObject
-+ (instancetype)sharedInstance;
-- (int)initializeFlg;
-- (void)openAdScreenWithParentView:(UIView *)parentView
-                        adLocation:(NSString *)adLocation
-                       requestCode:(id)requestCode
-                          delegate:(id)delegate;
-- (void)closeAdScreen;
-- (void)allInstallFlgWithCallback:(void (^)(NSInteger flg, NSError *error))callback;
-- (void)getAdDisplayStatusWithCallback:(void (^)(NSDictionary *status, NSError *error))callback;
-- (void)getAppListStatusWithBlock:(void (^)(NSInteger status, NSError *error))block;
-- (void)setNavigationBarHidden:(BOOL)navigationBarHidden;
-@end
+#import "RewardCore.h"
 
 // Applilink error codes messaged as the localised-error factory argument.
 enum {

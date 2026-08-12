@@ -4,24 +4,9 @@
 
 #import "ApplilinkConsts.h"
 #import "ApplilinkNetworkError.h"
+#import "ApplilinkUdid.h"
 #import "ApplilinkWebAPI.h"
 #import "Crypto.h"
-
-// The advertising-udid accessor; ApplilinkUdid is not reconstructed in this tree yet. See
-// TYPES_PENDING.md.
-@interface ApplilinkUdid : NSObject
-+ (NSString *)getAdUdid;
-@end
-
-// The synchronous web-API entry point ApplilinkWebAPI vends; not yet declared in its header. See
-// TYPES_PENDING.md.
-@interface ApplilinkWebAPI (Synchronous)
-+ (NSDictionary *)requestSynchronousWithURL:(NSString *)url
-                                     method:(NSString *)method
-                                 parameters:(NSDictionary *)parameters
-                                cachePolicy:(id)cachePolicy
-                                      error:(NSError **)error;
-@end
 
 // The lowest iOS version whose ad-identifier record is stored server-side (through the Applilink
 // pasteboard web API) rather than in a local device pasteboard.

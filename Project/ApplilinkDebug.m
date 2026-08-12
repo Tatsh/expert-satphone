@@ -1,50 +1,16 @@
 #import "ApplilinkDebug.h"
 
+#import "AnalysisNetworkCore.h"
 #import "ApplilinkConsts.h"
 #import "ApplilinkCore.h"
+#import "RecommendCore.h"
+#import "RecommendDebug.h"
+#import "RewardCore.h"
 
-// The applilink SDK collaborators this facade forwards to that are not reconstructed in this tree
-// yet, or whose reconstructed headers do not yet declare these members. See TYPES_PENDING.md.
-@interface ApplilinkConsts (Debug)
-+ (NSString *)countryCode;
-+ (NSString *)categoryId;
-@end
-
-@interface ApplilinkCore (Debug)
-+ (NSString *)udid_cache;
-+ (NSString *)ad_udid_cache;
-+ (NSString *)old_udid_cache;
-+ (void)clearUDID;
-+ (void)clearKeyChainOldUDID;
-+ (void)clearAdUDID;
-@end
-
-@interface AnalysisNetworkCore : NSObject
-+ (void)clearInitalize;
-+ (void)clearDAU;
-@end
-
-@interface RewardCore : NSObject
-+ (instancetype)sharedInstance;
-- (void)clearSession;
-- (void)clearAdStatus;
-@end
-
-@interface RecommendCore : NSObject
-+ (instancetype)sharedInstance;
-- (void)clearSession;
-- (void)clearAdStatus;
-@end
-
+// The recommend advert cache. RecommendAdCache's reconstructed header does not declare
+// allClearCacheBannerImage, so the selector is forward-declared here. See TYPES_PENDING.md.
 @interface RecommendAdCache : NSObject
 + (void)allClearCacheBannerImage;
-@end
-
-@interface RecommendDebug : NSObject
-+ (void)debugMode:(id)debugMode;
-+ (id)getDebugMode;
-+ (NSMutableDictionary *)getFrequencyStatus;
-+ (NSMutableDictionary *)getDisplaySpec;
 @end
 
 // The Applilink SDK version this debug build reports, combined as "<base>.<build>".

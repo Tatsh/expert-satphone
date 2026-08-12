@@ -1,67 +1,16 @@
 #import "ApplilinkVideoController.h"
 
+#import "AnalysisNetworkCore.h"
 #import "AppliView.h"
+#import "ApplilinkCore.h"
 #import "ApplilinkIndicator.h"
+#import "ApplilinkNetworkError.h"
 #import "ApplilinkParameters.h"
+#import "ApplilinkViewManager.h"
 #import "ApplilinkWebView.h"
 #import "NSStringURLEncoding.h"
+#import "RecommendCore.h"
 #import "VideoView.h"
-
-// The applilink core's movie/analysis relay helpers. Only the class methods this controller calls
-// are declared; the full class is not reconstructed as its own file yet. See TYPES_PENDING.md.
-@interface ApplilinkCore : NSObject
-+ (BOOL)isBuildXcode6;
-+ (void)toDelegateMovieFinish:(id)delegate;
-+ (void)toDelegateSoundUseStart:(id)delegate;
-+ (void)toDelegateFailOpenWithError:(NSError *)error
-                           appParam:(ApplilinkParameters *)appParam
-                           delegate:(id)delegate;
-+ (void)toDelegateFailLinkWithError:(NSError *)error
-                           appParam:(ApplilinkParameters *)appParam
-                           delegate:(id)delegate;
-@end
-
-// The applilink network error factory. Not reconstructed as its own file yet.
-@interface ApplilinkNetworkError : NSObject
-+ (NSError *)localizedApplilinkErrorWithCode:(NSInteger)code;
-@end
-
-// The analysis network core the click reports are posted to. Not reconstructed as its own file yet.
-@interface AnalysisNetworkCore : NSObject
-+ (void)postAnalysisClickMovieWithAdType:(NSString *)adType
-                                 adModel:(NSString *)adModel
-                              adLocation:(NSString *)adLocation
-                            impressionId:(NSString *)impressionId
-                               appliIdTo:(NSString *)appliIdTo
-                              creativeId:(NSString *)creativeId
-                           displayNumber:(NSString *)displayNumber
-                           incentiveType:(NSString *)incentiveType
-                              installFlg:(NSString *)installFlg
-                             movieStatus:(int)movieStatus
-                                callback:(void (^)(NSError *error))callback;
-@end
-
-// RecommendCore routes a link-scheme action and vends the movie-end URL. Not reconstructed as its
-// own file yet. See TYPES_PENDING.md.
-@interface RecommendCore : NSObject
-@property(class, nonatomic, readonly) RecommendCore *sharedInstance;
-- (void)linkActionWithURL:(NSString *)url delegate:(id)delegate;
-- (NSString *)getMovideEndUrlWithAdIdFrom:(NSString *)adIdFrom
-                                   adIdTo:(NSString *)adIdTo
-                                  adModel:(NSString *)adModel
-                               adLocation:(NSString *)adLocation
-                             impressionId:(NSString *)impressionId
-                               creativeId:(NSString *)creativeId
-                            displayNumber:(NSString *)displayNumber
-                               installFlg:(NSString *)installFlg;
-@end
-
-// ApplilinkViewManager relays the video controller's close notice. Its full reconstruction lives in
-// ApplilinkViewManager.m; only -closeNotice: is used here.
-@interface ApplilinkViewManager : NSObject
-+ (instancetype)sharedInstance;
-- (void)closeNotice:(id)view;
-@end
 
 // The query separator and the recognised key prefixes, exactly as the binary stores them as
 // CFString constants in __cfstring.

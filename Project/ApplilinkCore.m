@@ -11,23 +11,8 @@
 #import "ApplilinkUdid.h"
 #import "ApplilinkViewManager.h"
 #import "ApplilinkWebAPI.h"
-
-// The reward and recommend cores the initialisation chain drives. Neither is reconstructed as its
-// own file yet in this tree; only the selectors this class calls are declared. The full classes
-// live in ../rbplus-src.
-@interface RewardCore : NSObject
-+ (instancetype)sharedInstance;
-- (void)startWithCallback:(void (^)(NSError *error))callback;
-- (void)clearInitialize;
-@end
-
-@interface RecommendCore : NSObject
-+ (instancetype)sharedInstance;
-- (void)startWithCallback:(void (^)(NSError *error))callback;
-- (void)clearInitialize;
-- (void)getAllAdStatusWithCallback:(void (^)(NSError *error))callback;
-- (void)appliListWithCallBack:(void (^)(NSArray *list, NSError *error))callback;
-@end
+#import "RecommendCore.h"
+#import "RewardCore.h"
 
 // The advert-delegate callbacks the fan-out methods dispatch through respondsToSelector:. In the
 // binary the delegate is an id conforming to the SDK's advert-view delegate protocol; the selectors

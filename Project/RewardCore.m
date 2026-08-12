@@ -9,6 +9,7 @@
 #import "RewardCore.h"
 
 #import "ApplilinkConsts.h"
+#import "ApplilinkCore.h"
 #import "ApplilinkNetworkError.h"
 #import "ApplilinkParameters.h"
 #import "ApplilinkPasteBoard.h"
@@ -18,36 +19,9 @@
 #import "NSStringURLEncoding.h"
 #import "RewardWebAPI.h"
 
-// ApplilinkCore is the applilink SDK facade; its header is reconstructed separately. Only the class
-// selectors this file messages are forward-declared here to avoid depending on that in-progress
-// header.
-@interface ApplilinkCore : NSObject
-+ (BOOL)checkUdid;
-+ (BOOL)isInitializeStatusFlg;
-+ (NSString *)udid;
-+ (NSString *)ad_udid;
-+ (NSString *)old_udid;
-+ (NSString *)currentUdid;
-+ (void)appAuthSessionRegenerateWithBlock:(void (^)(NSError *error))block;
-+ (BOOL)showAppStoreId:(NSString *)appStoreId
-              appParam:(ApplilinkParameters *)appParam
-              delegate:(id)delegate;
-+ (void)toDelegateDidStart:(ApplilinkParameters *)appParam delegate:(id)delegate;
-+ (void)toDelegateDidAppear:(ApplilinkParameters *)appParam delegate:(id)delegate;
-+ (void)toDelegateDidDisappear:(ApplilinkParameters *)appParam delegate:(id)delegate;
-+ (void)toDelegateFailOpenWithError:(NSError *)error
-                           appParam:(ApplilinkParameters *)appParam
-                           delegate:(id)delegate;
-+ (void)toDelegateFailLoadWithError:(NSError *)error
-                           appParam:(ApplilinkParameters *)appParam
-                           delegate:(id)delegate;
-+ (void)toDelegateFailLinkWithError:(NSError *)error
-                           appParam:(ApplilinkParameters *)appParam
-                           delegate:(id)delegate;
-@end
-
-// RewardWebViewController hosts the reward advert web view; it is not yet reconstructed in this
-// tree, so only the selectors this file messages are forward-declared. See TYPES_PENDING.md.
+// RewardWebViewController hosts the reward advert web view. Its reconstructed header does not
+// declare -willAnimateRotationToInterfaceOrientation:duration:, so the selectors this file messages
+// are forward-declared here. See TYPES_PENDING.md.
 @interface RewardWebViewController : UIViewController
 - (void)setParentView:(UIView *)parentView;
 - (void)setNavigationBarHidden:(BOOL)hidden;

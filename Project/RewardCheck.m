@@ -1,23 +1,12 @@
 #import "RewardCheck.h"
 
 #import "AlertViewManager.h"
+#import "CJSONSerializer.h"
 #import "Downloader.h"
 #import "EditorIDManager.h"
+#import "GameNetworkUtil.h"
 #import "JubeatAppDelegate.h"
 #import "StringUtilities.h"
-
-// TouchJSON's JSON encoder and the game-server URL/store helpers are reached by name; neither is
-// reconstructed as its own file here. See TYPES_PENDING.md.
-@interface CJSONSerializer : NSObject
-@property(class, nonatomic, readonly) CJSONSerializer *serializer;
-- (NSData *)serializeDictionary:(NSDictionary *)dictionary error:(NSError **)error;
-@end
-
-@interface GameNetworkUtil : NSObject
-@property(class, nonatomic, readonly) NSURL *rewardCheckURL;
-@property(class, nonatomic, readonly) NSString *getStoreTarget;
-+ (void)fillInstallAppNum:(int)num;
-@end
 
 // The reward-list mode passed to -makeRewardCheckData:.
 static const int kRewardCheckModeList = 0x4e21;

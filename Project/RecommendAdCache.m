@@ -4,19 +4,13 @@
 #import "ApplilinkFile.h"
 #import "ApplilinkNetworkError.h"
 #import "ApplilinkUtilities.h"
+#import "RecommendCore.h"
+#import "RecommendWebAPI.h"
 
-// The recommend SDK collaborators this cache reads from. Not reconstructed in this tree yet, so
-// they are forward-declared. See TYPES_PENDING.md.
-@interface RecommendCore : NSObject
-+ (instancetype)sharedInstance;
-- (void)startSessionWithCallback:(void (^)(NSError *error))callback;
-@end
-
-@interface RecommendWebAPI : NSObject
-+ (void)layoutIndexWithCallback:(void (^)(NSError *error))callback;
-+ (void)allAdDataWithCallBack:(void (^)(NSDictionary *data, NSError *error))callback;
-@end
-
+// RecommendAdData's reconstructed header declares these selectors with different argument or return
+// types (getAppInterstitialList: and getInterstitialSpecInstallForAdDisplaySpecList:movieFlg: take
+// a BOOL there, and getResponseNsData returns NSData *), so it is forward-declared here rather than
+// imported. See TYPES_PENDING.md.
 @interface RecommendAdData : NSObject
 + (int)getAdTypeWithAdModel:(int)adModel adLocation:(NSString *)adLocation;
 + (NSError *)lotteryInterstitialWithAdLocation:(NSString *)adLocation;

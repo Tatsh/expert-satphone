@@ -1,10 +1,6 @@
 #import "RecommendDebug.h"
 
-// The interstitial display specifications, read to annotate the inspection dictionaries. Not
-// reconstructed in this tree yet, so forward-declared. See TYPES_PENDING.md.
-@interface RecommendAdData : NSObject
-+ (NSDictionary *)getInterstitialSpecList;
-@end
+#import "RecommendAdData.h"
 
 // The Applilink sandbox test fixtures use these dictionary keys.
 static NSString *const kAdModelKey = @"ad_model";

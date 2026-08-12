@@ -6,12 +6,6 @@
 #import "ApplilinkNetworkError.h"
 #import "Crypto.h"
 
-// The envServer accessor ApplilinkConsts vends; not yet declared in its header. See
-// TYPES_PENDING.md.
-@interface ApplilinkConsts (EnvServer)
-+ (NSString *)envServer;
-@end
-
 // The pasteboard type under which every record archive is stored.
 static NSString *const kPasteboardType = @"applilink.udid";
 

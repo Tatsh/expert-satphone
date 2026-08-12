@@ -1,32 +1,12 @@
 #import "ApplilinkConsts.h"
 
 #import "AnalysisNetworkCore.h"
+#import "ApplilinkCore.h"
+#import "ApplilinkNetworkError.h"
+#import "ApplilinkParameters.h"
+#import "ApplilinkUdid.h"
 #import "Crypto.h"
-
-// The applilink SDK collaborators. Not reconstructed in this tree yet; declared here as forward
-// classes. See TYPES_PENDING.md.
-@interface ApplilinkUdid : NSObject
-+ (BOOL)isAdvertisingTrackingEnabled;
-@end
-
-@interface ApplilinkParameters : NSObject
-- (void)setRequestWithAdModel:(int)adModel
-                   adLocation:(NSString *)adLocation
-                  requestCode:(id)requestCode;
-@end
-
-@interface ApplilinkCore : NSObject
-+ (void)toDelegateFailOpenWithError:(NSError *)error appParam:(id)appParam delegate:(id)delegate;
-@end
-
-@interface ApplilinkNetworkError : NSObject
-+ (NSError *)localizedApplilinkErrorWithCode:(NSInteger)code;
-@end
-
-@interface RecommendCore : NSObject
-+ (instancetype)sharedInstance;
-- (void)startSessionWithCallback:(void (^)(NSError *error))callback;
-@end
+#import "RecommendCore.h"
 
 // The server environment name is compared against these string keys, each selecting a base URL.
 static NSString *const kEnvProduction = @"0";

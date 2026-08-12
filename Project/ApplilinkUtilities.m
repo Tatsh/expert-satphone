@@ -6,13 +6,6 @@
 #import "ApplilinkCore.h"
 #import "NSStringURLEncoding.h"
 
-// Forward declaration of the device-info accessor. The full ApplilinkCore class is reconstructed in
-// the sibling tree; only this method is needed here, so it is declared locally rather than added to
-// the shared header.
-@interface ApplilinkCore (DeviceInfo)
-+ (NSDictionary *)getDeviceInfo;
-@end
-
 // User-agent parameter dictionary keys.
 static NSString *const kUserAgentAppliIdKey = @"ua_appli_id";
 static NSString *const kUserAgentDeviceKey = @"ua_device";

@@ -3,16 +3,7 @@
 #import <UIKit/UIKit.h>
 
 #import "ApplilinkParameters.h"
-
-// The applilink view controller that owns the SKStoreProductViewController; not reconstructed in
-// this tree yet, so it is forward-declared. See TYPES_PENDING.md.
-@interface ApplilinkViewController : NSObject
-- (void)showSKStore:(NSString *)appStoreId
-           appParam:(ApplilinkParameters *)appParam
-           delegate:(id)delegate;
-- (void)productViewControllerDidFinish;
-- (void)setSdkDelegate:(id)delegate;
-@end
+#import "ApplilinkViewController.h"
 
 // The one and only ApplilinkStore instance and its dispatch_once tokens. File-scope rather than
 // method-local, which the singleton rule would otherwise ask for, because +allocWithZone: and

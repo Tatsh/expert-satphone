@@ -9,31 +9,6 @@
 #import "Crypto.h"
 #import "NSStringURLEncoding.h"
 
-// The SDK collaborators whose reconstructed headers do not yet declare these members. See
-// TYPES_PENDING.md.
-@interface ApplilinkWebAPI (Asynchronous)
-+ (void)requestAsynchronousWithURL:(NSString *)url
-                            method:(NSString *)method
-                        parameters:(NSDictionary *)parameters
-                          userInfo:(id)userInfo
-                               tag:(NSInteger)tag
-                       cachePolicy:(id)cachePolicy
-                           timeout:(float)timeout
-                             retry:(BOOL)retry
-                     finishedBlock:(void (^)(id request, id response))finishedBlock
-                       failedBlock:(void (^)(id request, id error))failedBlock;
-@end
-
-@interface ApplilinkUtilities (Reward)
-+ (NSDictionary *)userAgentParameters;
-@end
-
-@interface ApplilinkCore (Reward)
-+ (NSString *)currentUdid;
-+ (NSString *)signatureKey;
-+ (void)updatePasteBoard;
-@end
-
 // The request timeout, in seconds, applied to every reward request.
 static const float kRequestTimeout = 10.0f;
 

@@ -2,50 +2,9 @@
 
 #import "ApplilinkConsts.h"
 #import "ApplilinkCore.h"
-
-// The applilink SDK collaborators this facade forwards to. Only ApplilinkCore and ApplilinkConsts
-// have reconstructed headers so far, and neither yet declares these members; RewardCore,
-// RecommendCore, and ApplilinkViewManager are not reconstructed at all. They are declared here as
-// forward categories/classes. See TYPES_PENDING.md.
-@interface ApplilinkCore (Network)
-+ (void)initializeWithAppliId:(NSString *)appliId
-                          env:(NSString *)env
-                       resume:(BOOL)resume
-                     callback:(void (^)(NSError *error))callback;
-+ (void)resume;
-+ (void)setNavigationBarCommonAppearance:(BOOL)navigationBarCommonAppearance;
-+ (void)setPriorityDeviceLanguages:(BOOL)priorityDeviceLanguages;
-+ (void)setIndicatorColor:(UIColor *)indicatorColor;
-+ (void)unusedInStore;
-+ (void)buildUnderXcode6;
-+ (NSString *)versionDev;
-+ (NSString *)currentUdid;
-+ (void)collectDeviceInfoCore;
-@end
-
-@interface ApplilinkConsts (Network)
-+ (void)setUserId:(NSString *)userId;
-+ (NSString *)appliId;
-+ (NSString *)version;
-@end
-
-@interface RewardCore : NSObject
-+ (instancetype)sharedInstance;
-- (void)rotateAdScreenWithInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-                                      duration:(NSTimeInterval)duration;
-@end
-
-@interface RecommendCore : NSObject
-+ (instancetype)sharedInstance;
-- (void)rotateWithInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-                              duration:(NSTimeInterval)duration;
-@end
-
-@interface ApplilinkViewManager : NSObject
-+ (instancetype)sharedInstance;
-- (void)rotateWithInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-                              duration:(NSTimeInterval)duration;
-@end
+#import "ApplilinkViewManager.h"
+#import "RecommendCore.h"
+#import "RewardCore.h"
 
 @implementation ApplilinkNetwork
 

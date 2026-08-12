@@ -1,12 +1,6 @@
 #import "RecommendWebViewController.h"
 
-// RecommendCore backs the recommendation routing; not reconstructed as its own file yet. See
-// TYPES_PENDING.md.
-@interface RecommendCore : NSObject
-@property(class, nonatomic, readonly) RecommendCore *sharedInstance;
-- (int)redirectViewContollerWithRequest:(NSURLRequest *)request;
-- (void)showVideoViewWithQuery:(id)query;
-@end
+#import "RecommendCore.h"
 
 // The binary defines a -removeFromSuperview on this controller (a coincidental selector name, not
 // the UIView method), verified against the metadata.

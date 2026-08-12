@@ -2,72 +2,15 @@
 
 #import "ApplilinkConsts.h"
 #import "ApplilinkCore.h"
+#import "ApplilinkFile.h"
 #import "ApplilinkNetworkError.h"
 #import "ApplilinkParameters.h"
 #import "ApplilinkUtilities.h"
-
-// The applilink collaborators this container talks to. Only ApplilinkConsts, ApplilinkCore,
-// ApplilinkNetworkError, ApplilinkParameters, and ApplilinkUtilities have reconstructed headers so
-// far, and ApplilinkCore's is a stub that does not yet declare the members used here. The remaining
-// collaborators (RecommendCore, RecommendAdData, RecommendAdCache, ApplilinkFile,
-// RecommendAdWebView, and RecommendAdAreaView) are not reconstructed at all. They are declared here
-// as forward categories/classes. See TYPES_PENDING.md.
-@interface ApplilinkCore (Recommend)
-+ (BOOL)isInitializeStatusFlg;
-+ (UIColor *)getIndicatorColor;
-+ (void)toDelegateDidStart:(ApplilinkParameters *)appParam delegate:(id)delegate;
-+ (void)toDelegateDidAppear:(ApplilinkParameters *)appParam delegate:(id)delegate;
-+ (void)toDelegateDidDisappear:(ApplilinkParameters *)appParam delegate:(id)delegate;
-+ (void)toDelegateFailLoadWithError:(NSError *)error
-                           appParam:(ApplilinkParameters *)appParam
-                           delegate:(id)delegate;
-+ (void)toDelegateFailLinkWithError:(NSError *)error
-                           appParam:(ApplilinkParameters *)appParam
-                           delegate:(id)delegate;
-+ (void)toDelegateSoundUseStart:(id)delegate;
-+ (void)toDelegateSoundUseFinish:(id)delegate;
-@end
-
-@interface RecommendCore : NSObject
-@property(nonatomic, assign) int initializeFlg;
-+ (instancetype)sharedInstance;
-@end
-
-@interface RecommendAdData : NSObject
-+ (int)getAdTypeWithAdModel:(int)adModel adLocation:(NSString *)adLocation;
-@end
-
-@interface RecommendAdCache : NSObject
-+ (NSError *)createHtmlWithAdModel:(int)adModel
-                        adLocation:(NSString *)adLocation
-                     verticalAlign:(int)verticalAlign
-                      impressionId:(NSString *)impressionId;
-@end
-
-@interface ApplilinkFile : NSObject
-+ (NSString *)getTemplatePathWithAdModel:(int)adModel adLocation:(NSString *)adLocation;
-@end
-
-@interface RecommendAdWebView : UIView
-- (void)loadRequestWithAdModel:(int)adModel
-                    adLocation:(NSString *)adLocation
-                 verticalAlign:(int)verticalAlign
-                   requestCode:(id)requestCode
-                      delegate:(id)delegate;
-- (void)closeAdArea;
-- (void)setScrollEnabled:(BOOL)scrollEnabled;
-@end
-
-@interface RecommendAdAreaView : UIView
-- (void)setAdModel:(int)adModel
-        adLocation:(NSString *)adLocation
-            adType:(int)adType
-       requestCode:(id)requestCode
-          delegate:(id)delegate;
-- (void)setImpressionId:(NSString *)impressionId;
-- (void)startPath:(NSString *)path;
-- (void)closeAdArea;
-@end
+#import "RecommendAdAreaView.h"
+#import "RecommendAdCache.h"
+#import "RecommendAdData.h"
+#import "RecommendAdWebView.h"
+#import "RecommendCore.h"
 
 // The activity indicator is a square of this side, is only shown when both container dimensions are
 // at least this large, and is auto-hidden after this many seconds. All three uses read the same

@@ -4,69 +4,9 @@
 #import "ApplilinkCore.h"
 #import "ApplilinkNetworkError.h"
 #import "ApplilinkParameters.h"
-
-// The recommend SDK collaborators this facade forwards to. Not reconstructed in this tree yet, so
-// they are forward-declared. See TYPES_PENDING.md.
-@interface RecommendCore : NSObject
-+ (instancetype)sharedInstance;
-- (int)initializeFlg;
-- (void)getAdStatusWithAdModel:(int)adModel callback:(RecommendAdStatusCallback)callback;
-- (void)getUnreadCountWithAdModel:(int)adModel
-                       adLocation:(NSString *)adLocation
-                         callback:(RecommendAdStatusCallback)callback;
-- (void)getAdDisplayStatusWithAdModel:(int)adModel
-                           adLocation:(NSString *)adLocation
-                             callback:(RecommendAdDisplayStatusCallback)callback;
-- (void)showOwnAdWithAdLocation:(NSString *)adLocation
-                      toAppliId:(NSString *)appliId
-                     creativeId:(NSString *)creativeId;
-- (void)showOwnAdWithAdLocation:(NSString *)adLocation
-                        adModel:(int)adModel
-                      toAppliId:(NSString *)appliId
-                     creativeId:(NSString *)creativeId;
-- (void)touchOwnAdWithAdLocation:(NSString *)adLocation
-                       toAppliId:(NSString *)appliId
-                      creativeId:(NSString *)creativeId
-                     requestCode:(id)requestCode
-                        delegate:(id)delegate;
-- (void)touchOwnAdWithAdLocation:(NSString *)adLocation
-                         adModel:(int)adModel
-                       toAppliId:(NSString *)appliId
-                      creativeId:(NSString *)creativeId
-                     requestCode:(id)requestCode
-                        delegate:(id)delegate;
-- (void)openAdScreenWithParentView:(UIView *)parentView
-                           adModel:(int)adModel
-                        adLocation:(NSString *)adLocation
-                     verticalAlign:(int)verticalAlign
-                       requestCode:(id)requestCode
-                          delegate:(id)delegate;
-- (void)openAdAreaWithParentView:(UIView *)parentView
-                            rect:(CGRect)rect
-                         adModel:(int)adModel
-                      adLocation:(NSString *)adLocation
-                   verticalAlign:(int)verticalAlign
-                     requestCode:(id)requestCode
-                        delegate:(id)delegate;
-- (void)openFullViewControllerWithAdModel:(int)adModel
-                               adLocation:(NSString *)adLocation
-                            verticalAlign:(int)verticalAlign
-                              requestCode:(id)requestCode
-                                 delegate:(id)delegate;
-- (void)openMovieViewControllerWithAdModel:(int)adModel
-                                adLocation:(NSString *)adLocation
-                             verticalAlign:(int)verticalAlign
-                               requestCode:(id)requestCode
-                                  delegate:(id)delegate;
-- (void)closeAdScreen;
-@end
-
-@interface RecommendWebView : UIView
-@end
-
-@interface RecommendAdAreaView : UIView
-- (void)closeAdArea;
-@end
+#import "RecommendAdAreaView.h"
+#import "RecommendCore.h"
+#import "RecommendWebView.h"
 
 // Applilink error codes: the SDK-unavailable code when the SDK may not run at all, and the
 // fail-open code when an open request is rejected because the SDK never finished initialising.
