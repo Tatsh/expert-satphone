@@ -1,5 +1,7 @@
 #import "MarkerManager.h"
 
+#import <objc/runtime.h>
+
 #import <CommonCrypto/CommonDigest.h>
 
 #import "BFCodec.h"
@@ -7,6 +9,7 @@
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "Md5Utilities.h"
+#import "neDebugLog.h"
 
 // Marker info dictionary keys.
 static NSString *const kMarkerInfoKeyMarkerID = @"markerID";
@@ -106,6 +109,9 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
     NSMutableData *data =
         [[NSUserDefaults.standardUserDefaults objectForKey:kPrefMarkerInfoList] mutableCopy];
     if (data == nil) {
+        if (NE_DBG_FIRST(4)) {
+            neDebugLog("getMarkerList: PrefMarkerInfoList absent from NSUserDefaults");
+        }
         return nil;
     }
     NSData *key = CreateResourceDataCipherKey();
@@ -113,6 +119,12 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
     [codec cipherInit:key];
     [codec decipher:data];
     id list = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    if (NE_DBG_FIRST(4)) {
+        neDebugLog("getMarkerList: %lu-byte blob, unarchived %s count=%lu",
+                   (unsigned long)data.length,
+                   list ? object_getClassName(list) : "nil",
+                   [list respondsToSelector:@selector(count)] ? (unsigned long)[list count] : 0UL);
+    }
     return [NSMutableArray arrayWithArray:list];
 }
 
@@ -136,6 +148,11 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
         if (![info[kMarkerInfoKeyVersion] isEqualToString:kVersionUninstalled]) {
             [current addObject:info];
         }
+    }
+    if (NE_DBG_FIRST(4)) {
+        neDebugLog("getCurrentMarkerList: %lu of %lu markers installed",
+                   (unsigned long)current.count,
+                   (unsigned long)list.count);
     }
     return current;
 }
