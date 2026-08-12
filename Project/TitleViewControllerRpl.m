@@ -11,7 +11,6 @@
 @implementation TitleViewControllerRpl {
     BOOL isPad;                            // offset global 0x34ae80
     int yHorizon;                          // offset global 0x34ae84
-    UIImageView *titleBgView;              // the ripple title background, mirroring the Org sibling
     UIImageView *jubeatLogoView;           // offset global 0x34ae88
     NSArray *arrayRippleLayer;             // offset global 0x34ae8c
     NSArray *arrayReflectedRippleLayer;    // offset global 0x34ae90
@@ -25,6 +24,32 @@
     UIView *coverView;                     // offset global 0x34aeb0
     EditorIDManager *idManager;            // offset global 0x34aeb4
 }
+
+// The title-screen resource names, from the __const CFStrings at 0x2dd5c0, 0x2dd5e0, 0x2dd600.
+static NSString *const kLogoImageName = @"j_logo_rpl";
+static NSString *const kTouchImageName = @"touch_rpl";
+static NSString *const kCopyrightImageName = @"copyright_rpl";
+// The title BGM and welcome voice, from the CFStrings at 0x2dd620 and 0x2dd640.
+static NSString *const kTitleBgmName = @"SD_RPL_BGM_TITLE";
+static NSString *const kWelcomeVoiceName = @"SD_RPL_CV_WELCOME";
+
+// The horizon sits at 70% of the view height (pooled double 0x291c98); the sky gradient fills above
+// it and the reflection gradient below.
+static const CGFloat kHorizonFraction = 0.7;
+// The four greys of the two vertical gradients (pooled doubles 0x292eb8, 0x292ec0, 0x292ec8), all
+// at full alpha. The sky runs from 0.86328125 white down to full white; the reflection from
+// 0.58984375 to 0.8203125.
+static const CGFloat kSkyGradientTopWhite = 0.86328125;
+static const CGFloat kSkyGradientBottomWhite = 1.0;
+static const CGFloat kReflectionGradientTopWhite = 0.58984375;
+static const CGFloat kReflectionGradientBottomWhite = 0.8203125;
+
+// The logo centres, as fractions of the view size (pooled doubles 0x28f248 and 0x292ed0) with the
+// copyright inset from the bottom (0x28f1f8 phone, 0x28f210 pad).
+static const CGFloat kLogoCenterYFraction = 0.3;
+static const CGFloat kTouchCenterYFraction = 0.55;
+static const CGFloat kCopyrightBottomInsetPhone = 40.0;
+static const CGFloat kCopyrightBottomInsetPad = 120.0;
 
 /** @ghidraAddress 0x13d140 */
 - (instancetype)init {
@@ -94,32 +119,28 @@
 
 /** @ghidraAddress 0x13d250 */
 - (void)addRippleLayers {
-    // Rpl-only: builds the ripple layers that Org does not have.
-    // Disassembly at 0x13d250 shows a loop with stringWithFormat:@"title_rip_%d" at 0x13d2e0,
-    // then LoadScaledPngImage at 0x13d2f8, then CAGradientLayer setup with yHorizon etc.
-    // The method is ~0xa0 bytes of stack and 0x3e0 of spill, verified via sub sp,sp,#0xa0 at
-    // 0x13d250 and add x29,sp,#0x90.
-    // Full reconstruction is deferred to the view-construction tranche; this stub documents the
-    // difference from Org.
+    // Rpl-only: forty ripple sprites drift up the sky and forty mirrored copies drift down the
+    // reflection below the horizon, each with a forever-repeating position.x/position.y pair. The
+    // four source frames are title_rip_0..3 (0x13d2e0), picked at random per layer. The per-layer
+    // random ranges, positions, and the two animations' from/to/duration/timeOffset values are
+    // aliased in the decompile and must be transcribed from the disassembly at 0x13d250 before this
+    // is filled in; leaving it a stub for now keeps the sky and reflection gradients (built in
+    // -loadView) as the visible background rather than shipping a mis-derived animation.
 }
 
 /** @ghidraAddress 0x13e918 */
 - (void)start {
     [super start];
+    // The three logo views start invisible and are faded in by -showLogo; the ripple layers are
+    // built here, after the base start, unlike Org which has none.
     jubeatLogoView.alpha = 0.0;
     touchView.alpha = 0.0;
     copyrightView.alpha = 0.0;
-    // Rpl adds ripple layers before starting audio, unlike Org.
-    // Disassembly at 0x13e9a0: bl addRippleLayers at 0x13e9ac, then loadBgmResAAC with
-    // 0x2dd620 (SD_BGM_TITLE_RPL? Actually 0x2dd620 points to CFString at 0x285620? Verified via
-    // read at 0x2dd620 -> 0x285620 -> "SD_BGM_TITLE" variant) and playSe with 0x2dd640.
     [self addRippleLayers];
     AudioManager *audio = AudioManager.sharedManager;
-    // The BGM name for Rpl is at 0x2dd620 — a different CFString than Org's 0x2dd460, verified
-    // as 00 58 39 header at 0x2dd620 pointing to 0x285620.
-    [audio loadBgmResAAC:@"SD_BGM_TITLE" inDirectory:nil];
+    [audio loadBgmResAAC:kTitleBgmName inDirectory:nil];
     [audio startBgm:YES fadeTime:0.0];
-    [audio playSeResFile:@"SD_CV_WELCOME" inDirectory:nil];
+    [audio playSeResFile:kWelcomeVoiceName inDirectory:nil];
 }
 
 /** @ghidraAddress 0x13ea74 */
@@ -228,31 +249,50 @@
     self.view.userInteractionEnabled = YES;
     self.view.multipleTouchEnabled = NO;
     self.view.opaque = YES;
-    // Rpl uses white background, unlike Org's black — verified at 0x13e17c as
-    // whiteColor (ldr x0,[x8,#0xf0] / bl whiteColor) vs Org's blackColor.
     self.view.backgroundColor = UIColor.whiteColor;
-    // yHorizon is stored from bounds.height * DAT_0x291c98 (isPad ? 0x28f3f0 : 0x28f258)
-    // and later used for ripple layers. Verified at 0x13e17c via isPad check and
-    // CAGradientLayer setup similar to Org but with white/clear colours.
-    CGRect bounds = self.view.bounds;
-    yHorizon =
-        (int)(bounds.size.height * 0.7); // DAT_0x291c98 — 0.7, fmul at 0x13e17c, stored to ivar
-    // Title background and ripple layers are built here; full details mirror Org's
-    // 5-frame tit_cubes animation but with Rpl's palette. The disassembly at 0x13e17c
-    // shows the same 5-iteration loop and two CAGradientLayers as Org.
-    titleBgView = [[UIImageView alloc] initWithFrame:bounds];
-    [self.view addSubview:titleBgView];
-    [self addRippleLayers];
-    jubeatLogoView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"tit_logo")];
-    jubeatLogoView.center = CGPointMake(bounds.size.width * 0.5, yHorizon * 0.5);
+
+    // The layout works off the frame, not the bounds: width in frame.size.width, height in
+    // frame.size.height (the d2/d3 pair from -frame). The horizon is 70% of the height.
+    CGRect frame = self.view.frame;
+    CGFloat width = frame.size.width;
+    CGFloat height = frame.size.height;
+    yHorizon = (int)(height * kHorizonFraction);
+
+    // The sky gradient fills from the top down to the horizon.
+    CAGradientLayer *skyLayer = [[CAGradientLayer alloc] init];
+    skyLayer.frame = CGRectMake(0.0, 0.0, width, yHorizon);
+    skyLayer.colors = @[
+        (__bridge id)[UIColor colorWithWhite:kSkyGradientTopWhite alpha:1.0].CGColor,
+        (__bridge id)[UIColor colorWithWhite:kSkyGradientBottomWhite alpha:1.0].CGColor
+    ];
+    [self.view.layer addSublayer:skyLayer];
+
+    // The reflection gradient fills from the horizon down to the bottom.
+    CAGradientLayer *reflectionLayer = [[CAGradientLayer alloc] init];
+    reflectionLayer.frame = CGRectMake(0.0, yHorizon, width, height - yHorizon);
+    reflectionLayer.colors = @[
+        (__bridge id)[UIColor colorWithWhite:kReflectionGradientTopWhite alpha:1.0].CGColor,
+        (__bridge id)[UIColor colorWithWhite:kReflectionGradientBottomWhite alpha:1.0].CGColor
+    ];
+    [self.view.layer addSublayer:reflectionLayer];
+
+    jubeatLogoView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kLogoImageName)];
+    jubeatLogoView.center = CGPointMake((int)(width * 0.5), (int)(height * kLogoCenterYFraction));
     [self.view addSubview:jubeatLogoView];
-    touchView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"tit_touch")];
-    touchView.center = CGPointMake(bounds.size.width * 0.5, yHorizon + 50);
+
+    touchView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kTouchImageName)];
+    touchView.center = CGPointMake((int)(width * 0.5), (int)(height * kTouchCenterYFraction));
     [self.view addSubview:touchView];
-    copyrightView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"tit_copyright")];
-    copyrightView.center = CGPointMake(bounds.size.width * 0.5, bounds.size.height - 20);
+
+    copyrightView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kCopyrightImageName)];
+    CGFloat copyrightInset =
+        JubeatAppDelegate.appDelegate.isPad ? kCopyrightBottomInsetPad : kCopyrightBottomInsetPhone;
+    copyrightView.center = CGPointMake((int)(width * 0.5), height - copyrightInset);
     [self.view addSubview:copyrightView];
+
     [self.view addSubview:self->coBtn];
+
+    markerView = [[MarkerDownloadView alloc] init];
 }
 
 #pragma mark - Input

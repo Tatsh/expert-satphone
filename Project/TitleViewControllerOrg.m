@@ -23,6 +23,30 @@
     EditorIDManager *idManager;            // offset global 0x34ae7c
 }
 
+// The title-screen resource names, from the __const CFStrings at 0x2dd420, 0x2dd440, 0x2d4820.
+static NSString *const kLogoImageName = @"j_logo";
+static NSString *const kTouchImageName = @"touch";
+static NSString *const kCopyrightImageName = @"copyright";
+// The cube background animation: five JPEG frames named tit_cubes00..04 (CFStrings 0x2dd3e0 for the
+// format, 0x2dd400 for the type), cycled over 0.35 s (pooled double 0x292ea0).
+static NSString *const kCubeImageNameFormat = @"tit_cubes%02d";
+static NSString *const kCubeImageType = @"jpg";
+static const int kCubeFrameCount = 5;
+static const NSTimeInterval kCubeAnimationDuration = 0.35;
+// The cube view is inset vertically by 80 points on pad, 50 on phone (the csel of 0x50/0x32).
+static const CGFloat kCubeInsetPad = 80.0;
+static const CGFloat kCubeInsetPhone = 50.0;
+// The top and bottom fade gradients are 100 points tall on pad, 60 on phone (pooled doubles
+// 0x28f3f0 and 0x28f258).
+static const CGFloat kGradientHeightPad = 100.0;
+static const CGFloat kGradientHeightPhone = 60.0;
+// The logo centres, as fractions of the view size (pooled doubles 0x291cb0 and 0x28f230), with the
+// copyright inset from the bottom (0x28f2c8 == 50 on pad, immediate 30 on phone).
+static const CGFloat kLogoCenterYFraction = 0.35;
+static const CGFloat kTouchCenterYFraction = 0.6;
+static const CGFloat kCopyrightBottomInsetPad = 50.0;
+static const CGFloat kCopyrightBottomInsetPhone = 30.0;
+
 /** @ghidraAddress 0x13abb8 */
 - (instancetype)init {
     self = [super init];
@@ -253,64 +277,61 @@
     self.view.opaque = YES;
     self.view.backgroundColor = UIColor.blackColor;
 
-    // Title background: an animating image view with 5 frames, padded differently on pad vs phone.
-    // Disassembly at 0x13ae34: bl isPad / csel w19,w9,w8,ne where w9=0x50 w8=0x32, then
-    // initWithFrame:0,iVar10,width,height-2*iVar10. The images are tit_cubes_%02d / jpg, 5 of them,
-    // setAnimationImages: at 0x13ac88 tail, setAnimationDuration:DAT_0x292ea0, startAnimating.
-    BOOL isPad = JubeatAppDelegate.appDelegate.isPad;
-    CGFloat pad = isPad ? 0x50 : 0x32; // 80 vs 50, from csel at 0x13ae54
+    // The title background is an image view spanning the view inset vertically by kCubeInset, with
+    // a five-frame cube animation and two black-to-clear gradients top and bottom. The layout works
+    // off the bounds (width in d2, height in d3 from -bounds).
     CGRect bounds = self.view.bounds;
+    CGFloat width = bounds.size.width;
+    CGFloat height = bounds.size.height;
+    CGFloat cubeInset = JubeatAppDelegate.appDelegate.isPad ? kCubeInsetPad : kCubeInsetPhone;
     titleBgView = [[UIImageView alloc]
-        initWithFrame:CGRectMake(0, pad, bounds.size.width, bounds.size.height - 2 * pad)];
-    titleBgView.contentMode = UIViewContentModeScaleAspectFit;
+        initWithFrame:CGRectMake(0.0, cubeInset, width, height - 2 * cubeInset)];
+    titleBgView.contentMode = UIViewContentModeScaleAspectFill;
     NSMutableArray *frames = [NSMutableArray array];
-    for (int i = 0; i < 5; ++i) {
-        NSString *name = [NSString stringWithFormat:@"tit_cubes_%02d", i];
-        NSString *path = [NSBundle.mainBundle pathForResource:name ofType:@"jpg"];
-        UIImage *img = [UIImage imageWithContentsOfFile:path];
-        [frames addObject:img];
+    for (int i = 0; i < kCubeFrameCount; ++i) {
+        NSString *name = [NSString stringWithFormat:kCubeImageNameFormat, i];
+        NSString *path = [NSBundle.mainBundle pathForResource:name ofType:kCubeImageType];
+        [frames addObject:[UIImage imageWithContentsOfFile:path]];
     }
     titleBgView.animationImages = frames;
-    titleBgView.animationDuration =
-        0.0; // DAT_0x292ea0 — 0.0? Actually 0x292ea0 is 1.0? Verified as ldr at 0x13ac88 tail
+    titleBgView.animationDuration = kCubeAnimationDuration;
     [titleBgView startAnimating];
-    // Two gradient layers are added to titleBgView.layer, one at y=0 height dVar13 (isPad ?
-    // 0x28f3f0 : 0x28f258) and one at y = dVar14 - dVar13, each with two CGColors (black/clear).
-    // Verified at 0x13ac88 tail: CAGradientLayer alloc/init, setFrame:0,0,width,dVar13, then
-    // colorWithWhite:0 alpha:0 and 1, setColors:, addSublayer:.
-    BOOL pad2 = JubeatAppDelegate.appDelegate.isPad;
-    CGFloat h1 = pad2 ? 80.0 : 30.0; // DAT_0x28f3f0 vs 0x28f258, fcsel at 0x13ac88
-    CAGradientLayer *grad1 = [CAGradientLayer layer];
-    grad1.frame = CGRectMake(0, 0, bounds.size.width, h1);
-    grad1.colors = @[
-        (id)[UIColor colorWithWhite:0 alpha:0].CGColor,
-        (id)[UIColor colorWithWhite:0 alpha:1].CGColor
+
+    // The top gradient fades black in over the first kGradientHeight points; the bottom one fades
+    // it back out over the last kGradientHeight, both fixed to the title view's own frame.
+    CGFloat gradientHeight =
+        JubeatAppDelegate.appDelegate.isPad ? kGradientHeightPad : kGradientHeightPhone;
+    CAGradientLayer *topGradient = [CAGradientLayer layer];
+    topGradient.frame = CGRectMake(0.0, 0.0, width, gradientHeight);
+    topGradient.colors = @[
+        (__bridge id)[UIColor colorWithWhite:0.0 alpha:0.0].CGColor,
+        (__bridge id)[UIColor colorWithWhite:0.0 alpha:1.0].CGColor
     ];
-    [titleBgView.layer addSublayer:grad1];
-    CAGradientLayer *grad2 = [CAGradientLayer layer];
-    grad2.frame = CGRectMake(0, bounds.size.height - h1, bounds.size.width, h1);
-    grad2.colors = @[
-        (id)[UIColor colorWithWhite:0 alpha:1].CGColor,
-        (id)[UIColor colorWithWhite:0 alpha:0].CGColor
+    [titleBgView.layer addSublayer:topGradient];
+    CAGradientLayer *bottomGradient = [CAGradientLayer layer];
+    bottomGradient.frame =
+        CGRectMake(0.0, titleBgView.frame.size.height - gradientHeight, width, gradientHeight);
+    bottomGradient.colors = @[
+        (__bridge id)[UIColor colorWithWhite:0.0 alpha:1.0].CGColor,
+        (__bridge id)[UIColor colorWithWhite:0.0 alpha:0.0].CGColor
     ];
-    [titleBgView.layer addSublayer:grad2];
+    [titleBgView.layer addSublayer:bottomGradient];
     [self.view addSubview:titleBgView];
 
-    // The three logo views, centred, from LoadScaledPngImage.
-    // Disassembly at 0x13ac88 tail: alloc/initWithImage: via LoadScaledPngImage at 0x2dd420,
-    // 0x2dd440, 0x2d4820, each setCenter: width*0.5, height*0.5 etc, then addSubview:.
-    jubeatLogoView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"tit_logo")];
-    jubeatLogoView.center =
-        CGPointMake(bounds.size.width * 0.5, bounds.size.height * 0.3); // DAT_0x291cb0
+    jubeatLogoView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kLogoImageName)];
+    jubeatLogoView.center = CGPointMake((int)(width * 0.5), (int)(height * kLogoCenterYFraction));
     [self.view addSubview:jubeatLogoView];
-    touchView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"tit_touch")];
-    touchView.center =
-        CGPointMake(bounds.size.width * 0.5, bounds.size.height * 0.7); // DAT_0x28f230
+
+    touchView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kTouchImageName)];
+    touchView.center = CGPointMake((int)(width * 0.5), (int)(height * kTouchCenterYFraction));
     [self.view addSubview:touchView];
-    copyrightView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"tit_copyright")];
-    copyrightView.center =
-        CGPointMake(bounds.size.width * 0.5, bounds.size.height - 30.0); // DAT_0x28f2c8 vs 30.0
+
+    copyrightView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kCopyrightImageName)];
+    CGFloat copyrightInset =
+        JubeatAppDelegate.appDelegate.isPad ? kCopyrightBottomInsetPad : kCopyrightBottomInsetPhone;
+    copyrightView.center = CGPointMake((int)(width * 0.5), height - copyrightInset);
     [self.view addSubview:copyrightView];
+
     [self.view addSubview:self->coBtn];
     markerView = [[MarkerDownloadView alloc] init];
 }
