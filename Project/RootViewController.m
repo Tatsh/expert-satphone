@@ -171,7 +171,7 @@ static inline void RootViewControllerCreateTitleViewControllerForTheme(RootViewC
         [self createKnitTitleViewController];
         return;
     }
-    if (theme == JubeatThemeReflecBeatPlus) {
+    if (theme == JubeatThemeRipples) {
         self->titleViewCtrl = [[TitleViewControllerRpl alloc] init];
         return;
     }

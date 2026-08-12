@@ -10,7 +10,7 @@
  * session regeneration, the advert-delegate fan-out (including the sound and movie relays), and the
  * device-hardware information collection reported to @c AnalysisNetworkCore.
  *
- * This is Konami's applilink SDK, the same one REFLEC BEAT plus embeds; the sibling
+ * This is Konami's applilink SDK; the sibling
  * @c ../rbplus-src tree reconstructs the same class from the other binary. This build diverges:
  * @c initializeWithAppliId:env:resume:callback: saves the device info before anything else,
  * @c resume also closes the video view through @c ApplilinkViewManager, @c clearInitialize also

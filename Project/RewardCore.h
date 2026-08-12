@@ -11,7 +11,7 @@
  * its Applilink delegate through @c ApplilinkCore. The public @c RewardNetwork facade forwards to
  * @c [RewardCore sharedInstance].
  *
- * This is Konami's applilink SDK, the same one REFLEC BEAT plus embeds; the sibling
+ * This is Konami's applilink SDK; the sibling
  * @c ../rbplus-src tree reconstructs the same class from the other binary. This build diverges:
  * @c clearInitialize also clears the reward authentication-session expiry, there is an extra
  * @c showVideoViewWithQuery: relay into @c ApplilinkViewManager, and

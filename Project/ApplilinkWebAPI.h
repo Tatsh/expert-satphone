@@ -13,7 +13,7 @@
  * newline-delimited body. The class carries a single retry counter as instance state; the remaining
  * behaviour is expressed through class methods that wrap a throwaway instance.
  *
- * This is Konami's applilink SDK, the same one REFLEC BEAT plus embeds; the sibling
+ * This is Konami's applilink SDK; the sibling
  * @c ../rbplus-src tree reconstructs the same class from the other binary. This build diverges: the
  * asynchronous completion handler runs a JSON null-scrub pass and persists the scrubbed body to
  * @c NSUserDefaults , the callbacks receive the sent request rather than the caller's user info,

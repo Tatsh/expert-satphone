@@ -84,7 +84,7 @@ static const NSTimeInterval kPauseInteractionDelay = 0.4; // @ghidraAddress 0x28
     NSString *endImageName;
     NSString *restartImageName;
     CGFloat pausedY;
-    if (theme == JubeatThemeReflecBeatPlus) {
+    if (theme == JubeatThemeRipples) {
         frameView.backgroundColor = [UIColor colorWithWhite:kPauseFrameBackgroundWhite alpha:1];
         frameView.layer.borderColor =
             [UIColor colorWithWhite:kPauseFrameBorderWhite alpha:1].CGColor;
@@ -185,7 +185,7 @@ static const NSTimeInterval kPauseInteractionDelay = 0.4; // @ghidraAddress 0x28
 /** @ghidraAddress 0x98044 */
 - (NSString *)soundName:(NSString *)token {
     JubeatTheme theme = JubeatAppDelegate.appDelegate.currentTheme;
-    if (theme == JubeatThemeReflecBeatPlus) {
+    if (theme == JubeatThemeRipples) {
         return [NSString stringWithFormat:@"SD_RPL_%@", token];
     }
     if (theme == JubeatThemeKnit) {

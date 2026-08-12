@@ -24,11 +24,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The three skins the game ships.
  *
- * The binary names none of these either, but the classes the transition dispatcher picks between at
- * 0x1a9604 do: theme 1 builds @c TitleViewControllerRpl and anything else builds
- * @c TitleViewControllerOrg, while theme 2 is routed through
- * @c -[RootViewController createKnitTitleViewController] before either test is reached. That fixes
- * all three names without guessing.
+ * The binary names all three. The theme picker's row pattern images are @c theme_classic ,
+ * @c theme_ripples , and @c theme_knit in this enumeration's order, and the latter two skins
+ * persist their colour choice under @c PrefColorRipples and @c PrefColorKnit . The classes the
+ * transition dispatcher picks between at 0x1a9604 agree: theme 1 builds @c TitleViewControllerRpl
+ * and anything else builds @c TitleViewControllerOrg, while theme 2 is routed through
+ * @c -[RootViewController createKnitTitleViewController] before either test is reached.
  *
  * @c -[KnitColorManager setColorWithType:] indexes its palette table with a value from the same
  * range, which is what ties the colour scheme to the skin.
@@ -36,8 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(unsigned int, JubeatTheme) {
     /** The game's own livery. Also the value written back when the stored one is missing. */
     JubeatThemeOriginal = 0,
-    /** The REFLEC BEAT plus livery. */
-    JubeatThemeReflecBeatPlus = 1,
+    /** The ripples livery. */
+    JubeatThemeRipples = 1,
     /** The knit livery, built by a dedicated factory rather than allocated inline. */
     JubeatThemeKnit = 2,
 };

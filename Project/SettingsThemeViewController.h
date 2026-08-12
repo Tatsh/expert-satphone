@@ -3,7 +3,7 @@
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsThemeViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It is a grouped
- * @c UITableViewController presenting the three shipped themes — Original, REFLEC BEAT plus, and
+ * @c UITableViewController presenting the three shipped themes — Original, Ripples, and
  * Knit — one per row in a single section. Each row shows its theme as a full-cell background
  * pattern image rather than a text label, and the currently-selected theme carries a checkmark. A
  * "Change Theme" bar-button item on the navigation bar commits the choice through

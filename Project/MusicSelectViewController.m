@@ -619,7 +619,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     // The card background is theme-specific: the reflec-beat and knit themes use a full-screen
     // background image (with Naga Cora and Hinabita variants for the reflec-beat theme), while the
     // classic theme uses a device-specific texture over black.
-    if (theme == JubeatThemeReflecBeatPlus) {
+    if (theme == JubeatThemeRipples) {
         [self.view setBackgroundColor:UIColor.whiteColor];
         bgImageView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(@"msel_bg_rpl")];
         if (JubeatAppDelegate.appDelegate.deviceType == JubeatDeviceTypePhoneRetina) {
@@ -729,7 +729,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     [markerSelectCover setHidden:YES];
 
     // The marker button, carrying the current banner image.
-    UIImage *markerImage = (theme == JubeatThemeReflecBeatPlus) ?
+    UIImage *markerImage = (theme == JubeatThemeRipples) ?
                                LoadScaledPngImage(@"menu_button_mar_rpl") :
                            (theme == JubeatThemeKnit) ? LoadScaledPngImage(@"menu_button_mar_knt") :
                                                         LoadScaledPngImage(@"menu_button_mar");
@@ -770,7 +770,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     [farOpenMusicView setHidden:YES];
 
     // The store button, bottom-right, with a rotated "new" badge.
-    UIImage *storeImage = (theme == JubeatThemeReflecBeatPlus) ?
+    UIImage *storeImage = (theme == JubeatThemeRipples) ?
                               LoadScaledPngImage(@"menu_button_sto_rpl") :
                           (theme == JubeatThemeKnit) ? LoadScaledPngImage(@"menu_button_sto_knt") :
                                                        LoadScaledPngImage(@"menu_button_sto");
@@ -792,9 +792,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
         forControlEvents:UIControlEventTouchCancel];
 
     UIImage *storeNewImage =
-        (theme == JubeatThemeReflecBeatPlus) ? LoadScaledPngImage(@"word_store_new_rpl") :
-        (theme == JubeatThemeKnit)           ? LoadScaledPngImage(@"word_store_new_knt") :
-                                               LoadScaledPngImage(@"word_store_new");
+        (theme == JubeatThemeRipples) ? LoadScaledPngImage(@"word_store_new_rpl") :
+        (theme == JubeatThemeKnit)    ? LoadScaledPngImage(@"word_store_new_knt") :
+                                        LoadScaledPngImage(@"word_store_new");
     imgStoreNew = [[UIImageView alloc] initWithImage:storeNewImage];
     [imgStoreNew setHidden:YES];
     double storeNewX = btnStore.frame.origin.x + (isPad ? -30.0 : -20.0);
@@ -813,9 +813,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
     // The music detail card, built from the theme-specific subclass and hidden until a tune opens.
     double detailArtwork = musicListView.artworkSize * (isPad ? 4.0 : 3.75);
-    Class detailClass = (theme == JubeatThemeReflecBeatPlus) ? [MusicDetailViewRpl class] :
-                        (theme == JubeatThemeKnit)           ? [MusicDetailViewKnt class] :
-                                                               [MusicDetailViewOrg class];
+    Class detailClass = (theme == JubeatThemeRipples) ? [MusicDetailViewRpl class] :
+                        (theme == JubeatThemeKnit)    ? [MusicDetailViewKnt class] :
+                                                        [MusicDetailViewOrg class];
     musicDetailView =
         [[detailClass alloc] initWithFrame:CGRectMake(0.0, 0.0, detailArtwork, detailArtwork)];
     [musicDetailView setHidden:NO];
@@ -872,9 +872,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
     // The challenge button, left of the store button, carrying the challenge "new" badge.
     UIImage *challengeImage =
-        (theme == JubeatThemeReflecBeatPlus) ? LoadScaledPngImage(@"menu_button_challenge_rpl") :
-        (theme == JubeatThemeKnit)           ? LoadScaledPngImage(@"menu_button_challenge_knt") :
-                                               LoadScaledPngImage(@"menu_button_challenge");
+        (theme == JubeatThemeRipples) ? LoadScaledPngImage(@"menu_button_challenge_rpl") :
+        (theme == JubeatThemeKnit)    ? LoadScaledPngImage(@"menu_button_challenge_knt") :
+                                        LoadScaledPngImage(@"menu_button_challenge");
     btnChallenge = [UIButton buttonWithType:UIButtonTypeCustom];
     [btnChallenge setBackgroundImage:challengeImage forState:UIControlStateNormal];
     double challengeX = (double)(int)(storeX - challengeImage.size.width);
@@ -948,7 +948,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     }
 
     // The join-session button, left of the challenge button.
-    UIImage *joinImage = (theme == JubeatThemeReflecBeatPlus) ?
+    UIImage *joinImage = (theme == JubeatThemeRipples) ?
                              LoadScaledPngImage(@"menu_button_join_rpl") :
                          (theme == JubeatThemeKnit) ? LoadScaledPngImage(@"menu_button_join_knt") :
                                                       LoadScaledPngImage(@"menu_button_join");
@@ -970,9 +970,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
     // The settings button, left of the join button.
     UIImage *settingsImage =
-        (theme == JubeatThemeReflecBeatPlus) ? LoadScaledPngImage(@"menu_button_set_rpl") :
-        (theme == JubeatThemeKnit)           ? LoadScaledPngImage(@"menu_button_set_knt") :
-                                               LoadScaledPngImage(@"menu_button_set");
+        (theme == JubeatThemeRipples) ? LoadScaledPngImage(@"menu_button_set_rpl") :
+        (theme == JubeatThemeKnit)    ? LoadScaledPngImage(@"menu_button_set_knt") :
+                                        LoadScaledPngImage(@"menu_button_set");
     btnSettings = [UIButton buttonWithType:UIButtonTypeCustom];
     [btnSettings setBackgroundImage:settingsImage forState:UIControlStateNormal];
     double settingsX = joinX - settingsImage.size.width;
@@ -2245,7 +2245,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 - (id)soundName:(id)suffix {
     // The sound-effect name carries the current theme's prefix.
     switch (JubeatAppDelegate.appDelegate.currentTheme) {
-    case JubeatThemeReflecBeatPlus:
+    case JubeatThemeRipples:
         return [NSString stringWithFormat:@"SD_RPL_%@", suffix];
     case JubeatThemeKnit:
         return [NSString stringWithFormat:@"SD_KNT_%@", suffix];

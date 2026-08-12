@@ -6,7 +6,7 @@
  * @c UITableViewController presenting the four background-colour choices — one per row in a single
  * section — as text labels over a full-cell background pattern image, with the currently-selected
  * colour carrying a checkmark. The colour names, the persisted user-defaults key, and the pattern
- * image names all vary by the theme in effect: the REFLEC BEAT plus theme uses the "ripples" set
+ * image names all vary by the theme in effect: the ripples theme uses the "ripples" set
  * and the @c PrefColorRipples key, while the Knit theme uses the "knit" set and the
  * @c PrefColorKnit key. The Original theme shows the rows without labels or backgrounds. Selecting
  * a row persists the choice under the theme's key.
@@ -23,8 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SettingsBgViewController : UITableViewController
 
 /**
- * @brief Maps a background-colour index to its display name in the REFLEC BEAT plus (ripples)
- *        theme.
+ * @brief Maps a background-colour index to its display name in the ripples theme.
  * @param index The colour index (0 green, 1 blue, 2 lemon, 3 dark); any other value yields the
  *        empty string.
  * @return The colour name, or the empty string when @p index is out of range.

@@ -377,7 +377,7 @@ static NSString *const kSoundKntSlow = @"SD_KNT_CV_SLOW";
 
             NSArray<NSString *> *themeSounds;
             JubeatTheme theme = [JubeatAppDelegate appDelegate].currentTheme;
-            if (theme == JubeatThemeReflecBeatPlus) {
+            if (theme == JubeatThemeRipples) {
                 themeSounds = self.soundNames[1];
             } else if (theme == JubeatThemeKnit) {
                 themeSounds = self.soundNames[2];

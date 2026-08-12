@@ -55,7 +55,7 @@ static const CGFloat kLoadingOverlayLabelOffsetY = 20.0;
     self.backgroundColor = UIColor.clearColor;
     JubeatTheme theme = JubeatAppDelegate.appDelegate.currentTheme;
     UIImage *bgImage = nil;
-    if (theme == JubeatThemeReflecBeatPlus) {
+    if (theme == JubeatThemeRipples) {
         bgImage = LoadScaledPngImage(@"marker_sel_back_rpl");
     } else if (theme == JubeatThemeKnit) {
         bgImage = LoadScaledPngImage(@"marker_sel_back_knt");
@@ -192,7 +192,7 @@ static const CGFloat kLoadingOverlayLabelOffsetY = 20.0;
 /** @ghidraAddress 0x99d30 */
 - (NSString *)soundName:(NSString *)name {
     JubeatTheme theme = JubeatAppDelegate.appDelegate.currentTheme;
-    if (theme == JubeatThemeReflecBeatPlus) {
+    if (theme == JubeatThemeRipples) {
         return [NSString stringWithFormat:@"SD_RPL_%@", name];
     }
     if (theme == JubeatThemeKnit) {

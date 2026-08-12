@@ -327,7 +327,7 @@ static const double kAnimDuration020Alt = 0.2; // @ghidraAddress 0x28e040
 - (NSString *)soundName:(NSString *)name {
     // The sound-effect resource name is prefixed per current theme.
     switch (JubeatAppDelegate.appDelegate.currentTheme) {
-    case JubeatThemeReflecBeatPlus:
+    case JubeatThemeRipples:
         return [NSString stringWithFormat:@"SD_RPL_%@", name];
     case JubeatThemeKnit:
         return [NSString stringWithFormat:@"SD_KNT_%@", name];

@@ -1,5 +1,5 @@
 /** @file
- * The title screen, REFLEC BEAT plus theme.
+ * The title screen, ripples (Rpl) theme.
  *
  * Reconstructed from Ghidra program Jubeat (class TitleViewControllerRpl, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -20,7 +20,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The title screen in REFLEC BEAT plus livery.
+ * @brief The title screen in the ripples livery.
  */
 @interface TitleViewControllerRpl
     : TitleViewController <EditorIDManagerDelegate, MarkerDownloadViewDelegate>

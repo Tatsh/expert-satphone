@@ -14,7 +14,7 @@ static NSString *const kChangeThemeKey = @"Change Theme";
 static NSString *const kCellIdentifier = @"SettingsThemeTableCell";
 
 // The pattern-image base names for the three theme rows, indexed by row (which equals the
-// JubeatTheme value): row 0 Original, row 1 REFLEC BEAT plus, row 2 Knit.
+// JubeatTheme value): row 0 Original, row 1 Ripples, row 2 Knit.
 static NSString *const kThemeClassicImageName = @"theme_classic";
 static NSString *const kThemeRipplesImageName = @"theme_ripples";
 static NSString *const kThemeKnitImageName = @"theme_knit";
@@ -115,7 +115,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
     // Give the row a full-cell background patterned with its theme's preview image.
     NSString *imageName;
     switch (indexPath.row) {
-    case JubeatThemeReflecBeatPlus:
+    case JubeatThemeRipples:
         imageName = kThemeRipplesImageName;
         break;
     case JubeatThemeKnit:

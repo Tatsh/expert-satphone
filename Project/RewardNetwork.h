@@ -5,7 +5,7 @@
  *
  * Reconstructed from Ghidra program Jubeat (class RewardNetwork, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x3522f8.
- * This is Konami's applilink SDK, the same one REFLEC BEAT plus embeds.
+ * This is Konami's applilink SDK.
  */
 
 #import <UIKit/UIKit.h>

@@ -4,7 +4,7 @@
  * Reconstructed from Ghidra program Jubeat (class ApplilinkConsts, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x351da8.
  *
- * This is Konami's applilink SDK, the same one REFLEC BEAT plus embeds; its reconstruction exists
+ * This is Konami's applilink SDK; its reconstruction exists
  * in the sibling @c ../rbplus-src tree. The class holds no instance state: its mutable state lives
  * in file-scope statics and @c NSUserDefaults , with the persisted user id, application-install
  * list, and template list encrypted through @c Crypto .

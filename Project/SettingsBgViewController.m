@@ -7,7 +7,7 @@
 static NSString *const kTitle = @"BG COLOR";
 
 // The user-defaults keys under which the picked colour index is persisted, one per theme: the
-// REFLEC BEAT plus (ripples) theme uses the first, the Knit theme the second.
+// ripples theme uses the first, the Knit theme the second.
 static NSString *const kColorRipplesKey = @"PrefColorRipples";
 static NSString *const kColorKnitKey = @"PrefColorKnit";
 
@@ -135,7 +135,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
     // The row's label text is the colour name for the theme in effect. The Original theme leaves
     // the label untouched, showing the row with no name.
     JubeatTheme theme = [JubeatAppDelegate appDelegate].currentTheme;
-    if (theme == JubeatThemeReflecBeatPlus) {
+    if (theme == JubeatThemeRipples) {
         cell.textLabel.text = [SettingsBgViewController ripplesColorName:(NSUInteger)indexPath.row];
     } else if (theme == JubeatThemeKnit) {
         cell.textLabel.text = [SettingsBgViewController knitColorName:(NSUInteger)indexPath.row];
@@ -163,7 +163,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
     NSString *imageName;
     if (theme == JubeatThemeKnit) {
         imageName = [NSString stringWithFormat:kKnitImageNameFormat, (int)indexPath.row];
-    } else if (theme == JubeatThemeReflecBeatPlus) {
+    } else if (theme == JubeatThemeRipples) {
         imageName = [NSString stringWithFormat:kRipplesImageNameFormat, (int)indexPath.row];
     } else {
         return;
@@ -196,7 +196,7 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
         JubeatTheme theme = [JubeatAppDelegate appDelegate].currentTheme;
         if (theme == JubeatThemeKnit) {
             [[NSUserDefaults standardUserDefaults] setInteger:selectedIndex forKey:kColorKnitKey];
-        } else if (theme == JubeatThemeReflecBeatPlus) {
+        } else if (theme == JubeatThemeRipples) {
             [[NSUserDefaults standardUserDefaults] setInteger:selectedIndex
                                                        forKey:kColorRipplesKey];
         }

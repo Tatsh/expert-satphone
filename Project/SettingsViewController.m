@@ -329,7 +329,7 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
         cell.textLabel.text = [NSBundle.mainBundle localizedStringForKey:@"Theme"
                                                                    value:@""
                                                                    table:nil];
-        if (theme == JubeatThemeReflecBeatPlus) {
+        if (theme == JubeatThemeRipples) {
             cell.detailTextLabel.text = @"ripples";
         } else if (theme == JubeatThemeKnit) {
             cell.detailTextLabel.text = @"knit";
@@ -347,7 +347,7 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
             NSInteger index =
                 [NSUserDefaults.standardUserDefaults integerForKey:kSettingsColorKnitKey];
             cell.detailTextLabel.text = [SettingsBgViewController knitColorName:index];
-        } else if (theme == JubeatThemeReflecBeatPlus) {
+        } else if (theme == JubeatThemeRipples) {
             NSInteger index =
                 [NSUserDefaults.standardUserDefaults integerForKey:kSettingsColorRipplesKey];
             cell.detailTextLabel.text = [SettingsBgViewController ripplesColorName:index];

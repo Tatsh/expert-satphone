@@ -38,7 +38,7 @@ UIImage *GetRankImageForPoint(int nPoints) {
     }
     NSString *name = kRankImageNames[rank];
 
-    if (JubeatAppDelegate.appDelegate.currentTheme == JubeatThemeReflecBeatPlus) {
+    if (JubeatAppDelegate.appDelegate.currentTheme == JubeatThemeRipples) {
         name = [name stringByAppendingString:kRipplesThemeSuffix];
     } else if (JubeatAppDelegate.appDelegate.currentTheme == JubeatThemeKnit) {
         // The binary re-sends both appDelegate and currentTheme here rather than reusing the first

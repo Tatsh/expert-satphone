@@ -526,7 +526,7 @@ static const int kPhoneTopOffset = -10;
  */
 - (NSString *)soundName:(NSString *)name {
     JubeatTheme theme = JubeatAppDelegate.appDelegate.currentTheme;
-    if (theme == JubeatThemeReflecBeatPlus) {
+    if (theme == JubeatThemeRipples) {
         return [NSString stringWithFormat:kSoundNameReflecFormat, name];
     }
     if (theme == JubeatThemeKnit) {

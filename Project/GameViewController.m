@@ -43,7 +43,7 @@
 #import "jubeatLabAccess.h"
 #import "packed_bit_table.h"
 
-// The current-theme values read from JubeatAppDelegate: 1 is REFLEC BEAT (Rpl), 2 is Konami (Knt),
+// The current-theme values read from JubeatAppDelegate: 1 is ripples (Rpl), 2 is Konami (Knt),
 // and 0 (the default) is the standard theme.
 enum {
     kGameThemeDefault = 0, // The standard theme.

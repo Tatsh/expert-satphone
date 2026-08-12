@@ -13,7 +13,7 @@
  * Reconstructed from Ghidra program Jubeat (class @c RecommendAdCache, image base
  * @c 0x100000000). All @ghidraAddress values are offsets relative to that image base.
  *
- * This is Konami's applilink SDK, the same one REFLEC BEAT plus embeds; the sibling
+ * This is Konami's applilink SDK; the sibling
  * @c ../rbplus-src tree reconstructs an older build of the same class. This build diverges: the
  * HTML builder gained an @c impressionId parameter and a nine-part fill selector taking a self
  * list and a common-resource payload, and the movie-player and movie-query surfaces are new.

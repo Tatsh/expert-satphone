@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The per-theme hit-sound names, indexed by @c JubeatTheme .
  *
- * A three-element array (original, REFLEC BEAT plus, knit), each element a four-element array of
+ * A three-element array (original, ripples, knit), each element a four-element array of
  * sound names ordered perfect, good, fast, slow.
  * @ghidraAddress 0x817b0 (getter), 0x817c0 (setter)
  */

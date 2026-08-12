@@ -110,7 +110,7 @@ static inline void MusicViewBuildRankStacks(MusicView *self, int colType, double
     // for the knit theme, and nothing for the original theme.
     NSString *suffix;
     switch (JubeatAppDelegate.appDelegate.currentTheme) {
-    case JubeatThemeReflecBeatPlus:
+    case JubeatThemeRipples:
         suffix = @"_rpl";
         break;
     case JubeatThemeKnit:
@@ -437,7 +437,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
         UIColor *borderColor;
         UIColor *textColor;
         switch (JubeatAppDelegate.appDelegate.currentTheme) {
-        case JubeatThemeReflecBeatPlus:
+        case JubeatThemeRipples:
             // The original used colorWithRed:0 green:0.72 blue:0.63 alpha:1.
             borderColor = [UIColor colorWithRed:0.0
                                           green:0.7200000286102295
@@ -460,7 +460,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
         MusicViewBuildLabels(self, scale, artwork_size, colType, labelWidth, textColor);
 
         // The theme is re-read here for effect only; the result is discarded.
-        if (JubeatAppDelegate.appDelegate.currentTheme != JubeatThemeReflecBeatPlus) {
+        if (JubeatAppDelegate.appDelegate.currentTheme != JubeatThemeRipples) {
             (void)JubeatAppDelegate.appDelegate.currentTheme; // Yes, the binary discards this.
         }
 
@@ -520,7 +520,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
                                 blue:0.8352941274642944
                                alpha:1.0];
     }
-    if (theme == JubeatThemeReflecBeatPlus) {
+    if (theme == JubeatThemeRipples) {
         return UIColor.blackColor;
     }
     if (theme == JubeatThemeKnit) {
@@ -839,7 +839,7 @@ static inline void MusicViewBuildLabels(MusicView *self,
     // Rank-word background/full-combo image basenames vary by theme.
     NSString *basicName;
     const JubeatTheme theme = JubeatAppDelegate.appDelegate.currentTheme;
-    if (theme == JubeatThemeReflecBeatPlus) {
+    if (theme == JubeatThemeRipples) {
         basicName = @"rank_basic_rpl";
     } else if (JubeatAppDelegate.appDelegate.currentTheme == JubeatThemeKnit) {
         basicName = @"rank_basic_knt";
