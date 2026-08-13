@@ -55,7 +55,6 @@
 #import "TuneInfo.h"
 #import "cipher_keys.h"
 #import "neDebugLog.h"
-#import "neUIProbe.h"
 
 static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 
@@ -3236,7 +3235,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
 /** @ghidraAddress 0x2d030 */
 - (void)tapSettings:(id)sender {
-    if (NE_DBG_EVERY) {
+    if (NE_DBG_FIRST(4)) {
         CGRect settingsRect = btnSettings.frame;
         neDebugLog("tapSettings: fired, btnSettings frame %.1f,%.1f %.1fx%.1f, navCtrl %s",
                    settingsRect.origin.x,
@@ -3244,9 +3243,6 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                    settingsRect.size.width,
                    settingsRect.size.height,
                    settingsNavCtrl ? "present" : "nil");
-        neUIProbeLogController("tapSettings self", self);
-        neUIProbeLogController("tapSettings sheet", settingsNavCtrl);
-        neUIProbeLogWindowTree("tapSettings");
     }
 #ifdef ENABLE_PATCHES
     // Preservation patch, not in the binary. The binary latches its state unconditionally after the
@@ -3296,7 +3292,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 #else
     [self presentViewController:settingsNavCtrl animated:YES completion:nil];
 #endif
-    if (NE_DBG_EVERY) {
+    if (NE_DBG_FIRST(4)) {
         neDebugLog("tapSettings: presented, presentedViewController %s, window %s",
                    self.presentedViewController ? "set" : "nil",
                    self.view.window ? "attached" : "detached");
@@ -3309,27 +3305,11 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
 /** @ghidraAddress 0x2d160 */
 - (void)settingsNavViewClose:(id)sender {
-    if (NE_DBG_EVERY) {
-        neUIProbeLogController("settingsNavViewClose self", self);
-        neUIProbeLogController("settingsNavViewClose sheet", settingsNavCtrl);
-    }
     [[AudioManager sharedManager] playSeResFile:[self soundName:@"MUSIC_LEFT"] inDirectory:nil];
-#if JBDBG
-    // The binary's completion block is empty (0x2d25c). Under JBDBG it reports that the dismissal
-    // finished at all: a present issued before this runs is the one modern UIKit swallows, so the
-    // ordering of this line against the next tapSettings: line is the finding.
-    [self dismissViewControllerAnimated:YES
-                             completion:^{
-                               neDebugLog("settingsNavViewClose: dismissal complete, presented %s",
-                                          self.presentedViewController ? "still set" : "nil");
-                               neUIProbeLogWindowTree("after dismiss");
-                             }];
-#else
     [self dismissViewControllerAnimated:YES
                              completion:^{
                                  /** @ghidraAddress 0x2d25c */
                              }];
-#endif
     bOpenModal = NO;
     bOpenSetting = NO;
     [self musicShuffleEnable];

@@ -215,24 +215,34 @@ is latent in the original for anything else that recycles a cell. The patch clea
 
 ### Settings sheet interactive dismissal
 
-**File:** `Project/SettingsNavController.m` — `-init` (0xe43ac)
+**Files:** `Project/SettingsNavController.m` — `-init` (0xe43ac), `-viewWillAppear:` (0xe4a20), and
+a `-presentationControllerDidDismiss:` that is not in the binary at all.
 
 _Modern iOS._ The sheet's `modalPresentationStyle` is `UIModalPresentationFormSheet` (`mov w2,#0x2`
 at 0xe4408), which was not interactively dismissible when the game shipped, so the binary can assume
-the Close item is the only way out. Since iOS 13 the sheet can be swiped away, which bypasses
-`-pushClose:` (0xe4844) entirely and so never reaches the only code path that clears the song-select
-screen's modal state. The patch sets `modalInPresentation` under an `@available(iOS 13.0, *)` check,
-refusing the interactive dismissal and restoring the original behaviour rather than inventing new
-behaviour.
+the Close item is the only way out. Since iOS 13 a sheet can be dismissed by a swipe or by a tap
+outside it, and neither reaches `-pushClose:` (0xe4844), so neither reaches the only code path that
+clears the song-select screen's modal state.
 
-This is the one settings patch that is itself a reported defect: refusing interactive dismissal is
-also what stops a tap outside the sheet from dismissing it, which the shipped binary running on the
-same device does. The concern it addresses is real, but the binary shows the right shape for it
-elsewhere — it implements `-popoverPresentationControllerDidDismissPopover:` (0x27634) precisely to
-clean up after a dismissal the system initiated. The equivalent for a sheet is
-`-presentationControllerDidDismiss:`, routed to the same `-settingsNavViewClose:` the Close button
-reaches, which keeps the tap-outside dismissal and still clears `bOpenSetting`. Replacing this
-patch with that one is the recommended change.
+This patch first set `modalInPresentation`, refusing the dismissal outright. That kept the state
+consistent but took away a way out of the screen that the shipped binary running on the same system
+has, so it traded one defect for another — and "tapping outside does not dismiss Settings" was
+reported as a bug in its own right.
+
+The binary shows the shape of the real answer elsewhere: it implements
+`-popoverPresentationControllerDidDismissPopover:` (0x27634) precisely to clean up after a dismissal
+the system initiated. This is that, for a sheet. The controller makes itself its own
+`UIAdaptivePresentationControllerDelegate` and, when UIKit reports the dismissal, calls the same
+`-pushClose:` the Close button calls, so `bOpenSetting` is cleared and the select screen's shuffle
+and swipe recognisers come back exactly as they do on the Close path. The two paths cannot double
+up, because UIKit sends `-presentationControllerDidDismiss:` only for a user-initiated dismissal
+and never for a programmatic one. The `-dismissViewControllerAnimated:` inside
+`-settingsNavViewClose:` is a no-op by then, since the sheet is already gone; everything after it is
+the point.
+
+The delegate is assigned in both `-init` and `-viewWillAppear:`. `-init` reaches the presentation
+controller before there is a presentation, where UIKit is entitled to return nil and the assignment
+would be a silent no-op; the second assignment is the one that is guaranteed to take.
 
 ### Timing-adjust display link
 

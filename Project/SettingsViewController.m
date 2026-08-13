@@ -1,7 +1,5 @@
 #import "SettingsViewController.h"
 
-#import <objc/runtime.h>
-
 #import <UIKit/UIKit.h>
 
 #import "AlertViewManager.h"
@@ -24,8 +22,6 @@
 #import "StoreUtil.h"
 #import "TermsViewController.h"
 #import "cipher_keys.h"
-#import "neDebugLog.h"
-#import "neUIProbe.h"
 
 // The row-type numbers stored in menuTable. menuTable groups these into sections; menuTypeTable
 // stores, per type, the UITableViewCellStyle its cell is built with. The separator types are never
@@ -252,16 +248,6 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
 /** @ghidraAddress 0xe74a0 */
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    if (NE_DBG_EVERY) {
-        // This method runs on the first presentation, on every pop back from a child, and on every
-        // re-presentation, so its log line is the common point of all three reported failures.
-        neDebugLog("settings willAppear: animated %d window %d selected %s",
-                   (int)animated,
-                   (int)(self.tableView.window != nil),
-                   self.tableView.indexPathForSelectedRow ? "yes" : "no");
-        neUIProbeLogController("settings willAppear", self);
-        neUIProbeTraceTransition("settings appear", self);
-    }
     NSIndexPath *selected = self.tableView.indexPathForSelectedRow;
     if (selected) {
         [self.tableView deselectRowAtIndexPath:selected animated:animated];
@@ -291,55 +277,21 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
         [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithArray:toReload]
                               withRowAnimation:UITableViewRowAnimationNone];
     }
-    if (NE_DBG_EVERY) {
-        // Paired with the entry line above. Without it a capture cannot say whether the hang is
-        // inside this method -- in the reload or the deselect -- or after it has returned, because
-        // the navigation delegate's willShow can be called from within this call stack.
-        neDebugLog("settings willAppear: done, reloaded %lu", (unsigned long)toReload.count);
-    }
 }
-
-#if JBDBG
-// Not in the binary. A hang that never returns to the run loop is either a deadlock or a spin, and
-// a spin inside UIKit's layout pass is the most likely kind here. Counting layout passes separates
-// them without a stack: a runaway layout drives this count up in bursts of hundreds, while a
-// deadlock leaves it frozen at whatever it reached. Logging one line per kLayoutLogInterval keeps
-// a genuine storm legible instead of drowning the capture in it.
-- (void)viewWillLayoutSubviews {
-    [super viewWillLayoutSubviews];
-    static const unsigned int kLayoutLogInterval = 200;
-    static unsigned int layoutPasses = 0;
-    if ((++layoutPasses % kLayoutLogInterval) == 0) {
-        neDebugLog("settings layout: pass %u", layoutPasses);
-    }
-}
-#endif
 
 /** @ghidraAddress 0xe7900 */
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if (NE_DBG_EVERY) {
-        neDebugLog("settings didAppear: animated %d window %d",
-                   (int)animated,
-                   (int)(self.tableView.window != nil));
-        neUIProbeLogController("settings didAppear", self);
-    }
 }
 
 /** @ghidraAddress 0xe7938 */
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    if (NE_DBG_EVERY) {
-        neUIProbeLogController("settings willDisappear", self);
-    }
 }
 
 /** @ghidraAddress 0xe7970 */
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    if (NE_DBG_EVERY) {
-        neUIProbeLogController("settings didDisappear", self);
-    }
 }
 
 /** @ghidraAddress 0xe7230 */
@@ -362,11 +314,6 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
 
 /** @ghidraAddress 0xe6718 */
 - (void)settingClose {
-    if (NE_DBG_EVERY) {
-        neDebugLog("settings settingClose: depth %lu window %d",
-                   (unsigned long)self.navigationController.viewControllers.count,
-                   (int)(self.tableView.window != nil));
-    }
     [AlertViewManager.sharedManager closeAlert];
     [self.navigationController popToRootViewControllerAnimated:NO];
 }
@@ -393,17 +340,6 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:style reuseIdentifier:reuseIdentifier];
-    }
-    if (NE_DBG_EVERY && type != SettingsMenuTypeShowCombos && cell.accessoryView != nil) {
-        // A recycled cell arriving with an accessory view already attached is the whole fault in
-        // one line: the only accessory view this table ever sets is the single shared switchCombo,
-        // so two cells now own it and each will re-parent it away from the other for ever.
-        neDebugLog("settings cell: type %d dequeued carrying accessoryView %s owned by %s",
-                   type,
-                   object_getClassName(cell.accessoryView),
-                   cell.accessoryView.superview ?
-                       object_getClassName(cell.accessoryView.superview) :
-                       "nobody");
     }
 #ifdef ENABLE_PATCHES
     // Preservation patch, not in the binary. Only one row ever sets an accessory view, and it sets
@@ -560,13 +496,6 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
 /** @ghidraAddress 0xe67a0 */
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     int type = menuTable[indexPath.section][indexPath.row].intValue;
-    if (NE_DBG_EVERY) {
-        neDebugLog("settings didSelectRow: type %d section %ld row %ld depth %lu",
-                   type,
-                   (long)indexPath.section,
-                   (long)indexPath.row,
-                   (unsigned long)self.navigationController.viewControllers.count);
-    }
     switch (type) {
     case SettingsMenuTypeTheme:
         if (self.navigationController) {
