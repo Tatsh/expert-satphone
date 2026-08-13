@@ -786,23 +786,13 @@ static const int kDefaultTheme = 0;
 
     mainWindow = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
     mainWindow.autoresizesSubviews = NO;
-#ifdef ENABLE_PATCHES
-    // Preservation patch, not in the binary. The window is told not to autoresize its subviews,
-    // which was harmless in 2011 when the app owned every subview it had. Modern UIKit adds its
-    // own containers here for modal presentations, and a container that is never resized to the
-    // window cannot show its contents. Tapping SETTINGS presents successfully but draws nothing,
-    // and switching that sheet to full screen changed nothing, which points at the container
-    // rather than the presentation style.
-    mainWindow.autoresizesSubviews = YES;
-#endif
     mainWindow.opaque = YES;
     mainWindow.backgroundColor = UIColor.blackColor;
 #ifdef ENABLE_PATCHES
     // Preservation patch, not in the binary: this build predates iOS 13, so every colour it picks
     // assumes the light appearance. Under the dark appearance the system-drawn surfaces invert
-    // while the app's own artwork does not, which leaves the modally presented settings sheet
-    // drawn dark-on-dark and effectively invisible while still swallowing touches. Pinning the
-    // window covers every view controller presented from it, including that sheet.
+    // while the app's own artwork does not. Pinning the window covers every view controller
+    // presented from it.
     if (@available(iOS 13.0, *)) {
         mainWindow.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
     }
