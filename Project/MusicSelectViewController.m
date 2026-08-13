@@ -837,6 +837,16 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
     // The background (still or scrolling), then the list and marker button.
     if (bgImageView != nil) {
+#ifdef ENABLE_PATCHES
+        // Preservation patch, not in the binary. Every iPad background this build ships is
+        // 768x1024, the only iPad size that existed when it was written, and on iPad the image
+        // view is left at that natural size. On a larger screen it therefore stops short of the
+        // bottom and right edges and leaves the bare view showing. Stretch it over the bounds
+        // instead, cropping rather than distorting.
+        bgImageView.frame = self.view.bounds;
+        bgImageView.contentMode = UIViewContentModeScaleAspectFill;
+        bgImageView.clipsToBounds = YES;
+#endif
         [self.view addSubview:bgImageView];
     } else if (scrollBg != nil) {
         [self.view addSubview:scrollBg];
