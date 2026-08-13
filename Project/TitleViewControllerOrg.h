@@ -197,19 +197,23 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)agreementFailed:(id)agreement;
 
 /**
- * @brief Handles an ID download error.
+ * @brief @c EditorIDManagerDelegate : the editor-ID download failed; shows the network-error alert.
+ *
+ * Both parameters are @c nullable to match the protocol's own declaration, which the surrounding
+ * @c NS_ASSUME_NONNULL_BEGIN would otherwise contradict.
  * @param download The download.
- * @param msgStr The error message.
+ * @param msgStr The error message, or @c nil for the default network-error string.
  * @ghidraAddress 0x13ce04
  */
-- (void)errorIDDownload:(id)download msgStr:(NSString *)msgStr;
+- (void)errorIDDownload:(nullable id)download msgStr:(nullable NSString *)msgStr;
 
 /**
- * @brief Handles a successful ID download.
+ * @brief @c EditorIDManagerDelegate : the editor-ID download succeeded; registers the user id and
+ * shows the challenge policy.
  * @param download The download.
  * @ghidraAddress 0x13cfac
  */
-- (void)successIDDownload:(id)download;
+- (void)successIDDownload:(nullable id)download;
 
 @end
 
