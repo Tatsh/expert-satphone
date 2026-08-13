@@ -19,6 +19,7 @@
 #import "ScoreRecordManager.h"
 #import "StoreMusicListManager.h"
 #import "TweetResourceManager.h"
+#import "neDebugLog.h"
 
 // The window the delegate builds at launch. It has no accessor pair in either accessor block, and
 // its ivar offset global at 0x349660 is named without the leading underscore the synthesised ones
@@ -654,6 +655,18 @@ static const int kDefaultTheme = 0;
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Result discarded. arc4random seeds itself on first use, so this buys nothing.
     arc4random();
+
+    if (NE_DBG_EVERY) {
+        // The per-install identifier -musicListKey (0x8814) keeps in the keychain under
+        // "ApplicationUniqueID". Every store and music-list request is signed with a hash of it
+        // (+clientInfo salts it with "STORE" and takes the MD5), so a capture that does not name it
+        // cannot be tied to a server-side record, and a device that has been reinstalled cannot be
+        // told from one that has not.
+        NSString *musicListKey = self.musicListKey;
+        neDebugLog("launch: build %s, musicListKey %s",
+                   JBDBG_BUILD_SHA,
+                   musicListKey ? musicListKey.UTF8String : "nil");
+    }
 
     if (launchOptions != nil) {
         NSDictionary *remoteNotification =
