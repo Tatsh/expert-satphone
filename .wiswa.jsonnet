@@ -21,7 +21,7 @@
     '/Project/.audit/',
     '/build/',
     '/logs/',
-    '/screenshots/',
+    '/screenshots*/',
     '/theos/.theos/',
     '/theos/obj/',
     '/theos/packages/',
