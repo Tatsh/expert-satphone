@@ -9,7 +9,6 @@ allranking
 analyzer
 analyzer's
 angjp
-Ångström
 anim
 apiurl
 appl
@@ -170,6 +169,7 @@ fread
 frinta
 fseek
 fstandalone
+fsub
 ftell
 ftrivial
 fukuda
@@ -243,9 +243,9 @@ jinja
 jsonnet
 jsonschema
 jubeat
+jubeat's
 jubeatmissiondata
 jubeatplus
-jubeat's
 jubeatskmpledata
 kabasawa
 katsuyoshi
@@ -596,3 +596,4 @@ zread
 zseek
 ztell
 zwrite
+Ångström

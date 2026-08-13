@@ -356,15 +356,16 @@ static const CGFloat kLoadingOverlayLabelOffsetY = 20.0;
     CGPoint offset = self.bannerScrollView.contentOffset;
     double window = (double)count * banner_span;
     // Wrap the offset back into the middle tile: if it drifts above the top copy, add one window;
-    // if past the bottom copy, subtract one window.
+    // if past the bottom copy, subtract one window. These are two independent sequential tests,
+    // not an if/else -- 0x9ae34 fcmp/b.pl guards only the fadd at 0x9ae3c, and 0x9ae80 fcmp/b.lt
+    // independently guards the fsub at 0x9ae88. Together they clamp y into [window, 2 * window).
     double y = offset.y;
-    if (y <= window) {
-        if (window + window <= y) {
-            y -= window;
-            [self.bannerScrollView setContentOffset:CGPointMake(offset.x, y)];
-        }
-    } else {
+    if (y < window) {
         y += window;
+        [self.bannerScrollView setContentOffset:CGPointMake(offset.x, y)];
+    }
+    if (window + window <= y) {
+        y -= window;
         [self.bannerScrollView setContentOffset:CGPointMake(offset.x, y)];
     }
 
