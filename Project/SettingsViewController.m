@@ -1,5 +1,7 @@
 #import "SettingsViewController.h"
 
+#import <objc/runtime.h>
+
 #import <UIKit/UIKit.h>
 
 #import "AlertViewManager.h"
@@ -278,37 +280,16 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
         [toReload addObject:ratingPath];
     }
     if (toReload.count != 0) {
-#ifdef ENABLE_PATCHES
-        // Preservation patch, not in the binary. The call below is faithful -- 0xe74a0 really does
-        // reloadRowsAtIndexPaths:withRowAnimation: with animation 5 (None) from viewWillAppear: --
-        // but reloadRows runs UIKit's batch-update machinery whatever the row animation, and here
-        // it runs inside the presentation transition while the table is still outside the view
-        // hierarchy. That is what emits the "UITableView was told to layout its visible cells ...
-        // without being in the view hierarchy" warning 9ms after the present, and on modern UIKit
-        // the nested batch update leaves the enclosing transition without its completion: the
-        // sheet never finishes appearing and ignoreInteractionEvents is never lowered, which is
-        // why the music list stops responding too. reloadData refreshes the same rows without
-        // entering that machinery, so it is used instead.
-        //
-        // This was first conditioned on the table having no window, which covered the
-        // presentation but not the pop back from a pushed child. Returning from Adjustment Tap
-        // Timing or Background Color re-enters viewWillAppear: with the table already in a
-        // window, so it took the faithful branch and wedged the pop the same way: the back button
-        // looked dead and the sheet soft-locked. The requested row animation is None, so
-        // reloadData is visually identical and the condition bought nothing, and the deselect
-        // just above means the dropped selection does not matter either.
-        //
-        // Widening it did NOT fix the soft lock, so the second paragraph above overstates the
-        // case: the batch update is a real defect on modern UIKit and the warning it emits is
-        // genuine, but it is not what wedges the pop. Neither is the exclusive-touch navigation
-        // bar that a later audit blamed. An instrumented capture shows the main thread hanging
-        // outright -- see the note at the head of the settings section in PATCHES.md -- which no
-        // patch here addresses. This one is kept only on its own merits.
-        [self.tableView reloadData];
-#else
+        // This reloads three rows and deliberately not a fourth. Show Combos is not among them, so
+        // the one cell holding the shared switchCombo is never rebuilt here and the switch keeps
+        // its single owner. A -reloadData in this place instead of this call recycles every
+        // visible cell, which hands the switch's old cell to some other row while a fresh cell for
+        // Show Combos is assigned the same switch -- two live cells owning one accessory view,
+        // each re-parenting it away from the other for as long as the process runs. That was a
+        // patch here for a while and it is what hung the sheet on every second appearance; see
+        // PATCHES.md.
         [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithArray:toReload]
                               withRowAnimation:UITableViewRowAnimationNone];
-#endif
     }
     if (NE_DBG_EVERY) {
         // Paired with the entry line above. Without it a capture cannot say whether the hang is
@@ -413,6 +394,30 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:style reuseIdentifier:reuseIdentifier];
     }
+    if (NE_DBG_EVERY && type != SettingsMenuTypeShowCombos && cell.accessoryView != nil) {
+        // A recycled cell arriving with an accessory view already attached is the whole fault in
+        // one line: the only accessory view this table ever sets is the single shared switchCombo,
+        // so two cells now own it and each will re-parent it away from the other for ever.
+        neDebugLog("settings cell: type %d dequeued carrying accessoryView %s owned by %s",
+                   type,
+                   object_getClassName(cell.accessoryView),
+                   cell.accessoryView.superview ?
+                       object_getClassName(cell.accessoryView.superview) :
+                       "nobody");
+    }
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. Only one row ever sets an accessory view, and it sets
+    // the same UISwitch instance every time, so a recycled cell handed to any other row keeps a
+    // reference to a view that a second cell is about to claim. On the SDK this shipped against a
+    // cell laid its accessory view out where it found it; modern UIKit re-parents it, so two cells
+    // holding one accessory view invalidate each other's layout in turn and the layout pass never
+    // converges -- an unbreakable main-thread spin inside the Core Animation commit. Clearing the
+    // stale reference costs nothing and is what the binary's own -reloadRowsAtIndexPaths: achieved
+    // implicitly by never rebuilding the switch's cell.
+    if (type != SettingsMenuTypeShowCombos) {
+        cell.accessoryView = nil;
+    }
+#endif
     switch (type) {
     case SettingsMenuTypeTheme:
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;

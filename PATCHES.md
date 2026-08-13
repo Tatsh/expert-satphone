@@ -119,13 +119,24 @@ argument, so the format's `%@` is left dangling and renders whatever occupies th
 The balloon's seven file-scope constants are wrapped in the same `#ifndef`, since nothing else uses
 them and an unused constant fails the build under `-Werror`.
 
-> **The five settings patches below were all written against the wrong fault.** An instrumented
-> capture (`neUIProbe`, JBDBG only) shows that both the failing re-presentation and the failing pop
-> end in `MAIN RUN LOOP STALLED ... mode kCFRunLoopDefaultMode`, with no recovery and no further
-> heartbeat: the main thread hangs permanently inside a callout. Every patch here targets a UIKit
-> property — an ignored presentation result, an exclusive-touch bar, a batch update, an interactive
-> dismissal — and none of them can cause or cure a main-thread hang. They are documented as written
-> and individually reassessed, but the hang is the fault to fix.
+> **The settings soft lock was caused by one of these patches, and that patch has been removed.**
+> Instrumented captures (`neUIProbe`, JBDBG only) show both the failing re-presentation and the
+> failing pop ending in `MAIN RUN LOOP STALLED ... mode kCFRunLoopDefaultMode`, with no recovery:
+> a permanent main-thread spin inside a Core Animation commit's layout pass, at fixed stack depth
+> and with no frame of this tree above `main`. Counting layout by view class across the stall
+> named it — `probe layout stall: UITableViewCell x20886` in two seconds, that class alone, and
+> `probe dirty stall: none`.
+>
+> The cause was the settings table reload patch. `-viewWillAppear:` (0xe74a0) reloads three named
+> rows and Show Combos is not one of them, so the binary never rebuilds the cell holding the single
+> shared `switchCombo`. Replacing that with `-reloadData` recycles every visible cell, so the
+> switch's old cell is handed to another row — which never clears `accessoryView` — while a fresh
+> Show Combos cell is assigned the same switch. Two live cells own one accessory view, each
+> re-parents it away from the other, and the layout pass never converges. The first appearance is
+> unaffected because the reuse pool is empty, which is exactly why only the second visit hung.
+>
+> That patch is gone and the faithful call restored. The remaining entries are documented as
+> written and reassessed individually; none of them was ever the fault.
 
 ### Settings sheet presentation guard
 
@@ -164,23 +175,43 @@ navigation-bar control of their own. The reasoning about what `exclusiveTouch` n
 whose direct subviews are full-width private containers still stands on its own, so the patch is
 kept, but it is not the fix for anything currently reported.
 
-### Settings table reload
+### Settings table reload — REMOVED
 
 **File:** `Project/SettingsViewController.m` — `-viewWillAppear:` (0xe74a0)
 
-_Modern iOS._ The binary calls `-reloadRowsAtIndexPaths:withRowAnimation:` with animation `None`.
-`reloadRows` enters UIKit's batch-update machinery whatever the row animation, and here it runs
-inside the presentation transition while the table is still outside the view hierarchy, which emits
-the "told to layout its visible cells while not in the view hierarchy" warning. The patch calls
-`-reloadData` instead, which refreshes the same rows without entering that machinery. Since the
-requested animation is `None` and the rows are deselected just above, the two are visually
-identical.
+This patch replaced the binary's `-reloadRowsAtIndexPaths:withRowAnimation:` with `-reloadData`, to
+suppress the "told to layout its visible cells while not in the view hierarchy" warning that the
+batch update emits when it runs inside the presentation transition. It was reasoned to be visually
+identical, since the requested animation is `None` and the rows are deselected just above.
 
-This patch did not resolve the soft lock it was originally written for, and neither did the entry
-above that was then thought to fit the symptom. It is the weakest of the settings patches: it buys
-a suppressed console warning at the cost of a deviation from the binary, and nothing has yet
-implicated the batch update in any reported failure. It is a candidate to revert if the
-instrumented capture clears it.
+It was not identical, and it was the settings soft lock. The two calls differ in a way the warning
+hid: the binary reloads three named rows and Show Combos is not one of them, so the cell holding
+the single shared `switchCombo` is never rebuilt and the switch keeps one owner. `-reloadData`
+recycles every visible cell, so the switch's old cell is handed to a row whose arm never clears
+`accessoryView`, while a fresh Show Combos cell is assigned the same switch. Two cells then own one
+accessory view and re-parent it away from each other without end. The reuse pool is empty on the
+first appearance, which is why only the second visit to the screen hung.
+
+The patch is removed and the faithful call restored. See
+[Settings cell accessory view](#settings-cell-accessory-view) for the guard that keeps the same
+collision from arising through ordinary cell recycling.
+
+### Settings cell accessory view
+
+**File:** `Project/SettingsViewController.m` — `-tableView:cellForRowAtIndexPath:` (0xe5678)
+
+_Modern iOS._ The binary sets an accessory view on exactly one row, Show Combos, and the view it
+sets is the single `switchCombo` built in `-loadView`. No arm ever clears it, and the reuse
+identifier is keyed on the cell style rather than the row, so Show Combos shares a reuse pool with
+about ten other rows. Any recycling that hands the switch's cell to one of those rows while Show
+Combos is rebuilt leaves two cells holding one accessory view.
+
+On the SDK this shipped against a cell laid its accessory view out where it found it. Modern UIKit
+re-parents it, so each of the two cells invalidates the other's layout in turn and the layout pass
+never converges: the main thread spins inside the Core Animation commit and never returns to the
+run loop. Removing the reload patch above removes the way this build provoked it, but the collision
+is latent in the original for anything else that recycles a cell. The patch clears a stale
+`accessoryView` on every row that is not Show Combos.
 
 ### Settings sheet interactive dismissal
 
