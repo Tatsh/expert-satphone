@@ -35,6 +35,7 @@ autoresize
 autoresizes
 autoresizing
 autoreverses
+backtrace
 badresponse
 badzipfile
 bagde
@@ -125,6 +126,8 @@ dialog
 dialog's
 dios
 djbdbg
+dladdr
+dlfcn
 docstrings
 doxyfile
 dplatform
@@ -144,6 +147,7 @@ extern
 fabsf
 fadd
 fadein
+fbase
 fclose
 fcmp
 fcsel
@@ -161,6 +165,7 @@ fminf
 fmla
 fmov
 fmul
+fname
 fneg
 fobjc
 fopen
@@ -392,6 +397,7 @@ prerendered
 prevrank
 proc
 prodlist
+pthread
 purchasability
 pushbtn
 pycache
@@ -464,6 +470,7 @@ sinf
 sizecentraldiritem
 sizeziplocalheader
 skmpledata
+sname
 snapcraft
 sourcei
 sptl
@@ -479,6 +486,7 @@ strcmpi
 strikethrough
 strncmp
 strnstr
+strrchr
 strtoull
 stur
 subarray
@@ -494,6 +502,9 @@ supportedi
 suya
 svbg
 sxtl
+symbolicate
+symbolicated
+symbolication
 sysctlbyname
 takamitsu
 takeda
@@ -522,6 +533,7 @@ udids
 udiv
 udvare
 uesr
+uintptr
 unapplied
 unarchiver
 undiceided

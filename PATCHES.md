@@ -119,6 +119,14 @@ argument, so the format's `%@` is left dangling and renders whatever occupies th
 The balloon's seven file-scope constants are wrapped in the same `#ifndef`, since nothing else uses
 them and an unused constant fails the build under `-Werror`.
 
+> **The five settings patches below were all written against the wrong fault.** An instrumented
+> capture (`neUIProbe`, JBDBG only) shows that both the failing re-presentation and the failing pop
+> end in `MAIN RUN LOOP STALLED ... mode kCFRunLoopDefaultMode`, with no recovery and no further
+> heartbeat: the main thread hangs permanently inside a callout. Every patch here targets a UIKit
+> property — an ignored presentation result, an exclusive-touch bar, a batch update, an interactive
+> dismissal — and none of them can cause or cure a main-thread hang. They are documented as written
+> and individually reassessed, but the hang is the fault to fix.
+
 ### Settings sheet presentation guard
 
 **File:** `Project/MusicSelectViewController.m` — `-tapSettings:` (0x2d030)
@@ -149,9 +157,12 @@ at once. Modern UIKit gives the bar full-width private containers instead, and t
 the bar itself, so the whole bar becomes an exclusive-touch region of the window it shares with the
 presenting screen. Both are compiled out.
 
-Every settings interaction that fails is a navigation-bar tap — the back button from a pushed child,
-and the Close button — while pushing into a child, which is a table-row tap, always works. That
-discriminator is what identifies this rather than the two patches below.
+This did not fix the soft lock either. The discriminator it was chosen on — that every failing
+interaction is a navigation-bar tap while pushing into a child always works — no longer holds:
+returning from a child soft locks whatever the child is, including the children that own no
+navigation-bar control of their own. The reasoning about what `exclusiveTouch` now means on a bar
+whose direct subviews are full-width private containers still stands on its own, so the patch is
+kept, but it is not the fix for anything currently reported.
 
 ### Settings table reload
 
@@ -165,8 +176,11 @@ the "told to layout its visible cells while not in the view hierarchy" warning. 
 requested animation is `None` and the rows are deselected just above, the two are visually
 identical.
 
-This patch did not resolve the soft lock it was originally written for; see the entry above for
-what did fit the symptom. It is kept on its own merits.
+This patch did not resolve the soft lock it was originally written for, and neither did the entry
+above that was then thought to fit the symptom. It is the weakest of the settings patches: it buys
+a suppressed console warning at the cost of a deviation from the binary, and nothing has yet
+implicated the batch update in any reported failure. It is a candidate to revert if the
+instrumented capture clears it.
 
 ### Settings sheet interactive dismissal
 
@@ -179,6 +193,15 @@ the Close item is the only way out. Since iOS 13 the sheet can be swiped away, w
 screen's modal state. The patch sets `modalInPresentation` under an `@available(iOS 13.0, *)` check,
 refusing the interactive dismissal and restoring the original behaviour rather than inventing new
 behaviour.
+
+This is the one settings patch that is itself a reported defect: refusing interactive dismissal is
+also what stops a tap outside the sheet from dismissing it, which the shipped binary running on the
+same device does. The concern it addresses is real, but the binary shows the right shape for it
+elsewhere — it implements `-popoverPresentationControllerDidDismissPopover:` (0x27634) precisely to
+clean up after a dismissal the system initiated. The equivalent for a sheet is
+`-presentationControllerDidDismiss:`, routed to the same `-settingsNavViewClose:` the Close button
+reaches, which keeps the tap-outside dismissal and still clears `bOpenSetting`. Replacing this
+patch with that one is the recommended change.
 
 ### Timing-adjust display link
 

@@ -9,8 +9,12 @@
 
 #if JBDBG
 
+#include <dlfcn.h>
+#include <mach/mach.h>
+#include <pthread.h>
 #include <stdatomic.h>
 #include <stdbool.h>
+#include <string.h>
 
 // The main-thread pulse timer publishes a timestamp here; the watchdog on the background queue is
 // the only reader. Milliseconds since an arbitrary monotonic origin, which is all a stall
@@ -23,9 +27,15 @@
 // property being measured.
 static _Atomic uint64_t gLastRunLoopTickMilliseconds;
 
-// Set once the watchdog has reported the current stall, so a long one logs a single "idle" line
-// and a single "recovered" line rather than one per check.
-static _Atomic bool gStallReported;
+// How many consecutive watchdog checks have found the main thread behind. Zero means running. The
+// count is what schedules the two stack dumps, and it is reset on recovery so a later stall reports
+// again.
+static _Atomic unsigned int gStalledChecks;
+
+// The main thread's mach port and the app image's load address, both captured at install so the
+// watchdog can inspect the main thread and translate its frames without touching UIKit.
+static thread_t gMainMachThread;
+static const void *gAppImageBase;
 
 // Retained for the lifetime of the process; the probe is never uninstalled.
 static dispatch_source_t gWatchdogTimer;
@@ -53,6 +63,18 @@ static const NSUInteger kMaxSiblingsPerLevel = 12;
 
 // How many ancestors of a touched view are named before the chain is truncated.
 static const NSUInteger kMaxHitTestChain = 6;
+
+// The stack is dumped on the first stalled check and again this many checks later. Two dumps two
+// seconds apart is what separates a spin, whose program counter moves, from a deadlock, whose does
+// not -- and no single dump can tell those apart.
+static const unsigned int kSecondStackDumpCheck = 9;
+
+// The image base every @ghidraAddress in this tree is relative to. A frame inside the app is
+// reported in that space as well, so it can be looked up directly against the Ghidra program
+// instead of being symbolicated first.
+static const uintptr_t kGhidraImageBase = 0x100000000;
+
+static const size_t kMaxBacktraceFrames = 48;
 
 #pragma mark - Small helpers
 
@@ -181,6 +203,105 @@ static void ProbePulse(void) {
     ProbeHeartbeat();
 }
 
+#pragma mark - Main-thread backtrace
+
+// Pointer authentication signs return addresses in arm64e system code, and the signature occupies
+// the unused high bits, so masking them off yields the real address on arm64 and arm64e alike.
+static uintptr_t ProbeStripPointer(uintptr_t address) {
+    return address & 0x0000ffffffffffffULL;
+}
+
+// Copies the main thread's program counters into the caller's buffer and returns how many were
+// recovered.
+//
+// The thread is suspended only for the copy. Symbolication happens afterwards, in
+// ProbeLogBacktrace, because dladdr takes the dynamic linker's lock: resolving a symbol while the
+// main thread is suspended holding that same lock would deadlock the process this is meant to
+// diagnose.
+static size_t ProbeCaptureMainBacktrace(uintptr_t *frames, size_t maxFrames) {
+#if !defined(__arm64__)
+    // The frame walk reads arm64 thread state, so a simulator build simply reports no stack rather
+    // than failing to compile.
+    (void)frames;
+    (void)maxFrames;
+    return 0;
+#else
+    if (gMainMachThread == MACH_PORT_NULL || maxFrames < 2) {
+        return 0;
+    }
+    if (thread_suspend(gMainMachThread) != KERN_SUCCESS) {
+        return 0;
+    }
+    size_t count = 0;
+    arm_thread_state64_t state;
+    mach_msg_type_number_t stateCount = ARM_THREAD_STATE64_COUNT;
+    if (thread_get_state(
+            gMainMachThread, ARM_THREAD_STATE64, (thread_state_t)&state, &stateCount) ==
+        KERN_SUCCESS) {
+        frames[count++] = ProbeStripPointer(__darwin_arm_thread_state64_get_pc(state));
+        uintptr_t linkRegister = ProbeStripPointer(__darwin_arm_thread_state64_get_lr(state));
+        if (linkRegister != 0) {
+            frames[count++] = linkRegister;
+        }
+        uintptr_t framePointer = ProbeStripPointer(__darwin_arm_thread_state64_get_fp(state));
+        // Each frame record is {saved frame pointer, return address}. The chain must climb and stay
+        // aligned; anything else means the stack is exhausted or the walk has gone astray, and
+        // following it further would fault inside a suspended-thread window.
+        while (count < maxFrames && framePointer != 0 && (framePointer & 0xf) == 0) {
+            const uintptr_t *record = (const uintptr_t *)framePointer;
+            uintptr_t nextPointer = ProbeStripPointer(record[0]);
+            uintptr_t returnAddress = ProbeStripPointer(record[1]);
+            if (returnAddress == 0) {
+                break;
+            }
+            frames[count++] = returnAddress;
+            if (nextPointer <= framePointer) {
+                break;
+            }
+            framePointer = nextPointer;
+        }
+    }
+    thread_resume(gMainMachThread);
+    return count;
+#endif
+}
+
+static void ProbeLogBacktrace(const char *tag) {
+    uintptr_t frames[kMaxBacktraceFrames];
+    size_t count = ProbeCaptureMainBacktrace(frames, kMaxBacktraceFrames);
+    if (count == 0) {
+        neDebugLog("probe stack %s: unavailable", tag);
+        return;
+    }
+    for (size_t index = 0; index < count; ++index) {
+        Dl_info info;
+        if (dladdr((const void *)frames[index], &info) == 0 || info.dli_fname == nullptr) {
+            neDebugLog("probe stack %s: %2zu 0x%lx", tag, index, (unsigned long)frames[index]);
+            continue;
+        }
+        const char *slash = strrchr(info.dli_fname, '/');
+        const char *image = slash ? slash + 1 : info.dli_fname;
+        uintptr_t imageOffset = frames[index] - (uintptr_t)info.dli_fbase;
+        const char *symbol = info.dli_sname ? info.dli_sname : "?";
+        if (info.dli_fbase == gAppImageBase) {
+            neDebugLog("probe stack %s: %2zu %s +0x%lx ghidra 0x%lx %s",
+                       tag,
+                       index,
+                       image,
+                       (unsigned long)imageOffset,
+                       (unsigned long)(kGhidraImageBase + imageOffset),
+                       symbol);
+        } else {
+            neDebugLog("probe stack %s: %2zu %s +0x%lx %s",
+                       tag,
+                       index,
+                       image,
+                       (unsigned long)imageOffset,
+                       symbol);
+        }
+    }
+}
+
 // Runs on the watchdog queue, never on the main thread, so it still reports while the main thread
 // is wedged. That is the whole point: a blocked main thread otherwise shows up only as an absence
 // of log lines, which is indistinguishable from the user simply not touching the screen.
@@ -188,18 +309,21 @@ static void ProbeWatchdogCheck(void) {
     uint64_t last = atomic_load_explicit(&gLastRunLoopTickMilliseconds, memory_order_relaxed);
     uint64_t now = ProbeNowMilliseconds();
     uint64_t idle = (now > last) ? (now - last) : 0;
-    bool reported = atomic_load_explicit(&gStallReported, memory_order_relaxed);
     if (idle >= kStallThresholdMilliseconds) {
-        if (!reported) {
-            atomic_store_explicit(&gStallReported, true, memory_order_relaxed);
+        unsigned int checks =
+            atomic_fetch_add_explicit(&gStalledChecks, 1, memory_order_relaxed) + 1;
+        if (checks == 1) {
             neDebugLog("probe watchdog: MAIN RUN LOOP STALLED, idle %llu ms, mode %s",
                        (unsigned long long)idle,
                        ProbeMainRunLoopMode());
+            ProbeLogBacktrace("stall1");
+        } else if (checks == kSecondStackDumpCheck) {
+            neDebugLog("probe watchdog: still stalled, idle %llu ms", (unsigned long long)idle);
+            ProbeLogBacktrace("stall2");
         }
         return;
     }
-    if (reported) {
-        atomic_store_explicit(&gStallReported, false, memory_order_relaxed);
+    if (atomic_exchange_explicit(&gStalledChecks, 0, memory_order_relaxed) != 0) {
         neDebugLog("probe watchdog: main run loop recovered, mode %s", ProbeMainRunLoopMode());
     }
 }
@@ -212,6 +336,13 @@ void neUIProbeInstall(void) {
         return;
     }
     installed = YES;
+
+    // Captured here because this runs on the main thread; the watchdog cannot obtain either later.
+    gMainMachThread = pthread_mach_thread_np(pthread_self());
+    Dl_info selfInfo;
+    if (dladdr((const void *)(uintptr_t)&neUIProbeInstall, &selfInfo) != 0) {
+        gAppImageBase = selfInfo.dli_fbase;
+    }
 
     Method sendEvent = class_getInstanceMethod(UIWindow.class, @selector(sendEvent:));
     gOriginalWindowSendEvent =
