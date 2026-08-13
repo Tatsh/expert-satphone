@@ -847,11 +847,13 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     // The background (still or scrolling), then the list and marker button.
     if (bgImageView != nil) {
 #ifdef ENABLE_PATCHES
-        // Preservation patch, not in the binary. Every iPad background this build ships is
-        // 768x1024, the only iPad size that existed when it was written, and on iPad the image
-        // view is left at that natural size. On a larger screen it therefore stops short of the
-        // bottom and right edges and leaves the bare view showing. Stretch it over the bounds
-        // instead, cropping rather than distorting.
+        // Preservation patch, not in the binary. The bundled iPad backgrounds measure 768x1024
+        // exactly -- msel_bg_rpl.png, msel_bg_knt.png and msel_bg.png all do -- and the arm above
+        // sets a frame only for JubeatDeviceTypePhoneRetina, so on iPad the image view keeps that
+        // natural size. That was the whole screen in 2011. On a 1024x1366 iPad it leaves 256
+        // points bare down the right edge and 342 along the bottom. Stretch it over the bounds
+        // instead. The aspect ratios are 0.750 and 0.7497, so aspect fill crops essentially
+        // nothing here; it is chosen over ScaleToFill so a future size cannot distort the artwork.
         bgImageView.frame = self.view.bounds;
         bgImageView.contentMode = UIViewContentModeScaleAspectFill;
         bgImageView.clipsToBounds = YES;
