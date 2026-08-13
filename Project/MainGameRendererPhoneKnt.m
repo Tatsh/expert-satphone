@@ -130,9 +130,12 @@ enum {
     kResultBgPixelSize = 0x200,
 };
 
-// The ranks that carry a rating overlay blitted into the result-background atlas (sprite 0). A rank
-// of 8 or more loads only the base texture.
+// The ranks that carry a rating overlay blitted into the result-background atlas (sprite 12). A
+// rank of 8 or more loads only the base texture.
 static const int kRatingRankCount = 8;
+
+// The result-background atlas slot the rank rating overlay is blitted into.
+static const unsigned int kResultRatingSprite = 12; // @ghidraAddress 0x18bbcc
 
 // The debug-font glyph advance and newline drop, in points.
 static const double kDebugGlyphAdvance = 12.0;
@@ -222,11 +225,11 @@ enum {
     kHoldMarkerTailBase = 0x60,    // "m6" sprites start at index 96.
 };
 
-// Retina renders the partner-name label at 20 points, non-retina at 10. Both arrive as fmov
+// Retina renders the partner-name label at 20 points, non-retina at 11. Both arrive as fmov
 // immediates (0x4034000000000000 / 0x4026000000000000), so they carry no data address.
 static const double kPartnerFontSizeRetina = 20.0;
 
-static const double kPartnerFontSize = 10.0;
+static const double kPartnerFontSize = 11.0;
 
 // ==== HELPERS ====
 
@@ -516,7 +519,7 @@ static const float kExcParticleScale[] = { // @ghidraAddress 0x293a28
     1.59f, 1.84f, 1.23f, 1.0f,  1.07f, 1.0f,  1.0f, 1.0f,  1.0f,  1.0f};
 static const int kExcParticleCount = 20;
 static const int kExcSweepParticleFirst = 15;
-static const float kExcParticleRotate = -0.47459015f; // @ghidraAddress 0x2934c4
+static const float kExcParticleRotate = -0.47456083f; // @ghidraAddress 0x2934c4
 static const float kExcParticleYBias = 6.0f;          // fmov, 6.0
 static const float kExcParticleTrailStep = 80.0f;     // @ghidraAddress 0x28e018
 static const float kExcParticleTrailYScale = 1.02f;   // @ghidraAddress 0x2934f4
@@ -541,7 +544,9 @@ static const int kExcPanelOrder[] = { // @ghidraAddress 0x2938f8
     9,
     10,
     6};
-static const int kExcPanelPitch = 0x50; // 80
+static const int kExcPanelCount = 16;
+static const int kExcPanelFrameStep = 2; // One panel lights every other frame.
+static const int kExcPanelPitch = 0x50;  // 80
 static const int kExcPanelInset = 6;
 static const int kExcPanelGridTopY = 0xa0;       // 160
 static const double kExcPanelHalf = -6.0;        // fmov, -6.0
@@ -563,23 +568,25 @@ static const NSUInteger kExcPanelSprite = 0xb;
 static const NSUInteger kExcWordSprite = 0x1a;
 static const float kExcWordScale = 1.04f; // @ghidraAddress 0x292b38
 // The Excellent word (texFront sprite 0x1a) flies in as four glyph pairs over frames 0x60..0x74.
-static const float kExcWordScatterY = -160.0f;      // @ghidraAddress 0x2926d8
-static const float kExcWord1Target = 40.0f;         // @ghidraAddress 0x292568
-static const float kExcWord1From = 360.0f;          // @ghidraAddress 0x292418
-static const float kExcWord1XOffset = -62.4f;       // @ghidraAddress 0x2934bc
-static const float kExcWord1YOffset = 25.7f;        // @ghidraAddress 0x2934c0
-static const float kExcWord2From = 200.0f;          // @ghidraAddress 0x292b24
-static const float kExcWord2YFrom = -80.0f;         // @ghidraAddress 0x28f468
-static const float kExcWord3YFrom = 160.0f;         // @ghidraAddress 0x28f438
-static const float kExcWord3XOffset = -38.7f;       // @ghidraAddress 0x2934cc
-static const float kExcWord3YOffset = 2.4f;         // @ghidraAddress 0x2934d0
-static const float kExcWord3Scale = 0.507f;         // @ghidraAddress 0x2934d4
-static const float kExcWord4From = -120.0f;         // @ghidraAddress 0x2934d8
-static const float kExcWord5XOffset = -16.2f;       // @ghidraAddress 0x2934dc
-static const float kExcWord5YOffset = 26.6f;        // @ghidraAddress 0x2934e0
-static const float kExcWord5Scale = 0.78f;          // @ghidraAddress 0x2934e4
-static const float kExcWord3XFrom = -280.0f;        // @ghidraAddress 0x2934c8
-static const double kExcTitleGlyphSpacing = 166.0;  // @ghidraAddress 0x29275c
+static const double kExcWordScatterY = -160.0; // @ghidraAddress 0x2926d8
+static const float kExcWord1Target = 40.0f;    // @ghidraAddress 0x292568
+static const float kExcWord1From = 360.0f;     // @ghidraAddress 0x292418
+static const float kExcWord1XOffset = -62.4f;  // @ghidraAddress 0x2934bc
+static const float kExcWord1YOffset = 25.7f;   // @ghidraAddress 0x2934c0
+static const float kExcWord2From = 200.0f;     // @ghidraAddress 0x292b24
+static const double kExcWord2YFrom = -80.0;    // @ghidraAddress 0x28f468
+static const double kExcWord3YFrom = 160.0;    // @ghidraAddress 0x28f438
+static const float kExcWord3XOffset = -38.7f;  // @ghidraAddress 0x2934cc
+static const float kExcWord3YOffset = 2.4f;    // @ghidraAddress 0x2934d0
+static const float kExcWord3Scale = 0.507f;    // @ghidraAddress 0x2934d4
+static const float kExcWord4From = -120.0f;    // @ghidraAddress 0x2934d8
+static const double kExcWord4YFrom = 80.0;     // @ghidraAddress 0x28f3f8
+static const float kExcWord5XOffset = -16.2f;  // @ghidraAddress 0x2934dc
+static const float kExcWord5YOffset = 26.6f;   // @ghidraAddress 0x2934e0
+static const float kExcWord5Scale = 0.78f;     // @ghidraAddress 0x2934e4
+static const float kExcWord3XFrom = -280.0f;   // @ghidraAddress 0x2934c8
+// The spacing arrives as ldr s at 0x190fbc, so the pool slot is a float, not a double.
+static const float kExcTitleGlyphSpacing = 166.0f;  // @ghidraAddress 0x29275c
 static const int kExcTitleGlyphSpacing4Inch = 0xa6; // 166
 static const NSUInteger kExcRatingFrame = 0x14;
 static const NSUInteger kExcPanelFrame = 0x28;
@@ -886,13 +893,24 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
         LoadTextureSubImageFromEncryptedTex(
             self.texResultBg, @"game_result_knt_tex_1_pn", codec, CGPointMake(0.0, 0.0));
     }
-    if (rank < kRatingRankCount) {
+    // The gate is unsigned in the binary (cmp w9,#7 / b.hi at 0x18bae4).
+    if ((unsigned int)rank < (unsigned int)kRatingRankCount) {
         // An 8-way jump table picks the rank overlay name; every arm falls to this common blit.
         NSString *path = [NSBundle.mainBundle pathForResource:kRankOverlayNames[rank]
                                                        ofType:@"png"];
+        // The destination is recovered and scaled before the path is tested, as the binary does.
+        CGRect ratingRect = [self.texResultBg spriteAtIndex:kResultRatingSprite];
+        if (isRetina) {
+            // spriteAtIndex: reports points; the retina arm doubles all four components back into
+            // texels with fadd dN,dN,dN.
+            ratingRect = CGRectMake(ratingRect.origin.x * 2.0,
+                                    ratingRect.origin.y * 2.0,
+                                    ratingRect.size.width * 2.0,
+                                    ratingRect.size.height * 2.0);
+        }
         if (path) {
             UIImage *overlay = [[UIImage alloc] initWithContentsOfFile:path];
-            [self.texResultBg setSubImage:overlay inRect:[self.texResultBg spriteAtIndex:0]];
+            [self.texResultBg setSubImage:overlay inRect:ratingRect];
         }
     }
 }
@@ -1145,9 +1163,21 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
 /** @ghidraAddress 0x18caf0 */
 - (void)renderBG {
     static const MainGamePhoneKntBgEffectSpec kBgEffectSchedule[] = {
-        {0, 0, 8, 86, 0, 100, 20},
-        {0, 5, 158, 480, 15, 50, 0},
-        // The remaining schedule entries are read live from the pool at 0x2935c0.
+        // @ghidraAddress 0x2935c0
+        {0, 0, 8, 86, 0, 100, 20},       {0, 5, 158, 480, 15, 50, 0},
+        {0, 4, 287, 480, 15, 30, 2},     {0, 4, 289, 480, 15, 35, -25},
+        {0, 5, 124, 480, 25, 55, 15},    {0, 4, 0, 480, 20, 45, 0},
+        {10, 3, 79, 480, 0, 50, 0},      {20, 1, 162, 0, 0, 70, 588},
+        {30, 0, 274, 124, 0, 120, 190},  {35, 0, 166, 166, 0, 120, 10},
+        {40, 0, 166, 62, 0, 120, 150},   {40, 2, 4, 0, 0, 100, 588},
+        {60, 0, 274, 166, 0, 120, 190},  {60, 1, 104, 0, 0, 70, 588},
+        {65, 0, 191, 203, 0, 120, 130},  {90, 0, 8, 86, 0, 100, 20},
+        {90, 5, 158, 480, 15, 50, 0},    {90, 4, 287, 480, 15, 30, 5},
+        {90, 4, 289, 480, 15, 35, -25},  {90, 5, 124, 480, 25, 55, 15},
+        {90, 4, 0, 480, 20, 45, 0},      {100, 3, 79, 480, 0, 50, 0},
+        {120, 0, 274, 124, 0, 120, 190}, {125, 0, 166, 166, 0, 120, 10},
+        {130, 0, 166, 62, 0, 120, 150},  {150, 0, 274, 166, 0, 120, 190},
+        {155, 0, 191, 490, 0, 120, 130}, {180, 0, 0, 0, 0, 0, 0},
     };
     static const double kFieldWidth = 320.0;           // @ghidraAddress 0x28f470
     static const float kFillMirror = -320.0f;          // @ghidraAddress 0x2934a8
@@ -1163,20 +1193,22 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
     static const int kFieldBottom = 0x238;             // 568
     static const int kGridTopOffset = 0xa0;            // 160
     static const int kBgEffectSlotCount = 0x1b;        // 27
+    static const NSUInteger kBgFillSprite = 0x17;
 
     // On the four-inch screen the field is taller, so the header/footer gap is filled with the
     // background sprite (sprite 0x17) twice, mirrored.
     if (self->is4Inch) {
         int gap = [self buttonMarginForScreen40] - [self upperBgHeight40];
         [self.texFront
-            drawSprite:0x17
-                inRect:CGRectMake((double)(kFieldBottom - gap), kFieldWidth, (double)gap, 0.0)];
-        [self.texFront drawSprite:0x17
-                           inRect:CGRectMake((double)(((float)(kFieldBottom - gap) - (float)gap) +
+            drawSprite:kBgFillSprite
+                inRect:CGRectMake(
+                           0.0, (double)(float)(kFieldBottom - gap), kFieldWidth, (double)gap)];
+        [self.texFront drawSprite:kBgFillSprite
+                           inRect:CGRectMake(0.0,
+                                             (double)(((float)(kFieldBottom - gap) - (float)gap) +
                                                       kFillMirror),
                                              kFieldWidth,
-                                             (double)gap,
-                                             0.0)];
+                                             (double)gap)];
     }
 
     const ScoreData *score = nil;
@@ -1191,7 +1223,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
     // A position-interpolated pulse: the beat energy ramps once the phase passes 0.606.
     float pulse;
     if (tensionPos >= kTensionPosLo) {
-        pulse = InterpolateFloatByPosition(tensionPos, kTensionPosLo, 1.0f, kTensionPosHi, 1.0f);
+        pulse = InterpolateFloatByPosition(tensionPos, kTensionPosLo, 1.0f, 1.0f, kTensionPosHi);
     } else {
         pulse = InterpolateFloatByPosition(tensionPos, 0.0f, kTensionPosLo, kTensionPosHi, 1.0f);
     }
@@ -1209,7 +1241,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
                          scale:beatScale
                         rotate:0
                         anchor:CGPointMake(kBeatAnchorY, anchorY)
-                     transform:1
+                     transform:0
                          alpha:1.0f];
 
     float tensionFrame = 0.0f;
@@ -1222,8 +1254,8 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
                          scale:beatScale
                         rotate:0
                         anchor:CGPointMake(kBeatAnchorY, anchorY)
-                     transform:layer2Alpha
-                         alpha:10];
+                     transform:0
+                         alpha:layer2Alpha];
 
     // Spawn and advance the knit background effects while the beat energy is high.
     if (tensionFrame <= 9.0f) {
@@ -1309,12 +1341,13 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
          transform:0
              alpha:titleAlpha];
 
-    // The eight excellent panels fill the grid rows as the frame passes each.
-    for (int i = 0; i < 16; i += 2) {
-        if (i / 2 > (int)(animFrame - kExcPanelFrame)) {
+    // The sixteen excellent panels fill the grid rows as the frame passes each, one every other
+    // frame.
+    for (int i = 0; i < kExcPanelCount * kExcPanelFrameStep; i += kExcPanelFrameStep) {
+        if ((int)(animFrame - kExcPanelFrame) < i) {
             continue;
         }
-        int panel = kExcPanelOrder[i / 2];
+        int panel = kExcPanelOrder[i / kExcPanelFrameStep];
         int margin = self->is4Inch ? [self buttonMarginForScreen40] : 0;
         double px = (double)((panel % 4) * kExcPanelPitch | kExcPanelInset) + kExcPanelHalf;
         double py = (double)(((panel >> 2) * kExcPanelPitch | kExcPanelInset) + margin +
@@ -1354,7 +1387,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
                            anchor:CGPointMake((double)g2x, (double)g2y)
                         transform:0
                             alpha:g2a];
-        if (animFrame > kExcStringFrame1) {
+        if (animFrame >= kExcStringFrame1) {
             double base2 = self->is4Inch ?
                                (double)([self buttonMarginForScreen40] + kExcTitleLeftY4Inch) :
                                kExcTitleLeftYDefault;
@@ -1374,10 +1407,9 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
             float g4x =
                 InterpolateFloatByFrame(kExcWord4From, kExcWord1Target, animFrame, 0x67, 0x6e) +
                 kExcWord3XOffset;
-            float g4y =
-                InterpolateFloatByFrame(
-                    (float)(base2 + kExcTitleXOffset), (float)base2, animFrame, 0x67, 0x6e) +
-                kExcWord3YOffset;
+            float g4y = InterpolateFloatByFrame(
+                            (float)(base2 + kExcWord4YFrom), (float)base2, animFrame, 0x67, 0x6e) +
+                        kExcWord3YOffset;
             float g4a = InterpolateFloatByFrame(0.0f, 0.5f, animFrame - 0x67, 0, 4);
             [self.texFront drawSprite:kExcWordSprite
                               atPoint:CGPointMake((double)g4x, (double)g4y)
@@ -1386,7 +1418,7 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
                                anchor:CGPointMake((double)g4x, (double)g4y)
                             transform:0
                                 alpha:g4a];
-            if (animFrame > kExcStringFrame2) {
+            if (animFrame >= kExcStringFrame2) {
                 double base3 = self->is4Inch ?
                                    (double)([self buttonMarginForScreen40] + kExcTitleLeftY4Inch) :
                                    kExcTitleLeftYDefault;
@@ -1441,6 +1473,10 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
     static const int kPanelPitch = 0x50;
     static const int kPanelInset = 0x28;
     static const int kGridTop = 200;
+    // orr w2,wzr,#0x3 at 0x191950, 0x191a00 and 0x191a4c.
+    static const NSUInteger kClearedPlateSprite = 3;
+    static const NSUInteger kClearPanelSprite = 1;
+    static const NSUInteger kClearedWordSprite = 0x18;
     static const NSString *const kSeResultClear = @"SD_KNT_RESULT_CLEAR"; // @ghidraAddress 0x2df940
     static const NSString *const kSeVoiceClear = @"SD_KNT_CV_CLEAR";      // @ghidraAddress 0x2df960
 
@@ -1456,8 +1492,8 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
         topTo = (float)([self buttonMarginForScreen40] + 200);
     }
     float topY = InterpolateFloatByFrame(topFrom, topTo, animFrame, 0, 0x10);
-    [self.texResultBg drawSprite:0
-                          inRect:CGRectMake((double)topY - plateH * 0.5, kFieldWidth, plateH, 3)];
+    [self.texResultBg drawSprite:kClearedPlateSprite
+                          inRect:CGRectMake(0.0, (double)topY - plateH * 0.5, kFieldWidth, plateH)];
 
     float midFrom = kBannerTopFrom;
     float midTo = kBannerMidTo;
@@ -1467,26 +1503,28 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
     }
     double midY =
         (double)InterpolateFloatByFrame(midFrom, midTo, animFrame, 0, 0x10) - plateH * 0.5;
-    [self.texResultBg drawSprite:0 inRect:CGRectMake(midY, kBannerMidW, plateH, 3)];
-    [self.texResultBg drawSprite:0
-                          inRect:CGRectMake(midY, kBannerBoxW, plateH, 3)
+    [self.texResultBg drawSprite:kClearedPlateSprite
+                          inRect:CGRectMake(0.0, midY, kBannerMidW, plateH)];
+    // The mid plate spans 0..576 and the box 576..768, tiling the 768-point field exactly.
+    [self.texResultBg drawSprite:kClearedPlateSprite
+                          inRect:CGRectMake(kBannerMidW, midY, kBannerBoxW, plateH)
                        transform:0
                            alpha:1.0f];
 
-    // The 4x4 clear panels fade/scale in; the eighth is drawn full.
-    (void)[self.texResultBg spriteAtIndex:1];
+    // The 4x4 clear panels fade/scale in; the eighth is drawn full. Each is centred on its cell.
+    CGSize cell = [self.texResultBg spriteAtIndex:kClearPanelSprite].size;
     for (int i = 0; i < 8; ++i) {
         float cellAlpha = (i == 7) ? 1.0f : fadeIn;
         int reflowed = i % 4 + (i >> 2) * 0xc;
         double px = (double)((reflowed % 4) * kPanelPitch + kPanelInset);
         int margin = self->is4Inch ? [self buttonMarginForScreen40] : 0;
         double py = (double)((reflowed >> 2) * kPanelPitch + margin + kGridTop);
-        [self.texResultBg drawSprite:1
-                             atPoint:CGPointMake(px, py)
+        [self.texResultBg drawSprite:kClearPanelSprite
+                             atPoint:CGPointMake(px - cell.width * 0.5, py - cell.height * 0.5)
                                scale:1.0f
                               rotate:0
                               anchor:CGPointMake(px, py)
-                           transform:(char)cellAlpha
+                           transform:0
                                alpha:cellAlpha];
     }
 
@@ -1497,14 +1535,16 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
     if (self->is4Inch) {
         wordY = (double)([self buttonMarginForScreen40] + 0x118);
     }
-    (void)[self.texFront spriteAtIndex:0x18];
-    [self.texFront drawSprite:0x18
-                      atPoint:CGPointMake(kWordAnchorX, wordY)
-                        scale:wordScale
-                       rotate:0
-                       anchor:CGPointMake(kWordAnchorX, wordY)
-                    transform:0
-                        alpha:wordAlpha];
+    // The word is centred on its own sprite size (0x191c58).
+    CGSize word = [self.texFront spriteAtIndex:kClearedWordSprite].size;
+    [self.texFront
+        drawSprite:kClearedWordSprite
+           atPoint:CGPointMake(kWordAnchorX - word.width * 0.5, wordY - word.height * 0.5)
+             scale:wordScale
+            rotate:0
+            anchor:CGPointMake(kWordAnchorX, wordY)
+         transform:0
+             alpha:wordAlpha];
 
     // The clear jingle plays once; from frame 10 the rating tallies count up.
     if (animFrame < 10) {
@@ -1533,6 +1573,10 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
     static const int kComboRowWidth = 0x140;       // 320
     static const char kComboDigitAsciiBase = 0x2e; // '.'; '0' maps to sprite 2
     static const NSUInteger kComboBurstSprite = 1;
+    static const NSUInteger kComboWordSprite = 0;     // the trailing COMBO word
+    static const int kComboWordTrailingOffset = 0x49; // 73, back from one stride past the digits
+    static const double kComboWordYDefault = 360.0;   // @ghidraAddress 0x292918
+    static const int kComboWordY4InchOffset = 0x168;  // 360
 
     if (self.scoreBackup) {
         return;
@@ -1556,27 +1600,30 @@ static inline void MainGameRendererPhoneKntRenderExcellentBurst(MainGameRenderer
     }
 
     if (self.showCombo) {
-        [self.texCombo spriteAtIndex:kComboBurstSprite];
+        // Both the width and the height of the burst sprite drive the draw point.
+        CGSize burst = [self.texCombo spriteAtIndex:kComboBurstSprite].size;
         float scale =
             InterpolateFloatByFrame(kComboBurstScaleFrom, 1.0f, self->comboCutFrame, 0, 8);
-        float rotate = InterpolateFloatByFrame(0.0f, g_flKeyTime080, self->comboCutFrame, 0, 8);
-        double centreX = (double)(float)(kComboBurstCentre - alpha * 0.5);
-        double spriteW = [self.texCombo spriteAtIndex:kComboBurstSprite].size.width;
-        double drawX = centreX - (double)(float)((spriteW * (double)scale - spriteW) * 0.5);
-        double drawY = (double)burstY -
-                       (double)(float)(((double)burstY * (double)scale - (double)burstY) * 0.5);
-        [self.texCombo drawSprite:kComboBurstSprite
-                          atPoint:CGPointMake(drawX, drawY)
-                            scale:scale
-                           rotate:0
-                           anchor:CGPointMake(centreX, (double)burstY)
-                        transform:(char)rotate
-                            alpha:alpha];
+        float burstAlpha = InterpolateFloatByFrame(0.0f, g_flKeyTime080, self->comboCutFrame, 0, 8);
+        float halfGrowX = (float)((burst.width * (double)scale - burst.width) * 0.5);
+        float halfGrowY = (float)((burst.height * (double)scale - burst.height) * 0.5);
+        float centreX = (float)(kComboBurstCentre - burst.width * 0.5);
+        [self.texCombo
+            drawSprite:kComboBurstSprite
+               atPoint:CGPointMake((double)(centreX - halfGrowX), (double)(burstY - halfGrowY))
+                 scale:scale
+                rotate:0
+                anchor:CGPointMake((double)centreX, (double)burstY)
+             transform:0
+                 alpha:burstAlpha];
     }
     --self->comboCutFrame;
 
 drawDigits:
     if (combo <= (unsigned int)kComboDrawThreshold) {
+        // This exit reaches the same latch (0x18d684 branches to 0x18d8f8); it is spelled out
+        // rather than jumped because the digit buffer is declared below.
+        self->lastCombo = combo;
         return;
     }
     if (self->lastCombo < combo) {
@@ -1585,7 +1632,7 @@ drawDigits:
     char digits[kComboDigitBufferSize];
     int len = snprintf(digits, kComboDigitBufferSize, "%d", combo);
     if (len <= 0) {
-        return;
+        goto done;
     }
     int count = len < kComboMaxDigits + 1 ? len : kComboMaxDigits;
     int startX = count * -kComboDigitStride + kComboRowWidth;
@@ -1594,7 +1641,7 @@ drawDigits:
     }
     int effectFrame = self->comboEffectFrame;
     if (!self.showCombo) {
-        return;
+        goto done;
     }
     startX >>= 1;
 
@@ -1609,36 +1656,52 @@ drawDigits:
                                 alpha:alpha];
             glyphX += kComboDigitStride;
         }
-        return;
+    } else {
+        // The bounce path: the three digits nearest the effect front are lifted -5, -10, -15. The
+        // effect front is measured back from the last digit (~len is -len-1), clamped no further
+        // than five past the end.
+        int frontOffset = ~len;
+        if (frontOffset <= -5) {
+            frontOffset = -5;
+        }
+        int frontIndex = effectFrame - frontOffset;
+        int glyphX = startX;
+        for (int i = 0; i < count; ++i) {
+            int lift = 0;
+            if (frontIndex - 0xb == i) {
+                lift = -5;
+            }
+            if (frontIndex - 0xc == i) {
+                lift = -10;
+            }
+            if (frontIndex - 0xd == i) {
+                lift = -0xf;
+            }
+            unsigned int sprite = (unsigned int)(digits[i] - kComboDigitAsciiBase);
+            [self.texCombo drawSprite:sprite
+                              atPoint:CGPointMake((double)glyphX, (double)(burstY + (float)lift))
+                            transform:0
+                                alpha:alpha];
+            glyphX += kComboDigitStride;
+        }
     }
 
-    // The bounce path: the three digits nearest the effect front are lifted -5, -10, -15. The
-    // effect front is measured back from the last digit (~len is -len-1), clamped no further than
-    // five past the end.
-    int frontOffset = ~len;
-    if (frontOffset <= -5) {
-        frontOffset = -5;
+    // Both digit paths fall into the trailing COMBO word (0x18d884): the plain loop branches here
+    // and the bounce loop falls through.
+    double comboWordY = kComboWordYDefault;
+    if (self->is4Inch) {
+        comboWordY = (double)([self buttonMarginForScreen40] + kComboWordY4InchOffset);
     }
-    int frontIndex = effectFrame - frontOffset;
-    int glyphX = startX;
-    for (int i = 0; i < count; ++i) {
-        int lift = 0;
-        if (frontIndex - 0xb == i) {
-            lift = -5;
-        }
-        if (frontIndex - 0xc == i) {
-            lift = -10;
-        }
-        if (frontIndex - 0xd == i) {
-            lift = -0xf;
-        }
-        unsigned int sprite = (unsigned int)(digits[i] - kComboDigitAsciiBase);
-        [self.texCombo drawSprite:sprite
-                          atPoint:CGPointMake((double)glyphX, (double)(burstY + (float)lift))
-                        transform:0
-                            alpha:alpha];
-        glyphX += kComboDigitStride;
-    }
+    [self.texCombo drawSprite:kComboWordSprite
+                      atPoint:CGPointMake((double)(count * kComboDigitStride + startX -
+                                                   kComboWordTrailingOffset),
+                                          comboWordY)
+                    transform:0
+                        alpha:alpha];
+
+done:
+    // Every path but the replay-backup early-out latches the combo for the next frame (0x18d8f8).
+    self->lastCombo = combo;
 }
 
 /** @ghidraAddress 0x191d6c */
@@ -1655,11 +1718,30 @@ drawDigits:
     static const int kPanelPitch = 0x50;       // 80
     static const int kPanelInset = 0x28;       // 40
     static const int kGridTop = 200;
+    // orr w2,wzr,#0x6 at 0x191ec4, 0x191f38 and 0x191f84.
+    static const NSUInteger kFailedPlateSprite = 6;
+    static const NSUInteger kFailPanelSprite = 4;
+    static const NSUInteger kFailedWordSprite = 0x19;
     static const NSString *const kSeResultFailed =
         @"SD_KNT_RESULT_FAILED";                                       // @ghidraAddress 0x2df980
     static const NSString *const kSeVoiceFailed = @"SD_KNT_CV_FAILED"; // @ghidraAddress 0x2df9a0
+    // The discarded shake interpolation's split frame and its two endpoints.
+    static const unsigned int kFailShakeSplitFrame = 0xf;
+    static const float kFailShakeFrom = -20.0f; // fmov, 0xc1a00000
+    static const float kFailShakeTo = 10.0f;    // fmov, 0x41200000
 
     float fadeIn = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 0x10);
+
+    // The binary tests the four-inch flag, calls -buttonMarginForScreen40 and runs a two-armed
+    // frame interpolation here at 0x191dc4-0x191e18, and discards both results.
+    if (self->is4Inch) {
+        (void)[self buttonMarginForScreen40];
+    }
+    if (animFrame <= kFailShakeSplitFrame) {
+        (void)InterpolateFloatByFrame(kFailShakeFrom, 0.0f, animFrame, 0, 0x10);
+    } else {
+        (void)InterpolateFloatByFrame(0.0f, kFailShakeTo, animFrame, 0x10, 0x32);
+    }
 
     // The result-background plate slides in over the field, centred horizontally.
     double plateY = kBannerTopY;
@@ -1668,34 +1750,36 @@ drawDigits:
     }
     CGRect plate = [self.texResultBg spriteAtIndex:5];
     double plateH = plate.size.height;
-    [self.texResultBg drawSprite:0
-                          inRect:CGRectMake(plateY - plateH * 0.5, kFieldWidth, plateH, 6)];
+    [self.texResultBg drawSprite:kFailedPlateSprite
+                          inRect:CGRectMake(0.0, plateY - plateH * 0.5, kFieldWidth, plateH)];
 
     double midY = kBannerMidY;
     if (self->is4Inch) {
         midY = (double)([self buttonMarginForScreen40] + 0x1b8);
     }
     midY = midY - plateH * 0.5;
-    [self.texResultBg drawSprite:0 inRect:CGRectMake(midY, kBannerMidW, plateH, 6)];
-    [self.texResultBg drawSprite:0
-                          inRect:CGRectMake(midY, kBannerBoxW, plateH, 6)
+    [self.texResultBg drawSprite:kFailedPlateSprite
+                          inRect:CGRectMake(0.0, midY, kBannerMidW, plateH)];
+    // The mid plate spans 0..576 and the box 576..768, tiling the 768-point field exactly.
+    [self.texResultBg drawSprite:kFailedPlateSprite
+                          inRect:CGRectMake(kBannerMidW, midY, kBannerBoxW, plateH)
                        transform:0
                            alpha:1.0f];
 
-    // The 4x4 fail panels fade/scale in; the eighth is drawn full.
-    (void)[self.texResultBg spriteAtIndex:4];
+    // The 4x4 fail panels fade/scale in; the eighth is drawn full. Each is centred on its cell.
+    CGSize cell = [self.texResultBg spriteAtIndex:kFailPanelSprite].size;
     for (int i = 0; i < 8; ++i) {
         float cellAlpha = (i == 7) ? 1.0f : fadeIn;
         int reflowed = i % 4 + (i >> 2) * 0xc;
         double px = (double)((reflowed % 4) * kPanelPitch + kPanelInset);
         int margin = self->is4Inch ? [self buttonMarginForScreen40] : 0;
         double py = (double)((reflowed >> 2) * kPanelPitch + margin + kGridTop);
-        [self.texResultBg drawSprite:4
-                             atPoint:CGPointMake(px, py)
+        [self.texResultBg drawSprite:kFailPanelSprite
+                             atPoint:CGPointMake(px - cell.width * 0.5, py - cell.height * 0.5)
                                scale:1.0f
                               rotate:0
                               anchor:CGPointMake(px, py)
-                           transform:(char)cellAlpha
+                           transform:0
                                alpha:cellAlpha];
     }
 
@@ -1706,14 +1790,17 @@ drawDigits:
     if (self->is4Inch) {
         wordY = (double)([self buttonMarginForScreen40] + 0x118);
     }
-    (void)[self.texFront spriteAtIndex:0x19];
-    [self.texFront drawSprite:0x19
-                      atPoint:CGPointMake(kWordAnchorX, wordY + (double)wordSlide)
-                        scale:wordScale
-                       rotate:0
-                       anchor:CGPointMake(kWordAnchorX, wordY + (double)wordSlide)
-                    transform:0
-                        alpha:fadeIn];
+    double wordDrawY = wordY + (double)wordSlide;
+    // The word is centred on its own sprite size (0x192194).
+    CGSize word = [self.texFront spriteAtIndex:kFailedWordSprite].size;
+    [self.texFront
+        drawSprite:kFailedWordSprite
+           atPoint:CGPointMake(kWordAnchorX - word.width * 0.5, wordDrawY - word.height * 0.5)
+             scale:wordScale
+            rotate:0
+            anchor:CGPointMake(kWordAnchorX, wordDrawY)
+         transform:0
+             alpha:fadeIn];
 
     // The failure jingle plays once at the start; from frame 10 the rating tallies count up.
     if (animFrame < 10) {
@@ -2139,7 +2226,8 @@ drawDigits:
         barSprite = 10;
         break;
     }
-    [self.texFront drawSprite:barSprite atPoint:CGPointMake(pos.x, barY) transform:0 alpha:a];
+    // The backdrop goes through the two-argument selector, so it ignores the method's alpha.
+    [self.texFront drawSprite:barSprite atPoint:CGPointMake(pos.x, barY)];
 
     if (!self.sequence) {
         return;
@@ -2170,8 +2258,8 @@ drawDigits:
                 int grade = ((score->musicBarResult[gradeIdx] >> gradeShift) & 3) ^ 2;
                 spriteBase = kMusicBarRatingSpriteBase[grade];
             } else {
-                spriteBase = ((float)i + kComboFadeBase < cursor) ? kMusicBarNoteBaseIdle :
-                                                                    kMusicBarNoteBaseCursor;
+                spriteBase = ((float)i + kComboFadeBase < cursor) ? kMusicBarNoteBaseCursor :
+                                                                    kMusicBarNoteBaseIdle;
             }
             [self.texFront
                 drawSprite:(NSUInteger)((int)note + spriteBase)
@@ -2201,11 +2289,13 @@ drawDigits:
                    atPoint:(CGPoint)point
                      scale:(double)scale
                      alpha:(double)alpha {
-    static const double kPartnerFourInchYFactor = 1.4;  // @ghidraAddress 0x293518
-    static const double kPartnerFourInchXShift = -52.0; // @ghidraAddress 0x28f228
+    // The pool slot holds the float 1.4f widened to double, not the double 1.4.
+    static const double kPartnerFourInchYFactor = 1.399999976158142; // @ghidraAddress 0x293518
+    static const double kPartnerFourInchXShift = -52.0;              // @ghidraAddress 0x28f228
     static const NSUInteger kPartnerPlateLo = 5;
     static const NSUInteger kPartnerPlateHi = 6;
     static const NSUInteger kPartnerFrameSprite = 0x20;
+    static const NSUInteger kPartnerDigitSprite = 0x21;
     static const int kPartnerDigitStride = 0x19; // 25
     static const char kPartnerDigitAsciiBase = 0x30;
     static const unsigned int kPartnerSixDigitThreshold = 0xaae61; // 700001
@@ -2218,8 +2308,9 @@ drawDigits:
         alpha = alpha * 0.5;
     }
 
-    (void)[self.texFront spriteAtIndex:6];
-    (void)[self.texFront spriteAtIndex:0x21];
+    // Both sprite rects are live: their sizes drive the plate and digit rects below.
+    CGSize plateSize = [self.texFront spriteAtIndex:kPartnerPlateHi].size;
+    CGSize digitSize = [self.texFront spriteAtIndex:kPartnerDigitSprite].size;
 
     double drawX = point.x;
     double drawY = point.y;
@@ -2227,7 +2318,8 @@ drawDigits:
     // On the taller four-inch screen the panel slides and is drawn unscaled.
     if (self->is4Inch) {
         drawY = point.y -
-                ((float)(alpha - alpha * scale) + (float)(alpha * kPartnerFourInchYFactor - alpha));
+                (double)((float)(plateSize.height - plateSize.height * scale) +
+                         (float)(plateSize.height * kPartnerFourInchYFactor - plateSize.height));
         scaleX = 1.0;
         drawX = point.x + kPartnerFourInchXShift;
     }
@@ -2246,14 +2338,16 @@ drawDigits:
 
     float a = (float)alpha;
     // The two score-plate halves.
-    [self.texFront drawSprite:kPartnerPlateLo
-                       inRect:CGRectMake(drawX, drawY, scale * scaleX, alpha * scaleX)
-                    transform:0
-                        alpha:a];
-    [self.texFront drawSprite:kPartnerPlateHi
-                       inRect:CGRectMake(drawX, drawY, scale * scaleX, alpha * scaleX)
-                    transform:0
-                        alpha:a];
+    [self.texFront
+        drawSprite:kPartnerPlateLo
+            inRect:CGRectMake(drawX, drawY, plateSize.width * scaleX, plateSize.height * scaleX)
+         transform:0
+             alpha:a];
+    [self.texFront
+        drawSprite:kPartnerPlateHi
+            inRect:CGRectMake(drawX, drawY, plateSize.width * scaleX, plateSize.height * scaleX)
+         transform:0
+             alpha:a];
 
     // The seven digits; a six-digit score uses a tighter glyph base.
     int glyphBase = (shown < kPartnerSixDigitThreshold) ? -0xf : -5;
@@ -2261,10 +2355,10 @@ drawDigits:
     for (int step = 0; step != 0xaf; step += kPartnerDigitStride) {
         if ((unsigned char)(digits[i] - kPartnerDigitAsciiBase) < 10) {
             [self.texFront drawSprite:(NSUInteger)(glyphBase + (int)digits[i])
-                               inRect:CGRectMake(drawX + scaleX * (double)i + 1.0,
+                               inRect:CGRectMake(drawX + scaleX * (double)step + 1.0,
                                                  drawY,
-                                                 scale * scaleX,
-                                                 alpha * scaleX)
+                                                 digitSize.width * scaleX,
+                                                 digitSize.height * scaleX)
                             transform:0
                                 alpha:a];
         }
@@ -2286,7 +2380,7 @@ drawDigits:
     static const double kScoreYDefault = 101.0;                 // @ghidraAddress 0x293520
     static const double kPartnerX = 192.0;                      // @ghidraAddress 0x28fa00
     static const double kPartnerYDefault = 75.0;                // @ghidraAddress 0x28f788
-    static const double kPartnerScale = 0.7;                    // @ghidraAddress 0x291c98
+    static const double kPartnerScale = 0.699999988079071;      // @ghidraAddress 0x291c98
     static const double kMusicBarYDefault = 136.0;              // @ghidraAddress 0x28f768
     static const float kSlideDistance = 40.0f;                  // @ghidraAddress 0x292568
     static const NSString *const kReadySeResource = @"SD_MUON"; // @ghidraAddress 0x2dbec0
@@ -2345,29 +2439,45 @@ drawDigits:
 
 /** @ghidraAddress 0x19134c */
 - (void)renderRating:(unsigned int)animFrame {
-    static const double kRatingLabelBaseY = 326.0; // @ghidraAddress 0x292f70
-    static const double kRatingLabelSlideY = 47.0; // @ghidraAddress 0x28f600
-    static const double kRatingLabelX = 90.0;      // @ghidraAddress 0x28f440
-    static const double kRankBaseY = 361.0;        // @ghidraAddress 0x293548
-    static const double kRankAnchorX = 200.0;      // @ghidraAddress 0x28f400
-    static const float kRankScaleLow = 1.16f;      // @ghidraAddress 0x292b34
-    static const float kRankScaleBig = 1.6f;       // @ghidraAddress 0x292b30
-    static const float kRankScaleSmall = 0.2f;     // @ghidraAddress 0x28f3c8
-    static const float kRankScaleMid = 0.9f;       // @ghidraAddress 0x28f3b0
+    static const double kRatingLabelBaseY = 326.0;    // @ghidraAddress 0x292f70
+    static const double kRatingLabelSlideY = 47.0;    // @ghidraAddress 0x28f600
+    static const double kRatingLabelX = 90.0;         // @ghidraAddress 0x28f440
+    static const double kRankBaseY = 361.0;           // @ghidraAddress 0x293548
+    static const double kRankAnchorX = 200.0;         // @ghidraAddress 0x28f400
+    static const float kRankScaleLow = 1.16f;         // @ghidraAddress 0x292b34
+    static const float kRankScaleBig = 1.6f;          // @ghidraAddress 0x292b30
+    static const float kRankAlphaLow = 0.2f;          // @ghidraAddress 0x28f3c8
+    static const float kRankScaleMid = 0.9f;          // @ghidraAddress 0x28f3b0
+    static const float kRatingLabelSlideFrom = 10.0f; // fmov, 10.0
     static const NSUInteger kRatingLabelSprite = 10;
     static const NSUInteger kRankSprite = 0xc;
+    static const int kRankHighTierMax = 4;  // ranks 0..4 take the high-tier animation
+    static const int kRankTopTierCount = 3; // ranks 0..2 take the longer windows
+    static const unsigned int kRankPopEndTop = 4;
+    static const unsigned int kRankPopEndHigh = 3;
+    static const unsigned int kRankSlideEndTop = 0xe;
+    static const unsigned int kRankSlideEndHigh = 7;
+    static const unsigned int kRankLabelEndStd = 0xd;
+    static const unsigned int kRankStdPopEnd = 8;
+    static const unsigned int kRankStdSettleEnd = 0xe;
+    static const unsigned int kRankStdHoldEnd = 0x10;
+    static const unsigned int kRankStdAlphaEnd = 0xd;
 
     int rank = (int)self.sequence.rank;
 
-    // The rating-label slides up into place and fades in; its animation window and the rank-sprite
-    // pop timing both shorten for the top ranks (rank < 3).
-    unsigned int slideEnd = (rank < 3) ? 0xe : 7;
+    // The binary carries two complete copies of this routine, one per tier: the high tier
+    // (rank <= 4) animates on rank-dependent windows, the standard tier on fixed ones.
+    BOOL highTier = rank <= kRankHighTierMax;
+    unsigned int popEnd = (rank < kRankTopTierCount) ? kRankPopEndTop : kRankPopEndHigh;
+    unsigned int slideEnd = (rank < kRankTopTierCount) ? kRankSlideEndTop : kRankSlideEndHigh;
+    unsigned int labelEnd = highTier ? slideEnd : kRankLabelEndStd;
+
     double labelY = kRatingLabelBaseY;
     if (self->is4Inch) {
         labelY = (double)([self buttonMarginForScreen40] + 0x146);
     }
-    float labelSlide = InterpolateFloatByFrame(10.0f, 0.0f, animFrame, 0, slideEnd);
-    float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, slideEnd);
+    float labelSlide = InterpolateFloatByFrame(kRatingLabelSlideFrom, 0.0f, animFrame, 0, labelEnd);
+    float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, labelEnd);
     [self.texResultBg
         drawSprite:kRatingLabelSprite
            atPoint:CGPointMake(kRatingLabelX, labelY + (double)labelSlide + kRatingLabelSlideY)
@@ -2378,42 +2488,43 @@ drawDigits:
     if (self->is4Inch) {
         rankY = (double)([self buttonMarginForScreen40] + 0x168) + 1.0;
     }
-    (void)[self.texResultBg spriteAtIndex:kRankSprite];
+    // The glyph is centred on its own sprite size.
+    CGSize rankSize = [self.texResultBg spriteAtIndex:kRankSprite].size;
 
-    // The rank sprite pops: it overshoots and settles, with a few frame windows differing between
-    // the high (rank < 5) and standard tiers.
     float rankScale;
     float rankAlpha;
-    if (rank < 5) {
-        unsigned int popStart = (rank < 3) ? 0 : 3;
-        unsigned int popEnd = (rank < 3) ? 4 : 3;
-        float from = (animFrame < popEnd) ? 2.0f : kRankScaleLow;
-        float to = (animFrame < popEnd) ? kRankScaleLow : 1.0f;
-        rankScale = InterpolateFloatByFrame(from, to, animFrame, popStart, popEnd);
-        rankAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, popEnd);
+    if (highTier) {
+        if (animFrame < popEnd) {
+            rankScale = InterpolateFloatByFrame(2.0f, kRankScaleLow, animFrame, 0, popEnd);
+        } else {
+            rankScale = InterpolateFloatByFrame(kRankScaleLow, 1.0f, animFrame, popEnd, slideEnd);
+        }
+        rankAlpha = labelAlpha; // This tier reuses the rating label's alpha for the glyph.
+    } else if (animFrame < kRankStdPopEnd) {
+        rankScale = InterpolateFloatByFrame(2.0f, kRankScaleBig, animFrame, 0, kRankStdPopEnd);
+        rankAlpha = InterpolateFloatByFrame(0.0f, kRankAlphaLow, animFrame, 0, kRankStdPopEnd);
     } else {
-        if (animFrame < 8) {
-            rankScale = InterpolateFloatByFrame(2.0f, kRankScaleBig, animFrame, 0, 8);
-            rankAlpha = InterpolateFloatByFrame(kRankScaleSmall, 0.0f, animFrame, 8, 0xd);
-        } else if (animFrame < 0xe) {
-            rankScale = InterpolateFloatByFrame(kRankScaleBig, kRankScaleMid, animFrame, 8, 0xe);
-            rankAlpha = InterpolateFloatByFrame(kRankScaleSmall, 0.0f, animFrame, 8, 0xd);
-        } else if (animFrame < 0x10) {
-            rankScale = InterpolateFloatByFrame(kRankScaleMid, 1.0f, animFrame, 0xe, 0x10);
-            rankAlpha = InterpolateFloatByFrame(kRankScaleSmall, 0.0f, animFrame, 8, 0xd);
+        if (animFrame < kRankStdSettleEnd) {
+            rankScale = InterpolateFloatByFrame(
+                kRankScaleBig, kRankScaleMid, animFrame, kRankStdPopEnd, kRankStdSettleEnd);
+        } else if (animFrame < kRankStdHoldEnd) {
+            rankScale = InterpolateFloatByFrame(
+                kRankScaleMid, 1.0f, animFrame, kRankStdSettleEnd, kRankStdHoldEnd);
         } else {
             rankScale = 1.0f;
-            rankAlpha = InterpolateFloatByFrame(kRankScaleMid, 1.0f, animFrame, 8, 0xd);
         }
+        rankAlpha = InterpolateFloatByFrame(
+            kRankAlphaLow, 1.0f, animFrame, kRankStdPopEnd, kRankStdAlphaEnd);
     }
 
-    [self.texResultBg drawSprite:kRankSprite
-                         atPoint:CGPointMake(kRankAnchorX - (double)rankScale * 0.5, rankY)
-                           scale:rankScale
-                          rotate:0
-                          anchor:CGPointMake(kRankAnchorX, rankY)
-                       transform:0
-                           alpha:rankAlpha];
+    [self.texResultBg
+        drawSprite:kRankSprite
+           atPoint:CGPointMake(kRankAnchorX - rankSize.width * 0.5, rankY - rankSize.height * 0.5)
+             scale:rankScale
+            rotate:0
+            anchor:CGPointMake(kRankAnchorX, rankY)
+         transform:0
+             alpha:rankAlpha];
 }
 
 /** @ghidraAddress 0x1924f8 */
@@ -2424,12 +2535,12 @@ drawDigits:
     static const double kArtworkSize[] = {80.0, 88.0}; // @ghidraAddress 0x292770
     static const double kTuneInfoX = 8.0;              // fmov, 8.0
     static const double kTuneInfoYDefault = 10.0;
-    static const double kScoreX = 140.0;           // @ghidraAddress 0x28f6a8
-    static const double kScoreYDefault = 101.0;    // 0x65
-    static const double kPartnerX = 192.0;         // @ghidraAddress 0x28fa00
-    static const double kPartnerYDefault = 75.0;   // 0x4b
-    static const double kPartnerScale = 0.7;       // @ghidraAddress 0x291c98
-    static const double kMusicBarYDefault = 136.0; // 0x88
+    static const double kScoreX = 140.0;                   // @ghidraAddress 0x28f6a8
+    static const double kScoreYDefault = 101.0;            // 0x65
+    static const double kPartnerX = 192.0;                 // @ghidraAddress 0x28fa00
+    static const double kPartnerYDefault = 75.0;           // 0x4b
+    static const double kPartnerScale = 0.699999988079071; // @ghidraAddress 0x291c98
+    static const double kMusicBarYDefault = 136.0;         // 0x88
 
     // The shutter, if still open, closes in one 18.1-point step per frame down to zero.
     static const float kShutterCloseThreshold = 18.100000381469727f; // @ghidraAddress 0x293500
@@ -2640,9 +2751,11 @@ drawDigits:
 
 /** @ghidraAddress 0x18dbc8 */
 - (void)renderScore:(unsigned int)score atPoint:(CGPoint)point alpha:(double)alpha {
-    static const int kScoreDigitStride = 0x19;   // 25
-    static const float kScoreDigitScale = 1.3f;  // @ghidraAddress 0x292558 (four-inch width scale)
-    static const double kScoreDigitNudge = -0.3; // @ghidraAddress 0x293510
+    static const int kScoreDigitStride = 0x19;  // 25
+    static const float kScoreDigitScale = 1.3f; // @ghidraAddress 0x292558 (four-inch width scale)
+    // The pool slot holds the float -0.29999995f widened to double, not the double -0.3.
+    static const double kScoreDigitNudge = -0.29999995231628418; // @ghidraAddress 0x293510
+    static const double kScoreDigitOriginBias = 6.0;             // fmov d1,#6.0 at 0x18ddac
     static const char kScoreDigitAsciiBase = 0x30;
     static const unsigned int kScoreSixDigitThreshold = 0xaae61; // 700001
     static const NSUInteger kScorePlateLo = 5;
@@ -2682,37 +2795,36 @@ drawDigits:
     }
 
     // The four-inch screen draws the score at 1.3x with an anchored scale.
-    (void)[self.texFront spriteAtIndex:5];
-    double anchorX = point.x + alpha;
+    CGSize plateSize = [self.texFront spriteAtIndex:kScorePlateLo].size;
+    CGPoint plateAnchor = CGPointMake(point.x + plateSize.width, point.y + plateSize.height);
     [self.texFront drawSprite:kScorePlateLo
                       atPoint:point
-                        scale:(float)kScoreDigitScale
+                        scale:kScoreDigitScale
                        rotate:0
-                       anchor:CGPointMake(anchorX, point.y)
-                    transform:5
+                       anchor:plateAnchor
+                    transform:0
                         alpha:a];
     [self.texFront drawSprite:kScorePlateHi
                       atPoint:point
-                        scale:(float)kScoreDigitScale
+                        scale:kScoreDigitScale
                        rotate:0
-                       anchor:CGPointMake(anchorX, point.y)
-                    transform:6
+                       anchor:plateAnchor
+                    transform:0
                         alpha:a];
-    (void)[self.texFront spriteAtIndex:baseSprite];
-    float glyphX0 = (float)(point.x + alpha * kScoreDigitNudge + 6.0);
+    float glyphX0 = (float)(point.x + plateSize.width * kScoreDigitNudge + kScoreDigitOriginBias);
+    CGSize digitSize = [self.texFront spriteAtIndex:baseSprite].size;
     for (int i = 0; i < 7; ++i) {
         if ((unsigned char)(digits[i] - kScoreDigitAsciiBase) < 10) {
             float gx = (float)(i * kScoreDigitStride) * kScoreDigitScale;
             NSUInteger sprite = (NSUInteger)(((int)(baseSprite | 0xffffffd0)) + (int)digits[i]);
-            [self.texFront
-                drawSprite:sprite
-                   atPoint:CGPointMake((double)(glyphX0 + gx), point.y)
-                     scale:(float)kScoreDigitScale
-                    rotate:0
-                    anchor:CGPointMake((double)glyphX0 + (double)kScoreDigitScale + (double)gx,
-                                       point.y)
-                 transform:0
-                     alpha:a];
+            [self.texFront drawSprite:sprite
+                              atPoint:CGPointMake((double)(glyphX0 + gx), point.y)
+                                scale:kScoreDigitScale
+                               rotate:0
+                               anchor:CGPointMake((double)glyphX0 + digitSize.width + (double)gx,
+                                                  point.y + digitSize.height)
+                            transform:0
+                                alpha:a];
         }
     }
 }
@@ -2756,9 +2868,9 @@ drawDigits:
         centre = (double)([self buttonMarginForScreen40] + 0x140);
     }
 
-    // Sprite 1's width sets how far each bar starts inset from the centre.
-    double barWidth = [self.texBeatBg spriteAtIndex:1].size.width;
-    double left = centre - barWidth;
+    // Sprite 1's height sets how far each bar starts inset from the centre.
+    double barHeight = [self.texBeatBg spriteAtIndex:1].size.height;
+    double left = centre - barHeight;
     for (int i = 0; i < 5; ++i) {
         int sprite = (i == 4) ? 3 : i;
         // The left half, mirrored (transform 2), pulled in by the column offset and the shutter.
@@ -2841,7 +2953,7 @@ drawDigits:
                             scale:1.0f
                            rotate:0
                            anchor:CGPointMake(cellX + kMarkerSpriteSize, cellY + kMarkerSpriteSize)
-                        transform:3
+                        transform:0
                             alpha:fadeIn];
     }
     startMarkFrame = startMarkFrame + 1;
@@ -2907,7 +3019,8 @@ drawDigits:
 
 /** @ghidraAddress 0x18d92c */
 - (void)renderUpdatedScore:(unsigned int)score atPoint:(CGPoint)point alpha:(double)alpha {
-    static const double kScoreDigitScale = 1.2; // @ghidraAddress 0x292f38
+    // The pool slot holds the float 1.2f widened to double, not the double 1.2.
+    static const double kScoreDigitScale = 1.2000000476837158; // @ghidraAddress 0x292f38
     static const int kScoreDigitCount = 7;
     static const NSUInteger kScoreLeadSprite = 0x36;  // 54: the leading plate
     static const NSUInteger kScoreTrailSprite = 0x35; // 53: the trailing plate
@@ -2920,9 +3033,9 @@ drawDigits:
         return;
     }
 
-    // The digit spacing scales with the passed alpha; the glyphs and plates are drawn at 1.2x.
-    double spacing = alpha * kScoreDigitScale;
-    (void)[self.texFront spriteAtIndex:kScoreLeadSprite];
+    // The digit spacing is the leading plate's width at 1.2x (0x18d9c8 -> 0x18d9e0).
+    CGSize leadSize = [self.texFront spriteAtIndex:kScoreLeadSprite].size;
+    double spacing = leadSize.width * kScoreDigitScale;
 
     char digits[8];
     snprintf(digits, 8, "%7d", score);
@@ -2945,7 +3058,6 @@ drawDigits:
     }
 
     // The trailing plate at the position of the last leading blank.
-    (void)[self.texFront spriteAtIndex:kScoreTrailSprite];
     CGRect trail = [self.texFront spriteAtIndex:kScoreTrailSprite];
     [self.texFront drawSprite:kScoreTrailSprite
                        inRect:CGRectMake(point.x + spacing * (double)(lastDigitIndex + 1) + 1.0,
@@ -2962,12 +3074,12 @@ drawDigits:
     static const double kArtworkSize[] = {80.0, 88.0}; // @ghidraAddress 0x292770
     static const double kTuneInfoX = 8.0;
     static const double kTuneInfoYDefault = 10.0;
-    static const double kScoreX = 140.0;           // @ghidraAddress 0x28f6a8
-    static const double kScoreYDefault = 101.0;    // @ghidraAddress 0x293520
-    static const double kMusicBarYDefault = 136.0; // @ghidraAddress 0x28f768
-    static const double kPartnerX = 192.0;         // @ghidraAddress 0x28fa00
-    static const double kPartnerYDefault = 75.0;   // @ghidraAddress 0x28f788
-    static const double kPartnerScale = 0.7;       // @ghidraAddress 0x291c98
+    static const double kScoreX = 140.0;                   // @ghidraAddress 0x28f6a8
+    static const double kScoreYDefault = 101.0;            // @ghidraAddress 0x293520
+    static const double kMusicBarYDefault = 136.0;         // @ghidraAddress 0x28f768
+    static const double kPartnerX = 192.0;                 // @ghidraAddress 0x28fa00
+    static const double kPartnerYDefault = 75.0;           // @ghidraAddress 0x28f788
+    static const double kPartnerScale = 0.699999988079071; // @ghidraAddress 0x291c98
     // On the 4-inch screen the upper region is taller, so each element is nudged down by a
     // fraction of the extra height (upperBgHeight40).
 
