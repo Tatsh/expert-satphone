@@ -33,7 +33,8 @@ static const float g_flKeyTime040 = 0.4f; // @ghidraAddress 0x28f3b4
 static const float g_flKeyTime060 = 0.6f; // @ghidraAddress 0x28f3b8
 static const float g_flKeyTime070 = 0.7f; // @ghidraAddress 0x28f3bc
 static const float g_flKeyTime080 = 0.8f; // @ghidraAddress 0x28f3c0
-static const float kComboFadeBase = 0.3f; // An fmov immediate.
+static const float g_flKeyTime020 = 0.2f; // @ghidraAddress 0x28f3c8
+static const float kComboFadeBase = 0.3f; // @ghidraAddress 0x28e0b0
 
 // -renderImage renders a view into a UIImage. It is a category the binary provides on UIView whose
 // declaring class is not established; declared here so the partner-name label can be messaged.
@@ -191,6 +192,12 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const float kUpperBgYPeriodDiv = 30.0f;     // An fmov immediate.
     static const float kUpperBgMagScale = 0.00390625f; // @ghidraAddress 0x292a90 (1/256)
 
+    // The user's ripple-colour preference selects the background resource. It is compared as a
+    // 32-bit unsigned value, so any tier above the maximum (including a negative one) falls back
+    // to tier 0.
+    static NSString *const kColorRipplesKey = @"PrefColorRipples"; // @ghidraAddress 0x2db500
+    static const unsigned int kMaxRippleBackgroundTier = 3;
+
     NSData *cipherKey = CreateTextureCipherKey();
     BFCodec *cipher = [[BFCodec alloc] init];
 
@@ -277,10 +284,15 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         self.texMarker.sprites = [[NSArray alloc] initWithContentsOfFile:markerPlist];
     }
 
-    // Blit the background art from the tension-tier-0 background resource into the combo atlas.
-    NSString *bgPath =
-        [NSBundle.mainBundle pathForResource:[NSString stringWithFormat:@"game_bg_rpl_%d", 0]
-                                      ofType:@"png"];
+    // Blit the background art for the user's ripple-colour tier into the combo atlas.
+    unsigned int bgTier =
+        (unsigned int)[NSUserDefaults.standardUserDefaults integerForKey:kColorRipplesKey];
+    if (bgTier > kMaxRippleBackgroundTier) {
+        bgTier = 0;
+    }
+    NSString *bgPath = [NSBundle.mainBundle
+        pathForResource:[NSString stringWithFormat:@"game_bg_rpl_%d", (int)bgTier]
+                 ofType:@"png"];
     if (bgPath) {
         UIImage *bgImage = [[UIImage alloc] initWithContentsOfFile:bgPath];
         [self.texCombo setSubImage:bgImage
@@ -304,12 +316,12 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         }
     }
 
-    // Blit the four hold-direction rows (h0..h3), each 16 frames, into the marker atlas.
+    // Blit the four hold-direction rows (h1..h4), each 16 frames, into the marker atlas.
     for (int row = 0; row < kMarkerHoldRowCount; ++row) {
         @autoreleasepool {
             for (int i = 0; i < kHoldFramesPerRow; ++i) {
                 [cipher cipherInit:cipherKey];
-                NSString *entry = [NSString stringWithFormat:@"h%d%02d", row, i];
+                NSString *entry = [NSString stringWithFormat:@"h%d%02d", row + 1, i];
                 NSMutableData *bytes = [markerZip uncompress:entry];
                 UIImage *image = CreateImageFromEncryptedData(cipher, bytes);
                 if (image) {
@@ -418,24 +430,23 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     for (int i = 0; i < kUpperBgRippleCount; ++i) {
         unsigned int yPeriod = (arc4random() % 10) * 0x1e + 0x96;
         NSUInteger sprite = (arc4random() % kUpperBgSpriteMod) + kUpperBgSpriteBase;
+        unsigned int atX = arc4random() % kUpperBgXBase;
+        unsigned int atY = arc4random() % kUpperBgYMod + kUpperBgYBias;
         float xSpeed = (float)(arc4random() % 0x18 + 6) / kUpperBgYPeriodDiv;
         float yGround = (float)(arc4random() % 0x19 + 0xaf);
         float yAmp = (float)(arc4random() % 0x14 + 10);
-        unsigned int yPhaseRaw = arc4random() % 0x78 + 0x1e;
-        unsigned int atX = arc4random() % kUpperBgXBase;
-        unsigned int atY = arc4random() % kUpperBgYMod + kUpperBgYBias;
-        unsigned int yCenterRaw = arc4random();
-        unsigned int phase = (yPeriod != 0) ? (yCenterRaw % yPeriod) : 0;
+        float yCenter = (float)(arc4random() % 0x78 + 0x1e);
+        unsigned int yPhase = arc4random() % yPeriod;
         float mag = (float)((arc4random() & 0x7f) + 0x60) * kUpperBgMagScale;
         UpperBGRipple *ripple =
             [[UpperBGRipple alloc] initWithSprite:sprite
                                           atPoint:CGPointMake((double)atX, (double)atY)
-                                           xSpeed:(float)yPeriod
+                                           xSpeed:xSpeed
                                           yGround:yGround
-                                             yAmp:xSpeed
-                                          yCenter:yAmp
-                                          yPeriod:yPhaseRaw
-                                           yPhase:phase
+                                             yAmp:yAmp
+                                          yCenter:yCenter
+                                          yPeriod:yPeriod
+                                           yPhase:yPhase
                                               mag:mag];
         [self.arrayUpperBgRip addObject:ripple];
     }
@@ -457,6 +468,9 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         @"res_judgement_ss_rpl",
         @"res_judgement_sss_rpl",
     };
+    // Where the rank judgement glyph blits into the result atlas.
+    static const unsigned int kResultJudgementSprite = 10;
+    static const short kRankCount = 8;
 
     if (self.texResult) {
         self.texResult = nil;
@@ -466,11 +480,12 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     [cipher cipherInit:cipherKey];
     self.texResult = CreateTexture2DFromEncryptedTexResource(@"game_result_rpl_tex", cipher);
 
-    if (rank < 8) {
-        // Blit the rank's judgement glyph into the result atlas from its bundled resource. The
-        // binary passes CGPointZero here.
+    if (rank < kRankCount) {
+        // An eight-way jump table picks the rank resource; every arm falls into this common blit
+        // of the judgement glyph into the result atlas's judgement slot.
+        CGRect judgementSlot = [self.texResult spriteAtIndex:kResultJudgementSprite];
         LoadTextureSubImageFromResource(
-            self.texResult, kJudgementResources[rank], CGPointMake(0.0, 0.0));
+            self.texResult, kJudgementResources[rank], judgementSlot.origin);
     }
 }
 
@@ -536,11 +551,11 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 - (void)replaySelect {
     if (self.isCustom && self.isDownload && self.hasMusic) {
         self.replayPlaying = YES;
-        // spriteAtIndex: is called only for its side effect on the shared draw scratch; the point
-        // then read is the atlas origin, so the start mark reloads at (0, 0).
-        [self.texFront spriteAtIndex:0x1d];
+        // The start-mark slot in the front atlas.
+        static const unsigned int kFrontSpriteStartMark = 0x1d;
+        CGRect startMarkSlot = [self.texFront spriteAtIndex:kFrontSpriteStartMark];
         LoadTextureSubImageFromResource(
-            self.texFront, @"game_start_mark_rpl", CGPointMake(0.0, 0.0));
+            self.texFront, @"game_start_mark_rpl", startMarkSlot.origin);
         self.isTextureChange = NO;
 
         /** @ghidraAddress 0x28f260 */
@@ -732,12 +747,16 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 /** @ghidraAddress 0x11b770 */
 - (void)renderBG {
     // Base-plate geometry.
-    static const double kBasePlateY = 128.0;              // @ghidraAddress 0x28f750
+    static const double kBasePlateX = 128.0;              // @ghidraAddress 0x28f750
+    static const double kBasePlateY = 384.0;              // @ghidraAddress 0x292470
+    static const double kBasePlateAnchorX = 384.0;        // @ghidraAddress 0x292470
+    static const double kBasePlateAnchorY = 640.0;        // @ghidraAddress 0x291d80
     static const float kBaseScaleNorm = 768.0f;           // @ghidraAddress 0x292550
     static const float kBaseScaleMag = 0.001953125f;      // @ghidraAddress 0x292abc (1/512)
     static const float kBgAppearThreshold = 0.606060624f; // @ghidraAddress 0x292ab4
     static const float kBgAppearHigh = 1.1f;              // @ghidraAddress 0x292ab8
     static const float kBgRippleMag = 0.00390625f;        // @ghidraAddress 0x292a90 (1/256)
+    static const float kBgRippleXSpeed = -0.0009765625f;  // @ghidraAddress 0x292ac0 (-1/1024)
     static const float kBgRippleAlphaDiv = 100.0f;        // @ghidraAddress 0x28f4e0
     // Tension thresholds selecting the ripple animation group and its spawn parameters.
     enum {
@@ -764,32 +783,34 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
 
     // Map the beat phase into a plate scale via InterpolateFloatByPosition: below the threshold the
-    // plate is quiet, above it it pulses.
-    float scaleInput;
-    float scaleFrom;
-    float scaleToLow;
-    float scaleToHigh;
-    if (self.sequence != nil && !self.scoreBackup && haku >= kBgAppearThreshold) {
-        scaleInput = haku;
-        scaleFrom = kBgAppearThreshold;
-        scaleToLow = 1.0f;
-        scaleToHigh = kBgAppearHigh;
+    // plate falls from 1.1 to 1.0, above it it rises from 1.0 back to 1.1.
+    float scaleInput = haku;
+    float scaleLo;
+    float scaleHi;
+    float scaleAtLo;
+    float scaleAtHi;
+    if (self.sequence != nil && haku >= kBgAppearThreshold) {
+        scaleLo = kBgAppearThreshold;
+        scaleHi = 1.0f;
+        scaleAtLo = 1.0f;
+        scaleAtHi = kBgAppearHigh;
     } else {
-        scaleInput = 0.0f;
-        scaleFrom = 0.0f;
-        scaleToLow = kBgAppearHigh;
-        scaleToHigh = 1.0f;
+        scaleLo = 0.0f;
+        scaleHi = kBgAppearThreshold;
+        scaleAtLo = kBgAppearHigh;
+        scaleAtHi = 1.0f;
     }
     float plateScale =
-        InterpolateFloatByPosition(scaleInput, 0.0f, scaleFrom, scaleToLow, scaleToHigh);
+        InterpolateFloatByPosition(scaleInput, scaleLo, scaleHi, scaleAtLo, scaleAtHi);
     float rippleMag = plateScale * kBaseScaleNorm * kBaseScaleMag;
 
-    // The base plate: sprite 0x18 drawn at the plate's top, scaled by the beat pulse.
+    // The base plate: sprite 0x18 drawn at the plate's top-left, scaled by the beat pulse about
+    // the playfield centre, so at rest it covers the 4x4 grid exactly.
     [self.texCombo drawSprite:kBasePlateSprite
-                      atPoint:CGPointMake(0.0, kBasePlateY)
+                      atPoint:CGPointMake(kBasePlateX, kBasePlateY)
                         scale:rippleMag
                        rotate:0.0f
-                       anchor:CGPointMake(0.0, 0.0)
+                       anchor:CGPointMake(kBasePlateAnchorX, kBasePlateAnchorY)
                     transform:0
                         alpha:1.0f];
 
@@ -810,56 +831,58 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     if ((self->frame & 1) != 0) {
         unsigned int spriteBits;
         int lifetime;
-        unsigned int spawnChance;
+        unsigned int sizeModulus;
+        unsigned int spawnThreshold;
         unsigned int xRange;
         unsigned int yRange;
         if (tension < kTensionTier1) {
             spriteBits = arc4random() & 3;
             lifetime = (int)(arc4random() % 6 + 0x1a);
-            spawnChance = 0x80;
+            sizeModulus = 0x80;
+            spawnThreshold = 0xc;
             xRange = 300;
             yRange = 300;
         } else if (tension < kTensionTier2) {
             spriteBits = (arc4random() & 3) | 4;
             lifetime = (int)(arc4random() % 0x11 + 0x13);
-            spawnChance = 200;
+            sizeModulus = 0xc8;
+            spawnThreshold = 0x11;
             xRange = 400;
             yRange = 400;
         } else if (tension < kTensionTier3) {
             spriteBits = (arc4random() & 3) | 8;
             lifetime = (int)(arc4random() % 0x16 + 0xc);
-            spawnChance = 0xe6;
+            sizeModulus = 0xe6;
+            spawnThreshold = 0x28;
             xRange = 600;
             yRange = 600;
         } else if (tension < kTensionTier4) {
             spriteBits = (arc4random() & 3) | 0xc;
             lifetime = (int)(arc4random() % 0x12 + 0x1a);
-            spawnChance = 0x118;
-            xRange = 0x28a;
-            yRange = 800;
+            sizeModulus = 0x118;
+            spawnThreshold = 0x32;
+            xRange = 800;
+            yRange = 0x28a;
         } else {
             spriteBits = (arc4random() & 7) | 0x10;
             lifetime = (int)(arc4random() % 0x32 + 0x14);
-            spawnChance = 0x154;
-            xRange = 500;
-            yRange = 800;
+            sizeModulus = 0x154;
+            spawnThreshold = 0x28;
+            xRange = 800;
+            yRange = 500;
         }
 
-        // The spawn-chance selects roughly one in 80, weighted by the tier's chance value.
-        if (arc4random() % 0x50 < (unsigned int)(spawnChance & 0x3f)) {
-            (void)spawnChance;
-        }
-        // Faithful: the binary compares arc4random() % 0x50 against the tier's chance value stored
-        // in the same register as the tier bits, spawning only sometimes.
-        if (arc4random() % 0x50 < (spawnChance)) {
+        // The tier's threshold out of 80: a 15% chance at the lowest tension, 62.5% at the
+        // highest.
+        if (arc4random() % 0x50 < spawnThreshold) {
+            float baseSize = (float)(int)((arc4random() % sizeModulus) + 0x80);
             unsigned int xr = arc4random();
-            unsigned int cx = (xr % xRange);
+            unsigned int cx = (xr / xRange) * xRange;
             unsigned int yr = arc4random();
-            unsigned int cy = (yr % yRange);
-            float baseSize = (float)(int)((arc4random() % spawnChance) + 0x80);
-            float xSpeed = baseSize * kBgRippleMag;
+            unsigned int cy = (yr / yRange) * yRange;
+            float xSpeed = baseSize * kBgRippleXSpeed;
             unsigned int life2 = arc4random() % 0x14 + 0x82;
-            [self.texCombo spriteAtIndex:spriteBits];
+            CGRect spriteRect = [self.texCombo spriteAtIndex:spriteBits];
             CGPoint at = CGPointMake((double)((xr + 0x1bc) - (cx + (xRange >> 1))),
                                      (double)((yr + 0x280) - (cy + (yRange >> 1))));
             BGRipple *ripple =
@@ -867,7 +890,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                          atPoint:at
                                           xSpeed:xSpeed
                                         lifetime:life2
-                                        basesize:rippleMag
+                                        basesize:(float)spriteRect.size.width
                                              mag:baseSize * kBgRippleMag
                                            alpha:(float)lifetime / kBgRippleAlphaDiv];
             [self.arrayBgRip addObject:ripple];
@@ -883,9 +906,26 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const float kShutterAmpBase = 15.0f;        // fmov immediate
     static const float kShutterHalf = 0.5f;
     static const float kShutterInterpHigh = 2.79999995f; // @ghidraAddress 0x292594
+    static const float kShutterInterpTo = 1.7f;          // @ghidraAddress 0x292ac4
     static const float kBgAppearHigh = 1.1f;             // @ghidraAddress 0x292ab8
-    static const double kShutterXNudge = 288.0;          // An fmov immediate.
-    static const double kShutterCapY = 384.0;            // An fmov immediate.
+    // Every bar's y is offset by the playfield top, added in single precision before the widening
+    // to double.
+    static const float kShutterBarYOffset = 256.0f; // @ghidraAddress 0x292548
+    // Each bar draw is displaced by this fixed amount, not by the beat phase.
+    static const double kShutterDrawOffset = -96.0; // @ghidraAddress 0x2929b0
+    // Cap geometry: the pair's two points and the shared scale/rotation pivot.
+    static const double kShutterCapAnchorX = 384.0; // @ghidraAddress 0x292470
+    static const double kShutterCapAnchorY = 640.0; // @ghidraAddress 0x291d80
+    static const double kShutterCapPointY = 256.0;  // @ghidraAddress 0x28e030
+    static const double kShutterCap1X = 536.0;      // @ghidraAddress 0x2929b8
+    static const double kShutterCap1Y = 488.0;      // @ghidraAddress 0x2929c0
+    // The cap pair is drawn once per quarter turn.
+    static const float kShutterCapRotations[] = {
+        0.0f,       // A zeroed vector register, not a pool load.
+        1.5707964f, // @ghidraAddress 0x292ac8
+        3.1415927f, // @ghidraAddress 0x292acc
+        4.712389f,  // @ghidraAddress 0x292ad0
+    };
     // The shutter-bar and cap sprite index bases in texCombo.
     static const int kShutterBarSpriteBias = 0x19;
     static const NSUInteger kShutterCapSprite0 = 0x1c;
@@ -921,7 +961,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         326.4f,  356.0f,  -168.1f, 23.1f,  497.4f,  461.0f, 941.9f, 681.1f,  244.0f,  375.0f,
         -172.5f, 491.4f,  308.1f,  257.2f, 26.3f,   -167.4f};
 
-    // The beat phase drives the sinusoidal ripple applied to each bar corner.
+    // The beat phase drives the sinusoid that modulates how far the shutter opens.
     float haku = 0.0f;
     double sinArg = 0.0;
     float tension = 0.0f;
@@ -953,13 +993,10 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
 
     float openInterp = InterpolateFloatByPosition(
-        shutterOpenValue, 0.0f, kShutterTensionFactor, kBgAppearHigh, 2.79999995f);
-    (void)openInterp;
+        shutterOpenValue, 0.0f, kShutterTensionFactor, kBgAppearHigh, kShutterInterpTo);
 
-    // First bar group: each of four rows draws its ripple pair from the shared table, offset by the
-    // sinusoid.
-    double sinOffset = kShutterXNudge; // The x/y sin nudge, 288 at rest.
-    (void)sinOffset;
+    // First bar group: each of four rows draws its ripple pair from the shared table, displaced by
+    // the fixed draw offset.
     for (int i = 0; i < 4; ++i) {
         float x0 = InterpolateFloatByPosition(self->shutterOpen,
                                               0.0f,
@@ -972,17 +1009,17 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                               kShutterBar0[i * 4 + 1],
                                               kShutterBar0[i * 4 + 3]);
         double bx = (double)x0;
-        double by = (double)y0 + kShutterHalf;
+        double by = (double)(y0 + kShutterBarYOffset);
         NSUInteger sprite = (NSUInteger)(kShutterBarIndex0[i] + kShutterBarSpriteBias);
         [self.texCombo drawSprite:sprite
-                          atPoint:CGPointMake(bx + sinArg, by + sinArg)
+                          atPoint:CGPointMake(bx + kShutterDrawOffset, by + kShutterDrawOffset)
                             scale:openInterp
                            rotate:0.0f
                            anchor:CGPointMake(bx, by)
                         transform:0
                             alpha:1.0f];
         [self.texCombo drawSprite:sprite
-                          atPoint:CGPointMake(bx + sinArg, by)
+                          atPoint:CGPointMake(bx + kShutterDrawOffset, by)
                             scale:openInterp
                            rotate:0.0f
                            anchor:CGPointMake(bx, by)
@@ -990,25 +1027,29 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                             alpha:1.0f];
     }
 
-    // The four shutter caps, sized by the field, at fixed vertical bands.
+    // The shutter caps, sized by the field. The pair is drawn four times, once per quarter turn
+    // about the playfield centre, so the shutter closes from every side.
     float capInterp = InterpolateFloatByPosition(
         self->shutterOpen, 0.0f, kShutterTensionFactor, 1.0f, kShutterInterpHigh);
-    [self.texCombo drawSprite:kShutterCapSprite0
-                      atPoint:CGPointMake(kShutterCapY, 256.0)
-                        scale:capInterp
-                       rotate:0.0f
-                       anchor:CGPointMake(kShutterCapY, 576.0)
-                    transform:0
-                        alpha:1.0f];
-    [self.texCombo drawSprite:kShutterCapSprite1
-                      atPoint:CGPointMake(536.0, 488.0)
-                        scale:capInterp
-                       rotate:0.0f
-                       anchor:CGPointMake(kShutterCapY, 576.0)
-                    transform:0
-                        alpha:1.0f];
+    for (size_t i = 0; i < sizeof(kShutterCapRotations) / sizeof(kShutterCapRotations[0]); ++i) {
+        float rotate = kShutterCapRotations[i];
+        [self.texCombo drawSprite:kShutterCapSprite0
+                          atPoint:CGPointMake(kShutterCapAnchorX, kShutterCapPointY)
+                            scale:capInterp
+                           rotate:rotate
+                           anchor:CGPointMake(kShutterCapAnchorX, kShutterCapAnchorY)
+                        transform:0
+                            alpha:1.0f];
+        [self.texCombo drawSprite:kShutterCapSprite1
+                          atPoint:CGPointMake(kShutterCap1X, kShutterCap1Y)
+                            scale:capInterp
+                           rotate:rotate
+                           anchor:CGPointMake(kShutterCapAnchorX, kShutterCapAnchorY)
+                        transform:0
+                            alpha:1.0f];
+    }
 
-    // Second bar group: fourteen rows, sinusoid-offset pairs from the larger table.
+    // Second bar group: fourteen rows, drawn the same way from the larger table.
     for (int i = 0; i < 14; ++i) {
         float x0 = InterpolateFloatByPosition(self->shutterOpen,
                                               0.0f,
@@ -1021,17 +1062,17 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                               kShutterBar1[i * 4 + 1],
                                               kShutterBar1[i * 4 + 3]);
         double bx = (double)x0;
-        double by = (double)y0 + kShutterHalf;
+        double by = (double)(y0 + kShutterBarYOffset);
         NSUInteger sprite = (NSUInteger)(kShutterBarIndex1[i] + kShutterBarSpriteBias);
         [self.texCombo drawSprite:sprite
-                          atPoint:CGPointMake(bx + sinArg, by + sinArg)
+                          atPoint:CGPointMake(bx + kShutterDrawOffset, by + kShutterDrawOffset)
                             scale:openInterp
                            rotate:0.0f
                            anchor:CGPointMake(bx, by)
                         transform:0
                             alpha:1.0f];
         [self.texCombo drawSprite:sprite
-                          atPoint:CGPointMake(bx + sinArg, by)
+                          atPoint:CGPointMake(bx + kShutterDrawOffset, by)
                             scale:openInterp
                            rotate:0.0f
                            anchor:CGPointMake(bx, by)
@@ -1099,68 +1140,111 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const NSUInteger kStartMarkGlyphOuter = 0x1d;
     static const double kStartMarkGlyphNudge = 80.0; // @ghidraAddress 0x28f3f8
 
+    // The animation endpoints, every one of them a __const pool float.
+    static const float kStartMarkInnerScaleFrom = 1.32f; // @ghidraAddress 0x292564
+    static const float kStartMarkInnerAlphaLow = 0.13f;  // @ghidraAddress 0x292a98
+    static const float kStartMarkInnerAlphaMid = 0.22f;  // @ghidraAddress 0x292ab0
+    static const float kStartMarkInnerAlphaHigh = 0.32f; // @ghidraAddress 0x292a94
+    static const float kStartMarkMidAlphaLow = 0.52f;    // @ghidraAddress 0x292a9c
+    static const float kStartMarkHaloScaleHigh = 1.2f;   // @ghidraAddress 0x292aa8
+    static const float kStartMarkHaloScaleLow = 0.89f;   // @ghidraAddress 0x292aa0
+    static const float kStartMarkHaloAlphaLow = 0.07f;   // @ghidraAddress 0x292aac
+    static const float kStartMarkHaloAlphaHigh = 0.33f;  // @ghidraAddress 0x292aa4
+
+    // The frame windows the animation is keyed on.
+    static const unsigned int kStartMarkFadeInSplit = 4;
+    static const unsigned int kStartMarkFadeInEnd = 8;
+    static const unsigned int kStartMarkHaloGrowEnd = 11;
+    static const unsigned int kStartMarkPulseHalf = 15;
+    static const unsigned int kStartMarkHaloDipEnd = 18;
+    static const unsigned int kStartMarkPulsePeriod = 30;
+
     // The four layered start-mark glyph scales/alphas animate through phases keyed on
-    // startMarkFrame; each glyph is a scaled/rotated draw of texFront sprites 0x1d..0x1f.
+    // startMarkFrame; each glyph is a scaled/rotated draw of texFront sprites 0x1d..0x1f. The
+    // locals are named for the draw they feed: the inner glyph (sprite 0x1f), the mid glyph
+    // (sprite 0x1e), the halo (a second scaled draw of sprite 0x1f), and the outer glyph
+    // (sprite 0x1d).
     unsigned int f = self->startMarkFrame;
-    float scaleInner = 0.0f;
-    float scaleMid = 0.0f;
-    float scaleOuter = 0.0f;
-    float alphaInner = 1.0f;
-    float alphaMid = 1.0f;
-    float alphaOuter = 1.0f;
+    float innerScale = 1.0f;
+    float innerAlpha = 0.0f;
+    float midAlpha = 0.0f;
+    float haloScale = 1.0f;
+    float haloAlpha = 0.0f;
+    float outerScale = 1.0f;
+    float outerAlpha = 0.0f;
     if ((int)f < 0) {
-        // Faithful: a negative frame counter zeroes every scale and holds full alpha.
-        scaleInner = scaleMid = scaleOuter = 0.0f;
-    } else if ((int)f < 8) {
-        alphaMid = 1.0f;
-        alphaInner = InterpolateFloatByFrame(1.32f, 1.0f, f, 0, 8);
-        float from;
-        float to;
-        unsigned int start;
-        unsigned int end;
-        if ((int)f < 4) {
-            start = 0;
-            end = 4;
-            from = 0.0f;
-            to = 0.22f; // @ghidraAddress 0x292ab0
+        // Faithful: a negative frame counter zeroes every alpha and holds every scale at 1.0.
+    } else if ((int)f < (int)kStartMarkFadeInEnd) {
+        haloScale = 1.0f;
+        innerScale =
+            InterpolateFloatByFrame(kStartMarkInnerScaleFrom, 1.0f, f, 0, kStartMarkFadeInEnd);
+        if ((int)f < (int)kStartMarkFadeInSplit) {
+            innerAlpha =
+                InterpolateFloatByFrame(0.0f, kStartMarkInnerAlphaMid, f, 0, kStartMarkFadeInSplit);
         } else {
-            start = 4;
-            end = 8;
-            from = 0.22f;
-            to = 1.32f; // @ghidraAddress 0x292a98
+            innerAlpha = InterpolateFloatByFrame(kStartMarkInnerAlphaMid,
+                                                 kStartMarkInnerAlphaLow,
+                                                 f,
+                                                 kStartMarkFadeInSplit,
+                                                 kStartMarkFadeInEnd);
         }
-        scaleOuter = InterpolateFloatByFrame(from, to, f, start, end);
-        scaleMid = 0.0f;
-        scaleInner = InterpolateFloatByFrame(0.0f, g_flKeyTime080, f, 0, 8);
-        alphaInner = InterpolateFloatByFrame(0.07f, 1.0f, f, 4, 8); // @ghidraAddress 0x292aa8
-        scaleOuter = InterpolateFloatByFrame(0.0f, 1.0f, f, 4, 8);
+        haloAlpha = 0.0f;
+        midAlpha = InterpolateFloatByFrame(0.0f, g_flKeyTime080, f, 0, kStartMarkFadeInEnd);
+        outerScale = InterpolateFloatByFrame(
+            kStartMarkHaloScaleHigh, 1.0f, f, kStartMarkFadeInSplit, kStartMarkFadeInEnd);
+        outerAlpha =
+            InterpolateFloatByFrame(0.0f, 1.0f, f, kStartMarkFadeInSplit, kStartMarkFadeInEnd);
     } else {
-        // The steady-state pulse loops every 30 frames.
-        unsigned int p = (f - 8) % 0x1e;
-        if ((int)p < 0xf) {
-            scaleOuter = InterpolateFloatByFrame(1.32f, 0.89f, p, 0, 0xf);
-            scaleInner = InterpolateFloatByFrame(g_flKeyTime080, 0.9f, p, 0, 0xf);
-            if ((int)p < 0xb) {
-                alphaInner = InterpolateFloatByFrame(1.0f, 0.07f, p, 0, 0xb);
-                scaleMid = InterpolateFloatByFrame(0.33f, 1.32f, p, 0, 0xb);
-            } else {
-                alphaInner = InterpolateFloatByFrame(0.07f, 0.89f, p, 0xb, 0x12);
-                scaleMid = InterpolateFloatByFrame(0.33f, 0.33f, p, 0xb, 0x12);
-            }
+        // The steady-state pulse loops every 30 frames. The inner and mid glyphs swing over one
+        // half-period window, while the halo runs its own three-part ramp.
+        unsigned int p = (f - kStartMarkFadeInEnd) % kStartMarkPulsePeriod;
+        if ((int)p < (int)kStartMarkPulseHalf) {
+            innerAlpha = InterpolateFloatByFrame(
+                kStartMarkInnerAlphaLow, kStartMarkInnerAlphaHigh, p, 0, kStartMarkPulseHalf);
+            midAlpha = InterpolateFloatByFrame(
+                g_flKeyTime080, kStartMarkMidAlphaLow, p, 0, kStartMarkPulseHalf);
         } else {
-            scaleOuter = InterpolateFloatByFrame(0.89f, 1.32f, p, 0xf, 0x1e);
-            scaleInner = InterpolateFloatByFrame(0.9f, g_flKeyTime080, p, 0xf, 0x1e);
-            if ((int)p < 0x12) {
-                alphaInner = InterpolateFloatByFrame(0.07f, 0.89f, p, 0xb, 0x12);
-                scaleMid = InterpolateFloatByFrame(0.33f, 0.33f, p, 0xb, 0x12);
-            } else {
-                alphaInner = InterpolateFloatByFrame(0.89f, 1.0f, p, 0x12, 0x1e);
-                scaleMid = InterpolateFloatByFrame(0.33f, 1.32f, p, 0x12, 0x1e);
-            }
+            innerAlpha = InterpolateFloatByFrame(kStartMarkInnerAlphaHigh,
+                                                 kStartMarkInnerAlphaLow,
+                                                 p,
+                                                 kStartMarkPulseHalf,
+                                                 kStartMarkPulsePeriod);
+            midAlpha = InterpolateFloatByFrame(kStartMarkMidAlphaLow,
+                                               g_flKeyTime080,
+                                               p,
+                                               kStartMarkPulseHalf,
+                                               kStartMarkPulsePeriod);
         }
-        scaleOuter = 1.0f;
-        alphaOuter = 1.0f;
-        alphaMid = 1.0f;
+        if ((int)p < (int)kStartMarkHaloGrowEnd) {
+            haloScale =
+                InterpolateFloatByFrame(1.0f, kStartMarkHaloScaleHigh, p, 0, kStartMarkHaloGrowEnd);
+            haloAlpha = InterpolateFloatByFrame(
+                kStartMarkInnerAlphaLow, kStartMarkHaloAlphaLow, p, 0, kStartMarkHaloGrowEnd);
+        } else if ((int)p < (int)kStartMarkHaloDipEnd) {
+            haloScale = InterpolateFloatByFrame(kStartMarkHaloScaleHigh,
+                                                kStartMarkHaloScaleLow,
+                                                p,
+                                                kStartMarkHaloGrowEnd,
+                                                kStartMarkHaloDipEnd);
+            haloAlpha = InterpolateFloatByFrame(kStartMarkHaloAlphaLow,
+                                                kStartMarkHaloAlphaHigh,
+                                                p,
+                                                kStartMarkHaloGrowEnd,
+                                                kStartMarkHaloDipEnd);
+        } else {
+            haloScale = InterpolateFloatByFrame(
+                kStartMarkHaloScaleLow, 1.0f, p, kStartMarkHaloDipEnd, kStartMarkPulsePeriod);
+            haloAlpha = InterpolateFloatByFrame(kStartMarkHaloAlphaHigh,
+                                                kStartMarkInnerAlphaLow,
+                                                p,
+                                                kStartMarkHaloDipEnd,
+                                                kStartMarkPulsePeriod);
+        }
+        // One `stp s15,s15,[sp,#0x14]` holds the inner and outer scales, and the outer alpha, at
+        // unity through the whole pulse.
+        innerScale = 1.0f;
+        outerScale = 1.0f;
+        outerAlpha = 1.0f;
     }
 
     unsigned int firstMarker = self.sequence.firstMarker;
@@ -1175,29 +1259,29 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         CGPoint anchor = CGPointMake(x + kStartMarkGlyphNudge, y + kStartMarkGlyphNudge);
         [self.texFront drawSprite:kStartMarkGlyphInner
                           atPoint:CGPointMake(x, y)
-                            scale:alphaMid
+                            scale:innerScale
                            rotate:0.0f
                            anchor:anchor
                         transform:0
-                            alpha:scaleInner * alpha];
+                            alpha:innerAlpha * alpha];
         [self.texFront drawSprite:kStartMarkGlyphMid
                           atPoint:CGPointMake(x, y)
                         transform:0
-                            alpha:scaleMid * alpha];
+                            alpha:midAlpha * alpha];
         [self.texFront drawSprite:kStartMarkGlyphInner
                           atPoint:CGPointMake(x, y)
-                            scale:alphaInner
+                            scale:haloScale
                            rotate:0.0f
                            anchor:anchor
                         transform:0
-                            alpha:scaleOuter * alpha];
+                            alpha:haloAlpha * alpha];
         [self.texFront drawSprite:kStartMarkGlyphOuter
                           atPoint:CGPointMake(x, y)
-                            scale:alphaOuter
+                            scale:outerScale
                            rotate:0.0f
                            anchor:anchor
                         transform:0
-                            alpha:alphaMid * alpha];
+                            alpha:outerAlpha * alpha];
     }
     (void)kStartMarkInset;
     ++self->startMarkFrame;
@@ -1219,6 +1303,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const int kComboCountGlyphInset = 0xa2;
     static const NSUInteger kComboCountSprite = 0x1e;
     static const NSUInteger kComboBurstSprite = 0x1f;
+    static const NSUInteger kComboDigitSpriteBase = 0x20;
 
     if (self.scoreBackup) {
         return;
@@ -1236,8 +1321,11 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
     if (drawBurst) {
         if (self.showCombo) {
-            [self.texCombo spriteAtIndex:kComboBurstSprite];
-            float scale = InterpolateFloatByFrame(2.5f, 1.0f, self->comboCutFrame, 0, 8);
+            CGRect burstRect = [self.texCombo spriteAtIndex:kComboBurstSprite];
+            float factor = InterpolateFloatByFrame(2.5f, 1.0f, self->comboCutFrame, 0, 8);
+            // The burst quad keeps the sprite's own height and takes its width from the sprite
+            // width scaled by the frame interpolation.
+            float scaledWidth = (float)(burstRect.size.width * (double)factor);
             float from;
             float to;
             unsigned int start;
@@ -1250,19 +1338,22 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
             } else {
                 start = 5;
                 end = 8;
-                from = 0.13f;
-                to = 0.13f; // @ghidraAddress 0x292ad4-area
+                from = 0.13f; // @ghidraAddress 0x292a98
+                to = 0.54f;   // @ghidraAddress 0x292ad4
             }
             float alpha2 = InterpolateFloatByFrame(from, to, self->comboCutFrame, start, end);
             [self.texCombo drawSprite:kComboBurstSprite
-                               inRect:CGRectMake(kComboBurstX, kComboBurstY, (double)scale, 0.0)
+                               inRect:CGRectMake(kComboBurstX,
+                                                 kComboBurstY,
+                                                 (double)scaledWidth,
+                                                 burstRect.size.height)
                             transform:0
                                 alpha:alpha2];
             [self.texCombo drawSprite:kComboBurstSprite
-                               inRect:CGRectMake((double)(kComboBurstMirrorX - scale),
+                               inRect:CGRectMake((double)(kComboBurstMirrorX - scaledWidth),
                                                  kComboBurstY,
-                                                 (double)scale,
-                                                 0.0)
+                                                 (double)scaledWidth,
+                                                 burstRect.size.height)
                             transform:5
                                 alpha:alpha2];
         }
@@ -1299,7 +1390,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                             offset = 0;
                         }
                         [self.texCombo
-                            drawSprite:(NSUInteger)(buf[j] - '.')
+                            drawSprite:(NSUInteger)(buf[j] - '0' + kComboDigitSpriteBase)
                                atPoint:CGPointMake((double)x, (double)(offset + kComboDigitBaseY))
                              transform:0
                                  alpha:alpha];
@@ -1308,7 +1399,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                 } else {
                     int x = baseX;
                     for (int j = 0; j < (int)digitCount; ++j) {
-                        [self.texCombo drawSprite:(NSUInteger)(buf[j] - '.')
+                        [self.texCombo drawSprite:(NSUInteger)(buf[j] - '0' + kComboDigitSpriteBase)
                                           atPoint:CGPointMake((double)x, kComboBurstY)
                                         transform:0
                                             alpha:alpha];
@@ -1351,8 +1442,8 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
             [self.texFront
                 drawSprite:(NSUInteger)(buf[i] + kScoreGlyphBase)
                    atPoint:CGPointMake(point.x + (double)digitX + kScoreDigitNudge, point.y)
-                 transform:(char)(int)(float)alpha
-                     alpha:0];
+                 transform:0
+                     alpha:(float)alpha];
         } else {
             lastNonDigit = i;
         }
@@ -1364,8 +1455,8 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                                    (double)(lastNonDigit * kScoreDigitStride + kScoreDigitStride) +
                                    kScoreDigitNudge,
                                point.y)
-         transform:(char)(int)(float)alpha
-             alpha:0];
+         transform:0
+             alpha:(float)alpha];
 }
 
 /** @ghidraAddress 0x11c7f4 */
@@ -1380,8 +1471,9 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const double kScoreDigitNudge = 1.0;
     static const int kScoreRollupDivisor = 1000000;
 
-    // Prime the label board sprite; its result only sizes the draw scratch.
-    [self.texFront spriteAtIndex:kScoreBoardSprite];
+    // The board sprite's own width drives the score rollup's extent.
+    CGRect boardRect = [self.texFront spriteAtIndex:kScoreBoardSprite];
+    double boardWidth = boardRect.size.width;
 
     if (score == 0) {
         self->scoreDisplay = 0;
@@ -1394,41 +1486,40 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     snprintf(buf, sizeof(buf), "%7d", self->scoreDisplay);
 
     // The glyph base and rollup-region source depend on whether the score has crossed 700000.
-    NSUInteger digitCellSprite;
+    CGRect cellRect;
     long glyphBias;
     if (self->scoreDisplay <= kScoreRankThreshold) {
-        [self.texFront spriteAtIndex:kScoreDigitCellSprite];
-        digitCellSprite = kScoreDigitCellSprite;
+        cellRect = [self.texFront spriteAtIndex:kScoreDigitCellSprite];
         glyphBias = -8;
     } else {
-        [self.texFront spriteAtIndex:kScoreDigitCellSpriteHigh];
-        digitCellSprite = kScoreDigitCellSpriteHigh;
+        cellRect = [self.texFront spriteAtIndex:kScoreDigitCellSpriteHigh];
         glyphBias = 2;
     }
-    (void)digitCellSprite;
 
-    // The six-figure rollup fills the board region proportionally to the shown score.
-    unsigned int rollupNumer = self->scoreDisplay * ((int)alpha + 3);
-    double rollupWidth = (double)(rollupNumer / kScoreRollupDivisor);
-    if (alpha < rollupWidth) {
-        rollupWidth = alpha;
-    }
+    // The six-figure rollup fills the board region proportionally to the shown score. The raw
+    // quotient is never clamped; only the drawn width is limited to the board's own width.
+    unsigned int rollupNumer = self->scoreDisplay * ((int)boardWidth + 3);
+    double rawRollup = (double)(rollupNumer / kScoreRollupDivisor);
+    double clampedRollup = (rawRollup < boardWidth) ? rawRollup : boardWidth;
 
     // The "SCORE" label and the board, then (when full) the rollup region.
     [self.texFront drawSprite:kScoreLabelSprite
                       atPoint:CGPointMake(point.x, point.y)
-                    transform:(char)(int)(float)alpha
-                        alpha:0];
+                    transform:0
+                        alpha:(float)alpha];
     if (rollupNumer >= (unsigned int)kScoreRollupDivisor) {
-        [self.texFront drawInRect:CGRectMake(point.x, point.y, rollupWidth, 0.0)
-                       fromRegion:CGRectMake(alpha - rollupWidth, point.y, rollupWidth, 0.0)
+        [self.texFront drawInRect:CGRectMake(point.x, point.y, clampedRollup, cellRect.size.height)
+                       fromRegion:CGRectMake(cellRect.origin.x + cellRect.size.width - rawRollup,
+                                             cellRect.origin.y,
+                                             clampedRollup,
+                                             cellRect.size.height)
                         transform:0
-                            alpha:0.0f];
+                            alpha:1.0f];
     }
     [self.texFront drawSprite:kScoreLabelInnerSprite
                       atPoint:CGPointMake(point.x, point.y)
-                    transform:(char)(int)(float)alpha
-                        alpha:0];
+                    transform:0
+                        alpha:(float)alpha];
 
     int digitX = 0;
     for (int i = 0; i < 7; ++i) {
@@ -1436,8 +1527,8 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
             [self.texFront
                 drawSprite:(NSUInteger)(buf[i] + glyphBias)
                    atPoint:CGPointMake(point.x + (double)digitX + kScoreDigitNudge, point.y)
-                 transform:(char)(int)(float)alpha
-                     alpha:0];
+                 transform:0
+                     alpha:(float)alpha];
         }
         digitX += kScoreDigitStride;
     }
@@ -1451,6 +1542,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const NSUInteger kScoreLabelSprite = 0x12;
     static const NSUInteger kScoreBoardSprite = 0x13;
     static const NSUInteger kPartnerLabelSprite = 0x27;
+    static const NSUInteger kPartnerDigitCellSprite = 0x28;
     static const unsigned int kScoreRankThreshold = 700000;
     static const int kScoreDigitStride = 0x32; // 50
     static const double kScoreDigitNudge = 1.0;
@@ -1463,8 +1555,8 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
     double drawAlpha = self.isConnected ? alpha : alpha * kHalf;
 
-    [self.texFront spriteAtIndex:kScoreBoardSprite];
-    [self.texFront spriteAtIndex:0x28];
+    CGRect boardRect = [self.texFront spriteAtIndex:kScoreBoardSprite];
+    CGRect cellRect = [self.texFront spriteAtIndex:kPartnerDigitCellSprite];
 
     if (score == 0) {
         self->partnerScoreDisplay = 0;
@@ -1476,18 +1568,20 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 
     char buf[8];
     snprintf(buf, sizeof(buf), "%7d", self->partnerScoreDisplay);
-    long glyphBias = (self->partnerScoreDisplay < kScoreRankThreshold) ? -8 : 2;
+    long glyphBias = (self->partnerScoreDisplay <= kScoreRankThreshold) ? -8 : 2;
 
-    // The label and board are scaled about the anchor point; the partner row uses the passed scale
-    // for both the cell width and height.
+    // The label and board are stretched to the board sprite's own cell size times the passed
+    // scale, and each digit to the digit cell's own size times the same scale.
+    double boardWidth = boardRect.size.width * scale;
+    double boardHeight = boardRect.size.height * scale;
     [self.texFront drawSprite:kScoreLabelSprite
-                       inRect:CGRectMake(point.x, point.y, scale * scale, scale * scale)
-                    transform:(char)(int)(float)drawAlpha
-                        alpha:0];
+                       inRect:CGRectMake(point.x, point.y, boardWidth, boardHeight)
+                    transform:0
+                        alpha:(float)drawAlpha];
     [self.texFront drawSprite:kScoreBoardSprite
-                       inRect:CGRectMake(point.x, point.y, scale * scale, scale * scale)
-                    transform:(char)(int)(float)drawAlpha
-                        alpha:0];
+                       inRect:CGRectMake(point.x, point.y, boardWidth, boardHeight)
+                    transform:0
+                        alpha:(float)drawAlpha];
 
     int digitX = 0;
     for (int i = 0; i < 7; ++i) {
@@ -1496,18 +1590,18 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                 drawSprite:(NSUInteger)(buf[i] + glyphBias)
                     inRect:CGRectMake(point.x + (double)digitX * scale + kScoreDigitNudge,
                                       point.y,
-                                      scale * scale,
-                                      scale * scale)
-                 transform:(char)(int)(float)drawAlpha
-                     alpha:0];
+                                      cellRect.size.width * scale,
+                                      cellRect.size.height * scale)
+                 transform:0
+                     alpha:(float)drawAlpha];
         }
         digitX += kScoreDigitStride;
     }
     [self.texFront
         drawSprite:kPartnerLabelSprite
            atPoint:CGPointMake(point.x + kPartnerLabelOffsetX, point.y + kPartnerLabelOffsetY)
-         transform:(char)(int)(float)drawAlpha
-             alpha:0];
+         transform:0
+             alpha:(float)drawAlpha];
 }
 
 /** @ghidraAddress 0x11ccfc */
@@ -1562,8 +1656,8 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                 int grade = ((score->musicBarResult[gradeIdx] >> gradeShift) & 3) ^ 2;
                 spriteBase = kMusicBarRatingSpriteBase[grade];
             } else {
-                spriteBase = ((float)i + kComboFadeBase < cursor) ? kMusicBarNoteBaseIdle :
-                                                                    kMusicBarNoteBaseCursor;
+                spriteBase = ((float)i + kComboFadeBase < cursor) ? kMusicBarNoteBaseCursor :
+                                                                    kMusicBarNoteBaseIdle;
             }
             [self.texFront
                 drawSprite:(NSUInteger)((int)note + spriteBase)
@@ -1589,11 +1683,11 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const double kTitleChipXOffset = 17.0;
     static const double kTitleChipYOffset = -15.0;
     static const double kDifficultyXOffset = 20.0;
-    static const double kDifficultyYOffset = -0.28125; // An fmov immediate.
-    static const double kLevelXNudgeExtreme = 143.0;   // @ghidraAddress 0x2924a8
-    static const double kLevelXNudgeAdvanced = 162.0;  // @ghidraAddress 0x28fa30
-    static const double kLevelXNudgeBasic = 64.0;      // @ghidraAddress 0x28f1f0
-    static const double kLevelXNudgeDefault = 92.0;    // @ghidraAddress 0x28f748
+    static const double kDifficultyYOffset = 58.0;    // @ghidraAddress 0x2929d8
+    static const double kLevelXNudgeExtreme = 143.0;  // @ghidraAddress 0x2924a8
+    static const double kLevelXNudgeAdvanced = 162.0; // @ghidraAddress 0x28fa30
+    static const double kLevelXNudgeBasic = 92.0;     // @ghidraAddress 0x28f748
+    static const double kLevelXNudgeDefault = 64.0;   // @ghidraAddress 0x28f1f0
     static const double kLevelYNudge = -6.0;
     static const NSUInteger kTuneInfoSpriteJacket = 0x17;
     static const NSUInteger kTuneInfoSpriteTitle = 0x18;
@@ -1603,13 +1697,13 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     // The jacket artwork, drawn stretched into sprite 0x17's frame.
     [self.texFront drawSprite:kTuneInfoSpriteJacket
                        inRect:CGRectMake(pos.x, pos.y, artworkSize, artworkSize)
-                    transform:(char)(int)(float)alpha
-                        alpha:0];
+                    transform:0
+                        alpha:(float)alpha];
     double x = pos.x + artworkSize;
     [self.texFront drawSprite:kTuneInfoSpriteTitle
                       atPoint:CGPointMake(x + kTitleChipXOffset, pos.y + kTitleChipYOffset)
-                    transform:(char)(int)(float)alpha
-                        alpha:0];
+                    transform:0
+                        alpha:(float)alpha];
     x += kDifficultyXOffset;
     double y = pos.y + kDifficultyYOffset;
     [self.texFront drawSprite:kTuneInfoSpriteDifficulty atPoint:CGPointMake(x, y)];
@@ -1630,68 +1724,87 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
     [self.texFront drawSprite:kTuneInfoSpriteLevel
                       atPoint:CGPointMake(x + levelXNudge, y + kLevelYNudge)
-                    transform:(char)(int)(float)alpha
-                        alpha:0];
+                    transform:0
+                        alpha:(float)alpha];
 }
 
 /** @ghidraAddress 0x11d1a4 */
 - (void)renderUpperBG:(BOOL)wipe {
     // The upper plate is a grid of sprite-2 tiles filling the header, then sprite 0 and 1 bands.
-    static const double kColX[] = {
-        64.0, 128.0, 192.0, 256.0, 320.0, 384.0, 448.0, 512.0, 576.0, 640.0, 704.0, 768.0};
+    // The binary unrolls the grid completely. The non-zero column pool slots are 0x28f1f0,
+    // 0x28f750, 0x28fa00, 0x28e030, 0x28f470, 0x292470, 0x2924f0, 0x2929e0, 0x291d88, 0x291d80
+    // and 0x2929e8; the rows reuse the first three of those.
+    static const double kTileX[] = {
+        0.0, 64.0, 128.0, 192.0, 256.0, 320.0, 384.0, 448.0, 512.0, 576.0, 640.0, 704.0};
+    static const double kTileY[] = {0.0, 64.0, 128.0, 192.0};
+    static const int kTileColumnCount = 12;
+    static const int kTileRowCount = 4;
     static const double kUpperBeamX0 = 300.0; // @ghidraAddress 0x28f2d0
     static const double kUpperBeamY = 256.0;  // @ghidraAddress 0x28e030
     static const float kBounceDecay = 0.99f;  // @ghidraAddress 0x292ad8
     static const float kBouncePress = 15.0f;
-    static const float kBounceCap = 120.0f;    // @ghidraAddress 0x291be8
-    static const float kUpperBgGravity = 5.0f; // via 0x40a00000
-    static const int kUpperTileStep = 0x20;    // 32
-    static const int kUpperTileEnd = 0x300;    // 768
+    static const float kBounceCap = 120.0f;         // @ghidraAddress 0x291be8
+    static const float kUpperBgGravity = 5.0f;      // via 0x40a00000
+    static const float kUpperBgResetX = 800.0f;     // @ghidraAddress 0x292adc
+    static const float kUpperRippleYLimit = 206.0f; // @ghidraAddress 0x292ae0
+    static const float kWipeAlpha = 0.5f;
+    static const int kWipeFrames = 10;
+    static const int kUpperTileStep = 0x20; // 32
+    static const int kUpperTileEnd = 0x300; // 768
     static const NSUInteger kUpperTileSprite = 2;
     static const NSUInteger kUpperBandSprite0 = 0;
     static const NSUInteger kUpperBandSprite1 = 1;
     static const NSUInteger kUpperBeamSprite0 = 3;
     static const NSUInteger kUpperBeamSprite1 = 4;
 
-    // The tiled upper plate: sprite 2 laid out in a 12-column grid across the header.
-    for (int col = 0; col < 12; ++col) {
-        [self.texFront drawSprite:kUpperTileSprite
-                          atPoint:CGPointMake(kColX[col], kUpperTileSprite)];
-    }
-    // Two further plate rows, at the column origin and one tile down.
-    for (int col = 0; col < 12; ++col) {
-        [self.texFront drawSprite:kUpperTileSprite atPoint:CGPointMake(kColX[col], 64.0)];
-    }
-    for (int col = 0; col < 12; ++col) {
-        [self.texFront drawSprite:kUpperTileSprite atPoint:CGPointMake(kColX[col], 96.0)];
+    // The tiled upper plate: sprite 2 laid out as a 4-row by 12-column grid across the header.
+    for (int row = 0; row < kTileRowCount; ++row) {
+        for (int col = 0; col < kTileColumnCount; ++col) {
+            [self.texFront drawSprite:kUpperTileSprite
+                              atPoint:CGPointMake(kTileX[col], kTileY[row])];
+        }
     }
 
     // The two full-width bands: sprite 0 across the top, then sprite 1 at the game-area line.
     for (int x = 0; x < kUpperTileEnd; x += kUpperTileStep) {
         [self.texFront drawSprite:kUpperBandSprite0 atPoint:CGPointMake((double)x, 0.0)];
     }
-    [self.texFront spriteAtIndex:kUpperBandSprite1];
-    double bandY = kUpperBeamY;
+    // The sprite-1 band sits immediately above the game-area line, so its baseline is the line
+    // less the band's own height. The binary rounds the difference through float.
+    CGRect band1Sprite = [self.texFront spriteAtIndex:kUpperBandSprite1];
+    double bandY = (float)(kUpperBeamY - band1Sprite.size.height);
     for (int x = 0; x < kUpperTileEnd; x += kUpperTileStep) {
         [self.texFront drawSprite:kUpperBandSprite1 atPoint:CGPointMake((double)x, bandY)];
     }
 
     // The beam wipe animates in over the first ten frames when requested.
     if (wipe) {
-        [self.texFront spriteAtIndex:kUpperBeamSprite0];
-        float h0 = InterpolateFloatByFrame(0.0f, (float)kUpperBeamY, self->frame, 0, 10);
-        [self.texFront drawInRect:CGRectMake(kUpperBeamX0, bandY - (double)h0, 0.0, (double)h0)
-                       fromRegion:CGRectMake(0.0, bandY, 0.0, (double)h0)
-                        transform:0
-                            alpha:0.0f];
-        [self.texFront spriteAtIndex:kUpperBeamSprite1];
-        float h1 = InterpolateFloatByFrame(0.0f, (float)h0, self->frame, 0, 10);
+        CGRect beamRect0 = [self.texFront spriteAtIndex:kUpperBeamSprite0];
+        float h0 = InterpolateFloatByFrame(
+            0.0f, (float)beamRect0.size.height, self->frame, 0, kWipeFrames);
         [self.texFront
-            drawInRect:CGRectMake(kUpperBeamX0, bandY, 0.0, (double)h1)
+            drawInRect:CGRectMake(kUpperBeamX0 - (beamRect0.size.width * 0.5),
+                                  bandY - (double)h0,
+                                  beamRect0.size.width,
+                                  (double)h0)
             fromRegion:CGRectMake(
-                           0.0, (bandY - (double)h0) + ((double)h0 - (double)h1), 0.0, (double)h1)
+                           beamRect0.origin.x, beamRect0.origin.y, beamRect0.size.width, (double)h0)
              transform:0
-                 alpha:0.0f];
+                 alpha:kWipeAlpha];
+        CGRect beamRect1 = [self.texFront spriteAtIndex:kUpperBeamSprite1];
+        float h1 = InterpolateFloatByFrame(
+            0.0f, (float)beamRect1.size.height, self->frame, 0, kWipeFrames);
+        [self.texFront
+            drawInRect:CGRectMake(kUpperBeamX0 - (beamRect1.size.width * 0.5),
+                                  bandY,
+                                  beamRect1.size.width,
+                                  (double)h1)
+            fromRegion:CGRectMake(beamRect1.origin.x,
+                                  beamRect1.origin.y + (beamRect1.size.height - (double)h1),
+                                  beamRect1.size.width,
+                                  (double)h1)
+             transform:0
+                 alpha:kWipeAlpha];
     }
 
     // Outside the pre-play states, the upper background sprites bounce under button presses and the
@@ -1727,10 +1840,9 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     }
 
     for (UpperBGRipple *ripple in self.arrayUpperBgRip) {
-        [ripple stepFall:kUpperBgGravity gravity:bounce bounce:gravity];
-        [ripple renderWithTexture:self.texFront yLimit:(float)kUpperBeamY];
+        [ripple stepFall:kUpperBgResetX gravity:bounce bounce:gravity];
+        [ripple renderWithTexture:self.texFront yLimit:kUpperRippleYLimit];
     }
-    (void)kUpperBeamX0;
 }
 
 /** @ghidraAddress 0x11dcdc */
@@ -1789,11 +1901,11 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         if (lit) {
             [self.texFront drawSprite:kButtonSpriteLitFill atPoint:CGPointMake(x, y)];
             [self.texFront drawSprite:kButtonSpriteLitFill
-                              atPoint:CGPointMake(x + kButtonEdgeOffset, y)
+                              atPoint:CGPointMake(x + kButtonLitInnerNear, y)
                             transform:1
                                 alpha:1.0f];
             [self.texFront drawSprite:kButtonSpriteLitFill
-                              atPoint:CGPointMake(x + kButtonLitInnerFar, y + kButtonEdgeOffset)
+                              atPoint:CGPointMake(x + kButtonLitInnerFar, y + kButtonLitInnerNear)
                             transform:2
                                 alpha:1.0f];
             [self.texFront drawSprite:kButtonSpriteLitFill
@@ -1824,7 +1936,6 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
             [self.texFront drawSprite:kButtonSpriteUnlitCorner
                               atPoint:CGPointMake(x + kButtonEdgeInset, y + kButtonEdgeOffset)];
         }
-        (void)kButtonLitInnerNear;
     }
 }
 
@@ -1837,6 +1948,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const double kMusicBarY = 208.0;           // @ghidraAddress 0x2929f0
     static const double kPartnerScale = 0.7;          // @ghidraAddress 0x291c98
     static const double kTuneInfoArtworkSize = 160.0; // @ghidraAddress 0x28f438
+    static const float kTuneInfoXFrom = 38.0f;        // @ghidraAddress 0x292ae4
     static const float kTuneInfoSlideBase = 40.0f;    // @ghidraAddress 0x292568
 
     [self renderBG];
@@ -1845,7 +1957,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 
     // The tune info fades and slides in over frames 10..20.
     float infoAlpha = InterpolateFloatByFrame(0.0f, 1.0f, self->frame, 10, 0x14);
-    float infoX = InterpolateFloatByFrame(kTuneInfoSlideBase, 18.0f, self->frame, 10, 0x14);
+    float infoX = InterpolateFloatByFrame(kTuneInfoXFrom, 18.0f, self->frame, 10, 0x14);
     [self renderTuneInfo:CGPointMake((double)infoX, 25.0)
              artworkSize:kTuneInfoArtworkSize
                    alpha:(double)infoAlpha];
@@ -1880,12 +1992,16 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const double kFieldCenterY = 640.0;       // @ghidraAddress 0x291d80
     static const double kReadyDiscBase = 768.0;      // @ghidraAddress 0x292460
     static const double kReadyDiscSize = 540.0;      // @ghidraAddress 0x28f900-area
-    static const float kReadyDiscScale = 540.0f;     // An fmov immediate.
+    static const float kReadyDiscHeightUnit = 64.0f; // @ghidraAddress 0x292aec
+    static const float kReadyDiscWidthUnit = 768.0f; // @ghidraAddress 0x292550
+    static const float kReadyDiscHeightPeak = 1.8f;  // @ghidraAddress 0x292ae8
     static const float kReadyLetterMirrorX = 384.0f; // @ghidraAddress 0x29254c
     static const NSUInteger kReadyDiscSprite = 0;
     static const NSUInteger kReadyLetterSprite = 1;
     static const NSUInteger kGoLeftSprite = 0;
     static const NSUInteger kGoRightSprite = 1;
+    static const NSUInteger kGoLeftTrailSprite = 2;
+    static const NSUInteger kGoRightTrailSprite = 3;
     // The "GO" chip positions (texReady1) and the ready-letter spread table.
     static const double kGoCenterX0 = 222.0; // @ghidraAddress 0x291d90
     static const double kGoCenterX1 = 299.0; // @ghidraAddress 0x292a10
@@ -1893,8 +2009,10 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const double kGoCenterX3 = 546.0; // @ghidraAddress 0x292a20
     static const double kGoY0 = 214.0;       // @ghidraAddress 0x292a28
     static const double kGoY1 = 554.0;       // @ghidraAddress 0x292a30
-    /** @ghidraAddress 0x292df8 */
-    static const float kReadyLetterSpread[] = {162.0f, 0.0f, 0.2f, 0.1f, 0.3f, 0.2f, 0.4f, 0.3f};
+    // The five spread floats, in address order. The binary reads them downward from 0x292df8 with
+    // a descending counter, which is table[lv + 4] here.
+    /** @ghidraAddress 0x292de8 */
+    static const float kReadyLetterSpread[] = {-162.0f, -85.0f, 0.0f, 87.0f, 162.0f};
     static const float kGoSpin = 320.0f; // @ghidraAddress 0x292734
 
     unsigned int f = self->frame;
@@ -1902,96 +2020,121 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     // Phase 1 (frames 0..19): the ready disc swells in from the field centre.
     if (f < 0x14) {
         float discAlpha = InterpolateFloatByFrame(0.0f, 1.0f, f, 5, 0xf);
-        double h = (double)(discAlpha * kReadyDiscScale);
-        [self.texReady0
-            drawSprite:kReadyDiscSprite
-                inRect:CGRectMake(kFieldCenterY, h * -0.5 + kFieldCenterY, kReadyDiscBase, h)
-             transform:0
-                 alpha:1.0f];
+        double h = (double)(discAlpha * kReadyDiscHeightUnit);
+        [self.texReady0 drawSprite:kReadyDiscSprite
+                            inRect:CGRectMake(0.0, h * -0.5 + kFieldCenterY, kReadyDiscBase, h)
+                         transform:0
+                             alpha:1.0f];
     } else if (f < 0x32) {
         // Phase 2 (frames 20..49): the disc holds and the "READY" letters settle in one by one.
         unsigned int p = f - 0x14;
         float discAlpha = InterpolateFloatByFrame(1.0f, 0.0f, p, 0, 0xe);
         float discScale = InterpolateFloatByFrame(1.0f, g_flKeyTime080, p, 0, 0xe);
-        double w = (double)(discScale * (float)kReadyDiscScale);
-        float discH = InterpolateFloatByFrame(1.0f, kReadyDiscScale, p, 0, 0xe);
-        double h = (double)(discH * kReadyDiscScale);
+        double w = (double)(discScale * kReadyDiscWidthUnit);
+        float discH = InterpolateFloatByFrame(1.0f, kReadyDiscHeightPeak, p, 0, 0xe);
+        double h = (double)(discH * kReadyDiscHeightUnit);
         [self.texReady0
             drawSprite:kReadyDiscSprite
                 inRect:CGRectMake(kFieldCenterX - w * 0.5, kFieldCenterY - h * 0.5, w, h)
              transform:0
                  alpha:discAlpha];
-        [self.texReady0 spriteAtIndex:kReadyLetterSprite];
-        double halfW = w * 0.5;
-        double halfH = h * 0.5;
+        // The letters are centred on their own sprite rectangle, not on the animated disc.
+        CGRect letterRect = [self.texReady0 spriteAtIndex:kReadyLetterSprite];
+        double halfW = letterRect.size.width * 0.5;
+        double halfH = letterRect.size.height * 0.5;
         double baseY = kFieldCenterY - halfH;
-        for (long j = 0; j <= (long)p; ++j) {
-            long lv = (long)p - j;
-            if (lv + 4 <= (long)p) {
-                float spr = kReadyLetterSpread[lv];
-                unsigned int end = (unsigned int)(lv + 0xc);
-                float slide = InterpolateFloatByFrame(0.0f, spr, p, (unsigned int)(lv + 4), end);
-                [self.texReady0
-                    drawSprite:(NSUInteger)(lv + 5)
-                       atPoint:CGPointMake((double)(slide + kReadyLetterMirrorX) - halfW, baseY)
-                     transform:0
-                         alpha:1.0f];
-                (void)halfW;
+        // Five letters, walked with the binary's descending counter (0, -1, -2, -3, -4).
+        for (long lv = 0; lv >= -4; --lv) {
+            if ((long)p < lv + 4) {
+                continue;
             }
+            float spread = kReadyLetterSpread[lv + 4];
+            unsigned int start = (unsigned int)(lv + 4);
+            unsigned int end = (unsigned int)(lv + 0xc);
+            float slide = InterpolateFloatByFrame(0.0f, spread, p, start, end);
+            float letterAlpha = InterpolateFloatByFrame(0.0f, 1.0f, p, start, end);
+            [self.texReady0
+                drawSprite:(NSUInteger)(lv + 5)
+                   atPoint:CGPointMake((double)(slide + kReadyLetterMirrorX) - halfW, baseY)
+                 transform:0
+                     alpha:letterAlpha];
+            // A second pass overlays sprites 10, 9, 8, 7, 6 on each letter, fading in over
+            // [lv + 10, lv + 12] and back out over [lv + 12, lv + 26].
+            if ((long)p < lv + 0xa || (long)p >= lv + 0x1a) {
+                continue;
+            }
+            float overlayAlpha;
+            if ((long)p < lv + 0xc) {
+                overlayAlpha = InterpolateFloatByFrame(
+                    0.0f, 1.0f, p, (unsigned int)(lv + 0xa), (unsigned int)(lv + 0xc));
+            } else {
+                overlayAlpha = InterpolateFloatByFrame(
+                    1.0f, 0.0f, p, (unsigned int)(lv + 0xc), (unsigned int)(lv + 0x1a));
+            }
+            // The overlay subtracts half the sprite's height from its x. Yes, the binary does
+            // this, and it uses the settled spread rather than the sliding value.
+            [self.texReady0
+                drawSprite:(NSUInteger)(lv + 0xa)
+                   atPoint:CGPointMake((double)(spread + kReadyLetterMirrorX) - halfH, baseY)
+                 transform:0
+                     alpha:overlayAlpha];
         }
     } else if (f < 0x36) {
         // Phase 3 (frames 50..53): the disc blows up and the letters spread out.
-        [self.texReady0 spriteAtIndex:kReadyLetterSprite];
-        float scale = InterpolateFloatByFrame(1.0f, g_flKeyTime080, self->frame, 0x32, 0x36);
+        CGRect letterRect = [self.texReady0 spriteAtIndex:kReadyLetterSprite];
+        float scale = InterpolateFloatByFrame(1.0f, g_flKeyTime020, self->frame, 0x32, 0x36);
         float alpha = InterpolateFloatByFrame(1.0f, 0.0f, self->frame, 0x32, 0x36);
-        double s = (double)scale;
-        double cy = kFieldCenterY;
-        [self.texReady0 drawSprite:kReadyDiscSprite
-                           atPoint:CGPointMake(kGoCenterX0 - s * 0.5, cy)
+        double halfW = letterRect.size.width * 0.5;
+        double cy = kFieldCenterY - letterRect.size.height * 0.5;
+        [self.texReady0 drawSprite:kReadyLetterSprite
+                           atPoint:CGPointMake(kGoCenterX0 - halfW, cy)
                              scale:scale
                             rotate:0.0f
                             anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                         transform:1
+                         transform:0
                              alpha:alpha];
-        [self.texReady0 drawSprite:kReadyDiscSprite
-                           atPoint:CGPointMake(kGoCenterX1 - s * 0.5, cy)
+        [self.texReady0 drawSprite:kReadyLetterSprite + 1
+                           atPoint:CGPointMake(kGoCenterX1 - halfW, cy)
                              scale:scale
                             rotate:0.0f
                             anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                         transform:2
+                         transform:0
                              alpha:alpha];
-        [self.texReady0 drawSprite:kReadyDiscSprite
-                           atPoint:CGPointMake(kFieldCenterX - s * 0.5, cy)
+        [self.texReady0 drawSprite:kReadyLetterSprite + 2
+                           atPoint:CGPointMake(kFieldCenterX - halfW, cy)
                              scale:scale
                             rotate:0.0f
                             anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                         transform:3
+                         transform:0
                              alpha:alpha];
-        [self.texReady0 drawSprite:kReadyDiscSprite
-                           atPoint:CGPointMake(kGoCenterX2 - s * 0.5, cy)
+        [self.texReady0 drawSprite:kReadyLetterSprite + 3
+                           atPoint:CGPointMake(kGoCenterX2 - halfW, cy)
                              scale:scale
                             rotate:0.0f
                             anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                         transform:4
+                         transform:0
                              alpha:alpha];
-        [self.texReady0 drawSprite:kReadyDiscSprite
-                           atPoint:CGPointMake(kGoCenterX3 - s * 0.5, cy)
+        [self.texReady0 drawSprite:kReadyLetterSprite + 4
+                           atPoint:CGPointMake(kGoCenterX3 - halfW, cy)
                              scale:scale
                             rotate:0.0f
                             anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                         transform:5
+                         transform:0
                              alpha:alpha];
     }
 
-    // The "GO" chips (texReady1) spin and fade through frames 52..82.
-    [self.texReady1 spriteAtIndex:kReadyDiscSprite];
+    // The "GO" chips (texReady1) spin and fade through frames 52..82, each centred on its own
+    // sprite rectangle while the rotation anchor stays at the unadjusted field centre.
+    CGRect goRect = [self.texReady1 spriteAtIndex:kReadyDiscSprite];
+    double goHalfW = goRect.size.width * 0.5;
+    double goY = kFieldCenterY - goRect.size.height * 0.5;
     unsigned int gf = self->frame;
     if (gf >= 0x34 && gf < 0x3a) {
         float scale = InterpolateFloatByFrame(g_flKeyTime040, 1.0f, gf, 0x34, 0x3a);
         float spin = scale * kGoSpin * 0.00390625f;
         float alpha = InterpolateFloatByFrame(0.0f, 1.0f, gf, 0x34, 0x3a);
         [self.texReady1 drawSprite:kGoLeftSprite
-                           atPoint:CGPointMake(kGoY0, kFieldCenterY)
+                           atPoint:CGPointMake(kGoY0 - goHalfW, goY)
                              scale:spin
                             rotate:0.0f
                             anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
@@ -2001,27 +2144,27 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         float spin2 = scale2 * kGoSpin * 0.00390625f;
         float alpha2 = InterpolateFloatByFrame(0.0f, 1.0f, gf, 0x34, 0x3a);
         [self.texReady1 drawSprite:kGoRightSprite
-                           atPoint:CGPointMake(kGoY1, kFieldCenterY)
+                           atPoint:CGPointMake(kGoY1 - goHalfW, goY)
                              scale:spin2
                             rotate:0.0f
                             anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                         transform:1
+                         transform:0
                              alpha:alpha2];
     } else if (gf >= 0x3a && gf < 0x53) {
         float scale = InterpolateFloatByFrame(1.0f, g_flKeyTime040, gf, 0x3a, 0x53);
         float spin = scale * kGoSpin * 0.00390625f;
         float alpha = InterpolateFloatByFrame(g_flKeyTime070, 0.0f, gf, 0x3a, 0x53);
-        [self.texReady1 drawSprite:kGoLeftSprite
-                           atPoint:CGPointMake(kGoY0, kFieldCenterY)
+        [self.texReady1 drawSprite:kGoLeftTrailSprite
+                           atPoint:CGPointMake(kGoY0 - goHalfW, goY)
                              scale:spin
                             rotate:0.0f
                             anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                         transform:2
+                         transform:0
                              alpha:alpha];
         float s2 = InterpolateFloatByFrame(1.0f, g_flKeyTime040, gf, 0x3a, 0x51);
         float a2 = InterpolateFloatByFrame(1.0f, 0.0f, gf, 0x3a, 0x51);
         [self.texReady1 drawSprite:kGoLeftSprite
-                           atPoint:CGPointMake(kGoY0, kFieldCenterY)
+                           atPoint:CGPointMake(kGoY0 - goHalfW, goY)
                              scale:s2 * kGoSpin * 0.00390625f
                             rotate:0.0f
                             anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
@@ -2029,21 +2172,21 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                              alpha:a2];
         float s3 = InterpolateFloatByFrame(1.0f, g_flKeyTime040, gf, 0x3a, 0x53);
         float a3 = InterpolateFloatByFrame(g_flKeyTime070, 0.0f, gf, 0x3a, 0x53);
-        [self.texReady1 drawSprite:kGoRightSprite
-                           atPoint:CGPointMake(kGoY1, kFieldCenterY)
+        [self.texReady1 drawSprite:kGoRightTrailSprite
+                           atPoint:CGPointMake(kGoY1 - goHalfW, goY)
                              scale:s3 * kGoSpin * 0.00390625f
                             rotate:0.0f
                             anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                         transform:3
+                         transform:0
                              alpha:a3];
         float s4 = InterpolateFloatByFrame(1.0f, g_flKeyTime040, gf, 0x3a, 0x51);
         float a4 = InterpolateFloatByFrame(1.0f, 0.0f, gf, 0x3a, 0x51);
         [self.texReady1 drawSprite:kGoRightSprite
-                           atPoint:CGPointMake(kGoY1, kFieldCenterY)
+                           atPoint:CGPointMake(kGoY1 - goHalfW, goY)
                              scale:s4 * kGoSpin * 0.00390625f
                             rotate:0.0f
                             anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                         transform:1
+                         transform:0
                              alpha:a4];
     }
 
@@ -2070,11 +2213,15 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const NSUInteger kFullcomboWordSprite1 = 0x26;
     static const NSUInteger kFullcomboWordSprite2 = 0x23;
     static const NSUInteger kFullcomboWordSprite3 = 0x25;
-    static const float kFullcomboScaleMid = 0.9f; // @ghidraAddress 0x28f3b0
-    static const double kWord0X = 350.0;          // @ghidraAddress 0x292a38
-    static const double kWord1X = 944.0;          // @ghidraAddress 0x292a40
-    static const double kWord2X = 166.0;          // @ghidraAddress 0x292728
-    static const double kWord3X = 548.0;          // @ghidraAddress 0x292a48
+    static const float kFullcomboScaleMid = 0.9f;     // @ghidraAddress 0x28f3b0
+    static const float kFullcomboScaleTop = 1.4f;     // @ghidraAddress 0x292af0
+    static const float kFullcomboOverlayScale = 1.2f; // @ghidraAddress 0x292aa8
+    // The word-plate anchors. These four pool doubles are separate x and y values; they are never
+    // paired as a single coordinate.
+    static const double kWordAnchorTopY = 350.0;    // @ghidraAddress 0x292a38
+    static const double kWordAnchorBottomY = 944.0; // @ghidraAddress 0x292a40
+    static const double kWordAnchorLeftX = 166.0;   // @ghidraAddress 0x292728
+    static const double kWordAnchorRightX = 548.0;  // @ghidraAddress 0x292a48
 
     if (self.scoreBackup) {
         return;
@@ -2085,26 +2232,35 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         [[AudioManager sharedManager] playSeResFile:@"SD_RPL_CV_FULLCOMBO" inDirectory:nil];
     }
 
-    // Prime the corner and word sprite cells.
-    [self.texFront spriteAtIndex:kFullcomboCornerSprite];
-    [self.texFront spriteAtIndex:kFullcomboWordSprite1];
-    [self.texFront spriteAtIndex:kFullcomboWordSprite3];
+    // Prime the corner and word sprite cells; the binary keeps their extents so every draw point
+    // can be shifted back from its anchor by half the sprite's own size.
+    CGRect cornerRect = [self.texFront spriteAtIndex:kFullcomboCornerSprite];
+    CGRect wordRectA = [self.texFront spriteAtIndex:kFullcomboWordSprite2];
+    CGRect wordRectB = [self.texFront spriteAtIndex:kFullcomboWordSprite3];
+    const double halfCornerWidth = cornerRect.size.width * 0.5;
+    const double halfCornerHeight = cornerRect.size.height * 0.5;
+    const double halfWordWidthA = wordRectA.size.width * 0.5;
+    const double halfWordHeightA = wordRectA.size.height * 0.5;
+    const double halfWordWidthB = wordRectB.size.width * 0.5;
+    const double halfWordHeightB = wordRectB.size.height * 0.5;
 
     // Eight corner glyphs sweep in staggered by 6 frames each; the loop draws two mirrored corners
-    // per iteration over four grid rows.
-    int cornerY = (int)kCornerBaseX;
+    // per iteration over four grid rows. The binary steps a copy of the frame argument, leaving the
+    // argument itself untouched for the word-plate timing below.
+    int cornerX = (int)kCornerBaseX;
     int rowFromTop = 0xf;
+    int cornerFrame = animFrame;
     for (int row = 0; row < 4; ++row) {
-        if (animFrame >= 0) {
+        if (cornerFrame >= 0) {
             float scale;
             unsigned int scaleStart;
             unsigned int scaleEnd;
             float scaleFrom;
             float scaleTo;
             float baseAlpha;
-            if (animFrame < 4) {
-                baseAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 4);
-                if (animFrame < 2) {
+            if (cornerFrame < 4) {
+                baseAlpha = InterpolateFloatByFrame(0.0f, 1.0f, cornerFrame, 0, 4);
+                if (cornerFrame < 2) {
                     scaleStart = 0;
                     scaleEnd = 2;
                     scaleFrom = 1.0f;
@@ -2113,62 +2269,166 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
                     scaleStart = 2;
                     scaleEnd = 0xc;
                     scaleFrom = kFullcomboScaleMid;
-                    scaleTo = 1.6f; // @ghidraAddress 0x292af0
+                    scaleTo = kFullcomboScaleTop;
                 }
             } else {
-                baseAlpha = InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 4, 0xc);
+                baseAlpha = InterpolateFloatByFrame(1.0f, 0.0f, cornerFrame, 4, 0xc);
                 scaleStart = 2;
                 scaleEnd = 0xc;
                 scaleFrom = kFullcomboScaleMid;
-                scaleTo = 1.6f;
+                scaleTo = kFullcomboScaleTop;
             }
-            scale = InterpolateFloatByFrame(scaleFrom, scaleTo, animFrame, scaleStart, scaleEnd);
+            scale = InterpolateFloatByFrame(scaleFrom, scaleTo, cornerFrame, scaleStart, scaleEnd);
 
-            int topRow = (rowFromTop >= 0) ? rowFromTop : (rowFromTop + 3);
-            double cornerYTop = (double)((topRow >> 2) * kGridCellSize + kButtonCellOriginY);
+            // The first corner takes its row index from the loop counter rather than from
+            // rowFromTop, so its y is pinned to the top grid row; only the mirrored corner walks
+            // the grid upwards.
+            double cornerYTop = (double)((row >> 2) * kGridCellSize + kButtonCellOriginY);
             [self.texFront drawSprite:kFullcomboCornerSprite
-                              atPoint:CGPointMake((double)cornerY, cornerYTop)
+                              atPoint:CGPointMake((double)cornerX - halfCornerWidth,
+                                                  cornerYTop - halfCornerHeight)
                                 scale:scale
                                rotate:0.0f
-                               anchor:CGPointMake((double)cornerY, cornerYTop)
+                               anchor:CGPointMake((double)cornerX, cornerYTop)
                             transform:0
                                 alpha:baseAlpha];
+            int topRow = (rowFromTop >= 0) ? rowFromTop : (rowFromTop + 3);
             int mirrorX = (rowFromTop % 4) * kGridCellSize + kButtonCellOriginX;
             double mirrorYTop = (double)((topRow >> 2) * kGridCellSize + kButtonCellOriginY);
             [self.texFront drawSprite:kFullcomboCornerSprite
-                              atPoint:CGPointMake((double)mirrorX, mirrorYTop)
+                              atPoint:CGPointMake((double)mirrorX - halfCornerWidth,
+                                                  mirrorYTop - halfCornerHeight)
                                 scale:scale
                                rotate:0.0f
                                anchor:CGPointMake((double)mirrorX, mirrorYTop)
                             transform:0
                                 alpha:baseAlpha];
         }
-        cornerY += 0xc0;
+        cornerX += 0xc0;
         rowFromTop -= 1;
-        animFrame -= 6;
+        cornerFrame -= 6;
     }
 
-    // The four "FULLCOMBO" word plates fly in, hold, and fly out with their own frame windows.
-    float wordAlpha0 = (animFrame < 4) ? InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 4, 4) :
+    // The "FULLCOMBO" word plates slide in on four-arm ladders. The binary bands the ladders on the
+    // frame ivar while feeding the frame argument to the interpolator; the two hold the same value
+    // here, but the split is kept so the source matches the disassembly.
+    const int bandFrame = (int)self->frame;
+
+    float wordAlpha0 = (animFrame < 4) ? InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 4) :
                                          InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 0x55, 0x5a);
+    float wordXA0;
+    float wordXB0;
+    if (bandFrame > 3) {
+        if (bandFrame > 0x59) {
+            // @ghidraAddress 0x292af4 (-72), 0x292af8 (-126), 0x292afc (746), 0x292b00 (786)
+            wordXA0 = InterpolateFloatByFrame(-72.0f, -126.0f, animFrame, 0x5a, 0x5f);
+            wordXB0 = InterpolateFloatByFrame(746.0f, 786.0f, animFrame, 0x5a, 0x5f);
+        } else {
+            // @ghidraAddress 0x29275c (166), 0x292af4 (-72), 0x292b04 (548), 0x292afc (746)
+            wordXA0 = InterpolateFloatByFrame(166.0f, -72.0f, animFrame, 0x55, 0x5a);
+            wordXB0 = InterpolateFloatByFrame(548.0f, 746.0f, animFrame, 0x55, 0x5a);
+        }
+    } else if (bandFrame > 1) {
+        // @ghidraAddress 0x292b08 (213), 0x29275c (166), 0x292b10 (512), 0x292b04 (548)
+        wordXA0 = InterpolateFloatByFrame(213.0f, 166.0f, animFrame, 2, 4);
+        wordXB0 = InterpolateFloatByFrame(512.0f, 548.0f, animFrame, 2, 4);
+    } else {
+        // @ghidraAddress 0x292b0c (311), 0x292b08 (213), 0x292b14 (420), 0x292b10 (512)
+        wordXA0 = InterpolateFloatByFrame(311.0f, 213.0f, animFrame, 0, 2);
+        wordXB0 = InterpolateFloatByFrame(420.0f, 512.0f, animFrame, 0, 2);
+    }
+
+    const double plateTopYA = kWordAnchorTopY - halfWordHeightA;
+    const double plateBottomYA = kWordAnchorBottomY - halfWordHeightA;
+    const double plateTopYB = kWordAnchorTopY - halfWordHeightB;
+    const double plateBottomYB = kWordAnchorBottomY - halfWordHeightB;
+
     [self.texFront drawSprite:kFullcomboWordSprite0
-                      atPoint:CGPointMake(kWord0X, kWord2X)
+                      atPoint:CGPointMake((double)wordXA0 - halfWordWidthA, plateTopYA)
                     transform:0
                         alpha:wordAlpha0];
     [self.texFront drawSprite:kFullcomboWordSprite1
-                      atPoint:CGPointMake(kWord1X, kWord3X)
+                      atPoint:CGPointMake((double)wordXB0 - halfWordWidthB, plateBottomYB)
                     transform:0
                         alpha:wordAlpha0];
-    // The two remaining word plates and their scaled variants are drawn with the same easing set;
-    // the binary shares alpha across the pair.
+
+    float wordAlpha1 = (animFrame <= 0xb) ?
+                           InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 6, 0xc) :
+                           InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 0x57, 0x61);
+    float wordXA1;
+    float wordXB1;
+    if (bandFrame > 0xb) {
+        if (animFrame > 0x5b) {
+            // @ghidraAddress 0x292b18 (365), 0x292b1c (404), 0x292b20 (310), 0x292548 (256)
+            wordXA1 = InterpolateFloatByFrame(365.0f, 404.0f, animFrame, 0x5c, 0x61);
+            wordXB1 = InterpolateFloatByFrame(310.0f, 256.0f, animFrame, 0x5c, 0x61);
+        } else {
+            // @ghidraAddress 0x29275c (166), 0x292b18 (365), 0x292b04 (548), 0x292b20 (310)
+            wordXA1 = InterpolateFloatByFrame(166.0f, 365.0f, animFrame, 0x57, 0x5c);
+            wordXB1 = InterpolateFloatByFrame(548.0f, 310.0f, animFrame, 0x57, 0x5c);
+        }
+    } else if (animFrame > 8) {
+        // @ghidraAddress 0x292b24 (200), 0x29275c (166), 0x292b28 (515), 0x292b04 (548)
+        wordXA1 = InterpolateFloatByFrame(200.0f, 166.0f, animFrame, 9, 0xc);
+        wordXB1 = InterpolateFloatByFrame(515.0f, 548.0f, animFrame, 9, 0xc);
+    } else {
+        // @ghidraAddress 0x28f8fc (290), 0x292b24 (200), 0x292b2c (440), 0x292b28 (515)
+        wordXA1 = InterpolateFloatByFrame(290.0f, 200.0f, animFrame, 6, 9);
+        wordXB1 = InterpolateFloatByFrame(440.0f, 515.0f, animFrame, 6, 9);
+    }
+
+    [self.texFront drawSprite:kFullcomboWordSprite0
+                      atPoint:CGPointMake((double)wordXA1 - halfWordWidthA, plateBottomYA)
+                    transform:0
+                        alpha:wordAlpha1];
+    [self.texFront drawSprite:kFullcomboWordSprite1
+                      atPoint:CGPointMake((double)wordXB1 - halfWordWidthB, plateTopYB)
+                    transform:0
+                        alpha:wordAlpha1];
+
+    // The primed 0x23 and 0x25 plates are drawn twice more, scaled about their own anchors, on two
+    // timing windows six frames apart and on opposite diagonals.
+    const double overlayXA = kWordAnchorLeftX - halfWordWidthA;
+    const double overlayXB = kWordAnchorRightX - halfWordWidthB;
+
+    float overlayAlpha0 = (animFrame <= 1) ?
+                              InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 2) :
+                              InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 5, 0x2f);
+    float overlayScale0 = InterpolateFloatByFrame(1.0f, kFullcomboOverlayScale, animFrame, 5, 0x2f);
     [self.texFront drawSprite:kFullcomboWordSprite2
-                      atPoint:CGPointMake(kWord2X, kWord0X)
+                      atPoint:CGPointMake(overlayXA, plateTopYA)
+                        scale:overlayScale0
+                       rotate:0.0f
+                       anchor:CGPointMake(kWordAnchorLeftX, kWordAnchorTopY)
                     transform:0
-                        alpha:wordAlpha0];
+                        alpha:overlayAlpha0];
     [self.texFront drawSprite:kFullcomboWordSprite3
-                      atPoint:CGPointMake(kWord3X, kWord1X)
+                      atPoint:CGPointMake(overlayXB, plateBottomYB)
+                        scale:overlayScale0
+                       rotate:0.0f
+                       anchor:CGPointMake(kWordAnchorRightX, kWordAnchorBottomY)
                     transform:0
-                        alpha:wordAlpha0];
+                        alpha:overlayAlpha0];
+
+    float overlayAlpha1 = (animFrame <= 7) ?
+                              InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 6, 8) :
+                              InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 0xc, 0x34);
+    float overlayScale1 =
+        InterpolateFloatByFrame(1.0f, kFullcomboOverlayScale, animFrame, 0xc, 0x34);
+    [self.texFront drawSprite:kFullcomboWordSprite2
+                      atPoint:CGPointMake(overlayXA, plateBottomYA)
+                        scale:overlayScale1
+                       rotate:0.0f
+                       anchor:CGPointMake(kWordAnchorLeftX, kWordAnchorBottomY)
+                    transform:0
+                        alpha:overlayAlpha1];
+    [self.texFront drawSprite:kFullcomboWordSprite3
+                      atPoint:CGPointMake(overlayXB, plateTopYB)
+                        scale:overlayScale1
+                       rotate:0.0f
+                       anchor:CGPointMake(kWordAnchorRightX, kWordAnchorTopY)
+                    transform:0
+                        alpha:overlayAlpha1];
 }
 
 /** @ghidraAddress 0x11f43c */
@@ -2201,38 +2461,71 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 
 /** @ghidraAddress 0x11f788 */
 - (BOOL)renderExcellent:(unsigned int)animFrame {
-    static const double kFieldCenterX = 384.0; // @ghidraAddress 0x292470
-    static const double kFieldCenterY = 640.0; // @ghidraAddress 0x291d80
-    static const float kExcellentPeak = 0.9f;  // An fmov immediate.
-    static const double kBeamWipeX = 288.0;    // @ghidraAddress 0x2926f8
-    static const double kDiscY = 352.0;        // @ghidraAddress 0x292a50
-    static const double kWordY = 660.0;        // @ghidraAddress 0x292a58
+    static const double kFieldCenterX = 384.0;            // @ghidraAddress 0x292470
+    static const double kFieldCenterY = 640.0;            // @ghidraAddress 0x291d80
+    static const float kExcellentPeak = 0.1f;             // @ghidraAddress 0x28f70c
+    static const float kExcellentBlowoutAlpha = 0.2f;     // @ghidraAddress 0x28f3c8
+    static const float kExcellentBlowoutScale = 1.3f;     // @ghidraAddress 0x292558
+    static const float kExcellentChipScale = 1.2f;        // @ghidraAddress 0x292aa8
+    static const float kExcellentWordRotate = 1.5707964f; // @ghidraAddress 0x292ac8
+    static const double kBeamWipeX = 288.0;               // @ghidraAddress 0x2926f8
+    static const double kDiscY = 352.0;                   // @ghidraAddress 0x292a50
+    static const double kWordY = 660.0;                   // @ghidraAddress 0x292a58
     static const NSUInteger kExcellentBeamSprite = 3;
     static const NSUInteger kExcellentChipSprite = 7;
     static const NSUInteger kExcellentWordSprite = 2;
     static const NSUInteger kExcellentDiscSprite = 0;
-    // The chip ring positions swept in over the animation, as {x, y} double pairs.
-    /** @ghidraAddress 0x292b78 */
-    static const double kChipRing[] = {352.0, 480.0, 352.0, 96.0,  544.0, 96.0,  736.0, 288.0,
-                                       928.0, 480.0, 928.0, 96.0,  352.0, 672.0, 352.0, 288.0,
-                                       544.0, 480.0, 544.0, 288.0, 736.0, 480.0, 736.0, 96.0,
-                                       928.0, 672.0, 928.0, 288.0, 640.0};
+    // The chip ring positions, as {x, y} double pairs, one table per frame band. The binary loads
+    // the first pair straight into registers (96.0 at 0x28f908 or 288.0 at 0x2926f8, with 352.0 at
+    // 0x292a50) and copies the whole table to the stack, so the first entry below is the pair the
+    // registers carry.
+    /** @ghidraAddress 0x292bd0, 0x292b70, 0x292b80, 0x292b90, 0x292ba0, 0x292c30, 0x292bb0,
+     *  0x292bc0, 0x292c50 */
+    static const double kChipRing9[][2] = {{96.0, 352.0},
+                                           {288.0, 352.0},
+                                           {480.0, 352.0},
+                                           {96.0, 544.0},
+                                           {96.0, 736.0},
+                                           {96.0, 928.0},
+                                           {288.0, 928.0},
+                                           {480.0, 928.0},
+                                           {288.0, 640.0}};
+    /** @ghidraAddress 0x292bd0, 0x292be0, 0x292bf0, 0x292c00, 0x292c10, 0x292c20, 0x292c30,
+     *  0x292c40 */
+    static const double kChipRing8[][2] = {{96.0, 352.0},
+                                           {672.0, 352.0},
+                                           {288.0, 544.0},
+                                           {480.0, 544.0},
+                                           {288.0, 736.0},
+                                           {480.0, 736.0},
+                                           {96.0, 928.0},
+                                           {672.0, 928.0}};
+    /** @ghidraAddress 0x292b70, 0x292b80, 0x292b90, 0x292ba0, 0x292bb0, 0x292bc0 */
+    static const double kChipRing6[][2] = {{288.0, 352.0},
+                                           {480.0, 352.0},
+                                           {96.0, 544.0},
+                                           {96.0, 736.0},
+                                           {288.0, 928.0},
+                                           {480.0, 928.0}};
 
-    // The main disc scale ramps up over the first 20 frames, holds, then blows out.
+    // The main disc scale ramps up over the first 20 frames, holds, then blows out. The alpha runs
+    // on its own ladder alongside it.
     float discScale;
+    float discAlpha;
     if (animFrame < 0x14) {
-        InterpolateFloatByFrame(0.0f, kExcellentPeak, animFrame, 10, 0x14);
+        discAlpha = InterpolateFloatByFrame(0.0f, kExcellentPeak, animFrame, 10, 0x14);
         discScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, animFrame, 10, 0x14);
     } else if (animFrame > 0x2e) {
         unsigned int p = animFrame - 0x2f;
         if ((int)p < 2) {
-            InterpolateFloatByFrame(kExcellentPeak, g_flKeyTime040, p, 0, 2);
+            discAlpha = InterpolateFloatByFrame(kExcellentPeak, g_flKeyTime040, p, 0, 2);
             discScale = InterpolateFloatByFrame(1.0f, g_flKeyTime080, p, 0, 2);
         } else if ((int)p < 10) {
-            InterpolateFloatByFrame(g_flKeyTime040, g_flKeyTime060, p, 2, 10);
+            discAlpha = InterpolateFloatByFrame(g_flKeyTime040, g_flKeyTime060, p, 2, 10);
             discScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, p, 2, 10);
         } else {
-            InterpolateFloatByFrame(g_flKeyTime060, 0.2f, p, 10, 0x28);
+            discAlpha =
+                InterpolateFloatByFrame(g_flKeyTime060, kExcellentBlowoutAlpha, p, 10, 0x28);
             discScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, p, 2, 10);
         }
     } else {
@@ -2248,72 +2541,140 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         } else {
             discScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, p, 3, 8);
         }
+        // Both arms of this band share a constant alpha; the binary does not interpolate it.
+        discAlpha = kExcellentPeak;
     }
 
-    // The four-quadrant disc, mirrored (transforms 0, 5, 4, 2) about the field centre.
-    [self.texResult spriteAtIndex:kExcellentBeamSprite];
-    double half = (double)discScale * 0.5;
-    (void)half;
+    // The beam is drawn four times, mirrored about the field centre (transforms 0, 5, 4, 2).
+    CGRect beamRect = [self.texResult spriteAtIndex:kExcellentBeamSprite];
+    double mirroredX = kFieldCenterX - beamRect.size.width;
+    double mirroredY = kFieldCenterY - beamRect.size.height;
     [self.texResult drawSprite:kExcellentBeamSprite
                        atPoint:CGPointMake(kFieldCenterX, kFieldCenterY)
                          scale:discScale
                         rotate:0.0f
                         anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                     transform:3
-                         alpha:0.0f];
+                     transform:0
+                         alpha:discAlpha];
+    [self.texResult drawSprite:kExcellentBeamSprite
+                       atPoint:CGPointMake(mirroredX, kFieldCenterY)
+                         scale:discScale
+                        rotate:0.0f
+                        anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
+                     transform:5
+                         alpha:discAlpha];
+    [self.texResult drawSprite:kExcellentBeamSprite
+                       atPoint:CGPointMake(kFieldCenterX, mirroredY)
+                         scale:discScale
+                        rotate:0.0f
+                        anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
+                     transform:4
+                         alpha:discAlpha];
+    [self.texResult drawSprite:kExcellentBeamSprite
+                       atPoint:CGPointMake(mirroredX, mirroredY)
+                         scale:discScale
+                        rotate:0.0f
+                        anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
+                     transform:2
+                         alpha:discAlpha];
 
-    // The chip ring: nine chips sweeping into the ring positions over frames 20..46.
+    // The late blow-out repeats the same four quadrants with their own fade and scale ramp.
+    if (animFrame >= 0x39) {
+        float blowoutAlpha =
+            InterpolateFloatByFrame(kExcellentBlowoutAlpha, 0.0f, animFrame, 0x39, 0x4d);
+        float blowoutScale =
+            InterpolateFloatByFrame(1.0f, kExcellentBlowoutScale, animFrame, 0x39, 0x4d);
+        [self.texResult drawSprite:kExcellentBeamSprite
+                           atPoint:CGPointMake(kFieldCenterX, kFieldCenterY)
+                             scale:blowoutScale
+                            rotate:0.0f
+                            anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
+                         transform:0
+                             alpha:blowoutAlpha];
+        [self.texResult drawSprite:kExcellentBeamSprite
+                           atPoint:CGPointMake(mirroredX, kFieldCenterY)
+                             scale:blowoutScale
+                            rotate:0.0f
+                            anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
+                         transform:5
+                             alpha:blowoutAlpha];
+        [self.texResult drawSprite:kExcellentBeamSprite
+                           atPoint:CGPointMake(kFieldCenterX, mirroredY)
+                             scale:blowoutScale
+                            rotate:0.0f
+                            anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
+                         transform:4
+                             alpha:blowoutAlpha];
+        [self.texResult drawSprite:kExcellentBeamSprite
+                           atPoint:CGPointMake(mirroredX, mirroredY)
+                             scale:blowoutScale
+                            rotate:0.0f
+                            anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
+                         transform:2
+                             alpha:blowoutAlpha];
+    }
+
+    // The chip ring: 9, 8, or 6 chips sweeping into the ring positions over frames 20..46.
     unsigned int cf = animFrame - 0x14;
     if (cf < 0x1b) {
-        int count = 9;
-        double firstX = 197.0;
+        const double (*ring)[2];
+        int count;
         if (animFrame < 0x1d) {
+            ring = kChipRing9;
             count = 9;
         } else if (animFrame < 0x26) {
+            ring = kChipRing8;
             count = 8;
             cf = animFrame - 0x1d;
         } else {
+            ring = kChipRing6;
             count = 6;
             cf = animFrame - 0x26;
-            firstX = 288.0;
         }
-        float chipScale = (cf < 4) ? InterpolateFloatByFrame(0.0f, 1.0f, cf, 0, 4) :
+        float chipAlpha = (cf < 4) ? InterpolateFloatByFrame(0.0f, 1.0f, cf, 0, 4) :
                                      InterpolateFloatByFrame(1.0f, 0.0f, cf, 4, 8);
-        float ringAlpha = InterpolateFloatByFrame(0.07f, 1.0f, cf, 0, 4);
-        [self.texResult spriteAtIndex:kExcellentChipSprite];
-        double cx = firstX;
-        double cy = 352.0; // @ghidraAddress 0x292a50
+        float chipScale = InterpolateFloatByFrame(kExcellentChipScale, 1.0f, cf, 0, 4);
+        CGRect chipRect = [self.texResult spriteAtIndex:kExcellentChipSprite];
+        double halfChipWidth = chipRect.size.width * 0.5;
+        double halfChipHeight = chipRect.size.height * 0.5;
         for (int j = 0; j < count; ++j) {
-            [self.texResult
-                drawSprite:kExcellentChipSprite
-                   atPoint:CGPointMake(cx - (double)discScale * 0.5, cy - (double)ringAlpha * 0.5)
-                     scale:ringAlpha
-                    rotate:0.0f
-                    anchor:CGPointMake(cx, cy)
-                 transform:7
-                     alpha:chipScale];
-            cx = kChipRing[j * 2];
-            cy = kChipRing[j * 2 + 1];
+            double cx = ring[j][0];
+            double cy = ring[j][1];
+            [self.texResult drawSprite:kExcellentChipSprite
+                               atPoint:CGPointMake(cx - halfChipWidth, cy - halfChipHeight)
+                                 scale:chipScale
+                                rotate:0.0f
+                                anchor:CGPointMake(cx, cy)
+                             transform:0
+                                 alpha:chipAlpha];
         }
     }
 
     // The "EXCELLENT" word plate scales/wipes in from frame 49.
     if (animFrame > 0x30) {
+        // The plate's fade-in opacity, one entry per frame for the first eight frames.
+        /** @ghidraAddress 0x292dfc */
+        static const float kExcellentWordAlpha[] = {
+            0.0f, 0.2f, 0.1f, 0.3f, 0.2f, 0.4f, 0.3f, 0.65f};
         unsigned int p = animFrame - 0x31;
         float wordScale;
+        float wordAlpha;
         if ((int)p < 8) {
+            wordAlpha = kExcellentWordAlpha[p];
             wordScale = InterpolateFloatByFrame(2.0f, g_flKeyTime080, p, 0, 8);
         } else {
+            wordAlpha = 1.0f;
             wordScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, animFrame, 8, 10);
         }
-        [self.texResult spriteAtIndex:kExcellentWordSprite];
+        CGRect wordRect = [self.texResult spriteAtIndex:kExcellentWordSprite];
         [self.texResult drawSprite:kExcellentWordSprite
-                           atPoint:CGPointMake(kFieldCenterX, kWordY)
+                           atPoint:CGPointMake(kFieldCenterX - wordRect.size.width * 0.5,
+                                               kWordY - wordRect.size.height * 0.5)
                              scale:wordScale
-                            rotate:0.0f
+                            rotate:kExcellentWordRotate
                             anchor:CGPointMake(kFieldCenterX, kWordY)
-                         transform:2
-                             alpha:0.0f];
+                         transform:0
+                             alpha:wordAlpha];
     }
 
     // The per-phase voice/sound cues.
@@ -2338,12 +2699,14 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 
 /** @ghidraAddress 0x11ffbc */
 - (void)renderRating:(unsigned int)animFrame {
-    static const double kRatingLabelX = 208.0;  // @ghidraAddress 0x2929f0
-    static const double kRatingLabelY = 656.0;  // @ghidraAddress 0x292520
-    static const double kRatingGlyphX = 480.0;  // @ghidraAddress 0x28e020
-    static const double kRatingGlyphY = 736.0;  // @ghidraAddress 0x292a60
-    static const float kRatingScaleMid = 1.16f; // @ghidraAddress 0x292b34
-    static const float kRatingScaleLow = 1.6f;  // @ghidraAddress 0x292b30
+    static const double kRatingLabelX = 208.0;     // @ghidraAddress 0x2929f0
+    static const double kRatingLabelY = 656.0;     // @ghidraAddress 0x292520
+    static const double kRatingGlyphX = 480.0;     // @ghidraAddress 0x28e020
+    static const double kRatingGlyphY = 736.0;     // @ghidraAddress 0x292a60
+    static const float kRatingScaleMid = 1.16f;    // @ghidraAddress 0x292b34
+    static const float kRatingScaleLow = 1.6f;     // @ghidraAddress 0x292b30
+    static const float kRatingScaleSettle = 0.9f;  // @ghidraAddress 0x28f3b0
+    static const float kRatingGlyphFadeMid = 0.2f; // @ghidraAddress 0x28f3c8
     static const NSUInteger kRatingLabelSprite = 9;
     static const NSUInteger kRatingGlyphSprite = 10;
 
@@ -2355,51 +2718,58 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, labelEnd);
         [self.texResult drawSprite:kRatingLabelSprite
                            atPoint:CGPointMake((double)labelSlide + kRatingLabelX, kRatingLabelY)
-                         transform:(char)(int)labelAlpha
-                             alpha:0];
-        [self.texResult spriteAtIndex:kRatingGlyphSprite];
+                         transform:0
+                             alpha:labelAlpha];
+        CGRect glyphRect = [self.texResult spriteAtIndex:kRatingGlyphSprite];
         float glyphScale;
         if (animFrame < scaleEnd) {
             glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleMid, animFrame, 0, scaleEnd);
         } else {
             glyphScale =
-                InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, scaleEnd, scaleEnd);
+                InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, scaleEnd, labelEnd);
         }
         [self.texResult drawSprite:kRatingGlyphSprite
-                           atPoint:CGPointMake(kRatingGlyphX - (double)labelAlpha * 0.5,
-                                               kRatingGlyphY - (double)glyphScale * 0.5)
+                           atPoint:CGPointMake(kRatingGlyphX - glyphRect.size.width * 0.5,
+                                               kRatingGlyphY - glyphRect.size.height * 0.5)
                              scale:glyphScale
                             rotate:0.0f
                             anchor:CGPointMake(kRatingGlyphX, kRatingGlyphY)
-                         transform:10
-                             alpha:0.0f];
+                         transform:0
+                             alpha:labelAlpha];
     } else {
         float labelSlide = InterpolateFloatByFrame(25.0f, 0.0f, animFrame, 0, 0xd);
         float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 0xd);
         [self.texResult drawSprite:kRatingLabelSprite
                            atPoint:CGPointMake((double)labelSlide + kRatingLabelX, kRatingLabelY)
-                         transform:(char)(int)labelAlpha
-                             alpha:0];
-        [self.texResult spriteAtIndex:kRatingGlyphSprite];
+                         transform:0
+                             alpha:labelAlpha];
+        CGRect glyphRect = [self.texResult spriteAtIndex:kRatingGlyphSprite];
         float glyphScale;
+        float glyphAlpha;
         if (animFrame < 8) {
             glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleLow, animFrame, 0, 8);
-        } else if (animFrame < 0xe) {
-            glyphScale =
-                InterpolateFloatByFrame(kRatingScaleLow, kRatingScaleMid, animFrame, 8, 0xe);
-        } else if (animFrame < 0x10) {
-            glyphScale = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, 0xe, 0x10);
+            glyphAlpha = InterpolateFloatByFrame(0.0f, kRatingGlyphFadeMid, animFrame, 0, 8);
         } else {
-            glyphScale = InterpolateFloatByFrame(0.2f, 1.0f, animFrame, 8, 0xd);
+            if (animFrame < 0xe) {
+                glyphScale =
+                    InterpolateFloatByFrame(kRatingScaleLow, kRatingScaleSettle, animFrame, 8, 0xe);
+            } else if (animFrame < 0x10) {
+                glyphScale =
+                    InterpolateFloatByFrame(kRatingScaleSettle, 1.0f, animFrame, 0xe, 0x10);
+            } else {
+                // The binary runs out of scale arms here and reuses the 1.0 left in s8.
+                glyphScale = 1.0f;
+            }
+            glyphAlpha = InterpolateFloatByFrame(kRatingGlyphFadeMid, 1.0f, animFrame, 8, 0xd);
         }
         [self.texResult drawSprite:kRatingGlyphSprite
-                           atPoint:CGPointMake(kRatingGlyphX - (double)labelAlpha * 0.5,
-                                               kRatingGlyphY - (double)glyphScale * 0.5)
+                           atPoint:CGPointMake(kRatingGlyphX - glyphRect.size.width * 0.5,
+                                               kRatingGlyphY - glyphRect.size.height * 0.5)
                              scale:glyphScale
                             rotate:0.0f
                             anchor:CGPointMake(kRatingGlyphX, kRatingGlyphY)
-                         transform:10
-                             alpha:0.0f];
+                         transform:0
+                             alpha:glyphAlpha];
     }
 }
 
@@ -2411,11 +2781,17 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const float kClearedScaleMid = 1.04f;  // @ghidraAddress 0x292b38
     static const float kClearedScaleLow = 0.43f;  // @ghidraAddress 0x292b3c
     static const float kClearedScaleHigh = 0.38f; // @ghidraAddress 0x292b40
+    static const float kClearedAlphaLow = 0.13f;  // @ghidraAddress 0x292a98
+    // The four quadrant rotations, a quarter turn apart.
+    static const float kQuadrantRotate1 = 1.5707964f; // @ghidraAddress 0x292ac8
+    static const float kQuadrantRotate2 = 3.1415927f; // @ghidraAddress 0x292acc
+    static const float kQuadrantRotate3 = 4.712389f;  // @ghidraAddress 0x292ad0
     static const NSUInteger kClearedDiscSprite = 4;
     static const NSUInteger kClearedWordSprite = 0;
 
     // The disc pulses in, then loops a gentle beat scale.
     float scale;
+    float discAlpha;
     unsigned int p;
     if (animFrame < 0x28) {
         float from;
@@ -2430,60 +2806,60 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         } else {
             start = 6;
             end = 0x28;
-            from = 0.13f;
-            to = kClearedScaleLow;
+            from = kClearedScaleLow;
+            to = kClearedAlphaLow;
         }
-        float base = InterpolateFloatByFrame(from, to, animFrame, start, end);
+        discAlpha = InterpolateFloatByFrame(from, to, animFrame, start, end);
         scale = InterpolateFloatByFrame(kClearedScaleHigh, kClearedScaleMid, animFrame, 0, 6);
-        (void)base;
         p = animFrame;
     } else {
         p = (animFrame - 0x28) % 0x1e;
         if (p < 5) {
-            InterpolateFloatByFrame(0.13f, g_flKeyTime040, p, 0, 5);
-            scale = InterpolateFloatByFrame(kClearedScaleHigh, 1.0f, p, 0, 5);
+            discAlpha = InterpolateFloatByFrame(kClearedAlphaLow, g_flKeyTime040, p, 0, 5);
+            scale = InterpolateFloatByFrame(kClearedScaleMid, 1.0f, p, 0, 5);
         } else {
-            InterpolateFloatByFrame(g_flKeyTime040, 0.13f, p, 6, 0x1e);
-            scale = InterpolateFloatByFrame(1.0f, kClearedScaleHigh, p, 6, 0x1e);
+            discAlpha = InterpolateFloatByFrame(g_flKeyTime040, kClearedAlphaLow, p, 6, 0x1e);
+            scale = InterpolateFloatByFrame(1.0f, kClearedScaleMid, p, 6, 0x1e);
         }
     }
 
-    // The four-quadrant disc, mirrored (transforms via the shutter angle table) about the centre.
+    // The four-quadrant disc, each quadrant rotated a further quarter turn about the centre.
     [self.texResult drawSprite:kClearedDiscSprite
                        atPoint:CGPointMake(kFieldCenterX, kFieldCenterY)
                          scale:scale
                         rotate:0.0f
                         anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                     transform:4
-                         alpha:0.0f];
+                     transform:0
+                         alpha:discAlpha];
     [self.texResult drawSprite:kClearedDiscSprite
                        atPoint:CGPointMake(kFieldCenterX, kFieldCenterY)
                          scale:scale
-                        rotate:0.0f
+                        rotate:kQuadrantRotate1
                         anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                     transform:4
-                         alpha:0.0f];
+                     transform:0
+                         alpha:discAlpha];
     [self.texResult drawSprite:kClearedDiscSprite
                        atPoint:CGPointMake(kFieldCenterX, kFieldCenterY)
                          scale:scale
-                        rotate:0.0f
+                        rotate:kQuadrantRotate2
                         anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                     transform:4
-                         alpha:0.0f];
+                     transform:0
+                         alpha:discAlpha];
     [self.texResult drawSprite:kClearedDiscSprite
                        atPoint:CGPointMake(kFieldCenterX, kFieldCenterY)
                          scale:scale
-                        rotate:0.0f
+                        rotate:kQuadrantRotate3
                         anchor:CGPointMake(kFieldCenterX, kFieldCenterY)
-                     transform:4
-                         alpha:0.0f];
+                     transform:0
+                         alpha:discAlpha];
 
     // The "CLEARED" word plate wipes in over the first six frames.
     float wordAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 6);
     float wordScale = InterpolateFloatByFrame(kComboFadeBase, 1.0f, animFrame, 0, 6);
-    [self.texResult spriteAtIndex:kClearedWordSprite];
+    CGRect wordRect = [self.texResult spriteAtIndex:kClearedWordSprite];
     [self.texResult drawSprite:kClearedWordSprite
-                       atPoint:CGPointMake(kFieldCenterX - (double)scale * 0.5, kWordY)
+                       atPoint:CGPointMake(kFieldCenterX - wordRect.size.width * 0.5,
+                                           kWordY - wordRect.size.height * 0.5)
                          scale:wordScale
                         rotate:0.0f
                         anchor:CGPointMake(kFieldCenterX, kWordY)
@@ -2525,28 +2901,28 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         slide = InterpolateFloatByFrame(0.0f, 10.0f, animFrame, 0x10, 0x32);
     }
     double discY = (double)slide + kFieldCenterY;
-    [self.texResult spriteAtIndex:kFailedDiscSprite];
+    CGRect discRect = [self.texResult spriteAtIndex:kFailedDiscSprite];
     [self.texResult drawSprite:kFailedDiscSprite
-                       atPoint:CGPointMake(kFieldCenterX - (double)discScale * 0.5,
-                                           discY - (double)discScale * 0.5)
+                       atPoint:CGPointMake(kFieldCenterX - discRect.size.width * 0.5,
+                                           discY - discRect.size.height * 0.5)
                          scale:discScale
                         rotate:0.0f
                         anchor:CGPointMake(kFieldCenterX, discY)
-                     transform:5
+                     transform:0
                          alpha:discAlpha];
 
     // The "FAILED" word plate scales in and drops.
     float wordScale = InterpolateFloatByFrame(kFailedWordScaleFrom, 1.0f, animFrame, 0, 0x10);
     float wordDrop = InterpolateFloatByFrame(kFailedWordDrop, 0.0f, animFrame, 0, 0x10);
     double wordY = (double)wordDrop + kWordY;
-    [self.texResult spriteAtIndex:kFailedWordSprite];
+    CGRect wordRect = [self.texResult spriteAtIndex:kFailedWordSprite];
     [self.texResult drawSprite:kFailedWordSprite
-                       atPoint:CGPointMake(kFieldCenterX - (double)discScale * 0.5,
-                                           wordY - (double)discScale * 0.5)
+                       atPoint:CGPointMake(kFieldCenterX - wordRect.size.width * 0.5,
+                                           wordY - wordRect.size.height * 0.5)
                          scale:wordScale
                         rotate:0.0f
                         anchor:CGPointMake(kFieldCenterX, wordY)
-                     transform:1
+                     transform:0
                          alpha:discAlpha];
 
     // The failed voice/sound on frame 0, then the rating from frame 10.
@@ -2638,8 +3014,8 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
         double x = (double)(bannerX + kRecordBannerBiasX);
         [self.texFront drawSprite:kRecordBannerSprite
                           atPoint:CGPointMake(x, kRecordBannerY)
-                        transform:(char)(int)bannerAlpha
-                            alpha:1];
+                        transform:1
+                            alpha:bannerAlpha];
         [self renderUpdatedScore:self.scoreRecord
                          atPoint:CGPointMake(x + (double)kRecordScoreDX, kRecordScoreY)
                            alpha:(double)bannerAlpha];
@@ -2653,15 +3029,15 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
 
         [self.texFront drawSprite:kMarkGlyphSprite
                           atPoint:CGPointMake(kMarkGlyphX, kMarkGlyphY)
-                        transform:(char)(int)markAlpha
-                            alpha:0];
+                        transform:0
+                            alpha:markAlpha];
 
         if (!self.replayPlaying && self.isCustom && self.isDownload && self.hasMusic) {
             if (!self.isTextureChange) {
                 self.isTextureChange = YES;
-                [self.texFront spriteAtIndex:0x1d];
+                CGRect voteSlot = [self.texFront spriteAtIndex:kGoodJobGlyphSprite];
                 LoadTextureSubImageFromResource(
-                    self.texFront, @"game_level_vote_rpl", CGPointMake(0.0, 0.0));
+                    self.texFront, @"game_level_vote_rpl", voteSlot.origin);
                 if (self.goodJobImage) {
                     __weak UIImageView *goodJob = self.goodJobImage;
                     [UIView animateWithDuration:0.3
@@ -2688,8 +3064,8 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
             }
             [self.texFront drawSprite:kGoodJobGlyphSprite
                               atPoint:CGPointMake(kGoodJobMarkX, kMarkGlyphY)
-                            transform:(char)(int)markAlpha
-                                alpha:0];
+                            transform:0
+                                alpha:markAlpha];
         }
 
         if (!self.isCustom && self.hasMusic && self.goodJobImage) {
