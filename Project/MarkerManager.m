@@ -484,6 +484,24 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
     }
     NSString *markerID = [NSString stringWithFormat:kMarkerIDFormat, kInitialMarkerNumber];
     [self copyMarkerItem:markerID isBanner:NO];
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. The bundled DefaultSettings.plist is a dump of a live
+    // NSUserDefaults domain: it pre-seeds PrefCurrentMarkerID with "mk0017" and a populated
+    // PrefMarkerInfoList. Because that list is already present, +checkRegularMarkerData takes its
+    // "list exists" arm and +createDefaultMarkerList -- the only thing that would point the
+    // preference at the bundled marker -- never runs. mk0017 was download-only and the store is
+    // gone, so the marker atlas is built from a file that cannot exist and no note markers are
+    // ever drawn, while judgement and scoring carry on working.
+    //
+    // Fall back to the marker that actually ships whenever the selected one is not installed.
+    // -markerCheckEnd does the same reset when the marker download is aborted, so this is the
+    // game's own recovery, just reached without a reachable server.
+    NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+    NSString *currentMarkerID = [defaults objectForKey:kPrefCurrentMarkerID];
+    if (currentMarkerID == nil || ![self checkMarkerData:currentMarkerID]) {
+        [defaults setObject:markerID forKey:kPrefCurrentMarkerID];
+    }
+#endif
     return YES;
 }
 
