@@ -3228,11 +3228,22 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     [self setEnableGesture:YES];
     [[AudioManager sharedManager] playSeResFile:[self soundName:kSettingsTapSoundSuffix]
                                     inDirectory:nil];
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. The animated presentation never finishes: the
+    // completion block below never runs, while presentedViewController is set synchronously at the
+    // start, so the sheet is stuck part-way through its transition rather than misplaced or
+    // transparent. That is why neither the full-screen style nor the window's autoresizing changed
+    // anything, and why UIKit warns the settings table was laid out while still detached.
+    // Presenting unanimated makes UIKit do the work synchronously and skips the stalled transition.
+    BOOL animatePresentation = NO;
+#else
+    BOOL animatePresentation = YES;
+#endif
 #if JBDBG
-    // The completion runs after the transition, which is the only point the sheet's real frame is
-    // settled. Reports whether it is sized, on screen, attached, visible and opaque.
+    // The completion runs after the transition, so its absence in a capture means the transition
+    // never finished. When it does run it reports whether the sheet is sized, attached and opaque.
     [self presentViewController:settingsNavCtrl
-                       animated:YES
+                       animated:animatePresentation
                      completion:^{
                        UIView *sheet = self.presentedViewController.view;
                        CGRect sheetRect = sheet.frame;
@@ -3248,7 +3259,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                                   sheet.superview ? object_getClassName(sheet.superview) : "nil");
                      }];
 #else
-    [self presentViewController:settingsNavCtrl animated:YES completion:nil];
+    [self presentViewController:settingsNavCtrl animated:animatePresentation completion:nil];
 #endif
     if (NE_DBG_FIRST(4)) {
         neDebugLog("tapSettings: presented, presentedViewController %s, window %s",
