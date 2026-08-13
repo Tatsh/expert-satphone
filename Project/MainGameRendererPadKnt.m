@@ -149,16 +149,17 @@ static const unsigned int kPreStartSubStatePlay = 10;
 
 // The upper HUD layout for the pad Knit renderer: the tune-info block, music bar, live score, and
 // partner score, with the artwork sized at 160 points.
-static const double kUpperTuneInfoX = 18.0;        // fmov 18.0
-static const double kUpperTuneInfoY = 25.0;        // fmov 25.0
-static const double kUpperArtworkSize = 160.0;     // @ghidraAddress 0x28f438
-static const double kUpperMusicBarX = 8.0;         // fmov 8.0
-static const double kUpperMusicBarY = 208.0;       // @ghidraAddress 0x2929f0
-static const double kUpperScoreX = 412.0;          // @ghidraAddress 0x2929f8
-static const double kUpperScoreY = 138.0;          // @ghidraAddress 0x2924c8
-static const double kUpperPartnerScoreX = 516.0;   // @ghidraAddress 0x100292a00
-static const double kUpperPartnerScoreY = 80.0;    // @ghidraAddress 0x10028f3f8
-static const double kUpperPartnerScoreScale = 0.7; // @ghidraAddress 0x100291c98
+static const double kUpperTuneInfoX = 18.0;      // fmov 18.0
+static const double kUpperTuneInfoY = 25.0;      // fmov 25.0
+static const double kUpperArtworkSize = 160.0;   // @ghidraAddress 0x28f438
+static const double kUpperMusicBarX = 8.0;       // fmov 8.0
+static const double kUpperMusicBarY = 208.0;     // @ghidraAddress 0x2929f0
+static const double kUpperScoreX = 412.0;        // @ghidraAddress 0x2929f8
+static const double kUpperScoreY = 138.0;        // @ghidraAddress 0x2924c8
+static const double kUpperPartnerScoreX = 516.0; // @ghidraAddress 0x292a00
+static const double kUpperPartnerScoreY = 80.0;  // @ghidraAddress 0x28f3f8
+// A float widened at compile time: the pool holds 0x3FE6666660000000, not (double)0.7.
+static const float kUpperPartnerScoreScale = 0.7f; // @ghidraAddress 0x291c98
 
 // The debug-text overlay lays glyphs out on a 12-point advance and a 20-point line height, capped
 // at 0x200 glyphs; each printable character maps to the font sprite at its ASCII code minus space.
@@ -183,9 +184,9 @@ static const float kExcParticleScale[] = { // @ghidraAddress 0x29439c
     1.59f, 2.0f,  1.23f, 1.0f, 1.07f, 0.18f, 0.18f, 0.18f, 0.18f, 0.18f};
 static const int kExcParticleCount = 20;
 static const int kExcSweepParticleFirst = 15; // particles 15..19 sweep out; 0..14 are static+trail
-static const float kExcParticleRotate = -0.47459015f; // @ghidraAddress 0x2934c4
-// The eight excellent panels fill the grid rows in this reflow order (a 16-entry table read every
-// other frame), drawn inset 16 into a 192-point grid pitch, dropped 256 points, minus a 16-point
+static const float kExcParticleRotate = -0.47456083f; // @ghidraAddress 0x2934c4
+// The sixteen excellent panels fill the 4x4 grid in this reflow order, one panel lighting every
+// other frame, drawn inset 16 into a 192-point grid pitch, dropped 256 points, minus a 16-point
 // half.
 static const int kExcPanelOrder[] = { // @ghidraAddress 0x29426c
     0,
@@ -208,6 +209,8 @@ static const int kExcPanelPitch = 0xc0;     // 192
 static const int kExcPanelInset = 0x10;     // 16
 static const int kExcPanelGridTopY = 0x100; // 256
 static const double kExcPanelHalf = -16.0;  // fmov, -16.0
+static const int kExcPanelCount = 16;
+static const int kExcPanelRevealPitch = 2; // a panel lights every other frame
 static const NSUInteger kExcTitleSprite = 0xd;
 static const NSUInteger kExcPanelSprite = 0xf;
 static const NSUInteger kExcWordSprite = 4;
@@ -240,7 +243,7 @@ static const float kExcFlourishXFrom = -198.0f;   // @ghidraAddress 0x293ea0
 static const float kExcFlourishXSpread = 1536.0f; // @ghidraAddress 0x293ea4
 static const float kExcSweepThreshold = 640.0f;   // @ghidraAddress 0x2934ec
 static const float kExcParticleSpread = 192.0f;   // @ghidraAddress 0x2925a0
-static const double kExcWordFive = 5.0;           // fmov, 5.0
+static const float kExcWordFive = 5.0f;           // fmov 5.0f, 0x204880
 
 // The excellent title glyphs fill the 4x4 grid rows; sound cues fire at set frames.
 static const NSUInteger kExcRatingFrame = 0x14;
@@ -259,18 +262,19 @@ static NSString *const kSeExcVoice = @"SD_KNT_CV_EXCELLENT"; // @ghidraAddress 0
 // partner score, combo, and the win/clear/fail banner, then the new-record stamp and the
 // good-job/vote overlay. The shutter closes over its own frames; a perfect million shows Excellent,
 // 700000+ shows Cleared, else Failed.
-static const float kShutterCloseThreshold = 43.5f;        // @ghidraAddress 0x292b58
-static const float kShutterCloseStep = -43.5f;            // @ghidraAddress 0x292b54
-static const double kResultArtworkX = 18.0;               // fmov, 18.0
-static const double kResultArtworkY = 25.0;               // fmov, 25.0
-static const double kResultArtworkSize = 160.0;           // @ghidraAddress 0x28f438
-static const double kResultMusicBarX = 8.0;               // fmov, 8.0
-static const double kResultMusicBarY = 208.0;             // @ghidraAddress 0x2929f0
-static const double kResultScoreX = 412.0;                // @ghidraAddress 0x2929f8
-static const double kResultScoreY = 138.0;                // @ghidraAddress 0x2924c8
-static const double kResultPartnerX = 516.0;              // @ghidraAddress 0x292a00
-static const double kResultPartnerY = 80.0;               // @ghidraAddress 0x28f3f8
-static const double kResultPartnerScale = 0.7;            // @ghidraAddress 0x291c98
+static const float kShutterCloseThreshold = 43.5f; // @ghidraAddress 0x292b58
+static const float kShutterCloseStep = -43.5f;     // @ghidraAddress 0x292b54
+static const double kResultArtworkX = 18.0;        // fmov, 18.0
+static const double kResultArtworkY = 25.0;        // fmov, 25.0
+static const double kResultArtworkSize = 160.0;    // @ghidraAddress 0x28f438
+static const double kResultMusicBarX = 8.0;        // fmov, 8.0
+static const double kResultMusicBarY = 208.0;      // @ghidraAddress 0x2929f0
+static const double kResultScoreX = 412.0;         // @ghidraAddress 0x2929f8
+static const double kResultScoreY = 138.0;         // @ghidraAddress 0x2924c8
+static const double kResultPartnerX = 516.0;       // @ghidraAddress 0x292a00
+static const double kResultPartnerY = 80.0;        // @ghidraAddress 0x28f3f8
+// A float widened at compile time: the pool holds 0x3FE6666660000000, not (double)0.7.
+static const float kResultPartnerScale = 0.7f;            // @ghidraAddress 0x291c98
 static const unsigned int kResultBannerStartFrame = 0x1e; // 30
 static const unsigned int kClearedScoreThreshold = 699999;
 static const int kMillionScore = 1000000;
@@ -307,7 +311,7 @@ static const unsigned int kResultSubStateComplete = 10;
 static const NSUInteger kMusicBarBackdropSprite = 0xb;
 static const NSUInteger kMusicBarPlayHeadSprite = 0x13;
 static const double kMusicBarBackdropXOffset = -8.0; // fmov -8.0
-static const double kMusicBarCellBaseXOffset = 0.0;  // @ghidraAddress 0x292488
+static const double kMusicBarCellBaseXOffset = 76.0; // @ghidraAddress 0x292488
 static const double kMusicBarCellYOffset = 1.0;      // fmov 1.0
 static const int kMusicBarCellPitch = 5;
 static const int kMusicBarNoteBaseIdle = 0x3a;
@@ -566,21 +570,8 @@ enum {
 static const double kMusicBarRectX = 8.0;   // @ghidraAddress 0x293eb0
 static const double kMusicBarRectY = 208.0; // @ghidraAddress 0x293eb8
 
-// The one-letter difficulty code spliced into "game_diff_%s_knt" and "game_mbar_%s_knt": basic,
-// advanced, extreme, or (for anything else) the fallback code. From a run of single-character C
-// strings at 0x280488..0x28048e.
-static inline const char *MainGameRendererPadKntDiffCode(int diff) {
-    switch (diff) {
-    case 0:
-        return "b"; // @ghidraAddress 0x280488
-    case 1:
-        return "a"; // @ghidraAddress 0x28048a
-    case 2:
-        return "e"; // @ghidraAddress 0x28048c
-    default:
-        return "o"; // @ghidraAddress 0x28048e
-    }
-}
+// The partner-name label is rendered in the 16-point bold system font.
+static const double kPartnerNameFontSize = 16.0; // fmov 16.0, 0x1ffee4
 
 // Builds the six knit-wave texture layers, all sharing the one wave sprite table, then blits the
 // encrypted wave image into each. De-inlined from the wave section of -loadTexure:artwork:index:.
@@ -765,6 +756,7 @@ static inline void MainGameRendererPadKntBuildComboTexture(MainGameRendererPadKn
         [codec cipherInit:cipherKey];
         LoadTextureSubImageFromEncryptedTex(
             self.texCombo, @"game_combo_knt_tex", codec, CGPointMake(0.0, 0.0));
+        [codec cipherInit:cipherKey]; // Yes, the binary re-keys here; nothing else uses the codec.
     }
 }
 
@@ -773,10 +765,10 @@ static inline void MainGameRendererPadKntBuildComboTexture(MainGameRendererPadKn
 // partner-name label. De-inlined from the composite section of -loadTexure:artwork:index:.
 static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *self,
                                                         RendererConf *conf,
+                                                        const char *diffCode,
                                                         UIImage *artwork,
                                                         UIImage *index,
                                                         CGRect *musicBarRect) {
-    const char *diffCode = MainGameRendererPadKntDiffCode(conf.diff);
     LoadTextureSubImageFromResource(self.texFront,
                                     [NSString stringWithFormat:@"game_diff_%s_knt", diffCode],
                                     [self.texFront spriteAtIndex:kFrontSpriteDiffWord].origin);
@@ -804,7 +796,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
         label.backgroundColor = UIColor.clearColor; // The original used +clearColor.
         label.textColor = UIColor.blackColor;       // The original used +blackColor.
         label.textAlignment = NSTextAlignmentRight; // 2.
-        label.font = [UIFont boldSystemFontOfSize:0];
+        label.font = [UIFont boldSystemFontOfSize:kPartnerNameFontSize];
         label.text = conf.partnerName;
         UIImage *rendered = [label renderImage];
         [self.texFront setSubImage:rendered
@@ -869,6 +861,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
     case kRenderStatePlay:
         [self renderBG];
         [self renderShutter:YES];
+        (void)self.sequence; // Yes, the binary fetches and discards this one.
         [self renderCombo:(unsigned int)self.sequence.getScore->curCombo alpha:1.0f];
         [self renderUpperBG:NO];
         [self renderUpper];
@@ -948,9 +941,23 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
         conf.tuneID == self.rendererConf.tuneID) {
         return;
     }
+    // The difficulty code is chosen the moment the stale front atlas is dropped, long before the
+    // "game_diff_%s_knt" and "game_mbar_%s_knt" names that consume it, and the binary re-reads
+    // conf.diff for each test rather than caching it. It comes from a run of single-character C
+    // strings at 0x280488..0x28048e.
+    const char *diffCode;
     @autoreleasepool {
         if (self.texFront) {
             self.texFront = nil;
+        }
+        if (conf.diff == 0) {
+            diffCode = "b"; // @ghidraAddress 0x280488
+        } else if (conf.diff == 1) {
+            diffCode = "a"; // @ghidraAddress 0x28048a
+        } else {
+            diffCode = (conf.diff == 2) ? "e" // @ghidraAddress 0x28048c
+                                          :
+                                          "o"; // @ghidraAddress 0x28048e
         }
         self.texFront = [[Texture2D alloc] initWithData:nullptr
                                             pixelFormat:Texture2DPixelFormatRGBA8888
@@ -967,7 +974,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
     }
     MainGameRendererPadKntBuildHoldMarkerTexture(self, &self->holdMarkerRender, codec, cipherKey);
     MainGameRendererPadKntBuildComboTexture(self, codec, cipherKey);
-    MainGameRendererPadKntCompositeFront(self, conf, artwork, index, &self->musicBarRect);
+    MainGameRendererPadKntCompositeFront(self, conf, diffCode, artwork, index, &self->musicBarRect);
     self.rendererConf = conf;
 }
 
@@ -1004,17 +1011,17 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
     self.texResult = CreateTexture2DFromEncryptedTexResource(@"game_result_knt_tex", codec);
     self.texResultBg = CreateTexture2DFromEncryptedTexResource(@"game_result_knt_tex", codec);
     [self.texResult setClipRect:CGRectMake(0.0, kResultClipY, kResultClipSize, kResultClipSize)];
-    if (rank < kRankCount) {
-        // An 8-way jump table picks the rank overlay name; every arm falls to this common blit into
-        // the result atlas's rank sprite.
+    // The comparison is unsigned in the binary (cmp w21,#0x7 / b.hi), so a negative rank takes the
+    // no-overlay path. Every jump-table arm falls through into the end-mark blit below rather than
+    // skipping it: the common block ends at 0x2002d8 with a bl to objc_release, not a branch.
+    if ((unsigned int)rank < kRankCount) {
         LoadTextureSubImageFromResource(self.texResult,
                                         kRankOverlayNames[rank],
                                         [self.texResult spriteAtIndex:kResultRankSprite].origin);
-    } else {
-        LoadTextureSubImageFromResource(self.texResult,
-                                        @"game_end_mark_knt",
-                                        [self.texResult spriteAtIndex:kResultEndMarkSprite].origin);
     }
+    LoadTextureSubImageFromResource(self.texResult,
+                                    @"game_end_mark_knt",
+                                    [self.texResult spriteAtIndex:kResultEndMarkSprite].origin);
 }
 
 /** @ghidraAddress 0x20048c */
@@ -1030,7 +1037,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
         self->bounceEnergy = 0;
         self.scoreRecord = nil;
         break;
-    case 2:
+    case kRenderStateReady:
         self->lastCombo = 0;
         self->comboCutFrame = 0;
         self->comboEffectFrame = 0;
@@ -1046,11 +1053,11 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
             [self.sePlayerGo prepareToPlay];
         }
         break;
-    case 5:
+    case kRenderStateResult:
         [[AudioManager sharedManager] loadBgmResAAC:@"SD_KNT_BGM_RESULT" inDirectory:nil];
         [[AudioManager sharedManager] startBgm:YES fadeTime:0.0];
         break;
-    case 6:
+    case kRenderStateResultWait:
         // The frame counter is left running for state 6; every other state resets it below.
         [super setState:state];
         return;
@@ -1116,11 +1123,12 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
 - (void)replaySelect {
     if (self.isCustom && self.isDownload && self.hasMusic) {
         self.replayPlaying = YES;
-        // spriteAtIndex: is called only for its side effect on the shared draw scratch; the point
-        // then read is the atlas origin, so the start mark reloads at (0, 0).
-        [self.texFront spriteAtIndex:20];
-        LoadTextureSubImageFromResource(
-            self.texFront, @"game_start_mark_knt", CGPointMake(0.0, 0.0));
+        // The sprite's own origin is the destination: 0x206e84 returns the CGRect in d0-d3 and
+        // 0x206e94 takes its CGPoint in d0/d1, so the two flow straight through.
+        // -[Texture2D spriteAtIndex:] is a pure getter with no scratch side effect.
+        LoadTextureSubImageFromResource(self.texFront,
+                                        @"game_start_mark_knt",
+                                        [self.texFront spriteAtIndex:kFrontSpriteStartMark].origin);
         self.isTextureChange = NO;
 
         /** @ghidraAddress 0x28f260 */
@@ -1257,18 +1265,22 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
          transform:0
              alpha:labelAlpha];
     CGSize rankSize = [self.texResult spriteAtIndex:kRatingRankSprite].size;
+    // Below frame 8 the rank has its own alpha ramp; at or after it, all three scale arms share the
+    // single alpha block the binary reaches at 0x20511c.
     if (animFrame < 8) {
         rankScale = InterpolateFloatByFrame(2.0f, kRatingScaleBig, animFrame, 0, 8);
-        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, animFrame, 8, 0xd);
-    } else if (animFrame < 0xe) {
-        rankScale = InterpolateFloatByFrame(kRatingScaleBig, kRatingScaleMid, animFrame, 8, 0xe);
-        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, animFrame, 8, 0xd);
-    } else if (animFrame < 0x10) {
-        rankScale = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, 0xe, 0x10);
-        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 0.0f, animFrame, 8, 0xd);
+        rankAlpha = InterpolateFloatByFrame(0.0f, kRatingScaleSmall, animFrame, 0, 8);
     } else {
-        rankScale = 1.0f;
-        rankAlpha = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, 8, 0xd);
+        if (animFrame < 0xe) {
+            rankScale =
+                InterpolateFloatByFrame(kRatingScaleBig, kRatingScaleMid, animFrame, 8, 0xe);
+        } else if (animFrame < 0x10) {
+            rankScale = InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, 0xe, 0x10);
+        } else {
+            // The binary skips the interpolation here, so the scale keeps the preloaded 1.0f.
+            rankScale = 1.0f;
+        }
+        rankAlpha = InterpolateFloatByFrame(kRatingScaleSmall, 1.0f, animFrame, 8, 0xd);
     }
     [self.texResult drawSprite:kRatingRankSprite
                        atPoint:CGPointMake(kRatingRankAnchorX - rankSize.width * 0.5,
@@ -1325,14 +1337,17 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
          transform:0
              alpha:titleAlpha];
 
-    // The eight excellent panels fill the grid's top and bottom rows as the frame passes each.
-    for (int i = 0; i < 16; i += 2) {
-        if (i / 2 > (int)(animFrame - kExcPanelFrame)) {
+    // The sixteen excellent panels light in the reflow order, one every other frame from the panel
+    // cue, tiling the 4x4 grid. The loop counter advances by two per panel in the binary and exits
+    // at 0x20, so all sixteen table entries are read.
+    for (int i = 0; i < kExcPanelCount; ++i) {
+        if ((int)(animFrame - kExcPanelFrame) < i * kExcPanelRevealPitch) {
             continue;
         }
-        int panel = kExcPanelOrder[i / 2];
+        int panel = kExcPanelOrder[i];
         double px = (double)((panel % 4) * kExcPanelPitch | kExcPanelInset) + kExcPanelHalf;
-        double py = (double)(((panel >> 2) * kExcPanelPitch | kExcPanelInset) + kExcPanelGridTopY) +
+        // A signed divide, not a shift: 0x204630 emits the add-bias/csel/asr sequence.
+        double py = (double)(((panel / 4) * kExcPanelPitch | kExcPanelInset) + kExcPanelGridTopY) +
                     kExcPanelHalf;
         [self.texResultBg drawSprite:kExcPanelSprite
                               inRect:CGRectMake(px, py, kExcPanelSpread, kExcPanelSpread)];
@@ -1366,7 +1381,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
                             anchor:CGPointMake((double)g2x, (double)g2y)
                          transform:0
                              alpha:g2a];
-        if (animFrame > kExcStringFrame1) {
+        if (animFrame >= kExcStringFrame1) {
             float g3x =
                 InterpolateFloatByFrame(kExcWord3XTo, kExcTitleSlideFrom, animFrame, 0x67, 0x6e) +
                 kExcWord3XOffset;
@@ -1392,9 +1407,9 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
                                 anchor:CGPointMake((double)g4x, (double)(g4y + kExcWordFive))
                              transform:0
                                  alpha:g4a];
-            if (animFrame > kExcStringFrame2) {
+            if (animFrame >= kExcStringFrame2) {
                 float g5x = InterpolateFloatByFrame(
-                                kExcWord1XTo, kExcTitleSlideFrom, animFrame, 0x6e, 0x75) +
+                                kExcWordScatterY, kExcTitleSlideFrom, animFrame, 0x6e, 0x75) +
                             kExcWord4XTo;
                 float g5y =
                     InterpolateFloatByFrame(kExcWord4YFrom, kExcWord2XFrom, animFrame, 0x6e, 0x75) +
@@ -1757,7 +1772,9 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
     }
     // On the result screen the animation is offset 150 frames past its in-game phase; in game it is
     // clamped to that 150-frame window.
-    unsigned int clamped = ((int)animFrame < 0x97) ? (unsigned int)frame : 0x96;
+    // The binary clamps the animFrame ARGUMENT (w21 = x2), not the frame ivar, which it never
+    // reads here.
+    unsigned int clamped = ((int)animFrame < 0x97) ? (unsigned int)animFrame : 0x96;
     unsigned int f = isResult ? (unsigned int)animFrame + 0x96 : clamped;
     if ((int)f >= 0xa1) {
         return;
@@ -2007,7 +2024,7 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
                  scale:scale
                 rotate:0
                 anchor:CGPointMake(centreX, kComboCutAnchorY)
-             transform:1
+             transform:0
                  alpha:cutAlpha];
     }
     comboCutFrame = comboCutFrame - 1;
@@ -2036,7 +2053,9 @@ digits:
         if (self.showCombo) {
             if (digitCount - 1 < kComboMaxDigits) {
                 // A short combo: the digits ripple downward as the combo-effect frame passes them.
-                int clampedLen = (int)~combo;
+                // The complement is of the snprintf return in x24, not of the combo itself;
+                // using the combo clamps to -5 for every value above four.
+                int clampedLen = ~length;
                 clampedLen = (clampedLen > -5) ? clampedLen : -5;
                 int rippleHead = effectFrame - clampedLen;
                 int digitX = startX;
@@ -2344,7 +2363,7 @@ digits:
         {180, 0, 0, 0, 0, 0, 0},         {180, 0, 0, 0, 0, 0, 0}};
     static const int kBgEffectSlotWrap = 0x1d; // the slot index resets once it passes 29
 
-    static const float kBeatPulseKnee = 0.606061f;     // @ghidraAddress 0x292ab4
+    static const float kBeatPulseKnee = 0.6060606f;    // @ghidraAddress 0x292ab4
     static const float kBeatPulsePeak = 1.1f;          // @ghidraAddress 0x292ab8
     static const float kBeatScale = 768.0f;            // @ghidraAddress 0x292550
     static const float kBeatScaleUnit = 1.0f / 512.0f; // @ghidraAddress 0x292abc
@@ -2357,7 +2376,7 @@ digits:
 
     // The beat pulse follows the sequence's haku phase, ramping past the 0.606 knee to its 1.1
     // peak. A replay backup does not drive the background.
-    const ScoreData *score = nil;
+    const ScoreData *score = nullptr;
     float haku = 0.0f;
     if (self.sequence != nil) {
         if (self.scoreBackup) {
@@ -2368,7 +2387,7 @@ digits:
     }
     float pulse;
     if (haku >= kBeatPulseKnee) {
-        pulse = InterpolateFloatByPosition(haku, kBeatPulseKnee, 1.0f, kBeatPulsePeak, 1.0f);
+        pulse = InterpolateFloatByPosition(haku, kBeatPulseKnee, 1.0f, 1.0f, kBeatPulsePeak);
     } else {
         pulse = InterpolateFloatByPosition(haku, 0.0f, kBeatPulseKnee, kBeatPulsePeak, 1.0f);
     }
@@ -2567,8 +2586,8 @@ digits:
                 spriteBase = kMusicBarRatingSpriteBase[grade];
             } else {
                 // A still-upcoming cell is idle; the cell the cursor currently sits in is lit.
-                spriteBase = (cellF + kMusicBarFadeStart < cursor) ? kMusicBarNoteBaseIdle :
-                                                                     kMusicBarNoteBaseCursor;
+                spriteBase = (cellF + kMusicBarFadeStart < cursor) ? kMusicBarNoteBaseCursor :
+                                                                     kMusicBarNoteBaseIdle;
             }
             [self.texFront
                 drawSprite:(NSUInteger)((int)note + spriteBase)
@@ -2603,9 +2622,9 @@ digits:
     if (score == 0) {
         partnerScoreDisplay = 0;
     } else if (partnerScoreDisplay != score) {
-        int step = (partnerScoreDisplay < score) ? 1 : -1;
-        partnerScoreDisplay =
-            partnerScoreDisplay + (((int)(score - partnerScoreDisplay) + step) >> 1);
+        // The halving is a logical shift, as the binary's LSR #1 at 0x20218c.
+        unsigned int step = (partnerScoreDisplay < score) ? 1u : (unsigned int)-1;
+        partnerScoreDisplay = partnerScoreDisplay + (((score - partnerScoreDisplay) + step) >> 1);
     }
     char buf[8];
     snprintf(buf, sizeof(buf), "%7d", partnerScoreDisplay);
@@ -2689,8 +2708,9 @@ digits:
         scoreDisplay = 0;
     } else if (scoreDisplay != score) {
         // Tween the displayed value halfway to the target, rounding away from the current value.
-        int step = (scoreDisplay < score) ? 1 : -1;
-        scoreDisplay = scoreDisplay + (((int)(score - scoreDisplay) + step) >> 1);
+        // The halving is a logical shift, as the binary's LSR #1 at 0x201ed4.
+        unsigned int step = (scoreDisplay < score) ? 1u : (unsigned int)-1;
+        scoreDisplay = scoreDisplay + (((score - scoreDisplay) + step) >> 1);
     }
     char buf[8];
     snprintf(buf, sizeof(buf), "%7d", scoreDisplay);
