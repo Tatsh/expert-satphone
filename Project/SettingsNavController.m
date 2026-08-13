@@ -27,6 +27,16 @@ static const CGFloat kPadCornerRadius = 6.0f;
     self = [super init];
     if (self) {
         self.modalPresentationStyle = UIModalPresentationFormSheet;
+#ifdef ENABLE_PATCHES
+        // Preservation patch, not in the binary. Tapping SETTINGS presents this controller and the
+        // presentation succeeds -- the instrumentation in -tapSettings: reports
+        // presentedViewController set and the presenting view in a window -- but nothing is drawn,
+        // and UIKit warns that the settings table was laid out "without being in the view
+        // hierarchy". The form-sheet container is what fails to come up; a full-screen
+        // presentation uses the simpler path and does not depend on it. The sheet was already
+        // full-width in spirit on the original 768x1024 iPad.
+        self.modalPresentationStyle = UIModalPresentationFullScreen;
+#endif
         self.navigationBar.barStyle = UIBarStyleBlack;
         self.navigationBar.translucent = NO;
 
