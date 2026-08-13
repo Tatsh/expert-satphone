@@ -285,6 +285,12 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
         // looked dead and the sheet soft-locked. The requested row animation is None, so
         // reloadData is visually identical and the condition bought nothing, and the deselect
         // just above means the dropped selection does not matter either.
+        //
+        // Widening it did NOT fix the soft lock, so the second paragraph above overstates the
+        // case: the batch update is a real defect on modern UIKit and the warning it emits is
+        // genuine, but it is not what wedges the pop. A later audit found the shared navigation
+        // bar marked exclusiveTouch in -viewDidLoad, which fits the symptom far better. This
+        // patch is kept on its own merits, not as the fix for that.
         [self.tableView reloadData];
 #else
         [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithArray:toReload]

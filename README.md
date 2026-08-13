@@ -29,10 +29,15 @@ delegate class `JubeatAppDelegate`, and every routine reachable from there is re
 
 ## Layout
 
-| Path       | Contents                                                        |
-| ---------- | --------------------------------------------------------------- |
-| `Project/` | Reconstructed sources, one class per header and implementation. |
-| `.claude/` | Rules governing reconstruction fidelity and coding style.       |
+| Path                     | Contents                                                        |
+| ------------------------ | --------------------------------------------------------------- |
+| `Project/`               | Reconstructed sources, one class per header and implementation. |
+| `.claude/`               | Rules governing reconstruction fidelity and coding style.       |
+| [PATCHES.md](PATCHES.md) | The deliberate deviations, all gated behind `ENABLE_PATCHES`.   |
+
+A build with `ENABLE_PATCHES` undefined stays faithful to the binary; `-DENABLE_PATCHES=ON` adds the
+modern-iOS and dead-service fixes needed to make the game playable. See
+[PATCHES.md](PATCHES.md).
 
 Every routine reachable from the entry point is reconstructed and audited: all of the binary's
 Objective-C methods and C/C++ functions and blocks now carry a reconstructed source with a
