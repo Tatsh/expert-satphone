@@ -445,6 +445,22 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 /** @ghidraAddress 0x1b94ec */
 + (BOOL)enableMarkerSelect {
     NSArray<NSDictionary<NSString *, NSString *> *> *list = [self getMarkerList];
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. The faithful rule below keeps selection disabled
+    // until every reserved marker (id under kReservedMarkerSize) has been downloaded. The store
+    // that served them is gone, so that condition can never be satisfied again and the marker
+    // button on the song-select screen is permanently -setEnabled:NO -- tapping it does nothing.
+    //
+    // Offer selection instead whenever there is actually something to select: at least one marker
+    // whose archive is present and passes its digest check. That keeps the intent of the original
+    // rule (do not open a picker with nothing in it) without depending on a dead server.
+    for (NSDictionary<NSString *, NSString *> *info in list) {
+        if ([self checkMarkerData:info[kMarkerInfoKeyMarkerID]]) {
+            return YES;
+        }
+    }
+    return NO;
+#else
     // Selection stays disabled while any reserved marker (an id below kReservedMarkerSize) is
     // still uninstalled, so the number test runs on the uninstalled entries, not the installed
     // ones.
@@ -459,6 +475,7 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
         }
     }
     return YES;
+#endif
 }
 
 #pragma mark - Migration
