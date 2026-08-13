@@ -67,6 +67,7 @@ cbnz
 ccmp
 ccontext
 cdevice
+ceilf
 cfstr
 cfstring
 cfurl

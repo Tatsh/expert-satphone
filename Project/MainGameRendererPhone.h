@@ -142,7 +142,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Draws the score digits tweening up towards a target, with a board and per-digit scale.
  * @param score The target score.
  * @param point The digits' origin.
- * @param alpha The opacity.
+ * @param alpha Unused. The binary clobbers @c d2 with the first @c -spriteAtIndex: return and
+ *              never reads this argument; it is kept so the selector matches the binary.
  * @param scale The per-digit scale.
  * @param boardY The score board's vertical position.
  * @ghidraAddress 0x10cb34

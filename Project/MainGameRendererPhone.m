@@ -78,6 +78,9 @@ enum {
     kUpperBGTileSpan = 0x140, // The total filler span, in points.
 };
 static const double kUpperBGRegionWidth = 32.0; // @ghidraAddress 0x28f458
+// Reached as an fmov immediate at 0x10db4c rather than a pool load, so the line carries no
+// @ghidraAddress: the audit tool reads the bytes at an annotated address, and an instruction is
+// not a constant slot. The mirrored strip's offset at 0x10db8c is the negated same value.
 static const double kUpperBGRegionHeight = 10.0;
 
 // The result-screen replay-swap animation duration, 0.3 seconds. @ghidraAddress 0x28f260
@@ -161,6 +164,13 @@ static const double kReadyCircleSize = 95.0;                // @ghidraAddress 0x
 static const double kReadyMarkTopOffset = -95.0;            // @ghidraAddress 0x292708
 static const double kReadyMarkX = 77.0;                     // @ghidraAddress 0x291be0
 static const double kReadyMarkX2 = 65.0;                    // @ghidraAddress 0x291bc0
+
+// The "READY" letter run is centred on the phone's 320-point width; the binary computes
+// (320 - 5 * letterWidth) / 2 in integer arithmetic. @ghidraAddress 0x10ea3c
+enum {
+    kReadyLetterCount = 5,
+    kReadyScreenWidth = 320,
+};
 
 // The combo cut-in overlay's full size (320 points) and its board top on the non-four-inch phone
 // (160 points).
@@ -443,14 +453,16 @@ static inline void MainGameRendererPhoneDrawScoreRun(Texture2D *texFront,
                                                      unsigned int shown,
                                                      CGPoint origin,
                                                      double scaleH,
-                                                     double alpha,
+                                                     CGSize boardCell,
+                                                     CGSize digitCell,
                                                      CGPoint anchor,
                                                      double widthScale,
                                                      double drawAlpha) {
-    // The board rectangle spans the whole run at the passed cell size, scaled about the anchor.
-    CGRect board = [Texture2D scaledRect:CGRectMake(origin.x, origin.y, scaleH, alpha)
-                                   scale:widthScale
-                                  anchor:anchor];
+    // The board rectangle spans the whole run at sprite 0xa's cell size, scaled about the anchor.
+    CGRect board =
+        [Texture2D scaledRect:CGRectMake(origin.x, origin.y, boardCell.width, boardCell.height)
+                        scale:widthScale
+                       anchor:anchor];
     double boardY = board.origin.y;
     double boardHeight = board.size.height;
     if (scaleH != 1.0) {
@@ -475,8 +487,8 @@ static inline void MainGameRendererPhoneDrawScoreRun(Texture2D *texFront,
         CGRect digit =
             [Texture2D scaledRect:CGRectMake(origin.x + digitDx + (double)(digitPitch * i),
                                              origin.y + digitDy,
-                                             scaleH,
-                                             alpha)
+                                             digitCell.width,
+                                             digitCell.height)
                             scale:widthScale
                            anchor:anchor];
         double digitY = digit.origin.y;
@@ -501,11 +513,8 @@ static inline void MainGameRendererPhoneRenderGoMark(Texture2D *texReady,
                                                      int spriteW,
                                                      int spriteH,
                                                      int centreY) {
-    // Each half has a distinct start frame and x-position keyframes.
-    unsigned int start = (sprite == 5) ? 0x47 : 0x47;
     // Sprite 5 and 6 differ in their appear window and x keyframes.
     unsigned int appearStart = (sprite == 5) ? 0x45 : 0x47;
-    (void)start;
     float alpha;
     if (frame < 0x5a) {
         alpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, appearStart, appearStart + 5);
@@ -557,7 +566,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     for (int columnX = 0; columnX < 0x300; columnX += 0x10) {
         int gameTop =
             is4Inch ? (self.buttonMarginForScreen40 + kFourInchGameTop) : kFourInchGameTop;
-        [texFront drawSprite:2
+        [texFront drawSprite:1
                      atPoint:CGPointMake((double)columnX, slide + (double)gameTop)
                    transform:1
                        alpha:wipe];
@@ -570,8 +579,8 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
         int gameTop = is4Inch ? (self.buttonMarginForScreen40 + kBandNonFourInch[band]) :
                                 kBandNonFourInch[band];
         [texFront drawSprite:2
-                     atPoint:CGPointMake(centreX, slide + centreYBias + (double)gameTop)
-                   transform:2
+                     atPoint:CGPointMake(centreX, slide + (centreYBias + (double)gameTop))
+                   transform:0
                        alpha:wipe];
     }
 }
@@ -888,31 +897,33 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
         is4Inch ? (double)(self.buttonMarginForScreen40 + kFourInchGameTop) : kUpperBGBottomDefault;
     [texCombo drawSprite:(tier + 10)
                   inRect:CGRectMake(0.0, bgTop, kScoreRightEdge, kScoreRightEdge)
-               transform:0
+               transform:1
                    alpha:1.0f];
-    // The combo burst animation: each active frame draws the burst sprite (5) at an eased
+    // The combo burst animation: each active frame draws the tier's burst sprite at an eased
     // position and scale.
     float burstScale = EvalComboScaleCurve(hakuPhase, tier);
     int frameCount = GetComboAnimFrameCount(tier);
     for (int animFrame = 0; animFrame < frameCount; ++animFrame) {
         CGPoint animPos = GetComboAnimPosition(tier, animFrame);
         float animScale = GetComboAnimScale(tier, animFrame);
-        (void)[texCombo spriteAtIndex:5];
-        // The burst sprite is centred on its eased position; its size is the curve scale relative
-        // to the 0.75 base.
-        double sizeW = (double)burstScale * (double)(animScale / kComboBaseScale) * kScoreRightEdge;
-        double sizeH = sizeW;
+        CGRect burstSprite = [texCombo spriteAtIndex:5];
+        // The burst is sized from its own atlas cell, scaled by the curve relative to the 0.75
+        // base, and truncated to whole points.
+        double sizeRatio = (double)(animScale / kComboBaseScale);
+        int sizeW = (int)((double)burstScale * (sizeRatio * burstSprite.size.width));
+        int sizeH = (int)((double)burstScale * (sizeRatio * burstSprite.size.height));
         int gameTop =
             is4Inch ? (self.buttonMarginForScreen40 + kFourInchGameTop) : kFourInchGameTop;
+        // The position bias is the fixed 160-point slot, not the idiom-dependent background top.
         double posX = (double)burstScale *
                           ((animPos.x * kScoreRightEdge) / kComboBurstDenom + kComboBurstBias) +
-                      bgTop - (sizeW * 0.5);
+                      kUpperBGBottomDefault - (double)((float)sizeW * 0.5f);
         double posY = (double)burstScale *
                           ((animPos.y * kScoreRightEdge) / kComboBurstDenom + kComboBurstBias) +
-                      bgTop - (sizeH * 0.5) + (double)gameTop;
+                      kUpperBGBottomDefault - (double)((float)sizeH * 0.5f) + (double)gameTop;
         float burstAlpha = EvalComboAnimCurve(hakuPhase, tier, animFrame);
-        [texCombo drawSprite:5
-                      inRect:CGRectMake(posX, posY, sizeW, sizeH)
+        [texCombo drawSprite:(tier + 5)
+                      inRect:CGRectMake(posX, posY, (double)sizeW, (double)sizeH)
                    transform:0
                        alpha:burstAlpha];
     }
@@ -921,53 +932,49 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     if (energy > 0.0f) {
         float wobbleBase = (float)tension * 5.0f * kTensionEnergyScaleB + 9.0f;
         double beat = sin((double)hakuPhase * kTensionBeatOmega); // @ghidraAddress 0x292478
-        energy = energy + wobbleBase + wobbleBase * (float)beat;
+        energy = energy + (wobbleBase + wobbleBase * (float)beat);
     }
     shutterOpen = (energy + shutterOpen) * 0.5f;
-    // The two shutter halves slide apart by the measure phase, and the tension bar closes over
-    // them by the shutter-open energy.
+    // The halves slide apart by the measure phase and the bar closes over them by the shutter
+    // energy. The non-four-inch half-span is the same 320-point pool slot the rectangles use for
+    // their width.
     double halfSpan;
     double slide;
     if (is4Inch) {
         halfSpan = (double)(self.buttonMarginForScreen40 + kFourInchScoreTop);
         slide = (double)(measurePhase * (float)(self.buttonMarginForScreen40 + kFourInchGameTop));
     } else {
-        halfSpan = kUpperBGBottomDefault;
+        halfSpan = kScoreRightEdge;                       // @ghidraAddress 0x28f470
         slide = (double)(measurePhase * kBgMeasureScale); // @ghidraAddress 0x28e014
     }
     [texCombo
-        drawSprite:0
+        drawSprite:4
             inRect:CGRectMake(0.0,
                               (halfSpan - (double)shutterOpen) - (double)measurePhase * halfSpan,
                               kScoreRightEdge,
                               slide)
-         transform:4
+         transform:0
              alpha:1.0f];
-    [texCombo drawSprite:0
+    [texCombo drawSprite:4
                   inRect:CGRectMake(0.0,
-                                    (double)(measurePhase * kBgMeasureScale) + halfSpan +
-                                        (double)shutterOpen,
+                                    (double)(measurePhase * kBgMeasureScale) +
+                                        (halfSpan + (double)shutterOpen),
                                     kScoreRightEdge,
                                     slide)
-               transform:4
-                   alpha:2.0f];
-    // The two shutter cap chips (sprite 3) close the gap top and bottom.
-    [texCombo drawSprite:0
-                 atPoint:CGPointMake(0.0, halfSpan - (double)shutterOpen)
-               transform:3
-                   alpha:1.0f];
-    (void)[texCombo spriteAtIndex:3];
-    [texCombo drawSprite:0
-                 atPoint:CGPointMake(0.0, (halfSpan + (double)shutterOpen) - slide)
-               transform:3
-                   alpha:1.0f];
-    double capTop =
-        is4Inch ? (double)(self.buttonMarginForScreen40 + kFourInchGameTop) : kBgMeasureScale;
-    [texCombo drawSprite:0
-                 atPoint:CGPointMake(0.0, capTop - (double)shutterOpen)
                transform:2
                    alpha:1.0f];
-    [texCombo drawSprite:0
+    // The four cap chips close the gap top and bottom; two of them are opaque two-argument draws
+    // in the binary.
+    [texCombo drawSprite:3 atPoint:CGPointMake(0.0, halfSpan - (double)shutterOpen)];
+    CGRect capSprite = [texCombo spriteAtIndex:3];
+    [texCombo drawSprite:3
+                 atPoint:CGPointMake(0.0, (halfSpan + (double)shutterOpen) - capSprite.size.height)
+               transform:2
+                   alpha:1.0f];
+    float capTop =
+        is4Inch ? (float)(self.buttonMarginForScreen40 + kFourInchGameTop) : kBgMeasureScale;
+    [texCombo drawSprite:2 atPoint:CGPointMake(0.0, (double)(capTop - shutterOpen))];
+    [texCombo drawSprite:2
                  atPoint:CGPointMake(0.0, halfSpan + (double)shutterOpen)
                transform:2
                    alpha:1.0f];
@@ -1014,7 +1021,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
         char digits[5];
         int count = snprintf(digits, sizeof(digits), "%d", combo);
         if (count >= 1) {
-            (void)[texCombo spriteAtIndex:1]; // Read for effect; the result is discarded.
+            CGRect wordCell = [texCombo spriteAtIndex:1];
             unsigned int digitCount = (count < 5) ? (unsigned int)count : 4;
             double baseX;
             double stepX;
@@ -1024,8 +1031,8 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
                 stepX = kComboDigitStepX[digitCount - 1]; // @ghidraAddress 0x2928d0
                 baseX = kComboDigitBaseX[digitCount - 1]; // @ghidraAddress 0x2928f0
             } else {
-                stepX = 0.0;
-                baseX = kButtonPositionYBias; // 80.0 @ghidraAddress 0x28f3f8
+                stepX = kButtonPositionYBias; // 80.0 @ghidraAddress 0x28f3f8
+                baseX = 0.0;
             }
             int effect = (int)comboEffectFrame;
             if (self.showCombo) {
@@ -1047,10 +1054,11 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
                                    (double)(self.buttonMarginForScreen40 + kComboWordTop4Inch) :
                                    kComboWordTop;
                 float wordScale = GetComboScaleByCount(step, digitCount);
-                [texCombo drawSprite:1
-                             atPoint:CGPointMake((kScoreRightEdge - baseX), wordY)
-                           transform:0
-                               alpha:wordScale];
+                [texCombo
+                    drawSprite:1
+                       atPoint:CGPointMake(kScoreRightEdge - wordCell.size.width - baseX, wordY)
+                     transform:0
+                         alpha:wordScale];
             }
         }
     }
@@ -1119,38 +1127,45 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     }
     char digits[8];
     snprintf(digits, sizeof(digits), "%7d", score);
-    (void)[texFront spriteAtIndex:0x38]; // Read for effect; the result is discarded.
-    (void)[texFront spriteAtIndex:0xb];
-    // The board chip's alpha ramps to a 0.7 cap at twice the passed alpha.
-    float boardAlpha = (float)(alpha + alpha);
+    // Yes, alpha is unused: the binary clobbers d2 with the first -spriteAtIndex: return and never
+    // reads it.
+    (void)alpha;
+    CGRect digitCell = [texFront spriteAtIndex:0x38];
+    CGRect boardCell = [texFront spriteAtIndex:0xb];
+    // The board chip's alpha ramps to a 0.7 cap at twice the passed scale.
+    float boardAlpha = (float)(scale + scale);
     if (boardAlpha > kScoreBoardAlphaCap) {
         boardAlpha = kScoreBoardAlphaCap;
     }
-    [texFront drawSprite:0xb
-                 atPoint:CGPointMake(kScoreRightEdge - scale, (double)(boardY - 4.0f))
-               transform:0
-                   alpha:boardAlpha];
-    // Each of the seven right-aligned digits is drawn 9 points apart, tracking the last drawn one
-    // so the trailing suffix chip follows it.
+    [texFront
+        drawSprite:0xb
+           atPoint:CGPointMake(kScoreRightEdge - boardCell.size.width, (double)(boardY - 4.0f))
+         transform:0
+             alpha:boardAlpha];
+    // Every digit is drawn at the atlas cell's width, its height scaled by the unroll.
+    double digitW = digitCell.size.width;
+    double digitH = digitCell.size.height * scale;
+    // The seven right-aligned digits start one pitch in and step 9 points, tracking the last blank
+    // one so the trailing chip follows it.
     long lastDigit = -1;
     for (long i = 0; i < 7; ++i) {
         if ((unsigned char)(digits[i] - '0') < 10) {
             [texFront drawSprite:((long)digits[i] + 8)
                           inRect:CGRectMake(
-                                     point.x + (double)(i * 9) + 1.0, point.y, scale, alpha * scale)
+                                     point.x + (double)((i + 1) * 9) + 1.0, point.y, digitW, digitH)
                        transform:0
                            alpha:1.0f];
         } else {
             lastDigit = i;
         }
     }
-    [texFront drawSprite:0x37
-                  inRect:CGRectMake(point.x + (double)((int)lastDigit * 9 + 9) + 1.0,
-                                    point.y,
-                                    scale,
-                                    alpha * scale)
-               transform:0
-                   alpha:1.0f];
+    // The chip reuses the digit cell's size, not its own sprite's.
+    [texFront
+        drawSprite:0x37
+            inRect:CGRectMake(
+                       point.x + (double)((int)lastDigit * 9 + 9) + 1.0, point.y, digitW, digitH)
+         transform:0
+             alpha:1.0f];
 }
 
 /** @ghidraAddress 0x10cd38 */
@@ -1159,22 +1174,33 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
             atPoint:(CGPoint)point
              scaleH:(double)scaleH
               alpha:(double)alpha {
-    (void)[texFront spriteAtIndex:10]; // Read for effect; the result is discarded.
-    (void)[texFront spriteAtIndex:0x19];
-    CGPoint anchor = CGPointMake(point.x + scaleH, point.y + alpha);
+    // The run is laid out from the board and digit cells, not from the passed scale.
+    CGSize boardCell = [texFront spriteAtIndex:10].size;
+    CGSize digitCell = [texFront spriteAtIndex:0x19].size;
+    CGPoint anchor = CGPointMake(point.x + boardCell.width, point.y + boardCell.height);
     // The whole run is stretched to 1.3x on the four-inch phone.
     double widthScale = is4Inch ? kScoreWidthScale : 1.0;
-    // The shown score eases half the remaining gap towards the target each frame.
+    // The shown score eases half the remaining gap towards the target each frame; the shift is
+    // logical, so a target below the display wraps.
     if (score == 0) {
         scoreDisplay = 0;
     } else if (scoreDisplay != score) {
         int step = (scoreDisplay < score) ? 1 : -1;
-        scoreDisplay = scoreDisplay + (((int)(score - scoreDisplay) + step) >> 1);
+        scoreDisplay = scoreDisplay + (((score - scoreDisplay) + step) >> 1);
     }
     char digits[8];
     snprintf(digits, sizeof(digits), "%7d", scoreDisplay);
-    MainGameRendererPhoneDrawScoreRun(
-        texFront, isRetina, digits, scoreDisplay, point, scaleH, alpha, anchor, widthScale, alpha);
+    MainGameRendererPhoneDrawScoreRun(texFront,
+                                      isRetina,
+                                      digits,
+                                      scoreDisplay,
+                                      point,
+                                      scaleH,
+                                      boardCell,
+                                      digitCell,
+                                      anchor,
+                                      widthScale,
+                                      alpha);
     if (!self.isSession) {
         return;
     }
@@ -1185,7 +1211,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     } else if (partnerScoreDisplay != partnerScore) {
         int step = (partnerScoreDisplay < partnerScore) ? 1 : -1;
         partnerScoreDisplay =
-            partnerScoreDisplay + (((int)(partnerScore - partnerScoreDisplay) + step) >> 1);
+            partnerScoreDisplay + (((partnerScore - partnerScoreDisplay) + step) >> 1);
     }
     char partnerDigits[8];
     snprintf(partnerDigits, sizeof(partnerDigits), "%7d", partnerScoreDisplay);
@@ -1197,29 +1223,32 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     } else {
         partnerGap = 39.0; // @ghidraAddress 0x28f608
     }
-    // The partner origin is shifted up and left of the player anchor by one cell.
+    // The partner run scales about its own anchor, raised by the gap; only the x is shared.
+    CGPoint partnerAnchor = CGPointMake(anchor.x, anchor.y - partnerGap);
     CGPoint partnerOrigin =
-        CGPointMake((point.x + scaleH) - scaleH, ((point.y + alpha) - partnerGap) - alpha);
+        CGPointMake(anchor.x - boardCell.width, partnerAnchor.y - boardCell.height);
     MainGameRendererPhoneDrawScoreRun(texFront,
                                       isRetina,
                                       partnerDigits,
                                       partnerScoreDisplay,
                                       partnerOrigin,
                                       scaleH,
-                                      alpha,
-                                      anchor,
+                                      boardCell,
+                                      digitCell,
+                                      partnerAnchor,
                                       partnerScale,
                                       partnerAlpha);
-    // The partner-name chip (sprite 0x18) sits above the partner run by a per-idiom gap.
-    (void)[texFront spriteAtIndex:0x18];
+    // The partner-name chip hangs by its bottom-right corner above the partner run.
+    CGSize nameCell = [texFront spriteAtIndex:0x18].size;
     double nameGap;
     if (isRetina) {
-        nameGap = is4Inch ? 30.0 : 22.0; // @ghidraAddress (fmov 0x403e / 0x4036)
+        nameGap = is4Inch ? 30.0 : 22.0; // @ghidraAddress 0x10d39c, 0x10d398 (fmov)
     } else {
-        nameGap = 25.0; // @ghidraAddress (fmov 0x4039)
+        nameGap = 25.0; // @ghidraAddress 0x10d3a8 (fmov)
     }
     [texFront drawSprite:0x18
-                 atPoint:CGPointMake(anchor.x - scaleH, partnerOrigin.y - nameGap)
+                 atPoint:CGPointMake(anchor.x - nameCell.width,
+                                     (partnerAnchor.y - nameCell.height) - nameGap)
                transform:0
                    alpha:(float)partnerAlpha];
 }
@@ -1277,8 +1306,8 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     float cursor = playPosition * 120.0f; // @ghidraAddress 0x291be8, the play cursor in cells.
     for (unsigned int cell = 0; cell < kMusicBarCellCount; ++cell) {
         // Each cell packs a 4-bit note value into a nibble of the bar byte array.
-        int byteIndex = (int)cell >> 1;
-        int nibbleShift = ((int)cell - (byteIndex << 1)) * 4;
+        int byteIndex = (int)cell / 2;
+        int nibbleShift = ((int)cell - byteIndex * 2) * 4;
         unsigned int note = (unsigned int)(((bar[byteIndex] >> nibbleShift) & 0xf) - 1);
         if (note >= 8) {
             continue;
@@ -1287,8 +1316,9 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
         if (self.state == MainGamePhoneStateFinish || self.state == MainGamePhoneStateResult ||
             self.scoreBackup || ((float)(int)cell + kMusicBarCellFadeEnd < cursor)) {
             // The per-bar grade colour, read from the two-bit grade packed in musicBarResult.
-            int gradeByte = (int)scoreData->musicBarResult[(int)cell >> 2];
-            int gradeShift = ((int)cell - ((int)cell & 0x7ffffffc)) * 2;
+            int gradeIndex = (int)cell / 4;
+            int gradeByte = (int)scoreData->musicBarResult[gradeIndex];
+            int gradeShift = ((int)cell - gradeIndex * 4) * 2;
             unsigned int grade = ((unsigned int)(gradeByte >> gradeShift) & 3) ^ 2;
             baseSprite = kMusicBarGradeSprite[grade];
         } else {
@@ -1320,12 +1350,12 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
                   inRect:CGRectMake(position.x, position.y, artworkSize, artworkSize)
                transform:0
                    alpha:(float)alpha];
-    (void)[texFront spriteAtIndex:0x10]; // Read for effect; the result is discarded.
-    double x = position.x + artworkSize + 8.0;
+    // The title chip's frame; only its height is used, to step down to the next row.
+    CGRect titleCell = [texFront spriteAtIndex:0x10];
+    double x = position.x + (artworkSize + 8.0);
     double y = position.y - 4.0;
-    // The title/index chip.
     [texFront drawSprite:0x10 atPoint:CGPointMake(x, y) transform:0 alpha:(float)alpha];
-    y += artworkSize;
+    y += titleCell.size.height;
     // The difficulty word (sprite 0x11).
     [texFront drawSprite:0x11 atPoint:CGPointMake(x, y) transform:0 alpha:(float)alpha];
     // The level word (sprite 0x13), nudged right by a per-difficulty amount.
@@ -1353,38 +1383,43 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
 /** @ghidraAddress 0x10da6c */
 - (void)renderUpperBG:(double)y {
     CGRect sprite = [texFront spriteAtIndex:0];
-    // The band's height is half the gap between its bottom edge y and the sprite's own height,
-    // clamped so the band never exceeds y.
+    // The band height is half the gap between its bottom edge y and the sprite's own height, so
+    // the sprite sits vertically centred in the [0, y] band. When the sprite is taller than the
+    // band it is the drawn height, not the band offset, that is clamped.
     double bandHeight = (y - sprite.size.height) * 0.5;
+    double drawHeight = sprite.size.height;
     double bandBottom = sprite.size.height + bandHeight;
     if (bandBottom > y) {
+        drawHeight = y - bandHeight;
         bandBottom = y;
-        bandHeight = y - sprite.size.height;
     }
     // The source region is measured in double-density texels on retina.
     double regionScale = isRetina ? 2.0 : 1.0;
-    [texFront
-        drawInRect:CGRectMake(0.0, 0.0, sprite.size.width, bandHeight)
-        fromRegion:CGRectMake(0.0, 0.0, sprite.size.width * regionScale, bandHeight * regionScale)
-         transform:0
-             alpha:1.0f];
+    [texFront drawInRect:CGRectMake(0.0, bandHeight, sprite.size.width, drawHeight)
+              fromRegion:CGRectMake(sprite.origin.x * regionScale,
+                                    sprite.origin.y * regionScale,
+                                    sprite.size.width * regionScale,
+                                    drawHeight * regionScale)
+               transform:0
+                   alpha:1.0f];
     if (!is4Inch) {
         return;
     }
-    // The four-inch phone tiles a filler strip (sprite 0x20, 32 wide, 10 tall) across the width
+    // The four-inch phone tiles a filler strip (sprite 4, 32 wide, 10 tall) across the width
     // above the band, and a mirrored strip below it.
     for (int tileX = 0; tileX < kUpperBGTileSpan; tileX += kUpperBGTileWidth) {
         [texFront
-            drawSprite:0x20
+            drawSprite:4
                 inRect:CGRectMake(
                            (double)tileX, bandHeight, kUpperBGRegionWidth, kUpperBGRegionHeight)
              transform:0
                  alpha:1.0f];
     }
-    double bottomY = bandBottom - 0.625; // @ghidraAddress 0x10db8c (fmov immediate)
+    // The mirrored strip sits one filler-tile height above the band's bottom edge.
+    double bottomY = bandBottom - kUpperBGRegionHeight; // @ghidraAddress 0x10db8c (fmov -10.0)
     for (int tileX = 0; tileX < kUpperBGTileSpan; tileX += kUpperBGTileWidth) {
         [texFront
-            drawSprite:0x20
+            drawSprite:4
                 inRect:CGRectMake((double)tileX, bottomY, kUpperBGRegionWidth, kUpperBGRegionHeight)
              transform:4
                  alpha:1.0f];
@@ -1409,41 +1444,41 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     if (!is4Inch) {
         return;
     }
-    // The four-inch phone fills the letterbox bands above and below the grid with sprite 0. The
+    // The four-inch phone fills the letterbox bands above and below the grid with sprite 3. The
     // top band spans the gap between the game-area top and the score board.
     double bandHeight = (double)(self.buttonMarginForScreen40 - self.upperBgHeight40);
+    // The half band is narrowed to single precision and rounded up, not truncated.
+    double halfBand = (double)ceilf((float)(bandHeight * 0.5)); // @ghidraAddress 0x10df54
     double topY = offset - bandHeight;
     // The ten x-positions of the filler tiles, on a 0x20-point pitch.
     static const double kFillerX[] = {
         0.0, 32.0, 64.0, 96.0, 128.0, 160.0, 192.0, 224.0, 256.0, 288.0};
     for (int tile = 0; tile < 10; ++tile) {
-        [texFront drawSprite:0
+        [texFront drawSprite:3
                       inRect:CGRectMake(kFillerX[tile], topY, kUpperBGRegionWidth, bandHeight)];
     }
     double bottomBandY = offset + kScoreRightEdge; // 320.0 below the offset.
     for (int tile = 0; tile < 10; ++tile) {
         [texFront
-            drawSprite:0
+            drawSprite:3
                 inRect:CGRectMake(kFillerX[tile], bottomBandY, kUpperBGRegionWidth, bandHeight)];
     }
     // A tiled strip fills the remaining band below the buttons: one solid pass, then a mirrored
     // half-height overlay.
     int bandBase = self.buttonMarginForScreen40 + 0x1e0;
     for (int tileX = 0; tileX < kUpperBGTileSpan; tileX += kUpperBGTileWidth) {
-        [texFront drawSprite:0
+        [texFront drawSprite:3
                       inRect:CGRectMake((double)tileX,
-                                        (double)(int)(bandHeight * 0.5) + (double)bandBase,
+                                        halfBand + (double)bandBase,
                                         kUpperBGRegionWidth,
                                         bandHeight)];
     }
     for (int tileX = 0; tileX < kUpperBGTileSpan; tileX += kUpperBGTileWidth) {
-        [texFront drawSprite:0
-                      inRect:CGRectMake((double)tileX,
-                                        (double)bandBase,
-                                        kUpperBGRegionWidth,
-                                        (double)(int)(bandHeight * 0.5))
-                   transform:4
-                       alpha:1.0f];
+        [texFront
+            drawSprite:4
+                inRect:CGRectMake((double)tileX, (double)bandBase, kUpperBGRegionWidth, halfBand)
+             transform:4
+                 alpha:1.0f];
     }
 }
 
@@ -1454,7 +1489,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     if (is4Inch) {
         // The tune-info block drops by a quarter of the upper-background height, and the jacket is
         // slightly larger on the four-inch phone.
-        tuneY = (double)((self.upperBgHeight40 >> 2) + 11);
+        tuneY = (double)((self.upperBgHeight40 / 4) + 11);
         artworkSize = 88.0; // @ghidraAddress 0x292778
     } else {
         tuneY = 11.0;
@@ -1513,7 +1548,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
         double tuneY;
         double artworkSize;
         if (is4Inch) {
-            tuneY = (double)((self.upperBgHeight40 >> 2) + 11);
+            tuneY = (double)((self.upperBgHeight40 / 4) + 11);
             artworkSize = 88.0; // @ghidraAddress 0x292778
         } else {
             tuneY = 11.0;
@@ -1615,8 +1650,10 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
                    transform:0
                        alpha:overlayAlpha];
     }
+    // The five letters are centred across the screen. @ghidraAddress 0x10ea3c
+    double lettersLeftX = (double)((kReadyScreenWidth - kReadyLetterCount * spriteW) / 2);
+    double lettersY = (double)(centreY - spriteH / 2);
     // The five "READY" letters settle in one by one (frames < 0x45), then slide out together.
-    double lettersY = (double)(centreY - (spriteH >> 1));
     if (frame < 0x45) {
         for (long letter = 0; letter <= 4; ++letter) {
             unsigned int startFrame = (unsigned int)(0x1b + letter * 2);
@@ -1625,12 +1662,11 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
             if (letterAlpha > 0.0f) {
                 float drop =
                     InterpolateFloatByFrame(30.0f, 0.0f, frame, startFrame, startFrame + 5);
-                [texReady
-                    drawSprite:(NSUInteger)letter
-                       atPoint:CGPointMake(kUpperBGBottomDefault + (double)((int)letter * spriteW),
-                                           lettersY - (double)drop)
-                     transform:0
-                         alpha:letterAlpha];
+                [texReady drawSprite:(NSUInteger)letter
+                             atPoint:CGPointMake(lettersLeftX + (double)((int)letter * spriteW),
+                                                 lettersY - (double)drop)
+                           transform:0
+                               alpha:letterAlpha];
             }
         }
     } else {
@@ -1639,26 +1675,23 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
             float spread = InterpolateFloatByFrame(0.0f, 70.0f, frame, 0x45, 0x4b);
             double spreadD = (double)spread;
             [texReady drawSprite:0
-                         atPoint:CGPointMake(kUpperBGBottomDefault + spreadD * -2.0, lettersY)
+                         atPoint:CGPointMake(lettersLeftX + spreadD * -2.0, lettersY)
                        transform:0
                            alpha:outAlpha];
             [texReady drawSprite:1
-                         atPoint:CGPointMake((kUpperBGBottomDefault + (double)spriteW) - spreadD,
-                                             lettersY)
+                         atPoint:CGPointMake((lettersLeftX + (double)spriteW) - spreadD, lettersY)
+                       transform:0
+                           alpha:outAlpha];
+            [texReady drawSprite:2
+                         atPoint:CGPointMake(lettersLeftX + (double)(spriteW * 2), lettersY)
                        transform:0
                            alpha:outAlpha];
             [texReady
-                drawSprite:2
-                   atPoint:CGPointMake(kUpperBGBottomDefault + (double)(spriteW * 2), lettersY)
-                 transform:0
-                     alpha:outAlpha];
-            [texReady
                 drawSprite:3
-                   atPoint:CGPointMake(kUpperBGBottomDefault + (double)(spriteW * 3) + spreadD,
-                                       lettersY)
+                   atPoint:CGPointMake(lettersLeftX + (double)(spriteW * 3) + spreadD, lettersY)
                  transform:0
                      alpha:outAlpha];
-            double letterEX = kUpperBGBottomDefault + (double)(spriteW * 4) + spreadD + spreadD;
+            double letterEX = lettersLeftX + (double)(spriteW * 4) + (spreadD + spreadD);
             [texReady drawSprite:4
                          atPoint:CGPointMake(letterEX, lettersY)
                        transform:0
@@ -1684,7 +1717,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     // mirroring it into its quadrant.
     [texReady drawSprite:7
                   inRect:CGRectMake(center.x - size, center.y - size, size, size)
-               transform:7
+               transform:0
                    alpha:(float)alpha];
     [texReady drawSprite:7
                   inRect:CGRectMake(center.x - size, center.y, size, size)
@@ -1729,7 +1762,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     for (int columnX = 0; columnX < 0x300; columnX += 0x10) {
         int gameTop =
             is4Inch ? (self.buttonMarginForScreen40 + kFourInchGameTop) : kFourInchGameTop;
-        [texFront drawSprite:2
+        [texFront drawSprite:1
                      atPoint:CGPointMake((double)columnX, (double)gameTop)
                    transform:1
                        alpha:wipe];
@@ -1749,11 +1782,12 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
                            kFinishBandY[band];
         [texFront drawSprite:2
                      atPoint:CGPointMake(centerX, centerY + bandY)
-                   transform:2
+                   transform:0
                        alpha:wipe];
     }
-    // On the result state, play the finish voice once (unless the score is backed up for replay).
-    if (self.state == MainGamePhoneStateResult && !self.scoreBackup) {
+    // On the fifth frame, play the finish voice once (unless the score is backed up for replay).
+    // The binary tests the frame counter here, not the state; the two only agree by coincidence.
+    if (frame == 5 && !self.scoreBackup) {
         if (self.sequence.isExcellent) {
             [AudioManager.sharedManager playSeResFile:@"SD_CV_EXCELLENT" inDirectory:nil];
         } else if (self.sequence.isFullcombo) {
@@ -1775,10 +1809,10 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     static const double kClearedLetterX[] = {28.0, 72.0, 116.0, 160.0, 205.0, 250.0, 293.0};
     // @ghidraAddress 0x2927d0
     static const long kClearedLetterSprite[] = {0, 1, 2, 3, 0, 2, 1}; // @ghidraAddress 0x292808
-    // The seven letters alternate between the two atlases: 0,1,2,3 from texClear0 and the last
-    // three from texClear1.
+    // The seven letters are drawn from the two cleared atlases: letters 0-3 and letter 5 from
+    // texClear0, letters 4 and 6 from texClear1.
     Texture2D *atlases[] = {
-        texClear0, texClear0, texClear0, texClear0, texClear0, texClear1, texClear1};
+        texClear0, texClear0, texClear0, texClear0, texClear1, texClear0, texClear1};
     CGRect letter = [texClear0 spriteAtIndex:4];
     double letterW = letter.size.width;
     double letterH = letter.size.height;
@@ -1811,7 +1845,8 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
             }
         }
     }
-    (void)[texClear0 spriteAtIndex:0];
+    // The letters are sized from sprite 0, not from the curtain cell.
+    CGRect letterCell = [texClear0 spriteAtIndex:0];
     for (int i = 0; i < 7; ++i) {
         unsigned int start = (unsigned int)(i * 2);
         float letterAlpha = InterpolateFloatByFrame(0.0f, 1.0f, rank, start, start + 6);
@@ -1819,8 +1854,8 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
             float slideX = InterpolateFloatByFrame(
                 kBgMeasureScale, (float)kClearedLetterX[i], rank, start, start + 6);
             float scale = InterpolateFloatByFrame(2.0f, 1.0f, rank, start, start + 6);
-            double w = letterW * (double)scale;
-            double h = letterH * (double)scale;
+            double w = letterCell.size.width * (double)scale;
+            double h = letterCell.size.height * (double)scale;
             [atlases[i] drawSprite:(NSUInteger)kClearedLetterSprite[i]
                             inRect:CGRectMake((double)slideX - w * 0.5, centerY - h * 0.5, w, h)
                          transform:0
@@ -1868,7 +1903,10 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
             }
         }
     }
-    (void)[texClear1 spriteAtIndex:2];
+    // The letters are centred on sprite 2's cell, not on the curtain cell.
+    CGRect failedCell = [texClear1 spriteAtIndex:2];
+    double halfW = failedCell.size.width * 0.5;
+    double halfH = failedCell.size.height * 0.5;
     for (int i = 0; i < 6; ++i) {
         unsigned int start = (unsigned int)(i * 3);
         float letterAlpha = InterpolateFloatByFrame(0.0f, 1.0f, rank, start, start + 6);
@@ -1876,11 +1914,11 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
             // Each letter drops into place from above.
             float drop =
                 InterpolateFloatByFrame((float)kFailedLetterDrop[i], 0.0f, rank, start, start + 6);
-            [atlases[i] drawSprite:(NSUInteger)kFailedLetterSprite[i]
-                           atPoint:CGPointMake(kFailedLetterX[i] - letterW * 0.5,
-                                               (centerY - (double)drop) - letterH * 0.5)
-                         transform:0
-                             alpha:letterAlpha];
+            [atlases[i]
+                drawSprite:(NSUInteger)kFailedLetterSprite[i]
+                   atPoint:CGPointMake(kFailedLetterX[i] - halfW, (centerY - (double)drop) - halfH)
+                 transform:0
+                     alpha:letterAlpha];
         }
     }
     return rank > 0x4f;
@@ -1899,7 +1937,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     [texFront drawSprite:0xd atPoint:CGPointMake(0.0, headerY - 24.0)];
     // The tune information, dropped by a quarter of the header offset on the four-inch phone.
     int tuneTop = is4Inch ? self.upperBgHeight40 : 0;
-    double tuneY = headerY * 0.25 + (double)((tuneTop >> 2) + 11);
+    double tuneY = headerY * 0.25 + (double)((tuneTop / 4) + 11);
     double artworkSize = is4Inch ? 88.0 : 80.0; // @ghidraAddress 0x292778, 0x292770
     [self renderTuneInfo:CGPointMake(8.0, tuneY) artworkSize:artworkSize alpha:1.0];
     // The title chip (sprite 0xc) slides in from the right over the first 15 frames.
@@ -1965,8 +2003,9 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     }
     // The rating chips appear after frame 0x4f, easing in over frames 0x50..0x5e.
     if (frame > 0x4f) {
+        // The rating ramp adds in double after the widening, unlike the bonus alpha below.
         double ratingAlpha =
-            (frame < 0x5f) ? (double)((float)(0x5f - frame) * kResultBonusFadeStep + 1.0f) : 1.0;
+            (frame < 0x5f) ? (double)((float)(0x5f - frame) * kResultBonusFadeStep) + 1.0 : 1.0;
         if (ratingAlpha < 0.0) {
             ratingAlpha = 0.0;
         }
@@ -1984,38 +2023,41 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     }
     // The new-record banner and the record score appear once the screen is fully in (frame > 99).
     if (self.isNewRecord && frame > 99 && !self.scoreBackup) {
-        (void)[texFront spriteAtIndex:0x17];
+        CGRect banner = [texFront spriteAtIndex:0x17];
         double recordX = isRetina ? kResultRecordX2 : kResultRecordX; // @0x2927a8 / 0x2927a0
         int recordYOff = isRetina ? (is4Inch ? 0xa0 : 0x66) : 0x5e;
         int recordYBias = isRetina ? (is4Inch ? -1 : 7) : 0xd;
-        double bannerBaseY = (slide + (double)(recordYBias + recordYOff)) - 1.0;
+        // Transform 1 is the transposing quarter turn, so the sprite's packed height is drawn as
+        // the horizontal extent and its packed width as the vertical one.
+        double bannerLeft = recordX - banner.size.height;
+        double bannerBaseY = (slide + (double)(recordYBias + recordYOff)) - banner.size.width;
         double bannerY = bannerBaseY;
-        double bannerH = 1.0;
+        double bannerExtent = banner.size.width;
         double recordAlpha = 1.0;
         if (frame < 0x6e) {
-            bannerH = (1.0 / 10.0) * (double)(frame - 100);
-            bannerY = bannerBaseY + (1.0 - bannerH) * 0.5;
+            bannerExtent = (banner.size.width / 10.0) * (double)(frame - 100);
+            bannerY = bannerBaseY + (banner.size.width - bannerExtent) * 0.5;
         } else if (frame > 0x77) {
             float pulse = cosf((float)((double)((float)(frame - 0x78) / 20.0f) * g_dPi));
             recordAlpha = (double)(pulse * kComboFadeBase + kRecordPulseBias);
         }
         [texFront drawSprite:0x17
-                      inRect:CGRectMake(recordX - 1.0, bannerY, 1.0, bannerH)
-                   transform:0
+                      inRect:CGRectMake(bannerLeft, bannerY, banner.size.height, bannerExtent)
+                   transform:1
                        alpha:(float)recordAlpha];
         // The record score digits, tweened up.
         float recordScoreY = isRetina ? kResultRecordYBias2 : kResultRecordYBias;
-        float recordScoreX = isRetina ? 0.0f : -11.5f;
+        float recordScoreX = is4Inch ? 0.0f : -11.5f;
         unsigned int record = self.scoreRecord;
         double digitDx = isRetina ? -13.0 : 16.0;
         double digitDy = is4Inch ? -2.0 : 0.0;
-        double recordDigitX = (recordX - 1.0) + digitDx + digitDy;
+        double recordDigitX = (bannerLeft + digitDx) + digitDy;
         double recordDigitY = bannerY + (double)(recordScoreY + recordScoreX);
         [self renderUpdatedScore:record
                          atPoint:CGPointMake(recordDigitX, recordDigitY)
                            alpha:recordAlpha
-                           scale:bannerH
-                          boardY:(float)bannerBaseY + recordScoreY + recordScoreX];
+                           scale:bannerExtent / banner.size.width
+                          boardY:(float)bannerBaseY + (recordScoreY + recordScoreX)];
     }
     // The action buttons and the good-job overlay appear once the sub-state advances.
     if (self.subState != 0) {
@@ -2023,9 +2065,9 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
         double actionY = slide + (double)((float)(actionTop + 0xa0) + kResultVoteY);
         unsigned int elapsed = frame - subStateChangeFrame;
         float actionAlpha = (elapsed < 8) ? ((float)elapsed * 0.125f) : 1.0f;
-        [texFront drawSprite:0
+        [texFront drawSprite:9
                      atPoint:CGPointMake(kResultActionX, actionY)
-                   transform:9
+                   transform:0
                        alpha:actionAlpha];
         // A downloaded custom tune with music offers a level-vote button; the first time through it
         // blits the vote chip and fades the good-job overlay in.
@@ -2056,10 +2098,10 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
             }
             int voteTop = is4Inch ? self.buttonMarginForScreen40 : 0;
             [texFront
-                drawSprite:0
+                drawSprite:8
                    atPoint:CGPointMake(kResultVoteX,
                                        slide + (double)((float)(voteTop + 0xa0) + kResultVoteY))
-                 transform:8
+                 transform:0
                      alpha:actionAlpha];
         }
         // A non-custom tune with music fades the good-job overlay in immediately.
