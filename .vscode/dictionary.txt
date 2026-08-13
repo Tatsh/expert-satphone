@@ -150,6 +150,7 @@ fcsel
 fcvt
 fcvtms
 fcvtzs
+fcvtzu
 fdiv
 ferror
 filefunc
@@ -468,6 +469,7 @@ sourcei
 sptl
 startable
 statusline
+stdatomic
 stdbool
 stdlib
 stmps

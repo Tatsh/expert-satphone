@@ -22,7 +22,7 @@
 #import "SharePlayManager.h"
 #import "TuneInfo.h"
 
-static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
+static const double g_dAnimDuration020 = 0.2f; // @ghidraAddress 0x28f240
 
 // The classic theme resource names for the start-button image variants and the edit/close sounds.
 static NSString *const kStartButtonImage = @"menu_button_start";
@@ -56,7 +56,7 @@ static const NSTimeInterval kUploadEndFadeDuration = -0.2; // @ghidraAddress 0x2
 
 // The dimming cover behind the upload sheet is translucent black at this alpha and both fade in
 // over this duration.
-static const CGFloat kUploadCoverScrimAlpha = 0.3;     // @ghidraAddress 0x28f248
+static const CGFloat kUploadCoverScrimAlpha = 0.3f;    // @ghidraAddress 0x28f248
 static const NSTimeInterval kUploadFadeDuration = 0.2; // @ghidraAddress 0x28e040
 
 // Cancelling a host share fades the share-message label out over this duration.
@@ -71,7 +71,7 @@ static const int kDiffButtonCount = 3;
 
 // Entering edit shrinks the difficulty buttons to this scale over this duration, and input stays
 // locked for a slightly longer beat.
-static const CGFloat kEditButtonShrinkScale = 0.1;         // @ghidraAddress 0x28f2b8
+static const CGFloat kEditButtonShrinkScale = 0.1f;        // @ghidraAddress 0x28f2b8
 static const NSTimeInterval kEditTransitionDuration = 0.6; // @ghidraAddress 0x28f288
 static const NSTimeInterval kEditInputLockDuration = 0.7;  // @ghidraAddress 0x28f2a0
 
@@ -87,7 +87,7 @@ static const double kHighscoreBoardSlidePhone = 10.0;      // fmov, 10.0
 static const double kHighscoreBoardYPad = 220.0;           // @ghidraAddress 0x28f430
 static const double kHighscoreBoardYPhone = 104.0;         // @ghidraAddress 0x28f678
 static const NSTimeInterval kExtendModeAnimDuration = 0.3; // @ghidraAddress 0x28f260
-static const NSTimeInterval kExtendModeInputLock = 0.4;    // @ghidraAddress 0x28f2c0
+static const NSTimeInterval kExtendModeInputLock = 0.4f;   // @ghidraAddress 0x28f2c0
 static NSString *const kExtendModeSound = @"SD_KNT_MUSIC_LEFT";
 
 // The share-message label drops by this many points while the share progress shows, animated over
@@ -98,8 +98,9 @@ static const NSTimeInterval kShareProgressAnimDuration = 0.3; // @ghidraAddress 
 // The extend marks crossfade over this duration when the extend mode changes.
 static const NSTimeInterval kExtendCrossFadeDuration = 0.3; // @ghidraAddress 0x28f260
 
-// A music bar carries at least 30 bytes of resource map for the 120 dots.
-static const NSUInteger kMbarMinimumLength = 30;
+// A music bar carries at least 30 bytes of resource map for the 120 dots; this is also the exact
+// size of the stack buffer the binary zeroes at sp+0x28.
+enum { kMbarMinimumLength = 30 };
 
 // A pending download selection pulses the scroll and difficulty-button lamps: alpha to zero and a
 // vertical stretch, repeating over this duration after this delay.
@@ -115,7 +116,7 @@ enum {
     kLevelOffRow = 3,
     kLevelOffWordIndex = 3,
 };
-static const CGFloat kDiffButtonUnselectedAlpha = 0.6; // @ghidraAddress 0x28f230
+static const CGFloat kDiffButtonUnselectedAlpha = 0.6f; // @ghidraAddress 0x28f230
 
 // Starting play shrinks the unselected buttons over this duration and locks input for a beat; a
 // client waiting for the host shows this prompt. The selected difficulty's light views pulse with a
@@ -123,7 +124,7 @@ static const CGFloat kDiffButtonUnselectedAlpha = 0.6; // @ghidraAddress 0x28f23
 static NSString *const kWaitingForHostKey = @"Waiting for host to start";
 static const NSTimeInterval kStartPlayTransitionDuration = 0.6; // @ghidraAddress 0x28f288
 static const NSTimeInterval kStartPlayInputLockDuration = 0.7;  // @ghidraAddress 0x28f2a0
-static const CGFloat kStartPlayShrinkScale = 0.1;               // @ghidraAddress 0x28f2b8
+static const CGFloat kStartPlayShrinkScale = 0.1f;              // @ghidraAddress 0x28f2b8
 static NSString *const kBlinkFastAnimationKey = @"AnimBlinkFast";
 static const CFTimeInterval kLightBlinkDuration = 0.08; // @ghidraAddress 0x28f700
 static const float kLightBlinkFromOpacity = 1.0f;       // fmov, 1.0
@@ -131,31 +132,31 @@ static const float kLightBlinkToOpacity = 0.1f;         // @ghidraAddress 0x28f7
 static const float kLightBlinkRepeatCount = 20.0f;      // fmov, 20.0
 
 // Scales out and fades every difficulty button except the selected one, plus both scroll buttons,
-// when starting play.
+// when starting play. The classic theme drives the button's own affine transform, not its layer.
 static inline void MusicDetailViewOrgShrinkUnselectedButtons(UIButton *const *btnDiff,
                                                              UIButton *const *detailScrollButton,
                                                              int selected) {
-    CATransform3D shrink =
-        CATransform3DMakeScale(kStartPlayShrinkScale, kStartPlayShrinkScale, 1.0);
+    CGAffineTransform shrink =
+        CGAffineTransformMakeScale(kStartPlayShrinkScale, kStartPlayShrinkScale);
     for (int i = 0; i < kDiffButtonCount; ++i) {
         if (i != selected) {
             [btnDiff[i] setAlpha:0.0];
-            btnDiff[i].layer.transform = shrink;
+            [btnDiff[i] setTransform:shrink];
         }
     }
     [detailScrollButton[0] setAlpha:0.0];
-    detailScrollButton[0].layer.transform = shrink;
+    [detailScrollButton[0] setTransform:shrink];
     [detailScrollButton[1] setAlpha:0.0];
-    detailScrollButton[1].layer.transform = shrink;
+    [detailScrollButton[1] setTransform:shrink];
 }
 
 // The per-difficulty voice cues, the input-lock durations, and the high-score board's dimmed alpha
 // while a difficulty change slides it in.
 static NSString *const kDifficultyVoiceCues[] = {
     @"SD_CV_BASIC", @"SD_CV_ADVANCED", @"SD_CV_EXTREME"};
-static const NSTimeInterval kSelectDiffInputLock = 0.4;       // @ghidraAddress 0x28f268
-static const NSTimeInterval kSelectDiffExtendInputLock = 0.4; // @ghidraAddress 0x28f2c0
-static const CGFloat kHighscoreBoardDimAlpha = 0.3;           // @ghidraAddress 0x28f248
+static const NSTimeInterval kSelectDiffInputLock = 0.4;        // @ghidraAddress 0x28f268
+static const NSTimeInterval kSelectDiffExtendInputLock = 0.4f; // @ghidraAddress 0x28f2c0
+static const CGFloat kHighscoreBoardDimAlpha = 0.3f;           // @ghidraAddress 0x28f248
 
 // Repositions the high-score board view to its idiom home centre.
 static inline void MusicDetailViewOrgRepositionHighscoreBoard(MusicDetailViewOrg *self,
@@ -251,7 +252,7 @@ static NSString *const kArchiveArtworkSmall = @"artwork_s";
 static const NSUInteger kContentArchiveTail = 16;
 static NSString *const kContentSeqAdvanced = @"seq_adv";
 static NSString *const kContentSeqExtreme = @"seq_ext";
-static const double kReflectionFractionPad = 0.3; // @ghidraAddress 0x28f248
+static const double kReflectionFractionPad = 0.3f; // @ghidraAddress 0x28f248
 enum {
     kMbarBasicRow = 0,
     kMbarAdvancedRow = 1,
@@ -279,12 +280,14 @@ enum {
 // The three scroll-settled delegate callbacks share this tail: it snaps the settled page,
 // re-derives the hold flag from the current difficulty's hold mark (except on the edit page),
 // refreshes the start button, records the page, and applies either the difficulty (snapping a stale
-// extreme back to basic) on the detail page or the edit music bar on the edit page.
+// extreme back to basic) on the detail page or the edit music bar on the edit page. Only two of the
+// three re-test whether a play has started before persisting the snapped-back difficulty.
 static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self,
-                                                      UIImageView *const *holdMark) {
+                                                      UIImageView *const *holdMark,
+                                                      BOOL recheckStarted) {
     [self setEnableButton:YES];
     double width = self.scrollView.frame.size.width;
-    int page = (int)((width * 0.5 + self.scrollView.contentOffset.x) / width);
+    int page = (int)floor((width * 0.5 + self.scrollView.contentOffset.x) / width);
     self.editPage = page;
     int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
     BOOL holdHidden = holdMark[difficulty].isHidden;
@@ -297,8 +300,11 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self,
     if (page == 0) {
         int detailDifficulty =
             (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
-        if (detailDifficulty > 2) {
-            [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefDifficultyKey];
+        if ((unsigned int)detailDifficulty > 2) {
+            // Only the deceleration and drag-end callbacks re-test -isStarted here.
+            if (!recheckStarted || !self.isStarted) {
+                [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefDifficultyKey];
+            }
             detailDifficulty = 0;
         }
         [self changeDifficulty:detailDifficulty];
@@ -309,9 +315,9 @@ static inline void MusicDetailViewOrgSettleScrollPage(MusicDetailViewOrg *self,
 }
 
 // The edit music bar uses the fourth (index 3) bar background image and reads 60 bytes of simple
-// edit data.
+// edit data, one nibble per dot for the 120 dots.
 static const int kEditMbarBackgroundImage = 3;
-static const NSUInteger kEditMbarDataLength = 60;
+enum { kEditMbarDataLength = 60 };
 
 // A downloaded edit's author badge, indexed by the userTag field.
 static NSString *const kUserTagIconNames[] = {
@@ -342,27 +348,29 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
 // lays everything out three ways: pad, retina phone, and non-retina phone.
 
 // The scroll view spans the lower band of the card: its top is (pad 400 / phone 200) minus its own
-// height (pad 100 / phone 50), and it holds two full-width pages.
-static const double kScrollViewTopBasePad = 400.0;         // @ghidraAddress 0x28f2e0
-static const double kScrollViewTopBasePhone = 200.0;       // fmov, 200
-static const double kScrollViewTopInsetPad = 100.0;        // @ghidraAddress 0x28f3f0
-static const double kScrollViewTopInsetPhone = 50.0;       // fmov, 50
+// height (pad 100 / phone 50), and it holds two full-width pages. The binary computes the top
+// entirely in integer registers and converts once with scvtf, so those four are `mov` immediates
+// rather than pool loads.
+static const int kScrollViewTopBasePad = 400;              // @ghidraAddress 0x50364 (mov w8,#0x190)
+static const int kScrollViewTopBasePhone = 200;            // @ghidraAddress 0x50360 (mov w23,#0xc8)
+static const int kScrollViewTopInsetPad = 100;             // @ghidraAddress 0x50380 (mov w9,#0x64)
+static const int kScrollViewTopInsetPhone = 50;            // @ghidraAddress 0x5037c (mov w8,#0x32)
 static const double kScrollViewContentHeightPad = 200.0;   // @ghidraAddress 0x28f400
 static const double kScrollViewContentHeightPhone = 100.0; // @ghidraAddress 0x28f3f0
 static const NSInteger kScrollViewAutoresizingMask = 18;
 
 // The card's background and its gradient-layer border and stops.
-static const CGFloat kCardBackgroundWhite = 0.1; // @ghidraAddress 0x28f2b8
-static const CGFloat kCardBackgroundAlpha = 0.9; // @ghidraAddress 0x28f448
-static const CGFloat kCardBorderWidth = 2.0;     // fmov, 2.0
-static const CGFloat kGradientTopWhite = 0.3;    // @ghidraAddress 0x28f248
+static const CGFloat kCardBackgroundWhite = 0.1f; // @ghidraAddress 0x28f2b8
+static const CGFloat kCardBackgroundAlpha = 0.9f; // @ghidraAddress 0x28f448
+static const CGFloat kCardBorderWidth = 2.0;      // fmov, 2.0
+static const CGFloat kGradientTopWhite = 0.3f;    // @ghidraAddress 0x28f248
 static const CGFloat kGradientBottomWhite = 0.0;
-static const CGFloat kGradientAlpha = 0.9; // @ghidraAddress 0x28f448
+static const CGFloat kGradientAlpha = 0.9f; // @ghidraAddress 0x28f448
 
 // The artwork and its reflection. The square artwork is (pad 200 / retina 110 / non-retina 95) on a
 // side, inset (pad 10 / phone 8) from the corner; the reflection sits directly below it (nudged by
 // retina 0.5 / non-retina 1.0) and is a fraction (pad 0.3 / phone 0.2) as tall.
-static const double kArtworkSizePad = 200.0;      // fmov, 200
+static const double kArtworkSizePad = 200.0;      // @ghidraAddress 0x50360 (mov w23,#0xc8), reused
 static const double kArtworkSizeRetina = 110.0;   // 0x6e
 static const double kArtworkSizeNonRetina = 95.0; // 0x5f
 static const double kArtworkInsetPad = 10.0;      // fmov, 10.0
@@ -424,39 +432,48 @@ static const double kShareLabelHeightPad = 20.0;      // 0x4034
 static const double kShareLabelHeightPhone = 16.0;    // 0x4030
 static const double kShareLabelGapPad = 54.0;         // @ghidraAddress 0x28f640
 static const double kShareLabelGapPhone = 28.0;       // fmov, 28
-static const double kShareLabelFontPad = 20.0;        // 0x4034
-static const double kShareLabelFontPhone = 16.0;      // 0x4030
+static const double kShareLabelFontPad = 16.0;        // fmov, 16.0 (0x51d2c)
+static const double kShareLabelFontPhone = 12.0;      // fmov, 12.0 (0x51db0)
 static const double kShareProgressGapPad = 60.0;      // @ghidraAddress 0x28f258
 static const double kShareProgressGapPhone = 34.0;    // @ghidraAddress 0x28f648
 static const double kShareProgressHeightPad = 12.0;   // 0x4028
 static const double kShareProgressHeightPhone = 8.0;  // 0x4020
 
-// The music bar: its own view (width pad 560 / phone 280, height pad 40 / phone 20) centred at
-// (barWidth/2, pad 294 / phone 144), and 120 dot views spaced across it.
-static const double kMusicBarWidthPad = 560.0;     // @ghidraAddress 0x28f650
-static const double kMusicBarWidthPhone = 280.0;   // @ghidraAddress 0x28f658
-static const double kMusicBarHeightPad = 40.0;     // @ghidraAddress 0x28f1f8
-static const double kMusicBarHeightPhone = 20.0;   // fmov, 20
-static const double kMusicBarCenterYPad = 294.0;   // @ghidraAddress 0x28f668
-static const double kMusicBarCenterYPhone = 144.0; // @ghidraAddress 0x28f660
+// The music bar: its own view (width pad 560 / retina phone 280 / non-retina phone 300, height
+// pad 40 / phone 20) centred at (barWidth/2, pad 294 / phone 144), and 120 dot views spaced
+// across it.
+static const double kMusicBarWidthPad = 560.0;       // @ghidraAddress 0x28f650
+static const double kMusicBarWidthRetina = 280.0;    // @ghidraAddress 0x28f658
+static const double kMusicBarWidthNonRetina = 300.0; // @ghidraAddress 0x28f2d0
+static const double kMusicBarHeightPad = 40.0;       // @ghidraAddress 0x28f1f8
+static const double kMusicBarHeightPhone = 20.0;     // fmov, 20
+static const double kMusicBarCenterYPad = 294.0;     // @ghidraAddress 0x28f668
+static const double kMusicBarCenterYPhone = 144.0;   // @ghidraAddress 0x28f660
 static const int kMusicBarDotStartPad = 40;
-static const int kMusicBarDotStartPhone = 30;       // pad-off value 20 at 0x28f... handled inline
-static const double kMusicBarDotYPad = 3.0;         // fmov, 3.0
+static const int kMusicBarDotStartRetina = 20;      // mov w25,#0x14 (0x520d4)
+static const int kMusicBarDotStartNonRetina = 30;   // orr w24,wzr,#0x1e (0x520d0)
+static const double kMusicBarDotYPad = 2.0;         // fmov, 2.0 (0x520fc)
 static const double kMusicBarDotWidthPad = 6.0;     // fmov, 6.0
 static const double kMusicBarDotHeightPad = 36.0;   // @ghidraAddress 0x28f530
 static const double kMusicBarDotYPhone = 1.0;       // fmov, 1.0
-static const double kMusicBarDotWidthPhone = 2.0;   // fmov, 2.0
+static const double kMusicBarDotWidthPhone = 3.0;   // fmov, 3.0 (0x520dc)
 static const double kMusicBarDotHeightPhone = 18.0; // fmov, 18
 
 // The high-score board image and its centre (see kHighscoreBoardX*/Y*), then seven right-justified
 // score digits, a rating image, and a combo image, each at per-idiom coordinates.
 static NSString *const kHighscoreBoardImage = @"msc_hsboard";
+// The random marker sits just left of the high-score board, vertically centred on it and nudged
+// up by a small per-idiom inset.
+static const int kRandMarkInsetPad = 5;   // mov w9,#5 (0x525a4)
+static const int kRandMarkInsetPhone = 3; // orr w8,wzr,#3 (0x525a0)
+static const double kRandMarkGap = 1.0;   // fmov, -1.0 (0x52588)
 
-// The four difficulty slots take their button/word/light PNG names from a one-letter suffix.
-static const char kDiffButtonLetters[] = {'b', 'a', 'e', 'o'};
-static NSString *const kDiffButtonNameFormat = @"msel_btn_%c";
-static NSString *const kDiffTextNameFormat = @"msel_btn_str_%c";
-static NSString *const kDiffLightNameFormat = @"msel_btn_light_%c";
+// The four difficulty slots take their button/word/light PNG names from a one-letter suffix; the
+// binary keeps the suffixes as four separate C strings and formats them with %s.
+static const char *const kDiffButtonLetters[] = {"b", "a", "e", "o"}; // @ghidraAddress 0x2ca710
+static NSString *const kDiffButtonNameFormat = @"msel_btn_%s";
+static NSString *const kDiffTextNameFormat = @"msel_btn_str_%s";
+static NSString *const kDiffLightNameFormat = @"msel_btn_light_%s";
 
 // Builds one difficulty slot: its button (added to the scroll view and centred), the difficulty
 // word and level-number glyphs, and the two blink lights. All subview frames are within the
@@ -472,7 +489,7 @@ static inline void MusicDetailViewOrgBuildDifficultyButton(MusicDetailViewOrg *s
                                                            CGPoint center) {
     BOOL isPad = self.isPad;
     BOOL isRetina = self.isRetina;
-    char letter = kDiffButtonLetters[index];
+    const char *letter = kDiffButtonLetters[index];
 
     btnDiff[index] = [self diffButton:[NSString stringWithFormat:kDiffButtonNameFormat, letter]];
 
@@ -527,6 +544,7 @@ static NSString *const kScrollArrowLeft = @"btn_edit_scroll_l";
 // lamp the plain white button image.
 static NSString *const kScrollLampImage = @"btn_edit_scroll_r_knt";
 static NSString *const kDiffButtonLampImage = @"msel_btn_white";
+static const CGFloat kDiffButtonLampAlpha = 0.5; // fmov, 0.5 (0x530c8)
 
 // The edit-page controls: the info button's text image, the two pad-only action buttons, and the
 // three stacked text fields (the comment field, index 2, is the multi-line one).
@@ -535,25 +553,35 @@ static NSString *const kUploadButtonImage = @"btn_upload";
 static NSString *const kEditButtonImage = @"btn_edit";
 static const int kEditTextFieldCount = 3;
 static const int kEditCommentIndex = 2;
-// The info button drops below the scroll-arrow row by a per-idiom amount.
+// The info button sits one page over, at the card's own width plus a per-idiom drop, at a small
+// per-idiom Y.
 static const double kInfoButtonDropPad = 212.0;   // @ghidraAddress 0x28f6d8
 static const double kInfoButtonDropPhone = 114.0; // @ghidraAddress 0x28f6d0
+static const int kInfoButtonYPad = 30;            // csel w27, 0x1e (0x528c0)
+static const int kInfoButtonYPhone = 14;          // csel w27, 0xe  (0x528bc)
 // The text fields span 95% of the text image, rounded down to an even pixel; the pad action
 // buttons sit 138 points left of the scroll content's right edge.
-static const double kEditFieldWidthFraction = 0.95; // @ghidraAddress 0x28f6e0
+static const float kEditFieldWidthFraction = 0.95f; // @ghidraAddress 0x28f6e0
 static const double kUploadButtonXOffset = -138.0;  // @ghidraAddress 0x28f6f0
+// The edit-info labels are drawn in a light grey, not white: the pool slot holds the double
+// widening of the float 236/255, so the literal must keep its f suffix or the bits change.
+static const CGFloat kEditTextWhiteComponent = 0.9254902f; // @ghidraAddress 0x28f6e8
 
-// The hold and extend marks over each difficulty button, keyed by the same difficulty letters used
-// above. Each mark's X is its own image width less the host gap and a per-idiom inset; the Y and
-// height are fixed.
+// The hold and extend marks over each difficulty button. Each mark's X is measured from the
+// selected difficulty button's width less a gap and a per-idiom inset; the Y is per idiom and the
+// height is the mark image's own.
+// The three mark formats take a bare character from a separate three-byte table.
+static const char kDiffMarkLetters[] = {'b', 'a', 'e'}; // @ghidraAddress 0x28f710
 static NSString *const kHoldMarkFormat = @"hold_ico_%c";
 static NSString *const kExtendMarkFormat = @"add_ico_%c";
 static NSString *const kExtendOnMarkFormat = @"add_ico_%c_on";
 static const double kHostGapNegative = -40.0; // @ghidraAddress 0x28e078
+static const double kHoldMarkNudge = -4.0;    // fmov, -4.0 (0x53018)
+static const double kExtendMarkGap = -20.0;   // fmov, -20.0 (0x534cc)
 static const double kMarkInsetPad = 32.0;     // @ghidraAddress 0x28f458
 static const double kMarkInsetPhone = 16.0;   // fmov, 16
-static const double kMarkOffsetY = 4.0;       // fmov, 4
-static const double kMarkHeight = 14.0;       // fmov, 14
+static const double kMarkOffsetYPad = 4.0;    // fmov, 4.0 (0x5334c)
+static const double kMarkOffsetYPhone = 2.0;  // fmov, 2.0 (0x52b08)
 
 @implementation MusicDetailViewOrg
 
@@ -574,8 +602,9 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     double width = frame.size.width;
 
     // The scroll view fills the lower band of the card and holds two full-width pages.
-    double scrollTop = (isPad ? kScrollViewTopBasePad : kScrollViewTopBasePhone) -
-                       (isPad ? kScrollViewTopInsetPad : kScrollViewTopInsetPhone);
+    // sub w8,w19,w8 then scvtf d8,w8 at 0x50388-0x5038c: the subtraction is 32-bit integer.
+    double scrollTop = (double)((isPad ? kScrollViewTopBasePad : kScrollViewTopBasePhone) -
+                                (isPad ? kScrollViewTopInsetPad : kScrollViewTopInsetPhone));
     double scrollHeight = isPad ? kScrollViewContentHeightPad : kScrollViewContentHeightPhone;
     self.scrollView =
         [[UIScrollView alloc] initWithFrame:CGRectMake(0.0, scrollTop, width, scrollHeight)];
@@ -590,7 +619,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     [self.scrollView setShowsHorizontalScrollIndicator:NO];
     [self.scrollView setPagingEnabled:YES];
     [self.scrollView setDelegate:self];
-    [self.scrollView setContentSize:CGSizeMake(width + width, isPad ? scrollHeight : scrollTop)];
+    [self.scrollView setContentSize:CGSizeMake(width + width, scrollHeight)];
     self.editPage = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey];
     [self.scrollView setContentOffset:CGPointMake((double)self.editPage * width, 0.0) animated:NO];
     [self addSubview:self.scrollView];
@@ -651,25 +680,26 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     // Centred on the link's own origin and height, re-read after the -setFrame: above.
     int socialCenterY = (int)(linkFrame.origin.y + linkFrame.size.height * 0.5);
     int socialInset = isPad ? kSocialInsetPad : 0;
+    double twitterBaseX = 0.0;
     BOOL hasFacebook = NO;
     if (NSClassFromString(@"SLComposeViewController") != nil) {
-        [self.btnRecommendFacebook frame];
-        CGRect selfFrame = self.frame;
+        // Each social button keeps its own image size; only its x and y are computed.
+        CGRect facebookFrame = self.btnRecommendFacebook.frame;
         [self.btnRecommendFacebook
-            setFrame:CGRectMake((selfFrame.size.width - linkFrame.size.width) - (double)socialInset,
-                                (double)socialCenterY - linkFrame.size.height * 0.5,
-                                linkFrame.size.width,
-                                linkFrame.size.height)];
-        [self.btnRecommendFacebook frame];
+            setFrame:CGRectMake((self.frame.size.width - facebookFrame.size.width) -
+                                    (double)socialInset,
+                                (double)socialCenterY - facebookFrame.size.height * 0.5,
+                                facebookFrame.size.width,
+                                facebookFrame.size.height)];
+        twitterBaseX = self.btnRecommendFacebook.frame.origin.x;
         socialInset = isPad ? kSocialGapPad : 0;
         hasFacebook = YES;
     }
     CGRect twitterFrame = self.btnRecommendTwitter.frame;
-    double twitterRefWidth = hasFacebook ? linkFrame.size.width : twitterFrame.size.width;
-    double selfWidth = hasFacebook ? self.frame.size.width : self.frame.size.width;
+    double twitterX = (hasFacebook ? twitterBaseX : self.frame.size.width) -
+                      twitterFrame.size.width - (double)socialInset;
     [self.btnRecommendTwitter
-        setFrame:CGRectMake((selfWidth - twitterRefWidth) -
-                                (double)(hasFacebook ? kSocialGapPad : 0),
+        setFrame:CGRectMake(twitterX,
                             (double)socialCenterY - twitterFrame.size.height * 0.5,
                             twitterFrame.size.width,
                             twitterFrame.size.height)];
@@ -692,7 +722,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                                                 diffCenters[i]);
     }
 
-    // The forever-blinking light animation, added to the first difficulty's two lights.
+    // The forever-blinking light animation, added to the extend difficulty's two lights.
     lightBlinkAnim = [CABasicAnimation animationWithKeyPath:@"opacity"];
     [lightBlinkAnim setDuration:kNormalBlinkDuration];
     [lightBlinkAnim setFromValue:@(kNormalBlinkFrom)];
@@ -702,8 +732,10 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     [lightBlinkAnim
         setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear]];
     [lightBlinkAnim setRemovedOnCompletion:NO];
-    [lightView[0][0].layer addAnimation:lightBlinkAnim forKey:kBlinkAnimationKey];
-    [lightView[0][1].layer addAnimation:lightBlinkAnim forKey:kBlinkAnimationKey];
+    [lightView[kExtendLevelNumIndex][0].layer addAnimation:lightBlinkAnim
+                                                    forKey:kBlinkAnimationKey];
+    [lightView[kExtendLevelNumIndex][1].layer addAnimation:lightBlinkAnim
+                                                    forKey:kBlinkAnimationKey];
 
     [self loadImages];
 
@@ -747,7 +779,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                             (isPad ? kShareLabelHeightPad : kShareLabelHeightPhone))];
     [self.labelShareMessage
         setFont:[UIFont boldSystemFontOfSize:(isPad ? kShareLabelFontPad : kShareLabelFontPhone)]];
-    [self.labelShareMessage setHidden:YES];
+    [self.labelShareMessage setOpaque:YES];
     [self.labelShareMessage setBackgroundColor:UIColor.clearColor];
     [self.labelShareMessage setTextColor:UIColor.whiteColor];
 
@@ -762,20 +794,22 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     [self.shareDataProgress setProgressViewStyle:UIProgressViewStyleDefault];
 
     // The music bar and its 120 dot views.
-    double barWidth = isPad ? kMusicBarWidthPad : kMusicBarWidthPhone;
+    double barWidth =
+        isPad ? kMusicBarWidthPad : (isRetina ? kMusicBarWidthRetina : kMusicBarWidthNonRetina);
     double barHeight = isPad ? kMusicBarHeightPad : kMusicBarHeightPhone;
     mbarBarView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0, 0.0, barWidth, barHeight)];
-    [self addSubview:mbarBarView];
-    [mbarBarView
-        setCenter:CGPointMake(barWidth * 0.5, isPad ? kMusicBarCenterYPad : kMusicBarCenterYPhone)];
-    int dotX = isPad ? kMusicBarDotStartPad : 30;
+    [mbarBarView setCenter:CGPointMake(self.frame.size.width * 0.5,
+                                       isPad ? kMusicBarCenterYPad : kMusicBarCenterYPhone)];
+    // The running x is seeded unconditionally: 0x520bc is a bare mov w21,#0x28 with no csel, and
+    // only the pad arm reads it. The phone arm computes its own x from the loop index below.
+    int dotX = kMusicBarDotStartPad;
     for (int i = 0; i < kMusicBarDotCount; ++i) {
         CGRect dotFrame;
         if (isPad) {
             dotFrame = CGRectMake(
                 (double)dotX, kMusicBarDotYPad, kMusicBarDotWidthPad, kMusicBarDotHeightPad);
         } else {
-            int phoneX = i + (isRetina ? kMusicBarDotStartPhone : 20);
+            int phoneX = i * 2 + (isRetina ? kMusicBarDotStartRetina : kMusicBarDotStartNonRetina);
             dotFrame = CGRectMake((double)phoneX,
                                   kMusicBarDotYPhone,
                                   kMusicBarDotWidthPhone,
@@ -821,17 +855,16 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     comboView = [[UIImageView alloc] initWithFrame:comboFrame];
     [highscoreBoardView addSubview:comboView];
     [self addSubview:highscoreBoardView];
-    [highscoreBoardView frame];
 
-    // The random marker keeps its own size but is repositioned relative to the rating image: its
-    // left edge one point inside the rating's, and its top the rating's centre line, less a small
-    // idiom inset.
-    CGPoint randCenter = self.randView.center;
+    // The random marker keeps its own size but is repositioned relative to the high-score board:
+    // its right edge one point clear of the board's left edge, and its top the board's vertical
+    // centre line, less a small idiom inset.
+    CGRect boardFrame = highscoreBoardView.frame;
     CGSize randSize = self.randView.frame.size;
-    int randInset = isPad ? 5 : 3;
-    double randX = ratingFrame.origin.x - randCenter.x - 1.0;
+    int randInset = isPad ? kRandMarkInsetPad : kRandMarkInsetPhone;
+    double randX = (boardFrame.origin.x - randSize.width) - kRandMarkGap;
     double randY =
-        (double)((int)(ratingFrame.origin.y + (ratingFrame.size.height - randCenter.y) * 0.5) -
+        (double)((int)(boardFrame.origin.y + (boardFrame.size.height - randSize.height) * 0.5) -
                  randInset);
     [self.randView setFrame:CGRectMake(randX, randY, randSize.width, randSize.height)];
 
@@ -857,16 +890,15 @@ static const double kMarkHeight = 14.0;       // fmov, 14
         [self.scrollView addSubview:detailScrollButton[i]];
     }
 
-    // The info-edit button on the edit page: below the difficulty buttons at a per-idiom drop, its
-    // width per idiom and height the text image's own.
+    // The info-edit button lives on scroll page 2: its X is the card's own width plus a per-idiom
+    // drop, narrowed through float, its Y a small per-idiom inset, and its size the text image's.
+    double infoX = (double)(float)(self.frame.size.width +
+                                   (isPad ? kInfoButtonDropPad : kInfoButtonDropPhone));
+    int infoY = isPad ? kInfoButtonYPad : kInfoButtonYPhone;
     UIImage *infoImage = LoadScaledPngImage(kEditInfoTextImage);
-    double infoY =
-        (double)(float)(scrollBtnY + (isPad ? kInfoButtonDropPad : kInfoButtonDropPhone));
-    int infoWidth = isPad ? 30 : 14;
     infoBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [infoBtn
-        setFrame:CGRectMake(
-                     edgeButtonFrame.origin.y, infoY, (double)infoWidth, infoImage.size.height)];
+        setFrame:CGRectMake(infoX, (double)infoY, infoImage.size.width, infoImage.size.height)];
     [infoBtn setBackgroundColor:UIColor.clearColor];
     [infoBtn setImage:infoImage forState:UIControlStateNormal];
     [infoBtn setExclusiveTouch:YES];
@@ -886,18 +918,21 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     int fontSize = isPad ? 16 : 11;
     int fieldStep = isPad ? 8 : 5;
     int fieldHeight = (isPad ? 4 : 1) + fontSize;
-    int firstFieldY = infoWidth + 4;
+    int firstFieldY = infoY + 4;
     double imageWidth = infoImage.size.width;
     int fieldWidth = (int)(imageWidth * kEditFieldWidthFraction);
     fieldWidth -= (fieldWidth % 2 == 1) ? 1 : 0;
-    double fieldX = (double)(int)(infoY + (infoImage.size.width - (double)fieldWidth) * 0.5 + 2.0);
+    double fieldX = (double)(int)(infoX + (infoImage.size.width - (double)fieldWidth) * 0.5 + 2.0);
     int fieldY = firstFieldY;
     for (int i = 0; i < kEditTextFieldCount; ++i) {
         editTxt[i] = [[UILabel alloc]
             initWithFrame:CGRectMake(
                               fieldX, (double)fieldY, (double)fieldWidth, (double)fieldHeight)];
         [editTxt[i] setFont:[UIFont systemFontOfSize:(double)fontSize]];
-        [editTxt[i] setTextColor:[UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0]];
+        [editTxt[i] setTextColor:[UIColor colorWithRed:kEditTextWhiteComponent
+                                                 green:kEditTextWhiteComponent
+                                                  blue:kEditTextWhiteComponent
+                                                 alpha:1.0]];
         [editTxt[i] setText:@""];
         if (i == kEditCommentIndex) {
             int lines = self.isPad ? 3 : 2;
@@ -917,10 +952,10 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     // content and stacked at the info button's row.
     if (self.isPad) {
         double buttonX = self.scrollView.contentSize.width + kUploadButtonXOffset;
-        double buttonY = (double)(firstFieldY - 2);
+        double buttonY = (double)(infoY - 2);
         UIImage *uploadImage = LoadScaledPngImage(kUploadButtonImage);
         uploadBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        [uploadBtn setBackgroundImage:uploadImage forState:UIControlStateNormal];
+        [uploadBtn setImage:uploadImage forState:UIControlStateNormal];
         [uploadBtn setFrame:CGRectMake((double)(int)buttonX,
                                        buttonY,
                                        uploadImage.size.width,
@@ -933,7 +968,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 
         UIImage *editImage = LoadScaledPngImage(kEditButtonImage);
         editBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        [editBtn setBackgroundImage:editImage forState:UIControlStateNormal];
+        [editBtn setImage:editImage forState:UIControlStateNormal];
         [editBtn setFrame:CGRectMake((double)(int)buttonX,
                                      (double)(int)(buttonY + uploadImage.size.height + 8.0),
                                      editImage.size.width,
@@ -961,22 +996,26 @@ static const double kMarkHeight = 14.0;       // fmov, 14
         [self editMusicBar];
     }
 
-    // The two lamp overlays that pulse to advertise a pending download; both start hidden. The
-    // scroll lamp reuses the Knit right-arrow image, sized to the rating image's width and centred
-    // on the upper half of the scroll view; the difficulty lamp overlays the extend button.
+    // The two lamp overlays that pulse to advertise a pending download; both start hidden. Each
+    // keeps its own image's size. The scroll lamp reuses the Knit right-arrow image, rides the
+    // right scroll-arrow button, and centres on half a difficulty button's height; the difficulty
+    // lamp overlays the extend button.
     UIImage *scrollLampImage = LoadScaledPngImage(kScrollLampImage);
     scrollLamp = [[UIImageView alloc] initWithImage:scrollLampImage];
-    [scrollLamp setFrame:CGRectMake(0.0, 0.0, scrollLampImage.size.width, ratingFrame.size.width)];
-    double lampCenterY = (double)((int)scrollHeight >> 1);
+    [scrollLamp
+        setFrame:CGRectMake(0.0, 0.0, scrollLampImage.size.width, scrollLampImage.size.height)];
+    // 0x53188-0x5319c: the binary rounds toward zero (cmp/cinc/asr), i.e. signed `/ 2`.
+    double lampCenterY = (double)((int)edgeButtonFrame.size.height / 2);
     [scrollLamp setCenter:CGPointMake(scrollLampImage.size.width * 0.5, lampCenterY)];
-    [self.scrollView addSubview:scrollLamp];
+    [detailScrollButton[0] addSubview:scrollLamp];
     [scrollLamp setHidden:YES];
 
     UIImage *diffLampImage = LoadScaledPngImage(kDiffButtonLampImage);
     diffBtnLamp = [[UIImageView alloc] initWithImage:diffLampImage];
-    [diffBtnLamp setFrame:CGRectMake(0.0, 0.0, diffLampImage.size.width, lampCenterY)];
+    [diffBtnLamp
+        setFrame:CGRectMake(0.0, 0.0, diffLampImage.size.width, diffLampImage.size.height)];
     [btnDiff[kExtendLevelNumIndex] addSubview:diffBtnLamp];
-    [diffBtnLamp setAlpha:kNormalBlinkDuration];
+    [diffBtnLamp setAlpha:kDiffButtonLampAlpha];
     [diffBtnLamp setHidden:YES];
     if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefJcfDownloadSelectKey] ==
         kJcfDownloadSelectPending) {
@@ -985,36 +1024,42 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     }
 
     // The hold marks and the extend/extend-on marks over each difficulty button. Each mark's X is
-    // its own image width shifted left by the host gap (-40) and a per-idiom inset (pad 32 /
-    // phone 16); the Y and height are a fixed small inset. All start hidden.
+    // measured from the selected difficulty button's width, not from the loop's own button, and is
+    // shifted left by a gap (hold -40 with a further -4 nudge, extend -20) and a per-idiom inset
+    // (pad 32 / phone 16); the Y is per idiom and the height is the mark image's own. All start
+    // hidden.
     double markInset = isPad ? kMarkInsetPad : kMarkInsetPhone;
+    double markOffsetY = isPad ? kMarkOffsetYPad : kMarkOffsetYPhone;
     for (int i = 0; i < kDiffButtonCount; ++i) {
         UIImage *holdImage =
-            LoadScaledPngImage([NSString stringWithFormat:kHoldMarkFormat, kDiffButtonLetters[i]]);
+            LoadScaledPngImage([NSString stringWithFormat:kHoldMarkFormat, kDiffMarkLetters[i]]);
         holdMark[i] = [[UIImageView alloc] initWithImage:holdImage];
-        double markX = holdImage.size.width + kHostGapNegative - markInset;
-        [holdMark[i] setFrame:CGRectMake(markX, kMarkOffsetY, holdImage.size.width, kMarkHeight)];
+        double markX =
+            btnDiff[difficulty].frame.size.width + kHostGapNegative - markInset + kHoldMarkNudge;
+        [holdMark[i]
+            setFrame:CGRectMake(markX, markOffsetY, holdImage.size.width, holdImage.size.height)];
         [holdMark[i] setHidden:YES];
         [btnDiff[i] addSubview:holdMark[i]];
     }
     for (int i = 0; i < kDiffButtonCount; ++i) {
-        UIImage *extendImage = LoadScaledPngImage(
-            [NSString stringWithFormat:kExtendMarkFormat, kDiffButtonLetters[i]]);
-        double extendX = extendImage.size.width + kHostGapNegative - markInset;
-        extendMark[i] = [[UIImageView alloc] initWithFrame:CGRectMake((double)(int)extendX,
-                                                                      kMarkOffsetY,
-                                                                      extendImage.size.width,
-                                                                      kMarkHeight)];
+        UIImage *extendImage =
+            LoadScaledPngImage([NSString stringWithFormat:kExtendMarkFormat, kDiffMarkLetters[i]]);
+        double extendX =
+            (double)(int)(btnDiff[difficulty].frame.size.width + kExtendMarkGap - markInset);
+        extendMark[i] = [[UIImageView alloc] initWithImage:extendImage];
+        [extendMark[i]
+            setFrame:CGRectMake(
+                         extendX, markOffsetY, extendImage.size.width, extendImage.size.height)];
         [extendMark[i] setHidden:YES];
         [btnDiff[i] addSubview:extendMark[i]];
 
         UIImage *extendOnImage = LoadScaledPngImage(
-            [NSString stringWithFormat:kExtendOnMarkFormat, kDiffButtonLetters[i]]);
+            [NSString stringWithFormat:kExtendOnMarkFormat, kDiffMarkLetters[i]]);
         extendOnMark[i] = [[UIImageView alloc] initWithImage:extendOnImage];
-        [extendOnMark[i] setFrame:CGRectMake((double)(int)extendX,
-                                             kMarkOffsetY,
+        [extendOnMark[i] setFrame:CGRectMake(extendX,
+                                             markOffsetY,
                                              extendOnImage.size.width,
-                                             kMarkHeight)];
+                                             extendOnImage.size.height)];
         [extendOnMark[i] setHidden:YES];
         [btnDiff[i] addSubview:extendOnMark[i]];
     }
@@ -1060,8 +1105,8 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 
 /** @ghidraAddress 0x57170 */
 - (void)setScoreBoard:(int)score fullcombo:(BOOL)fullcombo {
-    // The classic theme clamps the score to the perfect score and shows only the rating and the
-    // seven score digits (no combo/full-combo mark).
+    // The classic theme clamps the score to the perfect score, then shows the rating, the seven
+    // score digits, and the full-combo mark.
     int clamped = (score < kExcellentScore) ? score : kExcellentScore;
     char digits[8] = {
         kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, kDigitZero, 0};
@@ -1077,14 +1122,21 @@ static const double kMarkHeight = 14.0;       // fmov, 14
         UIImage *image = ((unsigned int)glyph < kDigitGlyphCount) ? highscoreNumImg[glyph] : nil;
         [highscoreNumView[i] setImage:image];
     }
+    [comboView setImage:fullcombo ? fullcomboImg : nil];
 }
 
 /** @ghidraAddress 0x537b0 */
 - (UIButton *)diffButton:(NSString *)imageName {
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-    double size = self.isPad ? kDiffButtonSizePad :
-                               (self.isRetina ? kDiffButtonSizeRetina : kDiffButtonSizeNonRetina);
-    [button setFrame:CGRectMake(0.0, 0.0, size, size)];
+    // The binary runs the per-idiom ladder once per dimension, so both accessors are sent twice.
+    [button setFrame:CGRectMake(0.0,
+                                0.0,
+                                self.isPad ? kDiffButtonSizePad :
+                                             (self.isRetina ? kDiffButtonSizeRetina :
+                                                              kDiffButtonSizeNonRetina),
+                                self.isPad ? kDiffButtonSizePad :
+                                             (self.isRetina ? kDiffButtonSizeRetina :
+                                                              kDiffButtonSizeNonRetina))];
     [button setImage:LoadScaledPngImage(imageName) forState:UIControlStateNormal];
     [button setExclusiveTouch:YES];
     [button setAdjustsImageWhenHighlighted:NO];
@@ -1173,7 +1225,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5dfe4 */
-- (void)editFileListViewDeleteFile:(id)fileName {
+- (void)editFileListViewDeleteFile:(NSString *)fileName {
     EditDataManager *manager = [EditDataManager sharedManager];
     NSString *lastEdit = [manager getLastEditFileName:(int)self.info.tuneID];
     NSString *path =
@@ -1223,7 +1275,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5e1d8 */
-- (void)selectEditFile:(id)fileName {
+- (void)selectEditFile:(NSString *)fileName {
     [[EditDataManager sharedManager] setLastEditFileName:(int)self.info.tuneID fileName:fileName];
     [self.controller enableCoverTap];
 }
@@ -1238,51 +1290,53 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 
 /** @ghidraAddress 0x5e38c */
 - (void)errorSequenceDownload:(id)sender {
-    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:nil
                                             tag:0
                                           title:nil
                                             msg:kConnectErrorMessage
-                                         cancel:ok
+                                         cancel:[NSBundle.mainBundle localizedStringForKey:@"OK"
+                                                                                     value:@""
+                                                                                     table:nil]
                                         btnText:nil
                                            show:YES];
 }
 
 /** @ghidraAddress 0x5e46c */
 - (void)finishedSequenceDownload:(id)sender {
-    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:nil
                                             tag:0
                                           title:nil
                                             msg:kDownloadFinishedMessage
-                                         cancel:ok
+                                         cancel:[NSBundle.mainBundle localizedStringForKey:@"OK"
+                                                                                     value:@""
+                                                                                     table:nil]
                                         btnText:nil
                                            show:YES];
 }
 
 /** @ghidraAddress 0x5e54c */
 - (void)finishedSequenceOverCap:(id)sender {
-    NSString *ok = [NSBundle.mainBundle localizedStringForKey:@"OK" value:@"" table:nil];
+    // The over-cap path reuses the download-finished message, as the binary does.
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:nil
                                             tag:0
                                           title:nil
                                             msg:kDownloadFinishedMessage
-                                         cancel:ok
+                                         cancel:[NSBundle.mainBundle localizedStringForKey:@"OK"
+                                                                                     value:@""
+                                                                                     table:nil]
                                         btnText:nil
                                            show:YES];
 }
 
 /** @ghidraAddress 0x5e9b8 */
 - (void)removeUploadView {
-    if (upLoadView != nil) {
-        [topcover removeFromSuperview];
-        topcover = nil;
-        [upLoadView removeFromSuperview];
-        upLoadView = nil;
-    }
+    [topcover removeFromSuperview];
+    topcover = nil;
+    [upLoadView removeFromSuperview];
+    upLoadView = nil;
 }
 
 /** @ghidraAddress 0x5e664 */
@@ -1327,11 +1381,10 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 - (CGPoint)getDifficultyPos:(int)difficulty {
     int index = (difficulty > 2) ? 0 : difficulty;
     int scrollY = (int)self.scrollView.frame.origin.y;
-    int buttonX = (int)btnDiff[index].frame.origin.x;
+    int posY = (int)((double)scrollY + btnDiff[index].frame.origin.y);
     int scrollX = (int)self.scrollView.frame.origin.x;
-    int buttonY = (int)btnDiff[index].frame.origin.y;
-    return CGPointMake((double)(int)((double)scrollX + (double)buttonX),
-                       (double)(int)((double)scrollY + (double)buttonY));
+    int posX = (int)((double)scrollX + btnDiff[index].frame.origin.x);
+    return CGPointMake((double)posX, (double)posY);
 }
 
 /** @ghidraAddress 0x599e4 */
@@ -1381,6 +1434,8 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     EditDataManager *manager = [EditDataManager sharedManager];
     NSString *lastEdit = [manager getLastEditFileName:index];
     self.isFirstSelect = YES;
+    // Both animation blocks capture this alpha; only the nil arm's first button reads it back.
+    float buttonAlpha = 1.0f; // orr w8,wzr,#0x3f800000 at 0x582d4 and 0x585c8
     __weak UIButton *weakInfo = infoBtn;
     __weak UIButton *weakUpload = uploadBtn;
     __weak UIButton *weakEdit = editBtn;
@@ -1398,13 +1453,13 @@ static const double kMarkHeight = 14.0;       // fmov, 14
         [self setStartButtonEnable];
         [UIView animateWithDuration:kResetTextFadeDuration
                          animations:^{
-                           /** @ghidraAddress 0x58834 */
-                           [weakInfo setAlpha:1.0];
-                           [weakUpload setAlpha:1.0];
-                           [weakEdit setAlpha:1.0];
+                           /** @ghidraAddress 0x5872c */
+                           [weakInfo setAlpha:buttonAlpha];
+                           [weakUpload setAlpha:buttonAlpha];
+                           [weakEdit setAlpha:buttonAlpha];
                          }
                          completion:^(BOOL __attribute__((unused)) finished){
-                             /** @ghidraAddress 0x58934 */
+                             /** @ghidraAddress 0x58830 */
                          }];
         return;
     }
@@ -1421,13 +1476,15 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     int dlFlag = [editorInfo[@"dlFlag"] intValue];
     [UIView animateWithDuration:kResetTextFadeDuration
                      animations:^{
-                       /** @ghidraAddress 0x5872c */
+                       /** @ghidraAddress 0x58834 */
+                       // The binary spells the first alpha as an fmov 1.0 literal, then reads the
+                       // captured float for the other two.
                        [weakInfo setAlpha:1.0];
-                       [weakUpload setAlpha:1.0];
-                       [weakEdit setAlpha:1.0];
+                       [weakUpload setAlpha:buttonAlpha];
+                       [weakEdit setAlpha:buttonAlpha];
                      }
                      completion:^(BOOL __attribute__((unused)) finished){
-                         /** @ghidraAddress 0x58830 */
+                         /** @ghidraAddress 0x58934 */
                      }];
     [editTxt[0] setText:editorInfo[@"fumenName"]];
     [editTxt[1] setText:editorInfo[@"editorName"]];
@@ -1465,8 +1522,8 @@ static const double kMarkHeight = 14.0;       // fmov, 14
             [diffTextView[i] setAlpha:0.0];
             [lightView[i][0].layer removeAnimationForKey:kBlinkAnimationKey];
             [lightView[i][1].layer removeAnimationForKey:kBlinkAnimationKey];
-            [lightView[i][0] setAlpha:0.0];
             [lightView[i][1] setAlpha:0.0];
+            [lightView[i][0] setAlpha:0.0];
             [levelTextView[i] setImage:levelTextImg[kLevelOffWordIndex]];
             [levelNumView[i] setImage:levelNumImg[kLevelOffRow][(int)level]];
         }
@@ -1499,7 +1556,12 @@ static const double kMarkHeight = 14.0;       // fmov, 14
         voiceCue = kDifficultyVoiceCues[2];
         tapped = 2;
     } else if (btnDiff[kExtendLevelNumIndex] == sender) {
-        // The edit button: on the first download selection, hide the lamps and remember the choice.
+        // The edit button opens the edit popover.
+        [self editPopoverOpen];
+        [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                                withObject:nil
+                                                afterDelay:0.0];
+        // Then, on the first download selection, hide the lamps and remember the choice.
         if ([[NSUserDefaults.standardUserDefaults objectForKey:kPrefJcfDownloadSelectKey]
                 intValue] == 1) {
             [NSUserDefaults.standardUserDefaults setInteger:kJcfDownloadSelectDownload
@@ -1507,10 +1569,6 @@ static const double kMarkHeight = 14.0;       // fmov, 14
             [scrollLamp setHidden:YES];
             [diffBtnLamp setHidden:YES];
         }
-        [self editPopoverOpen];
-        [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
-                                                withObject:nil
-                                                afterDelay:0.0];
         return;
     } else {
         return;
@@ -1520,7 +1578,9 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     if (current == tapped) {
         // Re-tapping the current difficulty toggles the extend chart when the tune has one; the
         // high-score board slides in from an offset.
-        NSTimeInterval inputLock = kSelectDiffInputLock;
+        // The delay register starts at a literal zero (movi v8.16B,#0 at 0x56af0); only the
+        // completed extend toggle reloads it from the pool, so every early exit uses no delay.
+        NSTimeInterval inputLock = 0.0;
         if (self.info.extendID != 0 && self.extendInfo != nil &&
             (self.extendInfo.extendFlag & (1 << current)) != 0) {
             [JubeatAppDelegate.appDelegate setExtendFlag:!JubeatAppDelegate.appDelegate.isExtend];
@@ -1530,17 +1590,23 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                                kHighscoreBoardXPad :
                                (self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
             double slide = self.isPad ? kHighscoreBoardSlidePad : kHighscoreBoardSlidePhone;
-            double y = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+            double y;
+            if (self.isPad) {
+                y = kHighscoreBoardYPad;
+            } else {
+                (void)self.isRetina; // Yes, the binary queries this and discards it (0x56ee8).
+                y = kHighscoreBoardYPhone;
+            }
             [highscoreBoardView setCenter:CGPointMake(homeX - slide, y)];
             [highscoreBoardView setAlpha:0.0];
             [NSUserDefaults.standardUserDefaults setInteger:current forKey:kPrefDifficultyKey];
-            UIImageView *boardView = highscoreBoardView;
             [UIView animateWithDuration:kExtendModeAnimDuration
                              animations:^{
                                /** @ghidraAddress 0x570a4 */
-                               [weakSelf changeDifficulty:current];
-                               MusicDetailViewOrgRepositionHighscoreBoard(weakSelf, boardView);
-                               [boardView setAlpha:1.0];
+                               [self changeDifficulty:current];
+                               MusicDetailViewOrgRepositionHighscoreBoard(self,
+                                                                          self->highscoreBoardView);
+                               [self->highscoreBoardView setAlpha:1.0];
                              }];
             inputLock = kSelectDiffExtendInputLock;
         }
@@ -1556,7 +1622,13 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                        kHighscoreBoardXPad :
                        (self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
     double slide = self.isPad ? kHighscoreBoardSlidePad : kHighscoreBoardSlidePhone;
-    double y = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+    double y;
+    if (self.isPad) {
+        y = kHighscoreBoardYPad;
+    } else {
+        (void)self.isRetina; // Yes, the binary queries this and discards it (0x56cf4).
+        y = kHighscoreBoardYPhone;
+    }
     [highscoreBoardView setCenter:CGPointMake(homeX - slide, y)];
     [highscoreBoardView setAlpha:kHighscoreBoardDimAlpha];
     [[AudioManager sharedManager] playSeResFile:voiceCue inDirectory:nil];
@@ -1609,7 +1681,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     BOOL hasShareManager = (shareManager != nil);
     [UIView animateWithDuration:kStartPlayTransitionDuration
         delay:0.0
-        options:UIViewAnimationOptionBeginFromCurrentState
+        options:UIViewAnimationOptionCurveEaseIn
         animations:^{
           /** @ghidraAddress 0x5a894 */
           MusicDetailViewOrgShrinkUnselectedButtons(
@@ -1625,7 +1697,6 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                                                                value:@""
                                                                table:nil]];
               [weakSelf.controller.sharePlayManager sendClientReady];
-              [weakSelf setIsSharedStartable:NO];
           } else {
               [weakSelf.controller.sharePlayManager sendSelectStart];
               [weakSelf.controller startPlay:weakSelf.info];
@@ -1721,7 +1792,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     BOOL showExtend = JubeatAppDelegate.appDelegate.isExtend && self.extendInfo != nil &&
                       (self.extendInfo.extendFlag & (1 << difficulty)) != 0;
 
-    char resource[32] = {0};
+    char resource[kMbarMinimumLength] = {0};
     if (self.editPage == 0) {
         // Pick the score, full-combo flag, and music bar for the shown difficulty and chart.
         int score = -1;
@@ -1751,6 +1822,23 @@ static const double kMarkHeight = 14.0;       // fmov, 14
         }
         [self setScoreBoard:score fullcombo:fullcombo];
 
+        // The board is re-homed and revealed here. -selectDiff: parks it off-centre and dimmed
+        // before animating a difficulty change, and the reveal lands on this path; the other
+        // callers simply reassert the home centre. One -isPad send selects both coordinates
+        // (0x55650), so keep the single test rather than folding this into
+        // MusicDetailViewOrgRepositionHighscoreBoard, which tests twice.
+        double boardX;
+        double boardY;
+        if (self.isPad) {
+            boardX = kHighscoreBoardXPad;
+            boardY = kHighscoreBoardYPad;
+        } else {
+            boardX = self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina;
+            boardY = kHighscoreBoardYPhone;
+        }
+        [highscoreBoardView setCenter:CGPointMake(boardX, boardY)];
+        [highscoreBoardView setAlpha:1.0];
+
         // Fill the 120 dot views from the difficulty's dot map (base or extend) and the resource.
         [mbarBarView setImage:mbarBarImg[difficulty]];
         char *dotMap = showExtend ? extendMbarDots[difficulty] : mbarDots[difficulty];
@@ -1765,12 +1853,18 @@ static const double kMarkHeight = 14.0;       // fmov, 14
         }
     }
 
+    // Yes, the binary fetches the delegate and queries -isExtend once here and discards the
+    // result (0x557d0-0x557f0) before reading it again per iteration.
+    (void)JubeatAppDelegate.appDelegate.isExtend;
+
     // Reveal the hold marks for the difficulties that carry a hold chart in the shown mode.
     for (int i = 0; i < kDiffButtonCount; ++i) {
         BOOL isExtend = JubeatAppDelegate.appDelegate.isExtend;
-        TuneInfo *source = self.info;
+        TuneInfo *source;
         if (isExtend && (self.extendInfo.extendFlag & (1 << i)) != 0) {
             source = self.extendInfo;
+        } else {
+            source = self.info;
         }
         if ((source.holdFlag & (1 << i)) != 0) {
             [holdMark[i] setHidden:NO];
@@ -1778,14 +1872,23 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     }
 
     // Update each difficulty's level image from the base or extend level; the classic theme keeps a
-    // per-difficulty level-glyph row.
-    char levels[] = {self.levelBas, self.levelAdv, self.levelExt};
-    char extendLevels[] = {self.extendLevelBas, self.extendLevelAdv, self.extendLevelExt};
+    // per-difficulty level-glyph row. Only the shown chart's accessor is sent.
     for (int i = 0; i < kDiffButtonCount; ++i) {
         BOOL isExtend = JubeatAppDelegate.appDelegate.isExtend;
-        char level = levels[i];
-        if (isExtend && (self.extendInfo.extendFlag & (1 << i)) != 0) {
-            level = extendLevels[i];
+        BOOL useExtend = isExtend && (self.extendInfo.extendFlag & (1 << i)) != 0;
+        char level = 0;
+        switch (i) {
+        case 0:
+            level = useExtend ? self.extendLevelBas : self.levelBas;
+            break;
+        case 1:
+            level = useExtend ? self.extendLevelAdv : self.levelAdv;
+            break;
+        case 2:
+            level = useExtend ? self.extendLevelExt : self.levelExt;
+            break;
+        default:
+            break;
         }
         [levelNumView[i] setImage:levelNumImg[i][(int)level]];
     }
@@ -1827,18 +1930,14 @@ static const double kMarkHeight = 14.0;       // fmov, 14
             [levelNumView[i] setAlpha:0.0];
         }
 
-        UIImageView *const *levelNums = levelNumView;
-        UIImageView *const *extendMarks = extendMark;
-        UIImageView *const *extendOnMarks = extendOnMark;
-        UIImageView *const *holdMarks = holdMark;
         [UIView animateWithDuration:kExtendCrossFadeDuration
                          animations:^{
                            /** @ghidraAddress 0x565f8 */
                            for (int i = 0; i < kDiffButtonCount; ++i) {
-                               [levelNums[i] setAlpha:1.0];
-                               [extendMarks[i] setAlpha:(1.0f - mix)];
-                               [extendOnMarks[i] setAlpha:mix];
-                               [holdMarks[i] setAlpha:1.0];
+                               [self->levelNumView[i] setAlpha:1.0];
+                               [self->extendMark[i] setAlpha:(1.0f - mix)];
+                               [self->extendOnMark[i] setAlpha:mix];
+                               [self->holdMark[i] setAlpha:1.0];
                            }
                          }];
     }
@@ -1861,7 +1960,13 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                                kHighscoreBoardXPad :
                                (self.isRetina ? kHighscoreBoardXRetina : kHighscoreBoardXNonRetina);
             double slide = self.isPad ? kHighscoreBoardSlidePad : kHighscoreBoardSlidePhone;
-            double y = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+            double y;
+            if (self.isPad) {
+                y = kHighscoreBoardYPad;
+            } else {
+                (void)self.isRetina; // Yes, the binary queries this and discards it. 0x5f188
+                y = kHighscoreBoardYPhone;
+            }
             [highscoreBoardView setCenter:CGPointMake(homeX - slide, y)];
             [highscoreBoardView setAlpha:0.0];
             [NSUserDefaults.standardUserDefaults setInteger:difficulty forKey:kPrefDifficultyKey];
@@ -1870,10 +1975,18 @@ static const double kMarkHeight = 14.0;       // fmov, 14
                              animations:^{
                                /** @ghidraAddress 0x5f2c4 */
                                [self changeDifficulty:difficulty];
-                               double hx = self.isPad ? kHighscoreBoardXPad :
-                                                        (self.isRetina ? kHighscoreBoardXRetina :
-                                                                         kHighscoreBoardXNonRetina);
-                               double hy = self.isPad ? kHighscoreBoardYPad : kHighscoreBoardYPhone;
+                               // One -isPad send (0x5f304) selects both coordinates; -isRetina is
+                               // only sent on the phone arm.
+                               double hx;
+                               double hy;
+                               if (self.isPad) {
+                                   hx = kHighscoreBoardXPad;
+                                   hy = kHighscoreBoardYPad;
+                               } else {
+                                   hx = self.isRetina ? kHighscoreBoardXRetina :
+                                                        kHighscoreBoardXNonRetina;
+                                   hy = kHighscoreBoardYPhone;
+                               }
                                [self->highscoreBoardView setCenter:CGPointMake(hx, hy)];
                                [self->highscoreBoardView setAlpha:1.0];
                              }];
@@ -1899,14 +2012,14 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     }
     if (lastEdit == nil) {
         [self setMusicBarDot:nullptr mbarRes:nullptr];
+        [self setScoreBoard:-1 fullcombo:NO];
         [ratingView setImage:nil];
         [comboView setImage:nil];
-        [self setScoreBoard:-1 fullcombo:NO];
         return;
     }
 
     // The edit music bar comes from the simple edit data (60 bytes) with no resource overlay.
-    char dots[64] = {0};
+    char dots[kEditMbarDataLength] = {0};
     NSData *musicBar = [manager getEditSimpleData][@"musicBar"];
     [musicBar getBytes:dots length:kEditMbarDataLength];
     [self setMusicBarDot:dots mbarRes:nullptr];
@@ -1941,7 +2054,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x55bbc */
-- (void)setExtendInfo:(TuneInfo *)info score:(id)score {
+- (void)setExtendInfo:(TuneInfo *)info score:(ScoreRecord *)score {
     [super setExtendInfo:info score:score];
     [self loadExtendMusicBar:info.filePath];
 
@@ -1959,11 +2072,10 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     // Each difficulty that carries an extend chart (a set bit of extendFlag) reveals its extend and
     // extend-on marks, showing whichever matches the current extend mode.
     if (info != nil) {
-        BOOL extendOn = JubeatAppDelegate.appDelegate.isExtend;
         for (int i = 0; i < kDiffButtonCount; ++i) {
             if ((info.extendFlag >> i) & 1) {
-                [extendMark[i] setHidden:extendOn];
-                [extendOnMark[i] setHidden:!extendOn];
+                [extendMark[i] setHidden:JubeatAppDelegate.appDelegate.isExtend];
+                [extendOnMark[i] setHidden:!JubeatAppDelegate.appDelegate.isExtend];
             }
         }
     }
@@ -1999,12 +2111,14 @@ static const double kMarkHeight = 14.0;       // fmov, 14
             [UIView animateWithDuration:kHostShareStartFadeDuration
                 animations:^{
                   /** @ghidraAddress 0x5bf18 */
+                  // The label is reached through the block's weak capture and the host button
+                  // through its strong self, exactly as the binary does.
                   [weakSelf.labelShareMessage setAlpha:1.0];
-                  [weakSelf.buttonHostSharePlay setEnabled:NO];
+                  [self.buttonHostSharePlay setEnabled:NO];
                 }
                 completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0x5c004 */
-                  [weakSelf.buttonHostSharePlay setEnabled:YES];
+                  [self.buttonHostSharePlay setEnabled:YES];
                 }];
             [self.controller startHostShare:[self infoDictForShare] filePath:self.info.filePath];
         }
@@ -2059,7 +2173,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     __weak MusicDetailViewOrg *weakSelf = self;
     [UIView animateWithDuration:kEditTransitionDuration
         delay:0.0
-        options:UIViewAnimationOptionBeginFromCurrentState
+        options:UIViewAnimationOptionCurveEaseIn // w2 = 0x10000 at 0x5b5f0
         animations:^{
           /** @ghidraAddress 0x5b6c8 */
           CATransform3D shrink =
@@ -2190,7 +2304,8 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     if (artwork != nil) {
         [self.artworkView setImage:artwork];
         double fraction = self.isPad ? kReflectionFractionPad : g_dAnimDuration020;
-        int reflectionHeight = (int)(artwork.size.height * fraction);
+        // 0x54760 fmul / 0x54764 fcvtzu: the truncation is unsigned.
+        unsigned int reflectionHeight = (unsigned int)(artwork.size.height * fraction);
         [self.reflectionArtworkView setImage:CreateReflectedImage(artwork, reflectionHeight)];
     }
 
@@ -2217,7 +2332,10 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     [codec decipher:seqExt];
     [Sequence getMusicBarData:mbarDots[kMbarExtremeRow] raw:seqExt];
 
-    // On the detail page, re-apply the preferred difficulty once the charts are loaded.
+    // The preferred difficulty is applied as soon as the charts are loaded, and applied a second
+    // time unless the edit selector is active.
+    [self changeDifficulty:(int)[NSUserDefaults.standardUserDefaults
+                               integerForKey:kPrefDifficultyKey]];
     if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey] == 0) {
         int difficulty =
             (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
@@ -2226,7 +2344,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x54dac */
-- (void)setInfo:(TuneInfo *)info score:(id)score {
+- (void)setInfo:(TuneInfo *)info score:(ScoreRecord *)score {
     [super setInfo:info score:score];
     if (info == nil) {
         return;
@@ -2256,21 +2374,25 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     if (artwork != nil) {
         [self.artworkView setImage:artwork];
         double fraction = self.isPad ? kReflectionFractionPad : g_dAnimDuration020;
-        int reflectionHeight = (int)(artwork.size.height * fraction);
+        // 0x54278 fmul / 0x5427c fcvtzu: the truncation is unsigned.
+        unsigned int reflectionHeight = (unsigned int)(artwork.size.height * fraction);
         [self.reflectionArtworkView setImage:CreateReflectedImage(artwork, reflectionHeight)];
     }
     UIImage *nameImage = [UIImage imageWithData:dict[kContentNameW]];
     if (nameImage != nil) {
         [self.tuneNameView setImage:nameImage];
     }
-    if (dict[kContentSeqBasic] != nil) {
-        [Sequence getMusicBarData:mbarDots[kMbarBasicRow] raw:dict[kContentSeqBasic]];
+    NSData *seqBas = dict[kContentSeqBasic];
+    if (seqBas != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarBasicRow] raw:seqBas];
     }
-    if (dict[kContentSeqAdvanced] != nil) {
-        [Sequence getMusicBarData:mbarDots[kMbarAdvancedRow] raw:dict[kContentSeqAdvanced]];
+    NSData *seqAdv = dict[kContentSeqAdvanced];
+    if (seqAdv != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarAdvancedRow] raw:seqAdv];
     }
-    if (dict[kContentSeqExtreme] != nil) {
-        [Sequence getMusicBarData:mbarDots[kMbarExtremeRow] raw:dict[kContentSeqExtreme]];
+    NSData *seqExt = dict[kContentSeqExtreme];
+    if (seqExt != nil) {
+        [Sequence getMusicBarData:mbarDots[kMbarExtremeRow] raw:seqExt];
     }
     // On the detail page (edit page 0) the classic theme re-applies the preferred difficulty once
     // the bars are loaded.
@@ -2283,19 +2405,31 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 
 /** @ghidraAddress 0x5c05c */
 - (void)refreshStartButton {
-    BOOL randomOn = JubeatAppDelegate.appDelegate.isRandom && !JubeatAppDelegate.appDelegate.isHold;
+    // Both flags are read unconditionally, each from its own +appDelegate result; the combine is
+    // branchless because the two sends have already happened.
+    BOOL isRandom = JubeatAppDelegate.appDelegate.isRandom;
+    BOOL isHold = JubeatAppDelegate.appDelegate.isHold;
+    BOOL randomOn = isRandom && !isHold;
     if (randomOn == bRandomBak) {
         return;
     }
     bRandomBak = randomOn;
 
-    // The start button shows the single-play image, or the start image when host-sharing; its
-    // enabled state is preserved across the image swap.
-    UIImage *image = self.isShared ? [self getStartImage] : [self getSingleImage];
+    // The start button shows the single-play image, or the start image when host-sharing; the
+    // single-play image is fetched even on the sharing path and then discarded. Its enabled state
+    // is preserved across the image swap.
+    UIImage *image = [self getSingleImage];
+    if (self.isShared) {
+        image = [self getStartImage];
+    }
     BOOL wasEnabled = self.buttonStartPlay.isEnabled;
     [self.buttonStartPlay setEnabled:YES];
     [self.buttonStartPlay setBackgroundImage:image forState:UIControlStateNormal];
     [self.buttonStartPlay setEnabled:wasEnabled];
+
+    // The weak snapshot is taken before the non-animated setTransform: in the binary: the
+    // objc_initWeak at 0x5c254 precedes the setTransform: at 0x5c2d0.
+    __weak UIImageView *weakRandView = self.randView;
 
     // The random marker rests in place when random is on and slides up out of view when off.
     if (randomOn) {
@@ -2305,16 +2439,18 @@ static const double kMarkHeight = 14.0;       // fmov, 14
         [self.randView setTransform:CGAffineTransformIdentity];
     }
 
-    __weak MusicDetailViewOrg *weakSelf = self;
+    int slideOffset = kRandViewSlideOffset;
     [UIView animateWithDuration:kRandViewToggleDuration
                      animations:^{
                        /** @ghidraAddress 0x5c3c0 */
-                       [weakSelf.randView setAlpha:(randomOn ? 1.0 : 0.0)];
+                       // setAlpha: goes to the weak snapshot; setTransform: goes to randView
+                       // re-fetched through the block's strong self, exactly as the binary does.
+                       [weakRandView setAlpha:(randomOn ? 1.0 : 0.0)];
                        if (randomOn) {
-                           [weakSelf.randView setTransform:CGAffineTransformIdentity];
+                           [self.randView setTransform:CGAffineTransformIdentity];
                        } else {
-                           [weakSelf.randView setTransform:CGAffineTransformMakeTranslation(
-                                                               0.0, -(double)kRandViewSlideOffset)];
+                           [self.randView
+                               setTransform:CGAffineTransformMakeTranslation(0.0, -slideOffset)];
                        }
                      }
                      completion:^(BOOL __attribute__((unused)) finished){
@@ -2377,7 +2513,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     if (page == 1) {
         int difficulty =
             (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
-        if (difficulty > 2) {
+        if ((unsigned int)difficulty > 2) {
             [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefDifficultyKey];
             difficulty = 0;
         }
@@ -2393,18 +2529,18 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
     [detailScrollButton[0] setAlpha:1.0];
     [detailScrollButton[1] setAlpha:1.0];
-    MusicDetailViewOrgSettleScrollPage(self, self->holdMark);
+    MusicDetailViewOrgSettleScrollPage(self, self->holdMark, NO);
 }
 
 /** @ghidraAddress 0x5c8c8 */
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    MusicDetailViewOrgSettleScrollPage(self, self->holdMark);
+    MusicDetailViewOrgSettleScrollPage(self, self->holdMark, YES);
 }
 
 /** @ghidraAddress 0x5cb8c */
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
-        MusicDetailViewOrgSettleScrollPage(self, self->holdMark);
+        MusicDetailViewOrgSettleScrollPage(self, self->holdMark, YES);
     }
 }
 
@@ -2426,11 +2562,11 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 - (void)editPopoverOpen {
     [self loadListRelease];
     [self.controller unenableCoverTap];
-    EditDataManager *manager = [EditDataManager sharedManager];
     if (!self.isPad) {
         // The phone shows the edit-file list in a full nav controller.
-        NSMutableArray *files = [manager getFileInfoList:self.info.tuneID];
-        NSString *lastEdit = [manager getLastEditFileName:(int)self.info.tuneID];
+        NSMutableArray *files = [[EditDataManager sharedManager] getFileInfoList:self.info.tuneID];
+        NSString *lastEdit =
+            [[EditDataManager sharedManager] getLastEditFileName:(int)self.info.tuneID];
         self.jcfMan = [[JcfManageNavController alloc] init:self fileList:files selName:lastEdit];
         [self.jcfMan setTuneID:self.info.tuneID];
         [self.jcfMan setShareFlg:(self.controller.sharePlayManager != nil)];
@@ -2443,13 +2579,14 @@ static const double kMarkHeight = 14.0;       // fmov, 14
     if (self.pFileListView != nil) {
         return;
     }
-    NSMutableArray *files = [manager getFileInfoList:self.info.tuneID];
+    NSMutableArray *files = [[EditDataManager sharedManager] getFileInfoList:self.info.tuneID];
     self.pFileListView = [[EditFileListViewDeleteController alloc]
         initWithSize:CGSizeMake(kEditPopoverWidth, kEditPopoverHeight)];
-    [self.pFileListView setTuneID:self.info.tuneID];
     [self.pFileListView setFileList:files];
     [self.pFileListView setDelegate:self];
-    [self.pFileListView setTargetFileName:[manager getLastEditFileName:(int)self.info.tuneID]];
+    NSString *lastEditName =
+        [[EditDataManager sharedManager] getLastEditFileName:(int)self.info.tuneID];
+    [self.pFileListView setTargetFileName:lastEditName];
     [self.pFileListView setIsFirst:self.isFirstSelect];
     [self.pFileListView setIsShared:(self.controller.sharePlayManager != nil)];
     if (!self.isPad) {
@@ -2495,7 +2632,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5ecac */
-- (id)getStartImage {
+- (UIImage *)getStartImage {
     if (![JubeatAppDelegate.appDelegate isRandom]) {
         return [[ImageCache sharedCache] getResPNG:kStartButtonImage];
     }
@@ -2506,7 +2643,7 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 }
 
 /** @ghidraAddress 0x5ede4 */
-- (id)getSingleImage {
+- (UIImage *)getSingleImage {
     if (![JubeatAppDelegate.appDelegate isRandom]) {
         return [[ImageCache sharedCache] getResPNG:kSingleButtonImage];
     }
