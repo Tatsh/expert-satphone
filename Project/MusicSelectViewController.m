@@ -801,18 +801,24 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                                         LoadScaledPngImage(@"word_store_new");
     imgStoreNew = [[UIImageView alloc] initWithImage:storeNewImage];
     [imgStoreNew setHidden:YES];
-    double storeNewX = btnStore.frame.origin.x + (isPad ? -30.0 : -20.0);
+    // The badge is a subview of the button, so its centre is in the button's own space: near the
+    // right edge and vertically centred. Verified at 0x100024254-0x1000242c0, where -frame's d2
+    // (size.width) feeds the fadd and d3 (size.height) the fmul by 0.5, not the origin lanes.
+    double storeNewX = btnStore.frame.size.width + (isPad ? -30.0 : -20.0);
     double storeNewNudge = isPad ? 5.0 : 10.0;
-    [imgStoreNew setCenter:CGPointMake(storeNewX, btnStore.frame.origin.y * 0.5 + storeNewNudge)];
+    [imgStoreNew
+        setCenter:CGPointMake(storeNewX, btnStore.frame.size.height * 0.5 + storeNewNudge)];
     [imgStoreNew setTransform:CGAffineTransformMakeRotation(kStoreNewRotation)];
     [btnStore addSubview:imgStoreNew];
 
     // A second, hidden "new" badge reused for the challenge button.
     imgChallengeNew = [[UIImageView alloc] initWithImage:storeNewImage];
     [imgChallengeNew setHidden:YES];
-    double challengeNewX = btnStore.frame.origin.x + (isPad ? -30.0 : -20.0);
+    // Same shape as the store badge above, at 0x100024390-0x1000243cc, and still measured against
+    // the store button's frame rather than the challenge button's.
+    double challengeNewX = btnStore.frame.size.width + (isPad ? -30.0 : -20.0);
     [imgChallengeNew
-        setCenter:CGPointMake(challengeNewX, btnStore.frame.origin.y * 0.5 + storeNewNudge)];
+        setCenter:CGPointMake(challengeNewX, btnStore.frame.size.height * 0.5 + storeNewNudge)];
     [imgChallengeNew setTransform:CGAffineTransformMakeRotation(kStoreNewRotation)];
 
     // The music detail card, built from the theme-specific subclass and hidden until a tune opens.
