@@ -774,12 +774,16 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                               LoadScaledPngImage(@"menu_button_sto_rpl") :
                           (theme == JubeatThemeKnit) ? LoadScaledPngImage(@"menu_button_sto_knt") :
                                                        LoadScaledPngImage(@"menu_button_sto");
-    double storeX = (double)(int)boundsHeight - storeImage.size.width;
+    // Verified at 0x100024024-0x10002413c: the base is fcvtzs w24,d2 straight off -[view bounds],
+    // so it is the width lane, and the height is the image's own, taken from d1 of the second
+    // -size call rather than from the bounds. The whole top button row hangs off this x, so a
+    // bounds-height base pushed all four buttons right by boundsHeight - boundsWidth.
+    double storeX = (double)(int)boundsWidth - storeImage.size.width;
     btnStore = [UIButton buttonWithType:UIButtonTypeCustom];
     [btnStore setBackgroundImage:storeImage forState:UIControlStateNormal];
     [btnStore
         setFrame:CGRectMake(
-                     (double)(int)storeX, 0.0, storeImage.size.width, (double)(int)boundsHeight)];
+                     (double)(int)storeX, 0.0, storeImage.size.width, storeImage.size.height)];
     [btnStore setExclusiveTouch:YES];
     [btnStore addTarget:self
                   action:@selector(tapStore:)
