@@ -3391,10 +3391,14 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           flip.m34 = kCoverFlipPerspectiveM34;
           flip = CATransform3DTranslate(flip, 0, 0, viewerDistance);
           weakArtwork.alpha = 1.0;
-          weakArtwork.center = weakSelected.center;
+          // The centre reference is the cover, not the tapped tile. The block's capture at +0x30
+          // is the cover, and it is read twice and never written; the tile is not captured at all.
+          // A tile's centre is in the list's coordinate space while both of these views live on
+          // the controller's view, so using it lands the card up and to the left.
+          weakArtwork.center = weakCover.center;
           weakArtwork.layer.transform = CATransform3DRotate(flip, g_dPi, 0, -1.0, 0);
           CATransform3D scaledFlip = CATransform3DScale(flip, innerScale, innerScale, 1.0);
-          weakDetail.center = weakSelected.center;
+          weakDetail.center = weakCover.center;
           weakDetail.layer.transform = CATransform3DRotate(scaledFlip, g_dTwoPi, 0, 1.0, 0);
           weakCover.alpha = 1.0;
           weakDetail.alpha = 1.0;
