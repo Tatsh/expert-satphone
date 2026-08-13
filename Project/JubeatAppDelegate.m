@@ -788,6 +788,16 @@ static const int kDefaultTheme = 0;
     mainWindow.autoresizesSubviews = NO;
     mainWindow.opaque = YES;
     mainWindow.backgroundColor = UIColor.blackColor;
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary: this build predates iOS 13, so every colour it picks
+    // assumes the light appearance. Under the dark appearance the system-drawn surfaces invert
+    // while the app's own artwork does not, which leaves the modally presented settings sheet
+    // drawn dark-on-dark and effectively invisible while still swallowing touches. Pinning the
+    // window covers every view controller presented from it, including that sheet.
+    if (@available(iOS 13.0, *)) {
+        mainWindow.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
+    }
+#endif
     _rootViewCtrl = [[RootViewController alloc] init];
     // Assigns through the getter rather than reusing the ivar just written.
     mainWindow.rootViewController = self.rootViewCtrl;
