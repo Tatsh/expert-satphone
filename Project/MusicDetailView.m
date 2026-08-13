@@ -18,17 +18,17 @@
 #import "SearchPackIDView.h"
 #import "TuneInfo.h"
 
-// The random-select marker offset is nudged down ten points on the phone idiom only; the pad idiom
-// leaves both recommend buttons flush with the marker's origin.
-static const int kRecommendButtonPhoneInset = 10;
+// Both recommend buttons are ten points larger than their icon on the phone idiom and exactly
+// icon-sized on the pad; the same value is negated into each button's left image edge inset.
+static const int kRecommendButtonPhoneInset = 10; // mov w8,#0xa at 0x126fc0, csel at 0x126fc4
 
 // The card's dimming scrim opacity: colorWithWhite:0 alpha:0.5 for the always-on cover, and
-// colorWithWhite:0 alpha:0.3 for the recommend topcover.
-static const CGFloat kCoverScrimAlpha = 0.5;    // 0x3fe0000000000000
-static const CGFloat kTopcoverScrimAlpha = 0.3; // 0x10028f248
+// colorWithWhite:0 alpha:0.3f for the recommend topcover.
+static const CGFloat kCoverScrimAlpha = 0.5;     // fmov d8, 0.5 at 0x1268b4
+static const CGFloat kTopcoverScrimAlpha = 0.3f; // @ghidraAddress 0x28f248
 
-// The reflection and random-marker views draw at half opacity.
-static const CGFloat kReflectionAlpha = 0.5; // 0x3fe0000000000000
+// The reflection view draws at half opacity.
+static const CGFloat kReflectionAlpha = 0.5; // fmov d8, 0.5 at 0x1268b4
 
 // The long-press that toggles the random flag fires after two seconds.
 static const NSTimeInterval kRandomPressDuration = 2.0; // fmov d0, 2.0
@@ -73,13 +73,6 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 @end
 
 @implementation MusicDetailView
-
-// -infoChange: is abstract on the base: the binary defines it only on the concrete theme
-// subclasses (Org/Rpl/Knt) and never on MusicDetailView itself, but the base declares it so the
-// music-select screen can drive it polymorphically. The base body only traps a direct call.
-- (void)infoChange:(int)difficulty {
-    [self doesNotRecognizeSelector:_cmd];
-}
 
 #pragma mark - Construction
 
@@ -133,7 +126,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
         UIImage *randImage = LoadScaledPngImage(kResRandMarker);
         self.randView = [[UIImageView alloc] initWithImage:randImage];
         self.randView.frame = CGRectMake(0, 0, randImage.size.width, randImage.size.height);
-        self.randView.alpha = kReflectionAlpha;
+        self.randView.alpha = 0;
         [self addSubview:self.randView];
 
         // The recommend buttons are sized to their icon plus a ten-point margin on the phone; the
@@ -146,8 +139,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
         self.btnRecommendTwitter = [UIButton buttonWithType:UIButtonTypeCustom];
         self.btnRecommendTwitter.frame = CGRectMake(0, 0, recommendWidth, recommendHeight);
         [self.btnRecommendTwitter setImage:twitterImage forState:UIControlStateNormal];
-        self.btnRecommendTwitter.imageEdgeInsets =
-            UIEdgeInsetsMake(0, 0, -recommendInset, -recommendInset);
+        self.btnRecommendTwitter.imageEdgeInsets = UIEdgeInsetsMake(0, -recommendInset, 0, 0);
         [self.btnRecommendTwitter addTarget:self
                                      action:@selector(pushRecommend:)
                            forControlEvents:UIControlEventTouchUpInside];
@@ -159,8 +151,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
         UIImage *facebookImage = [[ImageCache sharedCache] getResPNG:kResFacebookIcon];
         self.btnRecommendFacebook.frame = CGRectMake(0, 0, recommendWidth, recommendHeight);
         [self.btnRecommendFacebook setImage:facebookImage forState:UIControlStateNormal];
-        self.btnRecommendFacebook.imageEdgeInsets =
-            UIEdgeInsetsMake(0, 0, -recommendInset, -recommendInset);
+        self.btnRecommendFacebook.imageEdgeInsets = UIEdgeInsetsMake(0, -recommendInset, 0, 0);
         [self.btnRecommendFacebook addTarget:self
                                       action:@selector(pushRecommend:)
                             forControlEvents:UIControlEventTouchUpInside];
@@ -256,7 +247,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
     self.topcover = [[UIView alloc] initWithFrame:self.bounds];
     self.topcover.center = CGPointMake(self.bounds.size.width * 0.5, self.bounds.size.height * 0.5);
     self.topcover.opaque = NO;
-    // The original used colorWithWhite:0 alpha:0.3.
+    // The original used colorWithWhite:0 alpha:0.3f.
     self.topcover.backgroundColor = [UIColor colorWithWhite:0 alpha:kTopcoverScrimAlpha];
     [self addSubview:self.topcover];
 
@@ -452,7 +443,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
     if (self.isEditInfoOpen) {
         [self.controller dismissViewControllerAnimated:YES completion:nil];
         self.isEditInfoOpen = NO;
-    } else if (self.jcfDownloadPage) {
+    } else if (_jcfDownloadPage) { // The binary reads the ivar here, not the getter.
         [self.controller dismissViewControllerAnimated:YES completion:nil];
     }
     [self.controller dismissViewControllerAnimated:NO completion:nil];
@@ -604,6 +595,7 @@ static NSString *const kEditorNotesNumKey = @"notesNum";
 
 /** @ghidraAddress 0x12a074 */
 - (void)downloadEnd:(id)sender {
+    // Yes, the binary bails out on the pad; the JCF list is a phone-only path here.
     if (self.isPad) {
         return;
     }

@@ -28,6 +28,7 @@
 @class JcfDownloadPageNavController;
 @class JcfManageNavController;
 @class MusicSelectViewController;
+@class ScoreRecord;
 @class SearchPackIDView;
 @class TuneInfo;
 
@@ -72,13 +73,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @ghidraAddress 0x1277d0
  */
 - (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable id)score;
-
-/**
- * @brief Refreshes the score board, music bar, hold marks, and level images for the shown
- *        difficulty and chart. Overridden per theme.
- * @param difficulty The difficulty index to show.
- */
-- (void)infoChange:(int)difficulty;
 
 /**
  * @brief Empty in this build.
@@ -194,17 +188,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Populates the base-chart score, full-combo flags, and music bars from a score record.
- * @param score The score record.
+ * @param score The score record, or @c nil.
  * @ghidraAddress 0x128ac4
  */
-- (void)putScore:(nullable id)score;
+- (void)putScore:(nullable ScoreRecord *)score;
 
 /**
  * @brief Populates the extend-chart score, full-combo flags, and music bars from a score record.
- * @param score The score record.
+ * @param score The score record, or @c nil.
  * @ghidraAddress 0x128f98
  */
-- (void)putExtendScore:(nullable id)score;
+- (void)putExtendScore:(nullable ScoreRecord *)score;
 
 /**
  * @brief Dismisses the edit popover or jcf download page and closes the detail view.
@@ -459,6 +453,22 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign, nullable) NSString *socialType;
 /** @brief The recommend dimming cover. @ghidraAddress 0x12aab0 (getter), 0x12aac0 (setter) */
 @property(nonatomic, strong, nullable) UIView *topcover;
+
+@end
+
+@interface MusicDetailView (ThemeOverrides)
+
+/**
+ * @brief Declared, never implemented on the base: the concrete theme subclasses supply the body.
+ * @note MusicDetailView's runtime metadata holds 154 methods and none is @c infoChange: (there is
+ *       no category adding it either). The binary implements this selector only on
+ *       MusicDetailViewOrg (0x551d4), MusicDetailViewRpl (0x12f538), MusicDetailViewKnt
+ *       (0x199e88), and ScratchMusicDetailView (0x161f30). The declaration is required because
+ *       MusicSelectViewController holds the card in a base-typed ivar and sends this selector to
+ *       it; no subclass calls @c super, so the base needs no body.
+ * @param difficulty The difficulty index to show.
+ */
+- (void)infoChange:(int)difficulty;
 
 @end
 
