@@ -445,8 +445,11 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
 /** @ghidraAddress 0x1b94ec */
 + (BOOL)enableMarkerSelect {
     NSArray<NSDictionary<NSString *, NSString *> *> *list = [self getMarkerList];
+    // Selection stays disabled while any reserved marker (an id below kReservedMarkerSize) is
+    // still uninstalled, so the number test runs on the uninstalled entries, not the installed
+    // ones.
     for (NSDictionary<NSString *, NSString *> *info in list) {
-        if (![info[kMarkerInfoKeyVersion] isEqualToString:kVersionUninstalled]) {
+        if ([info[kMarkerInfoKeyVersion] isEqualToString:kVersionUninstalled]) {
             int number = [[info[kMarkerInfoKeyMarkerID]
                 substringWithRange:NSMakeRange(kMarkerNumberRangeLocation,
                                                kMarkerNumberRangeLength)] intValue];
