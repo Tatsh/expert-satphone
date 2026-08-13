@@ -217,6 +217,11 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2; // 0x10028e050
             manageNavCtrl,
             campaignNavCtrl
         ]];
+#ifdef ENABLE_PATCHES
+        for (RotatableNavigationController *navCtrl in self.viewControllers) {
+            [navCtrl patchApplyOpaqueBarAppearance];
+        }
+#endif
     }
     return self;
 }

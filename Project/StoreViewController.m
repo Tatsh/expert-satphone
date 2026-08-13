@@ -90,12 +90,15 @@ static const NSTimeInterval kCoverFadeOutDuration = -0.2;
 // The licence agreement board's width fraction and its bottom margin below the navigation bar.
 static const CGFloat kAgreementBoardWidthFraction = 0.5;
 
+#ifndef ENABLE_PATCHES
 // The centred error label's inset and its vertical-centre lift.
 static const CGFloat kErrorLabelBottomInset = 20.0;
 static const int kErrorLabelCentreLift = 20;
 
-// The error label's font size.
+// The error label's font size. All three constants are used only by the dead-service error label,
+// which the patched build does not construct, and an unused one fails the build under -Werror.
 static const CGFloat kErrorLabelFontSize = 18.0;
+#endif
 
 // The user-defaults key recording the agreed challenge-policy version, handed to the agreement
 // view.
@@ -236,6 +239,11 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 
         self.viewControllers =
             @[ storeMainNavCtrl, purchasedNavCtrl, manageNavCtrl, campaignNavCtrl ];
+#ifdef ENABLE_PATCHES
+        for (RotatableNavigationController *navCtrl in self.viewControllers) {
+            [navCtrl patchApplyOpaqueBarAppearance];
+        }
+#endif
     }
     return self;
 }
@@ -987,6 +995,19 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 
 /** @ghidraAddress 0x8ec24 */
 - (void)dispErrorLabel:(NSString *)msg {
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. The store's session endpoints are gone, so this
+    // fatal-error path is now the only path every launch takes. The binary answers it by raising
+    // usrPolicyView to full opacity over the whole tab bar controller and never lowering it:
+    // -resignCoverView has exactly two call sites in the binary, 0x8f4c8 and 0x8f830, both inside
+    // -downloaderFinished: (0x8f170) on a status:0 reply from a server that no longer answers. The
+    // cover is left down so the Manage and Purchased tabs, which need no network at all, stay
+    // usable. Its alpha is set rather than its interaction flag because usrPolicyView owns the
+    // LicenseAgreementView board as a subview, and disabling interaction here would take the
+    // board's own buttons with it; UIKit already skips hit-testing below an alpha of 0.01. The
+    // error label is not built, so the "Unable to connect to server." message is not shown.
+    usrPolicyView.alpha = 0.0;
+#else
     CGRect frame = usrPolicyView.frame;
     CGFloat labelHeight = frame.size.height - kErrorLabelBottomInset;
     UILabel *label =
@@ -1007,6 +1028,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
     label.text = msg;
     [usrPolicyView addSubview:label];
     [self becomeCoverView];
+#endif
 }
 
 /** @ghidraAddress 0x8ee9c */
@@ -1053,6 +1075,13 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 
 /** @ghidraAddress 0x8ff68 */
 - (void)agreementError:(id)sender msgStr:(NSString *)msg {
+#ifdef ENABLE_PATCHES
+    // Preservation patch; see -dispErrorLabel: for why the dead-service cover is left down. The
+    // cover is not removed or nilled here: this method is invoked from -[LicenseAgreementView
+    // sendErrorDelegate:] (0x1f5928) while the board's own frame is still on the stack, and
+    // usrPolicyView is that board's only strong owner.
+    usrPolicyView.alpha = 0.0;
+#else
     CGRect frame = usrPolicyView.frame;
     CGFloat labelHeight = frame.size.height - kErrorLabelBottomInset;
     UILabel *label =
@@ -1073,6 +1102,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
     label.text = msg;
     [usrPolicyView addSubview:label];
     [self becomeCoverView];
+#endif
 }
 
 #pragma mark - DownloaderDelegate
@@ -1194,6 +1224,10 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
                                           btnText:nil
                                              show:YES];
     } else {
+#ifdef ENABLE_PATCHES
+        // Preservation patch; see -dispErrorLabel: for why the dead-service cover is left down.
+        usrPolicyView.alpha = 0.0;
+#else
         NSDictionary *json = [(Downloader *)downloader getDataInJSON];
         NSString *message = [NSBundle.mainBundle localizedStringForKey:kLocKeyNetworkErrorMessage
                                                                  value:kEmptyValue
@@ -1221,6 +1255,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
         label.text = message;
         [usrPolicyView addSubview:label];
         [self becomeCoverView];
+#endif
     }
 }
 

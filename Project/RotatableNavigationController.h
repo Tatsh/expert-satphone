@@ -22,6 +22,19 @@ NS_ASSUME_NONNULL_BEGIN
  * The class declares no ivars and no properties; all four members are overrides.
  */
 @interface RotatableNavigationController : UINavigationController
+
+#ifdef ENABLE_PATCHES
+/**
+ * @brief Restates the stock opaque navigation bar in the modern appearance API.
+ *
+ * Not present in the binary. The store's bars are configured with nothing but
+ * @c -setTranslucent:NO , which since iOS 15 leaves @c scrollEdgeAppearance nil and so makes the
+ * bar transparent, showing the window's black background. Callers opt in; the setting sheet and
+ * the jubeat Lab manage sheet style their own bars and must not receive this.
+ */
+- (void)patchApplyOpaqueBarAppearance;
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END
