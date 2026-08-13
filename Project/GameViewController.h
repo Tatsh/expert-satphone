@@ -81,8 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)releaseResources;
 
 /**
- * @brief Persists the play result to the score records and, in challenge mode, the item-chance
- *        state.
+ * @brief Persists the play result to the score records and saves the managed object context.
  * @ghidraAddress 0x121f8
  */
 - (void)saveScore;
@@ -327,16 +326,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)viewDidDisappear:(BOOL)animated;
 
 /**
- * @brief Whether the given interface orientation is a landscape one.
+ * @brief Whether the given interface orientation is a portrait one.
  * @param interfaceOrientation The candidate orientation.
- * @return @c YES for the two landscape orientations.
+ * @return @c YES for the two portrait orientations.
  * @ghidraAddress 0x187c8
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * @brief The supported interface orientations (landscape only).
- * @return @c UIInterfaceOrientationMaskLandscape .
+ * @brief The supported interface orientations (portrait only).
+ * @return @c UIInterfaceOrientationMaskPortrait |
+ *         @c UIInterfaceOrientationMaskPortraitUpsideDown .
  * @ghidraAddress 0x187d8
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
@@ -437,7 +437,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)successIDDownload:(nullable id)sender;
 
 /**
- * @brief @c Downloader completion: installs the downloaded pack.
+ * @brief @c Downloader completion: handles the challenge-score upload response, applying the
+ *        item-chance award for tag 2 and otherwise raising the update or server-error alert.
  * @param downloader The finished request.
  * @ghidraAddress 0x1afe8
  */

@@ -128,8 +128,9 @@ static NSString *const kArchiveMarkerMember = @"marker";
 static NSString *const kArchiveBgmMember = @"bgm";
 static NSString *const kArchiveArtworkMember = @"artwork";
 static NSString *const kArchiveNameBMember =
-    @"name_b"; // @ghidraAddress 0x2d4b40 / index for RPL, KNT
-static NSString *const kArchiveNameWMember = @"name_w"; // index for the default theme
+    @"name_b"; // @ghidraAddress 0x2d4ba0 / index for RPL, KNT
+static NSString *const kArchiveNameWMember =
+    @"name_w"; // @ghidraAddress 0x2d4bc0 / index for the default theme
 
 // The theme-specific pause-button, replay-button, and sequence resource names.
 static NSString *const kImagePauseRpl = @"pause_btn_pause_rpl"; // @ghidraAddress 0x2d49a0
@@ -160,7 +161,7 @@ static NSString *const kPauseSoundName = @"SKIP"; // @ghidraAddress 0x2d4e80
 static NSString *const kFinishBgmNotificationName = @"JubeatAudioManagerFinishBgmNotifacation";
 
 // The documents subdirectory holding replay ghost recordings.
-static NSString *const kGhostDirName = @"ghost"; // @ghidraAddress 0x2d5000
+static NSString *const kGhostDirName = @"ghost"; // @ghidraAddress 0x2d50c0
 
 // The user-defaults keys read at play start.
 static NSString *const kPrefAdjustSector = @"PrefAdjustSector";
@@ -454,7 +455,7 @@ static NSString *const kIntegerFormat = @"%d";                  // @ghidraAddres
 static NSString *const kClientInfoUUIDKey = @"uuid"; // @ghidraAddress 0x2d41a0
 
 // The good-job sound-effect name format, seeded with a random index.
-static NSString *const kGoodJobSoundFormat = @"SD_EEFMN_0%d"; // @ghidraAddress 0x2d5920
+static NSString *const kGoodJobSoundFormat = @"SD_EEFMN_0%d"; // @ghidraAddress 0x2d4de0
 
 // The result-screen overlay fade-in duration.
 static const double kResultOverlayFadeDuration = 0.2; // @ghidraAddress 0x28e040
@@ -471,8 +472,10 @@ static NSString *const kTweetMessageFormat =
 static NSString *const kTweetURL =
     @"https://itunes.apple.com/jp/app/jubeat-plus/id395192484"; // @ghidraAddress 0x2d4e00
 
-// The number of good-job sound-effect variants selected at random.
-static const int kGoodJobSoundVariantCount = 5;
+// The number of good-job sound-effect variants selected at random: the binary reduces rand()
+// modulo 3, so only SD_EEFMN_00 through SD_EEFMN_02 are ever played.
+// @ghidraAddress 0x158e0 (the 0x55555556 divide-by-three magic)
+static const int kGoodJobSoundVariantCount = 3;
 
 // The JCF-download preference and its post-play default in extreme difficulty.
 static NSString *const kPrefJcfDownloadSelect = @"PrefJcfDownloadSelect";
@@ -485,14 +488,22 @@ static inline int GameViewControllerNowSector(GameViewController *self) {
     return (int)([self getMusicTime] * kSectorFramesPerSecond * kSectorSubdivision);
 }
 
-// Tests whether a touch point (already converted into the GL view's coordinate space and divided by
-// the display scale) lies within panel index's hit rectangle, and if so marks that panel in
-// buttonPress. The rectangle differs per idiom: the pad uses a fixed 0xc0 grid with an 8pt inset,
-// the phone a 0x50 grid widened by buttonTouchWidth (and a 4-inch top margin from the renderer).
-static inline void GameViewControllerHitTestPanels(GameViewController *self, CGPoint pointInView) {
-    float scale = self->displayScale;
-    CGFloat px = pointInView.x / scale;
-    CGFloat py = pointInView.y / scale;
+// Tests whether a touch point (already converted into the GL view's coordinate space) lies within
+// panel index's hit rectangle, and if so marks that panel in buttonPress. The rectangle differs per
+// idiom: the pad uses a fixed 0xc0 grid with an 8pt inset, the phone a 0x50 grid widened by
+// buttonTouchWidth (and a 4-inch top margin from the renderer). Only the live-touch arm of -loop:
+// divides the point by the display scale; the auto-play and ghost-replay arm passes it through
+// unscaled, so the caller selects that with scaleByDisplay.
+static inline void GameViewControllerHitTestPanels(GameViewController *self,
+                                                   CGPoint pointInView,
+                                                   BOOL scaleByDisplay) {
+    CGFloat px = pointInView.x;
+    CGFloat py = pointInView.y;
+    if (scaleByDisplay) {
+        float scale = self->displayScale;
+        px /= scale;
+        py /= scale;
+    }
     for (unsigned int panel = 0; panel < kGamePanelCount; ++panel) {
         int adjusted = ((int)panel < 0) ? ((int)panel + 3) : (int)panel;
         int column = (int)panel - (adjusted & ~kHitTestColumnMask);
@@ -590,12 +601,10 @@ GameViewControllerAddScaledButton(GameViewController *self, UIImage *image, CGPo
 }
 
 // Deciphers a named archive member into a UIImage, returning nil when the member is missing or the
-// decipher fails. Repeated four times over the artwork and index textures in -loadResources.
-static inline UIImage *GameViewControllerDecipherImage(BFCodec *codec,
-                                                       KUnzip *archive,
-                                                       NSData *cipherKey,
-                                                       NSString *member) {
-    [codec cipherInit:cipherKey];
+// decipher fails. Repeated four times over the artwork and index textures in -loadResources. The
+// caller re-keys the codec, because the binary only does so before the first two of the four.
+static inline UIImage *
+GameViewControllerDecipherImage(BFCodec *codec, KUnzip *archive, NSString *member) {
     NSMutableData *data = [archive uncompress:member];
     if (data != nil && [codec decipher:data]) {
         return [[UIImage alloc] initWithData:data];
@@ -773,28 +782,34 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
                 [self.mainGameRenderer endResult];
                 return;
             }
-            GameViewControllerSaveAndReportScore(self);
+            // The challenge arm has no isCustom split: it saves and reports unconditionally.
+            if (self->scoreSaved) {
+                [self saveScore];
+                GameViewControllerReportTotalScore(self);
+            }
             [audio playSeResFile:[self soundName:kDecideSoundName] inDirectory:nil];
             [audio fadeoutBgm:1.0];
             if (self->bItemChance) {
-                CGFloat viewWidth = self.view.frame.size.width;
                 CGFloat gameOffset = [self.mainGameRenderer gameAreaOffset];
-                CGFloat centerX;
+                CGFloat centerY;
                 if (!self->isPad) {
-                    centerX = self.view.frame.size.width * 0.5;
+                    centerY = self.view.frame.size.height * 0.5;
                 } else {
-                    centerX = (double)(int)gameOffset +
-                              (self.view.frame.size.width - (double)(int)gameOffset) * 0.5;
+                    centerY = (double)(int)gameOffset +
+                              (self.view.frame.size.height - (double)(int)gameOffset) * 0.5;
                 }
+                // The binary truncates the vertical centre to an integer and widens it back.
+                CGFloat centerYWhole = (double)(int)centerY;
                 if (self.twitterBtn != nil) {
                     [self.twitterBtn setHidden:YES];
                 }
                 CGSize boundsSize = self.view.bounds.size;
-                [self->itemChanceRender setInfo:self->chanceItemType
-                                        itemNum:self->chanceItemNum
-                                           size:CGSizeMake(viewWidth, boundsSize.height)
-                                         center:CGPointMake(centerX, boundsSize.width * 0.5)
-                                          scale:self->displayScale];
+                [self->itemChanceRender
+                    setInfo:self->chanceItemType
+                    itemNum:self->chanceItemNum
+                       size:boundsSize
+                     center:CGPointMake(self.view.frame.size.width * 0.5, centerYWhole)
+                      scale:self->displayScale];
                 [self.mainGameRenderer setState:kRendererStateItemChance];
                 return;
             }
@@ -805,24 +820,30 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
     }
 
     if (!self->isCustom) {
-        if (self->scoreSaved && [self.mainGameRenderer subState] == kRendererSubStateReady) {
-            unsigned int tweetButton = 1u << ([self.mainGameRenderer twitterSendButtonID] & 0x1f);
-            if ((tweetButton & self->buttonUp) != 0) {
-                ResultTweet *tweet = [[ResultTweet alloc] initWithInfo:self.sequence
-                                                                  conf:self->confBak];
-                [tweet setTitle:self->indexBBak white:self->indexWBak];
-                UIImage *tweetImage = [tweet generateTweetImage];
-                UIImageView *tweetView = [[UIImageView alloc] initWithImage:tweetImage];
-                int score = self.sequence.getScore->totalPoint;
-                NSString *message = [NSString
-                    stringWithFormat:kTweetMessageFormat, self.currentTune.name, score, kTweetURL];
-                [self sendTwitter:tweetView.image mesStr:message];
+        // Only a saved score ends the handler here; an unsaved one falls through to the
+        // store-move test below, matching the binary's two entries into that block.
+        if (self->scoreSaved) {
+            if ([self.mainGameRenderer subState] == kRendererSubStateReady) {
+                unsigned int tweetButton = 1u
+                                           << ([self.mainGameRenderer twitterSendButtonID] & 0x1f);
+                if ((tweetButton & self->buttonUp) != 0) {
+                    ResultTweet *tweet = [[ResultTweet alloc] initWithInfo:self.sequence
+                                                                      conf:self->confBak];
+                    [tweet setTitle:self->indexBBak white:self->indexWBak];
+                    UIImage *tweetImage = [tweet generateTweetImage];
+                    // The image view is built and discarded; the tweet carries the raw image.
+                    (void)[[UIImageView alloc] initWithImage:tweetImage];
+                    int score = self.sequence.getScore->totalPoint;
+                    NSString *message = [NSString stringWithFormat:kTweetMessageFormat,
+                                                                   self.currentTune.name,
+                                                                   score,
+                                                                   kTweetURL];
+                    [self sendTwitter:tweetImage mesStr:message];
+                }
             }
+            return;
         }
-        return;
-    }
-
-    if (self->isDownload && self->hasMusic) {
+    } else if (self->isDownload && self->hasMusic) {
         if ([self.mainGameRenderer subState] == kRendererSubStateReady) {
             unsigned int evaluateButton = 1u << ([self.mainGameRenderer evaluateButtonID] & 0x1f);
             if ((evaluateButton & self->buttonUp) != 0) {
@@ -1172,18 +1193,20 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
                 [[AudioManager sharedManager] loadBgmData:bgm];
             }
 
-            artworkImage =
-                GameViewControllerDecipherImage(codec, archive, cipherKey, kArchiveArtworkMember);
-            indexImage =
-                GameViewControllerDecipherImage(codec, archive, cipherKey, indexTextureName);
+            [codec cipherInit:cipherKey];
+            artworkImage = GameViewControllerDecipherImage(codec, archive, kArchiveArtworkMember);
+            [codec cipherInit:cipherKey];
+            indexImage = GameViewControllerDecipherImage(codec, archive, indexTextureName);
 
+            // Yes, the binary re-keys the codec before the artwork and index textures but not
+            // before these two backups; they decipher from the carried-over cipher state.
             UIImage *nameBImage =
-                GameViewControllerDecipherImage(codec, archive, cipherKey, kArchiveNameBMember);
+                GameViewControllerDecipherImage(codec, archive, kArchiveNameBMember);
             if (nameBImage != nil) {
                 self->indexBBak = nameBImage;
             }
             UIImage *nameWImage =
-                GameViewControllerDecipherImage(codec, archive, cipherKey, kArchiveNameWMember);
+                GameViewControllerDecipherImage(codec, archive, kArchiveNameWMember);
             if (nameWImage != nil) {
                 self->indexWBak = nameWImage;
             }
@@ -1373,7 +1396,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
     if (!autoPlay) {
         for (id touch in touches) {
             CGPoint point = [touch locationInView:self.glView];
-            GameViewControllerHitTestPanels(self, point);
+            GameViewControllerHitTestPanels(self, point, YES);
         }
         if (!self->nowReplaying) {
             [self addGhostTouches];
@@ -1385,7 +1408,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
         }
         for (NSArray *event in events) {
             CGPoint point = CGPointMake([event[0] floatValue], [event[1] floatValue]);
-            GameViewControllerHitTestPanels(self, point);
+            GameViewControllerHitTestPanels(self, point, NO);
         }
         if (!self->nowReplaying) {
             [self addGhostTouches];
@@ -1698,8 +1721,8 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
     [UIView animateWithDuration:kEvaluateFadeDuration
         animations:^{
           /** @ghidraAddress 0x17a18 */
-          [weakEvaluate setAlpha:0.0];
           [weakCover setAlpha:0.0];
+          [weakEvaluate setAlpha:0.0];
         }
         completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x17ae0 */
@@ -1733,9 +1756,9 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
 - (void)sharePlayManager:(SharePlayManager *)manager startMusicTime:(float)musicTime {
     __weak GameViewController *weakSelf = self;
     [self.mainGameRenderer setSubState:kRendererSubStateReadyGo];
-    float readyGo = [self.mainGameRenderer durationOfReadyGo];
+    double readyGo = [self.mainGameRenderer durationOfReadyGo];
     dispatch_time_t when =
-        dispatch_time(0, (long)(((double)musicTime - (double)readyGo) * kNanosecondsPerSecond));
+        dispatch_time(0, (long)(((double)musicTime - readyGo) * kNanosecondsPerSecond));
     dispatch_after(when, dispatch_get_main_queue(), ^{
       /** @ghidraAddress 0x17cc8 */
       [weakSelf.mainGameRenderer setState:kRendererStateStarting];
@@ -1896,12 +1919,13 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
 
 /** @ghidraAddress 0x187c8 */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    return interfaceOrientation - 1 < 2;
+    // The binary compares unsigned (cset w0,cc), so orientation 0 wraps and returns NO.
+    return (NSUInteger)(interfaceOrientation - 1) < 2;
 }
 
 /** @ghidraAddress 0x187d8 */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return UIInterfaceOrientationMaskLandscape;
+    return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
 }
 
 /** @ghidraAddress 0x187e0 */
@@ -1914,15 +1938,17 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
 /** @ghidraAddress 0x187e8 */
 - (void)requestAddPlayCount {
     EditDataManager *editManager = [EditDataManager sharedManager];
-    NSString *fileName = [editManager getLastEditFileName:[self.currentTune tuneID]];
-    if (fileName && self->isDownload) {
-        if ([[editManager getEditorInfo] objectForKey:kEditorInfoSequenceIDKey] == nil) {
+    // The first look-up is only the entry guard; its result never reaches the request.
+    NSString *guardName = [editManager getLastEditFileName:[self.currentTune tuneID]];
+    if (guardName && self->isDownload) {
+        NSString *sequenceID = [editManager getEditorInfo][kEditorInfoSequenceIDKey];
+        if (sequenceID == nil) {
             NSString *lastName = [editManager getLastEditFileName:[self.currentTune tuneID]];
-            fileName = [lastName substringToIndex:[lastName length] - 4];
+            sequenceID = [lastName substringToIndex:[lastName length] - kEditFileNameSuffixLength];
         }
         jubeatLabAccess *access = [[jubeatLabAccess alloc] initPlayApi:self
                                                                 tuneID:[self.currentTune tuneID]
-                                                                 seqID:fileName];
+                                                                 seqID:sequenceID];
         self->playCountAccess = access;
         if (self->playCountAccess) {
             [self->playCountAccess startAccess];
