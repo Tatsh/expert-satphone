@@ -278,6 +278,7 @@ lubyte
 luint
 lushort
 maeda
+mainbd
 mainpage
 malloc
 malloc'd

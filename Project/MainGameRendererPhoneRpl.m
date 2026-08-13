@@ -94,8 +94,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 - (instancetype)init {
     if ((self = [super init])) {
         // The background ripple pool and the upper-background ripple pool, each up to 64 sprites.
-        self.arrayBgRip = [[NSMutableArray alloc] initWithCapacity:0x40];
-        self.arrayUpperBgRip = [[NSMutableArray alloc] initWithCapacity:0x40];
+        self.arrayBgRip = [NSMutableArray arrayWithCapacity:0x40];
+        self.arrayUpperBgRip = [NSMutableArray arrayWithCapacity:0x40];
         isRetina = JubeatAppDelegate.appDelegate.isPhoneRetina;
         is4Inch = JubeatAppDelegate.appDelegate.is4inchAspect;
     }
@@ -145,16 +145,22 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const unsigned int kComboSpriteBackground = 0;
 
     // The partner-name label's bold system font size, per idiom.
-    static const CGFloat kPartnerNameFontSizeRetina = 20.0;
-    static const CGFloat kPartnerNameFontSize = 10.0;
+    static const CGFloat kPartnerNameFontSizeRetina = 20.0; // An fmov immediate.
+    static const CGFloat kPartnerNameFontSize = 11.0;       // An fmov immediate.
 
     // The upper-background ripple pool: 50 sprites on the four-inch phone, 40 otherwise, seeded
     // from arc4random.
     static const unsigned int kUpperBgXBase = 0x140;   // 320, the field width
     static const unsigned int kUpperBgYBias = 0x8c;    // 140
     static const unsigned int kUpperBgYMod = 0x50;     // 80
-    static const float kUpperBgYPeriodDiv = 30.0f;     // An fmov immediate.
+    static const float kUpperBgXSpeedDiv = 30.0f;      // An fmov immediate (0x41f00000).
     static const float kUpperBgMagScale = 0.00390625f; // @ghidraAddress 0x292a90 (1/256)
+
+    // The user's ripple-colour preference selects the background resource. It is compared as a
+    // 32-bit unsigned value, so any tier above the maximum (including a negative one) falls
+    // back to tier 0.
+    static NSString *const kColorRipplesKey = @"PrefColorRipples"; // @ghidraAddress 0x2db500
+    static const unsigned int kMaxRippleBackgroundTier = 3;
 
     NSData *cipherKey = CreateTextureCipherKey();
     BFCodec *cipher = [[BFCodec alloc] init];
@@ -211,7 +217,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     LoadTextureSubImageFromEncryptedTex(
         self.texFront, @"game_front_rpl_tex_pn2", cipher, CGPointMake(0.0, 0.0));
     LoadTextureSubImageFromResource(self.texFront,
-                                    [NSString stringWithFormat:@"game_mbar_%s_rpl_pn2", diffCode],
+                                    [NSString stringWithFormat:@"mbr_mainbd_%s_rpl_pn2", diffCode],
                                     [self.texFront spriteAtIndex:kFrontSpriteMusicBar].origin);
     LoadTextureSubImageFromResource(self.texFront,
                                     [NSString stringWithFormat:@"game_lv_%d_rpl", (int)conf.level],
@@ -224,7 +230,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                                     [self.texFront spriteAtIndex:kFrontSpriteEndMark].origin);
 
     // Build the combo atlas from its plist and one encrypted image, then re-key the cipher and blit
-    // the background art from the tension-tier-0 background resource into it.
+    // the background art for the user's colour tier into it.
     @autoreleasepool {
         if (self.texCombo) {
             self.texCombo = nil;
@@ -241,11 +247,14 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         [cipher cipherInit:cipherKey]; // Yes, the binary re-keys the cipher here.
     }
 
-    // A colour-ripples user preference is read for effect; the binary discards the result.
-    (void)[NSUserDefaults.standardUserDefaults integerForKey:@"PrefColorRipples"];
-    NSString *bgPath =
-        [NSBundle.mainBundle pathForResource:[NSString stringWithFormat:@"game_bg_rpl_%d", 0]
-                                      ofType:@"png"];
+    unsigned int bgTier =
+        (unsigned int)[NSUserDefaults.standardUserDefaults integerForKey:kColorRipplesKey];
+    if (bgTier > kMaxRippleBackgroundTier) {
+        bgTier = 0;
+    }
+    NSString *bgPath = [NSBundle.mainBundle
+        pathForResource:[NSString stringWithFormat:@"game_bg_rpl_%d", (int)bgTier]
+                 ofType:@"png"];
     if (bgPath) {
         UIImage *bgImage = [[UIImage alloc] initWithContentsOfFile:bgPath];
         [self.texCombo setSubImage:bgImage
@@ -385,26 +394,26 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     for (int i = 0; i < upperBgCount; ++i) {
         unsigned int yPeriod = (arc4random() % 10) * 0x1e + 0x96;
         NSUInteger sprite = (arc4random() & 3) | 0x10;
-        float xSpeed = (float)(arc4random() % 10 + 3) / kUpperBgYPeriodDiv;
+        unsigned int atX = arc4random() % kUpperBgXBase;
+        unsigned int atY = arc4random() % kUpperBgYMod + kUpperBgYBias;
+        float xSpeed = (float)(arc4random() % 10 + 3) / kUpperBgXSpeedDiv;
         int yGroundBias = is4Inch ? 0x96 : 0x7c;
         float yGround = (float)(yGroundBias + arc4random() % 0x14);
         int yAmpBias = is4Inch ? 5 : 4;
         float yAmp = (float)(yAmpBias + (arc4random() & 7));
-        unsigned int yPhaseRaw = arc4random() % 0x55 + 0xf;
-        unsigned int atX = arc4random() % kUpperBgXBase;
-        unsigned int atY = arc4random() % kUpperBgYMod + kUpperBgYBias;
-        unsigned int yCenterRaw = arc4random();
-        unsigned int phase = (yPeriod != 0) ? (yCenterRaw % yPeriod) : 0;
+        float yCenter = (float)(arc4random() % 0x55 + 0xf);
+        // The binary divides unguarded; yPeriod is at least 0x96, so it is never zero.
+        unsigned int yPhase = arc4random() % yPeriod;
         float mag = (float)((arc4random() & 0x3f) + 0x30) * kUpperBgMagScale;
         UpperBGRipple *ripple =
             [[UpperBGRipple alloc] initWithSprite:sprite
                                           atPoint:CGPointMake((double)atX, (double)atY)
-                                           xSpeed:(float)yPeriod
-                                          yGround:xSpeed
-                                             yAmp:yGround
-                                          yCenter:yAmp
-                                          yPeriod:yPhaseRaw
-                                           yPhase:phase
+                                           xSpeed:xSpeed
+                                          yGround:yGround
+                                             yAmp:yAmp
+                                          yCenter:yCenter
+                                          yPeriod:yPeriod
+                                           yPhase:yPhase
                                               mag:mag];
         [self.arrayUpperBgRip addObject:ripple];
     }
@@ -414,10 +423,42 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 
 /** @ghidraAddress 0x149464 */
 - (void)loadResultTex:(short)rank {
-    // The result-screen rating (rank judgement) graphics are blitted into the front atlas by
-    // -renderRating: directly; -loadResultTex: is a nine-way jump table that this build leaves with
-    // no reachable body for ranks 0..7, so nothing is loaded here.
-    (void)rank;
+    // The eight per-rank judgement resources, chosen by an eight-way jump table at 0x149680; every
+    // arm falls into the common blit below. The bound check at 0x149484 is an unsigned compare, so
+    // any rank outside 0..7 loads nothing.
+    static NSString *const kJudgementResources[] = {
+        @"res_judgement_e_rpl",   // 0x2dc900
+        @"res_judgement_d_rpl",   // 0x2dc920
+        @"res_judgement_c_rpl",   // 0x2dc940
+        @"res_judgement_b_rpl",   // 0x2dc960
+        @"res_judgement_a_rpl",   // 0x2dc980
+        @"res_judgement_s_rpl",   // 0x2dc9a0
+        @"res_judgement_ss_rpl",  // 0x2dc9c0
+        @"res_judgement_sss_rpl", // 0x2dc9e0
+    };
+    static const unsigned int kRankJudgementCount = 8;
+    // The front-atlas slot the rank judgement glyph blits into.
+    static const unsigned int kFrontSpriteRating = 0x39;
+    // -spriteAtIndex: already halves the rect when the atlas is marked scale-2x, so doubling it
+    // here restores the texel rect. The binary doubles with fadd (x + x) at 0x1495c0; there is no
+    // pool constant involved.
+    static const CGFloat kRetinaTexelScale = 2.0;
+
+    if ((unsigned int)rank >= kRankJudgementCount) {
+        return;
+    }
+    NSString *resource = kJudgementResources[rank];
+    NSString *path = [NSBundle.mainBundle pathForResource:resource ofType:@"png"];
+    CGRect slot = [self.texFront spriteAtIndex:kFrontSpriteRating];
+    if (isRetina) {
+        slot = CGRectMake(slot.origin.x * kRetinaTexelScale,
+                          slot.origin.y * kRetinaTexelScale,
+                          slot.size.width * kRetinaTexelScale,
+                          slot.size.height * kRetinaTexelScale);
+    }
+    if (path) {
+        [self.texFront setSubImage:[[UIImage alloc] initWithContentsOfFile:path] inRect:slot];
+    }
 }
 
 /** @ghidraAddress 0x1496a0 */
@@ -451,7 +492,9 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         if (!self.sePlayerGo) {
             NSString *path = [NSBundle.mainBundle pathForResource:@"SD_RPL_CV_GO" ofType:@"caf"];
             NSURL *url = [NSURL fileURLWithPath:path];
-            self.sePlayerGo = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:nil];
+            NSError *error = nil;
+            // The binary passes the out-parameter and then discards it without reading it.
+            self.sePlayerGo = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&error];
             [self.sePlayerGo prepareToPlay];
         }
         break;
@@ -496,12 +539,13 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         return;
     }
     self.replayPlaying = YES;
-    // spriteAtIndex: 0x17 is read only to size the shared draw scratch; the point then read is the
-    // atlas origin, so the start mark reloads at (0, 0).
+    // The start mark is re-blitted over its own slot in the front atlas, so the destination point
+    // is that sprite's origin.
+    static const unsigned int kStartMarkSprite = 0x17;
     self.texFront.isScale2x = NO;
-    (void)[self.texFront spriteAtIndex:0x17];
-    LoadTextureSubImageFromResource(
-        self.texFront, @"game_start_mark_rpl_pn2", CGPointMake(0.0, 0.0));
+    LoadTextureSubImageFromResource(self.texFront,
+                                    @"game_start_mark_rpl_pn2",
+                                    [self.texFront spriteAtIndex:kStartMarkSprite].origin);
     self.texFront.isScale2x = YES;
     self.isTextureChange = NO;
 
@@ -617,8 +661,9 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     float alphaOuter = 0.13f; // fVar13 (draw 4 alpha)
     (void)scaleMid;
     if ((int)f < 0) {
-        // Faithful: a negative frame counter draws nothing (every alpha stays zero).
-        scaleInner = 0.0f;
+        // Faithful: a negative frame counter draws nothing (every alpha stays zero). The binary
+        // still stores 1.0f into both the first and third draws' scale slots.
+        scaleInner = 1.0f;
         scaleThird = 1.0f;
         scaleOuter = 1.0f;
         alphaInner = 0.0f;
@@ -669,8 +714,9 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                 scaleThird = InterpolateFloatByFrame(1.2f, 0.89f, p, 0xb, 0x12);
                 alphaThird = InterpolateFloatByFrame(0.07f, 0.33f, p, 0xb, 0x12);
             } else {
-                scaleThird = InterpolateFloatByFrame(0.89f, 1.0f, p, 0x12, 0x1e);  // @0x292aa0
-                alphaThird = InterpolateFloatByFrame(0.33f, 0.33f, p, 0x12, 0x1e); // @0x292aa4
+                scaleThird = InterpolateFloatByFrame(0.89f, 1.0f, p, 0x12, 0x1e); // @0x292aa0
+                alphaThird =
+                    InterpolateFloatByFrame(0.33f, 0.13f, p, 0x12, 0x1e); // @0x292aa4/@0x292a98
             }
         }
         scaleInner = 1.0f;
@@ -782,8 +828,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const double kTitleChipYOffset = -5.0;
     static const double kDifficultyXOffset = 8.0;
     static const double kDifficultyYOffset = 32.0; // @ghidraAddress 0x28f458
-    static const double kLevelYNudgeRetina = 4.0;
-    static const double kLevelYNudge = 3.0;
+    static const double kLevelYNudgeRetina = 3.0;  // An fmov immediate (0x4008000000000000).
+    static const double kLevelYNudge = 4.0;        // An fmov immediate (0x4010000000000000).
     static const NSUInteger kTuneInfoSpriteJacket = 0x20;
     static const NSUInteger kTuneInfoSpriteTitle = 0x21;
     static const NSUInteger kTuneInfoSpriteDiffExtreme = 0x24;
@@ -791,7 +837,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const NSUInteger kTuneInfoSpriteDiffBasic = 0x22;
     static const NSUInteger kTuneInfoSpriteDiffDefault = 0x25;
     static const NSUInteger kTuneInfoSpriteLevel = 0x27;
-    // The per-difficulty, per-retina level-word x nudge tables. Read from __const.
+    // The per-difficulty level-word x nudge tables, indexed by the isRetina byte
+    // (non-retina, retina). Read from __const.
     static const double kLevelXNudgeExtreme[] = {90.0, 80.0};   // @ghidraAddress 0x292ff0
     static const double kLevelXNudgeAdvanced[] = {102.0, 85.0}; // @ghidraAddress 0x293000
     static const double kLevelXNudgeBasic[] = {58.0, 50.0};     // @ghidraAddress 0x293010
@@ -827,7 +874,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         levelNudge = kLevelXNudgeDefault;
     }
     [self.texFront drawSprite:diffSprite atPoint:CGPointMake(x, y) transform:0 alpha:(float)alpha];
-    double levelXNudge = levelNudge[isRetina ? 0 : 1];
+    double levelXNudge = levelNudge[isRetina ? 1 : 0];
     double levelYNudge = isRetina ? kLevelYNudgeRetina : kLevelYNudge;
     [self.texFront drawSprite:kTuneInfoSpriteLevel
                       atPoint:CGPointMake(x + levelXNudge, y - levelYNudge)
@@ -885,8 +932,10 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const double kMusicBarY = 136.0;                // @ghidraAddress 0x28f768
     static const double kPartnerX = 194.0;                 // @ghidraAddress 0x291d10
     static const double kPartnerY = 74.0;                  // @ghidraAddress 0x28f6f8
-    static const double kPartnerScale = 0.7;               // @ghidraAddress 0x291c98
-    static const double kTuneInfoYDefault = 80.0;          // @ghidraAddress 0x28f3f8
+    // The pool slot holds 0x3FE6666660000000, a widened 0.7f, not the double 0.7.
+    static const double kPartnerScale = (double)0.7f; // @ghidraAddress 0x291c98
+    // The non-four-inch arm loads its jacket size from a standalone slot, not from the pair above.
+    static const double kTuneInfoArtworkDefault = 80.0; // @ghidraAddress 0x28f3f8
 
     double tuneY;
     double artworkSize;
@@ -895,9 +944,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         artworkSize = kTuneInfoArtwork[1];
     } else {
         tuneY = 12.0;
-        artworkSize = kTuneInfoArtwork[0];
+        artworkSize = kTuneInfoArtworkDefault;
     }
-    (void)kTuneInfoYDefault;
     [self renderTuneInfo:CGPointMake(8.0, tuneY) artworkSize:artworkSize alpha:1.0];
 
     double barY = is4Inch ? (double)(self.upperBgHeight40 + 0x84) : kMusicBarY;
@@ -924,12 +972,13 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 
 /** @ghidraAddress 0x14d420 */
 - (void)renderPreStart {
-    static const double kScoreX = 142.0;                   // @ghidraAddress 0x292e88
-    static const double kScoreY = 100.0;                   // @ghidraAddress 0x28f3f0
-    static const double kMusicBarY = 136.0;                // @ghidraAddress 0x28f768
-    static const double kPartnerX = 194.0;                 // @ghidraAddress 0x291d10
-    static const double kPartnerY = 74.0;                  // @ghidraAddress 0x28f6f8
-    static const double kPartnerScale = 0.7;               // @ghidraAddress 0x291c98
+    static const double kScoreX = 142.0;    // @ghidraAddress 0x292e88
+    static const double kScoreY = 100.0;    // @ghidraAddress 0x28f3f0
+    static const double kMusicBarY = 136.0; // @ghidraAddress 0x28f768
+    static const double kPartnerX = 194.0;  // @ghidraAddress 0x291d10
+    static const double kPartnerY = 74.0;   // @ghidraAddress 0x28f6f8
+    // The pool slot holds 0x3FE6666660000000, a widened 0.7f, not the double 0.7.
+    static const double kPartnerScale = (double)0.7f;      // @ghidraAddress 0x291c98
     static const double kTuneInfoArtwork[] = {80.0, 88.0}; // @ghidraAddress 0x292770
     static const float kSlideBase = 40.0f;                 // @ghidraAddress 0x292568
 
@@ -1168,67 +1217,73 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     if ((self->frame & 1) != 0) {
         NSUInteger spriteBits;
         int lifetime;
-        unsigned int spawnChance;
+        unsigned int baseSizeMod;
         unsigned int xRange;
         unsigned int yRange;
+        unsigned int spawnGate;
         if (tension < kTensionTier1) {
             spriteBits = (arc4random() & 3) + 1;
             lifetime = (int)(arc4random() % 6 + 0x1a);
-            spawnChance = 0x80;
+            baseSizeMod = 0x80;
             xRange = 0x8c;
+            spawnGate = 0xc;
             yRange = 0x8c;
         } else if (tension < kTensionTier2) {
             spriteBits = (arc4random() & 3) + 5;
             lifetime = (int)(arc4random() % 0x11 + 0x13);
-            spawnChance = 200;
+            baseSizeMod = 0xc8;
             xRange = 0xbe;
+            spawnGate = 0x11;
             yRange = 0xbe;
         } else if (tension < kTensionTier3) {
             spriteBits = (arc4random() & 3) + 9;
             lifetime = (int)(arc4random() % 0x16 + 0xc);
-            spawnChance = 0xe6;
+            baseSizeMod = 0xe6;
             xRange = 0x122;
+            spawnGate = 0x28;
             yRange = 0x122;
         } else if (tension < kTensionTier4) {
             spriteBits = (arc4random() & 3) + 0xd;
             lifetime = (int)(arc4random() % 0x12 + 0x1a);
-            spawnChance = 0x118;
-            xRange = 0x14a;
+            baseSizeMod = 0x118;
             yRange = 0x136;
+            xRange = 0x14a;
+            spawnGate = 0x32;
         } else {
             spriteBits = (arc4random() & 7) + 0x11;
             lifetime = (int)(arc4random() % 0x32 + 0x14);
-            spawnChance = 0x154;
-            xRange = 0x14a;
+            baseSizeMod = 0x154;
             yRange = 0xe6;
+            xRange = 0x14a;
+            spawnGate = 0x28;
         }
 
-        // Weighted by the tier's spawn chance (a further arc4random draw modulo 0x50 against the
-        // per-tier gate).
-        if (arc4random() % 0x50 < yRange) {
+        // The tier's own gate weights the spawn: a further draw modulo 0x50 must fall below it.
+        if (arc4random() % 0x50 < spawnGate) {
             unsigned int xr = arc4random();
-            unsigned int cx = (spawnChance != 0) ? (xr / spawnChance) : 0;
+            unsigned int cx = (baseSizeMod != 0) ? (xr / baseSizeMod) : 0;
             unsigned int yr = arc4random();
             unsigned int cy = (xRange != 0) ? (yr / xRange) : 0;
             unsigned int zr = arc4random();
             unsigned int cz = (yRange != 0) ? (zr / yRange) : 0;
             int gameTop =
                 is4Inch ? (self.buttonMarginForScreen40 + kFourInchGameTop) : kFourInchGameTop;
-            float baseSize = (float)(int)((xr - cx * spawnChance) + 0x80);
+            float baseSize = (float)(int)((xr - cx * baseSizeMod) + 0x80);
             float xSpeed = baseSize * kBgRippleMag;
             unsigned int life2 = arc4random() % 0x14 + 0x82;
-            (void)[self.texCombo spriteAtIndex:(unsigned int)spriteBits];
             CGPoint at =
                 CGPointMake((double)((yr + 0xb9) - (cy * xRange + (xRange >> 1))),
                             (double)((0xa0 - (yRange >> 1)) + (zr - cz * yRange) + gameTop));
-            BGRipple *ripple =
-                [[BGRipple alloc] initWithSprite:spriteBits
-                                         atPoint:at
-                                          xSpeed:xSpeed
-                                        lifetime:life2
-                                        basesize:rippleMag
-                                             mag:baseSize * kBgRippleMag2
-                                           alpha:(float)lifetime / kBgRippleAlphaDiv];
+            // The ripple is anchored on its own sprite's width, not on the base plate's pulse.
+            BGRipple *ripple = [[BGRipple alloc]
+                initWithSprite:spriteBits
+                       atPoint:at
+                        xSpeed:xSpeed
+                      lifetime:life2
+                      basesize:(float)[self.texCombo spriteAtIndex:(unsigned int)spriteBits]
+                                   .size.width
+                           mag:baseSize * kBgRippleMag2
+                         alpha:(float)lifetime / kBgRippleAlphaDiv];
             [self.arrayBgRip addObject:ripple];
         }
     }
@@ -1390,12 +1445,14 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 
 /** @ghidraAddress 0x14affc */
 - (void)renderCombo:(unsigned int)combo alpha:(float)alpha {
-    static const float kFadeDivisor = 100.0f;          // @ghidraAddress 0x28f4e0
-    static const double kComboBurstX = 160.0;          // @ghidraAddress 0x28f438
-    static const float kComboBurstMirrorX = 320.0f;    // An fmov immediate.
-    static const float kComboBurstTopDefault = 360.0f; // An fmov immediate.
+    static const float kFadeDivisor = 100.0f; // @ghidraAddress 0x28f4e0
+    static const double kComboBurstX = 160.0; // @ghidraAddress 0x28f438
+    // The mirrored burst reflects about the field centre, not its right edge.
+    static const float kComboBurstMirrorX = 160.0f;    // @ghidraAddress 0x28e014
+    static const float kComboBurstTopDefault = 260.0f; // @ghidraAddress 0x292f98
     static const int kComboDigitStride = 0x4e;         // 78
     static const int kComboRowWidth = 0x140;           // 320
+    static const NSUInteger kComboBurstSprite = 0x1f;
     static const NSUInteger kComboWordSprite = 0x1e;
 
     if (self.scoreBackup) {
@@ -1418,8 +1475,10 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     }
     if (drawBurst) {
         if (self.showCombo) {
-            (void)[self.texCombo spriteAtIndex:0x1f];
+            CGRect burstRect = [self.texCombo spriteAtIndex:kComboBurstSprite];
             float scale = InterpolateFloatByFrame(2.5f, 1.0f, self->comboCutFrame, 0, 8);
+            // The sprite's own width carries the burst factor; its height passes through unscaled.
+            float burstWidth = (float)(burstRect.size.width * (double)scale);
             float from;
             float to;
             unsigned int start;
@@ -1436,17 +1495,20 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                 to = 0.54f;   // @0x292ad4
             }
             float burstAlpha = InterpolateFloatByFrame(from, to, self->comboCutFrame, start, end);
-            // The burst-scale is passed as the rect width; the alpha is the fade. Its second draw
-            // mirrors it across the field.
-            [self.texCombo drawSprite:0x1f
-                               inRect:CGRectMake(kComboBurstX, (double)comboTop, (double)scale, 0.0)
+            // The pair spans [160 - w, 160] and [160, 160 + w] about the field's centre line, the
+            // second draw mirrored.
+            [self.texCombo drawSprite:kComboBurstSprite
+                               inRect:CGRectMake(kComboBurstX,
+                                                 (double)comboTop,
+                                                 (double)burstWidth,
+                                                 burstRect.size.height)
                             transform:0
                                 alpha:burstAlpha];
-            [self.texCombo drawSprite:0x1f
-                               inRect:CGRectMake((double)(kComboBurstMirrorX - scale),
+            [self.texCombo drawSprite:kComboBurstSprite
+                               inRect:CGRectMake((double)(kComboBurstMirrorX - burstWidth),
                                                  (double)comboTop,
-                                                 (double)scale,
-                                                 0.0)
+                                                 (double)burstWidth,
+                                                 burstRect.size.height)
                             transform:5
                                 alpha:burstAlpha];
         }
@@ -1536,8 +1598,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
             [self.texFront
                 drawSprite:(NSUInteger)((long)digits[i] + 0x20)
                    atPoint:CGPointMake(point.x + (double)(digitPitch * (i + 1)) + 1.0, point.y)
-                 transform:(char)(int)(float)alpha
-                     alpha:0];
+                 transform:0
+                     alpha:(float)alpha];
         } else {
             lastNonDigit = i;
         }
@@ -1545,126 +1607,127 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     [self.texFront
         drawSprite:kScorePrefixSprite
            atPoint:CGPointMake(point.x + (double)(digitPitch * (lastNonDigit + 1)) + 1.0, point.y)
-         transform:(char)(int)(float)alpha
-             alpha:0];
+         transform:0
+             alpha:(float)alpha];
 }
 
 /** @ghidraAddress 0x14b6a0 */
 - (void)renderScore:(unsigned int)score atPoint:(CGPoint)point alpha:(double)alpha {
-    static const unsigned int kScoreRankThreshold = 0xaae60; // 700000
+    // This routine compares against 700001 where -renderPartnerScore: compares against 700000
+    // with an unsigned "greater than", so both take the high glyph base only above 700000.
+    static const unsigned int kScoreRankThreshold = 0xaae61; // 700001
     static const int kScoreDigitStride = 0x19;               // 25
     static const int kScoreRollupDivisor = 1000000;
     static const NSUInteger kScoreLabelSprite = 0x1b;
+    static const NSUInteger kScoreInnerSprite = 0x1c;
     static const NSUInteger kScoreBoardLowSprite = 0x1d;
     static const NSUInteger kScoreBoardHighSprite = 0x1e;
-    static const float kScoreWidthScale4Inch = 1.3f; // An fmov immediate.
+    static const float kScoreGlyphScale4Inch = 1.2f;                // @ghidraAddress 0x292aa8
+    static const double kScoreWidthScale4Inch = 1.2000000476837158; // @ghidraAddress 0x292f38
+    // The source region is measured in double-density texels. The four-inch phone is always
+    // retina, so its region is doubled unconditionally.
+    static const double kRetinaRegionScale = 2.0;
 
-    (void)[self.texFront spriteAtIndex:0x1c];
+    CGRect innerBoard = [self.texFront spriteAtIndex:kScoreInnerSprite];
     if (score == 0) {
         self->scoreDisplay = 0;
     } else if (self->scoreDisplay != score) {
-        int step = (self->scoreDisplay < score) ? 1 : -1;
-        self->scoreDisplay = self->scoreDisplay + (((int)(score - self->scoreDisplay) + step) >> 1);
+        // Tween the displayed value halfway to the target, rounding away from the current value.
+        // The halving is a logical shift, as the binary's LSR #1 at 0x14b760.
+        unsigned int step = (self->scoreDisplay < score) ? 1u : (unsigned int)-1;
+        self->scoreDisplay = self->scoreDisplay + (((score - self->scoreDisplay) + step) >> 1);
     }
     char digits[8];
     snprintf(digits, sizeof(digits), "%7d", self->scoreDisplay);
 
     // The glyph base and rollup source depend on whether the shown score has crossed 700000.
+    CGRect board;
     long glyphBias;
     if (self->scoreDisplay < kScoreRankThreshold) {
-        (void)[self.texFront spriteAtIndex:kScoreBoardLowSprite];
+        board = [self.texFront spriteAtIndex:kScoreBoardLowSprite];
         glyphBias = 0xb;
     } else {
-        (void)[self.texFront spriteAtIndex:kScoreBoardHighSprite];
+        board = [self.texFront spriteAtIndex:kScoreBoardHighSprite];
         glyphBias = 0x15;
     }
-    unsigned int rollupNumer = self->scoreDisplay * ((int)alpha + 3);
-    double rollupWidth = (double)(rollupNumer / kScoreRollupDivisor);
-    if (alpha <= rollupWidth) {
-        rollupWidth = alpha;
-    }
+    unsigned int rollupNumer = self->scoreDisplay * ((int)innerBoard.size.width + 3);
+    double quotient = (double)(rollupNumer / (unsigned int)kScoreRollupDivisor);
+    // The fill's source x walks back from the board's right edge as the fill grows, and the fill
+    // itself is capped at the inner board's width.
+    double regX = board.origin.x + (board.size.width - quotient);
+    double rollupWidth = (quotient < innerBoard.size.width) ? quotient : innerBoard.size.width;
 
     if (!is4Inch) {
         // The label board, the rollup region (once full), the inner board, then the digits.
         [self.texFront drawSprite:kScoreLabelSprite
                           atPoint:CGPointMake(point.x, point.y)
-                        transform:(char)(int)(float)alpha
-                            alpha:0];
+                        transform:0
+                            alpha:(float)alpha];
         if (rollupNumer >= (unsigned int)kScoreRollupDivisor) {
-            // The source region is measured in double-density texels on retina.
-            double dstW = rollupWidth;
-            double regW = alpha;
-            double regX = rollupWidth; // fromRegion x; the source is offset by the shown width
-            double srcW = alpha;
-            if (isRetina) {
-                regX += regX;
-                dstW = rollupWidth; // destination stays in points
-                srcW += srcW;
-                regW += regW;
-            }
-            (void)regW;
-            [self.texFront drawInRect:CGRectMake(point.x, point.y, rollupWidth, alpha)
-                           fromRegion:CGRectMake(regX, point.y, srcW, alpha)
+            double regionScale = isRetina ? kRetinaRegionScale : 1.0;
+            [self.texFront drawInRect:CGRectMake(point.x, point.y, rollupWidth, board.size.height)
+                           fromRegion:CGRectMake(regX * regionScale,
+                                                 board.origin.y * regionScale,
+                                                 rollupWidth * regionScale,
+                                                 board.size.height * regionScale)
                             transform:0
-                                alpha:0.0f];
-            (void)dstW;
+                                alpha:1.0f];
         }
-        [self.texFront drawSprite:0x1c
+        [self.texFront drawSprite:kScoreInnerSprite
                           atPoint:CGPointMake(point.x, point.y)
-                        transform:(char)(int)(float)alpha
-                            alpha:0];
+                        transform:0
+                            alpha:(float)alpha];
         for (int i = 0; i < 7; ++i) {
             if ((unsigned char)(digits[i] - '0') < 10) {
                 [self.texFront
                     drawSprite:(NSUInteger)((long)digits[i] + glyphBias)
                        atPoint:CGPointMake(point.x + (double)(i * kScoreDigitStride), point.y)
-                     transform:(char)(int)(float)alpha
-                         alpha:0];
+                     transform:0
+                         alpha:(float)alpha];
             }
         }
     } else {
-        // The four-inch phone stretches the run to 1.3x about the passed anchor.
-        double anchorX = point.x + alpha;
-        double anchorY = point.y + alpha;
-        (void)anchorX;
-        (void)anchorY;
+        // The four-inch phone stretches the run to 1.2x about the inner board's far corner.
+        double anchorX = point.x + innerBoard.size.width;
+        double anchorY = point.y + innerBoard.size.height;
+        CGPoint anchor = CGPointMake(anchorX, anchorY);
         [self.texFront drawSprite:kScoreLabelSprite
                           atPoint:CGPointMake(point.x, point.y)
-                            scale:1.2f
+                            scale:kScoreGlyphScale4Inch
                            rotate:0.0f
-                           anchor:CGPointMake(point.x + alpha, point.y + alpha)
-                        transform:(char)(int)(float)alpha
-                            alpha:0];
+                           anchor:anchor
+                        transform:0
+                            alpha:(float)alpha];
         if (rollupNumer >= (unsigned int)kScoreRollupDivisor) {
             double s = kScoreWidthScale4Inch;
-            [self.texFront drawInRect:CGRectMake((point.x + alpha) - rollupWidth * s,
-                                                 (point.y + alpha) - alpha * s,
+            [self.texFront drawInRect:CGRectMake(anchorX - innerBoard.size.width * s,
+                                                 anchorY - innerBoard.size.height * s,
                                                  rollupWidth * s,
-                                                 alpha * s)
-                           fromRegion:CGRectMake(rollupWidth + rollupWidth,
-                                                 point.y + point.y,
-                                                 alpha + alpha,
-                                                 alpha + alpha)
+                                                 board.size.height * s)
+                           fromRegion:CGRectMake(regX * kRetinaRegionScale,
+                                                 board.origin.y * kRetinaRegionScale,
+                                                 rollupWidth * kRetinaRegionScale,
+                                                 board.size.height * kRetinaRegionScale)
                             transform:0
-                                alpha:0.0f];
+                                alpha:1.0f];
         }
-        [self.texFront drawSprite:0x1c
+        [self.texFront drawSprite:kScoreInnerSprite
                           atPoint:CGPointMake(point.x, point.y)
-                            scale:1.2f
+                            scale:kScoreGlyphScale4Inch
                            rotate:0.0f
-                           anchor:CGPointMake(point.x + alpha, point.y + alpha)
-                        transform:(char)(int)(float)alpha
-                            alpha:0];
+                           anchor:anchor
+                        transform:0
+                            alpha:(float)alpha];
         for (int i = 0; i < 7; ++i) {
             if ((unsigned char)(digits[i] - '0') < 10) {
                 [self.texFront
                     drawSprite:(NSUInteger)((long)digits[i] + glyphBias)
                        atPoint:CGPointMake(point.x + (double)(i * kScoreDigitStride), point.y)
-                         scale:1.2f
+                         scale:kScoreGlyphScale4Inch
                         rotate:0.0f
-                        anchor:CGPointMake(point.x + alpha, point.y + alpha)
-                     transform:(char)(int)(float)alpha
-                         alpha:0];
+                        anchor:anchor
+                     transform:0
+                         alpha:(float)alpha];
             }
         }
     }
@@ -1679,54 +1742,62 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const int kScoreDigitStride = 0x19;               // 25
     static const double kPartnerLabelDX = 1.0;
     static const double kPartnerLabelDY = -14.0;
+    static const NSUInteger kPartnerBoardSprite = 0x1b;
     static const NSUInteger kScoreLabelSprite = 0x1c;
+    static const NSUInteger kPartnerDigitSprite = 0x3b;
     static const NSUInteger kPartnerLabelSprite = 0x3a;
 
     if (!self.isSession) {
         return;
     }
     double drawAlpha = self.isConnected ? alpha : (alpha * 0.5);
-    (void)[self.texFront spriteAtIndex:0x1c];
-    (void)[self.texFront spriteAtIndex:0x3b];
+    // The two board cells and the digit cells are sized from their own sprite rects, scaled.
+    CGRect boardCell = [self.texFront spriteAtIndex:kScoreLabelSprite];
+    CGRect digitCell = [self.texFront spriteAtIndex:kPartnerDigitSprite];
 
     if (score == 0) {
         self->partnerScoreDisplay = 0;
     } else if (self->partnerScoreDisplay != score) {
-        int step = (self->partnerScoreDisplay < score) ? 1 : -1;
+        // Tween the displayed value halfway to the target, rounding away from the current value.
+        // The halving is a logical shift, as the binary's LSR #1 at 0x14bd14.
+        unsigned int step = (self->partnerScoreDisplay < score) ? 1u : (unsigned int)-1;
         self->partnerScoreDisplay =
-            self->partnerScoreDisplay + (((int)(score - self->partnerScoreDisplay) + step) >> 1);
+            self->partnerScoreDisplay + (((score - self->partnerScoreDisplay) + step) >> 1);
     }
     char digits[8];
     snprintf(digits, sizeof(digits), "%7d", self->partnerScoreDisplay);
 
-    // The label and board are scaled about the passed scale; the partner run uses that scale for
-    // both the cell width and height.
+    double boardW = boardCell.size.width * scale;
+    double boardH = boardCell.size.height * scale;
+    [self.texFront drawSprite:kPartnerBoardSprite
+                       inRect:CGRectMake(point.x, point.y, boardW, boardH)
+                    transform:0
+                        alpha:(float)drawAlpha];
     [self.texFront drawSprite:kScoreLabelSprite
-                       inRect:CGRectMake(point.x, point.y, scale * scale, alpha * scale)
-                    transform:(char)(int)(float)drawAlpha
-                        alpha:0];
-    [self.texFront drawSprite:0x1c
-                       inRect:CGRectMake(point.x, point.y, scale * scale, alpha * scale)
-                    transform:(char)(int)(float)drawAlpha
-                        alpha:0];
-    long glyphBias = (self->partnerScoreDisplay < kScoreRankThreshold) ? 0xb : 0x15;
+                       inRect:CGRectMake(point.x, point.y, boardW, boardH)
+                    transform:0
+                        alpha:(float)drawAlpha];
+    // Unlike -renderScore:, this routine takes the high glyph base only above the threshold.
+    long glyphBias = (self->partnerScoreDisplay > kScoreRankThreshold) ? 0x15 : 0xb;
+    double digitW = digitCell.size.width * scale;
+    double digitH = digitCell.size.height * scale;
     for (int i = 0; i < 7; ++i) {
         if ((unsigned char)(digits[i] - '0') < 10) {
             [self.texFront
                 drawSprite:(NSUInteger)((long)digits[i] + glyphBias)
                     inRect:CGRectMake(point.x + (double)(i * kScoreDigitStride) * scale + 1.0,
                                       point.y,
-                                      scale * scale,
-                                      alpha * scale)
-                 transform:(char)(int)(float)drawAlpha
-                     alpha:0];
+                                      digitW,
+                                      digitH)
+                 transform:0
+                     alpha:(float)drawAlpha];
         }
     }
     // The partner-name chip (sprite 0x3a) sits just above and left of the run.
     [self.texFront drawSprite:kPartnerLabelSprite
                       atPoint:CGPointMake(point.x + kPartnerLabelDX, point.y + kPartnerLabelDY)
-                    transform:(char)(int)(float)drawAlpha
-                        alpha:0];
+                    transform:0
+                        alpha:(float)drawAlpha];
 }
 
 /** @ghidraAddress 0x14bf14 */
@@ -1746,10 +1817,9 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const int kCellPitch = 2;
     static const int kCellCount = 0x78;
 
-    [self.texFront drawSprite:kBackdropSprite
-                      atPoint:CGPointMake(pos.x, pos.y)
-                    transform:0
-                        alpha:(float)alpha];
+    // The backdrop takes the two-argument draw: it is always opaque and never transformed, so the
+    // run's fade does not reach it.
+    [self.texFront drawSprite:kBackdropSprite atPoint:CGPointMake(pos.x, pos.y)];
     if (!self.sequence) {
         return;
     }
@@ -1812,6 +1882,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const float kBouncePress = 10.0f;        // An fmov immediate.
     static const float kBounceCap = 80.0f;          // @ghidraAddress 0x28e018
     static const float kUpperBgGravity = 3.0f;      // via 0x40400000
+    static const float kUpperBgPreGravity = 0.2f;   // @ghidraAddress 0x28f3c8
+    static const float kUpperBgPreBounce = 0.3f;    // @ghidraAddress 0x28e0b0
     static const float kUpperBgResetX = 330.0f;     // @ghidraAddress 0x292f9c
     static const float kJumpBonus = 14.0f;          // An fmov immediate.
     static const NSUInteger kUpperPlateSprite = 0xc;
@@ -1878,9 +1950,10 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     }
 
     // Outside the pre-play states, the upper sprites bounce under button presses and the beat, then
-    // all upper ripples are stepped and rendered against the front atlas.
-    float gravity = kComboFadeBase;
-    float bounce = g_flKeyTime040;
+    // all upper ripples are stepped and rendered against the front atlas. Before play the ripples
+    // fall gently and keep 30% of their speed on landing.
+    float rippleGravity = kUpperBgPreGravity;
+    float rippleBounce = kUpperBgPreBounce;
     if (self.state != 0 && self.state != kRenderStatePreStart &&
         self.state != kRenderStateReadyGo) {
         self->bounceEnergy = self->bounceEnergy * kBounceDecay;
@@ -1890,8 +1963,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         if (self->bounceEnergy > kBounceCap) {
             self->bounceEnergy = kBounceCap;
         }
-        gravity = 0.0f;
-        bounce = kUpperBgGravity;
+        rippleGravity = kUpperBgGravity;
+        rippleBounce = 0.0f;
         if (!self.sequence) {
             self->lastHakuPhase = 0.0f;
         } else {
@@ -1907,7 +1980,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         }
     }
     for (UpperBGRipple *ripple in self.arrayUpperBgRip) {
-        [ripple stepFall:kUpperBgResetX gravity:bounce bounce:gravity];
+        [ripple stepFall:kUpperBgResetX gravity:rippleGravity bounce:rippleBounce];
         int yLimit = is4Inch ? (self.upperBgHeight40 + kFourInchGameTop) : 0x90;
         [ripple renderWithTexture:self.texFront yLimit:(float)yLimit];
     }
@@ -1928,21 +2001,18 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const double kGoCentreX0 = 75.0;   // @ghidraAddress 0x28f788
     static const double kGoCentreX1 = 245.0;  // @ghidraAddress 0x292f48
     static const float kGoScaleEnd = 0.2f;    // @ghidraAddress 0x28f3c8
-    // The ready-letter spread table (8 floats). @ghidraAddress 0x293288
-    static const float kReadyLetterSpread[] = {80.0f, 0.0f, 0.2f, 0.1f, 0.3f, 0.2f, 0.4f, 0.3f};
+    // The ready-letter spread table, read backwards from its last entry. @ghidraAddress 0x293278
+    static const float kReadyLetterSpread[] = {-80.0f, -42.0f, 0.0f, 43.0f, 80.0f};
     static const NSUInteger kDiscSprite = 0;
     static const NSUInteger kLetterSprite = 1;
 
     double centreY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x140) : kFieldWidth;
     unsigned int f = self->frame;
-    // The disc's rest scale/height carried into the "GO" phase.
-    double discW = 0.0;
-    double discH = 0.0;
 
     if (f < 0x14) {
         // Phase 1: the disc swells in from the field centre.
         float discAlpha = InterpolateFloatByFrame(0.0f, 1.0f, f, 5, 0xf);
-        discH = (double)(discAlpha * kDiscHeight);
+        double discH = (double)(discAlpha * kDiscHeight);
         [self.texReady0 drawSprite:kDiscSprite
                             inRect:CGRectMake(0.0, centreY + discH * -0.5, kFieldWidth, discH)
                          transform:0
@@ -1952,26 +2022,33 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         unsigned int p = f - 0x14;
         float discAlpha = InterpolateFloatByFrame(1.0f, 0.0f, p, 0, 0xe);
         float discScale = InterpolateFloatByFrame(1.0f, g_flKeyTime080, p, 0, 0xe);
-        discW = (double)(discScale * kDiscScale);
+        double discW = (double)(discScale * kDiscScale);
         float discHeight = InterpolateFloatByFrame(1.0f, kDiscScale2, p, 0, 0xe);
-        discH = (double)(discHeight * kDiscHeight);
+        double discH = (double)(discHeight * kDiscHeight);
         [self.texReady0
             drawSprite:kDiscSprite
                 inRect:CGRectMake(kCentreX - discW * 0.5, centreY - discH * 0.5, discW, discH)
              transform:0
                  alpha:discAlpha];
-        (void)[self.texReady0 spriteAtIndex:kLetterSprite];
-        double halfW = discW * 0.5;
-        double baseY = centreY - discH * 0.5;
+        CGRect letterRect = [self.texReady0 spriteAtIndex:kLetterSprite];
+        double halfW = letterRect.size.width * 0.5;
+        double halfH = letterRect.size.height * 0.5;
+        double baseY = centreY - halfH;
         // Letters slide in staggered; each letter's slide keyframe comes from the spread table.
-        for (long lv = 0; lv + 4 <= (long)(int)p; ++lv) {
-            float spr = kReadyLetterSpread[lv];
+        // The binary counts down, so lv runs 0, -1, -2, -3, -4: five iterations. The frame test
+        // is a continue rather than the loop's exit condition.
+        for (long lv = 0; lv >= -4; --lv) {
+            if ((long)(int)p < lv + 4) {
+                continue;
+            }
+            float spr = kReadyLetterSpread[lv + 4];
             unsigned int end = (unsigned int)(lv + 0xc);
             float slide = InterpolateFloatByFrame(0.0f, spr, p, (unsigned int)(lv + 4), end);
+            float letterFade = InterpolateFloatByFrame(0.0f, 1.0f, p, (unsigned int)(lv + 4), end);
             [self.texReady0 drawSprite:(NSUInteger)(lv + 5)
                                atPoint:CGPointMake((double)(slide + kLetterBaseX) - halfW, baseY)
                              transform:0
-                                 alpha:1.0f];
+                                 alpha:letterFade];
             if (lv + 10 <= (long)(int)p && (long)(int)p < lv + 0x1a) {
                 float from;
                 float to;
@@ -1989,67 +2066,68 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                     stop = (unsigned int)(lv + 0x1a);
                 }
                 float letterAlpha = InterpolateFloatByFrame(from, to, p, start, stop);
-                (void)letterAlpha;
-                [self.texReady0
-                    drawSprite:(NSUInteger)(lv + 10)
-                       atPoint:CGPointMake((double)(spr + kLetterBaseX) - discH * 0.5, baseY)
-                     transform:0
-                         alpha:letterAlpha];
+                // Yes, this second draw's x subtracts the sprite half-height, not the half-width.
+                [self.texReady0 drawSprite:(NSUInteger)(lv + 10)
+                                   atPoint:CGPointMake((double)(spr + kLetterBaseX) - halfH, baseY)
+                                 transform:0
+                                     alpha:letterAlpha];
             }
         }
     } else if (f < 0x36) {
-        // Phase 3: the disc blows up into five mirrored copies and fades.
-        (void)[self.texReady0 spriteAtIndex:kLetterSprite];
+        // Phase 3: the five READY glyphs shrink and fade out together at x = 80, 118, 160, 203,
+        // and 240. The transform is 0 on every draw, so nothing is mirrored.
+        CGRect letterRect = [self.texReady0 spriteAtIndex:kLetterSprite];
         float scale = InterpolateFloatByFrame(1.0f, kGoScaleEnd, self->frame, 0x32, 0x36);
         float alpha = InterpolateFloatByFrame(1.0f, 0.0f, self->frame, 0x32, 0x36);
-        discW = (double)scale;
-        double cy = centreY - discH * 0.5;
-        [self.texReady0 drawSprite:kDiscSprite
-                           atPoint:CGPointMake(kBlowFirstX - discW * 0.5, cy)
+        double halfLetterW = letterRect.size.width * 0.5;
+        double cy = centreY - letterRect.size.height * 0.5;
+        [self.texReady0 drawSprite:1
+                           atPoint:CGPointMake(kBlowFirstX - halfLetterW, cy)
                              scale:scale
                             rotate:0.0f
                             anchor:CGPointMake(kCentreX, centreY)
-                         transform:1
+                         transform:0
                              alpha:alpha];
-        [self.texReady0 drawSprite:kDiscSprite
-                           atPoint:CGPointMake(kGoX0 - discW * 0.5, cy)
+        [self.texReady0 drawSprite:2
+                           atPoint:CGPointMake(kGoX0 - halfLetterW, cy)
                              scale:scale
                             rotate:0.0f
                             anchor:CGPointMake(kCentreX, centreY)
-                         transform:2
+                         transform:0
                              alpha:alpha];
-        [self.texReady0 drawSprite:kDiscSprite
-                           atPoint:CGPointMake(kCentreX - discW * 0.5, cy)
+        [self.texReady0 drawSprite:3
+                           atPoint:CGPointMake(kCentreX - halfLetterW, cy)
                              scale:scale
                             rotate:0.0f
                             anchor:CGPointMake(kCentreX, centreY)
-                         transform:3
+                         transform:0
                              alpha:alpha];
-        [self.texReady0 drawSprite:kDiscSprite
-                           atPoint:CGPointMake(kGoX1 - discW * 0.5, cy)
+        [self.texReady0 drawSprite:4
+                           atPoint:CGPointMake(kGoX1 - halfLetterW, cy)
                              scale:scale
                             rotate:0.0f
                             anchor:CGPointMake(kCentreX, centreY)
-                         transform:4
+                         transform:0
                              alpha:alpha];
-        [self.texReady0 drawSprite:kDiscSprite
-                           atPoint:CGPointMake(kGoX2 - discW * 0.5, cy)
+        [self.texReady0 drawSprite:5
+                           atPoint:CGPointMake(kGoX2 - halfLetterW, cy)
                              scale:scale
                             rotate:0.0f
                             anchor:CGPointMake(kCentreX, centreY)
-                         transform:5
+                         transform:0
                              alpha:alpha];
     }
 
     // The "GO" chips (texReady1) spin and fade through frames 52..82.
-    (void)[self.texReady1 spriteAtIndex:0];
+    CGRect goRect = [self.texReady1 spriteAtIndex:0];
     unsigned int gf = self->frame;
     if (gf >= 0x34 && gf < 0x3a) {
-        double gy = centreY - discH * 0.5;
+        double goHalfW = goRect.size.width * 0.5;
+        double gy = centreY - goRect.size.height * 0.5;
         float sL = InterpolateFloatByFrame(g_flKeyTime040, 1.0f, gf, 0x34, 0x3a);
         float aL = InterpolateFloatByFrame(0.0f, 1.0f, self->frame, 0x34, 0x3a);
         [self.texReady1 drawSprite:0
-                           atPoint:CGPointMake(kGoCentreX0 - discW * 0.5, gy)
+                           atPoint:CGPointMake(kGoCentreX0 - goHalfW, gy)
                              scale:sL
                             rotate:0.0f
                             anchor:CGPointMake(kCentreX, centreY)
@@ -2058,23 +2136,24 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         float sR = InterpolateFloatByFrame(g_flKeyTime040, 1.0f, self->frame, 0x34, 0x3a);
         float aR = InterpolateFloatByFrame(0.0f, 1.0f, self->frame, 0x34, 0x3a);
         [self.texReady1 drawSprite:1
-                           atPoint:CGPointMake(kGoCentreX1 - discW * 0.5, gy)
+                           atPoint:CGPointMake(kGoCentreX1 - goHalfW, gy)
                              scale:sR
                             rotate:0.0f
                             anchor:CGPointMake(kCentreX, centreY)
-                         transform:1
+                         transform:0
                              alpha:aR];
     } else if (gf >= 0x3a && gf < 0x53) {
-        double gy = centreY - discH * 0.5;
-        double goX0 = kGoCentreX0 - discW * 0.5;
+        double goHalfW = goRect.size.width * 0.5;
+        double gy = centreY - goRect.size.height * 0.5;
+        double goX0 = kGoCentreX0 - goHalfW;
         float s0 = InterpolateFloatByFrame(1.0f, g_flKeyTime040, gf, 0x3a, 0x53);
         float a0 = InterpolateFloatByFrame(g_flKeyTime070, 0.0f, self->frame, 0x3a, 0x53);
-        [self.texReady1 drawSprite:0
+        [self.texReady1 drawSprite:2
                            atPoint:CGPointMake(goX0, gy)
                              scale:s0
                             rotate:0.0f
                             anchor:CGPointMake(kCentreX, centreY)
-                         transform:2
+                         transform:0
                              alpha:a0];
         float s1 = InterpolateFloatByFrame(1.0f, g_flKeyTime040, self->frame, 0x3a, 0x51);
         float a1 = InterpolateFloatByFrame(1.0f, 0.0f, self->frame, 0x3a, 0x51);
@@ -2085,15 +2164,15 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                             anchor:CGPointMake(kCentreX, centreY)
                          transform:0
                              alpha:a1];
-        double goX1 = kGoCentreX1 - discW * 0.5;
+        double goX1 = kGoCentreX1 - goHalfW;
         float s2 = InterpolateFloatByFrame(1.0f, g_flKeyTime040, self->frame, 0x3a, 0x53);
         float a2 = InterpolateFloatByFrame(g_flKeyTime070, 0.0f, self->frame, 0x3a, 0x53);
-        [self.texReady1 drawSprite:1
+        [self.texReady1 drawSprite:3
                            atPoint:CGPointMake(goX1, gy)
                              scale:s2
                             rotate:0.0f
                             anchor:CGPointMake(kCentreX, centreY)
-                         transform:3
+                         transform:0
                              alpha:a2];
         float s3 = InterpolateFloatByFrame(1.0f, g_flKeyTime040, self->frame, 0x3a, 0x51);
         float a3 = InterpolateFloatByFrame(1.0f, 0.0f, self->frame, 0x3a, 0x51);
@@ -2102,7 +2181,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                              scale:s3
                             rotate:0.0f
                             anchor:CGPointMake(kCentreX, centreY)
-                         transform:1
+                         transform:0
                              alpha:a3];
     }
 
@@ -2116,7 +2195,6 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     if (self->frame >= 0x55) {
         self.subState = kMainGameEndSubState;
     }
-    (void)kDiscScale;
 }
 
 /** @ghidraAddress 0x14e254 */
@@ -2159,19 +2237,21 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     double cornerHalfW = cornerRect.size.width * 0.5;
 
     // Eight corner glyphs sweep in staggered by 6 frames each; two mirrored corners per row over
-    // four grid rows.
+    // four grid rows. The loop walks its own decrementing copy of the frame: the binary spills the
+    // parameter once at 0x14e2cc and reloads it untouched at 0x14e610 for everything below.
     int cornerX = 0x28;
     int mirrorRow = 0xf;
+    int cornerFrame = animFrame;
     for (int row = 0; row < 4; ++row) {
-        if (animFrame >= 0) {
+        if (cornerFrame >= 0) {
             float baseAlpha;
             unsigned int scaleStart;
             unsigned int scaleEnd;
             float scaleFrom;
             float scaleTo;
-            if (animFrame < 4) {
-                baseAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 4);
-                if (animFrame < 2) {
+            if (cornerFrame < 4) {
+                baseAlpha = InterpolateFloatByFrame(0.0f, 1.0f, cornerFrame, 0, 4);
+                if (cornerFrame < 2) {
                     scaleStart = 0;
                     scaleEnd = 2;
                     scaleFrom = 1.0f;
@@ -2183,19 +2263,20 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                     scaleTo = kCornerScaleHigh;
                 }
             } else {
-                baseAlpha = InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 4, 0xc);
+                baseAlpha = InterpolateFloatByFrame(1.0f, 0.0f, cornerFrame, 4, 0xc);
                 scaleStart = 2;
                 scaleEnd = 0xc;
                 scaleFrom = kCornerScaleMid;
                 scaleTo = kCornerScaleHigh;
             }
             float scale =
-                InterpolateFloatByFrame(scaleFrom, scaleTo, animFrame, scaleStart, scaleEnd);
+                InterpolateFloatByFrame(scaleFrom, scaleTo, cornerFrame, scaleStart, scaleEnd);
             int gameTop = is4Inch ? self.buttonMarginForScreen40 : 0;
-            double topY = (double)((row * kGridCellSize) + gameTop + 200);
+            // The binary really divides here, so this term is zero for every row: the first glyph
+            // of each pair stays on the top grid row.
+            double topY = (double)(((row / 4) * kGridCellSize) + gameTop + 200);
             [self.texFront drawSprite:kCornerSprite
-                              atPoint:CGPointMake((double)cornerX - cornerRect.size.width * 0.5,
-                                                  topY - cornerHalfH)
+                              atPoint:CGPointMake((double)cornerX - cornerHalfW, topY - cornerHalfH)
                                 scale:scale
                                rotate:0.0f
                                anchor:CGPointMake((double)cornerX, topY)
@@ -2203,18 +2284,18 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                                 alpha:baseAlpha];
             int mirrorX = (mirrorRow % 4) * kGridCellSize + kButtonCellInset;
             double mirrorTop = (double)(((mirrorRow >> 2) * kGridCellSize) + gameTop + 200);
-            [self.texFront drawSprite:kCornerSprite
-                              atPoint:CGPointMake((double)mirrorX - cornerRect.size.width * 0.5,
-                                                  mirrorTop - cornerHalfH)
-                                scale:scale
-                               rotate:0.0f
-                               anchor:CGPointMake((double)mirrorX, mirrorTop)
-                            transform:0
-                                alpha:baseAlpha];
+            [self.texFront
+                drawSprite:kCornerSprite
+                   atPoint:CGPointMake((double)mirrorX - cornerHalfW, mirrorTop - cornerHalfH)
+                     scale:scale
+                    rotate:0.0f
+                    anchor:CGPointMake((double)mirrorX, mirrorTop)
+                 transform:0
+                     alpha:baseAlpha];
         }
         cornerX += kGridCellSize;
         mirrorRow -= 1;
-        animFrame -= 6;
+        cornerFrame -= 6;
     }
 
     // The two "FULLCOMBO" word plates fly in over their own frame windows. Their x-keyframes come
@@ -2223,41 +2304,43 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     double wordAY = is4Inch ? (double)(gameTop + 200) : kFieldWidth;
     double wordBY = is4Inch ? (double)(gameTop + 0x1b8) : kWordAY;
 
+    // The word-plate x keyframes are selected from the unsigned `frame` ivar, reloaded at 0x14e6b4,
+    // 0x14e72c, 0x14e778 and 0x14e918, while the value actually interpolated stays the method's own
+    // parameter. The alpha and scale ramps select on the signed parameter instead.
+    unsigned int wordFrame = self->frame;
+
     float alpha0;
     if (animFrame < 4) {
-        alpha0 = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 4, 4);
+        alpha0 = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 4);
     } else {
         alpha0 = InterpolateFloatByFrame(1.0f, 0.0f, animFrame, 0x55, 0x5a);
     }
     float wx0;
-    if (animFrame < 4) {
-        wx0 = (animFrame < 2) ?
-                  InterpolateFloatByFrame((float)kWord0X, (float)kWord0X2, animFrame, 0, 2) :
-                  InterpolateFloatByFrame((float)kWord0X2, (float)kWord0X3, animFrame, 2, 4);
-    } else {
-        wx0 = (animFrame < 0x5a) ?
-                  InterpolateFloatByFrame((float)kWord0X3, -30.0f, animFrame, 0x55, 0x5a) :
-                  InterpolateFloatByFrame(-30.0f, (float)kWord2X, animFrame, 0x5a, 0x5f);
-    }
     float wx1;
-    if (animFrame < 2) {
-        wx1 = InterpolateFloatByFrame((float)kWord1X, (float)kWord1X2, animFrame, 0, 2);
-    } else if (animFrame < 4) {
-        wx1 = InterpolateFloatByFrame((float)kWord1X2, (float)kWord1X3, animFrame, 2, 4);
-    } else if (animFrame < 0x5a) {
+    if (wordFrame < 4) {
+        if (wordFrame < 2) {
+            wx0 = InterpolateFloatByFrame((float)kWord0X, (float)kWord0X2, animFrame, 0, 2);
+            wx1 = InterpolateFloatByFrame((float)kWord1X, (float)kWord1X2, animFrame, 0, 2);
+        } else {
+            wx0 = InterpolateFloatByFrame((float)kWord0X2, (float)kWord0X3, animFrame, 2, 4);
+            wx1 = InterpolateFloatByFrame((float)kWord1X2, (float)kWord1X3, animFrame, 2, 4);
+        }
+    } else if (wordFrame < 0x5a) {
+        wx0 = InterpolateFloatByFrame((float)kWord0X3, -30.0f, animFrame, 0x55, 0x5a);
         wx1 = InterpolateFloatByFrame((float)kWord1X3, (float)kWord2X2, animFrame, 0x55, 0x5a);
     } else {
+        wx0 = InterpolateFloatByFrame(-30.0f, (float)kWord2X, animFrame, 0x5a, 0x5f);
         wx1 = InterpolateFloatByFrame((float)kWord2X2, (float)kWord2X3, animFrame, 0x5a, 0x5f);
     }
     [self.texFront drawSprite:kWordSprite0
                       atPoint:CGPointMake((double)wx0 - word0Rect.size.width * 0.5,
                                           wordAY - word0Rect.size.height * 0.5)
-                    transform:0x2c
+                    transform:0
                         alpha:alpha0];
     [self.texFront drawSprite:kWordSprite1
                       atPoint:CGPointMake((double)wx1 - word1Rect.size.width * 0.5,
                                           wordBY - word1Rect.size.height * 0.5)
-                    transform:0x2e
+                    transform:0
                         alpha:alpha0];
 
     // The next word-plate pair, on the 6..0xc / 0x57..0x61 windows.
@@ -2271,7 +2354,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     double word0PlateY = is4Inch ? (double)(gameTop + 200) : kFieldWidth;
     float wx2;
     float wx3;
-    if (animFrame < 0xc) {
+    // The outer window is the ivar's (0x14e918); the inner keyframe split is the parameter's.
+    if (wordFrame < 0xc) {
         wx2 = (animFrame < 9) ? InterpolateFloatByFrame(121.0f, 83.0f, animFrame, 6, 9) :
                                 InterpolateFloatByFrame(83.0f, 69.0f, animFrame, 9, 0xc);
         wx3 = (animFrame < 9) ? InterpolateFloatByFrame(183.0f, 215.0f, animFrame, 6, 9) :
@@ -2286,12 +2370,12 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     [self.texFront drawSprite:kWordSprite0
                       atPoint:CGPointMake((double)wx2 - word0Rect.size.width * 0.5,
                                           word1PlateY - word0Rect.size.height * 0.5)
-                    transform:0x2c
+                    transform:0
                         alpha:alpha1];
     [self.texFront drawSprite:kWordSprite1
                       atPoint:CGPointMake((double)wx3 - word1Rect.size.width * 0.5,
                                           word0PlateY - word1Rect.size.height * 0.5)
-                    transform:0x2e
+                    transform:0
                         alpha:alpha1];
 
     // The two mirrored word plates that grow about a shared anchor, on the 5..0x2f / 6..0x34
@@ -2307,7 +2391,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                         scale:scale2
                        rotate:0.0f
                        anchor:CGPointMake(kWordBX, plate0Y)
-                    transform:0x2b
+                    transform:0
                         alpha:alpha2];
     [self.texFront drawSprite:kWordSprite3
                       atPoint:CGPointMake(kWordBY - word1Rect.size.width * 0.5,
@@ -2315,7 +2399,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                         scale:scale2
                        rotate:0.0f
                        anchor:CGPointMake(kWordBY, plate1Y)
-                    transform:0x2d
+                    transform:0
                         alpha:alpha2];
 
     float alpha3 = (animFrame < 8) ? InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 6, 8) :
@@ -2329,7 +2413,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                         scale:scale3
                        rotate:0.0f
                        anchor:CGPointMake(kWordBX, plate2Y)
-                    transform:0x2b
+                    transform:0
                         alpha:alpha3];
     [self.texFront drawSprite:kWordSprite3
                       atPoint:CGPointMake(kWordBY - word1Rect.size.width * 0.5,
@@ -2337,11 +2421,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                         scale:scale3
                        rotate:0.0f
                        anchor:CGPointMake(kWordBY, plate3Y)
-                    transform:0x2d
+                    transform:0
                         alpha:alpha3];
-    (void)cornerHalfW;
-    (void)kWord1X;
-    (void)kWord2X3;
 }
 
 /** @ghidraAddress 0x14ed9c */
@@ -2374,71 +2455,79 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 
 /** @ghidraAddress 0x14feb8 */
 - (void)renderRating:(unsigned int)animFrame {
-    static const double kLabelXDefault = 326.0; // @ghidraAddress 0x292f70
-    static const double kLabelYBase = 86.0;     // @ghidraAddress 0x28f950
-    static const double kGlyphXDefault = 360.0; // @ghidraAddress 0x292918
-    static const double kGlyphAnchorX = 200.0;  // @ghidraAddress 0x28f400
-    static const float kRatingScaleMid = 1.16f; // @ghidraAddress 0x292b34
-    static const float kRatingScaleLow = 1.6f;  // @ghidraAddress 0x292b30
-    static const float kScaleReset = 0.2f;      // @ghidraAddress 0x28f3c8
-    static const float kScaleMid2 = 0.9f;       // @ghidraAddress 0x28f3b0
+    static const double kLabelYDefault = 326.0;   // @ghidraAddress 0x292f70
+    static const double kLabelXBase = 86.0;       // @ghidraAddress 0x28f950
+    static const double kGlyphYDefault = 360.0;   // @ghidraAddress 0x292918
+    static const double kGlyphAnchorX = 200.0;    // @ghidraAddress 0x28f400
+    static const float kRatingScaleMid = 1.16f;   // @ghidraAddress 0x292b34
+    static const float kRatingScaleLow = 1.6f;    // @ghidraAddress 0x292b30
+    static const float kGlyphAlphaMid = 0.2f;     // @ghidraAddress 0x28f3c8
+    static const float kRatingScaleSettle = 0.9f; // @ghidraAddress 0x28f3b0
     static const NSUInteger kLabelSprite = 0x38;
     static const NSUInteger kGlyphSprite = 0x39;
 
     int rank = (int)self.sequence.rank;
-    double labelY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x146) : kLabelXDefault;
-    double glyphY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x168) : kGlyphXDefault;
+    double labelY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x146) : kLabelYDefault;
     if (rank < 5) {
         unsigned int labelEnd = (rank > 2) ? 7 : 0xe;
         unsigned int scaleEnd = (rank < 3) ? 4 : 3;
         float labelSlide = InterpolateFloatByFrame(25.0f, 0.0f, animFrame, 0, labelEnd);
         float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, labelEnd);
         [self.texFront drawSprite:kLabelSprite
-                          atPoint:CGPointMake((double)labelSlide + kLabelYBase, labelY)
-                        transform:(char)(int)labelAlpha
-                            alpha:0];
-        (void)[self.texFront spriteAtIndex:kGlyphSprite];
+                          atPoint:CGPointMake((double)labelSlide + kLabelXBase, labelY)
+                        transform:0
+                            alpha:labelAlpha];
+        double glyphY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x168) : kGlyphYDefault;
+        CGRect glyphRect = [self.texFront spriteAtIndex:kGlyphSprite];
         float glyphScale;
         if (animFrame < scaleEnd) {
             glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleMid, animFrame, 0, scaleEnd);
         } else {
             glyphScale =
-                InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, scaleEnd, scaleEnd);
+                InterpolateFloatByFrame(kRatingScaleMid, 1.0f, animFrame, scaleEnd, labelEnd);
         }
+        // The glyph shares the label's fade; the binary passes it as this draw's alpha.
         [self.texFront drawSprite:kGlyphSprite
-                          atPoint:CGPointMake(kGlyphAnchorX - (double)labelAlpha * 0.5,
-                                              glyphY - (double)glyphScale * 0.5)
+                          atPoint:CGPointMake(kGlyphAnchorX - glyphRect.size.width * 0.5,
+                                              glyphY - glyphRect.size.height * 0.5)
                             scale:glyphScale
                            rotate:0.0f
                            anchor:CGPointMake(kGlyphAnchorX, glyphY)
-                        transform:0x39
-                            alpha:0.0f];
+                        transform:0
+                            alpha:labelAlpha];
     } else {
         float labelSlide = InterpolateFloatByFrame(25.0f, 0.0f, animFrame, 0, 0xd);
         float labelAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 0xd);
         [self.texFront drawSprite:kLabelSprite
-                          atPoint:CGPointMake((double)labelSlide + kLabelYBase, labelY)
-                        transform:(char)(int)labelAlpha
-                            alpha:0];
-        (void)[self.texFront spriteAtIndex:kGlyphSprite];
-        float glyphScale;
+                          atPoint:CGPointMake((double)labelSlide + kLabelXBase, labelY)
+                        transform:0
+                            alpha:labelAlpha];
+        double glyphY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x168) : kGlyphYDefault;
+        CGRect glyphRect = [self.texFront spriteAtIndex:kGlyphSprite];
+        // Past the settle window the binary never rewrites the scale register, so it stays 1.0f.
+        float glyphScale = 1.0f;
+        float glyphAlpha;
         if (animFrame < 8) {
             glyphScale = InterpolateFloatByFrame(2.0f, kRatingScaleLow, animFrame, 0, 8);
-        } else if (animFrame < 0xe) {
-            glyphScale = InterpolateFloatByFrame(kRatingScaleLow, kScaleMid2, animFrame, 8, 0xe);
-        } else if (animFrame < 0x10) {
-            glyphScale = InterpolateFloatByFrame(kScaleMid2, 1.0f, animFrame, 0xe, 0x10);
+            glyphAlpha = InterpolateFloatByFrame(0.0f, kGlyphAlphaMid, animFrame, 0, 8);
         } else {
-            glyphScale = InterpolateFloatByFrame(kScaleReset, 1.0f, animFrame, 8, 0xd);
+            if (animFrame < 0xe) {
+                glyphScale =
+                    InterpolateFloatByFrame(kRatingScaleLow, kRatingScaleSettle, animFrame, 8, 0xe);
+            } else if (animFrame < 0x10) {
+                glyphScale =
+                    InterpolateFloatByFrame(kRatingScaleSettle, 1.0f, animFrame, 0xe, 0x10);
+            }
+            glyphAlpha = InterpolateFloatByFrame(kGlyphAlphaMid, 1.0f, animFrame, 8, 0xd);
         }
         [self.texFront drawSprite:kGlyphSprite
-                          atPoint:CGPointMake(kGlyphAnchorX - (double)labelAlpha * 0.5,
-                                              glyphY - (double)glyphScale * 0.5)
+                          atPoint:CGPointMake(kGlyphAnchorX - glyphRect.size.width * 0.5,
+                                              glyphY - glyphRect.size.height * 0.5)
                             scale:glyphScale
                            rotate:0.0f
                            anchor:CGPointMake(kGlyphAnchorX, glyphY)
-                        transform:0x39
-                            alpha:0.0f];
+                        transform:0
+                            alpha:glyphAlpha];
     }
 }
 
@@ -2450,13 +2539,15 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const float kClearedScaleLow = 0.43f;  // @ghidraAddress 0x292b3c
     static const float kClearedScaleMid = 1.04f;  // @ghidraAddress 0x292b38
     static const float kClearedScaleHigh = 0.38f; // @ghidraAddress 0x292b40
-    // The three disc-mirror angle-transform values. @ghidraAddress 0x292ac8/0x292acc/0x292ad0
-    static const char kDiscTransform1 = (char)1; // 1.5707963 (pi/2) sign
-    static const char kDiscTransform2 = (char)3; // 3.1415927 (pi)
-    static const char kDiscTransform3 = (char)4; // 4.7123890 (3pi/2)
+    static const float kClearedAlphaLow = 0.13f;  // @ghidraAddress 0x292a98
+    // The three quadrant rotations in radians, applied to the second, third, and fourth draw.
+    static const float kDiscRotateQuarter = 1.5707964f;     // pi/2. @ghidraAddress 0x292ac8
+    static const float kDiscRotateHalf = 3.1415927f;        // pi. @ghidraAddress 0x292acc
+    static const float kDiscRotateThreeQuarter = 4.712389f; // 3pi/2. @ghidraAddress 0x292ad0
     static const NSUInteger kDiscSprite = 0x33;
     static const NSUInteger kWordSprite = 0x2f;
 
+    float discAlpha;
     float scale;
     unsigned int p;
     float from;
@@ -2470,13 +2561,13 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
             from = 0.0f;
             to = kClearedScaleLow;
         } else {
+            // The ramp decays over this window, from 0.43 down to 0.13.
             start = 6;
             end = 0x28;
-            from = 0.13f;
-            to = kClearedScaleLow;
+            from = kClearedScaleLow;
+            to = kClearedAlphaLow;
         }
-        float base = InterpolateFloatByFrame(from, to, animFrame, start, end);
-        (void)base;
+        discAlpha = InterpolateFloatByFrame(from, to, animFrame, start, end);
         p = animFrame;
         from = kClearedScaleHigh;
         to = kClearedScaleMid;
@@ -2485,15 +2576,15 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     } else {
         p = (animFrame - 0x28) % 0x1e;
         if (p < 5) {
-            InterpolateFloatByFrame(0.13f, g_flKeyTime040, p, 0, 5);
-            from = kClearedScaleHigh;
+            discAlpha = InterpolateFloatByFrame(kClearedAlphaLow, g_flKeyTime040, p, 0, 5);
+            from = kClearedScaleMid;
             to = 1.0f;
             start = 0;
             end = 5;
         } else {
-            InterpolateFloatByFrame(g_flKeyTime040, 0.13f, p, 6, 0x1e);
+            discAlpha = InterpolateFloatByFrame(g_flKeyTime040, kClearedAlphaLow, p, 6, 0x1e);
             from = 1.0f;
-            to = kClearedScaleHigh;
+            to = kClearedScaleMid;
             start = 6;
             end = 0x1e;
         }
@@ -2501,47 +2592,49 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     scale = InterpolateFloatByFrame(from, to, p, start, end);
 
     double discY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x140) : kCentreXDefault;
-    // The four-quadrant disc, mirrored about the centre.
+    // The four-quadrant disc, drawn four times a quarter-turn apart. Only the rotation differs;
+    // the texture orientation is 0 on every draw.
     [self.texFront drawSprite:kDiscSprite
                       atPoint:CGPointMake(kCentreX, discY)
                         scale:scale
                        rotate:0.0f
                        anchor:CGPointMake(kCentreX, discY)
-                    transform:0x33
-                        alpha:0.0f];
+                    transform:0
+                        alpha:discAlpha];
     [self.texFront drawSprite:kDiscSprite
                       atPoint:CGPointMake(kCentreX, discY)
                         scale:scale
-                       rotate:0.0f
+                       rotate:kDiscRotateQuarter
                        anchor:CGPointMake(kCentreX, discY)
-                    transform:kDiscTransform1
-                        alpha:0.0f];
+                    transform:0
+                        alpha:discAlpha];
     [self.texFront drawSprite:kDiscSprite
                       atPoint:CGPointMake(kCentreX, discY)
                         scale:scale
-                       rotate:0.0f
+                       rotate:kDiscRotateHalf
                        anchor:CGPointMake(kCentreX, discY)
-                    transform:kDiscTransform2
-                        alpha:0.0f];
+                    transform:0
+                        alpha:discAlpha];
     [self.texFront drawSprite:kDiscSprite
                       atPoint:CGPointMake(kCentreX, discY)
                         scale:scale
-                       rotate:0.0f
+                       rotate:kDiscRotateThreeQuarter
                        anchor:CGPointMake(kCentreX, discY)
-                    transform:kDiscTransform3
-                        alpha:0.0f];
+                    transform:0
+                        alpha:discAlpha];
 
     // The "CLEARED" word plate wipes in over the first six frames.
     float wordAlpha = InterpolateFloatByFrame(0.0f, 1.0f, animFrame, 0, 6);
     float wordScale = InterpolateFloatByFrame(kComboFadeBase, 1.0f, animFrame, 0, 6);
     double wordY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x118) : kWordY;
-    (void)[self.texFront spriteAtIndex:0x2f];
+    CGRect wordRect = [self.texFront spriteAtIndex:kWordSprite];
     [self.texFront drawSprite:kWordSprite
-                      atPoint:CGPointMake(kCentreX - (double)scale * 0.5, wordY)
+                      atPoint:CGPointMake(kCentreX - wordRect.size.width * 0.5,
+                                          wordY - wordRect.size.height * 0.5)
                         scale:wordScale
                        rotate:0.0f
                        anchor:CGPointMake(kCentreX, wordY)
-                    transform:0x2f
+                    transform:0
                         alpha:wordAlpha];
 
     // The clear voice/jingle on frame 0, then the rating from frame 10.
@@ -2580,12 +2673,12 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     double discY = centreY + (double)slide;
     CGRect discRect = [self.texFront spriteAtIndex:0x34];
     [self.texFront drawSprite:kDiscSprite
-                      atPoint:CGPointMake(kCentreX - (double)discScale * 0.5,
+                      atPoint:CGPointMake(kCentreX - discRect.size.width * 0.5,
                                           discY - discRect.size.height * 0.5)
                         scale:discScale
                        rotate:0.0f
                        anchor:CGPointMake(kCentreX, discY)
-                    transform:0x34
+                    transform:0
                         alpha:discAlpha];
 
     // The "FAILED" word plate scales in and drops.
@@ -2595,12 +2688,12 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     double drawWordY = wordY + (double)wordDrop;
     CGRect wordRect = [self.texFront spriteAtIndex:0x30];
     [self.texFront drawSprite:kWordSprite
-                      atPoint:CGPointMake(kCentreX - (double)discScale * 0.5,
+                      atPoint:CGPointMake(kCentreX - wordRect.size.width * 0.5,
                                           drawWordY - wordRect.size.height * 0.5)
                         scale:wordScale
                        rotate:0.0f
                        anchor:CGPointMake(kCentreX, drawWordY)
-                    transform:0x30
+                    transform:0
                         alpha:discAlpha];
 
     // The failed voice/jingle on frame 0, then the rating from frame 10.
@@ -2622,13 +2715,21 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const float kScaleReset = 0.2f;     // @ghidraAddress 0x28f3c8
     static const float kFadeEnd = 1.29999995f; // @ghidraAddress 0x292558
     static const double kWordY = 327.0;        // @ghidraAddress 0x292f68
-    static const double kChipInsetY = 120.0;   // @ghidraAddress 0x28f210
-    static const double kChipInsetY2 = 40.0;   // @ghidraAddress 0x28f1f8
     static const double kFieldWidth = 320.0;   // @ghidraAddress 0x28f470
-    static const double kBeamWideY = 440.0;    // @ghidraAddress 0x292f50
-    static const double kFillY = 200.0;        // @ghidraAddress 0x28f400
-    // The chip-ring scale keyframe table (8 floats). @ghidraAddress 0x29328c
-    static const float kChipScale[] = {0.0f, 0.2f, 0.1f, 0.3f, 0.2f, 0.4f, 0.3f, 0.65f};
+    // The chip-ring grid columns. 40 and 120 reach the code as pool loads; 200 and 280 are 64-bit
+    // immediates and so carry no pool address.
+    static const double kRingCol0 = 40.0;  // @ghidraAddress 0x28f1f8
+    static const double kRingCol1 = 120.0; // @ghidraAddress 0x28f210
+    static const double kRingCol2 = 200.0;
+    static const double kRingCol3 = 280.0;
+    // The chip-ring grid rows, each added to the four-inch button margin.
+    static const int kRingRowTop = 0xc8;
+    static const int kRingRowUpper = 0x118;
+    static const int kRingRowLower = 0x168;
+    static const int kRingRowBottom = 0x1b8;
+    static const float kChipScaleStart = 1.2f; // @ghidraAddress 0x292aa8
+    // The word-plate alpha ramp, indexed by the plate's phase. @ghidraAddress 0x29328c
+    static const float kWordAlphaRamp[] = {0.0f, 0.2f, 0.1f, 0.3f, 0.2f, 0.4f, 0.3f, 0.65f};
     static const NSUInteger kBeamSprite = 0x32;
     static const NSUInteger kChipSprite = 0x36;
     static const NSUInteger kWordSprite = 0x31;
@@ -2637,7 +2738,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 
     // The main beam disc scale ramps up over the first 20 frames, holds, then blows out.
     double beamScale;
-    double beamHeight = kExcellentPeak;
+    // The binary keeps this ramp in s11 as a float and feeds it to each beam draw as the alpha.
+    float beamHeight = kExcellentPeak;
     if (animFrame < 0x14) {
         beamHeight = InterpolateFloatByFrame(0.0f, kExcellentPeak, animFrame, 10, 0x14);
         beamScale = (double)InterpolateFloatByFrame(g_flKeyTime080, 1.0f, animFrame, 10, 0x14);
@@ -2662,126 +2764,146 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
             p = animFrame - 0x14;
         }
         if ((int)p < 3) {
-            beamScale = (double)InterpolateFloatByFrame(g_flKeyTime080, 1.0f, p, 0, 3);
+            beamScale = (double)InterpolateFloatByFrame(1.0f, g_flKeyTime080, p, 0, 3);
         } else {
-            beamScale = (double)InterpolateFloatByFrame(1.0f, g_flKeyTime080, p, 3, 8);
+            beamScale = (double)InterpolateFloatByFrame(g_flKeyTime080, 1.0f, p, 3, 8);
         }
         beamHeight = kExcellentPeak;
     }
 
     // The four-quadrant beam disc (sprite 0x32), mirrored (transforms 0, 5, 4, 2) about the centre.
     CGRect beamRect = [self.texFront spriteAtIndex:0x32];
-    double halfW = beamRect.size.width * 0.5;
-    double halfH = beamRect.size.height * 0.5;
     [self.texFront drawSprite:kBeamSprite
                       atPoint:CGPointMake(kCentreX, centreY)
                         scale:(float)beamScale
                        rotate:0.0f
                        anchor:CGPointMake(kCentreX, centreY)
-                    transform:0x32
-                        alpha:0.0f];
+                    transform:0
+                        alpha:beamHeight];
     [self.texFront drawSprite:kBeamSprite
                       atPoint:CGPointMake(kCentreX - beamRect.size.width, centreY)
                         scale:(float)beamScale
                        rotate:0.0f
                        anchor:CGPointMake(kCentreX, centreY)
-                    transform:0x32
-                        alpha:5.0f];
+                    transform:5
+                        alpha:beamHeight];
     [self.texFront drawSprite:kBeamSprite
                       atPoint:CGPointMake(kCentreX, centreY - beamRect.size.height)
                         scale:(float)beamScale
                        rotate:0.0f
                        anchor:CGPointMake(kCentreX, centreY)
-                    transform:0x32
-                        alpha:4.0f];
+                    transform:4
+                        alpha:beamHeight];
     [self.texFront
         drawSprite:kBeamSprite
            atPoint:CGPointMake(kCentreX - beamRect.size.width, centreY - beamRect.size.height)
              scale:(float)beamScale
             rotate:0.0f
             anchor:CGPointMake(kCentreX, centreY)
-         transform:0x32
-             alpha:2.0f];
-    (void)halfW;
-    (void)halfH;
+         transform:2
+             alpha:beamHeight];
 
     // A second beam blow-out from frame 0x39.
     if (animFrame > 0x38) {
-        float blowScale = InterpolateFloatByFrame(kScaleReset, 0.0f, animFrame, 0x39, 0x4d);
-        float blowFade = InterpolateFloatByFrame(1.0f, kFadeEnd, animFrame, 0x39, 0x4d);
-        (void)blowFade;
+        float blowAlpha = InterpolateFloatByFrame(kScaleReset, 0.0f, animFrame, 0x39, 0x4d);
+        float blowScale = InterpolateFloatByFrame(1.0f, kFadeEnd, animFrame, 0x39, 0x4d);
         [self.texFront drawSprite:kBeamSprite
                           atPoint:CGPointMake(kCentreX, centreY)
                             scale:blowScale
                            rotate:0.0f
                            anchor:CGPointMake(kCentreX, centreY)
-                        transform:0x32
-                            alpha:0.0f];
+                        transform:0
+                            alpha:blowAlpha];
         [self.texFront drawSprite:kBeamSprite
                           atPoint:CGPointMake(kCentreX - beamRect.size.width, centreY)
                             scale:blowScale
                            rotate:0.0f
                            anchor:CGPointMake(kCentreX, centreY)
-                        transform:0x32
-                            alpha:5.0f];
+                        transform:5
+                            alpha:blowAlpha];
         [self.texFront drawSprite:kBeamSprite
                           atPoint:CGPointMake(kCentreX, centreY - beamRect.size.height)
                             scale:blowScale
                            rotate:0.0f
                            anchor:CGPointMake(kCentreX, centreY)
-                        transform:0x32
-                            alpha:4.0f];
+                        transform:4
+                            alpha:blowAlpha];
         [self.texFront
             drawSprite:kBeamSprite
                atPoint:CGPointMake(kCentreX - beamRect.size.width, centreY - beamRect.size.height)
                  scale:blowScale
                 rotate:0.0f
                 anchor:CGPointMake(kCentreX, centreY)
-             transform:0x32
-                 alpha:2.0f];
+             transform:2
+                 alpha:blowAlpha];
     }
 
-    // The chip ring (sprite 0x36) sweeps into the ring positions over frames 20..46. The ring
-    // positions come from the shipped {x, y} double table, four-inch offsetting the y by the button
-    // margin.
+    // The chip ring (sprite 0x36) sweeps through fixed grid points over frames 20..46. The points
+    // are a shipped {x, y} double table, four-inch offsetting every y by the button margin; off
+    // four-inch the binary substitutes a zero margin, which is how it reaches the plain
+    // 200/280/360/440 pairs in __const.
     unsigned int cf = animFrame - 0x14;
     if (cf < 0x1b) {
-        int count = 9;
-        double firstX = kChipInsetY;
-        double firstY;
-        // Sub-phase selects the count and the sweep window.
+        const int ringMargin = is4Inch ? self.buttonMarginForScreen40 : 0;
+        const double rowTop = (double)(ringMargin + kRingRowTop);
+        const double rowUpper = (double)(ringMargin + kRingRowUpper);
+        const double rowLower = (double)(ringMargin + kRingRowLower);
+        const double rowBottom = (double)(ringMargin + kRingRowBottom);
+        // The nine-point tail sits 40 below the upper row, i.e. 320 off four-inch.
+        const double rowTail = rowUpper + kRingCol0;
+        const CGPoint ringNine[] = {{kRingCol0, rowTop},
+                                    {kRingCol1, rowTop},
+                                    {kRingCol2, rowTop},
+                                    {kRingCol0, rowUpper},
+                                    {kRingCol0, rowLower},
+                                    {kRingCol0, rowBottom},
+                                    {kRingCol1, rowBottom},
+                                    {kRingCol2, rowBottom},
+                                    {kRingCol1, rowTail}};
+        const CGPoint ringEight[] = {{kRingCol0, rowTop},
+                                     {kRingCol3, rowTop},
+                                     {kRingCol1, rowUpper},
+                                     {kRingCol2, rowUpper},
+                                     {kRingCol1, rowLower},
+                                     {kRingCol2, rowLower},
+                                     {kRingCol0, rowBottom},
+                                     {kRingCol3, rowBottom}};
+        const CGPoint ringSix[] = {{kRingCol1, rowTop},
+                                   {kRingCol2, rowTop},
+                                   {kRingCol0, rowUpper},
+                                   {kRingCol0, rowLower},
+                                   {kRingCol1, rowBottom},
+                                   {kRingCol2, rowBottom}};
+
+        const CGPoint *ring;
+        int count;
+        // Sub-phase selects the point set and the sweep window.
         if (animFrame < 0x1d) {
+            ring = ringNine;
             count = 9;
-            firstX = kChipInsetY;
-            firstY = is4Inch ? (double)(self.buttonMarginForScreen40 + 200) : 200.0;
         } else if (animFrame < 0x26) {
+            ring = ringEight;
             count = 8;
             cf = animFrame - 0x1d;
-            firstX = kFillY;
-            firstY = is4Inch ? (double)(self.buttonMarginForScreen40 + 200) : 200.0;
         } else {
+            ring = ringSix;
             count = 6;
             cf = animFrame - 0x26;
-            firstX = kFillY;
-            firstY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x1b8) : kBeamWideY;
         }
-        float chipScale = (cf < 4) ? InterpolateFloatByFrame(0.0f, 1.0f, cf, 0, 4) :
-                                     InterpolateFloatByFrame(1.0f, 0.0f, cf, 4, 8);
-        float chipRing = InterpolateFloatByFrame(0.07f, 1.0f, cf, 0, 4);
-        (void)[self.texFront spriteAtIndex:kChipSprite];
-        double cx = firstX;
-        double cy = firstY;
+        float chipAlpha = ((int)cf < 4) ? InterpolateFloatByFrame(0.0f, 1.0f, cf, 0, 4) :
+                                          InterpolateFloatByFrame(1.0f, 0.0f, cf, 4, 8);
+        float chipScale = InterpolateFloatByFrame(kChipScaleStart, 1.0f, cf, 0, 4);
+        CGRect chipRect = [self.texFront spriteAtIndex:kChipSprite];
+        double chipHalfW = chipRect.size.width * 0.5;
+        double chipHalfH = chipRect.size.height * 0.5;
         for (int j = 0; j < count; ++j) {
-            [self.texFront
-                drawSprite:kChipSprite
-                   atPoint:CGPointMake(cx - (double)chipRing * 0.5, cy - (double)chipScale * 0.5)
-                     scale:chipRing
-                    rotate:0.0f
-                    anchor:CGPointMake(cx, cy)
-                 transform:0x36
-                     alpha:chipScale];
-            cx += (double)kChipScale[j % 8]; // ring stride from the scale table (structural walk)
-            cy += (double)kChipScale[(j + 1) % 8];
+            [self.texFront drawSprite:kChipSprite
+                              atPoint:CGPointMake(ring[j].x - chipHalfW, ring[j].y - chipHalfH)
+                                scale:chipScale
+                               rotate:0.0f
+                               anchor:ring[j]
+                            transform:0
+                                alpha:chipAlpha];
         }
     }
 
@@ -2790,9 +2912,14 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         unsigned int p = animFrame - 0x31;
         double wordY = is4Inch ? (double)(self.buttonMarginForScreen40 + 0x147) : kWordY;
         float wordScale;
+        float wordAlpha;
         if ((int)p < 8) {
+            // The plate's alpha is the shipped ramp, indexed by the phase.
+            wordAlpha = kWordAlphaRamp[p];
             wordScale = InterpolateFloatByFrame(2.0f, g_flKeyTime080, p, 0, 8);
         } else {
+            wordAlpha = 1.0f;
+            // The binary samples the raw frame here, not the phase.
             wordScale = InterpolateFloatByFrame(g_flKeyTime080, 1.0f, animFrame, 8, 10);
         }
         CGRect wordRect = [self.texFront spriteAtIndex:0x31];
@@ -2802,8 +2929,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                             scale:wordScale
                            rotate:0.0f
                            anchor:CGPointMake(kCentreX, wordY)
-                        transform:0x31
-                            alpha:0.0f];
+                        transform:0
+                            alpha:wordAlpha];
     }
 
     // The per-phase voice/sound cues.
@@ -2820,17 +2947,15 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     default:
         break;
     }
-    (void)beamHeight;
-    (void)kChipInsetY2;
-    (void)kScaleReset;
     return animFrame > 0x77;
 }
 
 /** @ghidraAddress 0x150d70 */
 - (void)renderResult {
-    static const double kScoreX = 142.0;                   // @ghidraAddress 0x292e88
-    static const double kPartnerX = 194.0;                 // @ghidraAddress 0x291d10
-    static const double kPartnerScale = 0.7;               // @ghidraAddress 0x291c98
+    static const double kScoreX = 142.0;   // @ghidraAddress 0x292e88
+    static const double kPartnerX = 194.0; // @ghidraAddress 0x291d10
+    // The pool slot holds 0x3FE6666660000000, a widened 0.7f, not the double 0.7.
+    static const double kPartnerScale = (double)0.7f;      // @ghidraAddress 0x291c98
     static const double kTuneInfoArtwork[] = {80.0, 88.0}; // @ghidraAddress 0x292770
     static const float kShutterFadeThreshold = 43.5f;      // @ghidraAddress 0x292b58
     static const float kShutterFadeRate = -43.5f;          // @ghidraAddress 0x292b54
@@ -2844,7 +2969,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
     static const NSUInteger kRecordBannerSprite = 0x29;
     static const NSUInteger kMarkGlyphSprite = 0x18;
     static const NSUInteger kVoteGlyphSprite = 0x17;
-    // The record-banner base-X table (retina, non-retina). @ghidraAddress 0x292f78
+    // The record-banner base-X table, indexed by the isRetina byte (non-retina, retina).
+    // @ghidraAddress 0x292f78
     static const float kRecordBannerX[] = {154.0f, 142.0f};
     static const NSTimeInterval kGoodJobFadeDuration = 0.3; // @ghidraAddress 0x28f260
 
@@ -2914,11 +3040,11 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         float slide =
             InterpolateFloatByFrame(kRecordSlideBase, kRecordSlideEnd, self->frame, 0x41, 0x49);
         float retinaBias = isRetina ? 27.0f : 0.0f;
-        float bannerBaseX = kRecordBannerX[isRetina ? 0 : 1];
+        float bannerBaseX = kRecordBannerX[isRetina ? 1 : 0];
         [self.texFront drawSprite:kRecordBannerSprite
                           atPoint:CGPointMake((double)(bannerBaseX + slide + retinaBias), bannerY)
-                        transform:(char)(int)bannerAlpha
-                            alpha:1];
+                        transform:0
+                            alpha:bannerAlpha];
         unsigned int record = self.scoreRecord;
         double digitDx = isRetina ? 26.0 : 24.0;
         double bannerYNudge = isRetina ? 0.0 : 1.0;
@@ -2938,22 +3064,26 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         double markY = (double)(gameTop + 0x196) + 1.0;
         [self.texFront drawSprite:kMarkGlyphSprite
                           atPoint:CGPointMake(kMarkGlyphX, markY)
-                        transform:(char)(int)markAlpha
-                            alpha:0];
+                        transform:0
+                            alpha:markAlpha];
 
         if (!self.replayPlaying && self.isCustom && self.isDownload && self.hasMusic) {
             if (!self.isTextureChange) {
                 self.isTextureChange = YES;
+                // The vote word is blitted over sprite 0x17's own slot, so the destination point
+                // is that sprite's origin.
                 if (isRetina) {
                     self.texFront.isScale2x = NO;
-                    (void)[self.texFront spriteAtIndex:0x17];
                     LoadTextureSubImageFromResource(
-                        self.texFront, @"game_level_vote_rpl_pn2", CGPointMake(0.0, 0.0));
+                        self.texFront,
+                        @"game_level_vote_rpl_pn2",
+                        [self.texFront spriteAtIndex:kVoteGlyphSprite].origin);
                     self.texFront.isScale2x = YES;
                 } else {
-                    (void)[self.texFront spriteAtIndex:0x17];
                     LoadTextureSubImageFromResource(
-                        self.texFront, @"game_level_vote_rpl_pn", CGPointMake(0.0, 0.0));
+                        self.texFront,
+                        @"game_level_vote_rpl_pn",
+                        [self.texFront spriteAtIndex:kVoteGlyphSprite].origin);
                 }
                 if (self.goodJobImage) {
                     __weak UIImageView *goodJob = self.goodJobImage;
@@ -2971,8 +3101,8 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
             double voteY = is4Inch ? ((double)(gameTop + 0x196) + 1.0) : kVoteGlyphXDefault;
             [self.texFront drawSprite:kVoteGlyphSprite
                               atPoint:CGPointMake(kVoteGlyphX, voteY)
-                            transform:(char)(int)markAlpha
-                                alpha:0];
+                            transform:0
+                                alpha:markAlpha];
         }
 
         if (!self.isCustom && self.hasMusic && self.goodJobImage) {
