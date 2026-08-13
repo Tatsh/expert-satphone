@@ -960,6 +960,13 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
 /**
  * @ghidraAddress 0x1870e0
  * The two Konami hit regions and their (-5, -5) point shift are worked from the disassembly.
+ *
+ * The two hidden branches advance DIFFERENT counters, which is what makes the order matter. Eight
+ * swipes take both @c kcState and @c hnState to 8. The inner-right hot-spot then moves @c hnState
+ * to 9 with no visible change, and only after that can the inner-left hot-spot see @c hnState == 9
+ * and unlock hinabita. Tapping left first instead moves @c kcState to 9, so the next right tap
+ * satisfies @c kcState == 9 and calls @c -becomeConcierge , which raises @c kcState to
+ * @c kKcStateConcierge and closes this whole block for the rest of the visit.
  */
 - (void)handleTap:(UITapGestureRecognizer *)recognizer {
     if (!bEnableTap) {
@@ -992,7 +999,9 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
         }
         BOOL stateAdvanced;
         if (CGRectContainsPoint(leftRect, shifted)) {
-            // Left logo corner: advance the code, and complete the hinabita entry.
+            // Inner-left hot-spot: advance the code, and complete the hinabita entry. Despite the
+            // name these are not corners -- on the 298x84 phone logo the rect spans 31% to 46% of
+            // the width, and the right one 65% to 80%, both across the middle band.
             stateAdvanced = (kcState == kHnStateArmed);
             if (stateAdvanced) {
                 kcState = kHnStateConcierge;
@@ -1006,7 +1015,11 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
                 return;
             }
         } else if (CGRectContainsPoint(rightRect, shifted)) {
-            // Right logo corner: at the final code step, swap in the concierge easter egg.
+            // Inner-right hot-spot: at the final code step, swap in the concierge easter egg. Note
+            // -becomeConcierge sets kcState to kKcStateConcierge, which closes the whole block
+            // above for the rest of the visit, so the concierge and the hinabita entry are
+            // mutually exclusive: whichever hot-spot is tapped first decides which one is
+            // reachable.
             stateAdvanced = (kcState == kHnStateConcierge);
             if (stateAdvanced) {
                 [AudioManager.sharedManager playSeResFile:kConciergeSwapSE inDirectory:nil];
