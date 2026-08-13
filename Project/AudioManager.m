@@ -61,6 +61,22 @@ static const NSInteger kBgmLoopForever = 2000000000;
                                                selector:@selector(appDidBecomeActive:)
                                                    name:UIApplicationDidBecomeActiveNotification
                                                  object:nil];
+#ifdef ENABLE_PATCHES
+        // Preservation patch, not in the binary. The suspend half of this class runs entirely
+        // through -audioPlayerBeginInterruption: and -beginInterruption, AVAudioPlayer and
+        // AVAudioSession callbacks that were deprecated between iOS 6 and 8 and are never invoked
+        // on a current release. With them dead isBgmSuspended can never be raised, so the BGM is
+        // never paused and -appDidBecomeActive: below has nothing to resume. Drive the same flag
+        // from the notifications that replaced them.
+        [NSNotificationCenter.defaultCenter addObserver:self
+                                               selector:@selector(patchSuspendBgm:)
+                                                   name:UIApplicationDidEnterBackgroundNotification
+                                                 object:nil];
+        [NSNotificationCenter.defaultCenter addObserver:self
+                                               selector:@selector(patchSessionInterrupted:)
+                                                   name:AVAudioSessionInterruptionNotification
+                                                 object:nil];
+#endif
         seManager = [[SEManager alloc] init];
     }
     return self;
@@ -414,6 +430,28 @@ static const NSInteger kBgmLoopForever = 2000000000;
     // Empty in the binary: the whole body is a single ret at 0x78d9c, so a decode error is
     // swallowed without so much as a log.
 }
+
+#ifdef ENABLE_PATCHES
+// Preservation patch, not in the binary: the modern stand-in for -audioPlayerBeginInterruption:.
+// Pauses rather than stops, because -appDidBecomeActive: resumes with -play, which carries on from
+// where the player was left.
+- (void)patchSuspendBgm:(NSNotification *)notification {
+    if (_bgmPlayer.playing) {
+        [_bgmPlayer pause];
+        isBgmSuspended = YES;
+    }
+}
+
+// Preservation patch, not in the binary: AVAudioSessionInterruptionNotification is what replaced
+// the interruption delegate callbacks. Only the began case is handled, since the original left the
+// resume to -appDidBecomeActive: as well.
+- (void)patchSessionInterrupted:(NSNotification *)notification {
+    NSNumber *type = notification.userInfo[AVAudioSessionInterruptionTypeKey];
+    if (type.unsignedIntegerValue == AVAudioSessionInterruptionTypeBegan) {
+        [self patchSuspendBgm:notification];
+    }
+}
+#endif
 
 /** @ghidraAddress 0x78ee0 */
 - (void)appDidBecomeActive:(NSNotification *)notification {
