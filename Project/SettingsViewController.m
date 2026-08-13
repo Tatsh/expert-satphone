@@ -255,8 +255,27 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
         [toReload addObject:ratingPath];
     }
     if (toReload.count != 0) {
+#ifdef ENABLE_PATCHES
+        // Preservation patch, not in the binary. The call below is faithful -- 0xe74a0 really does
+        // reloadRowsAtIndexPaths:withRowAnimation: with animation 5 (None) from viewWillAppear: --
+        // but reloadRows runs UIKit's batch-update machinery whatever the row animation, and here
+        // it runs inside the presentation transition while the table is still outside the view
+        // hierarchy. That is what emits the "UITableView was told to layout its visible cells ...
+        // without being in the view hierarchy" warning 9ms after the present, and on modern UIKit
+        // the nested batch update leaves the enclosing transition without its completion: the
+        // sheet never finishes appearing and ignoreInteractionEvents is never lowered, which is
+        // why the music list stops responding too. reloadData refreshes the same rows without
+        // entering that machinery, so it is used until the table is actually in a window.
+        if (self.tableView.window == nil) {
+            [self.tableView reloadData];
+        } else {
+            [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithArray:toReload]
+                                  withRowAnimation:UITableViewRowAnimationNone];
+        }
+#else
         [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithArray:toReload]
                               withRowAnimation:UITableViewRowAnimationNone];
+#endif
     }
 }
 
