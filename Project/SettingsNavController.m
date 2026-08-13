@@ -1,10 +1,7 @@
 #import "SettingsNavController.h"
 
-#import <objc/runtime.h>
-
 #import "JubeatAppDelegate.h"
 #import "SettingsViewController.h"
-#import "neDebugLog.h"
 
 #ifdef ENABLE_PATCHES
 // The conformance the interactive-dismissal patch needs, declared here rather than in the header so
@@ -141,18 +138,6 @@ static const CGFloat kPadCornerRadius = 6.0f;
 /** @ghidraAddress 0xe4a20 */
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    if (NE_DBG_FIRST(4)) {
-        CGRect willRect = self.view.frame;
-        neDebugLog("settingsNav willAppear: animated %d frame %.1f,%.1f %.1fx%.1f super %s "
-                   "window %s",
-                   (int)animated,
-                   willRect.origin.x,
-                   willRect.origin.y,
-                   willRect.size.width,
-                   willRect.size.height,
-                   self.view.superview ? object_getClassName(self.view.superview) : "nil",
-                   self.view.window ? "yes" : "no");
-    }
 #ifdef ENABLE_PATCHES
     // Part of the interactive-dismissal patch; see -init. Restated here because -init reaches the
     // presentation controller before there is a presentation, where UIKit is entitled to hand back
@@ -173,17 +158,6 @@ static const CGFloat kPadCornerRadius = 6.0f;
 /** @ghidraAddress 0xe4bbc */
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if (NE_DBG_FIRST(4)) {
-        CGRect didRect = self.view.frame;
-        neDebugLog("settingsNav didAppear: frame %.1f,%.1f %.1fx%.1f super %s window %s alpha %.2f",
-                   didRect.origin.x,
-                   didRect.origin.y,
-                   didRect.size.width,
-                   didRect.size.height,
-                   self.view.superview ? object_getClassName(self.view.superview) : "nil",
-                   self.view.window ? "yes" : "no",
-                   self.view.alpha);
-    }
 }
 
 /** @ghidraAddress 0xe4bf4 */

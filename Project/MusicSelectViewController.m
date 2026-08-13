@@ -1,7 +1,5 @@
 #import "MusicSelectViewController.h"
 
-#import <objc/runtime.h>
-
 #import <QuartzCore/QuartzCore.h>
 
 #import "AlertViewManager.h"
@@ -54,7 +52,6 @@
 #import "StoreUtil.h"
 #import "TuneInfo.h"
 #import "cipher_keys.h"
-#import "neDebugLog.h"
 
 static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 
@@ -3235,15 +3232,6 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
 /** @ghidraAddress 0x2d030 */
 - (void)tapSettings:(id)sender {
-    if (NE_DBG_FIRST(4)) {
-        CGRect settingsRect = btnSettings.frame;
-        neDebugLog("tapSettings: fired, btnSettings frame %.1f,%.1f %.1fx%.1f, navCtrl %s",
-                   settingsRect.origin.x,
-                   settingsRect.origin.y,
-                   settingsRect.size.width,
-                   settingsRect.size.height,
-                   settingsNavCtrl ? "present" : "nil");
-    }
 #ifdef ENABLE_PATCHES
     // Preservation patch, not in the binary. The binary latches its state unconditionally after the
     // present (bOpenModal at 0x2d120, bOpenSetting at 0x2d12c, then -musicShuffleDisable and
@@ -3270,33 +3258,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     [self setEnableGesture:YES];
     [[AudioManager sharedManager] playSeResFile:[self soundName:kSettingsTapSoundSuffix]
                                     inDirectory:nil];
-#if JBDBG
-    // The completion runs after the transition, so its absence in a capture means the transition
-    // never finished. When it does run it reports whether the sheet is sized, attached and opaque.
-    [self presentViewController:settingsNavCtrl
-                       animated:YES
-                     completion:^{
-                       UIView *sheet = self.presentedViewController.view;
-                       CGRect sheetRect = sheet.frame;
-                       neDebugLog("tapSettings: sheet frame %.1f,%.1f %.1fx%.1f window %s "
-                                  "hidden %d alpha %.2f super %s",
-                                  sheetRect.origin.x,
-                                  sheetRect.origin.y,
-                                  sheetRect.size.width,
-                                  sheetRect.size.height,
-                                  sheet.window ? "yes" : "no",
-                                  (int)sheet.hidden,
-                                  sheet.alpha,
-                                  sheet.superview ? object_getClassName(sheet.superview) : "nil");
-                     }];
-#else
     [self presentViewController:settingsNavCtrl animated:YES completion:nil];
-#endif
-    if (NE_DBG_FIRST(4)) {
-        neDebugLog("tapSettings: presented, presentedViewController %s, window %s",
-                   self.presentedViewController ? "set" : "nil",
-                   self.view.window ? "attached" : "detached");
-    }
     bOpenModal = YES;
     bOpenSetting = YES;
     [self musicShuffleDisable];
