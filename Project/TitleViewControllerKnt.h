@@ -14,7 +14,7 @@
  *
  * Unlike @c NteTitleCoreController this KNT variant owns the concierge sprite itself
  * (@c -renderConcierge , @c -getConciergeType , @c -becomeConcierge ) and a @c copyrightView , and
- * it slides its touch prompt by @c tapDelayY when the concierge is the campaign type. It has no
+ * it slides its touch prompt by @c tapDelayY when the concierge is the Hinabita type. It has no
  * falling option-drop ornaments.
  *
  * The superclass is @c TitleViewController , from the @c -init tail call to
@@ -184,16 +184,18 @@ NS_ASSUME_NONNULL_BEGIN
        withTransitionCoordinator:(nullable id<UIViewControllerTransitionCoordinator>)coordinator;
 
 /**
- * @brief Whether the given (legacy) interface orientation is supported: landscape only.
+ * @brief Whether the given (legacy) interface orientation is supported: portrait only.
  * @param interfaceOrientation The orientation to test.
- * @return @c YES for the two landscape orientations.
+ * @return @c YES for @c UIInterfaceOrientationPortrait and
+ *         @c UIInterfaceOrientationPortraitUpsideDown .
  * @ghidraAddress 0x188138
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * @brief The supported interface orientations: landscape.
- * @return @c UIInterfaceOrientationMaskLandscape .
+ * @brief The supported interface orientations: the portrait pair.
+ * @return @c UIInterfaceOrientationMaskPortrait |
+ *         @c UIInterfaceOrientationMaskPortraitUpsideDown .
  * @ghidraAddress 0x188148
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
@@ -206,7 +208,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotate;
 
 /**
- * @brief Removes observers, stops device motion, terminates the SE player, and calls @c super .
+ * @brief Removes observers, empties the wave textures, re-arms device motion (the binary does not
+ * stop it), terminates the SE player, and calls @c super .
  * @ghidraAddress 0x188158
  */
 - (void)dealloc;
@@ -221,7 +224,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Unlocks the concierge easter egg: enters the walking state, strips the swipe recognisers,
- * seeds the concierge positions, lazily creates the bell SE player, and (for the campaign
+ * seeds the concierge positions, lazily creates the bell SE player, and (for the Hinabita
  * concierge) slides the touch prompt down.
  * @ghidraAddress 0x188300
  */
@@ -243,8 +246,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Licence error: transitions on if the policy was already agreed, otherwise shows the
  * network-error alert and tears down the sheet and cover.
- * @param manager The reporting manager.
- * @param msgStr The error message, or @c nil for the default network-error string.
+ * @param manager Ignored.
+ * @param msgStr Ignored; the alert body is the fixed connection-error string.
  * @ghidraAddress 0x188e18
  */
 - (void)agreementError:(nullable id)manager msgStr:(nullable NSString *)msgStr;

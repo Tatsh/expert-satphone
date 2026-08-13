@@ -22,7 +22,8 @@
 #import "cipher_keys.h"
 #import "neEngineBridge.h"
 
-// The forever-repeat count handed to the blink animation, matching the sibling title screens.
+// The forever-repeat count handed to the blink animation, matching the sibling title screens; the
+// float at 0x28f3c4 (ldr s0,[x8,#0x3c4] at 0x1869a0).
 static const float kBlinkRepeatForever = 1e30f;
 
 // The fast blink used by the transition-off animation repeats a fixed ten times.
@@ -79,6 +80,12 @@ static NSString *const kChallengePolicyVersionKey = @"PrefAgreeChallengePolicyVe
 static NSString *const kNetworkErrorMsgKey = @"NetworkErrorMsg";
 static NSString *const kOKKey = @"OK";
 
+// The licence handshake's failure alert always shows this fixed body, the UTF-16 CFString at
+// 0x2dd500 (48 characters); both the reporting manager and its message are discarded.
+static NSString *const kAgreementErrorMsg = @"サーバに接続できません。\n"
+                                            @"ネットワーク接続をご確認下さい。\n"
+                                            @"初期起動時のみ通信が必須となります。";
+
 // The wave-atlas sprite-rect plist basenames and the concierge atlas resource.
 static NSString *const kWaveTexPad = @"game_wave_knt_pd2_0_tex";
 static NSString *const kWaveTexPhone = @"game_wave_knt_0_tex";
@@ -103,9 +110,11 @@ static NSString *const kLogoStandardName = @"j_logo_knt";
 static NSString *const kTouchPromptName = @"touch_knt";
 static NSString *const kCopyrightName = @"copyright_knt";
 
-// Layout doubles read from __const, verified from the disassembly.
-static const CGFloat kLogoCenterYRatio = 0.31;    // 0x293458: logo centre y = height * 0.31.
-static const CGFloat kTouchCenterYRatio = 0.6;    // 0x28f230: touch prompt centre y.
+// Layout doubles read from __const, verified from the disassembly. Both ratios are float literals
+// widened to double in the pool -- 0x293458 holds 0x3FD3D70A40000000 and 0x28f230 holds
+// 0x3FE3333340000000 -- so they are spelled with the f suffix to reproduce those bits.
+static const CGFloat kLogoCenterYRatio = 0.31f;   // 0x293458: logo centre y = height * 0.31f.
+static const CGFloat kTouchCenterYRatio = 0.6f;   // 0x28f230: touch prompt centre y.
 static const CGFloat kCopyrightInsetPad = 120.0;  // 0x28f210: copyright inset from bottom, pad.
 static const CGFloat kCopyrightInsetPhone = 40.0; // 0x28f1f8: copyright inset from bottom, phone.
 
@@ -114,18 +123,19 @@ static const CGFloat kCopyrightInsetPhone = 40.0; // 0x28f1f8: copyright inset f
 static const CGFloat kGL2DSpaceWidthPad = 768.0;
 static const CGFloat kGL2DSpaceHeightPad = 1024.0;
 
-// The knit-wave setup for the pad idiom: a 768x1024 canvas, wave baseline height * 0.48
-// (0x2933d0), a 60-point wave top (0x28f8a0), and a 30-point pulse.
+// The knit-wave setup: a 768x1024 canvas on the pad idiom only, and -- shared by both idioms -- a
+// wave baseline of the GL view's frame height times 0.48 (0x2933d0) and a 60-point wave top
+// (0x28f8a0). The pad pulses 30 points, the phone 20.
 static const CGFloat kPadWaveCanvasWidth = 768.0;
 static const CGFloat kPadWaveCanvasHeight = 1024.0;
-static const float kPadWaveBottomRatio = 0.47999998927116394f; // 0x2933d0.
-static const float kWaveTop = 60.0f;                           // 0x28f8a0.
-static const float kPadPulseHeight = 30.0f;                    // fmov 0x41f00000.
-static const float kPhonePulseHeight = 20.0f;                  // fmov 0x41a00000.
+static const float kWaveBottomRatio = 0.47999998927116394f; // 0x2933d0.
+static const float kWaveTop = 60.0f;                        // 0x28f8a0.
+static const float kPadPulseHeight = 30.0f;                 // fmov 0x41f00000.
+static const float kPhonePulseHeight = 20.0f;               // fmov 0x41a00000.
 
 // The number of Texture2D wave layers built in -loadView.
 static const int kWaveLayerCount = 6;
-// Each wave texture is a 32-texel square, A8 format.
+// Each wave texture is a 32-texel square, RGBA8888 format (mov w3,#0x1 at 0x185aec).
 static const GLuint kWaveTexturePixelSize = 32;
 
 // The concierge sizes, from the doubles at 0x293470 (widths: 109 phone-half? / 218) and 0x293480
@@ -162,8 +172,14 @@ static const int kTapShakeUpFrames = 8;
 // The maximum recorded tap count.
 static const int kMaxTapCount = 0xff;
 
-// The overlay backdrop's half-transparent black alpha, from fmov d1,0x3fe0000000000000.
+// The overlay backdrop's half-transparent black alpha, from fmov d1,0x3fe0000000000000 at
+// 0x1874d4.
 static const CGFloat kOverlayBackdropAlpha = 0.5;
+
+// The logo/copyright fade-in duration, from fmov d0,0x3fe0000000000000 at 0x186f24. This is an
+// 8-bit fmov immediate, not a __const pool load, so there is no pool address to record. It shares
+// its value with the backdrop alpha above but is a wholly unrelated quantity.
+static const NSTimeInterval kShowLogoFadeDuration = 0.5;
 
 // The concierge slide-down animation duration, a double at 0x28f260 (0.3).
 static const NSTimeInterval kConciergeSlideDuration = 0.3;
@@ -320,7 +336,10 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
     // is slid down by tapDelayY once the concierge appears; tapDelayY is the gap between the
     // standard centre and the stack of logo + prompt (+ a second prompt height on a 4-inch phone).
     touchView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kTouchPromptName)];
-    CGFloat touchCenterY = height * kTouchCenterYRatio;
+    // The binary narrows the product to single precision (fcvt s11,d0 at 0x185714) and widens it
+    // back only to hand it to -setCenter: (fcvt d1,s11 at 0x1857ec), so the y the prompt is
+    // centred on is float-rounded.
+    float touchCenterY = (float)(height * kTouchCenterYRatio);
     if (conType == kConciergeTypeHinabita) {
         CGRect logoFrame = jubeatLogoView.frame;
         CGRect touchFrame = touchView.frame;
@@ -328,7 +347,7 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
         if (!isPad && appDelegate.is4inchAspect) {
             stacked = (int)((CGFloat)stacked + touchView.frame.size.height);
         }
-        tapDelayY = (int)((float)stacked - (float)touchCenterY);
+        tapDelayY = (int)((float)stacked - touchCenterY);
     }
     touchView.center = CGPointMake(width * 0.5, touchCenterY);
     [self.view addSubview:touchView];
@@ -623,19 +642,24 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
 
     isWave = NO;
     upperBgKnt = [[UpperBGKnit alloc] init];
-    // The knit wave is set up differently per idiom: a fixed 768x1024 canvas on a pad, the GL
-    // view's own frame on a phone. Both take a 60-point wave top; the pad uses a 30-point pulse and
-    // a baseline at height * 0.48, the phone a 20-point pulse with a zero baseline.
-    CGRect glFrame = glView.frame;
+    // The knit wave differs per idiom only in its canvas and its pulse height: a fixed 768x1024
+    // canvas and a 30-point pulse on a pad, the controller's own view frame and a 20-point pulse on
+    // a phone. Both take a 60-point wave top and the same baseline, the GL view's frame height
+    // times 0.48, which the binary computes above the idiom branch (fmul at 0x1851b0, narrowed into
+    // the callee-saved v8) and hands to each arm.
+    float waveBottom = (float)(glView.frame.size.height * kWaveBottomRatio);
     if (isPad) {
         [upperBgKnt initBg:CGRectMake(0, 0, kPadWaveCanvasWidth, kPadWaveCanvasHeight)
-                waveBottom:(float)(glFrame.size.height * kPadWaveBottomRatio)
+                waveBottom:waveBottom
                    waveTop:kWaveTop
                pulseHeight:kPadPulseHeight
                      isPad:YES];
     } else {
-        [upperBgKnt initBg:glFrame
-                waveBottom:0.0f
+        // Yes, the phone arm takes its rectangle from the controller's own view rather than from
+        // glView (0x185208 sends -view to self, 0x185224 sends -frame to the result), so touching
+        // self.view here forces -loadView to run inside -init.
+        [upperBgKnt initBg:self.view.frame
+                waveBottom:waveBottom
                    waveTop:kWaveTop
                pulseHeight:kPhonePulseHeight
                      isPad:NO];
@@ -710,9 +734,11 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
 /** @ghidraAddress 0x186e80 */
 - (void)showLogo {
     __weak TitleViewControllerKnt *weakSelf = self;
-    [UIView animateWithDuration:kOverlayBackdropAlpha
+    // The binary passes options 0x30000 (orr w2,wzr,#0x30000 at 0x186f2c), which is 3 << 16, the
+    // linear curve, with no other option bits set.
+    [UIView animateWithDuration:kShowLogoFadeDuration
         delay:0.0
-        options:UIViewAnimationOptionBeginFromCurrentState
+        options:UIViewAnimationOptionCurveLinear
         animations:^{
           /** @ghidraAddress 0x186f8c */
           // Reaches both views through the strongly-captured self.
@@ -844,9 +870,12 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
 /** @ghidraAddress 0x188248 */
 - (int)getConciergeType {
     int colorType = [KnitColorManager.sharedManager getColorType];
-    // Colour types 0..4 map through the table at 0x293490; higher types fall through to type 3.
+    // Colour types 0..4 map through the table at 0x293490; the bound check at 0x188290 is unsigned
+    // (cmp w19,#0x4 / b.hi), so any other type -- including a negative one, which wraps high --
+    // falls through to type 3 rather than indexing the table out of bounds.
     static const int kColorTypeToConciergeType[] = {0, 1, 3, 3, 2};
-    int type = (colorType < 5) ? kColorTypeToConciergeType[colorType] : kConciergeTypeFallback;
+    int type = ((unsigned int)colorType < 5) ? kColorTypeToConciergeType[colorType] :
+                                               kConciergeTypeFallback;
     // Hinabita mode forces the hinabita concierge regardless of palette.
     if (JubeatAppDelegate.appDelegate.isHinabitaMode) {
         return kConciergeTypeHinabita;
@@ -1122,11 +1151,13 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
         return;
     }
     NSString *ok = [NSBundle.mainBundle localizedStringForKey:kOKKey value:@"" table:nil];
+    // The binary reads neither `manager` nor `msgStr`: the body is the fixed CFString at 0x2dd500,
+    // loaded into x6 at 0x188f28 immediately before the makeAlert: send.
     [[AlertViewManager sharedManager] makeAlert:0
                                        delegate:nil
                                             tag:0
                                           title:@"通信エラー"
-                                            msg:msgStr
+                                            msg:kAgreementErrorMsg
                                          cancel:ok
                                         btnText:nil
                                            show:YES];
