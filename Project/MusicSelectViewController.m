@@ -187,8 +187,10 @@ static const NSInteger kListTypeLevel = -10;
 static const NSInteger kListTypeHold = -11;
 static const NSInteger kListTypeNotHold = -12;
 static const NSInteger kListTypeNotPlayed = -2;
+#ifndef ENABLE_PATCHES
 // The store-promotion balloon: width, per-idiom height, per-idiom horizontal offset from the store
-// button, and its layer shadow.
+// button, and its layer shadow. These share the ENABLE_PATCHES guard on the balloon itself, since
+// nothing else uses them and an orphaned constant is an error under -Werror.
 static const double kBalloonWidth = 120.0;       // @ghidraAddress 0x28f210
 static const double kBalloonHeightPad = 290.0;   // @ghidraAddress 0x28f348
 static const double kBalloonHeightPhone = 210.0; // @ghidraAddress 0x28f340
@@ -196,6 +198,7 @@ static const double kBalloonXPad = 200.0;        // @ghidraAddress 0x28f358
 static const double kBalloonXPhone = 280.0;      // @ghidraAddress 0x28f350
 static const CGFloat kBalloonShadowRadius = 3.0; // fmov, 3.0
 static const float kBalloonShadowOpacity = 0.9f; // @ghidraAddress 0x28f3b0
+#endif
 // The search bar's fixed height and pad width, and its cancel-button inset (pad 98 / phone 48).
 static const double kSearchBarWidth = 670.0;  // @ghidraAddress 0x28f218
 static const double kSearchBarHeight = 52.0;  // @ghidraAddress 0x28f220
@@ -923,6 +926,12 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
     // A store-promotion balloon, shown only when the player owns no purchased music but has
     // records for built-in music.
+#ifndef ENABLE_PATCHES
+    // Preservation patch: under ENABLE_PATCHES the whole balloon is skipped. It advertises the
+    // store, whose servers are gone, and its text is broken in the original anyway: the localised
+    // template "StoreBalloonMessage(%@)" is handed to -initWithFormat: with no argument, so the
+    // dangling %@ formats whatever happens to occupy the variadic slot. That renders "(null)" at
+    // best and arbitrary text otherwise, so the balloon can only mislead now.
     if ([StoreMusicListManager sharedManager].purchasedMusic.count == 0) {
         NSArray *builtin = [StoreMusicListManager sharedManager].builtinMusic;
         if ([ScoreRecord recordsForTuneIDs:builtin].count != 0) {
@@ -973,6 +982,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
             [self.view addSubview:balloonView];
         }
     }
+#endif
 
     // The join-session button, left of the challenge button.
     UIImage *joinImage = (theme == JubeatThemeRipples) ?
