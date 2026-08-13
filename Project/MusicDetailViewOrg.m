@@ -632,17 +632,24 @@ static const double kMarkHeight = 14.0;       // fmov, 14
 
     // The iTunes link keeps the tune-name box's size at its own per-idiom Y (gap 10 on the pad,
     // 5 on both phones).
-    [self.buttonLink frame];
+    // The link keeps its OWN size: the binary captures [buttonLink frame]'s size at 0x50d9c
+    // (v8 = width, v11 = height) and feeds it back into the -setFrame: at 0x50ea8. Sizing it from
+    // the tune-name box stretched the iTunes badge across the row and the social buttons landed
+    // on top of it.
+    CGRect linkOwnFrame = self.buttonLink.frame;
     double linkGap = isPad ? kTuneNameGapPad : kTuneNameGapRetina;
     double linkY = isPad ? kButtonLinkYPad : kButtonLinkYPhone;
-    [self.buttonLink
-        setFrame:CGRectMake(artworkRight + linkGap, linkY, tuneNameWidth, tuneNameHeight)];
+    [self.buttonLink setFrame:CGRectMake(artworkRight + linkGap,
+                                         linkY,
+                                         linkOwnFrame.size.width,
+                                         linkOwnFrame.size.height)];
 
     // The social recommend buttons stack rightwards from the card's right edge, each centred on
     // the link's vertical centre. The Facebook button is present only when the social compose
     // sheet class exists; it consumes the first slot when so.
     CGRect linkFrame = self.buttonLink.frame;
-    int socialCenterY = (int)(linkY + tuneNameHeight * 0.5);
+    // Centred on the link's own origin and height, re-read after the -setFrame: above.
+    int socialCenterY = (int)(linkFrame.origin.y + linkFrame.size.height * 0.5);
     int socialInset = isPad ? kSocialInsetPad : 0;
     BOOL hasFacebook = NO;
     if (NSClassFromString(@"SLComposeViewController") != nil) {

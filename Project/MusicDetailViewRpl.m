@@ -565,17 +565,25 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         setFrame:CGRectMake(
                      artworkRight + tuneNameGap, artworkInset, tuneNameWidth, tuneNameHeight)];
 
-    // The iTunes link keeps the tune-name box's size at its own per-idiom Y.
-    [self.buttonLink frame];
+    // The iTunes link keeps its OWN size at its own per-idiom Y. The binary reads
+    // [buttonLink frame] at 0x12b8e0 and carries size.width in v9 and size.height in v11 straight
+    // into the -setFrame: at 0x12b9f8; sizing it from the tune-name box instead stretched the
+    // iTunes badge across the whole row and left the social buttons sitting on top of it.
+    CGRect linkOwnFrame = self.buttonLink.frame;
     double linkGap = isPad ? kTuneNameGapPad : kTuneNameGapRetina;
     double linkY = isPad ? kButtonLinkYPad : kButtonLinkYPhone;
-    [self.buttonLink
-        setFrame:CGRectMake(artworkRight + linkGap, linkY, tuneNameWidth, tuneNameHeight)];
+    [self.buttonLink setFrame:CGRectMake(artworkRight + linkGap,
+                                         linkY,
+                                         linkOwnFrame.size.width,
+                                         linkOwnFrame.size.height)];
 
     // The social recommend buttons stack rightwards from the card's right edge, centred on the
     // link row; the Facebook button (gated on SLComposeViewController) takes the first slot.
+    // Re-read after the -setFrame: above, exactly as the binary does at 0x12ba20, and centre on
+    // the link's own origin and height (v8 + v12 * 0.5 into fcvtzs w19) rather than on the
+    // tune-name box's.
     CGRect linkFrame = self.buttonLink.frame;
-    int socialCenterY = (int)(linkY + tuneNameHeight * 0.5);
+    int socialCenterY = (int)(linkFrame.origin.y + linkFrame.size.height * 0.5);
     int socialInset = isPad ? kSocialInsetPad : 0;
     BOOL hasFacebook = NO;
     if (NSClassFromString(@"SLComposeViewController") != nil) {
