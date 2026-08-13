@@ -683,7 +683,7 @@ static inline void MainGameRendererPadKntLoadMarkerTexture(MainGameRendererPadKn
             for (int i = 0; i < kHoldBankFrameCount; ++i) {
                 [codec cipherInit:cipherKey];
                 NSMutableData *data =
-                    [unzip uncompress:[NSString stringWithFormat:@"h%d%02d", bank, i]];
+                    [unzip uncompress:[NSString stringWithFormat:@"h%d%02d", bank + 1, i]];
                 UIImage *image = CreateImageFromEncryptedData(codec, data);
                 if (image) {
                     unsigned int spriteIndex = (unsigned int)(i + kHoldBankBase[bank]);

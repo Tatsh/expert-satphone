@@ -307,7 +307,7 @@ static inline void MainGameRendererPhoneLoadMarkerTexture(Texture2D *__strong *t
         @autoreleasepool {
             for (int i = 0; i < kHoldBankFrameCount; ++i) {
                 [codec cipherInit:cipherKey];
-                NSString *name = [NSString stringWithFormat:@"h%d%02d", bank, i];
+                NSString *name = [NSString stringWithFormat:@"h%d%02d", bank + 1, i];
                 NSMutableData *data = [unzip uncompress:name];
                 UIImage *image = CreateImageFromEncryptedData(codec, data);
                 if (image) {

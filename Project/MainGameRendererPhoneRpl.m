@@ -280,12 +280,12 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
         }
     }
 
-    // Blit the four hold-direction rows (h0..h3), each 16 frames, into the marker atlas.
+    // Blit the four hold-direction rows (h1..h4), each 16 frames, into the marker atlas.
     for (int row = 0; row < kMarkerHoldRowCount; ++row) {
         @autoreleasepool {
             for (int i = 0; i < kHoldFramesPerRow; ++i) {
                 [cipher cipherInit:cipherKey];
-                NSString *entry = [NSString stringWithFormat:@"h%d%02d", row, i];
+                NSString *entry = [NSString stringWithFormat:@"h%d%02d", row + 1, i];
                 NSMutableData *bytes = [markerZip uncompress:entry];
                 UIImage *image = CreateImageFromEncryptedData(cipher, bytes);
                 if (image) {
