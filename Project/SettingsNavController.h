@@ -10,6 +10,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "RotatableNavigationController.h"
+
 @class SettingsViewController;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Presents the settings screen inside a navigation controller with a close button.
  */
-@interface SettingsNavController : UINavigationController
+@interface SettingsNavController : RotatableNavigationController
 
 /**
  * @brief The hosted settings view controller, built in @c -init .

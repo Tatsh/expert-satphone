@@ -284,6 +284,17 @@ static const int kPhoneTopOffset = -10;
  */
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. -startAnimation runs from -init and nothing ever
+    // takes the link down again: -stopAnimation (0x1762a8) is dead code in the shipped binary --
+    // its selector has 18 call sites and none is inside this class -- and neither
+    // -viewWillDisappear: (0x175528), -viewDidDisappear: (0x1755b8) nor -dealloc (0x17596c)
+    // touches it. Because CADisplayLink retains its target, the controller then outlives the pop
+    // and keeps firing -loop: at 30 Hz on NSRunLoopCommonModes forever, driving -[AdjustTestView
+    // draw] and its -presentRenderbuffer: into a CAEAGLLayer that UIKit is concurrently animating
+    // and re-parenting. Take the link down before the transition starts instead.
+    [self stopAnimation];
+#endif
     [testView pausePreview];
     [NSUserDefaults.standardUserDefaults synchronize];
 }
