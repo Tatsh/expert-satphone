@@ -358,12 +358,12 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
         }
     }
 
-    // Blit the four hold-direction rows (h0..h3), each 16 frames, into the marker atlas.
+    // Blit the four hold-direction rows (h1..h4), each 16 frames, into the marker atlas.
     for (int row = 0; row < kMarkerHoldRowCount; ++row) {
         @autoreleasepool {
             for (int i = 0; i < kHoldFramesPerRow; ++i) {
                 [cipher cipherInit:cipherKey];
-                NSString *entry = [NSString stringWithFormat:@"h%d%02d", row, i];
+                NSString *entry = [NSString stringWithFormat:@"h%d%02d", row + 1, i];
                 NSMutableData *bytes = [markerZip uncompress:entry];
                 UIImage *image = CreateImageFromEncryptedData(cipher, bytes);
                 if (image) {
@@ -994,7 +994,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     if (shutterTarget > 0.0f) {
         float amp = (float)tension * kShutterAmpFactor * kTensionScale + kShutterAmpBase;
         float wave = (float)sin((double)haku * kNegPi);
-        shutterTarget = shutterTarget + amp + amp * wave;
+        shutterTarget += amp + amp * wave;
     }
     self->shutterOpen = (shutterTarget + self->shutterOpen) * 0.5f;
 
@@ -1007,7 +1007,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
                  transform:0
                      alpha:1.0f];
     double bottomBarY =
-        (double)(measure * kShutterMeasureShift) + (double)self->shutterOpen + kShutterSpan;
+        (double)(measure * kShutterMeasureShift) + ((double)self->shutterOpen + kShutterSpan);
     [self.texBG drawInRect:CGRectMake(0.0, bottomBarY, kGridSize, barHeight)
                 fromRegion:shutterRegion
                  transform:2
@@ -1360,14 +1360,15 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     static const unsigned int kScoreRankThreshold = 700000; // 0xaae60
     // The partner row: offset from the player row, half-alpha when disconnected, a 0.7 scale, and
     // its own digit metrics.
-    static const double kPartnerOffsetX = 76.0;       // @ghidraAddress 0x292488
-    static const double kPartnerOffsetY = -50.0;      // @ghidraAddress 0x28e068
-    static const double kPartnerScale = 0.7;          // @ghidraAddress 0x291c98
+    static const double kPartnerOffsetX = 76.0;  // @ghidraAddress 0x292488
+    static const double kPartnerOffsetY = -50.0; // @ghidraAddress 0x28e068
+    // A float widened at compile time: the pool holds 0x3FE6666660000000, not (double)0.7.
+    static const float kPartnerScale = 0.7f;          // @ghidraAddress 0x291c98
     static const float kPartnerDigitPitch = 22.4f;    // @ghidraAddress 0x292554
     static const double kPartnerDigitOriginX = 17.5;  // @ghidraAddress 0x28f680
     static const double kPartnerDigitOriginY = 11.9;  // @ghidraAddress 0x292490
     static const double kPartnerLabelOffsetX = -60.0; // @ghidraAddress 0x291bc8
-    static const double kPartnerLabelOffsetY = -22.0; // fmov 0xbff6000000000000
+    static const double kPartnerLabelOffsetY = -22.0; // fmov d1,#-22.0 @ 0x105dac
     static const double kHalf = 0.5;
 
     // The label and digit cell dimensions drive every scaled rect below.
@@ -1597,8 +1598,8 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
                 spriteBase = kMusicBarRatingSpriteBase[grade];
             } else {
                 // A still-upcoming cell is idle; the cell the cursor currently sits in is lit.
-                spriteBase = (cellF + kMusicBarFadeStart < cursor) ? kMusicBarNoteBaseIdle :
-                                                                     kMusicBarNoteBaseCursor;
+                spriteBase = (cursor <= cellF + kMusicBarFadeStart) ? kMusicBarNoteBaseIdle :
+                                                                      kMusicBarNoteBaseCursor;
             }
             [self.texFront
                 drawSprite:(NSUInteger)((int)note + spriteBase)
@@ -2064,6 +2065,8 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     static const double kMessageBandY[] = {448.0, 640.0, 832.0};
     // The bonus tally-in (frames 40..59) and the record/rating fade rate.
     static const float kFadeRatePerFrame = -0.07999999821186066f; // @ghidraAddress 0x2925ac
+    // The message-band curtain fades at a different rate from the bonus tally and rating.
+    static const float kCurtainFadeRatePerFrame = -0.10000000149011612f; // @ghidraAddress 0x292560
     // The rating draw positions.
     static const double kRatingLabelX = 240.0; // @ghidraAddress 0x291bf0
     static const double kRatingLabelY = 785.0; // @ghidraAddress 0x292500
@@ -2137,13 +2140,13 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     }
     [self.texFront drawSprite:kResultTuneWordSprite atPoint:CGPointMake(wordX, 6.0)];
 
-    [self renderMusicBar:CGPointMake(0.0, slideY + kMusicBarY) timeline:NO alpha:1.0];
+    [self renderMusicBar:CGPointMake(0.0, upperHeight + kMusicBarY) timeline:NO alpha:1.0];
 
     // The message-band curtain wipes across over the first ten frames.
     f = self->frame;
     double curtainAlpha = 1.0;
     if (f < 10) {
-        curtainAlpha = (double)((float)f * kFadeRatePerFrame + 1.0f);
+        curtainAlpha = (double)((float)f * kCurtainFadeRatePerFrame + 1.0f);
         for (int columnX = 0; columnX < kCurtainWidth; columnX += kCurtainStep) {
             [self.texFront drawSprite:kResultBannerSprite
                               atPoint:CGPointMake((double)columnX, bandBase)
@@ -2155,17 +2158,18 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
         double centerX = (kFieldWidth - banner.size.width) * 0.5;
         double centerY = (kButtonAreaResultOffset - banner.size.height) * 0.5;
         [self.texFront drawSprite:kResultMessageSprite
-                          atPoint:CGPointMake(centerX, slideY + centerY + kGameAreaOffset)
-                        transform:2
+                          atPoint:CGPointMake(centerX, upperHeight + centerY + kGameAreaOffset)
+                        transform:0
                             alpha:(float)curtainAlpha];
         for (int band = 0; band < 3; ++band) {
-            [self.texFront drawSprite:kResultMessageSprite
-                              atPoint:CGPointMake(centerX, slideY + centerY + kMessageBandY[band])
-                            transform:2
-                                alpha:(float)curtainAlpha];
+            [self.texFront
+                drawSprite:kResultMessageSprite
+                   atPoint:CGPointMake(centerX, upperHeight + centerY + kMessageBandY[band])
+                 transform:0
+                     alpha:(float)curtainAlpha];
         }
         f = self->frame;
-        curtainAlpha = (double)((float)(10 - f) * kFadeRatePerFrame + 1.0f);
+        curtainAlpha = (double)((float)(10 - f) * kCurtainFadeRatePerFrame + 1.0f);
     }
 
     // The score: the running total until frame 40, then the final total plus any bonus.
@@ -2177,13 +2181,13 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
         }
         [self renderScore:total
              partnerScore:self.partnerScore
-                  atPoint:CGPointMake(kScoreX, slideY + kScoreY)
+                  atPoint:CGPointMake(kScoreX, upperHeight + kScoreY)
                    scaleH:1.0
                     alpha:1.0];
     } else {
         [self renderScore:(unsigned int)score->totalPoint
              partnerScore:(self.partnerFinalBonus + self.partnerScore)
-                  atPoint:CGPointMake(kScoreX, slideY + kScoreY)
+                  atPoint:CGPointMake(kScoreX, upperHeight + kScoreY)
                    scaleH:1.0
                     alpha:1.0];
         if (!(self.isSession && self.isConnected)) {
@@ -2193,7 +2197,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
                 double bonusAlpha = (double)((float)(f - 0x28) * kFadeRatePerFrame + 1.5f);
                 [self renderBonus:(unsigned int)score->bonusPoint
                           atPoint:CGPointMake(kBonusOffsetX,
-                                              (slideY + kScoreY + kBonusLabelOffsetX) -
+                                              (upperHeight + kScoreY + kBonusLabelOffsetX) -
                                                   (double)(f - 0x28))
                             alpha:bonusAlpha];
             }
@@ -2229,10 +2233,12 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
         if (!self.scoreBackup) {
             [self.texRating drawSprite:kRatingLabelSprite
                                atPoint:CGPointMake(kRatingLabelX, kRatingLabelY)
-                             transform:1
+                             transform:0
                                  alpha:(float)ratingAlpha];
             [self.texRating drawSprite:kRatingGlyphSprite
-                               atPoint:CGPointMake(kRatingGlyphX, kRatingGlyphY)];
+                               atPoint:CGPointMake(kRatingGlyphX, kRatingGlyphY)
+                             transform:0
+                                 alpha:(float)ratingAlpha];
         }
     }
 
@@ -2240,7 +2246,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     // grows along its own width, which maps to the screen-vertical direction.
     if (self.isNewRecord && self->frame > 99 && !self.scoreBackup) {
         CGRect banner = [self.texFront spriteAtIndex:kRecordBannerSprite];
-        double recordY = slideY + kScoreY + kRecordLabelYOffset;
+        double recordY = upperHeight + kScoreY + kRecordLabelYOffset;
         f = self->frame;
         double scaledLength = banner.size.width; // The along-width extent that scales in.
         double bannerY = recordY;
@@ -2269,7 +2275,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     // Once the result reaches its interactive sub-state, draw the good-job / share marks and fade
     // the good-job overlay in.
     if (self.subState != 0) {
-        double markBase = slideY + kResultMarkTweak;
+        double markBase = upperHeight + kResultMarkTweak;
         unsigned int elapsed = self->frame - self->subStateChangeFrame;
         float markAlpha = (elapsed > 7) ? 1.0f : (float)elapsed * 0.125f;
 
@@ -2277,8 +2283,8 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
         double glyphY = markBase + kResultMarkGlyphYOffset;
         [self.texFront drawSprite:kResultMarkGlyphSprite
                           atPoint:CGPointMake(kResultMarkGlyphX, glyphY)
-                        transform:(char)(int)markAlpha
-                            alpha:0x21]; // Faithful: the binary's transform/alpha shuffle.
+                        transform:0
+                            alpha:markAlpha];
 
         if (!self.replayPlaying && self.isCustom && self.isDownload && self.hasMusic) {
             if (!self.isTextureChange) {
@@ -2303,8 +2309,8 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
             [self renderMarkFrame:CGPointMake(kGoodJobFrameX, markBase) alpha:(double)markAlpha];
             [self.texFront drawSprite:kGoodJobGlyphSprite
                               atPoint:CGPointMake(kGoodJobMarkX, glyphY)
-                            transform:(char)(int)markAlpha
-                                alpha:0x20];
+                            transform:0
+                                alpha:markAlpha];
         }
 
         if (!self.isCustom && self.hasMusic && self.goodJobImage) {
