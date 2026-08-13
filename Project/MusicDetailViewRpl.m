@@ -578,14 +578,16 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     int socialInset = isPad ? kSocialInsetPad : 0;
     BOOL hasFacebook = NO;
     if (NSClassFromString(@"SLComposeViewController") != nil) {
-        [self.btnRecommendFacebook frame];
+        // Sized from the button's own frame, not the link button's. The two -frame sends the
+        // binary makes here are what supply it; reading buttonLink's size instead gave the
+        // Facebook button the iTunes badge's width and drew it over the badge.
+        CGRect facebookFrame = self.btnRecommendFacebook.frame;
         [self.btnRecommendFacebook
-            setFrame:CGRectMake((self.frame.size.width - linkFrame.size.width) -
+            setFrame:CGRectMake((self.frame.size.width - facebookFrame.size.width) -
                                     (double)socialInset,
-                                (double)socialCenterY - linkFrame.size.height * 0.5,
-                                linkFrame.size.width,
-                                linkFrame.size.height)];
-        [self.btnRecommendFacebook frame];
+                                (double)socialCenterY - facebookFrame.size.height * 0.5,
+                                facebookFrame.size.width,
+                                facebookFrame.size.height)];
         socialInset = isPad ? kSocialGapPad : 0;
         hasFacebook = YES;
     }
