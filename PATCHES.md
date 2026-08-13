@@ -119,25 +119,6 @@ argument, so the format's `%@` is left dangling and renders whatever occupies th
 The balloon's seven file-scope constants are wrapped in the same `#ifndef`, since nothing else uses
 them and an unused constant fails the build under `-Werror`.
 
-> **The settings soft lock was caused by one of these patches, and that patch has been removed.**
-> Instrumented captures (`neUIProbe`, JBDBG only) show both the failing re-presentation and the
-> failing pop ending in `MAIN RUN LOOP STALLED ... mode kCFRunLoopDefaultMode`, with no recovery:
-> a permanent main-thread spin inside a Core Animation commit's layout pass, at fixed stack depth
-> and with no frame of this tree above `main`. Counting layout by view class across the stall
-> named it — `probe layout stall: UITableViewCell x20886` in two seconds, that class alone, and
-> `probe dirty stall: none`.
->
-> The cause was the settings table reload patch. `-viewWillAppear:` (0xe74a0) reloads three named
-> rows and Show Combos is not one of them, so the binary never rebuilds the cell holding the single
-> shared `switchCombo`. Replacing that with `-reloadData` recycles every visible cell, so the
-> switch's old cell is handed to another row — which never clears `accessoryView` — while a fresh
-> Show Combos cell is assigned the same switch. Two live cells own one accessory view, each
-> re-parents it away from the other, and the layout pass never converges. The first appearance is
-> unaffected because the reuse pool is empty, which is exactly why only the second visit hung.
->
-> That patch is gone and the faithful call restored. The remaining entries are documented as
-> written and reassessed individually; none of them was ever the fault.
-
 ### Settings sheet presentation guard
 
 **File:** `Project/MusicSelectViewController.m` — `-tapSettings:` (0x2d030)
@@ -168,34 +149,6 @@ at once. Modern UIKit gives the bar full-width private containers instead, and t
 the bar itself, so the whole bar becomes an exclusive-touch region of the window it shares with the
 presenting screen. Both are compiled out.
 
-This did not fix the soft lock either. The discriminator it was chosen on — that every failing
-interaction is a navigation-bar tap while pushing into a child always works — no longer holds:
-returning from a child soft locks whatever the child is, including the children that own no
-navigation-bar control of their own. The reasoning about what `exclusiveTouch` now means on a bar
-whose direct subviews are full-width private containers still stands on its own, so the patch is
-kept, but it is not the fix for anything currently reported.
-
-### Settings table reload — REMOVED
-
-**File:** `Project/SettingsViewController.m` — `-viewWillAppear:` (0xe74a0)
-
-This patch replaced the binary's `-reloadRowsAtIndexPaths:withRowAnimation:` with `-reloadData`, to
-suppress the "told to layout its visible cells while not in the view hierarchy" warning that the
-batch update emits when it runs inside the presentation transition. It was reasoned to be visually
-identical, since the requested animation is `None` and the rows are deselected just above.
-
-It was not identical, and it was the settings soft lock. The two calls differ in a way the warning
-hid: the binary reloads three named rows and Show Combos is not one of them, so the cell holding
-the single shared `switchCombo` is never rebuilt and the switch keeps one owner. `-reloadData`
-recycles every visible cell, so the switch's old cell is handed to a row whose arm never clears
-`accessoryView`, while a fresh Show Combos cell is assigned the same switch. Two cells then own one
-accessory view and re-parent it away from each other without end. The reuse pool is empty on the
-first appearance, which is why only the second visit to the screen hung.
-
-The patch is removed and the faithful call restored. See
-[Settings cell accessory view](#settings-cell-accessory-view) for the guard that keeps the same
-collision from arising through ordinary cell recycling.
-
 ### Settings cell accessory view
 
 **File:** `Project/SettingsViewController.m` — `-tableView:cellForRowAtIndexPath:` (0xe5678)
@@ -209,9 +162,8 @@ Combos is rebuilt leaves two cells holding one accessory view.
 On the SDK this shipped against a cell laid its accessory view out where it found it. Modern UIKit
 re-parents it, so each of the two cells invalidates the other's layout in turn and the layout pass
 never converges: the main thread spins inside the Core Animation commit and never returns to the
-run loop. Removing the reload patch above removes the way this build provoked it, but the collision
-is latent in the original for anything else that recycles a cell. The patch clears a stale
-`accessoryView` on every row that is not Show Combos.
+run loop, which locks the whole app. The patch clears a stale `accessoryView` on every row that is
+not Show Combos.
 
 ### Settings sheet interactive dismissal
 
@@ -224,14 +176,11 @@ the Close item is the only way out. Since iOS 13 a sheet can be dismissed by a s
 outside it, and neither reaches `-pushClose:` (0xe4844), so neither reaches the only code path that
 clears the song-select screen's modal state.
 
-This patch first set `modalInPresentation`, refusing the dismissal outright. That kept the state
-consistent but took away a way out of the screen that the shipped binary running on the same system
-has, so it traded one defect for another — and "tapping outside does not dismiss Settings" was
-reported as a bug in its own right.
-
-The binary shows the shape of the real answer elsewhere: it implements
-`-popoverPresentationControllerDidDismissPopover:` (0x27634) precisely to clean up after a dismissal
-the system initiated. This is that, for a sheet. The controller makes itself its own
+Refusing the dismissal would keep that state consistent, but it would also take away a way out of
+the screen that the shipped binary running on the same system has. The binary shows the shape of
+the better answer elsewhere: it implements `-popoverPresentationControllerDidDismissPopover:`
+(0x27634) precisely to clean up after a dismissal the system initiated. This is that, for a sheet.
+The controller makes itself its own
 `UIAdaptivePresentationControllerDelegate` and, when UIKit reports the dismissal, calls the same
 `-pushClose:` the Close button calls, so `bOpenSetting` is cleared and the select screen's shuffle
 and swipe recognisers come back exactly as they do on the Close path. The two paths cannot double
