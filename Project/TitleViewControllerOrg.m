@@ -8,6 +8,7 @@
 #import "JubeatAppDelegate.h"
 #import "LicenseAgreementView.h"
 #import "MarkerDownloadView.h"
+#import "RootViewController.h"
 
 @implementation TitleViewControllerOrg {
     int kcState;                           // offset global 0x34ae68
@@ -23,64 +24,120 @@
     EditorIDManager *idManager;            // offset global 0x34ae7c
 }
 
-// The title-screen resource names, from the __const CFStrings at 0x2dd420, 0x2dd440, 0x2d4820.
+// The title-screen resource names, from the __const CFStrings at 0x2dd420, 0x2dd440, and 0x2d4820.
 static NSString *const kLogoImageName = @"j_logo";
 static NSString *const kTouchImageName = @"touch";
 static NSString *const kCopyrightImageName = @"copyright";
-// The cube background animation: five JPEG frames named tit_cubes00..04 (CFStrings 0x2dd3e0 for the
-// format, 0x2dd400 for the type), cycled over 0.35 s (pooled double 0x292ea0).
+
+// The cube background: five JPEG frames named tit_cubes00..04, from the format string at 0x2dd3e0
+// and the type at 0x2dd400, cycling a frame every 0.35 s (pooled double 0x292ea0).
 static NSString *const kCubeImageNameFormat = @"tit_cubes%02d";
 static NSString *const kCubeImageType = @"jpg";
-static const int kCubeFrameCount = 5;
+// An enumeration rather than a static const, so the frame buffer is a fixed-size array with an
+// initialiser, matching the five zeroed stack slots the binary fills from sp+0xa0.
+enum { kCubeFrameCount = 5 };
 static const NSTimeInterval kCubeAnimationDuration = 0.35;
-// The cube view is inset vertically by 80 points on pad, 50 on phone (the csel of 0x50/0x32).
-static const CGFloat kCubeInsetPad = 80.0;
-static const CGFloat kCubeInsetPhone = 50.0;
-// The top and bottom fade gradients are 100 points tall on pad, 60 on phone (pooled doubles
-// 0x28f3f0 and 0x28f258).
+// The cube view is inset vertically at both edges. The binary keeps the inset an integer and
+// doubles it with a shift before converting (the csel of 0x50 and 0x32 at 0x13ae4c).
+static const int kCubeInsetPad = 80;
+static const int kCubeInsetPhone = 50;
+// The two fade gradients over the cube view (pooled doubles 0x28f3f0 and 0x28f258).
 static const CGFloat kGradientHeightPad = 100.0;
 static const CGFloat kGradientHeightPhone = 60.0;
-// The logo centres, as fractions of the view size (pooled doubles 0x291cb0 and 0x28f230), with the
-// copyright inset from the bottom (0x28f2c8 == 50 on pad, immediate 30 on phone).
-static const CGFloat kLogoCenterYFraction = 0.35;
-static const CGFloat kTouchCenterYFraction = 0.6;
+// The logo and prompt centres, as fractions of the view height. Both slots hold a float widened to
+// a double — 0x291cb0 is 0x3fd6666660000000 and 0x28f230 is 0x3fe3333340000000 — so the literals
+// carry the f suffix. 0x291cb0 is a different slot from kCubeAnimationDuration's 0x292ea0, even
+// though both read 0.35.
+static const CGFloat kLogoCenterYFraction = 0.35f;
+static const CGFloat kTouchCenterYFraction = 0.6f;
+// The copyright sits this far above the bottom edge: the pooled 50 at 0x28f2c8 on pad, the fmov
+// immediate 30 at 0x13b524 on phone.
 static const CGFloat kCopyrightBottomInsetPad = 50.0;
 static const CGFloat kCopyrightBottomInsetPhone = 30.0;
+
+// The logo and copyright fade in over 0.5 s (fmov immediate at 0x13bd9c).
+static const NSTimeInterval kLogoFadeDuration = 0.5;
+
+// The audio resource names, from the CFStrings at 0x2dd460, 0x2dd480, 0x2d7100, and 0x2dd4c0.
+static NSString *const kTitleBgmName = @"SD_BGM_TITLE";
+static NSString *const kWelcomeVoiceName = @"SD_CV_WELCOME";
+static NSString *const kConfirmSeName = @"SD_OK";
+static NSString *const kKonamiRevealSeName = @"SD_GRA";
+// The BGM fades out over 1.5 s as the title is dismissed (fmov immediate at 0x13c7c0).
+static const NSTimeInterval kBgmFadeOutTime = 1.5;
+
+// The prompt blink and the fast blink that replaces it on the way out. The key path and the two
+// layer keys are the CFStrings at 0x2d5da0, 0x2dd4a0, and 0x2dd4e0. Both animations dim to the
+// same pooled float at 0x28f70c: the slow one runs 0.6 s a half-cycle (pooled double 0x28f288)
+// forever (pooled float 0x28f3c4), the fast one 0.1 s (pooled double 0x28f290) ten times (fmov
+// immediate at 0x13c900). The full-opacity end of each is an fmov immediate, so it stays a literal.
+static NSString *const kOpacityKeyPath = @"opacity";
+static NSString *const kBlinkAnimationKey = @"AnimationBlink";
+static NSString *const kFastBlinkAnimationKey = @"AnimationBlinkFast";
+static const CFTimeInterval kBlinkDuration = 0.6;
+static const float kBlinkDimOpacity = 0.1f;
+static const float kBlinkRepeatForever = 1e30f;
+static const CFTimeInterval kFastBlinkDuration = 0.1;
+static const float kFastBlinkRepeatCount = 10.0f;
+
+// The hidden sequence: eight swipes walk kcState to 8, then the two logo hot-spots take it to 9
+// and to 10. Past 10 the sequence is spent and every tap starts the game.
+static const int kKonamiTapArmedState = 9;
+static const int kKonamiTapFirstState = 8;
+static const int kKonamiTapSecondState = 9;
+static const int kKonamiCompleteState = 10;
+// The two hot-spots, in the logo view's own coordinate space. Both are square and share a y, so
+// only the x differs. The pad first-spot x and the phone second-spot x read the same pool slot,
+// which is why one address appears twice.
+static const CGFloat kKonamiFirstSpotXPad = 188.0;    // Pooled double 0x28f418.
+static const CGFloat kKonamiFirstSpotXPhone = 87.0;   // Pooled double 0x291de8.
+static const CGFloat kKonamiSecondSpotXPad = 399.0;   // Pooled double 0x292ea8.
+static const CGFloat kKonamiSecondSpotXPhone = 188.0; // Pooled double 0x28f418.
+static const CGFloat kKonamiSpotYPad = 34.0;          // Pooled double 0x28f648.
+static const CGFloat kKonamiSpotYPhone = 14.0;        // fmov immediate at 0x13bf54.
+static const CGFloat kKonamiSpotSidePad = 80.0;       // Pooled double 0x28f3f8.
+static const CGFloat kKonamiSpotSidePhone = 44.0;     // Pooled double 0x291e30.
+// Completing the sequence is its own reward: the cube background speeds up from 0.35 s a frame to
+// 0.2 s (pooled double 0x28e040).
+static const NSTimeInterval kKonamiCubeAnimationDuration = 0.2;
+
+// The invisible cover dropped over the title while the licence sheet is up (fmov immediate at
+// 0x13c1fc). It is added at alpha 0, so the licence view raises it.
+static const CGFloat kCoverViewAlpha = 0.5;
+
+// The challenge-policy defaults key, the CFString at 0x2d60a0.
+static NSString *const kPrefAgreeChallengePolicyVersion = @"PrefAgreeChallengePolicyVersion";
 
 /** @ghidraAddress 0x13abb8 */
 - (instancetype)init {
     self = [super init];
     if (self) {
-        // Subscribes to background/foreground so the title can suspend and resume its animation.
-        // Verified in disassembly at 0x13abf4: two addObserver:selector:name:object: calls for
-        // UIApplicationDidEnterBackgroundNotification and
-        // UIApplicationWillEnterForegroundNotification with selectors suspend: and resume:.
-        [NSNotificationCenter.defaultCenter addObserver:self
-                                               selector:@selector(suspend:)
-                                                   name:UIApplicationDidEnterBackgroundNotification
-                                                 object:nil];
-        [NSNotificationCenter.defaultCenter addObserver:self
-                                               selector:@selector(resume:)
-                                                   name:UIApplicationWillEnterForegroundNotification
-                                                 object:nil];
+        // The binary sends -defaultCenter once and holds the result for both registrations.
+        NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
+        [center addObserver:self
+                   selector:@selector(suspend:)
+                       name:UIApplicationDidEnterBackgroundNotification
+                     object:nil];
+        [center addObserver:self
+                   selector:@selector(resume:)
+                       name:UIApplicationWillEnterForegroundNotification
+                     object:nil];
     }
     return self;
 }
 
 /** @ghidraAddress 0x13c580 */
 - (void)dealloc {
-    // Unsubscribes from the two notifications added in -init.
-    // Disassembly at 0x13c594: ldr x0,[x8,#0x230] (NSNotificationCenter) / bl defaultCenter /
-    // bl removeObserver: at 0x13c5c0, with x2 = self. No other ivars are cleared here.
+    // Unsubscribes from the two notifications added in -init. No other ivars are cleared here.
     [NSNotificationCenter.defaultCenter removeObserver:self];
-    // [super dealloc] is compiler-emitted (ARC — .cxx_destruct at 0x13d060).
 }
 
 /** @ghidraAddress 0x13c498 */
 - (void)viewDidUnload {
     [super viewDidUnload];
-    // Six ivars are nilled, each via str xzr + bl objc_release at 0x13c4d4, 0x13c4e8, 0x13c4fc,
-    // etc. markerView and the other three ivars are left as-is.
+    // Six ivars are nilled, at 0x13c4d0 through 0x13c53c. The four object ivars left untouched are
+    // markerView, licenseAgree, coverView, and idManager. This callback has not been invoked since
+    // iOS 6, so in practice none of them is ever nilled today.
     arraySwipeRecognizer = nil;
     tapRecognizer = nil;
     jubeatLogoView = nil;
@@ -91,81 +148,93 @@ static const CGFloat kCopyrightBottomInsetPhone = 30.0;
 
 /** @ghidraAddress 0x13c554 */
 - (void)markerCheckEnd {
-    // Single tail-call at 0x13c558: b to startBlinkPrompt.
+    // A tail-call to -startBlinkPrompt at 0x13c558. This is the only caller of -startBlinkPrompt in
+    // the class, so the title is not tappable until the marker check resolves.
     [self startBlinkPrompt];
 }
 
 /** @ghidraAddress 0x13c5fc */
 - (void)nextScene {
-    // Removes every swipe recogniser installed by -startBlinkPrompt from the view.
-    // Disassembly at 0x13c640: ldr x0,[x19,x8] (arraySwipeRecognizer) / bl countByEnumerating...
-    // then inner loop at 0x13c670: ldr x5,[x19] / bl view / bl removeGestureRecognizer: .
+    // Leaves the title: drop every gesture recogniser, play the confirm sound, fade the BGM out,
+    // swap the prompt's slow blink for a fast one, and hand off to the root controller. There is no
+    // re-entry guard, so a second call would start a second fade; nilling tapRecognizer is what
+    // prevents that in practice.
     for (UISwipeGestureRecognizer *recognizer in arraySwipeRecognizer) {
         [self.view removeGestureRecognizer:recognizer];
     }
-    // The remainder of the method (past 0x13c670) was not decompiled here; it continues to
-    // advance the scene. This tranche only covers the recogniser removal, which is the part
-    // verified against the disassembly.
+    [self.view removeGestureRecognizer:tapRecognizer];
+    // Only the tap recogniser is cleared; arraySwipeRecognizer keeps its detached recognisers.
+    tapRecognizer = nil;
+
+    // The binary re-fetches the shared manager for each message, at 0x13c770 and 0x13c7a8.
+    [AudioManager.sharedManager playSeResFile:kConfirmSeName inDirectory:nil];
+    [AudioManager.sharedManager fadeoutBgm:kBgmFadeOutTime];
+
+    [touchView.layer removeAnimationForKey:kBlinkAnimationKey];
+    touchView.alpha = 1.0;
+    CABasicAnimation *fastBlink = [CABasicAnimation animationWithKeyPath:kOpacityKeyPath];
+    fastBlink.duration = kFastBlinkDuration;
+    fastBlink.fromValue = @(1.0f);
+    fastBlink.toValue = @(kBlinkDimOpacity);
+    fastBlink.autoreverses = YES;
+    fastBlink.repeatCount = kFastBlinkRepeatCount;
+    // The fast blink is linear, unlike the slow one in -blinkPrompt, which eases in and out.
+    fastBlink.timingFunction =
+        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    fastBlink.removedOnCompletion = NO;
+    [touchView.layer addAnimation:fastBlink forKey:kFastBlinkAnimationKey];
+
+    // The transition itself. No controller is constructed here; the root controller fades into the
+    // music-select screen.
+    [JubeatAppDelegate.appDelegate.rootViewCtrl endTitle];
 }
 
 /** @ghidraAddress 0x13ca38 */
 - (void)createPolicyView {
-    // Licence view key is PrefAgreeChallengePolicyVersion at 0x2d60a0, verified as
-    // add x3,x3,#0xa0 after adrp 0x2d6000 at 0x13ca74.
-    LicenseAgreementView *view =
-        [[LicenseAgreementView alloc] init:self keyString:@"PrefAgreeChallengePolicyVersion"];
-    licenseAgree = view;
-    [view setWeakCoverView:coverView];
-    // Centres on the view's bounds * 0.5, from ldr d2,d3 of bounds at 0x13caa0–0x13caac and
-    // fmul? Actually setCenter: at 0x13cabc with in_d2*0.5, in_d3*0.5.
-    CGRect bounds = self.view.bounds;
-    view.center = CGPointMake(bounds.size.width * 0.5, bounds.size.height * 0.5);
-    [self.view addSubview:view];
+    // The freshly built view is stored straight into the licenseAgree ivar at 0x13ca90, releasing
+    // the previous value; the binary keeps no local for it.
+    licenseAgree = [[LicenseAgreementView alloc] init:self
+                                            keyString:kPrefAgreeChallengePolicyVersion];
+    // This coverView is the class's own ivar at +0x68, a distinct ivar from the superclass's.
+    licenseAgree.weakCoverView = coverView;
+    // The halving factor is the fmov immediate 0.5 at 0x13caec, and the binary re-reads the view's
+    // bounds once per component (0x13cae8 and 0x13cb10).
+    licenseAgree.center =
+        CGPointMake(self.view.bounds.size.width * 0.5, self.view.bounds.size.height * 0.5);
+    [self.view addSubview:licenseAgree];
 }
 
 /** @ghidraAddress 0x13b65c */
 - (void)start {
     [super start];
-    // Hides the three logo/copyright views — they are faded in by showLogo.
-    // Disassembly at 0x13b698: ldr x0,[x19,x8] (jubeatLogoView) / movi v0.16B,#0 / bl setAlpha:0.0
-    // repeated for touchView at 0x13b6b8 and copyrightView at 0x13b6d0.
+    // Hidden here and faded in by -showLogo.
     jubeatLogoView.alpha = 0.0;
     touchView.alpha = 0.0;
     copyrightView.alpha = 0.0;
-    // Starts the title BGM and welcome voice. The names are SD_BGM_TITLE at 0x2dd460
-    // (CFString pointing to 0x285579) and SD_CV_WELCOME at 0x2dd480 (0x285586), verified by
-    // reading the CFString data pointers and then the bytes at those targets.
-    AudioManager *audio = AudioManager.sharedManager;
-    [audio loadBgmResAAC:@"SD_BGM_TITLE" inDirectory:nil];
-    [audio startBgm:YES fadeTime:0.0];
-    [audio playSeResFile:@"SD_CV_WELCOME" inDirectory:nil];
+    // The binary sends -sharedManager three separate times rather than reusing one result, and
+    // discards the result of -loadBgmResAAC:inDirectory: .
+    (void)[AudioManager.sharedManager loadBgmResAAC:kTitleBgmName inDirectory:nil];
+    [AudioManager.sharedManager startBgm:YES fadeTime:0.0];
+    [AudioManager.sharedManager playSeResFile:kWelcomeVoiceName inDirectory:nil];
 }
 
 /** @ghidraAddress 0x13b7a8 */
 - (void)blinkPrompt {
-    // Blinks the touch prompt forever via a CABasicAnimation on opacity.
-    // Disassembly at 0x13b7c0: animationWithKeyPath:@"opacity", setDuration: DAT_0x28f288
-    // (0.5 s?), setFromValue: DAT_0x28f70c, setToValue: 1.0, autoreverses YES,
-    // repeatCount 1e30 (g_flRepeatForever1e30), timingFunction EaseInEaseOut,
-    // removedOnCompletion NO, then addAnimation:forKey:@"AnimationBlink" at 0x13b7a8 tail.
-    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    anim.duration = 0.5;      // DAT_0x28f288 — 0.5, verified as ldr d0,[x8,#0x288]
-    anim.fromValue = @(0.0f); // DAT_0x28f70c — 0.0
+    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:kOpacityKeyPath];
+    anim.duration = kBlinkDuration;
+    anim.fromValue = @(kBlinkDimOpacity);
     anim.toValue = @(1.0f);
     anim.autoreverses = YES;
-    anim.repeatCount = 1e30f;
+    anim.repeatCount = kBlinkRepeatForever;
     anim.timingFunction =
         [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
     anim.removedOnCompletion = NO;
-    [touchView.layer addAnimation:anim forKey:@"AnimationBlink"];
+    [touchView.layer addAnimation:anim forKey:kBlinkAnimationKey];
 }
 
 /** @ghidraAddress 0x13b960 */
 - (void)startMarkerCheck {
-    // Shows the marker download view. Disassembly at 0x13b974: ldr x0,[x19,x21] (markerView) /
-    // bl setDelegate: at 0x13b988, then bl view / bl addSubview: at 0x13b9b8, then bl show at
-    // 0x13b9dc.
-    [markerView setDelegate:self];
+    markerView.delegate = self;
     [self.view addSubview:markerView];
     [markerView show];
 }
@@ -174,18 +243,10 @@ static const CGFloat kCopyrightBottomInsetPhone = 30.0;
 - (void)startBlinkPrompt {
     [self blinkPrompt];
     kcState = 0;
-    // Installs four swipe recognisers (directions 4,8,1,2) and one tap recogniser.
-    // Disassembly at 0x13b9e0: four alloc/initWithTarget:action:handleSwipe: at 0x13b9e0–0x13bd00,
-    // each setDirection: then addGestureRecognizer:, then arrayWithObjects:count:4 at 0x13bd00,
-    // then tap at 0x13bd14. The directions are 4 (right), 8 (left), 1 (up), 2 (down).
-    UISwipeGestureRecognizer *swipeRight =
-        [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
-    swipeRight.direction = UISwipeGestureRecognizerDirectionRight;
-    [self.view addGestureRecognizer:swipeRight];
-    UISwipeGestureRecognizer *swipeLeft =
-        [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
-    swipeLeft.direction = UISwipeGestureRecognizerDirectionLeft;
-    [self.view addGestureRecognizer:swipeLeft];
+    // The recognisers are created in the order up, down, right, left, and the array keeps that
+    // order: the +arrayWithObjects:count: at 0x13bbe8 reads the four stack slots written at sp+0x8,
+    // +0x10, +0x18, and +0x20 with a count of exactly four. The binary sets no tap or touch counts,
+    // no delegate, and neither cancelsTouchesInView nor delaysTouchesBegan.
     UISwipeGestureRecognizer *swipeUp =
         [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
     swipeUp.direction = UISwipeGestureRecognizerDirectionUp;
@@ -194,27 +255,33 @@ static const CGFloat kCopyrightBottomInsetPhone = 30.0;
         [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
     swipeDown.direction = UISwipeGestureRecognizerDirectionDown;
     [self.view addGestureRecognizer:swipeDown];
-    arraySwipeRecognizer = @[ swipeRight, swipeLeft, swipeUp, swipeDown ];
-    UITapGestureRecognizer *tap =
-        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-    tapRecognizer = tap;
-    [self.view addGestureRecognizer:tap];
-    // Re-adds the coBtn view on top. Disassembly at 0x13bd14: ldr x0,[x19,#coBtn] / bl
-    // removeFromSuperview, then bl view / bl addSubview:.
+    UISwipeGestureRecognizer *swipeRight =
+        [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
+    swipeRight.direction = UISwipeGestureRecognizerDirectionRight;
+    [self.view addGestureRecognizer:swipeRight];
+    UISwipeGestureRecognizer *swipeLeft =
+        [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
+    swipeLeft.direction = UISwipeGestureRecognizerDirectionLeft;
+    [self.view addGestureRecognizer:swipeLeft];
+    arraySwipeRecognizer = @[ swipeUp, swipeDown, swipeRight, swipeLeft ];
+
+    tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                            action:@selector(handleTap:)];
+    [self.view addGestureRecognizer:tapRecognizer];
+    // The corporate button is re-parented so it stays above the newly installed recognisers. It is
+    // the only thing that ever parents it: -[TitleViewController setCorporateButton] builds it but
+    // never adds it to a superview.
     [self->coBtn removeFromSuperview];
     [self.view addSubview:self->coBtn];
 }
 
 /** @ghidraAddress 0x13bd1c */
 - (void)showLogo {
-    // Fades the logo in over 0.5 s, then starts the marker check.
-    // Disassembly at 0x13bd30: str x20,[sp,#0x28] etc, then bl objc_retainBlock for two blocks:
-    // FadeInLogo at 0x13bddc and StartMarkerCheck at 0x13be50, then
-    // animateWithDuration:0.5 delay:0 options:0x30000 animations:completion: at 0x13bdb0.
-    [UIView animateWithDuration:0.5
+    // Both blocks capture self strongly. The completion ignores its finished flag, so the marker
+    // check runs even when the fade is cut short, and touchView is deliberately left hidden here.
+    [UIView animateWithDuration:kLogoFadeDuration
         delay:0.0
-        options:UIViewAnimationOptionBeginFromCurrentState |
-                UIViewAnimationOptionAllowUserInteraction
+        options:UIViewAnimationOptionCurveLinear
         animations:^{
           /** @ghidraAddress 0x13bddc */
           jubeatLogoView.alpha = 1.0;
@@ -228,9 +295,7 @@ static const CGFloat kCopyrightBottomInsetPhone = 30.0;
 
 /** @ghidraAddress 0x13c418 */
 - (void)suspend:(id)sender {
-    // If a tap recogniser exists (i.e. the title is interactive), remove all animations from
-    // touchView's layer. Disassembly at 0x13c418: cbz tapRecognizer at 0x13c424, else
-    // ldr x0,[x0, touchView] / bl layer / bl removeAllAnimations at 0x13c460.
+    // If a tap recogniser exists the title is interactive, so the blink is taken down.
     if (tapRecognizer) {
         [touchView.layer removeAllAnimations];
     }
@@ -238,8 +303,6 @@ static const CGFloat kCopyrightBottomInsetPhone = 30.0;
 
 /** @ghidraAddress 0x13c478 */
 - (void)resume:(id)sender {
-    // If interactive, restart the blink. Disassembly at 0x13c478: cbz tapRecognizer at
-    // 0x13c484, else b to blinkPrompt at 0x13c490.
     if (tapRecognizer) {
         [self blinkPrompt];
     }
@@ -247,23 +310,20 @@ static const CGFloat kCopyrightBottomInsetPhone = 30.0;
 
 /** @ghidraAddress 0x13c560 */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Disassembly at 0x13c560: sub x8,x2,#1 / cmp x8,#2 / cset w0,cc
-    // => (orientation - 1) < 2  => orientation == 1 || orientation == 2
-    // i.e. portrait and portrait-upside-down only.
-    return (interfaceOrientation - 1) < 2;
+    // The whole body is sub x8,x2,#1 / cmp x8,#2 / cset w0,cc. The compare is unsigned, so
+    // orientation 0 wraps and returns NO. UIKit has not called this since iOS 6; the rotation
+    // policy now comes from -supportedInterfaceOrientations and -shouldAutorotate.
+    return (NSUInteger)(interfaceOrientation - 1) < 2;
 }
 
 /** @ghidraAddress 0x13c570 */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    // orr w0,wzr,#6 at 0x13c570 => 0b110 = portrait + portraitUpsideDown ? Actually 6 is
-    // UIInterfaceOrientationMaskPortrait (1<<1) | PortraitUpsideDown (1<<2)? The binary's
-    // literal is 6, not a named constant, so we keep it as 6.
-    return 6;
+    // The binary returns the literal 6 via orr w0,wzr,#0x6.
+    return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
 }
 
 /** @ghidraAddress 0x13c578 */
 - (BOOL)shouldAutorotate {
-    // mov w0,#1 at 0x13c578.
     return YES;
 }
 
@@ -277,59 +337,70 @@ static const CGFloat kCopyrightBottomInsetPhone = 30.0;
     self.view.opaque = YES;
     self.view.backgroundColor = UIColor.blackColor;
 
-    // The title background is an image view spanning the view inset vertically by kCubeInset, with
-    // a five-frame cube animation and two black-to-clear gradients top and bottom. The layout works
-    // off the bounds (width in d2, height in d3 from -bounds).
+    // The delegate is fetched once at 0x13adec, spilled, and reused by all three idiom tests.
+    JubeatAppDelegate *appDelegate = JubeatAppDelegate.appDelegate;
     CGRect bounds = self.view.bounds;
     CGFloat width = bounds.size.width;
     CGFloat height = bounds.size.height;
-    CGFloat cubeInset = JubeatAppDelegate.appDelegate.isPad ? kCubeInsetPad : kCubeInsetPhone;
+
+    // The cube background spans the full width and is inset vertically at both edges. The binary
+    // keeps the inset an integer and doubles it in integer before converting.
+    const int cubeInset = appDelegate.isPad ? kCubeInsetPad : kCubeInsetPhone;
     titleBgView = [[UIImageView alloc]
-        initWithFrame:CGRectMake(0.0, cubeInset, width, height - 2 * cubeInset)];
+        initWithFrame:CGRectMake(0.0, cubeInset, width, height - (cubeInset * 2))];
     titleBgView.contentMode = UIViewContentModeScaleAspectFill;
-    NSMutableArray *frames = [NSMutableArray array];
+    UIImage *cubeImages[kCubeFrameCount] = {nil};
     for (int i = 0; i < kCubeFrameCount; ++i) {
         NSString *name = [NSString stringWithFormat:kCubeImageNameFormat, i];
         NSString *path = [NSBundle.mainBundle pathForResource:name ofType:kCubeImageType];
-        [frames addObject:[UIImage imageWithContentsOfFile:path]];
+        cubeImages[i] = [UIImage imageWithContentsOfFile:path];
     }
-    titleBgView.animationImages = frames;
+    // The binary passes the raw five-slot array with no nil check, so a missing frame would raise.
+    titleBgView.animationImages = [NSArray arrayWithObjects:cubeImages count:kCubeFrameCount];
     titleBgView.animationDuration = kCubeAnimationDuration;
     [titleBgView startAnimating];
 
-    // The top gradient fades black in over the first kGradientHeight points; the bottom one fades
-    // it back out over the last kGradientHeight, both fixed to the title view's own frame.
-    CGFloat gradientHeight =
-        JubeatAppDelegate.appDelegate.isPad ? kGradientHeightPad : kGradientHeightPhone;
-    CAGradientLayer *topGradient = [CAGradientLayer layer];
+    // The top gradient runs from opaque black at the top edge down to clear, and the bottom one is
+    // its mirror. Neither sets locations or end points. The original built the opaque colour with
+    // colorWithWhite:0 alpha:1.
+    CGFloat gradientHeight = appDelegate.isPad ? kGradientHeightPad : kGradientHeightPhone;
+    CAGradientLayer *topGradient = [[CAGradientLayer alloc] init];
     topGradient.frame = CGRectMake(0.0, 0.0, width, gradientHeight);
     topGradient.colors = @[
-        (__bridge id)[UIColor colorWithWhite:0.0 alpha:0.0].CGColor,
-        (__bridge id)[UIColor colorWithWhite:0.0 alpha:1.0].CGColor
+        (__bridge id)UIColor.blackColor.CGColor,
+        (__bridge id)[UIColor colorWithWhite:0.0 alpha:0.0].CGColor
     ];
     [titleBgView.layer addSublayer:topGradient];
-    CAGradientLayer *bottomGradient = [CAGradientLayer layer];
-    bottomGradient.frame =
-        CGRectMake(0.0, titleBgView.frame.size.height - gradientHeight, width, gradientHeight);
+    // The bottom gradient takes both its y and its width from the cube view's own frame rather than
+    // from the controller view's bounds; the binary sends -frame twice for them.
+    CAGradientLayer *bottomGradient = [[CAGradientLayer alloc] init];
+    bottomGradient.frame = CGRectMake(0.0,
+                                      titleBgView.frame.size.height - gradientHeight,
+                                      titleBgView.frame.size.width,
+                                      gradientHeight);
     bottomGradient.colors = @[
-        (__bridge id)[UIColor colorWithWhite:0.0 alpha:1.0].CGColor,
-        (__bridge id)[UIColor colorWithWhite:0.0 alpha:0.0].CGColor
+        (__bridge id)[UIColor colorWithWhite:0.0 alpha:0.0].CGColor,
+        (__bridge id)UIColor.blackColor.CGColor
     ];
     [titleBgView.layer addSublayer:bottomGradient];
     [self.view addSubview:titleBgView];
 
+    // All three foreground views share one truncated half-width: the binary converts it with fcvtzs
+    // once, into d9, and reuses that register for each -setCenter: call.
+    CGFloat centerX = (int)(width * 0.5);
     jubeatLogoView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kLogoImageName)];
-    jubeatLogoView.center = CGPointMake((int)(width * 0.5), (int)(height * kLogoCenterYFraction));
+    jubeatLogoView.center = CGPointMake(centerX, (int)(height * kLogoCenterYFraction));
     [self.view addSubview:jubeatLogoView];
 
     touchView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kTouchImageName)];
-    touchView.center = CGPointMake((int)(width * 0.5), (int)(height * kTouchCenterYFraction));
+    touchView.center = CGPointMake(centerX, (int)(height * kTouchCenterYFraction));
     [self.view addSubview:touchView];
 
     copyrightView = [[UIImageView alloc] initWithImage:LoadScaledPngImage(kCopyrightImageName)];
     CGFloat copyrightInset =
-        JubeatAppDelegate.appDelegate.isPad ? kCopyrightBottomInsetPad : kCopyrightBottomInsetPhone;
-    copyrightView.center = CGPointMake((int)(width * 0.5), height - copyrightInset);
+        appDelegate.isPad ? kCopyrightBottomInsetPad : kCopyrightBottomInsetPhone;
+    // The copyright's y is not truncated, unlike the two views above it.
+    copyrightView.center = CGPointMake(centerX, height - copyrightInset);
     [self.view addSubview:copyrightView];
 
     [self.view addSubview:self->coBtn];
@@ -340,86 +411,100 @@ static const CGFloat kCopyrightBottomInsetPhone = 30.0;
 
 /** @ghidraAddress 0x13be70 */
 - (void)handleTap:(UITapGestureRecognizer *)sender {
-    // Konami-code tap handler. The disassembly at 0x13be70 checks kcState <10, then isPad,
-    // then locationOfTouch:inView:jubeatLogoView at 0x13bf18, then two CGRectContainsPoint
-    // checks with rects built from DAT_0x291e30 etc vs isPad ? DAT_0x28f... : 0x402c...
-    // The first rect is the logo tap area (188x80 at 44,34 on pad, 87x80 at 44,34 on phone?),
-    // the second is the hidden Konami area (399x399 at 44,34). Verified at 0x13bf34–0x13bf7c
-    // via fcsel and bl _CGRectContainsPoint.
-    if (kcState >= 10) {
-        return;
-    }
-    CGPoint loc = [sender locationOfTouch:0 inView:jubeatLogoView];
-    BOOL isPad = JubeatAppDelegate.appDelegate.isPad;
-    CGRect rect1 =
-        isPad ? CGRectMake(44, 34, 188, 80) : CGRectMake(44, 34, 87, 80); // DAT_0x28f418 etc
-    if (CGRectContainsPoint(rect1, loc)) {
-        if (kcState == 8) {
-            kcState = 9;
+    // The two hidden hot-spots are live only until the sequence is spent. The gate at 0x13becc is
+    // cmp #9 / b.gt, which skips the hot-spot tests rather than returning, so every other outcome —
+    // including a hot-spot hit at the wrong step — falls through to the start flow below.
+    if (kcState <= kKonamiTapArmedState) {
+        // The idiom is resolved before the touch location, as in the binary.
+        BOOL isPad = JubeatAppDelegate.appDelegate.isPad;
+        // The location is taken in the logo's own coordinate space, so both rects are logo-local.
+        CGPoint loc = [sender locationOfTouch:0 inView:jubeatLogoView];
+        CGFloat spotY = isPad ? kKonamiSpotYPad : kKonamiSpotYPhone;
+        CGFloat spotSide = isPad ? kKonamiSpotSidePad : kKonamiSpotSidePhone;
+        CGRect firstSpot = CGRectMake(
+            isPad ? kKonamiFirstSpotXPad : kKonamiFirstSpotXPhone, spotY, spotSide, spotSide);
+        if (CGRectContainsPoint(firstSpot, loc)) {
+            if (kcState == kKonamiTapFirstState) {
+                kcState = kKonamiTapSecondState;
+                return;
+            }
+        } else {
+            CGRect secondSpot = CGRectMake(
+                isPad ? kKonamiSecondSpotXPad : kKonamiSecondSpotXPhone, spotY, spotSide, spotSide);
+            if (CGRectContainsPoint(secondSpot, loc) && kcState == kKonamiTapSecondState) {
+                // The sequence is complete. The whole reward is that the swipe recognisers go away,
+                // the reveal sound plays, and the cube background runs faster. The title is not
+                // left: 0x13c148 branches to the epilogue, not to the start flow.
+                kcState = kKonamiCompleteState;
+                for (UISwipeGestureRecognizer *recognizer in arraySwipeRecognizer) {
+                    [self.view removeGestureRecognizer:recognizer];
+                }
+                [AudioManager.sharedManager playSeResFile:kKonamiRevealSeName inDirectory:nil];
+                [titleBgView stopAnimating];
+                titleBgView.animationDuration = kKonamiCubeAnimationDuration;
+                [titleBgView startAnimating];
+                return;
+            }
         }
+    }
+    // The start flow every ordinary tap takes, at 0x13c14c. Five sites branch here. It does not
+    // advance the scene itself: it drops an invisible cover over the title and hands over to the
+    // challenge-policy sheet or the editor-identifier download, either of which reaches -nextScene
+    // through -agreementSuccess: or -agreementError:msgStr: .
+    if (licenseAgree) {
         return;
     }
-    CGRect rect2 =
-        isPad ? CGRectMake(44, 34, 80, 80) : CGRectMake(44, 34, 399, 399); // DAT_0x292ea8 etc
-    if (CGRectContainsPoint(rect2, loc) && kcState == 9) {
-        kcState = 10;
-        for (UISwipeGestureRecognizer *r in arraySwipeRecognizer) {
-            [self.view removeGestureRecognizer:r];
-        }
-        [self nextScene];
-        return;
+    coverView = [[UIView alloc] initWithFrame:self.view.bounds];
+    coverView.opaque = NO;
+    coverView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:kCoverViewAlpha];
+    coverView.alpha = 0.0;
+    [self.view addSubview:coverView];
+    if (EditorIDManager.isExistEditorID) {
+        [self createPolicyView];
+    } else {
+        idManager = [[EditorIDManager alloc] initWithDelegate:self];
     }
-    // Other taps advance the normal flow when kcState is 0–7, not shown here.
 }
 
 /** @ghidraAddress 0x13c328 */
 - (void)handleSwipe:(UISwipeGestureRecognizer *)sender {
-    // Konami swipe state machine. Disassembly at 0x13c328 is a switch on direction:
-    // 1: up (6 if kcState==5 else 0, then 8 if 7 else 0), 2: down (7 if 6 else 0, 5 if 4 else 0),
-    // 4: right (1 if 1 else 2), 8: left (0 if 2..3 else +1). Verified at 0x13c364–0x13c3ac via
-    // cmp w8,#0x7 etc and ccmp.
-    UISwipeGestureRecognizerDirection dir = sender.direction;
-    int next = 0;
-    switch (dir) {
+    // The hidden code is up, up, down, down, left, right, left, right, which walks kcState from 0
+    // to 8; -handleTap: then carries it to 9 and 10 for the final two presses. A swipe out of
+    // sequence restarts the code, except that up falls back to 1 rather than 0 because up is itself
+    // the first step. The small values are sequence positions, not domain values. Any direction
+    // other than these four leaves kcState untouched: the dispatch is bounded unsigned at 0x13c34c,
+    // so direction 0 wraps and takes the default arm.
+    int state;
+    switch (sender.direction) {
+    case UISwipeGestureRecognizerDirectionRight: {
+        int stepSix = (kcState == 5) ? 6 : 0;
+        state = (kcState == 7) ? 8 : stepSix;
+        break;
+    }
+    case UISwipeGestureRecognizerDirectionLeft: {
+        int stepSeven = (kcState == 6) ? 7 : 0;
+        state = (kcState == 4) ? 5 : stepSeven;
+        break;
+    }
     case UISwipeGestureRecognizerDirectionUp:
-        next = (kcState == 5) ? 6 : 0;
-        if (kcState == 7) {
-            next = 8;
-        } else if (next == 8) {
-            // keep 8
-        }
+        state = (kcState == 1) ? 2 : 1;
         break;
     case UISwipeGestureRecognizerDirectionDown:
-        next = (kcState == 6) ? 7 : 0;
-        if (kcState == 4) {
-            next = 5;
-        }
-        break;
-    case UISwipeGestureRecognizerDirectionRight:
-        next = (kcState == 1) ? 2 : 1;
-        break;
-    case UISwipeGestureRecognizerDirectionLeft:
-        if ((kcState & ~1) == 2) {
-            next = kcState + 1;
-        } else {
-            next = 0;
-        }
+        // The binary masks the low bit and compares with 2, which selects exactly 2 and 3.
+        state = (kcState == 2 || kcState == 3) ? kcState + 1 : 0;
         break;
     default:
         return;
     }
-    kcState = next;
+    kcState = state;
 }
 
 #pragma mark - Agreement and ID callbacks
 
 /** @ghidraAddress 0x13cb84 */
 - (void)agreementError:(id)agreement msgStr:(NSString *)msgStr {
-    // If the user already agreed (PrefAgreeChallengePolicyVersion in defaults), go next.
-    // Disassembly at 0x13cb84: standardUserDefaults / valueForKey: PrefAgree... / cbnz to
-    // nextScene. Otherwise shows an alert with OK (localizedStringForKey:@"OK") and clears
-    // licenseAgree/coverView.
-    if ([NSUserDefaults.standardUserDefaults valueForKey:@"PrefAgreeChallengePolicyVersion"]) {
+    // If the user already agreed, the title advances anyway.
+    if ([NSUserDefaults.standardUserDefaults valueForKey:kPrefAgreeChallengePolicyVersion]) {
         [self nextScene];
         return;
     }

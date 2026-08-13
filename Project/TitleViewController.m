@@ -65,9 +65,11 @@ static const int kExplainSendRevisionValue = -1;
 static const NSInteger kAprilFoolsMonth = 4;
 static const NSInteger kAprilFoolsDay = 1;
 
-// The NSCalendarUnit mask passed to -components:fromDate: (0x1c = month | day | hour).
+// The NSCalendarUnit mask passed to -components:fromDate: . The orr w2,wzr,#0x1c at 0x1edac is 28,
+// which is year (4) or-ed with month (8) and day (16); the units previously named here summed to
+// 0x38 instead.
 static const NSCalendarUnit kSvTimeCalendarUnits =
-    NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour;
+    NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay;
 
 @implementation TitleViewController
 

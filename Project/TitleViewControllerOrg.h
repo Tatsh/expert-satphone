@@ -7,12 +7,13 @@
  * The superclass is @c TitleViewController , from the dyld bind at the class object's superclass
  * slot (0x34a78 + 8) and confirmed by the super calls at 0x13abe8, 0x13c5e8, and 0x13c4c8.
  *
- * The class is complete: all twenty-four hand-written members are recovered. The view construction,
- * animation control, and input handling are declared but not reconstructed; see the STATUS tables.
+ * The class is complete: all twenty-four hand-written members are recovered, including the view
+ * construction, the animation control, and the tap and swipe handling.
  */
 
 #import <UIKit/UIKit.h>
 
+#import "EditorIDManager.h"
 #import "MarkerDownloadView.h"
 #import "TitleViewController.h"
 
@@ -21,7 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The title screen in the game's own livery.
  */
-@interface TitleViewControllerOrg : TitleViewController <MarkerDownloadViewDelegate>
+@interface TitleViewControllerOrg
+    : TitleViewController <EditorIDManagerDelegate, MarkerDownloadViewDelegate>
 
 /**
  * @brief Builds the controller and subscribes to background/foreground notifications.
@@ -54,19 +56,34 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)start;
 
 /**
- * @brief Fades the touch prompt in and out forever.
+ * @brief Fades the touch prompt between a tenth and full opacity, forever.
  * @ghidraAddress 0x13b7a8
  */
 - (void)blinkPrompt;
 
 /**
- * @brief Starts the prompt blink and installs the four swipe and one tap recognisers.
+ * @brief Starts the prompt blink and arms the hidden-code input.
+ *
+ * Resets @c kcState , installs the four swipe recognisers in the order up, down, right, left and
+ * keeps them in that order, installs the tap recogniser, and lifts the corporate button back above
+ * them.
  * @ghidraAddress 0x13b9e0
  */
 - (void)startBlinkPrompt;
 
 /**
- * @brief Fades the logo in and then starts the marker check.
+ * @brief Shows the marker download view and starts the marker check.
+ *
+ * The check's completion is what calls @c -markerCheckEnd and so arms the title screen.
+ * @ghidraAddress 0x13b960
+ */
+- (void)startMarkerCheck;
+
+/**
+ * @brief Fades the logo and copyright in over 0.5 s, then starts the marker check.
+ *
+ * The curve is linear and the completion ignores its finished flag, so the marker check always
+ * runs.
  * @ghidraAddress 0x13bd1c
  */
 - (void)showLogo;
@@ -74,20 +91,24 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Handles a tap on the title screen.
  *
- * Part of the Konami-code handler; checks the touch location against the logo rects.
- * @param sender The recogniser.
+ * Two hidden square hot-spots on the logo finish the sequence that @c -handleSwipe: starts;
+ * completing it plays a sound and speeds the cube background up, and does not leave the title.
+ * Every other tap begins the start flow: it covers the title and hands over to the challenge policy
+ * or the editor-identifier download, either of which reaches @c -nextScene later.
+ * @param sender The recogniser that fired.
  * @ghidraAddress 0x13be70
  */
-- (void)handleTap:(id)sender;
+- (void)handleTap:(UITapGestureRecognizer *)sender;
 
 /**
  * @brief Handles a swipe on the title screen.
  *
- * Konami-code state machine on kcState.
- * @param sender The recogniser.
+ * Advances the hidden up, up, down, down, left, right, left, right code held in @c kcState . A
+ * swipe out of sequence restarts the code.
+ * @param sender The recogniser that fired.
  * @ghidraAddress 0x13c328
  */
-- (void)handleSwipe:(id)sender;
+- (void)handleSwipe:(UISwipeGestureRecognizer *)sender;
 
 /**
  * @brief Pauses the title animation when the app backgrounds.
@@ -116,7 +137,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)markerCheckEnd;
 
 /**
- * @brief Advances to the next scene, removing the swipe recognisers.
+ * @brief Leaves the title screen for the music-select screen.
+ *
+ * Removes the swipe and tap recognisers, plays the confirm sound, fades the BGM out over 1.5 s,
+ * replaces the prompt's slow blink with ten fast cycles, and sends @c -endTitle to the root
+ * controller. Unguarded: nothing prevents a second entry.
  * @ghidraAddress 0x13c5fc
  */
 - (void)nextScene;
