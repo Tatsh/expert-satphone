@@ -26,18 +26,6 @@ Patches are labelled by why they exist:
 
 ## `ENABLE_PATCHES`
 
-### Application appearance
-
-**File:** `Project/JubeatAppDelegate.m` — `-application:didFinishLaunchingWithOptions:`
-
-_Modern iOS._ The binary sets its main window opaque with a black background and never touches
-`overrideUserInterfaceStyle`, which did not exist when the app was built. Every colour the game
-picks assumes the light appearance, so under the dark appearance the system-drawn surfaces invert
-while the artwork does not. The patch pins the main window to `UIUserInterfaceStyleLight` under an
-`@available(iOS 13.0, *)` check. The window override cannot reach screens the app delegate does not
-own, which is why it is paired with the bundle key described under
-[Bundle metadata](#bundle-metadata).
-
 ### Background music suspension
 
 **Files:** `Project/AudioManager.m` — `-init`, and the `-patchSuspendBgm:` and
@@ -168,7 +156,7 @@ not Show Combos.
 ### Settings sheet interactive dismissal
 
 **Files:** `Project/SettingsNavController.m` — `-init` (0xe43ac), `-viewWillAppear:` (0xe4a20), and
-a `-presentationControllerDidDismiss:` that is not in the binary at all.
+a `-presentationControllerWillDismiss:` that is not in the binary at all.
 
 _Modern iOS._ The sheet's `modalPresentationStyle` is `UIModalPresentationFormSheet` (`mov w2,#0x2`
 at 0xe4408), which was not interactively dismissible when the game shipped, so the binary can assume
@@ -180,14 +168,16 @@ Refusing the dismissal would keep that state consistent, but it would also take 
 the screen that the shipped binary running on the same system has. The binary shows the shape of
 the better answer elsewhere: it implements `-popoverPresentationControllerDidDismissPopover:`
 (0x27634) precisely to clean up after a dismissal the system initiated. This is that, for a sheet.
-The controller makes itself its own
-`UIAdaptivePresentationControllerDelegate` and, when UIKit reports the dismissal, calls the same
-`-pushClose:` the Close button calls, so `bOpenSetting` is cleared and the select screen's shuffle
-and swipe recognisers come back exactly as they do on the Close path. The two paths cannot double
-up, because UIKit sends `-presentationControllerDidDismiss:` only for a user-initiated dismissal
-and never for a programmatic one. The `-dismissViewControllerAnimated:` inside
-`-settingsNavViewClose:` is a no-op by then, since the sheet is already gone; everything after it is
-the point.
+The controller makes itself its own `UIAdaptivePresentationControllerDelegate` and, when UIKit
+reports the dismissal, calls the same `-pushClose:` the Close button calls, so `bOpenSetting` is
+cleared and the select screen's shuffle and swipe recognisers come back exactly as they do on the
+Close path. The two paths cannot double up, because UIKit sends this only for a user-initiated
+dismissal and never for a programmatic one.
+
+The `will` form is used rather than the `did` form because `-settingsNavViewClose:` plays the close
+sound as its first act, and the Close button reaches it on touch-up. The `did` form runs only once
+the dismissal has finished, which delays that sound by the whole animation and makes the same
+action sound different depending on how it was invoked.
 
 The delegate is assigned in both `-init` and `-viewWillAppear:`. `-init` reaches the presentation
 controller before there is a presentation, where UIKit is entitled to return nil and the assignment
@@ -268,11 +258,11 @@ built rather than hidden.
 
 **Files:** `CMakeLists.txt` (the `APP_USER_INTERFACE_STYLE_ENTRY` block), `Info.plist.in`.
 
-_Modern iOS._ The window override described under
-[Application appearance](#application-appearance) reaches every view controller presented from the
-main window, but not screens that come up in their own window. `UIUserInterfaceStyle` is app-wide
-and does. CMake substitutes the key into `Info.plist.in` when `ENABLE_PATCHES` is on and an empty
-string otherwise, so a faithful build keeps the original plist exactly.
+_Modern iOS._ The app predates iOS 13, so every colour it picks assumes the light appearance, and
+under the dark appearance the system-drawn surfaces invert while the artwork does not.
+`UIUserInterfaceStyle` is app-wide, so it covers every window rather than only the one the app
+delegate builds. CMake substitutes the key into `Info.plist.in` when `ENABLE_PATCHES` is on and an
+empty string otherwise, so a faithful build keeps the original plist exactly.
 
 Because this is a configure-time substitution rather than a compile-time one, toggling the flag
 requires re-running CMake to regenerate `Info.plist`.

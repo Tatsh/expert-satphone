@@ -121,10 +121,10 @@ set(SYS_FRAMEWORKS
 # NATIVE / Xcode — real .app target, fed by per-directory CMakeLists.
 # =========================================================================
 # Preservation patch, not in the original plist. The app predates iOS 13, so every colour it picks
-# assumes the light appearance. JubeatAppDelegate already pins the main window, but screens the app
-# delegate does not own — the store and the settings sheet among them — come up in their own
-# windows, which that override cannot reach. UIUserInterfaceStyle is app-wide and does. Only
-# patched builds get the key, so a faithful build keeps the original plist exactly.
+# assumes the light appearance, and under the dark appearance the system-drawn surfaces invert while
+# the artwork does not. UIUserInterfaceStyle is app-wide, so it covers every window rather than only
+# the one the app delegate builds. Only patched builds get the key, so a faithful build keeps the
+# original plist exactly.
 if(ENABLE_PATCHES)
     set(APP_USER_INTERFACE_STYLE_ENTRY
         "\n    <key>UIUserInterfaceStyle</key>\n    <string>Light</string>")

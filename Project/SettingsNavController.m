@@ -42,9 +42,7 @@ static const CGFloat kPadCornerRadius = 6.0f;
         // -[MusicSelectViewController popoverPresentationControllerDidDismissPopover:] (0x27634)
         // exists precisely to clean up after a dismissal the system initiated. This is that, for a
         // sheet -- the dismissal is allowed, and the same delegate call the Close button makes is
-        // made after it. The two paths cannot collide, because UIKit sends
-        // -presentationControllerDidDismiss: only for a user-initiated dismissal and never for a
-        // programmatic one.
+        // made alongside it.
         if (@available(iOS 13.0, *)) {
             self.presentationController.delegate = self;
         }
@@ -104,12 +102,11 @@ static const CGFloat kPadCornerRadius = 6.0f;
 
 #pragma mark - UIAdaptivePresentationControllerDelegate (preservation patch)
 
-// Not in the binary; see -init for why it exists. UIKit sends this only after a dismissal the user
-// started -- a swipe, or a tap outside the sheet -- so the Close button's own path through
-// -pushClose: cannot reach it and the two cannot double up. The sheet is already gone by the time
-// this runs, which makes the -dismissViewControllerAnimated: inside -settingsNavViewClose: a
-// no-op; everything after it, the state the select screen needs back, is the point.
-- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController {
+// Not in the binary; see -init for why it exists. UIKit sends this only for a dismissal the user
+// started, so the Close button's own path through -pushClose: cannot double up with it. The will-
+// form rather than the did- form because -settingsNavViewClose: plays the close sound first thing,
+// and the did- form would delay it by the whole dismissal animation.
+- (void)presentationControllerWillDismiss:(UIPresentationController *)presentationController {
     [self pushClose:nil];
 }
 
