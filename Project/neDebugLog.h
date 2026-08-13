@@ -16,6 +16,9 @@
 //      `if (false) { ... }` and is dead-code-eliminated; debug-only locals declared inside the
 //      block stay "used" within it, so -Werror stays quiet. Put all diagnostic work inside that
 //      block.
+//    * NE_DBG_EVERY is the uncapped form of the same guard, for a site that fires rarely enough
+//      that a call cap would hide the very repetition being investigated (a screen transition, a
+//      button press). Never use it on a per-frame path.
 //    * NE_DBG(...) wraps debug statements that have real side effects we must NOT run in the
 //      faithful build (for example glGetError(), which clears GL error state). It expands to the
 //      statements when JBDBG is on and to nothing otherwise.
@@ -56,6 +59,11 @@ static inline void neDebugLog(const char *fmt, ...) {
         _c < (limit) ? (++_c, 1) : 0;                                                              \
     })
 
+// The uncapped counterpart of NE_DBG_FIRST, for a diagnostic block on a rarely-taken path where
+// the repetition itself is the evidence -- a settings screen presented twice in a row logs both
+// times, where NE_DBG_FIRST would silently drop the interesting one once its cap was reached.
+#define NE_DBG_EVERY (1)
+
 // Wrap debug-only statements with real side effects. Internal `;` separates multiple statements;
 // the macro supplies the trailing one.
 #define NE_DBG(...)                                                                                \
@@ -75,6 +83,7 @@ static inline void neDebugLog(const char *fmt, ...) {
 // A plain 0 rather than `false`, which is a keyword only in C++ and would need <stdbool.h> in the
 // pure Objective-C translation units.
 #define NE_DBG_FIRST(limit) (0)
+#define NE_DBG_EVERY (0)
 #define NE_DBG(...) ((void)0)
 
 #endif

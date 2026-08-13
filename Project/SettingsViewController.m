@@ -22,6 +22,8 @@
 #import "StoreUtil.h"
 #import "TermsViewController.h"
 #import "cipher_keys.h"
+#import "neDebugLog.h"
+#import "neUIProbe.h"
 
 // The row-type numbers stored in menuTable. menuTable groups these into sections; menuTypeTable
 // stores, per type, the UITableViewCellStyle its cell is built with. The separator types are never
@@ -248,6 +250,16 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
 /** @ghidraAddress 0xe74a0 */
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    if (NE_DBG_EVERY) {
+        // This method runs on the first presentation, on every pop back from a child, and on every
+        // re-presentation, so its log line is the common point of all three reported failures.
+        neDebugLog("settings willAppear: animated %d window %d selected %s",
+                   (int)animated,
+                   (int)(self.tableView.window != nil),
+                   self.tableView.indexPathForSelectedRow ? "yes" : "no");
+        neUIProbeLogController("settings willAppear", self);
+        neUIProbeTraceTransition("settings appear", self);
+    }
     NSIndexPath *selected = self.tableView.indexPathForSelectedRow;
     if (selected) {
         [self.tableView deselectRowAtIndexPath:selected animated:animated];
@@ -302,16 +314,28 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
 /** @ghidraAddress 0xe7900 */
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    if (NE_DBG_EVERY) {
+        neDebugLog("settings didAppear: animated %d window %d",
+                   (int)animated,
+                   (int)(self.tableView.window != nil));
+        neUIProbeLogController("settings didAppear", self);
+    }
 }
 
 /** @ghidraAddress 0xe7938 */
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    if (NE_DBG_EVERY) {
+        neUIProbeLogController("settings willDisappear", self);
+    }
 }
 
 /** @ghidraAddress 0xe7970 */
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
+    if (NE_DBG_EVERY) {
+        neUIProbeLogController("settings didDisappear", self);
+    }
 }
 
 /** @ghidraAddress 0xe7230 */
@@ -334,6 +358,11 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
 
 /** @ghidraAddress 0xe6718 */
 - (void)settingClose {
+    if (NE_DBG_EVERY) {
+        neDebugLog("settings settingClose: depth %lu window %d",
+                   (unsigned long)self.navigationController.viewControllers.count,
+                   (int)(self.tableView.window != nil));
+    }
     [AlertViewManager.sharedManager closeAlert];
     [self.navigationController popToRootViewControllerAnimated:NO];
 }
@@ -503,6 +532,13 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
 /** @ghidraAddress 0xe67a0 */
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     int type = menuTable[indexPath.section][indexPath.row].intValue;
+    if (NE_DBG_EVERY) {
+        neDebugLog("settings didSelectRow: type %d section %ld row %ld depth %lu",
+                   type,
+                   (long)indexPath.section,
+                   (long)indexPath.row,
+                   (unsigned long)self.navigationController.viewControllers.count);
+    }
     switch (type) {
     case SettingsMenuTypeTheme:
         if (self.navigationController) {

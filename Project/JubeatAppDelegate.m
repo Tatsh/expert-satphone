@@ -19,6 +19,7 @@
 #import "ScoreRecordManager.h"
 #import "StoreMusicListManager.h"
 #import "TweetResourceManager.h"
+#import "neUIProbe.h"
 
 // The window the delegate builds at launch. It has no accessor pair in either accessor block, and
 // its ivar offset global at 0x349660 is named without the leading underscore the synthesised ones
@@ -801,6 +802,10 @@ static const int kDefaultTheme = 0;
     // Assigns through the getter rather than reusing the ivar just written.
     mainWindow.rootViewController = self.rootViewCtrl;
     [mainWindow makeKeyAndVisible];
+
+    // Diagnostics only; an empty inline unless the build defines JBDBG. Installed here because the
+    // touch trace needs the key window to exist.
+    neUIProbeInstall();
 
     if (self.remotePushInfo != nil) {
         // YES for the cold-launch case, against the NO that

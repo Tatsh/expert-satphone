@@ -345,6 +345,7 @@ target_sources(jubeat PRIVATE
     main.m
     music_grid_layout.mm
     neEngineBridge.c
+    neUIProbe.m
     note_timing_grade.c
     packed_bit_table.c
     sprite_vertex.cpp
@@ -690,6 +691,7 @@ target_sources(jubeat PRIVATE
     music_grid_layout.h
     neDebugLog.h
     neEngineBridge.h
+    neUIProbe.h
     note_timing_grade.h
     nullptr_compat.h
     packed_bit_table.h
