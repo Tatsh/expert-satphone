@@ -20,6 +20,7 @@
 #import "TextureLoading.h"
 #import "UpperBGKnit.h"
 #import "cipher_keys.h"
+#import "neDebugLog.h"
 #import "neEngineBridge.h"
 
 // The forever-repeat count handed to the blink animation, matching the sibling title screens; the
@@ -962,6 +963,9 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
  */
 - (void)handleTap:(UITapGestureRecognizer *)recognizer {
     if (!bEnableTap) {
+        if (NE_DBG_EVERY) {
+            neDebugLog("kntTitle tap: IGNORED, bEnableTap is NO");
+        }
         return;
     }
     // The hidden Konami-code and easter-egg regions are live only before the concierge is unlocked.
@@ -970,6 +974,22 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
         CGPoint shifted = CGPointMake(touch.x + kKonamiHitShift, touch.y + kKonamiHitShift);
         CGRect leftRect = isPad ? kKonamiLeftRectPad : kKonamiLeftRectPhone;
         CGRect rightRect = isPad ? kKonamiRightRectPad : kKonamiRightRectPhone;
+        if (NE_DBG_EVERY) {
+            // Everything the two hidden branches test, in one line. The shifted point is what the
+            // rects are actually compared against, and it is in the logo's own coordinate space, so
+            // a touch outside the logo reads negative or larger than the logo's size.
+            neDebugLog("kntTitle tap: pt %.1f,%.1f shifted %.1f,%.1f  kcState %d hnState %d "
+                       "conType %d  inLeft %d inRight %d",
+                       touch.x,
+                       touch.y,
+                       shifted.x,
+                       shifted.y,
+                       kcState,
+                       hnState,
+                       conType,
+                       (int)CGRectContainsPoint(leftRect, shifted),
+                       (int)CGRectContainsPoint(rightRect, shifted));
+        }
         BOOL stateAdvanced;
         if (CGRectContainsPoint(leftRect, shifted)) {
             // Left logo corner: advance the code, and complete the hinabita entry.
@@ -978,6 +998,9 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
                 kcState = kHnStateConcierge;
             }
             if (hnState == kHnStateConcierge && conType != kConciergeTypeHinabita) {
+                if (NE_DBG_EVERY) {
+                    neDebugLog("kntTitle tap: HINABITA unlocked (left corner, hnState 9)");
+                }
                 JubeatAppDelegate.appDelegate.isHinabitaMode = YES;
                 [JubeatAppDelegate.appDelegate switchTitleEvent];
                 return;
@@ -991,6 +1014,10 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
             }
             // Arm the second code path; the binary returns here (b 0x187624).
             if (hnState == kHnStateArmed && conType != kConciergeTypeHinabita) {
+                if (NE_DBG_EVERY) {
+                    neDebugLog("kntTitle tap: hinabita ARMED (right corner, hnState 8 -> 9); "
+                               "now tap the LEFT corner");
+                }
                 hnState = kHnStateConcierge;
                 return;
             }
@@ -1043,6 +1070,7 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
     // The four swipe directions drive the hidden up/down/right/left code sequence. Any unexpected
     // direction leaves the state untouched.
     int state;
+    int previousState = kcState;
     switch (recognizer.direction) {
     case UISwipeGestureRecognizerDirectionRight: {
         int advanced = (kcState == 5) ? 6 : 0;
@@ -1065,6 +1093,16 @@ static inline void BlitCampaignImageOntoTex(TitleViewControllerKnt *self,
     }
     kcState = state;
     hnState = state;
+    if (NE_DBG_EVERY) {
+        // The code is eight swipes long and a wrong one silently resets to 0, so what matters is
+        // the transition, not the final value. Direction is the raw UIKit bitmask: 1 right, 2 left,
+        // 4 up, 8 down.
+        neDebugLog("kntTitle swipe: dir %lu  kcState %d -> %d  hnState %d",
+                   (unsigned long)recognizer.direction,
+                   previousState,
+                   kcState,
+                   hnState);
+    }
 }
 
 #pragma mark - Notifications
