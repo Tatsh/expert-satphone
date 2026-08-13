@@ -189,11 +189,16 @@ static void ProbeWindowSendEvent(UIWindow *window, SEL selector, UIEvent *event)
 
 enum { kLayoutTableSize = 512 };
 
-static Class gLayoutClasses[kLayoutTableSize];
+// A class object outlives the process, so the tables hold unretained references. ARC also refuses
+// an object array parameter without an explicit ownership qualifier, and this is the one that says
+// what is meant: the table observes classes, it does not own them.
+typedef __unsafe_unretained Class ProbeClassRef;
+
+static ProbeClassRef gLayoutClasses[kLayoutTableSize];
 static _Atomic uint64_t gLayoutCounts[kLayoutTableSize];
 static uint64_t gLayoutSnapshot[kLayoutTableSize];
 
-static Class gDirtyClasses[kLayoutTableSize];
+static ProbeClassRef gDirtyClasses[kLayoutTableSize];
 static _Atomic uint64_t gDirtyCounts[kLayoutTableSize];
 static uint64_t gDirtySnapshot[kLayoutTableSize];
 
@@ -205,11 +210,12 @@ static void (*gOriginalSetNeedsLayout)(UIView *, SEL);
 
 // Open addressing on the class pointer. Only the main thread writes, and the watchdog only reads,
 // so a torn read costs at worst one mis-named row in a diagnostic report.
-static void ProbeCountInTable(Class classes[], _Atomic uint64_t counts[], Class subject) {
+static void
+ProbeCountInTable(ProbeClassRef classes[], _Atomic uint64_t counts[], ProbeClassRef subject) {
     size_t home = ((uintptr_t)subject >> 4) % kLayoutTableSize;
     for (size_t probe = 0; probe < kLayoutTableSize; ++probe) {
         size_t slot = (home + probe) % kLayoutTableSize;
-        Class occupant = classes[slot];
+        ProbeClassRef occupant = classes[slot];
         if (occupant == subject || occupant == nil) {
             classes[slot] = subject;
             atomic_fetch_add_explicit(&counts[slot], 1, memory_order_relaxed);
@@ -239,7 +245,7 @@ static void ProbeSnapshotLayout(void) {
 // all zero is a hang that is not laying anything out, which is as useful an answer as a name.
 static void ProbeReportLayoutDeltas(const char *tag,
                                     const char *what,
-                                    Class classes[],
+                                    ProbeClassRef classes[],
                                     _Atomic uint64_t counts[],
                                     uint64_t snapshot[]) {
     for (size_t row = 0; row < kLayoutReportRows; ++row) {
@@ -256,7 +262,7 @@ static void ProbeReportLayoutDeltas(const char *tag,
                 bestSlot = slot;
             }
         }
-        if (best == 0) {
+        if (best == 0 || bestSlot >= kLayoutTableSize) {
             if (row == 0) {
                 neDebugLog("probe %s %s: none", what, tag);
             }
