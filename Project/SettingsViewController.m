@@ -300,16 +300,39 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
         //
         // Widening it did NOT fix the soft lock, so the second paragraph above overstates the
         // case: the batch update is a real defect on modern UIKit and the warning it emits is
-        // genuine, but it is not what wedges the pop. A later audit found the shared navigation
-        // bar marked exclusiveTouch in -viewDidLoad, which fits the symptom far better. This
-        // patch is kept on its own merits, not as the fix for that.
+        // genuine, but it is not what wedges the pop. Neither is the exclusive-touch navigation
+        // bar that a later audit blamed. An instrumented capture shows the main thread hanging
+        // outright -- see the note at the head of the settings section in PATCHES.md -- which no
+        // patch here addresses. This one is kept only on its own merits.
         [self.tableView reloadData];
 #else
         [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithArray:toReload]
                               withRowAnimation:UITableViewRowAnimationNone];
 #endif
     }
+    if (NE_DBG_EVERY) {
+        // Paired with the entry line above. Without it a capture cannot say whether the hang is
+        // inside this method -- in the reload or the deselect -- or after it has returned, because
+        // the navigation delegate's willShow can be called from within this call stack.
+        neDebugLog("settings willAppear: done, reloaded %lu", (unsigned long)toReload.count);
+    }
 }
+
+#if JBDBG
+// Not in the binary. A hang that never returns to the run loop is either a deadlock or a spin, and
+// a spin inside UIKit's layout pass is the most likely kind here. Counting layout passes separates
+// them without a stack: a runaway layout drives this count up in bursts of hundreds, while a
+// deadlock leaves it frozen at whatever it reached. Logging one line per kLayoutLogInterval keeps
+// a genuine storm legible instead of drowning the capture in it.
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    static const unsigned int kLayoutLogInterval = 200;
+    static unsigned int layoutPasses = 0;
+    if ((++layoutPasses % kLayoutLogInterval) == 0) {
+        neDebugLog("settings layout: pass %u", layoutPasses);
+    }
+}
+#endif
 
 /** @ghidraAddress 0xe7900 */
 - (void)viewDidAppear:(BOOL)animated {
