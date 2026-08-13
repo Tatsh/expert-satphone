@@ -417,8 +417,9 @@ static const double kMusicBarWidthRetina = 290.0;    // @ghidraAddress 0x291e38
 static const double kMusicBarWidthNonRetina = 240.0; // @ghidraAddress 0x291bf0 (via 0x291e38 arm)
 static const double kMusicBarHeightPad = 38.0;       // @ghidraAddress 0x28f4f8
 static const double kMusicBarHeightPhone = 19.0;
-static const double kMusicBarCenterYPad = 150.5;  // @ghidraAddress 0x292e60
-static const double kMusicBarDotHeightPad = 36.0; // @ghidraAddress 0x28f530
+static const double kMusicBarCenterYPad = 300.0;   // @ghidraAddress 0x28f2d0
+static const double kMusicBarCenterYPhone = 150.5; // @ghidraAddress 0x292e60
+static const double kMusicBarDotHeightPad = 36.0;  // @ghidraAddress 0x28f530
 static const int kMusicBarDotStartPad = 42;
 static const int kMusicBarDotStartRetina = 25;
 static const int kMusicBarDotStartNonRetina = 30;
@@ -671,8 +672,11 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     double barHeight = isPad ? kMusicBarHeightPad : kMusicBarHeightPhone;
     mbarBarView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0, 0.0, barWidth, barHeight)];
     [self addSubview:mbarBarView];
-    [mbarBarView
-        setCenter:CGPointMake(barWidth * 0.5, isPad ? kMusicBarCenterYPad : kMusicBarHeightPhone)];
+    // Centred on the card, not on the bar's own width. Verified at 0x12c584-0x12c5c0: the fmul is
+    // d2 from -[self frame], so the x is the card's half-width, and the fcsel picks the pad centre
+    // Y with the 150.5 at 0x292e60 as the phone arm rather than the pad one.
+    [mbarBarView setCenter:CGPointMake(self.frame.size.width * 0.5,
+                                       isPad ? kMusicBarCenterYPad : kMusicBarCenterYPhone)];
     int dotX = kMusicBarDotStartPad;
     for (int i = 0; i < kMusicBarDotCount; ++i) {
         CGRect dotFrame;
