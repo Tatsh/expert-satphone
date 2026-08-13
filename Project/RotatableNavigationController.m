@@ -1,5 +1,15 @@
 #import "RotatableNavigationController.h"
 
+#import <objc/runtime.h>
+
+#import "neDebugLog.h"
+
+// Diagnostic rate limits for the three orientation answers below. The first burst is logged in
+// full, then only a changed answer, and past that only a periodic count: a storm of queries here is
+// itself the finding, so what is bounded is the rate rather than the total.
+static const unsigned int kOrientationLogBurst = 40;
+static const unsigned int kOrientationLogInterval = 2000;
+
 @implementation RotatableNavigationController
 
 #ifdef ENABLE_PATCHES
@@ -38,12 +48,46 @@
 
 /** @ghidraAddress 0x1bde34 */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return self.topViewController.supportedInterfaceOrientations;
+    UIInterfaceOrientationMask supported = self.topViewController.supportedInterfaceOrientations;
+    if (NE_DBG_EVERY) {
+        // A nil top controller answers 0 here, which is not a mask UIKit can honour, and an answer
+        // that changes between two queries is what makes the window scene revise its orientation
+        // preferences. Either would drive the lay-out-and-ask-again loop seen in a capture, so
+        // record every distinct answer and who gave it.
+        static unsigned int calls = 0;
+        static UIInterfaceOrientationMask previous = 0;
+        ++calls;
+        if (calls <= kOrientationLogBurst || supported != previous ||
+            (calls % kOrientationLogInterval) == 0) {
+            neDebugLog("rotatableNav supported: 0x%lx top %s calls %u",
+                       (unsigned long)supported,
+                       self.topViewController ? object_getClassName(self.topViewController) : "nil",
+                       calls);
+        }
+        previous = supported;
+    }
+    return supported;
 }
 
 /** @ghidraAddress 0x1bde80 */
 - (BOOL)shouldAutorotate {
-    return self.topViewController.shouldAutorotate;
+    BOOL autorotate = self.topViewController.shouldAutorotate;
+    if (NE_DBG_EVERY) {
+        // A nil top controller answers NO, which pins the scene to its current orientation, and
+        // alternating NO and YES is exactly what would flip the scene's preferences back and forth.
+        static unsigned int calls = 0;
+        static BOOL previous = NO;
+        ++calls;
+        if (calls <= kOrientationLogBurst || autorotate != previous ||
+            (calls % kOrientationLogInterval) == 0) {
+            neDebugLog("rotatableNav autorotate: %d top %s calls %u",
+                       (int)autorotate,
+                       self.topViewController ? object_getClassName(self.topViewController) : "nil",
+                       calls);
+        }
+        previous = autorotate;
+    }
+    return autorotate;
 }
 
 /** @ghidraAddress 0x1bdecc */
@@ -53,11 +97,27 @@
     // have gone to nil and returned zero, which is not a valid orientation. The fall-back below is
     // what makes that case sane, and it is the reason this override is not shaped like its three
     // siblings.
+    UIInterfaceOrientation preferred;
     if ([self.topViewController
             respondsToSelector:@selector(preferredInterfaceOrientationForPresentation)]) {
-        return self.topViewController.preferredInterfaceOrientationForPresentation;
+        preferred = self.topViewController.preferredInterfaceOrientationForPresentation;
+    } else {
+        preferred = UIApplication.sharedApplication.statusBarOrientation;
     }
-    return UIApplication.sharedApplication.statusBarOrientation;
+    if (NE_DBG_EVERY) {
+        static unsigned int calls = 0;
+        static UIInterfaceOrientation previous = UIInterfaceOrientationUnknown;
+        ++calls;
+        if (calls <= kOrientationLogBurst || preferred != previous ||
+            (calls % kOrientationLogInterval) == 0) {
+            neDebugLog("rotatableNav preferred: %ld top %s calls %u",
+                       (long)preferred,
+                       self.topViewController ? object_getClassName(self.topViewController) : "nil",
+                       calls);
+        }
+        previous = preferred;
+    }
+    return preferred;
 }
 
 @end

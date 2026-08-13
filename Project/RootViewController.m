@@ -17,6 +17,7 @@
 #import "TitleViewControllerNte.h"
 #import "TitleViewControllerOrg.h"
 #import "TitleViewControllerRpl.h"
+#import "neDebugLog.h"
 
 // The ivars reached so far. None has an accessor pair anywhere in the binary, so none is a
 // property. Offset globals in declaration order: 0x34b770, 0x34b778, 0x34b77c, 0x34b780, 0x34b784,
@@ -1035,6 +1036,16 @@ static inline void RootViewControllerBeginFadeInForAnimation(RootViewController 
 
 /** @ghidraAddress 0x1aaff0 */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    if (NE_DBG_EVERY) {
+        // The answer is constant, so only the rate is informative: this is the scene's root, and a
+        // burst of queries here during a hang says the orientation machinery is the thing looping
+        // rather than something inside the presented sheet.
+        static const unsigned int kRootOrientationLogInterval = 500;
+        static unsigned int calls = 0;
+        if ((++calls % kRootOrientationLogInterval) == 0) {
+            neDebugLog("root supported: queried %u times", calls);
+        }
+    }
     // 0x6 = Portrait | PortraitUpsideDown. Verified at 0x1aaff0: orr w0,wzr,#0x6.
     return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
 }
