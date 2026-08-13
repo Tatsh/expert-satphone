@@ -1266,6 +1266,21 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
     } else if (deviceType == kDeviceTypeLargestPhone) {
         self->displayScale = kDisplayScaleLargestPhone;
     }
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. This divisor maps a touch into the fixed design space
+    // the panel metrics are written in, which for the pad is kPanelColumns * kPanelWidthPad = 768
+    // wide. The binary leaves it at 1.0 for every pad because every pad was 768 points wide when
+    // this was written. On a larger pad the renderer still fills the screen, so the grid is drawn
+    // at screenWidth/768 while the hit test keeps measuring in 768 space and every touch lands
+    // that ratio too far out. Derive the divisor from the screen instead; on a 768-wide pad it
+    // works out at exactly the 1.0 the binary uses.
+    if (self->isPad) {
+        CGFloat screenWidth = UIScreen.mainScreen.bounds.size.width;
+        if (screenWidth > 0.0) {
+            self->displayScale = (float)(screenWidth / (kPanelColumns * kPanelWidthPad));
+        }
+    }
+#endif
 
     self->nowReplaying = NO;
 }
