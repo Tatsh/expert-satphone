@@ -430,6 +430,23 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
             [list replaceObjectAtIndex:i
                             withObject:[NSDictionary dictionaryWithDictionary:mutableInfo]];
         }
+#ifdef ENABLE_PATCHES
+        // Preservation patch, not in the binary. This loop only ever downgrades: an entry whose
+        // archive is missing is marked uninstalled, and nothing here ever marks one installed
+        // again. Promotion happened solely on the download path, through -saveMarker:markerID:,
+        // and the store that fed it is gone. So a marker archive placed in the marker directory by
+        // hand stays flagged "0.0.0" forever, +getCurrentMarkerList skips it, and the marker
+        // picker opens with an empty rail and a black preview even though every file is present.
+        //
+        // Make the check symmetric: an entry whose archive passes +checkMarkerData: is installed.
+        else if ([info[kMarkerInfoKeyVersion] isEqualToString:kVersionUninstalled]) {
+            NSMutableDictionary<NSString *, NSString *> *mutableInfo =
+                [NSMutableDictionary dictionaryWithDictionary:info];
+            mutableInfo[kMarkerInfoKeyVersion] = kVersionInitial;
+            [list replaceObjectAtIndex:i
+                            withObject:[NSDictionary dictionaryWithDictionary:mutableInfo]];
+        }
+#endif
     }
     for (NSUInteger i = 0; i < list.count; ++i) {
         NSDictionary<NSString *, NSString *> *info = list[i];
