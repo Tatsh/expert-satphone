@@ -231,6 +231,7 @@ iwyu
 japanrank
 jbdbg
 jbdbginfo
+jbpdbg
 jbtchallenge
 jbtgift
 jbtstore

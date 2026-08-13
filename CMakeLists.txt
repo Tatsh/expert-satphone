@@ -77,7 +77,7 @@ set(RESOURCES_DIR    "" CACHE PATH "Directory of the ORIGINAL extracted .app who
 # -DENABLE_PATCHES=ON.
 option(ENABLE_PATCHES "Compile in preservation patches (skip dead service flows)" OFF)
 
-# JBDBG compiles in the optional runtime os_log diagnostics (tagged "JBDBG"; see
+# JBDBG compiles in the optional runtime os_log diagnostics (tagged "JBPDBG"; see
 # Project/neDebugLog.h). It is NOT part of the original binary, so it defaults OFF; with it off
 # every logging helper collapses to a no-op and each translation unit matches the reconstructed
 # original exactly. It is a plain cache option, so it can be enabled in ANY build configuration

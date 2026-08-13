@@ -2,8 +2,8 @@
 //  neDebugLog.h
 //  jubeat plus
 //
-//  Optional runtime diagnostics. Emits os_log lines tagged "JBDBG" so they can be captured on
-//  device with:  idevicesyslog | grep JBDBG
+//  Optional runtime diagnostics. Emits os_log lines tagged "JBPDBG" so they can be captured on
+//  device with:  idevicesyslog | grep JBPDBG
 //
 //  This code is NOT part of the original binary. It is compiled in only when the build defines
 //  JBDBG (see the JBDBG CMake option, which is enable-able in any build configuration and is
@@ -43,7 +43,7 @@ static inline void neDebugLog(const char *fmt, ...) {
     va_start(ap, fmt);
     vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
-    os_log(OS_LOG_DEFAULT, "JBDBG %{public}s", buf);
+    os_log(OS_LOG_DEFAULT, "JBPDBG %{public}s", buf);
 }
 
 // A call counter helper: returns true for the first @c limit invocations at a given site, so a
