@@ -472,6 +472,7 @@ strikethrough
 strncmp
 strnstr
 strtoull
+stur
 subarray
 subdiv
 subobject

@@ -8,10 +8,13 @@ enum {
     kBlockMask = kBlockLength - 1,
 };
 
-// The chaining vector is a literal, written byte by byte by -cipherInit:length:. It does not depend
-// on the key, so two buffers encrypted with the same key chain from the same place.
+// The chaining vector is a literal written by -cipherInit:length:. It does not depend on the key,
+// so two buffers encrypted with the same key chain from the same place. Only the first and last
+// bytes are byte stores: the middle four come from one little-endian word store at 0x94a20
+// (mov w9,#0x2cda0000 / movk w9,#0x3166 / stur w9,[x8,#0x1], so w9 = 0x2cda3166 lands as
+// 66 31 da 2c) and the next two from a halfword store of 0xa085 at 0x94a2c.
 static const unsigned char kFixedChainVector[kBlockLength] = {
-    0xe3, 0xda, 0x2c, 0x66, 0x31, 0x85, 0xa0, 0x64};
+    0xe3, 0x66, 0x31, 0xda, 0x2c, 0x85, 0xa0, 0x64};
 
 // Reads the next four plaintext bytes as a big-endian word, substituting zero once the plaintext
 // runs out — which is how the final partial block gets its padding.
