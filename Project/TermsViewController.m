@@ -229,10 +229,14 @@ typedef enum {
 /** @ghidraAddress 0x113be0 */
 - (void)viewDidLoad {
     [super viewDidLoad];
+#ifndef ENABLE_PATCHES
+    // The same iOS 5 exclusive-touch idiom the settings sheet uses, on the same shared navigation
+    // bar; see -[SettingsViewController viewDidLoad] for why it no longer means what it meant.
     self.navigationController.navigationBar.exclusiveTouch = YES;
     for (UIView *subview in self.navigationController.navigationBar.subviews) {
         subview.exclusiveTouch = YES;
     }
+#endif
 }
 
 /** @ghidraAddress 0x113334 */

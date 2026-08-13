@@ -222,10 +222,21 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
 /** @ghidraAddress 0xe7268 */
 - (void)viewDidLoad {
     [super viewDidLoad];
+#ifndef ENABLE_PATCHES
+    // The binary marks the sheet's navigation bar exclusive at 0xe7304 and every subview it had at
+    // load time at 0xe73d8. The idiom dates from when a navigation bar's direct subviews were its
+    // per-item button views, so it meant no two bar buttons could track a touch at once. Modern
+    // UIKit gives the bar full-width private containers instead, and line 0xe7304 marks the bar
+    // itself as well, so the whole bar becomes an exclusive-touch region of the window it shares
+    // with the presenting screen. The controller is built once and -viewDidUnload is no longer
+    // called, so the flag is set once and never re-evaluated. Every settings interaction that fails
+    // is a navigation-bar tap -- the back button and the Close button -- while pushing into a
+    // child, which is a table-row tap, always works.
     self.navigationController.navigationBar.exclusiveTouch = YES;
     for (UIView *subview in self.navigationController.navigationBar.subviews) {
         subview.exclusiveTouch = YES;
     }
+#endif
 }
 
 /** @ghidraAddress 0xe7448 */

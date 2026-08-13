@@ -3234,6 +3234,26 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
                    settingsRect.size.height,
                    settingsNavCtrl ? "present" : "nil");
     }
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. The binary latches its state unconditionally after the
+    // present (bOpenModal at 0x2d120, bOpenSetting at 0x2d12c, then -musicShuffleDisable and
+    // -setSearchEnable:NO) and never examines the present's result, because in 2012
+    // -presentViewController: always succeeded. It no longer does: modern UIKit ignores the call
+    // while a sheet is already presented or is still dismissing. The flags latch regardless, and
+    // since -settingsNavViewClose: (0x2d20c) holds the only clear of bOpenSetting in the whole
+    // binary, and only the sheet's own Close button reaches it, the select screen is left with its
+    // shuffle off and every swipe recogniser disabled and no sheet on screen to recover from.
+    if (self.presentedViewController) {
+        return;
+    }
+    // settingsNavCtrl is allocated once and reused for every presentation, so it carries whatever
+    // navigation stack the previous session left on it. -settingClose (0xe4930 -> 0xe6718) is the
+    // binary's own recovery primitive for exactly this -- -popoverClose (0x33930) and
+    // -resumeJcfDownload (0x33c40) both call it before tearing the sheet down -- and it closes any
+    // alert and pops to the root child. The Close path does not need it, because the Close item
+    // lives on the root child's navigation item and so is only reachable at the root.
+    [settingsNavCtrl settingClose];
+#endif
     if (notificationView.isActive) {
         [notificationView stopNotification];
     }

@@ -24,6 +24,18 @@ static const CGFloat kPadCornerRadius = 6.0f;
     self = [super init];
     if (self) {
         self.modalPresentationStyle = UIModalPresentationFormSheet;
+#ifdef ENABLE_PATCHES
+        // Preservation patch, not in the binary. A form sheet was not interactively dismissible
+        // when this shipped, so the binary can assume the only way out is the Close item and its
+        // -pushClose: (0xe4844). Since iOS 13 the sheet can be swiped away, which bypasses
+        // -pushClose: entirely and so never reaches -[MusicSelectViewController
+        // settingsNavViewClose:] -- the sole clear of bOpenSetting (0x2d20c) and the sole re-enable
+        // of the select screen's shuffle and swipe recognisers. Refusing the interactive dismissal
+        // restores the original behaviour rather than inventing new behaviour.
+        if (@available(iOS 13.0, *)) {
+            self.modalInPresentation = YES;
+        }
+#endif
         self.navigationBar.barStyle = UIBarStyleBlack;
         self.navigationBar.translucent = NO;
 
