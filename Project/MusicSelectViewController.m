@@ -52,6 +52,7 @@
 #import "StoreUtil.h"
 #import "TuneInfo.h"
 #import "cipher_keys.h"
+#import "neDebugLog.h"
 
 static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 
@@ -3210,6 +3211,15 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
 /** @ghidraAddress 0x2d030 */
 - (void)tapSettings:(id)sender {
+    if (NE_DBG_FIRST(4)) {
+        CGRect settingsRect = btnSettings.frame;
+        neDebugLog("tapSettings: fired, btnSettings frame %.1f,%.1f %.1fx%.1f, navCtrl %s",
+                   settingsRect.origin.x,
+                   settingsRect.origin.y,
+                   settingsRect.size.width,
+                   settingsRect.size.height,
+                   settingsNavCtrl ? "present" : "nil");
+    }
     if (notificationView.isActive) {
         [notificationView stopNotification];
     }
@@ -3217,6 +3227,11 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     [[AudioManager sharedManager] playSeResFile:[self soundName:kSettingsTapSoundSuffix]
                                     inDirectory:nil];
     [self presentViewController:settingsNavCtrl animated:YES completion:nil];
+    if (NE_DBG_FIRST(4)) {
+        neDebugLog("tapSettings: presented, presentedViewController %s, window %s",
+                   self.presentedViewController ? "set" : "nil",
+                   self.view.window ? "attached" : "detached");
+    }
     bOpenModal = YES;
     bOpenSetting = YES;
     [self musicShuffleDisable];
