@@ -75,8 +75,13 @@ enum {
 // The archive entries: the nine animation frames are named "ma_%02d" for the first three (indices
 // under 24 in the frame-stride counter) and "h_d_%02d" beyond that; the press button is a plain
 // PNG resource.
-static NSString *const kFrameNameFormatLow = @"ma_%02d";
-static NSString *const kFrameNameFormatHigh = @"h_d_%02d";
+// The archive entry names: "ma%02d" for the tap frames and "h%d%02d" for the hold frames, whose
+// row and frame come from the stride counter divided by and modulo 16.
+static NSString *const kFrameNameFormatLow = @"ma%02d";   // @ghidraAddress 0x2d8880
+static NSString *const kFrameNameFormatHigh = @"h%d%02d"; // @ghidraAddress 0x2d88a0
+
+// The hold-frame rows hold sixteen frames each, so the stride counter splits on 16.
+static const int kHoldRowStride = 16;
 static NSString *const kButtonUpImageName = @"test_button_up";
 static NSString *const kButtonDownImageName = @"test_button_down";
 
@@ -285,11 +290,18 @@ static NSString *const kSoundKntSlow = @"SD_KNT_CV_SLOW";
                 int regionHeight;
                 if (strideCounter + 8 < 0x58) {
                     // An animation frame: decrypt the named archive entry into an image.
+                    // Both names come from the stride counter, not the loop index: the tap frame
+                    // is numbered strideCounter + 8 (0x80c0c), and the hold frame splits the
+                    // counter into a row and a frame with a signed divide by sixteen and its
+                    // remainder (0x80c94-0x80cac).
                     NSString *entryName;
                     if (strideCounter + 8 < 0x18) {
-                        entryName = [NSString stringWithFormat:kFrameNameFormatLow, index];
+                        entryName =
+                            [NSString stringWithFormat:kFrameNameFormatLow, strideCounter + 8];
                     } else {
-                        entryName = [NSString stringWithFormat:kFrameNameFormatHigh, index];
+                        entryName = [NSString stringWithFormat:kFrameNameFormatHigh,
+                                                               strideCounter / kHoldRowStride,
+                                                               strideCounter % kHoldRowStride];
                     }
                     NSMutableData *entry = [archive uncompress:entryName];
                     [codec cipherInit:key];
