@@ -89,7 +89,7 @@ void SetQuadTexCoordsAndAlpha(float flU0,
         pQuadVerts[2].flU = flU1;
         pQuadVerts[2].flV = flV0;
         pQuadVerts[3].flU = flU1;
-        pQuadVerts[3].flV = flV0;
+        pQuadVerts[3].flV = flV1;
         break;
     }
 
