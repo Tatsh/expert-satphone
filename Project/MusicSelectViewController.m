@@ -858,12 +858,14 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
         (NSUInteger)[NSUserDefaults.standardUserDefaults integerForKey:@"PrefLastPlayedID"];
     [self changeMusicListView:listType musicID:lastID isFirst:YES];
 
-    // The bottom bar (playlist controls).
-    bottomView =
-        [[MusicSelectBottomView alloc] initWithFrame:CGRectMake((double)((int)boundsHeight - 30),
-                                                                self.view.frame.origin.y,
-                                                                30.0,
-                                                                boundsWidth)];
+    // The bottom bar (playlist controls), pinned to the bottom edge at kBarHeight tall. Recovered
+    // from the disassembly at 0x248ac-0x24904, since the decompiler renders the rect as a shifted
+    // vector: x is a zeroed register (movi v0.16B, #0), y is scvtf(boundsHeight - 30), the width is
+    // whatever -frame left in d2 at 0x248ec and is never rewritten, and the height is an fmov of
+    // 30.0 into d3. The width therefore comes from -frame, not from the -bounds locals above.
+    bottomView = [[MusicSelectBottomView alloc]
+        initWithFrame:CGRectMake(
+                          0.0, (double)((int)boundsHeight - 30), self.view.frame.size.width, 30.0)];
     [bottomView setADelegate:self];
     [bottomView setPlaylistManager:playlistManager];
     [bottomView playlistButtonChanged:listType];
