@@ -265,13 +265,16 @@ static NSString *const kSettingsCellReuseFormat = @"SettingsTableCell%d";
         // the nested batch update leaves the enclosing transition without its completion: the
         // sheet never finishes appearing and ignoreInteractionEvents is never lowered, which is
         // why the music list stops responding too. reloadData refreshes the same rows without
-        // entering that machinery, so it is used until the table is actually in a window.
-        if (self.tableView.window == nil) {
-            [self.tableView reloadData];
-        } else {
-            [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithArray:toReload]
-                                  withRowAnimation:UITableViewRowAnimationNone];
-        }
+        // entering that machinery, so it is used instead.
+        //
+        // This was first conditioned on the table having no window, which covered the
+        // presentation but not the pop back from a pushed child. Returning from Adjustment Tap
+        // Timing or Background Color re-enters viewWillAppear: with the table already in a
+        // window, so it took the faithful branch and wedged the pop the same way: the back button
+        // looked dead and the sheet soft-locked. The requested row animation is None, so
+        // reloadData is visually identical and the condition bought nothing, and the deselect
+        // just above means the dropped selection does not matter either.
+        [self.tableView reloadData];
 #else
         [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithArray:toReload]
                               withRowAnimation:UITableViewRowAnimationNone];
