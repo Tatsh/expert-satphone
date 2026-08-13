@@ -1,5 +1,7 @@
 #import "TitleViewControllerRpl.h"
 
+#import <QuartzCore/QuartzCore.h>
+
 #import "ApplilinkNetwork.h"
 #import "AudioManager.h"
 #import "EditorIDManager.h"
@@ -47,6 +49,16 @@ static const float kFastBlinkMinOpacity = 0.1f;
 static const float kFastBlinkRepeatCount = 10.0f;
 // The SE played when the hidden Konami sequence completes (CFString 0x2dd4c0).
 static NSString *const kKonamiRevealSeName = @"SD_GRA";
+
+// The scale pulse the completed sequence runs on every ripple layer (CFStrings 0x2dd660 and
+// 0x2dd680). The scale value function makes the animation's three-element vectors a scale, so the
+// layer swells to 1.5x in the plane and back over 0.2 s. Both scale factors are fmov immediates
+// (0x13f3e0 and 0x13f4a4) rather than pool loads.
+static NSString *const kKonamiScaleKeyPath = @"transform";
+static NSString *const kKonamiScaleAnimationKey = @"AnimationScale";
+static const NSTimeInterval kKonamiScaleDuration = 0.2; // @ghidraAddress 0x28e040
+static const float kKonamiScaleIdentity = 1.0f;
+static const float kKonamiScalePeak = 1.5f;
 
 // The half-black cover dropped over the title as the start transition begins (alpha at 0x3fe0).
 static const CGFloat kCoverViewAlpha = 0.5;
@@ -530,8 +542,8 @@ MakeRippleDriftY(double fromY, double toY, NSTimeInterval duration, NSTimeInterv
             [self startTitleTransition];
             return;
         }
-        // The sequence is complete: play the reveal SE and bounce the logo and every ripple layer.
-        // This is the hidden cheat's own effect and does not leave the title.
+        // The sequence is complete: play the reveal SE and pulse every ripple layer. This is the
+        // hidden cheat's own effect and does not leave the title.
         kcState = kKonamiCompleteState;
         [self playKonamiCompleteEffect];
         return;
@@ -539,17 +551,33 @@ MakeRippleDriftY(double fromY, double toY, NSTimeInterval duration, NSTimeInterv
     [self startTitleTransition];
 }
 
-// The completed-Konami flourish, de-inlined from -handleTap: at 0x13f2a0: removes the swipe
-// recognisers, plays SD_GRA, and runs a scale-bounce transform on the logo and on every ripple and
-// reflected-ripple layer.
+// The completed-Konami flourish, de-inlined from -handleTap: at 0x13f278: removes the swipe
+// recognisers, plays SD_GRA, and pulses every ripple and reflected-ripple layer with one shared
+// scale animation. The logo itself is not animated; only the two layer arrays are.
 - (void)playKonamiCompleteEffect {
     for (UISwipeGestureRecognizer *recognizer in arraySwipeRecognizer) {
         [self.view removeGestureRecognizer:recognizer];
     }
     [AudioManager.sharedManager playSeResFile:kKonamiRevealSeName inDirectory:nil];
-    // The scale-bounce transform applied to the logo and every ripple layer is a decorative cheat
-    // effect; its animation is not reconstructed here and, unlike -nextScene, it does not leave the
-    // title. The layers it walks are the two arrays -addRippleLayers fills.
+    // One animation object is built and then handed to every layer of both arrays, so all the
+    // ripples pulse in step. The scale value function reads the three-element vectors as a scale
+    // rather than a full transform matrix, and z stays at unity so only the plane grows. There is
+    // no repeat count, so the pulse swells once and autoreverses back.
+    CABasicAnimation *bounce = [CABasicAnimation animationWithKeyPath:kKonamiScaleKeyPath];
+    bounce.fromValue =
+        @[ @(kKonamiScaleIdentity), @(kKonamiScaleIdentity), @(kKonamiScaleIdentity) ];
+    bounce.toValue = @[ @(kKonamiScalePeak), @(kKonamiScalePeak), @(kKonamiScaleIdentity) ];
+    bounce.valueFunction = [CAValueFunction functionWithName:kCAValueFunctionScale];
+    bounce.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+    bounce.duration = kKonamiScaleDuration;
+    bounce.autoreverses = YES;
+    bounce.removedOnCompletion = NO;
+    for (CALayer *layer in arrayRippleLayer) {
+        [layer addAnimation:bounce forKey:kKonamiScaleAnimationKey];
+    }
+    for (CALayer *layer in arrayReflectedRippleLayer) {
+        [layer addAnimation:bounce forKey:kKonamiScaleAnimationKey];
+    }
 }
 
 // The start flow shared by an ordinary tap and a completed Konami sequence, de-inlined from the
