@@ -1,13 +1,10 @@
 #import "SettingsNavController.h"
 
-#import "JubeatAppDelegate.h"
+#import <objc/runtime.h>
 
-// SettingsViewController is not yet reconstructed; declare the two selectors this class sends to
-// it.
-@interface SettingsViewController : UITableViewController
-- (void)settingClose;
-- (void)setSettingsDelegate:(id)settingsDelegate;
-@end
+#import "JubeatAppDelegate.h"
+#import "SettingsViewController.h"
+#import "neDebugLog.h"
 
 // The navigation bar's two greys: the first tints the bar background (or, on an older SDK without a
 // bar tint, the controls), the second tints the controls.
@@ -101,6 +98,18 @@ static const CGFloat kPadCornerRadius = 6.0f;
 /** @ghidraAddress 0xe4a20 */
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    if (NE_DBG_FIRST(4)) {
+        CGRect willRect = self.view.frame;
+        neDebugLog("settingsNav willAppear: animated %d frame %.1f,%.1f %.1fx%.1f super %s "
+                   "window %s",
+                   (int)animated,
+                   willRect.origin.x,
+                   willRect.origin.y,
+                   willRect.size.width,
+                   willRect.size.height,
+                   self.view.superview ? object_getClassName(self.view.superview) : "nil",
+                   self.view.window ? "yes" : "no");
+    }
     // On iPad the form sheet is given rounded corners, both on its superview and on its own view.
     if (JubeatAppDelegate.appDelegate.isPad) {
         self.view.superview.layer.cornerRadius = kPadCornerRadius;
@@ -112,6 +121,17 @@ static const CGFloat kPadCornerRadius = 6.0f;
 /** @ghidraAddress 0xe4bbc */
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    if (NE_DBG_FIRST(4)) {
+        CGRect didRect = self.view.frame;
+        neDebugLog("settingsNav didAppear: frame %.1f,%.1f %.1fx%.1f super %s window %s alpha %.2f",
+                   didRect.origin.x,
+                   didRect.origin.y,
+                   didRect.size.width,
+                   didRect.size.height,
+                   self.view.superview ? object_getClassName(self.view.superview) : "nil",
+                   self.view.window ? "yes" : "no",
+                   self.view.alpha);
+    }
 }
 
 /** @ghidraAddress 0xe4bf4 */
