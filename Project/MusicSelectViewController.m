@@ -1,5 +1,7 @@
 #import "MusicSelectViewController.h"
 
+#import <objc/runtime.h>
+
 #import <QuartzCore/QuartzCore.h>
 
 #import "AlertViewManager.h"
@@ -3226,7 +3228,28 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     [self setEnableGesture:YES];
     [[AudioManager sharedManager] playSeResFile:[self soundName:kSettingsTapSoundSuffix]
                                     inDirectory:nil];
+#if JBDBG
+    // The completion runs after the transition, which is the only point the sheet's real frame is
+    // settled. Reports whether it is sized, on screen, attached, visible and opaque.
+    [self presentViewController:settingsNavCtrl
+                       animated:YES
+                     completion:^{
+                       UIView *sheet = self.presentedViewController.view;
+                       CGRect sheetRect = sheet.frame;
+                       neDebugLog("tapSettings: sheet frame %.1f,%.1f %.1fx%.1f window %s "
+                                  "hidden %d alpha %.2f super %s",
+                                  sheetRect.origin.x,
+                                  sheetRect.origin.y,
+                                  sheetRect.size.width,
+                                  sheetRect.size.height,
+                                  sheet.window ? "yes" : "no",
+                                  (int)sheet.hidden,
+                                  sheet.alpha,
+                                  sheet.superview ? object_getClassName(sheet.superview) : "nil");
+                     }];
+#else
     [self presentViewController:settingsNavCtrl animated:YES completion:nil];
+#endif
     if (NE_DBG_FIRST(4)) {
         neDebugLog("tapSettings: presented, presentedViewController %s, window %s",
                    self.presentedViewController ? "set" : "nil",

@@ -786,6 +786,15 @@ static const int kDefaultTheme = 0;
 
     mainWindow = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
     mainWindow.autoresizesSubviews = NO;
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. The window is told not to autoresize its subviews,
+    // which was harmless in 2011 when the app owned every subview it had. Modern UIKit adds its
+    // own containers here for modal presentations, and a container that is never resized to the
+    // window cannot show its contents. Tapping SETTINGS presents successfully but draws nothing,
+    // and switching that sheet to full screen changed nothing, which points at the container
+    // rather than the presentation style.
+    mainWindow.autoresizesSubviews = YES;
+#endif
     mainWindow.opaque = YES;
     mainWindow.backgroundColor = UIColor.blackColor;
 #ifdef ENABLE_PATCHES

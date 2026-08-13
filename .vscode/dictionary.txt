@@ -32,6 +32,7 @@ autoreleased
 autoreleasepool
 autoreleases
 autoreleasing
+autoresize
 autoresizes
 autoresizing
 autoreverses
