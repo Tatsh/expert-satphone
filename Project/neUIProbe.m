@@ -174,6 +174,105 @@ static void ProbeWindowSendEvent(UIWindow *window, SEL selector, UIEvent *event)
     gOriginalWindowSendEvent(window, selector, event);
 }
 
+#pragma mark - Layout accounting
+
+// Which view classes UIKit is laying out, and which are asking to be laid out again.
+//
+// A stack sample says where the spin is but not what it is spinning over, and the samples taken so
+// far are all inside UIKit with no frame of this tree above main. Counting layout by class answers
+// the remaining question directly: during a hang the count of whatever is looping runs away, and
+// the delta between two samples names it.
+//
+// -layoutSublayersOfLayer: is the hook rather than -layoutSubviews because it is the entry point
+// UIKit itself calls on every view it lays out. A UIView subclass that overrides -layoutSubviews
+// without chaining to super would slip past a hook on that; almost none override this one.
+
+enum { kLayoutTableSize = 512 };
+
+static Class gLayoutClasses[kLayoutTableSize];
+static _Atomic uint64_t gLayoutCounts[kLayoutTableSize];
+static uint64_t gLayoutSnapshot[kLayoutTableSize];
+
+static Class gDirtyClasses[kLayoutTableSize];
+static _Atomic uint64_t gDirtyCounts[kLayoutTableSize];
+static uint64_t gDirtySnapshot[kLayoutTableSize];
+
+// How many classes each report names, most active first.
+static const size_t kLayoutReportRows = 10;
+
+static void (*gOriginalLayoutSublayers)(UIView *, SEL, CALayer *);
+static void (*gOriginalSetNeedsLayout)(UIView *, SEL);
+
+// Open addressing on the class pointer. Only the main thread writes, and the watchdog only reads,
+// so a torn read costs at worst one mis-named row in a diagnostic report.
+static void ProbeCountInTable(Class classes[], _Atomic uint64_t counts[], Class subject) {
+    size_t home = ((uintptr_t)subject >> 4) % kLayoutTableSize;
+    for (size_t probe = 0; probe < kLayoutTableSize; ++probe) {
+        size_t slot = (home + probe) % kLayoutTableSize;
+        Class occupant = classes[slot];
+        if (occupant == subject || occupant == nil) {
+            classes[slot] = subject;
+            atomic_fetch_add_explicit(&counts[slot], 1, memory_order_relaxed);
+            return;
+        }
+    }
+}
+
+static void ProbeLayoutSublayersOfLayer(UIView *view, SEL selector, CALayer *layer) {
+    ProbeCountInTable(gLayoutClasses, gLayoutCounts, object_getClass(view));
+    gOriginalLayoutSublayers(view, selector, layer);
+}
+
+static void ProbeSetNeedsLayout(UIView *view, SEL selector) {
+    ProbeCountInTable(gDirtyClasses, gDirtyCounts, object_getClass(view));
+    gOriginalSetNeedsLayout(view, selector);
+}
+
+static void ProbeSnapshotLayout(void) {
+    for (size_t slot = 0; slot < kLayoutTableSize; ++slot) {
+        gLayoutSnapshot[slot] = atomic_load_explicit(&gLayoutCounts[slot], memory_order_relaxed);
+        gDirtySnapshot[slot] = atomic_load_explicit(&gDirtyCounts[slot], memory_order_relaxed);
+    }
+}
+
+// Reports the classes whose counts grew most since the snapshot. A hang whose layout counts are
+// all zero is a hang that is not laying anything out, which is as useful an answer as a name.
+static void ProbeReportLayoutDeltas(const char *tag,
+                                    const char *what,
+                                    Class classes[],
+                                    _Atomic uint64_t counts[],
+                                    uint64_t snapshot[]) {
+    for (size_t row = 0; row < kLayoutReportRows; ++row) {
+        uint64_t best = 0;
+        size_t bestSlot = kLayoutTableSize;
+        for (size_t slot = 0; slot < kLayoutTableSize; ++slot) {
+            if (classes[slot] == nil) {
+                continue;
+            }
+            uint64_t now = atomic_load_explicit(&counts[slot], memory_order_relaxed);
+            uint64_t delta = (now > snapshot[slot]) ? (now - snapshot[slot]) : 0;
+            if (delta > best) {
+                best = delta;
+                bestSlot = slot;
+            }
+        }
+        if (best == 0) {
+            if (row == 0) {
+                neDebugLog("probe %s %s: none", what, tag);
+            }
+            return;
+        }
+        neDebugLog("probe %s %s: %s x%llu",
+                   what,
+                   tag,
+                   class_getName(classes[bestSlot]),
+                   (unsigned long long)best);
+        // Raising this row's snapshot to its current count consumes it, so the next pass finds the
+        // next-largest instead of the same one again.
+        snapshot[bestSlot] = atomic_load_explicit(&counts[bestSlot], memory_order_relaxed);
+    }
+}
+
 #pragma mark - Liveness
 
 static void ProbeHeartbeat(void) {
@@ -317,9 +416,15 @@ static void ProbeWatchdogCheck(void) {
                        (unsigned long long)idle,
                        ProbeMainRunLoopMode());
             ProbeLogBacktrace("stall1");
+            // The baseline for the layout report below. Taken after the first stack dump so the
+            // window it measures lies wholly inside the hang.
+            ProbeSnapshotLayout();
         } else if (checks == kSecondStackDumpCheck) {
             neDebugLog("probe watchdog: still stalled, idle %llu ms", (unsigned long long)idle);
             ProbeLogBacktrace("stall2");
+            ProbeReportLayoutDeltas(
+                "stall", "layout", gLayoutClasses, gLayoutCounts, gLayoutSnapshot);
+            ProbeReportLayoutDeltas("stall", "dirty", gDirtyClasses, gDirtyCounts, gDirtySnapshot);
         }
         return;
     }
@@ -348,6 +453,16 @@ void neUIProbeInstall(void) {
     gOriginalWindowSendEvent =
         (void (*)(UIWindow *, SEL, UIEvent *))method_getImplementation(sendEvent);
     method_setImplementation(sendEvent, (IMP)ProbeWindowSendEvent);
+
+    Method layoutSublayers =
+        class_getInstanceMethod(UIView.class, @selector(layoutSublayersOfLayer:));
+    gOriginalLayoutSublayers =
+        (void (*)(UIView *, SEL, CALayer *))method_getImplementation(layoutSublayers);
+    method_setImplementation(layoutSublayers, (IMP)ProbeLayoutSublayersOfLayer);
+
+    Method setNeedsLayout = class_getInstanceMethod(UIView.class, @selector(setNeedsLayout));
+    gOriginalSetNeedsLayout = (void (*)(UIView *, SEL))method_getImplementation(setNeedsLayout);
+    method_setImplementation(setNeedsLayout, (IMP)ProbeSetNeedsLayout);
 
     atomic_store_explicit(
         &gLastRunLoopTickMilliseconds, ProbeNowMilliseconds(), memory_order_relaxed);
