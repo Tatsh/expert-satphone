@@ -267,10 +267,24 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
     CGFloat navHeight = storeMainNavCtrl.navigationBar.bounds.size.height;
     CGFloat tabHeight = self.tabBar.bounds.size.height;
 
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. This cover runs from the navigation bar to the bottom
+    // of the screen, so it lies over the tab bar too, and the server-error label is added to it.
+    // The store's servers are gone, so that error path is now the normal one: the cover comes up,
+    // dims the whole store and takes every touch, and the tabs can no longer be tapped
+    // (screenshots/IMG_0201.PNG). Stop it short of the tab bar so the tabs stay reachable. The
+    // routine already computes this same inset for the agreement board's centre just below.
+    usrPolicyView =
+        [[UIView alloc] initWithFrame:CGRectMake(screen.origin.x,
+                                                 navHeight,
+                                                 screen.size.width,
+                                                 (screen.size.height - navHeight) - tabHeight)];
+#else
     usrPolicyView = [[UIView alloc] initWithFrame:CGRectMake(screen.origin.x,
                                                              navHeight,
                                                              screen.size.width,
                                                              screen.size.height - navHeight)];
+#endif
     [usrPolicyView setOpaque:NO];
     // The original used colorWithWhite:alpha: with black (white 0).
     usrPolicyView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:kCoverAlpha];
