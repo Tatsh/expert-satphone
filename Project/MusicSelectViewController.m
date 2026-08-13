@@ -141,9 +141,6 @@ static const NSUInteger kPushStorePathComponentCount = 3;
 // The menu BGM resumes with a one-fifth-second fade in when the app comes back to the foreground.
 static const double kMenuBgmResumeFade = 0.2; // @ghidraAddress 0x28e040
 
-// The search box and its cancel button slide up 52 points out of view when no search is active.
-static const double g_dSlideOffsetYMinus52 = -52.0;
-
 // The extend-mode tutorial overlay fades out over this (negative, as the binary passes it)
 // duration when the mode changes.
 static const NSTimeInterval kExtendTutorialFadeDuration = -0.2; // @ghidraAddress 0x28e050
@@ -750,9 +747,13 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     [btnMarker addTarget:self
                   action:@selector(btnTouchesBegan:)
         forControlEvents:UIControlEventTouchDown];
+    // The undo for -btnTouchesBegan:, which disables the search swipe recognisers, is wired to
+    // touch-up-outside (mov w4,#0x80 at 0x23e04) despite the selector's name. The binary registers
+    // no touch-cancel handler at all here or at the other five buttons, so a system-cancelled touch
+    // leaves the recognisers disabled until the next completed button tap re-enables them.
     [btnMarker addTarget:self
                   action:@selector(btnTouchesCancel:)
-        forControlEvents:UIControlEventTouchCancel];
+        forControlEvents:UIControlEventTouchUpOutside];
     btnMarkerImg = [[UIImageView alloc]
         initWithFrame:CGRectMake(6.0, 4.0, kMarkerBannerWidth, kMarkerBannerHeight)];
     [btnMarkerImg setImage:[markerSelectView getCurrentBanner]];
@@ -799,7 +800,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
         forControlEvents:UIControlEventTouchDown];
     [btnStore addTarget:self
                   action:@selector(btnTouchesCancel:)
-        forControlEvents:UIControlEventTouchCancel];
+        forControlEvents:UIControlEventTouchUpOutside];
 
     UIImage *storeNewImage =
         (theme == JubeatThemeRipples) ? LoadScaledPngImage(@"word_store_new_rpl") :
@@ -866,7 +867,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
         [self.view addSubview:scrollBg];
     }
     [self.view addSubview:musicListView];
-    [self.view addSubview:btnMarker];
+    // The binary adds farOpenMusicView here (0x24700), not btnMarker; btnMarker is added later, at
+    // 0x2647c. The same duplicate-add defect as the search box below left this view unparented.
+    [self.view addSubview:farOpenMusicView];
 
     // Restore the last-played playlist/level/hold selection and open it.
     NSString *lastPlaylist = [NSUserDefaults.standardUserDefaults stringForKey:@"PrefLastPlaylist"];
@@ -920,7 +923,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
            forControlEvents:UIControlEventTouchDown];
     [btnChallenge addTarget:self
                      action:@selector(btnTouchesCancel:)
-           forControlEvents:UIControlEventTouchCancel];
+           forControlEvents:UIControlEventTouchUpOutside];
     [self.view addSubview:btnChallenge];
     [btnChallenge addSubview:imgChallengeNew];
 
@@ -1002,7 +1005,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
              forControlEvents:UIControlEventTouchDown];
     [btnJoinSession addTarget:self
                        action:@selector(btnTouchesCancel:)
-             forControlEvents:UIControlEventTouchCancel];
+             forControlEvents:UIControlEventTouchUpOutside];
     [self.view addSubview:btnJoinSession];
 
     // The settings button, left of the join button.
@@ -1026,7 +1029,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
           forControlEvents:UIControlEventTouchDown];
     [btnSettings addTarget:self
                     action:@selector(btnTouchesCancel:)
-          forControlEvents:UIControlEventTouchCancel];
+          forControlEvents:UIControlEventTouchUpOutside];
     [self.view addSubview:btnSettings];
 
     // Up/down swipes on the whole view open and close the search box.
@@ -1086,12 +1089,11 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
               forControlEvents:UIControlEventTouchDown];
     [searchCancelBtn addTarget:self
                         action:@selector(btnTouchesCancel:)
-              forControlEvents:UIControlEventTouchCancel];
+              forControlEvents:UIControlEventTouchUpOutside];
     if (searchArray.count == 0) {
         // With no active search, both are slid up out of view.
-        [searchBox setTransform:CGAffineTransformMakeTranslation(0.0, g_dSlideOffsetYMinus52)];
-        [searchCancelBtn
-            setTransform:CGAffineTransformMakeTranslation(0.0, g_dSlideOffsetYMinus52)];
+        [searchBox setTransform:CGAffineTransformMakeTranslation(0.0, kSearchBoxSlideOffset)];
+        [searchCancelBtn setTransform:CGAffineTransformMakeTranslation(0.0, kSearchBoxSlideOffset)];
     } else {
         bOpenSearchBox = YES;
         [self showButtonMarker:NO];
@@ -1170,9 +1172,14 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     [extendTutorialDescription setImage:extendDescImage];
     [extendTutorialFrame addSubview:extendTutorialDescription];
 
-    // Layer the interactive views above the background.
-    [self.view addSubview:btnJoinSession];
-    [self.view addSubview:btnSettings];
+    // Layer the search box and the overlay panels above the background. The binary adds the search
+    // bar at 0x263b8 and its cancel button at 0x263ec, between btnSettings at 0x254ac and coverView
+    // at 0x2641c. The reconstruction had a second copy of the btnJoinSession and btnSettings adds
+    // here instead, so the search box never entered the view hierarchy at all: -pullSearchBox still
+    // ran on a downward swipe, but its transform animated a view with no superview and
+    // -becomeFirstResponder returned NO, which is why dragging down appeared to do nothing.
+    [self.view addSubview:searchBox];
+    [self.view addSubview:searchCancelBtn];
     [self.view addSubview:coverView];
     [self.view addSubview:markerSelectCover];
     [self.view addSubview:btnMarker];
@@ -1736,10 +1743,14 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
 /** @ghidraAddress 0x36720 */
 - (void)handleSwipe:(UISwipeGestureRecognizer *)recognizer {
-    // A downward swipe pulls the search box in; a rightward swipe pushes it away.
-    if (recognizer.direction == UISwipeGestureRecognizerDirectionDown) {
+    // A downward swipe pulls the search box in; an upward swipe pushes it away. The binary reads
+    // -direction once at 0x3673c and tests it for exact equality: cmp #8 then cmp #4, with anything
+    // else returning without acting. The second arm previously tested Right (1), which no installed
+    // recogniser can ever report, so swiping up to close was dead.
+    UISwipeGestureRecognizerDirection direction = recognizer.direction;
+    if (direction == UISwipeGestureRecognizerDirectionDown) {
         [self pullSearchBox];
-    } else if (recognizer.direction == UISwipeGestureRecognizerDirectionRight) {
+    } else if (direction == UISwipeGestureRecognizerDirectionUp) {
         [self pushSearchBox];
     }
 }
@@ -2883,8 +2894,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     __weak UIButton *weakCancel = searchCancelBtn;
     [UIView animateWithDuration:kSearchBoxSlideDuration
                           delay:0.0
-                        options:UIViewAnimationOptionBeginFromCurrentState |
-                                UIViewAnimationOptionAllowAnimatedContent
+                        options:UIViewAnimationOptionCurveLinear
                      animations:^{
                        /** @ghidraAddress 0x36068 */
                        weakSearch.transform =
