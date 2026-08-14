@@ -6,6 +6,7 @@
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "MainGameRenderer.h"
+#import "Sequence.h"
 #import "TextureLoading.h"
 #import "TweetResourceManager.h"
 #import "cipher_keys.h"
@@ -65,14 +66,6 @@ static const char kMusicBarDiffLetters[] = "bae"; // @ghidraAddress 0x291d18
 
 // The dot-grade letters ("dot_%c_%d"), indexed by the 2-bit grade from ScoreData.musicBarResult.
 static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
-
-// The play sequence: the live source of the score summary, the packed music-bar nibbles, and the
-// achieved rank. Not yet reconstructed.
-@interface Sequence : NSObject
-- (const ScoreData *)getScore;
-- (const char *)getMusicBar;
-- (int)rank;
-@end
 
 // The played chart's renderer configuration: its difficulty and level. Not yet reconstructed.
 @interface RendererConf : NSObject

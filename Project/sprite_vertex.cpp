@@ -7,8 +7,8 @@ namespace {
 // The alpha channel is stored as an 8-bit value, so the clamped opacity scales up by 255.
 constexpr float kByteScale255 = 255.0f; // @ghidraAddress 0x28dff4
 
-// Broadcasts one 8-bit channel into all four bytes of an RGBA8 word.
-constexpr std::uint32_t kColorChannelBroadcast = 0x01010101u;
+// A sprite quad is four consecutive vertices.
+constexpr int kVerticesPerQuad = 4;
 
 } // namespace
 
@@ -93,12 +93,15 @@ void SetQuadTexCoordsAndAlpha(float flU0,
         break;
     }
 
-    // Truncate the scaled opacity to a byte and broadcast it into every RGBA channel.
-    const std::uint32_t dwColor =
-        static_cast<std::uint32_t>(static_cast<int>(flClampedAlpha * kByteScale255)) *
-        kColorChannelBroadcast;
-    pQuadVerts[0].dwColor = dwColor;
-    pQuadVerts[1].dwColor = dwColor;
-    pQuadVerts[2].dwColor = dwColor;
-    pQuadVerts[3].dwColor = dwColor;
+    // Truncate the scaled opacity to a byte and write it into every channel of every vertex. The
+    // binary multiplies by 0x01010101 and does one word store per vertex, which is clang merging
+    // the four identical byte stores.
+    const std::uint8_t byAlpha =
+        static_cast<std::uint8_t>(static_cast<int>(flClampedAlpha * kByteScale255));
+    for (int nVert = 0; nVert < kVerticesPerQuad; ++nVert) {
+        pQuadVerts[nVert].byRed = byAlpha;
+        pQuadVerts[nVert].byGreen = byAlpha;
+        pQuadVerts[nVert].byBlue = byAlpha;
+        pQuadVerts[nVert].byAlpha = byAlpha;
+    }
 }

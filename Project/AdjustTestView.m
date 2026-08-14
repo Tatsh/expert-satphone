@@ -10,6 +10,7 @@
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "LabUtilities.h"
+#import "Sequence.h"
 #import "Texture2D.h"
 #import "TextureLoading.h"
 #import "cipher_keys.h"
@@ -17,16 +18,6 @@
 // MarkerManager vends the marker's data-archive path; it is not reconstructed yet.
 @interface MarkerManager : NSObject
 + (NSString *)getMarkerPath:(NSString *)markerID;
-@end
-
-// Sequence plays the note chart and reports the per-panel marker state; it is not reconstructed
-// yet. Only the members this view messages are declared here.
-@interface Sequence : NSObject
-- (instancetype)initWithData:(NSData *)data;
-- (void)reset;
-- (void)seekToTime:(double)time;
-- (void)judge:(unsigned int)btnState btnPress:(unsigned int)btnPress;
-- (void)getMarkerState:(int *)markerState;
 @end
 
 // The number of sprite-sheet textures the marker animation is packed into, and the nine sub-images

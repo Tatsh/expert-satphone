@@ -218,8 +218,8 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 /**
  * @brief Appends a quad for one packed sprite at a point, at its own size.
  *
- * A transposing @p transform (a 90-degree rotation) keeps the sprite's width and height as the
- * draw size; any other value swaps them.
+ * A transposing @p transform (mode 1 or 3, a 90-degree rotation) swaps the sprite's width and
+ * height to produce the draw size; any other value uses them as they are.
  *
  * @param sprite The sprite index.
  * @param point Where to draw it.

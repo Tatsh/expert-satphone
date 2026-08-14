@@ -549,6 +549,7 @@ unrotated
 unselectable
 unsuffixed
 unzlocal
+uxtw
 valf
 vararg
 varargs

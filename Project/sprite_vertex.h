@@ -15,17 +15,23 @@
  */
 
 /**
- * @brief One vertex of an interleaved sprite quad: position, texture coordinate, and packed colour.
+ * @brief One vertex of an interleaved sprite quad: position, texture coordinate, and four 8-bit
+ *        colour channels.
  *
- * The engine draws a sprite as four consecutive vertices at a stride of @c 0x18 bytes.
+ * The engine draws a sprite as four consecutive vertices at a stride of @c 0x18 bytes. The ivar's
+ * runtime type encoding is @c ^{?=fffffCCCC}, so the colour is four separate byte channels rather
+ * than one packed word.
  */
 struct SpriteVertex {
-    float fX;              // +0x00 Position X, written by the caller.
-    float fY;              // +0x04 Position Y, written by the caller.
-    float fZ;              // +0x08 Position Z, untouched by the 2D sprite path.
-    float flU;             // +0x0c Texture U coordinate.
-    float flV;             // +0x10 Texture V coordinate.
-    std::uint32_t dwColor; // +0x14 Packed RGBA8; every channel holds the alpha byte.
+    float fX;             // +0x00 Position X, written by the caller.
+    float fY;             // +0x04 Position Y, written by the caller.
+    float fZ;             // +0x08 Position Z, untouched by the 2D sprite path.
+    float flU;            // +0x0c Texture U coordinate.
+    float flV;            // +0x10 Texture V coordinate.
+    std::uint8_t byRed;   // +0x14 Red channel, 0-255.
+    std::uint8_t byGreen; // +0x15 Green channel, 0-255.
+    std::uint8_t byBlue;  // +0x16 Blue channel, 0-255.
+    std::uint8_t byAlpha; // +0x17 Alpha channel, 0-255.
 };
 
 /**

@@ -22,13 +22,15 @@ enum {
     kSequenceEventHold = 6,
 };
 
-// The chart header is 96 bytes; each event record that follows is 8 bytes on disc, holding a
-// 24-byte header magic at 0, then the event count word, then per-event pairs.
+// The chart header is 96 bytes (0x60): a 36-byte (0x24) field block whose first four bytes are the
+// magic, followed by the 60-byte music-bar bitmap at 0x24. The event records begin at 0x60 and are
+// 8 bytes each on disc -- a pair of 32-bit words -- expanding to a 20-byte SequenceEvent in memory.
+// -initWithData: and +checkExistHoldMarker: read back only the leading 0x24 bytes.
 static const NSUInteger kSequenceHeaderByteCount = 96; // 0x60
 static const NSUInteger kSequenceDiscEventByteCount = 8;
 static const NSUInteger kSequenceHeaderMagicLength = 0x24;
-// Offsets of the header fields within the 0x24-byte magic block read by the initialiser, starting
-// four bytes past the four-byte magic.
+// Offsets of the header fields, measured from the start of the header; the four-byte magic occupies
+// 0x00 to 0x03.
 static const NSUInteger kSequenceHeaderEventCountOffset = 0x04;
 static const NSUInteger kSequenceHeaderNumPlayEventOffset = 0x08;
 static const NSUInteger kSequenceHeaderEndSectorOffset = 0x0c;
@@ -223,8 +225,11 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
         return NO;
     }
     const unsigned int eventCount = *(const unsigned int *)&header[kSequenceHeaderEventCountOffset];
-    if (data.length < eventCount * kSequenceDiscEventByteCount + kSequenceHeaderByteCount ||
-        eventCount == 0) {
+    // The binary sizes this bound in 32 bits and only then zero-extends it (0x1ab9d8), so the
+    // product wraps.
+    const unsigned int requiredLength = (eventCount * (unsigned int)kSequenceDiscEventByteCount) +
+                                        (unsigned int)kSequenceHeaderByteCount;
+    if (data.length < requiredLength || eventCount == 0) {
         return NO;
     }
     for (unsigned int i = 0; i < eventCount; ++i) {
@@ -294,7 +299,7 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
     char remapped[kSequencePanelCount] = {0};
     const unsigned short original = _firstMarker;
     for (unsigned int i = 0; i < kSequencePanelCount; ++i) {
-        if (original & (1 << (i & 0x1f))) {
+        if (original & (1 << i)) {
             remapped[replaceTable[i]] = 1;
         }
     }
@@ -328,9 +333,13 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
     if (!magicOK) {
         return nil;
     }
-    const int eventCount = *(const int *)&header[kSequenceHeaderEventCountOffset];
-    if ((NSUInteger)data.length <
-        eventCount * kSequenceDiscEventByteCount + kSequenceHeaderByteCount) {
+    // The binary sizes this bound in 32 bits and only then zero-extends it (lsl w8,w23,#3 /
+    // add w8,w8,#0x60 / cmp x0,w8,UXTW at 0x1abf4c), so the product wraps. The UXTW is what
+    // fixes eventCount as unsigned rather than int.
+    const unsigned int eventCount = *(const unsigned int *)&header[kSequenceHeaderEventCountOffset];
+    const unsigned int requiredLength = (eventCount * (unsigned int)kSequenceDiscEventByteCount) +
+                                        (unsigned int)kSequenceHeaderByteCount;
+    if (data.length < requiredLength) {
         return nil;
     }
 
@@ -338,7 +347,7 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
     if (self == nil) {
         return nil;
     }
-    numEvent = (unsigned int)eventCount;
+    numEvent = eventCount;
     numPlayEvent = *(const unsigned int *)&header[kSequenceHeaderNumPlayEventOffset];
     endSector = *(const unsigned int *)&header[kSequenceHeaderEndSectorOffset];
     _firstMarker = *(const unsigned short *)&header[kSequenceHeaderFirstMarkerOffset];
@@ -386,7 +395,7 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
         return nil;
     }
     [self createRandomTable];
-    const NSInteger tableCount = (NSInteger)tableData.count;
+    const int tableCount = (int)tableData.count;
     numEvent = [data[kSequenceKeyEventNum] unsignedIntValue];
     numPlayEvent = [data[kSequenceKeyNotesNum] unsignedIntValue];
     endSector = [data[kSequenceKeyEndSector] unsignedIntValue];
@@ -494,6 +503,9 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
             const short kind = event->kind;
             if (kind == kSequenceEventMeasure) {
                 lastMeasureSector = event->sector;
+                // Faithful except for the bound: the compare at 0x1acbc8 tests (j - 1) against
+                // numEvent, so the binary reads events[numEvent] when no later measure event
+                // follows. Tightened here to stop at the last event.
                 for (unsigned int j = currentIndex + 1; j < numEvent; ++j) {
                     if (events[j].kind == kSequenceEventMeasure) {
                         nextMeasureSector = events[j].sector;
@@ -505,6 +517,7 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
                 currentTempo = events[currentIndex].value;
             } else if (kind == kSequenceEventHaku) {
                 lastHakuSector = event->sector;
+                // Same one-past-the-end bound, compared at 0x1acb74, tightened the same way.
                 for (unsigned int j = currentIndex + 1; j < numEvent; ++j) {
                     if (events[j].kind == kSequenceEventHaku) {
                         nextHakuSector = events[j].sector;
@@ -889,9 +902,9 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
                                 }
                                 const short releaseGrade = kSequenceReleaseGrades[tableIndex];
                                 event->judge = releaseGrade;
-                                if ((unsigned short)releaseGrade - 3 < 2) {
+                                if ((unsigned int)releaseGrade - 3 < 2) {
                                     SequenceSetBarFailed(gameScore.musicBarResult, segment);
-                                } else if ((unsigned short)releaseGrade - 1 < 2) {
+                                } else if ((unsigned int)releaseGrade - 1 < 2) {
                                     SequenceSetBarCleared(gameScore.musicBarResult, segment);
                                 }
                             }
@@ -950,6 +963,7 @@ static inline SequenceJudgeGrade SequenceClassifyHoldHead(int delta) {
 
 #pragma mark - Lifecycle
 
+/** @ghidraAddress 0x1adb38 */
 - (void)dealloc {
     if (events != nullptr) {
         free(events);

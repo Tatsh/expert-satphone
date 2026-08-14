@@ -2,11 +2,7 @@
 
 #import "ImageCache.h"
 #import "JubeatAppDelegate.h"
-
-// Sequence is not reconstructed yet; only its score-classifying class method is needed here.
-@interface Sequence : NSObject
-+ (short)rankOfPoint:(unsigned int)points;
-@end
+#import "Sequence.h"
 
 // The base rank-letter resource names, indexed by rank ascending from E (worst) to EXC (best).
 // From the pooled strings at 0x2803bf onwards.
@@ -31,7 +27,7 @@ static NSString *const kRipplesThemeSuffix = @"_rpl";
 static NSString *const kKnitThemeSuffix = @"_knt";
 
 UIImage *GetRankImageForPoint(int nPoints) {
-    short rank = [Sequence rankOfPoint:(unsigned int)nPoints];
+    SequenceRank rank = [Sequence rankOfPoint:(unsigned int)nPoints];
     // The compiled test is an unsigned `cmp w0,#0x8; b.hi`, so any rank outside 0..8 yields nil.
     if ((unsigned int)rank > (unsigned int)kMaxRank) {
         return nil;

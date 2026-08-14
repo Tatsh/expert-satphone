@@ -2,12 +2,7 @@
 
 #import <string.h>
 
-// Forward declarations of collaborators not yet reconstructed as their own files.
-
-/// The play session's note sequence; @c -getScore returns its live score summary.
-@interface Sequence : NSObject
-- (const ScoreData *)getScore;
-@end
+#import "Sequence.h"
 
 // The sub-state value that marks the play session as finished.
 static const unsigned int kMainGameEndSubState = 99;

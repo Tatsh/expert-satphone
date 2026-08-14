@@ -113,9 +113,10 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     CGAffineTransform transform = CGAffineTransformIdentity;
     int imageWidth = static_cast<int>(CGImageGetWidth(cgImage));
     int imageHeight = static_cast<int>(CGImageGetHeight(cgImage));
-    unsigned int maxDimension = (imageWidth < imageHeight) ?
-                                    static_cast<unsigned int>(imageHeight) :
-                                    static_cast<unsigned int>(imageWidth);
+    unsigned int maxDimension =
+        (static_cast<unsigned int>(imageWidth) < static_cast<unsigned int>(imageHeight)) ?
+            static_cast<unsigned int>(imageHeight) :
+            static_cast<unsigned int>(imageWidth);
 
     GLint maxTextureSize = 0;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
@@ -159,8 +160,8 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                                         8,
                                         bytesPerRow,
                                         deviceRGB,
-                                        (uint32_t)kCGImageAlphaNoneSkipLast |
-                                            (uint32_t)kCGBitmapByteOrder32Big);
+                                        static_cast<uint32_t>(kCGImageAlphaNoneSkipLast) |
+                                            static_cast<uint32_t>(kCGBitmapByteOrder32Big));
         CGColorSpaceRelease(deviceRGB);
         break;
     }
@@ -174,8 +175,8 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                                         8,
                                         bytesPerRow,
                                         deviceRGB,
-                                        (uint32_t)kCGImageAlphaPremultipliedLast |
-                                            (uint32_t)kCGBitmapByteOrder32Big);
+                                        static_cast<uint32_t>(kCGImageAlphaPremultipliedLast) |
+                                            static_cast<uint32_t>(kCGBitmapByteOrder32Big));
         CGColorSpaceRelease(deviceRGB);
         break;
     }
@@ -302,8 +303,8 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                                         8,
                                         width * 3,
                                         deviceRGB,
-                                        (uint32_t)kCGImageAlphaNoneSkipLast |
-                                            (uint32_t)kCGBitmapByteOrder32Big);
+                                        static_cast<uint32_t>(kCGImageAlphaNoneSkipLast) |
+                                            static_cast<uint32_t>(kCGBitmapByteOrder32Big));
         CGColorSpaceRelease(deviceRGB);
         uploadFormat = GL_RGB;
         break;
@@ -317,8 +318,8 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                                         8,
                                         width * 4,
                                         deviceRGB,
-                                        (uint32_t)kCGImageAlphaPremultipliedLast |
-                                            (uint32_t)kCGBitmapByteOrder32Big);
+                                        static_cast<uint32_t>(kCGImageAlphaPremultipliedLast) |
+                                            static_cast<uint32_t>(kCGBitmapByteOrder32Big));
         CGColorSpaceRelease(deviceRGB);
         uploadFormat = GL_RGBA;
         break;
@@ -513,13 +514,22 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     uint8_t blueByte =
         static_cast<uint8_t>(static_cast<int>(static_cast<float>(blue) * kByteScale255));
     uint8_t alphaByte = static_cast<uint8_t>(static_cast<int>(clampedAlpha * kByteScale255));
-    uint32_t packed = static_cast<uint32_t>(redByte) | (static_cast<uint32_t>(greenByte) << 8) |
-                      (static_cast<uint32_t>(blueByte) << 16) |
-                      (static_cast<uint32_t>(alphaByte) << 24);
-    quad[0].dwColor = packed;
-    quad[1].dwColor = packed;
-    quad[2].dwColor = packed;
-    quad[3].dwColor = packed;
+    quad[0].byRed = redByte;
+    quad[0].byGreen = greenByte;
+    quad[0].byBlue = blueByte;
+    quad[0].byAlpha = alphaByte;
+    quad[1].byRed = redByte;
+    quad[1].byGreen = greenByte;
+    quad[1].byBlue = blueByte;
+    quad[1].byAlpha = alphaByte;
+    quad[2].byRed = redByte;
+    quad[2].byGreen = greenByte;
+    quad[2].byBlue = blueByte;
+    quad[2].byAlpha = alphaByte;
+    quad[3].byRed = redByte;
+    quad[3].byGreen = greenByte;
+    quad[3].byBlue = blueByte;
+    quad[3].byAlpha = alphaByte;
 
     ++currentPolys;
 }
@@ -554,7 +564,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                              static_cast<float>((region.origin.y + region.size.height) / texSize),
                              alpha,
                              quad,
-                             (SpriteTransform)transform);
+                             static_cast<SpriteTransform>(transform));
     ++currentPolys;
 }
 
@@ -607,7 +617,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
                              static_cast<float>((source.origin.y + source.size.height) / texSize),
                              alpha,
                              quad,
-                             (SpriteTransform)transform);
+                             static_cast<SpriteTransform>(transform));
     ++currentPolys;
 }
 
@@ -691,7 +701,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     }
     glVertexPointer(2, GL_FLOAT, sizeof(SpriteVertex), vertices);
     glTexCoordPointer(2, GL_FLOAT, sizeof(SpriteVertex), &vertices->flU);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(SpriteVertex), &vertices->dwColor);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(SpriteVertex), &vertices->byRed);
     glBindTexture(GL_TEXTURE_2D, _name);
 
     BOOL clipped = !CGRectIsNull(_clipRect);
@@ -727,7 +737,7 @@ static NSString *const kInvalidPixelFormatMessage = @"Invalid pixel format";
     if (spriteRect) {
         free(spriteRect);
     }
-    spriteRect = (CGRect *)malloc(sprites.count * sizeof(CGRect));
+    spriteRect = static_cast<CGRect *>(malloc(sprites.count * sizeof(CGRect)));
 
     int index = 0;
     for (NSArray<NSNumber *> *entry in sprites) {

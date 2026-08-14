@@ -6,15 +6,10 @@
 #import "LabUtilities.h"
 #import "Md5Utilities.h"
 #import "NSDictionary+FromData.h"
+#import "Sequence.h"
 #import "StoreDownloadTask.h"
 #import "StoreMusicListManager.h"
 #import "cipher_keys.h"
-
-// The hold-marker probe over an opened archive; Sequence is not reconstructed yet. See
-// TYPES_PENDING.md.
-@interface Sequence : NSObject
-+ (unsigned int)checkExistHoldMarkerFlag:(KUnzip *)unzip;
-@end
 
 // The tune-info archive entries, tried newest-first.
 static NSString *const kInfoV3EntryName = @"infov3";
