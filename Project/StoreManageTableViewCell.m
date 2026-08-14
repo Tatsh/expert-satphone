@@ -28,9 +28,15 @@ static const UIViewAutoresizing kButtonAutoresizingMask = UIViewAutoresizingFlex
         [self.btn setTitleColor:UIColor.blackColor forState:UIControlStateNormal];
         self.btn.autoresizingMask = kButtonAutoresizingMask;
         self.btn.exclusiveTouch = YES;
+#ifdef ENABLE_PATCHES
+        // Preservation patch, not in the binary: the button goes in the contentView, because a
+        // sibling added straight to the cell (0x90b68) is drawn but not hit-tested on modern iOS.
+        [self.contentView addSubview:self.btn];
+#else
         // Added to the cell itself rather than to its contentView, which is not what a table cell
         // is normally built to do. Reproduced as compiled.
         [self addSubview:self.btn];
+#endif
     }
     return self;
 }

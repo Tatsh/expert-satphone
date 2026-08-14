@@ -270,6 +270,30 @@ constants are guarded alongside, since the patched build never constructs the la
 The user loses the on-screen "Unable to connect to server." message on these paths; the label is not
 built rather than hidden.
 
+### Store Manage row action button
+
+**File:** `Project/StoreManageTableViewCell.m` — `-initWithPad:reuseIdentifier:` (0x9096c)
+
+_Modern iOS._ Every row in the Manage tab shows a Download or Delete button that does nothing when
+tapped. The binary adds that button to the cell itself rather than to its `contentView`: at 0x90b68
+the cell is in `x0` and the button in `x2`. On the iOS 9/10 this shipped against that worked; on a
+current release `UITableViewCell` manages `contentView` to fill the cell's bounds, so a sibling
+added straight to the cell is drawn but is not where hit-testing reaches. The button stays visible
+because `contentView` is transparent, which is why the rows look right and only the taps are lost.
+The patch adds the button to `contentView` instead.
+
+The rest of the path is faithful and was checked before patching, so that a future audit does not
+re-open it: the target/action wiring at 0x916d8 is `self` / `pushCellButton:` /
+`UIControlEventTouchUpInside` (the `0x40` in `w4`), the `working_index` idle sentinel really is
+stored as `-1` at the end of `-initWithParent:` (0x90ef0), and the guard at 0x91cf0 is
+`cmn w8,#0x1` / `b.ne`, so a fresh controller does not fall out of `-pushCellButton:` at its first
+check. The symptom is independent of the dead servers because the Delete branch is entirely local.
+
+`working_index` is an in-flight latch that is only cleared on a completion path, so a tap that
+arms it and never completes leaves every later tap on every row dead. That is a separate hazard
+which this patch does not address, and the diagnostics added alongside it in
+`-pushCellButton:` report which of the two is in play.
+
 ## Bundle metadata
 
 ### Light appearance
