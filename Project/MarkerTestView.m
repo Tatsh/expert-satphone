@@ -9,15 +9,11 @@
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
+#import "MarkerManager.h"
 #import "Texture2D.h"
 #import "TextureLoading.h"
 #import "cipher_keys.h"
 #import "note_timing_grade.h"
-
-// MarkerManager vends the marker's data-archive path; it is not reconstructed yet.
-@interface MarkerManager : NSObject
-+ (NSString *)getMarkerPath:(NSString *)markerID;
-@end
 
 // The number of sprite-sheet textures the marker animation is packed into: nine animation frames
 // plus the up/down press button share a table of ten.

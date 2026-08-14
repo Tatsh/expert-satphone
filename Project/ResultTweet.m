@@ -6,6 +6,8 @@
 #import "JubeatAppDelegate.h"
 #import "KUnzip.h"
 #import "MainGameRenderer.h"
+#import "MarkerManager.h"
+#import "RendererConf.h"
 #import "Sequence.h"
 #import "TextureLoading.h"
 #import "TweetResourceManager.h"
@@ -66,17 +68,6 @@ static const char kMusicBarDiffLetters[] = "bae"; // @ghidraAddress 0x291d18
 
 // The dot-grade letters ("dot_%c_%d"), indexed by the 2-bit grade from ScoreData.musicBarResult.
 static const char kDotGradeLetters[] = "png"; // @ghidraAddress 0x291d1b
-
-// The played chart's renderer configuration: its difficulty and level. Not yet reconstructed.
-@interface RendererConf : NSObject
-- (int)diff;
-- (int)level;
-@end
-
-// Resolves the on-disk archive path of a marker set. Not yet reconstructed.
-@interface MarkerManager : NSObject
-+ (NSString *)getMarkerPath:(NSString *)markerID;
-@end
 
 @interface ResultTweet ()
 /** @ghidraAddress 0xbd034 */
