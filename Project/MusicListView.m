@@ -48,7 +48,9 @@ static const double kScaleDownInsetXByIsPad[] = {40.0, 52.0};     // 0x28f490
 static const double kScaleUpExtraInsetXByIsPad[] = {40.0, 60.0};  // 0x28f4a0
 static const double kPageLabelWidthPhone = 90.0;                  // 0x28f440
 static const double kPageLabelWidthPad = 100.0;                   // 0x28f3f0
-static const double kPageArrowXInsetByIsPad[] = {40.0, 48.0};   // 0x28f1f8 (phone), 0x28f450 (pad)
+// Doubles as the arrow's own width and as the left arrow's inset from the label's left edge; the
+// binary loads it once into d9/d11 and feeds it to both the fsub and the width slot.
+static const double kPageArrowWidthByIsPad[] = {40.0, 48.0};    // 0x28f1f8 (phone), 0x28f450 (pad)
 static const double kPageArrowHeightPad = 32.0;                 // 0x28f458
 static const double kAlphaSliderInsetXByIsPad[] = {45.0, 50.0}; // 0x28f4b0
 static const double kNoMusicBoundWidthByIsPad[] = {240.0, 320.0};  // 0x28f4c0
@@ -70,14 +72,13 @@ static const float kAlphaSliderDivisor = 100.0f;               // 0x28f4e0
 static const int kScaleButtonBaseSizePad = 30;
 static const int kScaleButtonBaseSizePhone = 10;
 
-// Fixed metrics materialised as fmov immediates in the initialiser.
-static const CGFloat kPageArrowXGap = 12.0;
-static const CGFloat kPageArrowYGapPad = 6.0;
-static const CGFloat kPageArrowYGapPhone = 2.0;
-static const CGFloat kPageArrowWidthPad = 48.0;
-static const CGFloat kPageArrowWidthPhone = 40.0;
-static const CGFloat kPageArrowHeightPhone = 28.0;
-static const CGFloat kPageRightXGap = -12.0;
+// Fixed metrics materialised as fmov immediates in the initialiser. The two gaps are horizontal
+// only; both arrows take their y from the label's own origin, not from either of them.
+static const CGFloat kPageArrowXGap = 12.0;        // 0x3befc (fmov)
+static const CGFloat kPageRightXGap = -12.0;       // 0x3c174 (fmov)
+static const CGFloat kPageArrowYGapPad = 6.0;      // 0x3bf1c (fmov)
+static const CGFloat kPageArrowYGapPhone = 2.0;    // 0x3bf18 (fmov)
+static const CGFloat kPageArrowHeightPhone = 28.0; // 0x3bf34 (fmov)
 static const CGFloat kLabelShadowRadius = 3.0;
 static const CGFloat kBalloonArrowWidth = 16.0;
 static const CGFloat kBalloonArrowHeight = 12.0;
@@ -235,9 +236,16 @@ static inline void MusicListViewBuildPageLabelAndArrows(MusicListView *self) {
 
     const double labelWidth = self->isPad ? kPageLabelWidthPad : kPageLabelWidthPhone;
     const double labelHeight = kPageLabelHeightByIsPad[self->isPad ? 1 : 0];
-    const double listWidth = self->listView.frame.size.width;
-    self->labelPage = [[UILabel alloc]
-        initWithFrame:CGRectMake((listWidth - labelWidth) * 0.5, 0, labelWidth, labelHeight)];
+    // The list view is inset at the bottom by exactly the label's height (0x3b454 subtracts the
+    // 0x28f480 entry from the incoming height), so the page group occupies the strip beneath it.
+    // That is why the label's y is the list's own height rather than zero. The binary reads
+    // -[listView frame] twice here; it is hoisted.
+    const CGRect listFrame = self->listView.frame;
+    self->labelPage =
+        [[UILabel alloc] initWithFrame:CGRectMake((listFrame.size.width - labelWidth) * 0.5,
+                                                  listFrame.size.height,
+                                                  labelWidth,
+                                                  labelHeight)];
     self->labelPage.font = [UIFont
         boldSystemFontOfSize:(self->isPad ? kFontSizePageLabelPad : kFontSizePageLabelPhone)];
     self->labelPage.textAlignment = NSTextAlignmentCenter;
@@ -253,16 +261,19 @@ static inline void MusicListViewBuildPageLabelAndArrows(MusicListView *self) {
                                                       action:@selector(showPageSelector:)];
     [self->labelPage addGestureRecognizer:press];
 
-    const double arrowWidth = self->isPad ? kPageArrowWidthPad : kPageArrowWidthPhone;
+    // One constant serves as both the arrow's width and the left arrow's inset from the label: the
+    // binary loads 0x28f1f8 / 0x28f450 once into d9/d11 and feeds it to the fsub and the width slot
+    // alike, and never reloads it for the right arrow.
+    const double arrowWidth = kPageArrowWidthByIsPad[self->isPad ? 1 : 0];
     const double arrowHeight = self->isPad ? kPageArrowHeightPad : kPageArrowHeightPhone;
     const double arrowYGap = self->isPad ? kPageArrowYGapPad : kPageArrowYGapPhone;
+    // Both arrows sit on the label's own baseline, nudged down by the same per-idiom gap: the y is
+    // built at 0x3bf24 and 0x3c1a0 by the same fadd against a fresh -[labelPage frame].
+    const double arrowY = self->labelPage.frame.origin.y + arrowYGap;
 
     self->btnPageLeft = [UIButton buttonWithType:UIButtonTypeCustom];
-    const double leftX =
-        (self->labelPage.frame.origin.x - kPageArrowXInsetByIsPad[self->isPad ? 1 : 0]) +
-        kPageArrowXGap;
-    self->btnPageLeft.frame =
-        CGRectMake(leftX, kPageArrowXGap + arrowYGap, arrowWidth, arrowHeight);
+    const double leftX = (self->labelPage.frame.origin.x - arrowWidth) + kPageArrowXGap;
+    self->btnPageLeft.frame = CGRectMake(leftX, arrowY, arrowWidth, arrowHeight);
     self->btnPageLeft.backgroundColor = UIColor.clearColor;
     [self->btnPageLeft setImage:LoadScaledPngImage(kPageLeftImageName)
                        forState:UIControlStateNormal];
@@ -285,8 +296,7 @@ static inline void MusicListViewBuildPageLabelAndArrows(MusicListView *self) {
     self->btnPageRight = [UIButton buttonWithType:UIButtonTypeCustom];
     const double rightX =
         (self->labelPage.frame.origin.x + self->labelPage.frame.size.width) + kPageRightXGap;
-    self->btnPageRight.frame =
-        CGRectMake(rightX, kPageRightXGap + arrowYGap, arrowWidth, arrowHeight);
+    self->btnPageRight.frame = CGRectMake(rightX, arrowY, arrowWidth, arrowHeight);
     self->btnPageRight.backgroundColor = UIColor.clearColor;
     [self->btnPageRight setImage:LoadScaledPngImage(kPageRightImageName)
                         forState:UIControlStateNormal];
