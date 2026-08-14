@@ -1062,7 +1062,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
 }
 
 /** @ghidraAddress 0x1999dc */
-- (void)setInfo:(TuneInfo *)info score:(id)score {
+- (void)setInfo:(TuneInfo *)info score:(ScoreRecord *)score {
     [super setInfo:info score:score];
     [[EditDataManager sharedManager] clearEditData];
     if (info == nil) {
@@ -1091,7 +1091,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
 }
 
 /** @ghidraAddress 0x19a7f0 */
-- (void)setExtendInfo:(TuneInfo *)info score:(id)score {
+- (void)setExtendInfo:(TuneInfo *)info score:(ScoreRecord *)score {
     [super setExtendInfo:info score:score];
     [self loadExtendMusicBar:info.filePath];
     for (int i = 0; i < kDiffButtonCount; ++i) {

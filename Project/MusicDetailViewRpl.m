@@ -234,7 +234,7 @@ static inline void MusicDetailViewRplSettleScrollPage(MusicDetailViewRpl *self,
                                                       UIImageView *const *holdMark) {
     [self setEnableButton:YES];
     double width = self.scrollView.frame.size.width;
-    int page = (int)((width * 0.5 + self.scrollView.contentOffset.x) / width);
+    int page = (int)floor((width * 0.5 + self.scrollView.contentOffset.x) / width);
     self.editPage = page;
     int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
     BOOL holdHidden = holdMark[difficulty].isHidden;
@@ -410,11 +410,11 @@ static const double kShareProgressGapPhone = 34.0;   // @ghidraAddress 0x28f648
 static const double kShareProgressHeightPad = 12.0;  // 0x4028
 static const double kShareProgressHeightPhone = 8.0; // 0x4020
 
-// The note bar: its own view (width pad 568 / retina 290 / non-retina 240, height pad 38 /
+// The note bar: its own view (width pad 568 / retina 290 / non-retina 300, height pad 38 /
 // phone 19) centred at (barWidth/2, pad 150.5 / phone ...), and 120 dot views across it.
 static const double kMusicBarWidthPad = 568.0;       // @ghidraAddress 0x28dfd8
 static const double kMusicBarWidthRetina = 290.0;    // @ghidraAddress 0x291e38
-static const double kMusicBarWidthNonRetina = 240.0; // @ghidraAddress 0x291bf0 (via 0x291e38 arm)
+static const double kMusicBarWidthNonRetina = 300.0; // @ghidraAddress 0x28f2d0
 static const double kMusicBarHeightPad = 38.0;       // @ghidraAddress 0x28f4f8
 static const double kMusicBarHeightPhone = 19.0;
 static const double kMusicBarCenterYPad = 300.0;   // @ghidraAddress 0x28f2d0
@@ -440,6 +440,12 @@ static const double kEditFieldWidthFraction = 0.95; // @ghidraAddress 0x28f6e0
 static const double kInfoButtonDropPad = 212.0;     // @ghidraAddress 0x28f6d8
 static const double kInfoButtonDropPhone = 114.0;   // @ghidraAddress 0x28f6d0
 static const double kUploadContentPad = -128.0;     // @ghidraAddress 0x292e80
+// The scroll arrows sit this far down the scroll view; the info button's own top is the same
+// distance, but the binary selects it as an integer rather than reusing the arrows' double.
+static const double kScrollArrowTopPad = 26.0;   // fmov 0x403a000000000000 @ 0x12cb94
+static const double kScrollArrowTopPhone = 13.0; // fmov 0x402a000000000000 @ 0x12cb90
+static const int kInfoTopInsetPad = 26;          // mov w9, #0x1a @ 0x12cdf4
+static const int kInfoTopInsetPhone = 13;        // mov w8, #0xd @ 0x12cdf0
 
 // The pending-download lamps: the scroll lamp reuses the Knit right-arrow image; the difficulty
 // lamp the ripples white button. The difficulty lamp is sized per idiom.
@@ -458,8 +464,8 @@ static NSString *const kExtendOnMarkFormat = @"add_ico_%c_on_rpl";
 static const double kHostGapNegative = -40.0; // @ghidraAddress 0x28e078
 static const double kMarkInsetPad = 32.0;     // @ghidraAddress 0x28f458
 static const double kMarkInsetPhone = 16.0;
-static const double kMarkTopPad = 4.0; // 0x4010 -> via arm
-static const double kMarkHeightPad = 16.0;
+static const double kMarkTopPad = 4.0;   // fmov 0x4010000000000000 @ 0x12d83c
+static const double kMarkTopPhone = 2.0; // fmov 0x4000000000000000 @ 0x12cf98
 
 // Builds one difficulty slot: its button (added to the scroll view and centred) and its level
 // number image. @p center is the button's centre in the scroll view.
@@ -578,32 +584,31 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                                          linkOwnFrame.size.height)];
 
     // The social recommend buttons stack rightwards from the card's right edge, centred on the
-    // link row; the Facebook button (gated on SLComposeViewController) takes the first slot.
-    // Re-read after the -setFrame: above, exactly as the binary does at 0x12ba20, and centre on
-    // the link's own origin and height (v8 + v12 * 0.5 into fcvtzs w19) rather than on the
-    // tune-name box's.
+    // link row; the Facebook button (gated on SLComposeViewController) takes the first slot and
+    // the Twitter button hangs off the Facebook button's left edge when that slot is filled.
+    // The centre Y comes from the link's own origin and height (0x12ba24-0x12ba44).
     CGRect linkFrame = self.buttonLink.frame;
     int socialCenterY = (int)(linkFrame.origin.y + linkFrame.size.height * 0.5);
     int socialInset = isPad ? kSocialInsetPad : 0;
     BOOL hasFacebook = NO;
+    CGRect facebookFrame = CGRectZero;
     if (NSClassFromString(@"SLComposeViewController") != nil) {
-        // Sized from the button's own frame, not the link button's. The two -frame sends the
-        // binary makes here are what supply it; reading buttonLink's size instead gave the
-        // Facebook button the iTunes badge's width and drew it over the badge.
-        CGRect facebookFrame = self.btnRecommendFacebook.frame;
+        // Sized from the button's own frame, not the link button's.
+        CGRect ownFrame = self.btnRecommendFacebook.frame;
         [self.btnRecommendFacebook
-            setFrame:CGRectMake((self.frame.size.width - facebookFrame.size.width) -
-                                    (double)socialInset,
-                                (double)socialCenterY - facebookFrame.size.height * 0.5,
-                                facebookFrame.size.width,
-                                facebookFrame.size.height)];
+            setFrame:CGRectMake((self.frame.size.width - ownFrame.size.width) - (double)socialInset,
+                                (double)socialCenterY - ownFrame.size.height * 0.5,
+                                ownFrame.size.width,
+                                ownFrame.size.height)];
+        // Re-read after the move at 0x12bb24: this is the Twitter button's right edge.
+        facebookFrame = self.btnRecommendFacebook.frame;
         socialInset = isPad ? kSocialGapPad : 0;
         hasFacebook = YES;
     }
     CGRect twitterFrame = self.btnRecommendTwitter.frame;
-    double twitterRefWidth = hasFacebook ? linkFrame.size.width : twitterFrame.size.width;
+    double twitterRight = hasFacebook ? facebookFrame.origin.x : self.frame.size.width;
     [self.btnRecommendTwitter
-        setFrame:CGRectMake((self.frame.size.width - twitterRefWidth) - (double)socialInset,
+        setFrame:CGRectMake((twitterRight - twitterFrame.size.width) - (double)socialInset,
                             (double)socialCenterY - twitterFrame.size.height * 0.5,
                             twitterFrame.size.width,
                             twitterFrame.size.height)];
@@ -661,7 +666,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                             (isPad ? kShareLabelHeightPad : kShareLabelHeightPhone))];
     [self.labelShareMessage
         setFont:[UIFont boldSystemFontOfSize:(isPad ? kShareLabelFontPad : kShareLabelFontPhone)]];
-    [self.labelShareMessage setHidden:YES];
+    [self.labelShareMessage setOpaque:YES];
     [self.labelShareMessage setBackgroundColor:UIColor.clearColor];
     [self.labelShareMessage setTextColor:UIColor.blackColor];
 
@@ -679,7 +684,6 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         isPad ? kMusicBarWidthPad : (isRetina ? kMusicBarWidthRetina : kMusicBarWidthNonRetina);
     double barHeight = isPad ? kMusicBarHeightPad : kMusicBarHeightPhone;
     mbarBarView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0, 0.0, barWidth, barHeight)];
-    [self addSubview:mbarBarView];
     // Centred on the card, not on the bar's own width. Verified at 0x12c584-0x12c5c0: the fmul is
     // d2 from -[self frame], so the x is the card's half-width, and the fcsel picks the pad centre
     // Y with the 150.5 at 0x292e60 as the phone arm rather than the pad one.
@@ -691,7 +695,8 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         if (isPad) {
             dotFrame = CGRectMake((double)dotX, 0.0, 6.0, kMusicBarDotHeightPad);
         } else {
-            int phoneX = i + (isRetina ? kMusicBarDotStartRetina : kMusicBarDotStartNonRetina);
+            // The phone dots stride by 2 points, not 1 (x20 counts 0,2,...,0xee at 0x12c68c).
+            int phoneX = i * 2 + (isRetina ? kMusicBarDotStartRetina : kMusicBarDotStartNonRetina);
             dotFrame = CGRectMake((double)phoneX, 0.0, 3.0, 18.0);
         }
         mbarDotView[i] = [[UIImageView alloc] initWithFrame:dotFrame];
@@ -741,26 +746,29 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     [highscoreBoardView addSubview:highscoreTextView];
     [self addSubview:highscoreBoardView];
 
-    // The random marker, positioned relative to the rating image (keeping its own size).
-    [self.randView frame];
-    CGPoint randCenter = self.randView.center;
+    // The random marker is parked just left of the high-score board and vertically centred on it,
+    // keeping its own size. Verified at 0x12ca5c-0x12cb74: both the X and the Y come from
+    // highscoreBoardView's frame, not from the rating image or the marker's own centre.
+    CGRect boardFrame = highscoreBoardView.frame;
     CGSize randSize = self.randView.frame.size;
-    double randX = ratingFrame.origin.x - randCenter.x - 3.0;
-    double randY = (double)((int)(textY + ratingFrame.size.height * 0.5));
+    double randY =
+        (double)((int)(boardFrame.origin.y + (boardFrame.size.height - randSize.height) * 0.5));
+    double randX = (boardFrame.origin.x - randSize.width) - 3.0;
     [self.randView setFrame:CGRectMake(randX, randY, randSize.width, randSize.height)];
 
-    // The two scroll arrows.
-    [btnDiff[0] frame];
-    double scrollBtnY = isPad ? kHighscoreBoardSlidePad : kHighscoreBoardSlidePhone;
+    // The two scroll arrows. The binary reads btnDiff[0]'s frame exactly once (0x12cbb0) and
+    // truncates its height to an int; that int is both the arrow height and (halved) the scroll
+    // lamp's centre Y.
+    int edgeButtonHeight = (int)btnDiff[0].frame.size.height;
+    double scrollBtnY = isPad ? kScrollArrowTopPad : kScrollArrowTopPhone;
     NSString *arrowNames[] = {kScrollArrowRight, kScrollArrowLeft};
-    double edgeButtonHeight = btnDiff[0].frame.size.height;
     for (int i = 0; i < 2; ++i) {
         UIImage *arrow = LoadScaledPngImage(arrowNames[i]);
         detailScrollButton[i] = [UIButton buttonWithType:UIButtonTypeCustom];
         double arrowX =
             self.scrollView.frame.size.width - arrow.size.width + (double)i * arrow.size.width;
         [detailScrollButton[i]
-            setFrame:CGRectMake(arrowX, scrollBtnY, arrow.size.width, edgeButtonHeight)];
+            setFrame:CGRectMake(arrowX, scrollBtnY, arrow.size.width, (double)edgeButtonHeight)];
         [detailScrollButton[i] setImage:arrow forState:UIControlStateNormal];
         [detailScrollButton[i] setExclusiveTouch:YES];
         [detailScrollButton[i] setAdjustsImageWhenHighlighted:YES];
@@ -771,13 +779,17 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         [self.scrollView addSubview:detailScrollButton[i]];
     }
 
-    // The info-edit button on the edit page.
-    double infoY =
-        (double)(float)(scrollBtnY + (isPad ? kInfoButtonDropPad : kInfoButtonDropPhone));
-    int infoWidth = isPad ? 26 : 13;
+    // The info-edit button lives on the second (edit) page: its X is the card's own width plus a
+    // per-idiom drop taken through a float, its Y is the per-idiom inset that also starts the
+    // text-field stack, and its size is the image's own. Verified at 0x12cda8-0x12ce94.
+    double infoDrop = isPad ? kInfoButtonDropPad : kInfoButtonDropPhone;
+    double infoX = (double)(float)(self.frame.size.width + infoDrop);
+    int infoTopInset = isPad ? kInfoTopInsetPad : kInfoTopInsetPhone;
     UIImage *infoImage = LoadScaledPngImage(kEditInfoTextImage);
     infoBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [infoBtn setFrame:CGRectMake(0.0, infoY, (double)infoWidth, infoImage.size.height)];
+    [infoBtn
+        setFrame:CGRectMake(
+                     infoX, (double)infoTopInset, infoImage.size.width, infoImage.size.height)];
     [infoBtn setBackgroundColor:UIColor.clearColor];
     [infoBtn setImage:infoImage forState:UIControlStateNormal];
     [infoBtn setExclusiveTouch:YES];
@@ -794,13 +806,12 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     // tall multi-line one). Their width is 95% of the text image, rounded to an even pixel, and
     // centred under it.
     int fontSize = isPad ? 16 : 11;
-    int fieldStep = isPad ? 6 : 5;
+    int fieldStep = isPad ? 8 : (isRetina ? 5 : 6);
     int fieldHeight = (isPad ? 4 : 1) + fontSize;
-    int firstFieldY = infoWidth + 4;
+    int firstFieldY = infoTopInset + 4;
     int fieldWidth = (int)(infoImage.size.width * kEditFieldWidthFraction);
     fieldWidth -= (fieldWidth % 2 == 1) ? 1 : 0;
-    double fieldX = (double)(int)((double)(float)infoY +
-                                  (infoImage.size.width - (double)fieldWidth) * 0.5 + 2.0);
+    double fieldX = (double)(int)(infoX + (infoImage.size.width - (double)fieldWidth) * 0.5 + 2.0);
     int fieldY = firstFieldY;
     for (int i = 0; i < kEditTextFieldCount; ++i) {
         editTxt[i] = [[UILabel alloc]
@@ -870,8 +881,9 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     // The two pending-download lamps; both start hidden.
     UIImage *scrollLampImage = LoadScaledPngImage(kScrollLampImage);
     scrollLamp = [[UIImageView alloc] initWithImage:scrollLampImage];
-    [scrollLamp setFrame:CGRectMake(0.0, 0.0, scrollLampImage.size.width, (double)fieldHeight)];
-    double lampCenterY = (double)((int)scrollHeight >> 1);
+    [scrollLamp
+        setFrame:CGRectMake(0.0, 0.0, scrollLampImage.size.width, scrollLampImage.size.height)];
+    double lampCenterY = (double)(edgeButtonHeight / 2);
     [scrollLamp setCenter:CGPointMake(scrollLampImage.size.width * 0.5, lampCenterY)];
     [detailScrollButton[0] addSubview:scrollLamp];
     [scrollLamp setHidden:YES];
@@ -890,27 +902,29 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         [diffBtnLamp setHidden:NO];
     }
 
-    // The hold marks and the extend/extend-on marks over each difficulty button.
+    // The hold marks and the extend/extend-on marks over each difficulty button. Every mark's X
+    // is derived from the CURRENTLY SELECTED button's width (btnDiff[difficulty], 0x12d8f0 and
+    // 0x12da18), while the mark is added to the loop's own button; each mark keeps its image's
+    // own size and takes a per-idiom top inset.
     double markInset = isPad ? kMarkInsetPad : kMarkInsetPhone;
+    double markTop = isPad ? kMarkTopPad : kMarkTopPhone;
     for (int i = 0; i < kDiffButtonCount; ++i) {
         UIImage *holdImage =
             LoadScaledPngImage([NSString stringWithFormat:kHoldMarkFormat, kDiffButtonLetters[i]]);
         holdMark[i] = [[UIImageView alloc] initWithImage:holdImage];
-        double markX =
-            btnDiff[i].frame.origin.x + holdImage.size.width + kHostGapNegative - markInset;
+        double markX = (btnDiff[difficulty].frame.size.width + kHostGapNegative - markInset) - 4.0;
         [holdMark[i]
-            setFrame:CGRectMake(markX - 4.0, kMarkTopPad, holdImage.size.width, kMarkHeightPad)];
+            setFrame:CGRectMake(markX, markTop, holdImage.size.width, holdImage.size.height)];
         [holdMark[i] setHidden:YES];
         [btnDiff[i] addSubview:holdMark[i]];
     }
     for (int i = 0; i < kDiffButtonCount; ++i) {
         UIImage *extendImage = LoadScaledPngImage(
             [NSString stringWithFormat:kExtendMarkFormat, kDiffButtonLetters[i]]);
-        double extendX =
-            (double)(int)(btnDiff[i].frame.origin.x + extendImage.size.width - 20.0 - markInset);
+        double extendX = (double)(int)(btnDiff[difficulty].frame.size.width - 20.0 - markInset);
         extendMark[i] = [[UIImageView alloc] initWithImage:extendImage];
         [extendMark[i]
-            setFrame:CGRectMake(extendX, kMarkTopPad, extendImage.size.width, kMarkHeightPad)];
+            setFrame:CGRectMake(extendX, markTop, extendImage.size.width, extendImage.size.height)];
         [extendMark[i] setHidden:YES];
         [btnDiff[i] addSubview:extendMark[i]];
 
@@ -918,7 +932,8 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
             [NSString stringWithFormat:kExtendOnMarkFormat, kDiffButtonLetters[i]]);
         extendOnMark[i] = [[UIImageView alloc] initWithImage:extendOnImage];
         [extendOnMark[i]
-            setFrame:CGRectMake(extendX, kMarkTopPad, extendOnImage.size.width, kMarkHeightPad)];
+            setFrame:CGRectMake(
+                         extendX, markTop, extendOnImage.size.width, extendOnImage.size.height)];
         [extendOnMark[i] setHidden:YES];
         [btnDiff[i] addSubview:extendOnMark[i]];
     }
@@ -963,7 +978,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x12f0dc */
-- (void)setInfo:(TuneInfo *)info score:(id)score {
+- (void)setInfo:(TuneInfo *)info score:(ScoreRecord *)score {
     [super setInfo:info score:score];
     if (info == nil) {
         return;
@@ -1003,7 +1018,8 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     } else {
         [ratingView setImage:nil];
         [comboView setImage:excellentImg];
-        snprintf(digits, sizeof(digits), "%7d", score);
+        // The binary formats the literal cap here, not the incoming score.
+        snprintf(digits, sizeof(digits), "%7d", kExcellentScore);
     }
     for (int i = 0; i < kHighscoreDigitCount; ++i) {
         int glyph = digits[i] - kDigitZero;
@@ -1050,7 +1066,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         [self setStartButtonEnable];
         [UIView animateWithDuration:kResetTextFadeDuration
                          animations:^{
-                           /** @ghidraAddress 0x132c50 */
+                           /** @ghidraAddress 0x132b48 */
                            [weakInfo setAlpha:1.0];
                            [weakUpload setAlpha:1.0];
                            [weakEdit setAlpha:1.0];
@@ -1073,7 +1089,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     int dlFlag = [editorInfo[@"dlFlag"] intValue];
     [UIView animateWithDuration:kResetTextFadeDuration
                      animations:^{
-                       /** @ghidraAddress 0x132b48 */
+                       /** @ghidraAddress 0x132c50 */
                        [weakInfo setAlpha:1.0];
                        [weakUpload setAlpha:1.0];
                        [weakEdit setAlpha:1.0];
@@ -1112,7 +1128,11 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                      animations:^{
                        /** @ghidraAddress 0x130d18 */
                        [weakSelf changeDifficulty:difficulty];
-                       MusicDetailViewRplRepositionHighscoreText(weakSelf, textView);
+                       // The nudge is not re-applied here; this is the slide home.
+                       double homeX = weakSelf.isPad ? kHighscoreBaseXPad : kHighscoreBaseXPhone;
+                       double homeY =
+                           weakSelf.isPad ? kHighscoreCenterYPad : kHighscoreCenterYPhone;
+                       [textView setCenter:CGPointMake(homeX, homeY)];
                        [boardView setAlpha:1.0];
                      }];
 }
@@ -1139,7 +1159,12 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         voiceCue = kDifficultyVoiceCues[2];
         tapped = 2;
     } else if (btnDiff[kExtendButtonIndex] == sender) {
-        // The edit button: on the first download selection, hide the lamps and remember the choice.
+        // The edit button: open the popover and release the input lock at once; on the first
+        // download selection, hide the lamps and remember the choice.
+        [self editPopoverOpen];
+        [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
+                                                withObject:nil
+                                                afterDelay:0.0];
         if ([[NSUserDefaults.standardUserDefaults objectForKey:kPrefJcfDownloadSelectKey]
                 intValue] == 1) {
             [NSUserDefaults.standardUserDefaults setInteger:kJcfDownloadSelectDownload
@@ -1147,10 +1172,6 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
             [scrollLamp setHidden:YES];
             [diffBtnLamp setHidden:YES];
         }
-        [self editPopoverOpen];
-        [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
-                                                withObject:nil
-                                                afterDelay:0.0];
         return;
     } else {
         return;
@@ -1158,9 +1179,9 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 
     __weak MusicDetailViewRpl *weakSelf = self;
     if (current == tapped) {
-        // Re-tapping the current difficulty toggles the extend chart when the tune has one; the
-        // high-score board slides in from an offset.
-        NSTimeInterval inputLock = kSelectDiffInputLock;
+        // Re-tapping the current difficulty releases the input lock at once unless the extend
+        // chart toggles, which holds it for a beat.
+        NSTimeInterval inputLock = 0.0;
         if (self.info.extendID != 0 && self.extendInfo != nil &&
             (self.extendInfo.extendFlag & (1 << current)) != 0) {
             [JubeatAppDelegate.appDelegate setExtendFlag:!JubeatAppDelegate.appDelegate.isExtend];
@@ -1190,8 +1211,8 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         return;
     }
 
-    // A different difficulty: reposition the high-score text, play the voice cue, persist the
-    // choice, and slide the text into place.
+    // A different difficulty: nudge the high-score text right, play the voice cue, persist the
+    // choice, and slide the text home inside the animation.
     MusicDetailViewRplRepositionHighscoreText(self, highscoreTextView);
     [highscoreBoardView setAlpha:0.0];
     [[AudioManager sharedManager] playSeResFile:voiceCue inDirectory:nil];
@@ -1202,7 +1223,11 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                      animations:^{
                        /** @ghidraAddress 0x13153c */
                        [weakSelf changeDifficulty:tapped];
-                       MusicDetailViewRplRepositionHighscoreText(weakSelf, textView);
+                       // The nudge is not re-applied here; this is the slide home.
+                       double homeX = weakSelf.isPad ? kHighscoreBaseXPad : kHighscoreBaseXPhone;
+                       double homeY =
+                           weakSelf.isPad ? kHighscoreCenterYPad : kHighscoreCenterYPhone;
+                       [textView setCenter:CGPointMake(homeX, homeY)];
                        [boardView setAlpha:1.0];
                      }];
     [[UIApplication sharedApplication] performSelector:@selector(endIgnoringInteractionEvents)
@@ -1250,7 +1275,6 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                                                                value:@""
                                                                table:nil]];
               [weakSelf.controller.sharePlayManager sendClientReady];
-              [weakSelf setIsSharedStartable:NO];
           } else {
               [weakSelf.controller.sharePlayManager sendSelectStart];
               [weakSelf.controller startPlay:weakSelf.info];
@@ -1265,7 +1289,6 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 
 /** @ghidraAddress 0x133130 */
 - (void)show:(BOOL)show {
-    self.isShared = show;
     int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
     // The selected base button is full and unscaled; the other two dim and shrink; the extend
     // button is always full.
@@ -1307,11 +1330,8 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     [self setStartButtonEnable];
     self.isStarted = NO;
 
-    // Restore the difficulty scroll to the remembered edit page (clamped to the detail/edit pair).
+    // Restore the difficulty scroll to the remembered edit page.
     self.editPage = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey];
-    if (self.editPage > 1) {
-        self.editPage = 1;
-    }
     double width = self.scrollView.frame.size.width;
     [self.scrollView setContentOffset:CGPointMake(width * (double)self.editPage, 0.0) animated:NO];
     [self.scrollView setScrollEnabled:YES];
@@ -1343,9 +1363,9 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                                     UIViewAnimationOptionAutoreverse
                          animations:^{
                            /** @ghidraAddress 0x133b50 */
+                           // The binary's block only fades this lamp; unlike the scroll lamp it is
+                           // not also stretched.
                            [weakDiffLamp setAlpha:0.0];
-                           [weakDiffLamp
-                               setTransform:CGAffineTransformMakeScale(1.0, kLampPulseHeightScale)];
                          }
                          completion:nil];
     }
@@ -1388,6 +1408,10 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         }
         [self setScoreBoard:score fullcombo:fullcombo];
 
+        // The high-score board snaps back to its idiom home centre, fully opaque.
+        MusicDetailViewRplRepositionHighscoreBoard(self, highscoreBoardView);
+        [highscoreBoardView setAlpha:1.0];
+
         // Fill the 120 dot views from the difficulty's dot map (base or extend) and the resource.
         [mbarBarView setImage:mbarBarImg[difficulty]];
         char *dotMap = showExtend ? extendMbarDots[difficulty] : mbarDots[difficulty];
@@ -1402,12 +1426,17 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         }
     }
 
+    // Yes, the binary reads the extend flag once more here and discards the result.
+    (void)JubeatAppDelegate.appDelegate.isExtend;
+
     // Reveal the hold marks for the difficulties that carry a hold chart in the shown mode.
     for (int i = 0; i < kDiffButtonCount; ++i) {
         BOOL isExtend = JubeatAppDelegate.appDelegate.isExtend;
-        TuneInfo *source = self.info;
+        TuneInfo *source;
         if (isExtend && (self.extendInfo.extendFlag & (1 << i)) != 0) {
             source = self.extendInfo;
+        } else {
+            source = self.info;
         }
         if ((source.holdFlag & (1 << i)) != 0) {
             [holdMark[i] setHidden:NO];
@@ -1463,18 +1492,14 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
             [levelNumView[i] setAlpha:0.0];
         }
 
-        UIImageView *const *levelNums = levelNumView;
-        UIImageView *const *extendMarks = extendMark;
-        UIImageView *const *extendOnMarks = extendOnMark;
-        UIImageView *const *holdMarks = holdMark;
         [UIView animateWithDuration:kExtendCrossFadeDuration
                          animations:^{
                            /** @ghidraAddress 0x130958 */
                            for (int i = 0; i < kDiffButtonCount; ++i) {
-                               [levelNums[i] setAlpha:1.0];
-                               [extendMarks[i] setAlpha:(1.0f - mix)];
-                               [extendOnMarks[i] setAlpha:mix];
-                               [holdMarks[i] setAlpha:1.0];
+                               [self->levelNumView[i] setAlpha:1.0];
+                               [self->extendMark[i] setAlpha:(1.0f - mix)];
+                               [self->extendOnMark[i] setAlpha:mix];
+                               [self->holdMark[i] setAlpha:1.0];
                            }
                          }];
     }
@@ -1578,7 +1603,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x138204 */
-- (void)editFileListViewDeleteFile:(id)fileName {
+- (void)editFileListViewDeleteFile:(NSString *)fileName {
     EditDataManager *manager = [EditDataManager sharedManager];
     NSString *lastEdit = [manager getLastEditFileName:(int)self.info.tuneID];
     NSString *path =
@@ -1628,7 +1653,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x1383f8 */
-- (void)selectEditFile:(id)fileName {
+- (void)selectEditFile:(NSString *)fileName {
     [[EditDataManager sharedManager] setLastEditFileName:(int)self.info.tuneID fileName:fileName];
     [self.controller enableCoverTap];
 }
@@ -1682,12 +1707,10 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 
 /** @ghidraAddress 0x138bd8 */
 - (void)removeUploadView {
-    if (upLoadView != nil) {
-        [topcover removeFromSuperview];
-        topcover = nil;
-        [upLoadView removeFromSuperview];
-        upLoadView = nil;
-    }
+    [topcover removeFromSuperview];
+    topcover = nil;
+    [upLoadView removeFromSuperview];
+    upLoadView = nil;
 }
 
 /** @ghidraAddress 0x138884 */
@@ -1838,7 +1861,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     }
 
     // The edit music bar comes from the simple edit data (60 bytes) with no resource overlay.
-    char dots[64] = {0};
+    char dots[60] = {0};
     NSData *musicBar = [manager getEditSimpleData][@"musicBar"];
     [musicBar getBytes:dots length:kEditMbarDataLength];
     [self setMusicBarDot:dots mbarRes:nullptr];
@@ -1906,7 +1929,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x12ff1c */
-- (void)setExtendInfo:(TuneInfo *)info score:(id)score {
+- (void)setExtendInfo:(TuneInfo *)info score:(ScoreRecord *)score {
     [super setExtendInfo:info score:score];
     [self loadExtendMusicBar:info.filePath];
 
@@ -1965,11 +1988,11 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
                 animations:^{
                   /** @ghidraAddress 0x1360bc */
                   [weakSelf.labelShareMessage setAlpha:1.0];
-                  [weakSelf.buttonHostSharePlay setEnabled:NO];
+                  [self.buttonHostSharePlay setEnabled:NO];
                 }
                 completion:^(BOOL __attribute__((unused)) finished) {
                   /** @ghidraAddress 0x1361a8 */
-                  [weakSelf.buttonHostSharePlay setEnabled:YES];
+                  [self.buttonHostSharePlay setEnabled:YES];
                 }];
             [self.controller startHostShare:[self infoDictForShare] filePath:self.info.filePath];
         }
@@ -2141,10 +2164,12 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     [codec decipher:seqExt];
     [Sequence getMusicBarData:mbarDots[kMbarExtremeRow] raw:seqExt];
 
-    // On the detail page, re-apply the preferred difficulty once the charts are loaded.
+    // The charts are applied to the current difficulty as soon as they load, and a settled detail
+    // page applies the preferred difficulty a second time.
+    int difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+    [self changeDifficulty:difficulty];
     if ([NSUserDefaults.standardUserDefaults integerForKey:kPrefEditSelectKey] == 0) {
-        int difficulty =
-            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
+        difficulty = (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
         [self changeDifficulty:difficulty];
     }
 }
@@ -2189,8 +2214,12 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
     bRandomBak = randomOn;
 
     // The start button shows the single-play image, or the start image when host-sharing; its
-    // enabled state is preserved across the image swap.
-    UIImage *image = self.isShared ? [self getStartImage] : [self getSingleImage];
+    // enabled state is preserved across the image swap. The binary evaluates the single-play
+    // image first and only then overwrites it when sharing.
+    UIImage *image = [self getSingleImage];
+    if (self.isShared) {
+        image = [self getStartImage];
+    }
     BOOL wasEnabled = self.buttonStartPlay.isEnabled;
     [self.buttonStartPlay setEnabled:YES];
     [self.buttonStartPlay setBackgroundImage:image forState:UIControlStateNormal];
@@ -2204,16 +2233,16 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         [self.randView setTransform:CGAffineTransformIdentity];
     }
 
-    __weak MusicDetailViewRpl *weakSelf = self;
+    __weak UIImageView *weakRandView = self.randView;
     [UIView animateWithDuration:kRandViewToggleDuration
                      animations:^{
                        /** @ghidraAddress 0x136564 */
-                       [weakSelf.randView setAlpha:(randomOn ? 1.0 : 0.0)];
+                       [weakRandView setAlpha:(randomOn ? 1.0 : 0.0)];
                        if (randomOn) {
-                           [weakSelf.randView setTransform:CGAffineTransformIdentity];
+                           [self.randView setTransform:CGAffineTransformIdentity];
                        } else {
-                           [weakSelf.randView setTransform:CGAffineTransformMakeTranslation(
-                                                               0.0, -(double)kRandViewSlideOffset)];
+                           [self.randView setTransform:CGAffineTransformMakeTranslation(
+                                                           0.0, -(double)kRandViewSlideOffset)];
                        }
                      }
                      completion:^(BOOL __attribute__((unused)) finished){
@@ -2311,11 +2340,11 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 - (void)editPopoverOpen {
     [self loadListRelease];
     [self.controller unenableCoverTap];
-    EditDataManager *manager = [EditDataManager sharedManager];
     if (!self.isPad) {
         // The phone shows the edit-file list in a full nav controller.
-        NSMutableArray *files = [manager getFileInfoList:self.info.tuneID];
-        NSString *lastEdit = [manager getLastEditFileName:(int)self.info.tuneID];
+        NSMutableArray *files = [[EditDataManager sharedManager] getFileInfoList:self.info.tuneID];
+        NSString *lastEdit =
+            [[EditDataManager sharedManager] getLastEditFileName:(int)self.info.tuneID];
         self.jcfMan = [[JcfManageNavController alloc] init:self fileList:files selName:lastEdit];
         [self.jcfMan setTuneID:self.info.tuneID];
         [self.jcfMan setShareFlg:(self.controller.sharePlayManager != nil)];
@@ -2323,18 +2352,19 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
         [[AudioManager sharedManager] playSeResFile:kMusicSelectSound inDirectory:nil];
         return;
     }
-    // The pad shows a 300x400 delete-list, presented as a popover pointing up from the extend
-    // difficulty button, or modally when not on a pad after all.
+    // The pad shows a 300x400 delete-list, presented as a popover whose arrow points down at the
+    // extend difficulty button, or modally when not on a pad after all.
     if (self.pFileListView != nil) {
         return;
     }
-    NSMutableArray *files = [manager getFileInfoList:self.info.tuneID];
+    NSMutableArray *files = [[EditDataManager sharedManager] getFileInfoList:self.info.tuneID];
     self.pFileListView = [[EditFileListViewDeleteController alloc]
         initWithSize:CGSizeMake(kEditPopoverWidth, kEditPopoverHeight)];
     [self.pFileListView setTuneID:self.info.tuneID];
     [self.pFileListView setFileList:files];
     [self.pFileListView setDelegate:self];
-    [self.pFileListView setTargetFileName:[manager getLastEditFileName:(int)self.info.tuneID]];
+    [self.pFileListView setTargetFileName:[[EditDataManager sharedManager]
+                                              getLastEditFileName:(int)self.info.tuneID]];
     [self.pFileListView setIsFirst:self.isFirstSelect];
     [self.pFileListView setIsShared:(self.controller.sharePlayManager != nil)];
     if (!self.isPad) {
@@ -2378,7 +2408,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x138ecc */
-- (id)getStartImage {
+- (UIImage *)getStartImage {
     if (![JubeatAppDelegate.appDelegate isRandom]) {
         return [[ImageCache sharedCache] getResPNG:kStartButtonImage];
     }
@@ -2389,7 +2419,7 @@ static inline void MusicDetailViewRplBuildDifficultyButton(MusicDetailViewRpl *s
 }
 
 /** @ghidraAddress 0x139004 */
-- (id)getSingleImage {
+- (UIImage *)getSingleImage {
     if (![JubeatAppDelegate.appDelegate isRandom]) {
         return [[ImageCache sharedCache] getResPNG:kSingleButtonImage];
     }

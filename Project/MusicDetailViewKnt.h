@@ -125,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param score The score argument.
  * @ghidraAddress 0x1999dc
  */
-- (void)setInfo:(nullable TuneInfo *)info score:(nullable id)score;
+- (void)setInfo:(nullable TuneInfo *)info score:(nullable ScoreRecord *)score;
 
 /**
  * @brief Switches the shown info to a difficulty.
@@ -140,7 +140,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param score The score argument.
  * @ghidraAddress 0x19a7f0
  */
-- (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable id)score;
+- (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable ScoreRecord *)score;
 
 /**
  * @brief Switches the shown extend info to a difficulty.

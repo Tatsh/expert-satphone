@@ -123,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param score The score argument.
  * @ghidraAddress 0x12f0dc
  */
-- (void)setInfo:(nullable TuneInfo *)info score:(nullable id)score;
+- (void)setInfo:(nullable TuneInfo *)info score:(nullable ScoreRecord *)score;
 
 /**
  * @brief Switches the shown info to a difficulty.
@@ -138,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param score The score argument.
  * @ghidraAddress 0x12ff1c
  */
-- (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable id)score;
+- (void)setExtendInfo:(nullable TuneInfo *)info score:(nullable ScoreRecord *)score;
 
 /**
  * @brief Switches the shown extend info to a difficulty.
@@ -390,14 +390,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @param editFileListViewDeleteFile The editFileListViewDeleteFile argument.
  * @ghidraAddress 0x138204
  */
-- (void)editFileListViewDeleteFile:(nullable id)editFileListViewDeleteFile;
+- (void)editFileListViewDeleteFile:(nullable NSString *)editFileListViewDeleteFile;
 
 /**
  * @brief Selects an edit file.
  * @param selectEditFile The selectEditFile argument.
  * @ghidraAddress 0x1383f8
  */
-- (void)selectEditFile:(nullable id)selectEditFile;
+- (void)selectEditFile:(nullable NSString *)selectEditFile;
 
 /**
  * @brief Popover delegate: the popover was dismissed.
@@ -474,14 +474,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The result.
  * @ghidraAddress 0x138ecc
  */
-- (nullable id)getStartImage;
+- (nullable UIImage *)getStartImage;
 
 /**
  * @brief The single-play button image for this theme.
  * @return The result.
  * @ghidraAddress 0x139004
  */
-- (nullable id)getSingleImage;
+- (nullable UIImage *)getSingleImage;
 
 /**
  * @brief Toggles the extend-chart display mode.
