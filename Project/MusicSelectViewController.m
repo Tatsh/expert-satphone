@@ -2691,9 +2691,18 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
 /** @ghidraAddress 0x22014 */
 - (void)createArrayNotHold {
-    // The binary tests arrayNotHoldList for the reset but clears arrayHoldList; kept as-is.
     if (arrayNotHoldList != nil) {
+#ifdef ENABLE_PATCHES
+        // Preservation patch, not in the binary. The binary tests arrayNotHoldList here but clears
+        // arrayHoldList, which -createArrayHold has just filled. The first call is unaffected,
+        // since arrayNotHoldList is still nil, so a launch is fine; any later -refreshMusicList --
+        // through the public -updateMusicList, which runs on returning from a game or finishing a
+        // download -- destroys the hold list a line after it was built, and the song-select
+        // screen's hold filter comes up empty for the rest of the session.
+        arrayNotHoldList = nil;
+#else
         arrayHoldList = nil;
+#endif
     }
     arrayNotHoldList = [[NSMutableArray alloc] init];
     for (TuneInfo *tune in arrayAllTune) {

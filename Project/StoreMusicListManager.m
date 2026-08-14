@@ -126,21 +126,49 @@ static const int g_builtinMusicIDs[] = {100000201, 100000901, 100000902, 1000009
     return nil;
 }
 
+// De-inlined from -extendInfoForID:, which emits this same collection twice, once per array. Copies
+// whichever of the three optional keys the matched entry carries into a fresh dictionary,
+// allocating it lazily so an entry carrying none of them yields nil rather than an empty
+// dictionary.
+static NSDictionary *StoreMusicListManagerCollectExtendKeys(NSDictionary *entry) {
+    NSMutableDictionary *collected = nil;
+    NSString *const keys[] = {@"extendFlag", @"holdFlag", @"extID"};
+    for (NSUInteger i = 0; i < sizeof(keys) / sizeof(keys[0]); ++i) {
+        // Each key is fetched twice, once to test for its presence and once to read it.
+        if ([entry objectForKey:keys[i]] == nil) {
+            continue;
+        }
+        if (collected == nil) {
+            collected = [[NSMutableDictionary alloc] init];
+        }
+        [collected setObject:[entry objectForKey:keys[i]] forKey:keys[i]];
+    }
+    return collected;
+}
+
 /** @ghidraAddress 0xd425c */
 - (NSDictionary *)extendInfoForID:(unsigned int)tuneID {
-    // Searches arrayMusic for ID == tuneID, then checks extendFlag and returns extend info.
-    // Disassembly at 0xd425c shows the enumeration with objectForKey:@"ID" and unsignedIntValue,
-    // then objectForKey:@"extendFlag" check, then building the extend dict. Verified at
-    // 0xd425c via stp x28,x27 and countByEnumeratingWithState:.
+    // Two identical loops, the first over arrayMusic and the second over arrayExtendMusic. Each
+    // looks for the entry whose "ID" matches and copies out whichever of extendFlag, holdFlag, and
+    // extID it carries.
+    //
+    // The first loop only returns when it has something to return: a matched entry carrying none of
+    // the three falls through to the second loop at 0xd4584, exactly as a miss does. The second
+    // returns whatever it collected, nil included. Note that no key is required for the others to
+    // be read -- an entry carrying holdFlag alone is answered with holdFlag alone, which is what
+    // the hold filter on the song-select screen needs.
     for (NSDictionary *dict in self.arrayMusic) {
         if ([dict[@"ID"] unsignedIntValue] == tuneID) {
-            NSNumber *flag = dict[@"extendFlag"];
-            if (!flag || flag.intValue == 0) {
-                return nil;
+            NSDictionary *collected = StoreMusicListManagerCollectExtendKeys(dict);
+            if (collected != nil) {
+                return collected;
             }
-            // The extend info is stored in dictExtendMusic keyed by extID, or original.
-            NSNumber *extID = dict[@"extID"];
-            return self.dictExtendMusic[extID] ?: dict;
+            break;
+        }
+    }
+    for (NSDictionary *dict in self.arrayExtendMusic) {
+        if ([dict[@"ID"] unsignedIntValue] == tuneID) {
+            return StoreMusicListManagerCollectExtendKeys(dict);
         }
     }
     return nil;
