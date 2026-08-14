@@ -156,6 +156,13 @@ static NSString *const kLabURLPreferenceKey = @"PrefjubeatLabURL";
 // whose 62 bytes live at 0x27ddc3. The encrypted form is what gets persisted.
 static NSString *const kLabURL = @"https://jubeat-lab.s.game.konami.jp/aqq/contents/ios/index.jsp";
 
+#ifdef ENABLE_PATCHES
+// The two one-shot tutorial overlays' "already seen" keys, read by -[MusicSelectViewController
+// loadView] (0x22e78) and -musicViewTapped: (0x2af98). Only the patch below names them here.
+static NSString *const kSearchTutorialFinishPreferenceKey = @"PrefSearchTutorialFinish";
+static NSString *const kExtendTutorialFinishPreferenceKey = @"PrefExtendTutorialFinish";
+#endif
+
 // The audio session parameters, the pooled doubles at 0x28dfe0 and 0x28dfe8.
 static const double kPreferredSampleRate = 44100.0;
 static const NSTimeInterval kPreferredIOBufferDuration = 0.01;
@@ -175,6 +182,22 @@ static const int kDefaultTheme = 0;
     NSString *path = [NSBundle.mainBundle pathForResource:kDefaultSettingsResourceName
                                                    ofType:kPropertyListResourceType];
     NSDictionary *defaults = [NSDictionary dictionaryWithContentsOfFile:path];
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. Both tutorial overlays are one-shot: each runs only
+    // while its key reads false and writes the key back as it appears. The bundled plist ships both
+    // already true, which is what stops either from ever being shown.
+    //
+    // Registering them here as well decouples the patched build from that resource, so the two keys
+    // can be dropped from the plist to let an unpatched build run the tutorials without the patched
+    // build starting to show them too. These are registered rather than written, so they seed the
+    // fallback layer only: a value already stored for either key still wins, which keeps the
+    // overlays reachable for testing by clearing or setting the preference directly.
+    NSMutableDictionary *patchedDefaults =
+        [NSMutableDictionary dictionaryWithDictionary:defaults ?: @{}];
+    patchedDefaults[kSearchTutorialFinishPreferenceKey] = @YES;
+    patchedDefaults[kExtendTutorialFinishPreferenceKey] = @YES;
+    defaults = patchedDefaults;
+#endif
     // Guarded, so a missing or unreadable plist is silently tolerated.
     if (defaults != nil) {
         [NSUserDefaults.standardUserDefaults registerDefaults:defaults];

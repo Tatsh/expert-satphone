@@ -26,6 +26,24 @@ Patches are labelled by why they exist:
 
 ## `ENABLE_PATCHES`
 
+### Tutorial overlays
+
+**File:** `Project/JubeatAppDelegate.m` — `+initialize` (0x7b60)
+
+Both tutorial overlays are one-shot: the search overlay in `-[MusicSelectViewController loadView]`
+(0x22e78) and the extend-chart overlay in `-musicViewTapped:` (0x2af98) each run only while their
+key reads false, and each writes its key back as it appears. The bundled `DefaultSettings.plist`
+ships `PrefSearchTutorialFinish` and `PrefExtendTutorialFinish` already true, which is what stops
+either from ever being shown.
+
+The patch registers both keys as true alongside the plist. That decouples the patched build from the
+resource, so the two keys can be dropped from `DefaultSettings.plist` to let an unpatched build run
+the tutorials without the patched build starting to show them too.
+
+They are registered rather than written, so they seed only the fallback layer: a value already
+stored for either key still wins, which keeps the overlays reachable for testing by clearing or
+setting the preference directly.
+
 ### Background music suspension
 
 **Files:** `Project/AudioManager.m` — `-init`, and the `-patchSuspendBgm:` and
