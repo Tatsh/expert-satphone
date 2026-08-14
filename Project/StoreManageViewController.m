@@ -12,7 +12,6 @@
 #import "StoreMusicListManager.h"
 #import "StoreUtil.h"
 #import "UIDevice+SystemVersionCheck.h"
-#import "neDebugLog.h"
 
 // The parent store view controller is not yet reconstructed; it is messaged for its modal dialog
 // and to show/hide it, and it is the back button's target for -storeEnd: .
@@ -271,15 +270,7 @@ static const int kConfirmButtonIndex = 1;
 
 /** @ghidraAddress 0x91cb0 */
 - (void)pushCellButton:(id)sender {
-    if (NE_DBG_EVERY) {
-        neDebugLog("store manage: pushCellButton FIRED, tag %ld, working_index %u",
-                   (long)[(UIView *)sender tag],
-                   working_index);
-    }
     if (working_index != kNoWorkingRow) {
-        if (NE_DBG_EVERY) {
-            neDebugLog("store manage: latched on row %u, tap ignored", working_index);
-        }
         return;
     }
     working_index = (unsigned int)[(UIView *)sender tag];
@@ -289,11 +280,6 @@ static const int kConfirmButtonIndex = 1;
     BOOL isDirectory = NO;
     BOOL exists = [NSFileManager.defaultManager fileExistsAtPath:path isDirectory:&isDirectory];
     if (!exists || isDirectory) {
-        if (NE_DBG_EVERY) {
-            neDebugLog("store manage: DOWNLOAD branch for row %u, storeViewCtrl %s",
-                       working_index,
-                       storeViewCtrl ? "set" : "NIL");
-        }
         // Nothing on disk: (re)download it. Show the modal dialog in its progress mode.
         StoreDialogView *dialog = storeViewCtrl.modalDialog;
         [dialog layout:NO];
@@ -310,9 +296,6 @@ static const int kConfirmButtonIndex = 1;
         infoDownloader = [[Downloader alloc] initWithURL:infoURL delegate:self];
         [infoDownloader startDownloading];
     } else {
-        if (NE_DBG_EVERY) {
-            neDebugLog("store manage: DELETE branch for row %u", working_index);
-        }
         // Already owned: confirm the delete.
         NSString *message = [NSString
             stringWithFormat:[NSBundle.mainBundle localizedStringForKey:@"ManageDeleteMessage (%@)"

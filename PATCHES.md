@@ -289,10 +289,12 @@ stored as `-1` at the end of `-initWithParent:` (0x90ef0), and the guard at 0x91
 `cmn w8,#0x1` / `b.ne`, so a fresh controller does not fall out of `-pushCellButton:` at its first
 check. The symptom is independent of the dead servers because the Delete branch is entirely local.
 
-`working_index` is an in-flight latch that is only cleared on a completion path, so a tap that
-arms it and never completes leaves every later tap on every row dead. That is a separate hazard
-which this patch does not address, and the diagnostics added alongside it in
-`-pushCellButton:` report which of the two is in play.
+Confirmed on device: with the button in `contentView` the row actions respond.
+
+`working_index` is an in-flight latch that is only cleared on a completion path, so a tap that arms
+it and never completes would leave every later tap on every row dead. This patch does not address
+that, and it did not need to — the rows respond, so the latch was not what was swallowing the taps.
+It remains a live hazard on the download path, where the servers no longer answer.
 
 ## Bundle metadata
 
