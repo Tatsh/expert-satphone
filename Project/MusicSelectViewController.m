@@ -176,11 +176,6 @@ static const double kFarOpenArtworkPhone = 80.0; // @ghidraAddress 0x28f330
 static const CGFloat kStoreNewRotation = -0.376991110004367; // @ghidraAddress 0x28f208
 // The detail-card dimming cover alpha.
 static const CGFloat kCoverAlpha = 0.5;
-// The playlist list-type sentinels used when no saved playlist matches.
-static const NSInteger kListTypeLevel = -10;
-static const NSInteger kListTypeHold = -11;
-static const NSInteger kListTypeNotHold = -12;
-static const NSInteger kListTypeNotPlayed = -2;
 #ifndef ENABLE_PATCHES
 // The store-promotion balloon: width, per-idiom height, per-idiom horizontal offset from the store
 // button, and its layer shadow. These share the ENABLE_PATCHES guard on the balloon itself, since
@@ -278,6 +273,15 @@ static NSString *const kPrefLastPlayedIDKey = @"PrefLastPlayedID";
 static NSString *const kPrefLastPlaylistKey = @"PrefLastPlaylist";
 static NSString *const kPrefPlayListLevelKey = @"PrefPlayListLevel";
 static NSString *const kPrefPlayListHoldKey = @"PrefPlayListHold";
+
+// Values stored under PrefPlayListHold. Zero means no hold filter is remembered, and is what every
+// non-hold selection resets the key to.
+enum {
+    kPlayListHoldPrefNone = 0,
+    kPlayListHoldPrefHold = 1,
+    kPlayListHoldPrefNotHold = 2,
+};
+
 static NSString *const kNewInfoUserIDFormat = @"&userid=%@";
 static NSString *const kNewInfoURLConcatFormat = @"%@%@";
 
@@ -872,14 +876,21 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     NSString *lastPlaylist = [NSUserDefaults.standardUserDefaults stringForKey:@"PrefLastPlaylist"];
     NSInteger listType = [playlistManager indexOfPlaylistWithIdentifier:lastPlaylist];
     if (listType == NSIntegerMax) {
-        if ([NSUserDefaults.standardUserDefaults integerForKey:@"PrefPlayListLevel"] != 0) {
-            listType = kListTypeLevel;
+        // Both preference reads are compared 32-bit in the binary (cbz w21 at 0x247dc, cmp w21 at
+        // 0x2482c and 0x2483c).
+        int levelPref =
+            (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefPlayListLevelKey];
+        if (levelPref != 0) {
+            listType = kPlaylistSelectionLevel;
         } else {
-            NSInteger holdPref =
-                [NSUserDefaults.standardUserDefaults integerForKey:@"PrefPlayListHold"];
-            listType = (holdPref == 1) ? kListTypeHold :
-                       (holdPref == 2) ? kListTypeNotHold :
-                                         kListTypeNotPlayed;
+            int holdPref =
+                (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefPlayListHoldKey];
+            // The fall-through is the default "All Songs" list, not the not-played list: the csel
+            // pair at 0x2482c-0x24844 yields -2, and -preparePlaylistArray: maps -2 to a nil
+            // playlist source.
+            listType = (holdPref == kPlayListHoldPrefHold)    ? kPlaylistSelectionHold :
+                       (holdPref == kPlayListHoldPrefNotHold) ? kPlaylistSelectionNotHold :
+                                                                kPlaylistSelectionDefault;
         }
     }
     NSUInteger lastID =
@@ -4560,9 +4571,6 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
          selection == kPlaylistSelectionNotHold);
     if (builtIn) {
         [self changeMusicListView:selection musicID:0];
-        if (selection != kPlaylistSelectionLevel) {
-            [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefPlayListLevelKey];
-        }
     } else {
         if (selection < 0 || (NSUInteger)selection >= playlistManager.numberOfPlaylists) {
             [self dismissViewControllerAnimated:YES completion:nil];
@@ -4571,22 +4579,39 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
             return;
         }
         [self changeMusicListView:selection musicID:0];
-        [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefPlayListLevelKey];
     }
 
-    // Record the selection: the hold filters set the hold flag, the others clear the remembered
-    // playlist, and a real index stores that playlist's identifier.
+    // Both branches converge on the same pair of guarded resets, at 0x2ab34 and 0x2ab88: a
+    // selection keeps the preference that belongs to it and clears the other one. Only the level
+    // filter keeps PrefPlayListLevel (cmn x21,#0xa at 0x2aadc), and only the two hold filters keep
+    // PrefPlayListHold ((selection & ~1) == -12 at 0x2ab7c). These must stay after the
+    // -changeMusicListView: call, which reads PrefPlayListLevel through -preparePlaylistArray:.
+    if (selection != kPlaylistSelectionLevel) {
+        [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefPlayListLevelKey];
+    }
+    if (selection != kPlaylistSelectionNotHold && selection != kPlaylistSelectionHold) {
+        [NSUserDefaults.standardUserDefaults setInteger:kPlayListHoldPrefNone
+                                                 forKey:kPrefPlayListHoldKey];
+    }
+
+    // Record the selection: the hold filters additionally stamp the hold flag, every other built-in
+    // filter just forgets the remembered playlist, and a real index stores that playlist's
+    // identifier.
     switch (selection) {
     case kPlaylistSelectionNotHold:
         [NSUserDefaults.standardUserDefaults removeObjectForKey:kPrefLastPlaylistKey];
-        [NSUserDefaults.standardUserDefaults setInteger:2 forKey:kPrefPlayListHoldKey];
+        [NSUserDefaults.standardUserDefaults setInteger:kPlayListHoldPrefNotHold
+                                                 forKey:kPrefPlayListHoldKey];
         break;
     case kPlaylistSelectionHold:
         [NSUserDefaults.standardUserDefaults removeObjectForKey:kPrefLastPlaylistKey];
-        [NSUserDefaults.standardUserDefaults setInteger:1 forKey:kPrefPlayListHoldKey];
+        [NSUserDefaults.standardUserDefaults setInteger:kPlayListHoldPrefHold
+                                                 forKey:kPrefPlayListHoldKey];
         break;
     case kPlaylistSelectionLevel:
-        [NSUserDefaults.standardUserDefaults setInteger:0 forKey:kPrefPlayListHoldKey];
+        // The level arm forgets the remembered playlist; the shared reset above already cleared
+        // PrefPlayListHold for it (0x2acac branches straight to the common 0x2ad60).
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:kPrefLastPlaylistKey];
         break;
     case kPlaylistSelectionDefault:
     case kPlaylistSelectionNotPlayed:
