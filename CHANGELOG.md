@@ -32,6 +32,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   already shipped in the bundle are now referenced, and per-idiom `CFBundleIcons` and
   `CFBundleIcons~ipad` dictionaries give iPad its own icon list.
 
+### Removed
+
+- `tools/repack_ipa.py`. Nothing in it was specific to this project, so it now lives in
+  [recon-tools](https://github.com/Tatsh/recon-tools) as `rctool ipa repack --overlay`, which reads
+  the repository from this working tree's GitHub remote and derives the entries the fresh build
+  owns from its own `Info.plist` rather than hard-coding them:
+
+  <!-- prettier-ignore -->
+  ```shell
+  rctool ipa repack --overlay -a Jubeat-adhoc-ipa <resources-dir> Jubeat-signed.ipa
+  ```
+
 ## [0.0.1] - 2026-00-00
 
 First version.
