@@ -19,34 +19,16 @@
 
 <!-- WISWA-GENERATED-README:STOP -->
 
-A source-level reconstruction of the iOS game _jubeat plus_, recovered from its shipped arm64
-Mach-O binary with Ghidra.
+A source-level reconstruction of the iOS game _jubeat plus_ (`jp.konami.jubeatplus`).
 
-## Scope
+No copyrighted material is in this repository. You must provide your own IPA with the game assets.
+Building this source alone will not result in a playable game.
 
-Reconstruction proceeds outwards from the entry point: `main` calls `UIApplicationMain` with the
-delegate class `JubeatAppDelegate`, and every routine reachable from there is recovered in turn.
+A number of patches are applied for modern iOS. See [Build-time patches](PATCHES.md) for more
+information.
 
-## Layout
+## Status
 
-| Path                     | Contents                                                        |
-| ------------------------ | --------------------------------------------------------------- |
-| `Project/`               | Reconstructed sources, one class per header and implementation. |
-| `.claude/`               | Rules governing reconstruction fidelity and coding style.       |
-| [PATCHES.md](PATCHES.md) | The deliberate deviations, all gated behind `ENABLE_PATCHES`.   |
-
-A build with `ENABLE_PATCHES` undefined stays faithful to the binary; `-DENABLE_PATCHES=ON` adds the
-modern-iOS and dead-service fixes needed to make the game playable. See
-[PATCHES.md](PATCHES.md).
-
-Every routine reachable from the entry point is reconstructed and audited: all of the binary's
-Objective-C methods and C/C++ functions and blocks now carry a reconstructed source with a
-`@ghidraAddress` tag, verified against the shipped binary's runtime metadata and `__const` pool.
-`tools/status_tables_gen.py` regenerates the completion tables against the binary should new work
-ever be needed.
-
-## Provenance
-
-Every reconstructed routine carries a `@ghidraAddress` Doxygen tag giving its address in the
-original binary, relative to the image base `0x100000000`. The tag is what makes a claim in this
-tree checkable against the binary, so it is required rather than decorative.
+- Features that require online services are obviously non-functional.
+- Editor is not well-tested.
+- Phone support is not well-tested.
