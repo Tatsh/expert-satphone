@@ -32,3 +32,4 @@ information.
 - Features that require online services are obviously non-functional.
 - Editor is not well-tested.
 - Phone support is not well-tested.
+- Tutorial is not tested (skipped when `ENABLE_PATCHES` is enabled).
