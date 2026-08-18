@@ -85,15 +85,16 @@ static const CGFloat kTitleLabelOriginX = 100.0;
 static const CGFloat kTitleLabelFontSize = 16.0;
 static const CGFloat kGenreRowFontSize = 19.0;
 
-// The tutorial-balloon size, its horizontal centring offset, its arrow position, and its shadow.
-// @ghidraAddress 0x28f430 / 0x28f258 / 0x291c18 / 0x28f5e8 / 0x28f3b0
-static const CGFloat kBalloonWidth = 220.0;
-static const CGFloat kBalloonHeight = 60.0;
-static const CGFloat kBalloonArrowPosition = 110.0;
-static const CGFloat kBalloonShadowRadius = 3.0;
-static const CGFloat kBalloonShadowOpacity = 0.9;
-static const CGFloat kBalloonShadowOffsetHeight = 1.0;
-static const CGFloat kBalloonContentInset = 12.0;
+// The tutorial-balloon size and arrow position come from the __const pool; the centring offset is
+// the pooled -220 at 0x291c18, which the code adds to the container width (equivalent to the
+// container width minus kBalloonWidth). The shadow, offset, and content inset are fmov immediates.
+static const CGFloat kBalloonWidth = 220.0;            // @ghidraAddress 0x28f430
+static const CGFloat kBalloonHeight = 60.0;            // @ghidraAddress 0x28f258
+static const CGFloat kBalloonArrowPosition = 110.0;    // @ghidraAddress 0x28f5e8
+static const CGFloat kBalloonShadowRadius = 3.0;       // fmov, 3.0
+static const CGFloat kBalloonShadowOpacity = 0.9;      // fmov float, 0.9
+static const CGFloat kBalloonShadowOffsetHeight = 1.0; // fmov, 1.0
+static const CGFloat kBalloonContentInset = 12.0;      // fmov, 12.0
 
 // The pad pack-list container's rounded-corner radius and border width.
 static const CGFloat kPadContainerCornerRadius = 8.0;
