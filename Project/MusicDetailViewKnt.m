@@ -2494,7 +2494,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
 }
 
 /** @ghidraAddress 0x1a391c */
-- (id)getStartImage {
+- (UIImage *)getStartImage {
     if (![JubeatAppDelegate.appDelegate isRandom]) {
         return [[ImageCache sharedCache] getResPNG:kStartButtonImage];
     }
@@ -2505,7 +2505,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
 }
 
 /** @ghidraAddress 0x1a3a54 */
-- (id)getSingleImage {
+- (UIImage *)getSingleImage {
     if (![JubeatAppDelegate.appDelegate isRandom]) {
         return [[ImageCache sharedCache] getResPNG:kSingleButtonImage];
     }

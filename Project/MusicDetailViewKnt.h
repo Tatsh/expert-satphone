@@ -477,14 +477,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The result.
  * @ghidraAddress 0x1a391c
  */
-- (nullable id)getStartImage;
+- (nullable UIImage *)getStartImage;
 
 /**
  * @brief The single-play button image for this theme.
  * @return The result.
  * @ghidraAddress 0x1a3a54
  */
-- (nullable id)getSingleImage;
+- (nullable UIImage *)getSingleImage;
 
 /**
  * @brief Toggles the extend-chart display mode.
