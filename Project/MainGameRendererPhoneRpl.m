@@ -1934,7 +1934,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                                   kFieldWidth * regionScale,
                                   (double)h0 * regionScale)
              transform:0
-                 alpha:0.0f];
+                 alpha:0.5f];
         (void)[self.texFront spriteAtIndex:0xf];
         float h1 = InterpolateFloatByFrame(0.0f, (float)h0, self->frame, 0, 10);
         [self.texFront
@@ -1944,7 +1944,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
                                   kFieldWidth * regionScale,
                                   (double)h1 * regionScale)
              transform:0
-                 alpha:0.0f];
+                 alpha:0.5f];
         (void)kUpperBeamSprite0;
         (void)kUpperBeamSprite1;
     }

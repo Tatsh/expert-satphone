@@ -137,7 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param alpha The opacity.
  * @ghidraAddress 0x21079c
  */
-- (void)renderMusicBar:(CGPoint)position timeline:(BOOL)timeline alpha:(float)alpha;
+- (void)renderMusicBar:(CGPoint)position timeline:(BOOL)timeline alpha:(double)alpha;
 
 /**
  * @brief Draws the tune information block: jacket, title, difficulty word, and level.
@@ -146,7 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param alpha The opacity.
  * @ghidraAddress 0x210b48
  */
-- (void)renderTuneInfo:(CGPoint)position artworkSize:(double)artworkSize alpha:(float)alpha;
+- (void)renderTuneInfo:(CGPoint)position artworkSize:(double)artworkSize alpha:(double)alpha;
 
 /**
  * @brief Draws the upper background. This phone override does nothing.

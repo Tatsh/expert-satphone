@@ -670,7 +670,7 @@ static inline void EditNoteRendererPhoneRenderFullcomboOut(EditNoteRendererPhone
 }
 
 /** @ghidraAddress 0x21079c */
-- (void)renderMusicBar:(CGPoint)position timeline:(BOOL)timeline alpha:(float)alpha {
+- (void)renderMusicBar:(CGPoint)position timeline:(BOOL)timeline alpha:(double)alpha {
     // The leading difficulty chip sits 3 points lower on retina.
     double chipY = position.y;
     if (isRetina) {
@@ -732,7 +732,7 @@ static inline void EditNoteRendererPhoneRenderFullcomboOut(EditNoteRendererPhone
 }
 
 /** @ghidraAddress 0x210b48 */
-- (void)renderTuneInfo:(CGPoint)position artworkSize:(double)artworkSize alpha:(float)alpha {
+- (void)renderTuneInfo:(CGPoint)position artworkSize:(double)artworkSize alpha:(double)alpha {
     // The jacket, drawn under sprite 11's frame.
     [self.texFront drawSprite:kFrontSpriteJacketFrame
                        inRect:CGRectMake(position.x, position.y, artworkSize, artworkSize)
