@@ -4,16 +4,10 @@
 
 #import "AudioManager.h"
 #import "BalloonView.h"
+#import "ChallengeMissionSheet.h"
 #import "ChallengeMissionTerms.h"
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
-
-// One mission sheet in the title payload: a named group of mission terms. Forward-declared until
-// ChallengeMissionSheet is reconstructed (class name from the binary at 0x288417).
-@interface ChallengeMissionSheet : NSObject
-@property(nonatomic, readonly) NSString *sheetName;
-@property(nonatomic, readonly) NSArray<ChallengeMissionTerms *> *missionTable;
-@end
 
 // The completion sound played as the banner enters. From the CFString at 0x2d6960.
 static NSString *const kMissionGaugeSEName = @"SD_MISSION_GAUGE";

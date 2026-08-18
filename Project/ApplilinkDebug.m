@@ -3,15 +3,10 @@
 #import "AnalysisNetworkCore.h"
 #import "ApplilinkConsts.h"
 #import "ApplilinkCore.h"
+#import "ApplilinkFile.h"
 #import "RecommendCore.h"
 #import "RecommendDebug.h"
 #import "RewardCore.h"
-
-// The recommend advert cache. RecommendAdCache's reconstructed header does not declare
-// allClearCacheBannerImage, so the selector is forward-declared here. See TYPES_PENDING.md.
-@interface RecommendAdCache : NSObject
-+ (void)allClearCacheBannerImage;
-@end
 
 // The Applilink SDK version this debug build reports, combined as "<base>.<build>".
 static NSString *const kSdkVersionBase = @"2.4.0";
@@ -99,7 +94,7 @@ static NSString *const kVersionFormat = @"%@.%@";
 
 /** @ghidraAddress 0x251208 */
 + (void)allClearCacheBannerImage {
-    [RecommendAdCache allClearCacheBannerImage];
+    [ApplilinkFile allClearCacheBannerImage];
 }
 
 /** @ghidraAddress 0x251220 */

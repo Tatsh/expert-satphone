@@ -2,18 +2,7 @@
 
 #import "AlertViewManager.h"
 #import "JubeatAppDelegate.h"
-
-// The recommend ad-area API this controller drives, and the informal view-delegate callbacks it
-// implements. RecommendNetwork is not reconstructed in this tree yet. See TYPES_PENDING.md.
-@interface RecommendNetwork : NSObject
-+ (void)openAdAreaWithParentView:(UIView *)parentView
-                            rect:(CGRect)rect
-                         adModel:(int)adModel
-                      adLocation:(NSString *)adLocation
-                   verticalAlign:(int)verticalAlign
-                        delegate:(id)delegate;
-+ (void)closeAdAreaWithParentView:(UIView *)parentView;
-@end
+#import "RecommendNetwork.h"
 
 // The ad location the settings recommend area is opened at.
 static NSString *const kAdLocationTop = @"ADL_TOP";

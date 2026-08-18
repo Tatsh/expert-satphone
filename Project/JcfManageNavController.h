@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param tuneID The tune id whose files are listed.
  * @ghidraAddress 0x1f27bc
  */
-- (void)setTuneID:(unsigned int)tuneID;
+- (void)setTuneID:(int)tuneID;
 
 /**
  * @brief Reloads the wrapped file list with a new set of files.

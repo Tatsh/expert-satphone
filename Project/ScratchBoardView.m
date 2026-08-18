@@ -5,19 +5,8 @@
 #import "ChallengeStatus.h"
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
+#import "ScratchView.h"
 
-// ScratchView is the individual panel; not reconstructed as its own file yet, so it is reached
-// through a forward declaration here. Its selectors are noted in TYPES_PENDING.md.
-@class ScratchView;
-
-@interface ScratchView : UIView
-- (instancetype)initWithFrame:(CGRect)frame;
-- (void)setADelegate:(id)delegate;
-- (void)updateView:(BOOL)animated;
-- (int)getState;
-- (void)setButtonEnable:(BOOL)enable;
-- (void)timerUpdate;
-@end
 // The board's background art and the per-panel background art.
 static NSString *const kBoardBackgroundImageName = @"scratch_sheet";
 static NSString *const kBoardPanelBackgroundImageName = @"scratch_jacket_bg";

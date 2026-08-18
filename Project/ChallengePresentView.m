@@ -2,21 +2,12 @@
 
 #import "AlertViewManager.h"
 #import "ChallengeModeRootView.h"
+#import "ChallengePresentListView.h"
 #import "ChallengeStatus.h"
 #import "Downloader.h"
 #import "EditorIDManager.h"
 #import "ScratchUtil.h"
 #import "SessionDownloader.h"
-
-// The present-list table view this modal hosts. Not reconstructed as its own file yet, so it is
-// reached through a forward declaration here. Its selectors are noted in TYPES_PENDING.md.
-@class ChallengePresentView;
-
-@interface ChallengePresentListView : UIView
-- (instancetype)initWithFrame:(CGRect)frame;
-- (void)setListArray:(NSArray *)listArray;
-- (void)setADelegate:(id)delegate;
-@end
 
 // The present-list request's post-body keys and values.
 static NSString *const kPostUserIDKey = @"user_id";

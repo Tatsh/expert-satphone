@@ -14,34 +14,6 @@
 #import "RecommendCore.h"
 #import "RewardCore.h"
 
-// The advert-delegate callbacks the fan-out methods dispatch through respondsToSelector:. In the
-// binary the delegate is an id conforming to the SDK's advert-view delegate protocol; the selectors
-// are gathered here so the messages type-check.
-@protocol ApplilinkCoreAdDelegate <NSObject>
-@optional
-- (void)appListDidStart;
-- (void)appListDidStart:(ApplilinkParameters *)appParam;
-- (void)appListDidAppear;
-- (void)appListDidAppear:(ApplilinkParameters *)appParam;
-- (void)appListDidDisappear;
-- (void)appListDidDisappear:(ApplilinkParameters *)appParam;
-- (void)appListFailOpenWithError:(NSError *)error;
-- (void)appListFailOpenWithError:(NSError *)error
-         withApplilinkParameters:(ApplilinkParameters *)appParam;
-- (void)appListFailLoadWithError:(NSError *)error;
-- (void)appListFailLoadWithError:(NSError *)error
-         withApplilinkParameters:(ApplilinkParameters *)appParam;
-- (void)appListFailWithError:(NSError *)error;
-- (void)appListFailWithError:(NSError *)error
-     withApplilinkParameters:(ApplilinkParameters *)appParam;
-- (void)appListFailLinkWithError:(NSError *)error;
-- (void)appListFailLinkWithError:(NSError *)error
-         withApplilinkParameters:(ApplilinkParameters *)appParam;
-- (void)appListSoundUseStart;
-- (void)appListSoundUseFinish;
-- (void)appListMovieFinish;
-@end
-
 // Localised-error codes passed to +[ApplilinkNetworkError localizedApplilinkErrorWithCode:]. These
 // mirror the file-local enumeration in ApplilinkNetworkError.m.
 static const NSInteger kApplilinkErrorCodeParameter = 0x3e9;

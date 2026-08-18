@@ -2,19 +2,11 @@
 
 #import <QuartzCore/QuartzCore.h>
 
+#import "EditDataManager.h"
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
 #import "StoreButton.h"
 #import "jubeatLabAccess.h"
-
-// The edit-data store; not reconstructed in this tree yet, so it is forward-declared. See
-// JcfDownloader.m and TYPES_PENDING.md.
-@interface EditDataManager : NSObject
-+ (instancetype)sharedManager;
-- (NSMutableDictionary *)getEditorInfo;
-- (NSString *)getLastEditFilePath:(int)tuneID;
-- (void)saveJCF:(NSString *)path;
-@end
 
 // The panel size, chosen by device idiom.
 static const CGFloat kPanelWidthPad = 360.0;

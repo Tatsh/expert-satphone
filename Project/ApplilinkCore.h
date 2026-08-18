@@ -29,6 +29,55 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ * @brief The advert-delegate callbacks the @c ApplilinkCore fan-out methods dispatch through
+ * @c -respondsToSelector: .
+ *
+ * In the binary the delegate is an @c id conforming to the SDK's advert-view delegate protocol;
+ * the selectors are gathered here so the fan-out messages type-check. Every callback is optional.
+ */
+@protocol ApplilinkCoreAdDelegate <NSObject>
+@optional
+/** @brief The advert list started. */
+- (void)appListDidStart;
+/** @brief The advert list started, with request parameters. */
+- (void)appListDidStart:(nullable ApplilinkParameters *)appParam;
+/** @brief The advert list appeared. */
+- (void)appListDidAppear;
+/** @brief The advert list appeared, with request parameters. */
+- (void)appListDidAppear:(nullable ApplilinkParameters *)appParam;
+/** @brief The advert list disappeared. */
+- (void)appListDidDisappear;
+/** @brief The advert list disappeared, with request parameters. */
+- (void)appListDidDisappear:(nullable ApplilinkParameters *)appParam;
+/** @brief The advert list failed to open. */
+- (void)appListFailOpenWithError:(nullable NSError *)error;
+/** @brief The advert list failed to open, with request parameters. */
+- (void)appListFailOpenWithError:(nullable NSError *)error
+         withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
+/** @brief The advert list failed to load. */
+- (void)appListFailLoadWithError:(nullable NSError *)error;
+/** @brief The advert list failed to load, with request parameters. */
+- (void)appListFailLoadWithError:(nullable NSError *)error
+         withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
+/** @brief The advert list failed. */
+- (void)appListFailWithError:(nullable NSError *)error;
+/** @brief The advert list failed, with request parameters. */
+- (void)appListFailWithError:(nullable NSError *)error
+     withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
+/** @brief The advert list failed to link. */
+- (void)appListFailLinkWithError:(nullable NSError *)error;
+/** @brief The advert list failed to link, with request parameters. */
+- (void)appListFailLinkWithError:(nullable NSError *)error
+         withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
+/** @brief Advert sound use started. */
+- (void)appListSoundUseStart;
+/** @brief Advert sound use finished. */
+- (void)appListSoundUseFinish;
+/** @brief An advert movie finished. */
+- (void)appListMovieFinish;
+@end
+
+/**
  * @brief The Applilink SDK's core entry point.
  */
 @interface ApplilinkCore : NSObject

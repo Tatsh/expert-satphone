@@ -4,13 +4,8 @@
 #import "ImageLoading.h"
 #import "InfoLabel.h"
 #import "JubeatAppDelegate.h"
+#import "MusicPlaylistManager.h"
 #import "NSDictionary+TypedLookupExtension.h"
-
-// The playlist model consulted to name a custom playlist. Its own header is not reconstructed yet;
-// only the one selector this bar sends is declared here.
-@interface MusicPlaylistManager : NSObject
-- (NSString *)nameOfPlaylistAtIndex:(NSInteger)index;
-@end
 
 // The store-info message-dictionary keys.
 static NSString *const kStoreInfoMessageKey = @"Message";

@@ -6,15 +6,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
 
-// The owning control, not reconstructed in this tree yet. Declared here as a partial stub of the
-// selectors the thumb messages on it. See TYPES_PENDING.md.
-@interface SVSegmentedControl : UIControl
-- (CGFloat)height;
-- (CGFloat)cornerRadius;
-- (CGFloat)thumbEdgeInset;
-- (UIEdgeInsets)titleEdgeInsets;
-- (BOOL)crossFadeLabelsOnDrag;
-@end
+#import "SVSegmentedControl.h"
 
 // The two device-gray gradient tiers that give the default pill its banded look, and their
 // selected-state overrides. Each pair is {gray, alpha} in a device-gray colour space; the two
@@ -213,7 +205,7 @@ static const CGFloat kThumbSelectedAlpha = 0.8; // @ghidraAddress 0x28e060
     UIEdgeInsets titleInsets = self.segmentedControl.titleEdgeInsets;
     labelOriginY += titleInsets.top;
     labelOriginY -= titleInsets.bottom;
-    labelOriginY -= self.segmentedControl.thumbEdgeInset;
+    labelOriginY -= self.segmentedControl.thumbEdgeInset.top;
     labelOriginY += 2.0;
     // Nudge the labels up a point when the font's point size is odd.
     if (((int)self.font.pointSize) & 1) {

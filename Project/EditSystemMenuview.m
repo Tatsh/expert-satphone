@@ -2,21 +2,8 @@
 
 #import <QuartzCore/QuartzCore.h>
 
+#import "EditDataManager.h"
 #import "ImageLoading.h"
-
-// The edit save-slot store; not reconstructed in this tree yet, so it is forward-declared. See
-// TYPES_PENDING.md.
-@interface EditDataManager : NSObject
-+ (instancetype)sharedManager;
-- (int)getEditSlotLimit;
-@end
-
-// The inherited delegate is messaged through these selectors, sent only when it responds.
-@protocol EditSystemMenuDelegate <NSObject>
-@optional
-- (void)selectExit;
-- (void)selectLoadSlot:(NSNumber *)slot;
-@end
 
 // The two reuse identifiers: the EXIT command cell and the saved-chart load cells.
 static NSString *const kExitCellIdentifier = @"EditFileListViewTableCell";

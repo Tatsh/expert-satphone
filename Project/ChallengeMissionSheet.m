@@ -1,18 +1,11 @@
 #import "ChallengeMissionSheet.h"
 
+#import "BFCodec.h"
 #import "ChallengeMissionAchieve.h"
 #import "ChallengeMissionPlayTerm.h"
 #import "ChallengeMissionReward.h"
 #import "ChallengeMissionTerms.h"
 #import "cipher_keys.h"
-
-// The Blowfish codec and the mission-data cipher key, used to persist a saved sheet. Not
-// reconstructed in this tree yet, so they are forward-declared. See TYPES_PENDING.md.
-@interface BFCodec : NSObject
-- (void)cipherInit:(NSData *)key;
-- (BOOL)decipher:(NSMutableData *)data;
-- (BOOL)encipher:(NSMutableData *)data;
-@end
 
 // The server's sheet wire keys, in the order -generateMissionSheetDictionary emits them.
 static NSString *const kConfirmFlagKey = @"confirm_flag";

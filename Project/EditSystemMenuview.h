@@ -16,6 +16,23 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ * @brief What an @c EditSystemMenuview tells its owner.
+ *
+ * The inherited delegate is messaged through these selectors, each sent only when the delegate
+ * responds. Extends @c EditFileListViewDelegate, the base list's own protocol.
+ */
+@protocol EditSystemMenuDelegate <EditFileListViewDelegate>
+@optional
+/** @brief Sent when the EXIT command row is chosen. */
+- (void)selectExit;
+/**
+ * @brief Sent when a saved-chart load slot is chosen.
+ * @param slot The chosen load slot, boxed.
+ */
+- (void)selectLoadSlot:(nullable NSNumber *)slot;
+@end
+
+/**
  * @brief The edit-mode system menu table.
  */
 @interface EditSystemMenuview : EditFileListViewController

@@ -1,11 +1,6 @@
 #import "EditModalTableViewController.h"
 
-// The edit-data store; not reconstructed in this tree yet, so it is forward-declared. See
-// EvaluateJcfView.m, JcfDownloader.m, and TYPES_PENDING.md.
-@interface EditDataManager : NSObject
-+ (instancetype)sharedManager;
-- (NSMutableDictionary *)getEditorInfo;
-@end
+#import "EditDataManager.h"
 
 // The reuse identifier shared by every row's cell.
 static NSString *const kReuseIdentifier = @"EditModaltableViewCell";

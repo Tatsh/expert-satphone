@@ -1,31 +1,11 @@
 #import "EditFileListViewDeleteController.h"
 
 #import "AlertViewManager.h"
+#import "EditDataManager.h"
 #import "EditorInfoCell.h"
 #import "ImageLoading.h"
+#import "JcfDownloadPageViewController.h"
 #import "JubeatAppDelegate.h"
-
-// Not yet reconstructed. Vends -initWithMusicID:delegate: and -setBFromNavigate:.
-@interface JcfDownloadPageViewController : UIViewController
-- (instancetype)initWithMusicID:(int)musicID delegate:(id)delegate;
-- (void)setBFromNavigate:(BOOL)bFromNavigate;
-@end
-
-// Not yet reconstructed. Vends the shared manager and the editable slot limit.
-@interface EditDataManager : NSObject
-+ (instancetype)sharedManager;
-- (int)getEditSlotLimit;
-@end
-
-// The binary's delegate protocol carries three more optional callbacks than the base
-// EditFileListViewController reconstruction captured; they are messaged here through
-// -respondsToSelector: guards. This local extension names them so the calls stay typed.
-@protocol EditFileListViewDeleteDelegate <EditFileListViewDelegate>
-@optional
-- (void)editFileListViewSelectNewFile;
-- (void)editFileListViewSelectDownload;
-- (void)editFileListViewDeleteFile:(NSString *)fileName;
-@end
 
 // Reuse identifiers.
 static NSString *const kMenuCellIdentifier = @"EditFileListViewTableCell";
@@ -334,9 +314,9 @@ enum { kSectionMenu = 0, kSectionFiles = 1, kSectionBlank = 2, kSectionCount = 3
                 (id<EditFileListViewDeleteDelegate>)self.delegate;
             if (index == kMenuIndexDownload) {
                 if (![JubeatAppDelegate appDelegate].isPad) {
-                    JcfDownloadPageViewController *page =
-                        [[JcfDownloadPageViewController alloc] initWithMusicID:self.tuneID
-                                                                      delegate:self.delegate];
+                    JcfDownloadPageViewController *page = [[JcfDownloadPageViewController alloc]
+                        initWithMusicID:self.tuneID
+                               delegate:(id<JcfDownloadPageViewControllerDelegate>)self.delegate];
                     [page setBFromNavigate:YES];
                     [self.navigationController pushViewController:page animated:YES];
                     return;

@@ -5,19 +5,12 @@
 #import "ImageCache.h"
 #import "MarkerManager.h"
 #import "StoreButton.h"
+#import "StoreCampaignViewController.h"
 #import "StoreImageView.h"
 #import "StoreMusicListManager.h"
 #import "StoreUtil.h"
 #import "UIDevice+SystemVersionCheck.h"
 #import "UnselectableTextView.h"
-
-// StoreCampaignViewController owns this card and is only messaged, never sized, here; it is not yet
-// reconstructed, so declare the selectors this class sends to it.
-@interface StoreCampaignViewController : UIViewController
-- (void)itemDownload;
-- (void)moveExternalLink;
-- (void)storePackDetailViewClose;
-@end
 
 // The BGM finish notification the card observes. The typo is the binary's own.
 static NSString *const kFinishBgmNotificationName = @"JubeatAudioManagerFinishBgmNotifacation";

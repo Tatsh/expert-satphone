@@ -1,24 +1,8 @@
 #import "collectionCell.h"
 
 #import "JubeatAppDelegate.h"
-
-// MusicView is not reconstructed as its own file yet, so it is reached through a forward
-// declaration here. Its selectors are noted in TYPES_PENDING.md.
-@interface MusicView : UIView
-- (instancetype)initWithFrame:(CGRect)frame
-                  artworkSize:(double)artworkSize
-                      colType:(int)colType
-                    labelDisp:(BOOL)labelDisp;
-- (void)setInfo:(id)info bArtistNameDisp:(BOOL)artistNameDisp;
-- (void)setDelegate:(id)delegate;
-- (UIImageView *)imgView;
-- (void)clearInfo;
-- (id)tuneInfo;
-@end
-
-@interface MusicTuneInfoStub : NSObject
-- (int)tuneID;
-@end
+#import "MusicView.h"
+#import "TuneInfo.h"
 
 // The hosted music view's frame and artwork size by idiom. On the phone the height depends on the
 // device type (a 106-point band on type 2, 101 otherwise).
@@ -105,7 +89,7 @@ static const NSInteger kCellDeviceTypeTall = 2;
 
 /** @ghidraAddress 0x3b094 */
 - (int)getTuneID {
-    return [(MusicTuneInfoStub *)[view tuneInfo] tuneID];
+    return view.tuneInfo.tuneID;
 }
 
 /** @ghidraAddress 0x3b0ec */

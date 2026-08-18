@@ -1,26 +1,8 @@
 #import "JcfManageNavController.h"
 
+#import "EditDataManager.h"
+#import "EditFileListViewDeleteController.h"
 #import "JubeatAppDelegate.h"
-
-// The wrapped downloaded-file list controller. Not reconstructed in this tree yet, so it is
-// forward-declared. See TYPES_PENDING.md.
-@interface EditFileListViewDeleteController : UIViewController
-- (instancetype)initWithSize:(CGSize)size;
-- (void)setFileList:(NSArray *)fileList;
-- (void)setDelegate:(id)delegate;
-- (void)setTargetFileName:(NSString *)targetFileName;
-- (void)setIsShared:(BOOL)isShared;
-- (void)setTuneID:(unsigned int)tuneID;
-- (unsigned int)tuneID;
-- (void)reloadTable;
-@end
-
-// The edit-data store; not reconstructed in this tree yet, so it is forward-declared. See
-// TYPES_PENDING.md.
-@interface EditDataManager : NSObject
-+ (instancetype)sharedManager;
-- (NSString *)getLastEditFileName:(int)tuneID;
-@end
 
 // The navigation-bar tint white components (from the __const pool). The alpha (1.0) arrives as an
 // fmov immediate.
@@ -73,8 +55,8 @@ static const CGFloat kPadBorderWhite = 0.7; // 0x291c98
                    target:self
                    action:@selector(pushClose:)];
         self.pFileListView.navigationItem.leftBarButtonItem = closeButton;
-        [self.pFileListView setFileList:fileList];
-        [self.pFileListView setDelegate:delegateArg];
+        [self.pFileListView setFileList:(NSMutableArray *)fileList];
+        [self.pFileListView setDelegate:(id<EditFileListViewDelegate>)delegateArg];
         [self.pFileListView setTargetFileName:selName];
         [self setViewControllers:@[ self.pFileListView ]];
     }
@@ -109,17 +91,16 @@ static const CGFloat kPadBorderWhite = 0.7; // 0x291c98
 }
 
 /** @ghidraAddress 0x1f27bc */
-- (void)setTuneID:(unsigned int)tuneID {
-    [self.pFileListView setTuneID:tuneID];
+- (void)setTuneID:(int)tuneID {
+    self.pFileListView.tuneID = tuneID;
 }
 
 /** @ghidraAddress 0x1f2f28 */
 - (void)reloadList:(NSArray *)fileList {
     if (self.pFileListView) {
-        [self.pFileListView setFileList:fileList];
-        [self.pFileListView
-            setTargetFileName:[EditDataManager.sharedManager
-                                  getLastEditFileName:(int)self.pFileListView.tuneID]];
+        [self.pFileListView setFileList:(NSMutableArray *)fileList];
+        [self.pFileListView setTargetFileName:[EditDataManager.sharedManager
+                                                  getLastEditFileName:self.pFileListView.tuneID]];
         [self.pFileListView reloadTable];
     }
 }

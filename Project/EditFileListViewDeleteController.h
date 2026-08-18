@@ -15,9 +15,29 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// Not yet reconstructed. Vends -initWithMusicID:delegate: and -setBFromNavigate:; forward-declared
-// here and messaged in -tableView:didSelectRowAtIndexPath:.
 @class JcfDownloadPageViewController;
+
+/**
+ * @brief What an @c EditFileListViewDeleteController tells its owner.
+ *
+ * Extends @c EditFileListViewDelegate with the three optional callbacks this subclass sends
+ * (new-file, download, and delete), each messaged only when the delegate responds. The base
+ * protocol's selector names are the binary's own; these three are the extra selectors messaged
+ * through @c -respondsToSelector: guards in @c -tableView:didSelectRowAtIndexPath: and the delete
+ * commit.
+ */
+@protocol EditFileListViewDeleteDelegate <EditFileListViewDelegate>
+@optional
+/** @brief Sent when the "make a chart" menu row is chosen. */
+- (void)editFileListViewSelectNewFile;
+/** @brief Sent when the "find a chart to download" menu row is chosen. */
+- (void)editFileListViewSelectDownload;
+/**
+ * @brief Sent when a saved chart is deleted.
+ * @param fileName The deleted chart's file name.
+ */
+- (void)editFileListViewDeleteFile:(nullable NSString *)fileName;
+@end
 
 /**
  * @brief A table of saved edit charts that supports deleting a chart by swiping a row.

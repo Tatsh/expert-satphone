@@ -1,21 +1,7 @@
 #import "ApplilinkViewManager.h"
 
 #import "ApplilinkParameters.h"
-
-// The in-app video player the manager owns; not reconstructed in this tree yet, so it is
-// forward-declared. See TYPES_PENDING.md.
-@interface ApplilinkVideoController : NSObject
-- (void)parentWindowFlag:(BOOL)parentWindowFlag;
-- (UIView *)view;
-- (void)setSdkDelegate:(id)delegate;
-- (void)setQuery:(NSString *)query
-           autoPlay:(BOOL)autoPlay
-    applilinkParams:(ApplilinkParameters *)applilinkParams
-           delegate:(id)delegate;
-- (void)viewDealloc;
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation
-                                         duration:(NSTimeInterval)duration;
-@end
+#import "ApplilinkVideoController.h"
 
 // The one and only ApplilinkViewManager instance and its dispatch_once tokens. File-scope rather
 // than method-local, which the singleton rule would otherwise ask for, because +allocWithZone: and

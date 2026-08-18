@@ -5,16 +5,9 @@
 #import "Downloader.h"
 #import "ImageLoading.h"
 #import "JubeatAppDelegate.h"
+#import "StoreCampaignViewController.h"
 #import "StoreLoadingView.h"
 #import "StoreUtil.h"
-
-// StoreCampaignViewController owns this page and is only messaged, never sized, here; it is not yet
-// reconstructed, so declare the selectors this class sends to it.
-@interface StoreCampaignViewController : UIViewController
-- (void)itemDownload;
-- (void)moveExternalLink;
-- (void)itemDeselect;
-@end
 
 // The two alternating pack-background arts for the terms and copyright rows.
 static NSString *const kPackBackgroundImage0Name = @"store_pack_bg_0";

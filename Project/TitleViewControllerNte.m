@@ -1,18 +1,7 @@
 #import "TitleViewControllerNte.h"
 
 #import "JubeatAppDelegate.h"
-
-// NteTitleCoreController is not yet reconstructed. Declare the subset of its interface used here so
-// the messages this controller sends to its bottom child type-check; drop this once the class
-// lands.
-@interface NteTitleCoreController : UIViewController
-- (instancetype)initWithNameArray:(NSArray<NSString *> *)nameArray bounds:(CGRect)bounds;
-- (void)setUnsealHeight:(NSInteger)unsealHeight;
-- (void)start;
-- (void)showLogo;
-- (void)stopAnimation;
-- (void)changeTitleBg:(int)index completed:(BOOL)completed;
-@end
+#import "NteTitleCoreController.h"
 
 // The artwork base names for the top flip-book, from the two arrayWithObjects:count: lists built at
 // 0x71ff8 (the default set) and 0x72054 (the 3.5-inch variant). The 3.5-inch phone gets the smaller

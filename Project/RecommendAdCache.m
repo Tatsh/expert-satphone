@@ -4,31 +4,9 @@
 #import "ApplilinkFile.h"
 #import "ApplilinkNetworkError.h"
 #import "ApplilinkUtilities.h"
+#import "RecommendAdData.h"
 #import "RecommendCore.h"
 #import "RecommendWebAPI.h"
-
-// RecommendAdData's reconstructed header declares these selectors with different argument or return
-// types (getAppInterstitialList: and getInterstitialSpecInstallForAdDisplaySpecList:movieFlg: take
-// a BOOL there, and getResponseNsData returns NSData *), so it is forward-declared here rather than
-// imported. See TYPES_PENDING.md.
-@interface RecommendAdData : NSObject
-+ (int)getAdTypeWithAdModel:(int)adModel adLocation:(NSString *)adLocation;
-+ (NSError *)lotteryInterstitialWithAdLocation:(NSString *)adLocation;
-+ (NSArray *)getAppInterstitialList:(int)flag;
-+ (NSArray *)getAppIconList;
-+ (NSArray *)getAppBannerList;
-+ (NSArray *)getSelfList;
-+ (id)getResponseNsData;
-+ (NSArray *)getAdListByAdType:(int)adType;
-+ (NSArray *)getAdListTermForList:(NSArray *)list;
-+ (NSArray *)getAdBannerListForList:(NSArray *)list;
-+ (NSArray *)getInterstitialSpecPriorityList;
-+ (NSArray *)getInterstitialSpecCountForAdDisplaySpecList:(NSArray *)list;
-+ (NSArray *)getInterstitialSpecInstallForAdDisplaySpecList:(NSArray *)list movieFlg:(int)movieFlg;
-+ (NSArray *)getAdInterstitialUrlListTermForList:(NSArray *)list;
-+ (NSArray *)getPosterUrlList;
-+ (NSArray *)getMovieUrlList;
-@end
 
 #pragma mark - Advert-type identifiers
 

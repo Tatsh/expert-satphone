@@ -1,23 +1,9 @@
 #import "GameNetworkUtil.h"
 
+#import "BFCodec.h"
 #import "EditorIDManager.h"
 #import "TweetResourceManager.h"
 #import "cipher_keys.h"
-
-// The tweet-resource store's install-count setter, and the resource-data cipher key. Not declared
-// on the reconstructed TweetResourceManager header / not reconstructed yet, so forward-declared.
-// See TYPES_PENDING.md.
-@interface TweetResourceManager (InstallCount)
-- (void)setInstallApplicationNum:(int)installApplicationNum;
-@end
-
-// The Blowfish codec used to cipher the persisted install-count record. Forward-declared; see
-// TYPES_PENDING.md.
-@interface BFCodec : NSObject
-- (void)cipherInit:(NSData *)key;
-- (BOOL)decipher:(NSMutableData *)data;
-- (BOOL)encipher:(NSMutableData *)data;
-@end
 
 // The Konami "agx" host and CGI path every endpoint is built from.
 static NSString *const kHost = @"agx.s.konaminet.jp";

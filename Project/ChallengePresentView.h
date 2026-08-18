@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "ChallengePresentListView.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class ChallengePresentView;
@@ -27,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief A modal that downloads the player's present list, shows it in a table, and lets each
  * present be accepted or declined through the server.
  */
-@interface ChallengePresentView : UIView
+@interface ChallengePresentView : UIView <ChallengePresentListViewDelegate>
 
 /**
  * @brief The delegate told about close and status-refresh events. Held weakly.

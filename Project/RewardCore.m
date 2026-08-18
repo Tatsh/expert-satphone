@@ -18,20 +18,7 @@
 #import "ApplilinkViewManager.h"
 #import "NSStringURLEncoding.h"
 #import "RewardWebAPI.h"
-
-// RewardWebViewController hosts the reward advert web view. Its reconstructed header does not
-// declare -willAnimateRotationToInterfaceOrientation:duration:, so the selectors this file messages
-// are forward-declared here. See TYPES_PENDING.md.
-@interface RewardWebViewController : UIViewController
-- (void)setParentView:(UIView *)parentView;
-- (void)setNavigationBarHidden:(BOOL)hidden;
-- (void)setSdkDelegate:(id)delegate;
-- (void)loadRequestWithURL:(NSString *)url parameters:(NSDictionary *)parameters;
-- (void)appliListClosed;
-- (void)viewDealloc;
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation
-                                         duration:(NSTimeInterval)duration;
-@end
+#import "RewardWebViewController.h"
 
 // Applilink error codes used by the reward core.
 enum {

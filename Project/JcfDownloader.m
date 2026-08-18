@@ -1,22 +1,12 @@
 #import "JcfDownloader.h"
 
+#import "EditDataManager.h"
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
 #import "LatelyJcfListManager.h"
 #import "StoreMusicListManager.h"
 #import "StoreUtil.h"
 #import "jubeatLabAccess.h"
-
-// The edit-data store; not reconstructed in this tree yet, so it is forward-declared. See
-// TYPES_PENDING.md.
-@interface EditDataManager : NSObject
-+ (instancetype)sharedManager;
-- (NSDictionary *)pickUpEditorInfoFromData:(NSData *)data;
-- (void)localSaveDLFile:(NSData *)data serial:(NSString *)serial usrTag:(int)tag;
-- (NSArray *)getFileInfoList:(unsigned int)tuneID;
-- (int)getEditSlotLimit;
-- (void)setLastEditFileName:(unsigned int)tuneID fileName:(NSString *)fileName;
-@end
 
 // TouchJSON / NSData's base64 decoder category.
 @interface NSData (Base64)

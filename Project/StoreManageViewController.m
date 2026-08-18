@@ -11,18 +11,8 @@
 #import "StoreMusicInfo.h"
 #import "StoreMusicListManager.h"
 #import "StoreUtil.h"
+#import "StoreViewController.h"
 #import "UIDevice+SystemVersionCheck.h"
-
-// The parent store view controller is not yet reconstructed; it is messaged for its modal dialog
-// and to show/hide it, and it is the back button's target for -storeEnd: .
-@class StoreViewController;
-
-@interface StoreViewController : UIViewController
-- (StoreDialogView *)modalDialog;
-- (void)showModalDialog:(id)controller;
-- (void)hideModalDialog;
-- (void)storeEnd:(id)sender;
-@end
 
 // The tab image and the two per-row action icons.
 static NSString *const kTabImageName = @"tab_database";

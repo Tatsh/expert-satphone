@@ -1,14 +1,7 @@
 #import "JcfDownloadPageNavController.h"
 
+#import "JcfDownloadPageViewController.h"
 #import "JubeatAppDelegate.h"
-
-// The custom-sequence download page view controller hosted here. Not reconstructed in this tree
-// yet, so it is forward-declared. See TYPES_PENDING.md.
-@interface JcfDownloadPageViewController : UIViewController
-- (instancetype)initWithMusicID:(unsigned int)musicID delegate:(id)delegate;
-- (instancetype)initWithSequenceID:(NSString *)sequenceID delegate:(id)delegate;
-- (instancetype)initWithURL:(NSString *)url delegate:(id)delegate;
-@end
 
 // The local web page resource loaded from the app documents directory.
 static NSString *const kDownloadTestPageName = @"DlTestPage.html";
@@ -75,7 +68,9 @@ static const CGFloat kBarTintWhiteLegacy = 0.9;   // 0x28f448, when it does not
                     style:UIBarButtonItemStyleDone
                    target:self
                    action:@selector(pushClose:)];
-        ctrl = [[JcfDownloadPageViewController alloc] initWithMusicID:musicID delegate:delegateArg];
+        ctrl = [[JcfDownloadPageViewController alloc]
+            initWithMusicID:musicID
+                   delegate:(id<JcfDownloadPageViewControllerDelegate>)delegateArg];
         ctrl.navigationItem.leftBarButtonItem = closeButton;
         [self setViewControllers:@[ ctrl ]];
     }
@@ -98,8 +93,9 @@ static const CGFloat kBarTintWhiteLegacy = 0.9;   // 0x28f448, when it does not
                     style:UIBarButtonItemStyleDone
                    target:self
                    action:@selector(pushClose:)];
-        ctrl = [[JcfDownloadPageViewController alloc] initWithSequenceID:sequenceIDArg
-                                                                delegate:delegateArg];
+        ctrl = [[JcfDownloadPageViewController alloc]
+            initWithSequenceID:sequenceIDArg
+                      delegate:(id<JcfDownloadPageViewControllerDelegate>)delegateArg];
         ctrl.navigationItem.leftBarButtonItem = closeButton;
         [self setViewControllers:@[ ctrl ]];
     }
@@ -122,7 +118,9 @@ static const CGFloat kBarTintWhiteLegacy = 0.9;   // 0x28f448, when it does not
                     style:UIBarButtonItemStyleDone
                    target:self
                    action:@selector(pushClose:)];
-        ctrl = [[JcfDownloadPageViewController alloc] initWithURL:url delegate:delegateArg];
+        ctrl = [[JcfDownloadPageViewController alloc]
+            initWithURL:url
+               delegate:(id<JcfDownloadPageViewControllerDelegate>)delegateArg];
         ctrl.navigationItem.leftBarButtonItem = closeButton;
         [self setViewControllers:@[ ctrl ]];
     }

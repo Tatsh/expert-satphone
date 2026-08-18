@@ -156,6 +156,17 @@ typedef NS_ENUM(int, RewardWebViewControllerWebViewStatus) {
  */
 - (void)clearDelegate;
 
+/**
+ * @brief Re-lay the advert web view for a rotation, driven by @c RewardCore.
+ * @details Ignores @p orientation and re-lays for the application's current
+ * @c statusBarOrientation instead.
+ * @param orientation The interface orientation being rotated to (ignored).
+ * @param duration The rotation animation duration.
+ * @ghidraAddress 0x24f058
+ */
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation
+                                         duration:(NSTimeInterval)duration;
+
 @end
 
 NS_ASSUME_NONNULL_END
