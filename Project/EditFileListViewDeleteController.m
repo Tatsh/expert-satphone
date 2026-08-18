@@ -216,7 +216,7 @@ enum { kSectionMenu = 0, kSectionFiles = 1, kSectionBlank = 2, kSectionCount = 3
     NSString *fileName = self.fileList[indexPath.row][kFileNameKey];
     [self.fileList removeObjectAtIndex:indexPath.row];
     --fileCnt;
-    [tableView deleteRowsAtIndexPaths:@[ indexPath ] withRowAnimation:UITableViewRowAnimationNone];
+    [tableView deleteRowsAtIndexPaths:@[ indexPath ] withRowAnimation:UITableViewRowAnimationFade];
     fileCnt = (int)self.fileList.count;
     if (slotLim < fileCnt) {
         fileCnt = slotLim;
@@ -229,7 +229,7 @@ enum { kSectionMenu = 0, kSectionFiles = 1, kSectionBlank = 2, kSectionCount = 3
     } else {
         inserted = [NSIndexPath indexPathForRow:(slotLim - 1) inSection:kSectionFiles];
     }
-    [tableView insertRowsAtIndexPaths:@[ inserted ] withRowAnimation:UITableViewRowAnimationFade];
+    [tableView insertRowsAtIndexPaths:@[ inserted ] withRowAnimation:UITableViewRowAnimationRight];
 
     if ([self.delegate respondsToSelector:@selector(editFileListViewDeleteFile:)]) {
         [(id<EditFileListViewDeleteDelegate>)self.delegate editFileListViewDeleteFile:fileName];
