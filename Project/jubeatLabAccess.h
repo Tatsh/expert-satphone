@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief The number of bytes received so far.
  * @ghidraAddress 0x1dae8c
  */
-- (NSInteger)currentSize;
+- (NSUInteger)currentSize;
 
 /**
  * @brief The download progress in [0, 1], or 0 when the expected length is unknown.

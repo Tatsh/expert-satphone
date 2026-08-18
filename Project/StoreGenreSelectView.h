@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Sent when a genre banner is tapped, carrying the genre index within the genre list.
  * @param index The selected genre index, already reduced into the genre list's range.
  */
-- (void)StoreGenreSelectViewDelegateGenreSelected:(NSInteger)index;
+- (void)StoreGenreSelectViewDelegateGenreSelected:(NSUInteger)index;
 
 @end
 

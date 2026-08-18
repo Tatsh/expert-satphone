@@ -238,7 +238,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @ghidraAddress 0x17ec80
  */
-- (void)StoreGenreSelectViewDelegateGenreSelected:(NSInteger)index;
+- (void)StoreGenreSelectViewDelegateGenreSelected:(NSUInteger)index;
 
 #pragma mark - Pack table / pack detail callbacks
 

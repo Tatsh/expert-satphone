@@ -282,7 +282,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param musicID The tune.
  * @return The path.
  */
-+ (nullable NSString *)filePathForMusicID:(int)musicID;
++ (nullable NSString *)filePathForMusicID:(unsigned int)musicID;
 
 /**
  * @brief The endpoint the store's knit background colour is fetched from.

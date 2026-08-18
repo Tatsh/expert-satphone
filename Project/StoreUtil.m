@@ -448,9 +448,10 @@ static NSString *const kStorePackProductPrefix = @"jubeat.pack";
 }
 
 /** @ghidraAddress 0xbb310 */
-+ (NSString *)filePathForMusicID:(int)musicID {
-    // "<documents>/%09d.jbt" — the path is returned whether or not the file exists.
-    NSString *name = [[NSString alloc] initWithFormat:@"%09d.jbt", musicID];
++ (NSString *)filePathForMusicID:(unsigned int)musicID {
+    // "<documents>/%09d.jbt" — the binary formats the unsigned id with %09d and returns the path
+    // whether or not the file exists. The cast keeps the %d specifier the binary uses.
+    NSString *name = [[NSString alloc] initWithFormat:@"%09d.jbt", (int)musicID];
     return [JubeatAppDelegate.appDocumentsDirectory stringByAppendingPathComponent:name];
 }
 

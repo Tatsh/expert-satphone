@@ -398,7 +398,7 @@ static const char *const kJubeatLabRegion = "JP";
 }
 
 /** @ghidraAddress 0x1dae8c */
-- (NSInteger)currentSize {
+- (NSUInteger)currentSize {
     return data.length;
 }
 

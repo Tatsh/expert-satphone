@@ -1250,7 +1250,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 #pragma mark - StoreGenreSelectViewDelegate
 
 /** @ghidraAddress 0xa5a1c */
-- (void)StoreGenreSelectViewDelegateGenreSelected:(NSInteger)index {
+- (void)StoreGenreSelectViewDelegateGenreSelected:(NSUInteger)index {
     [self switchToGenre:index];
 }
 
