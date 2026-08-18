@@ -13,6 +13,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "ApplilinkStore.h"
+
 @class ApplilinkParameters;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -30,8 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The Applilink in-app video-player host singleton.
+ *
+ * Acts as the hosted @c ApplilinkVideoController 's @c SdkViewDelegate, relaying the ready and
+ * close callbacks on to its own @c sdkDelegate.
  */
-@interface ApplilinkViewManager : NSObject
+@interface ApplilinkViewManager : NSObject <SdkViewDelegate>
 
 /**
  * @brief The SDK delegate that opened-notice and close-notice callbacks are relayed to.

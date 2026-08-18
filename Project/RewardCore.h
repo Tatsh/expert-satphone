@@ -23,6 +23,7 @@
 
 #import <UIKit/UIKit.h>
 
+#import "ApplilinkStore.h"
 #import "ApplilinkViewDelegate.h"
 
 @class ApplilinkParameters;
@@ -32,8 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The reward SDK's stateful core singleton.
+ *
+ * Acts as the hosted @c RewardWebViewController 's @c SdkViewDelegate, implementing the advert
+ * lifecycle and failure callbacks it forwards on to the Applilink delegate.
  */
-@interface RewardCore : NSObject
+@interface RewardCore : NSObject <SdkViewDelegate>
 
 /**
  * @brief The SDK initialisation flag: non-zero once the install record has been posted.
