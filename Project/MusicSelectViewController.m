@@ -166,10 +166,14 @@ static const double kMarkerSelectYPhone = 200.0; // @ghidraAddress 0x28f300
 static const CGFloat kMarkerZPosition = 3500.0;  // @ghidraAddress 0x28f1e8
 static const double kMarkerBannerWidth = 64.0;   // @ghidraAddress 0x28f1f0
 static const double kMarkerBannerHeight = 40.0;  // @ghidraAddress 0x28f1f8
-// The hidden far-open helper music view: origin size per idiom and device, artwork per idiom.
+// The hidden far-open helper music view: origin size per idiom and device, artwork per idiom. The
+// pad width comes from the 0x310 table's second slot (0x318) and the pad height from a standalone
+// pool value (0x200); they are not the same number.
 static const double kFarOpenYRetina = 100.0;     // @ghidraAddress 0x28f310
+static const double kFarOpenYPad = 220.0;        // @ghidraAddress 0x28f318
 static const double kFarOpenXRetina = 106.0;     // @ghidraAddress 0x28f320
 static const double kFarOpenX4Inch = 101.0;      // @ghidraAddress 0x28f328
+static const double kFarOpenXPad = 210.0;        // @ghidraAddress 0x28f200
 static const double kFarOpenArtworkPad = 160.0;  // @ghidraAddress 0x28f338
 static const double kFarOpenArtworkPhone = 80.0; // @ghidraAddress 0x28f330
 // The store "new" badge is rotated by this angle (radians).
@@ -766,9 +770,9 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
     // A hidden helper music view used for the far-open animation.
     JubeatDeviceType farDevice = JubeatAppDelegate.appDelegate.deviceType;
-    double farY = isPad ? 210.0 : kFarOpenYRetina;
+    double farY = isPad ? kFarOpenYPad : kFarOpenYRetina;
     double farX =
-        isPad ? 210.0 :
+        isPad ? kFarOpenXPad :
                 (farDevice == JubeatDeviceTypePhoneRetina4Inch ? kFarOpenX4Inch : kFarOpenXRetina);
     double farArtwork = isPad ? kFarOpenArtworkPad : kFarOpenArtworkPhone;
     farOpenMusicView = [[MusicView alloc] initWithFrame:CGRectMake(0.0, 0.0, farY, farX)
@@ -1211,9 +1215,11 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
         [downloader startDownloading];
     }
 
-    // The notification banner view, centred at the top of the screen.
+    // The notification banner view, centred at the top of the screen. The horizontal base is
+    // self.view.frame.size.width here (fcvtzs w21,d2 straight off -[view frame] at 0x1000266fc),
+    // not the UIScreen bounds width the earlier locals hold.
     int notifyWidth = isPad ? kNotifyWidthPad : kNotifyWidthPhone;
-    int notifyX = ((int)boundsWidth - notifyWidth);
+    int notifyX = ((int)self.view.frame.size.width - notifyWidth);
     if (notifyX < 0) {
         notifyX += 1;
     }
@@ -3908,7 +3914,11 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
         ++index;
     }
     CGFloat width = self.view.frame.size.width;
-    CGFloat direction = tunePage > currentPage ? 1.0 : kDetailPanelOffscreenDirection;
+    // The binary compares currentPage against tunePage (cmp w24,w20; fcsel ...,gt at 0x34294), so
+    // the leftward slide is taken only when currentPage is strictly greater; an equal page slides
+    // in from the right. Written tunePage-first this would flip the equal case, so keep the
+    // currentPage-first order.
+    CGFloat direction = currentPage > tunePage ? kDetailPanelOffscreenDirection : 1.0;
     farOpenMusicView.center = CGPointMake(width * 0.5 + direction * width, width * 0.5);
     [farOpenMusicView setInfo:foundTune];
     [self musicViewTapped:farOpenMusicView];
