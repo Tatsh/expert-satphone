@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief The current marker identifier, set when marker textures are loaded.
  * @ghidraAddress 0x817a0 (getter)
  */
-@property(nonatomic, readonly, nullable) NSString *currentMarker;
+@property(atomic, readonly, nullable) NSString *currentMarker;
 
 /**
  * @brief The per-theme hit-sound names, indexed by @c JubeatTheme .

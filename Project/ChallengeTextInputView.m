@@ -46,14 +46,14 @@ static NSString *const kFullWidthSpace = @"　";
 /** @ghidraAddress 0x9415c */
 - (void)resetView {
     self.nameBox.text = nil;
-    self.inputText = @"";
+    _inputText = @"";
     self.changeBtn.imageView.image = nil;
 }
 
 /** @ghidraAddress 0x941e4 */
 - (void)setDefaultText:(NSString *)text {
     self.nameBox.text = text;
-    self.inputText = text;
+    _inputText = text;
 }
 
 // Records the current field text as the backed-up input, clamping both the field and the backup to
@@ -64,12 +64,12 @@ static NSString *const kFullWidthSpace = @"　";
         return;
     }
     if (self.inputText.length > kMaxNameLength) {
-        self.inputText = [self.inputText substringWithRange:NSMakeRange(0, kMaxNameLength)];
+        _inputText = [self.inputText substringWithRange:NSMakeRange(0, kMaxNameLength)];
     }
     if (self.nameBox.text.length > kMaxNameLength) {
         self.nameBox.text = [self.nameBox.text substringWithRange:NSMakeRange(0, kMaxNameLength)];
     }
-    self.inputText = self.nameBox.text;
+    _inputText = self.nameBox.text;
 }
 
 #pragma mark - Committing

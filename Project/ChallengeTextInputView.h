@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak, nullable) id<ChallengeTextInputViewDelegate> aDelegate;
 /** @brief The last backed-up field text, clamped to 20 characters. @ghidraAddress 0x94904 (getter)
  */
-@property(nonatomic, strong, nullable) NSString *inputText;
+@property(nonatomic, readonly, nullable) NSString *inputText;
 
 /**
  * @brief Clears the field text, the backed-up text, and the button image.
