@@ -204,6 +204,14 @@ static const int kSeekRefinementPasses = 5;
 // The paste-button on-screen visibility band around the view's timeline area.
 static const double kPasteVisibleMargin = 100.0;
 
+// The clap button and the horizontal run that follows it (help, area-copy, area-delete) are
+// anchored at x = 306pt; the run steps right by each button's width plus an 8pt (help) or 20pt
+// (copy) gap.
+static const double kClapButtonRunX = 306.0; // @ghidraAddress 0x100294418
+// The gaps stepped along that run.
+static const double kHelpButtonGap = 8.0;
+static const double kAreaCopyGap = 20.0;
+
 @interface EditViewController () {
 @public
     BOOL isPad;
@@ -818,6 +826,8 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
     }
 
     __block double columnY;
+    // The help button's image width, carried into the area-button run's first step.
+    __block double helpImageWidth = 0.0;
     @autoreleasepool {
         UIImage *image = LoadScaledPngImage(kImageModeSwitch);
         [self.btnMode setBackgroundImage:image forState:UIControlStateNormal];
@@ -865,31 +875,38 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
         image = LoadScaledPngImage(kImageGridArrow);
         [self.btnSelGrid setImage:image forState:UIControlStateNormal];
 
-        image = LoadScaledPngImage(kImageClapOn);
-        [self.btnClap setBackgroundImage:image forState:UIControlStateNormal];
-        [self.btnClap setFrame:CGRectMake(kPasteButtonHiddenX,
+        // The clap button anchors the horizontal run at x = 306; its own frame origin is (306, 0).
+        // The run's next x is always the previous button's x plus that same button's image width
+        // and a gap: the binary reads each image's size before loading the next image, so the width
+        // fed into the accumulation is the previous button's, not the one about to be placed.
+        UIImage *clapImage = LoadScaledPngImage(kImageClapOn);
+        [self.btnClap setBackgroundImage:clapImage forState:UIControlStateNormal];
+        [self.btnClap setFrame:CGRectMake(kClapButtonRunX,
                                           0.0,
-                                          image.size.width,
-                                          image.size.height)]; // @ghidraAddress 0x10028f1d8
+                                          clapImage.size.width,
+                                          clapImage.size.height)]; // @ghidraAddress 0x100294418
         [self.btnClap setBackgroundColor:UIColor.clearColor];
 
-        image = LoadScaledPngImage(kImageHelpButton);
-        [self.btnHelp setBackgroundImage:image forState:UIControlStateNormal];
-        double helpY = (double)(int)(image.size.height + 8.0 + kPasteButtonHiddenX);
-        [self.btnHelp setFrame:CGRectMake(helpY, 0.0, image.size.width, image.size.height)];
-        columnY = kPasteButtonHiddenX;
+        columnY = (double)(int)(clapImage.size.width + kHelpButtonGap + kClapButtonRunX);
+        UIImage *helpImage = LoadScaledPngImage(kImageHelpButton);
+        [self.btnHelp setBackgroundImage:helpImage forState:UIControlStateNormal];
+        [self.btnHelp
+            setFrame:CGRectMake(columnY, 0.0, helpImage.size.width, helpImage.size.height)];
+        helpImageWidth = helpImage.size.width;
     }
 
     @autoreleasepool {
-        // The area buttons overlap the clap button's -100pt hidden origin, stepping 20pt then 32pt.
+        // Copy sits a 20pt gap past the help button (help x + help width + 20); delete abuts copy
+        // (copy x + copy width). Each frame is {x, 0, width, height}.
+        double copyY = (double)(int)(columnY + helpImageWidth + kAreaCopyGap);
         UIImage *image = LoadScaledPngImage(kImageAreaCopy);
         [self.btnAreaCpy setBackgroundImage:image forState:UIControlStateNormal];
-        double copyY = (double)(int)(columnY + image.size.height + 20.0);
         [self.btnAreaCpy setFrame:CGRectMake(copyY, 0.0, image.size.width, image.size.height)];
+        double copyImageWidth = image.size.width;
 
+        double delY = (double)(int)(copyY + copyImageWidth);
         image = LoadScaledPngImage(kImageAreaDelete);
         [self.btnAreaDel setBackgroundImage:image forState:UIControlStateNormal];
-        double delY = (double)(int)(copyY + image.size.height);
         [self.btnAreaDel setFrame:CGRectMake(delY, 0.0, image.size.width, image.size.height)];
 
         image = LoadScaledPngImage(kImageAreaPasteBase);
