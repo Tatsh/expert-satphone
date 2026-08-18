@@ -774,7 +774,7 @@ static inline void EditNoteRendererPhoneRenderFullcomboOut(EditNoteRendererPhone
 /** @ghidraAddress 0x210de0 */
 - (void)renderUpper {
     [self renderTuneInfo:CGPointMake(8.0, 15.0) artworkSize:80.0 alpha:1.0f];
-    [self renderMusicBar:CGPointMake(136.0, 0.0)
+    [self renderMusicBar:CGPointMake(0.0, 136.0)
                 timeline:(self.state == EditNotePhoneStatePlaying)
                    alpha:1.0f];
 }
@@ -807,7 +807,7 @@ static inline void EditNoteRendererPhoneRenderFullcomboOut(EditNoteRendererPhone
     float slideX = InterpolateFloatByFrame(28.0f, 8.0f, frame, 10, 0x14);
     [self renderTuneInfo:CGPointMake((double)slideX, 15.0) artworkSize:80.0 alpha:alpha];
     float barAlpha = InterpolateFloatByFrame(0.0f, 1.0f, frame, 0, 10);
-    [self renderMusicBar:CGPointMake(136.0, 0.0) timeline:NO alpha:barAlpha];
+    [self renderMusicBar:CGPointMake(0.0, 136.0) timeline:NO alpha:barAlpha];
     [self renderButtons];
     if (frame == 0x14) {
         [AudioManager.sharedManager playSeResFile:@"SD_MUON" inDirectory:nil];
