@@ -199,21 +199,23 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 
         isWave = NO;
         upperBgKnt = [[UpperBGKnit alloc] init];
+        // waveBottom is the GL view's height scaled by 0.48 (0x1002933d0), computed once before the
+        // per-idiom branch; waveTop is 60.0 (0x10028f8a0) in both arms. The rect and pulse height
+        // differ: the phone passes the title view's own frame with a 20.0 pulse, the pad passes a
+        // fixed 768x1024 rect with a 30.0 pulse.
+        float waveBottom = (float)(glView.frame.size.height * 0.47999999f); // 0x1002933d0
         if (!isPad) {
-            // The non-iPad arm sizes the wave from the view's frame (read and discarded) and uses
-            // the zero-rect overload with the smaller pulse height (20.0).
-            (void)glView.frame; // Yes, the binary reads and discards this.
-            (void)self.view.frame;
-            [upperBgKnt initBg:CGRectZero waveBottom:0.0f waveTop:0.0f pulseHeight:0.0f isPad:NO];
+            [upperBgKnt initBg:self.view.frame
+                    waveBottom:waveBottom
+                       waveTop:60.0f // 0x10028f8a0
+                   pulseHeight:20.0f // fmov s6, 20.0
+                         isPad:NO];
         } else {
-            // The iPad arm feeds the GL height (scaled by 0.48) as the wave-top, 768/1024 as the
-            // wave bounds size, 60.0 as the pulse baseline, and 30.0 as the pulse height.
-            (void)glView.frame; // Yes, the binary reads and discards this.
             [upperBgKnt initBg:CGRectMake(0.0, 0.0, 768.0, 1024.0) // 0x100292460, 0x10028e028
-                    waveBottom:0.0f
-                       waveTop:(float)(bgBounds.size.height * 0.47999999f) // 0x1002933d0
-                   pulseHeight:60.0f                                       // 0x10028f8a0
-                         isPad:YES]; // fmov s6 = 30.0 pulse; passed as isPad flag in the binary
+                    waveBottom:waveBottom
+                       waveTop:60.0f // 0x10028f8a0
+                   pulseHeight:30.0f // fmov s6, 30.0
+                         isPad:YES];
         }
 
         isPortrait = YES;
@@ -279,9 +281,11 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
     CGSize anime1Size = LoadScaledEncryptedTexImage(kTitleAnime1Name).size;
     int anime0Width = (int)(anime0Size.width + 0.0);
     int combinedWidth = (int)((double)anime0Width + anime1Size.width);
+    // The height is title_anime_1's raw CGSize height (the binary re-reads [image size] and takes
+    // the height field at 0x1cee40), not the integer anime0 width.
     optView = [[NteTitleOptionView alloc]
         initWithFrame:CGRectMake(
-                          (double)-combinedWidth, 0.0, (double)combinedWidth, (double)anime0Width)];
+                          (double)-combinedWidth, 0.0, (double)combinedWidth, anime1Size.height)];
     [self.view addSubview:optView];
 
     // The jubeat logo view is sized from the logo artwork scaled by phoneRate.
@@ -710,7 +714,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
     }
     [UIView setAnimationDidStopSelector:didStop];
     [UIView setAnimationDelegate:self];
-    [UIView setAnimationTransition:UIViewAnimationTransitionCurlUp forView:bgView cache:YES];
+    [UIView setAnimationTransition:UIViewAnimationTransitionCurlDown forView:bgView cache:YES];
     bgView.image = [self getBgImage:index];
     [UIView commitAnimations];
 }
@@ -721,7 +725,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
     [UIView setAnimationDuration:0.1]; // 0x10028f290
     [UIView setAnimationDidStopSelector:@selector(curlAnimEnd)];
     [UIView setAnimationDelegate:self];
-    [UIView setAnimationTransition:UIViewAnimationTransitionCurlDown forView:bgView cache:YES];
+    [UIView setAnimationTransition:UIViewAnimationTransitionCurlUp forView:bgView cache:YES];
     bgView.image = [self getBgImage:currentPage];
     [UIView commitAnimations];
 }

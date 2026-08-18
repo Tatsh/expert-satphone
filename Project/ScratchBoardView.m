@@ -84,10 +84,9 @@ static const float kBoardPhoneGridOriginBase = 90.0f;              // @ghidraAdd
                             (int)(rate * kBoardPhoneCellWidthBase * kBoardPhoneCellWidthSpan);
     int cellHeight = isPad ? kBoardCellHeightPad : (int)(rate * kBoardPhoneCellHeight);
     int step = cellWidth / kBoardColumns;
+    // The binary computes (step - cellHeight) / 2 once as a signed divide (cinc/asr at 0x81b10);
+    // the value is halved at each use site below, so cellInset holds the undivided difference.
     int cellInset = step - cellHeight;
-    if (cellInset < 0) {
-        cellInset += 1;
-    }
 
     // The grid's vertical origin: pushed up from the bottom on the pad, centred within the phone's
     // scaled span otherwise.
