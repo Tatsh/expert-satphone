@@ -589,7 +589,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 
 /** @ghidraAddress 0x150b68 */
 - (unsigned int)endButtonID {
-    return 0xf;
+    return 15;
 }
 
 /** @ghidraAddress 0x150b70 */
@@ -613,7 +613,7 @@ static inline const char *MainGameRendererPhoneRplDiffCode(int diff) {
 
 /** @ghidraAddress 0x150c20 */
 - (unsigned int)twitterSendButtonID {
-    return 0xe;
+    return 14;
 }
 
 /** @ghidraAddress 0x150c28 */

@@ -943,7 +943,7 @@ static const float kGridZoomMax = 1.0f;
 
 /** @ghidraAddress 0x20e420 */
 - (unsigned int)endButtonID {
-    return 0xf;
+    return 15;
 }
 
 #pragma mark - Drawing
