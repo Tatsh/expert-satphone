@@ -66,7 +66,7 @@
 /build/
 /dist/
 /logs/
-/screenshots/
+/screenshots*/
 /session-recover.yaml
 /theos/.theos/
 /theos/obj/

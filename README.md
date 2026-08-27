@@ -6,7 +6,6 @@
 [![License](https://img.shields.io/github/license/Tatsh/expert-satphone)](https://github.com/Tatsh/expert-satphone/blob/master/LICENSE.txt)
 [![GitHub commits since latest release (by SemVer including pre-releases)](https://img.shields.io/github/commits-since/Tatsh/expert-satphone/v3.9.11/master)](https://github.com/Tatsh/expert-satphone/compare/v3.9.11...master)
 [![Dependabot](https://img.shields.io/badge/Dependabot-enabled-blue?logo=dependabot)](https://github.com/dependabot)
-[![pages-build-deployment](https://github.com/Tatsh/expert-satphone/actions/workflows/pages/pages-build-deployment/badge.svg)](https://tatsh.github.io/expert-satphone/)
 [![Stargazers](https://img.shields.io/github/stars/Tatsh/expert-satphone?logo=github&style=flat)](https://github.com/Tatsh/expert-satphone/stargazers)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Tatsh/expert-satphone/master.svg)](https://results.pre-commit.ci/latest/github/Tatsh/expert-satphone/master)
 [![Prettier](https://img.shields.io/badge/Prettier-black?logo=prettier)](https://prettier.io/)

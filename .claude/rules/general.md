@@ -19,9 +19,7 @@ concrete repository change, do not edit project files.
 ---
 
 - Do not explain project structure or conventions in comments or docstrings.
-- Use 2 spaces for indentation. Exception: C-family sources (`.c`, `.h`, `.m`, `.mm`, `.cpp`) use 4
-  spaces per [c-cpp-objc.md](c-cpp-objc.md); the 2-space default is for JSON, YAML, TOML, Markdown,
-  and similar.
+- Use 2 spaces for indentation.
 - Files must end with a single newline character.
 - Keep lines shorter than 100 characters.
 - Line endings must be Unix-style (LF).
@@ -46,6 +44,8 @@ concrete repository change, do not edit project files.
   different directory.
 - Spell-check uses cspell with British English (`en-GB`). Exception: code identifiers must use
   American English (`ColorCode` not `ColourCode`).
+- Do not use `echo`, `cat`, `printf`, `python`, `perl`, or other shell commands to write to files.
+  Use `Write()` for new files and `Edit()` for existing files.
 
 ## Avoiding Permission Prompts
 

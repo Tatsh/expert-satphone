@@ -9,6 +9,7 @@ allranking
 analyzer
 analyzer's
 angjp
+Ångström
 anim
 apiurl
 appl
@@ -20,7 +21,6 @@ applist
 arakawa
 archs
 arith
-armv
 assetcatalog
 atsync
 autocapitalisation
@@ -31,11 +31,9 @@ autoreleased
 autoreleasepool
 autoreleases
 autoreleasing
-autoresize
 autoresizes
 autoresizing
 autoreverses
-backtrace
 badresponse
 badzipfile
 bagde
@@ -77,7 +75,6 @@ checkmark
 chksco
 cinc
 cjson
-classess
 cnonce
 codegen
 codesign
@@ -89,7 +86,6 @@ constexpr
 contoller
 contrib
 controll
-cooldown
 copysign
 corabo
 cosf
@@ -111,7 +107,6 @@ dcmake
 ddeployment
 deadcode
 deadstores
-deallocs
 debugfont
 decription
 demangled
@@ -251,9 +246,9 @@ jinja
 jsonnet
 jsonschema
 jubeat
-jubeat's
 jubeatmissiondata
 jubeatplus
+jubeat's
 jubeatskmpledata
 kabasawa
 katsuyoshi
@@ -358,7 +353,6 @@ nsuuid
 nullability
 nullptr
 numer
-nums
 objc
 objcpp
 objcxx
@@ -385,11 +379,8 @@ persional
 persision
 physmem
 plid
-plists
-plumesign
 pnlres
 pntmp
-polymorphically
 posision
 preapproved
 prefjubeat
@@ -434,6 +425,7 @@ ripgreprc
 rivalrank
 rodata
 rollup
+rollup's
 roundf
 rtti
 rturl
@@ -502,7 +494,6 @@ supportedi
 suya
 svbg
 sxtl
-symbolicate
 symbolicated
 symbolication
 sysctlbyname
@@ -512,7 +503,6 @@ takuji
 tanabe
 tatsh
 tbnz
-teardown
 terada
 texel
 texels
@@ -589,7 +579,6 @@ wnewline
 wnon
 wobjc
 worktree
-worktrees
 woverloaded
 wpointer
 wrange
@@ -600,8 +589,6 @@ wunreachable
 wunused
 xffu
 xform
-xref
-xrefs
 yarnrc
 yomi
 yoshito
@@ -615,4 +602,3 @@ zread
 zseek
 ztell
 zwrite
-Ångström
