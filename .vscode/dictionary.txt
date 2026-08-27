@@ -180,6 +180,7 @@ fullcombo
 fullwidth
 fumen
 fwrite
+gamecenterlist
 ghidra
 ghidra's
 gles
@@ -527,6 +528,7 @@ uintptr
 unapplied
 unarchiver
 undiceided
+undiscounted
 undraft
 undrafted
 unfetched

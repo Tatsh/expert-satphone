@@ -26,6 +26,11 @@ Building this source alone will not result in a playable game.
 A number of patches are applied for modern iOS. See [Build-time patches](PATCHES.md) for more
 information.
 
+The server API the app speaks is described in [openapi.yaml](openapi.yaml). A response schema there
+is a lower bound: the client ignores any field it does not need. It is browsable at
+[tatsh.github.io/expert-satphone/api/](https://tatsh.github.io/expert-satphone/api/), which shows
+each endpoint as a cURL, fetch, or other client call and can send the request.
+
 ## Status
 
 - Features that require online services are obviously non-functional.

@@ -1,0 +1,3366 @@
+components:
+  parameters:
+    ClientInfoDevice:
+      description: 'The `hw.machine` sysctl value, or the `UIDevice` model when that read fails.'
+      in: 'query'
+      name: 'device'
+      required: true
+      schema:
+        $ref: '#/components/schemas/DeviceName'
+    ClientInfoLocale:
+      in: 'query'
+      name: 'locale'
+      required: true
+      schema:
+        $ref: '#/components/schemas/Locale'
+    ClientInfoOs:
+      in: 'query'
+      name: 'os'
+      required: true
+      schema:
+        $ref: '#/components/schemas/SystemVersion'
+    ClientInfoUuid:
+      description: |
+        Despite the name this is not a device identifier: it is the MD5 of the music-list key with
+        the literal `STORE` appended.
+      in: 'query'
+      name: 'uuid'
+      required: true
+      schema:
+        $ref: '#/components/schemas/ClientUuid'
+    ClientInfoVersion:
+      in: 'query'
+      name: 'version'
+      required: true
+      schema:
+        $ref: '#/components/schemas/AppVersion'
+    LabUserID:
+      description: 'The editor identifier held in the keychain.'
+      in: 'path'
+      name: 'userID'
+      required: true
+      schema:
+        type: 'string'
+    SeqID:
+      description: 'The shared chart identifier.'
+      in: 'path'
+      name: 'seqID'
+      required: true
+      schema:
+        type: 'string'
+    Target:
+      description: 'The region code. The shipped build only ever sends `JP`.'
+      in: 'query'
+      name: 'target'
+      required: true
+      schema:
+        $ref: '#/components/schemas/RegionCode'
+  schemas:
+    AppVersion:
+      description: 'The bundle version, `3.9.11` in this tree.'
+      examples:
+        - '3.9.11'
+      type: 'string'
+    ArcadeSpot:
+      description: |
+        One arcade. The entry is dropped unless `ID`, `Lat`, `Long`, `Name`, and `Open` are all
+        present.
+      properties:
+        ID:
+          type: 'integer'
+        Lat:
+          format: 'double'
+          type: 'number'
+        Long:
+          format: 'double'
+          type: 'number'
+        Model:
+          description: |
+            The cabinet on site. `sau` draws the standard pin and `cop` the collaboration pin;
+            anything else draws the default. Note that the client assigns the `cop` pin and then
+            immediately overwrites it, so in practice a `cop` site draws the default pin.
+          enum:
+            - 'cop'
+            - 'sau'
+          type: 'string'
+        Name:
+          type: 'string'
+        Open:
+          description: 'Opening hours, rendered verbatim into the pin subtitle.'
+          type: 'string'
+      required:
+        - 'ID'
+        - 'Lat'
+        - 'Long'
+        - 'Name'
+        - 'Open'
+      type: 'object'
+    CampaignItem:
+      description: |
+        One serial-code campaign giveaway. The numbers and the unlock rule sit at the top level and
+        everything the player reads sits in the nested `v2` object.
+      properties:
+        campaignId:
+          type: 'integer'
+        foreignUrl:
+          description: 'An external link. Kept only when it parses as `http`/`https` and is not empty.'
+          format: 'uri'
+          type: 'string'
+        hideType:
+          description: 'Whether a still-locked item is listed at all.'
+          type: 'integer'
+        itemId:
+          description: 'The tune identifier, or the marker number for a marker item.'
+          type: 'integer'
+        itemType:
+          $ref: '#/components/schemas/CampaignItemType'
+        termsTable:
+          description: 'The unlock conditions, evaluated client-side by `-[CampaignItemInfo termCheck]`.'
+          type: 'array'
+        unlockType:
+          type: 'integer'
+        unlocked:
+          description: 'Whether the server already considers the item unlocked for this account.'
+          type: 'boolean'
+        v2:
+          properties:
+            bannerUrl:
+              description: 'Taken with no URL validation at all, unlike the other three.'
+              type: 'string'
+            copyright:
+              type: 'string'
+            description:
+              type: 'string'
+            iconUrl:
+              description: 'Kept as text rather than parsed, unlike `thumbnailUrl` and `foreignUrl`.'
+              format: 'uri'
+              type: 'string'
+            name:
+              type: 'string'
+            termsDescription:
+              type: 'string'
+            thumbnailUrl:
+              format: 'uri'
+              type: 'string'
+          type: 'object'
+      type: 'object'
+    CampaignItemType:
+      description: 'What a campaign giveaway hands over.'
+      enum:
+        - 1
+        - 2
+      type: 'integer'
+      x-enum-descriptions:
+        - 'A tune, fetched through `/agx/main/cgi/musicinfo_secure/`.'
+        - 'A marker, fetched from the URL the fetch endpoint returns.'
+    ChallengeStatus:
+      description: |
+        The whole of challenge mode's client state. `Init.json` returns every field; the other
+        endpoints return the subset they change, and the client applies each key only when present.
+      properties:
+        consume_play_coin:
+          description: 'Play coins one tune costs.'
+          type: 'integer'
+        consume_rest_coin:
+          description: 'Cubes a full play-coin refill costs.'
+          type: 'integer'
+        consume_scratch_cube:
+          description: 'Cubes scratching one panel costs.'
+          type: 'integer'
+        end:
+          $ref: '#/components/schemas/ServerTimestamp'
+        howto_url:
+          description: |
+            The help page. When absent the client falls back to
+            `https://agx11.s.konaminet.jp/agx/web/info/iOS/v1/Scratch/`.
+          format: 'uri'
+          type: 'string'
+        information_url:
+          description: 'Shown once per distinct value; the last one shown is remembered locally.'
+          format: 'uri'
+          type: 'string'
+        jCube:
+          description: 'The cube balance. Note the lower-case `j` and the capital `C`.'
+          type: 'integer'
+        music_list:
+          description: 'The tunes this event can award, keyed by `music_id` from `scratch_panel`.'
+          items:
+            $ref: '#/components/schemas/ChallengeTune'
+          type: 'array'
+        name:
+          description: "The player's challenge-mode name."
+          type: 'string'
+        personal_info_url:
+          format: 'uri'
+          type: 'string'
+        play_coin:
+          type: 'integer'
+        play_coin_limit:
+          type: 'integer'
+        present:
+          description: 'The number of unclaimed presents, not the presents themselves.'
+          type: 'integer'
+        recovery_base_time:
+          $ref: '#/components/schemas/ServerTimestamp'
+        recovery_time:
+          description: 'Seconds between play-coin refills.'
+          type: 'integer'
+        scratch_nail:
+          description: 'Free scratches remaining.'
+          type: 'integer'
+        scratch_panel:
+          description: |
+            The occupied board positions. Every position the array does not name stays empty; the
+            board is always sixteen cells regardless of how many entries arrive.
+          items:
+            $ref: '#/components/schemas/ScratchPanel'
+          type: 'array'
+        server_time:
+          $ref: '#/components/schemas/ServerTimestamp'
+        sheet_list:
+          additionalProperties:
+            $ref: '#/components/schemas/MissionSheet'
+          description: |
+            The mission sheets, keyed by sheet identifier as a decimal string. The client sorts the
+            keys numerically rather than lexically, so `10` follows `9`.
+          type: 'object'
+        user_id:
+          description: "The player's search identifier. Falls back to the keychain editor id when absent."
+          type: 'string'
+      type: 'object'
+    ChallengeTune:
+      description: 'One tune in the current event line-up.'
+      properties:
+        artist:
+          type: 'string'
+        data_url:
+          description: 'Where the chart archive is fetched from.'
+          format: 'uri'
+          type: 'string'
+        image_url:
+          description: 'The jacket, cached under the scratch image directory as `aw%09d.img`.'
+          format: 'uri'
+          type: 'string'
+        music_id:
+          type: 'integer'
+        name:
+          type: 'string'
+        pack_id:
+          description: 'The store pack this tune also belongs to, if any.'
+          type: 'integer'
+      type: 'object'
+    ClientInfo:
+      description: |
+        The five identity fields every signed request carries. `SessionDownloader` merges them into
+        the body; the store CGI takes the same five as query parameters instead.
+      properties:
+        device:
+          $ref: '#/components/schemas/DeviceName'
+        locale:
+          $ref: '#/components/schemas/Locale'
+        os:
+          $ref: '#/components/schemas/SystemVersion'
+        uuid:
+          $ref: '#/components/schemas/ClientUuid'
+        version:
+          $ref: '#/components/schemas/AppVersion'
+      required:
+        - 'device'
+        - 'locale'
+        - 'os'
+        - 'uuid'
+        - 'version'
+      type: 'object'
+    ClientInfoOnlyRequest:
+      allOf:
+        - $ref: '#/components/schemas/ClientInfo'
+        - properties:
+            cnonce:
+              $ref: '#/components/schemas/Cnonce'
+          type: 'object'
+      description: |
+        The body a request with no parameters of its own still sends: the nonce plus the five
+        client-info fields `SessionDownloader` merges in unconditionally.
+    ClientUuid:
+      description: |
+        The MD5 hex of the music-list key with `STORE` appended. It identifies the build, not the
+        device, so a capture that assumes otherwise is misreading it.
+      type: 'string'
+    Cnonce:
+      description: |
+        A per-request nonce, `rand()` rendered as a decimal string. It is echoed into the response
+        MAC, so the server must fold it back in.
+      examples:
+        - '1804289383'
+      type: 'string'
+    CubeItem:
+      description: 'One purchasable cube bundle. The identifier doubles as the App Store product id.'
+      properties:
+        description:
+          type: 'string'
+        item_id:
+          type: 'string'
+        name:
+          type: 'string'
+      type: 'object'
+    DeviceName:
+      description: 'The `hw.machine` sysctl value.'
+      examples:
+        - 'iPad4,1'
+      type: 'string'
+    LabStatus:
+      description: |
+        The jubeat Lab status code. Zero is success; the client special-cases the three values
+        below and treats everything else as a generic failure.
+      enum:
+        - 0
+        - 10160
+        - 30110
+        - 30170
+      type: 'integer'
+      x-enum-descriptions:
+        - 'Success.'
+        - 'The submission contains prohibited words; `Title`, `Editor`, and `Comm` name the offending fields.'
+        - 'The account is not usable.'
+        - 'The stored credentials are stale: replace the keychain from this response and retry.'
+    Locale:
+      description: 'The current locale identifier.'
+      examples:
+        - 'ja_JP'
+      type: 'string'
+    MarkerListDocument:
+      description: |
+        The marker catalogue. Each entry is downloaded in turn from its `ItemURL`; the body must
+        end in its own MD5 digest, which is checked before the marker is installed. The client
+        refuses the whole list if it holds fewer entries than the built-in marker count.
+      properties:
+        List:
+          items:
+            properties:
+              ID:
+                description: 'The marker identifier, `mk%04d`.'
+                type: 'string'
+              ItemURL:
+                format: 'uri'
+                type: 'string'
+              Version:
+                type: 'string'
+            type: 'object'
+          type: 'array'
+      type: 'object'
+    MissionReward:
+      description: 'A mission sheet reward. It carries no download URL; `FetchRewardUrl.json` vends that.'
+      properties:
+        description:
+          type: 'string'
+        image_url:
+          format: 'uri'
+          type: 'string'
+        item_id:
+          description: 'Defaults to the empty string when absent.'
+          type: 'string'
+        item_type:
+          $ref: '#/components/schemas/MissionRewardItemType'
+        name:
+          type: 'string'
+        reward_id:
+          type: 'integer'
+        version:
+          type: 'string'
+        view_end:
+          $ref: '#/components/schemas/ServerTimestamp'
+      type: 'object'
+    MissionRewardItemType:
+      description: |
+        What the reward hands over. Types 4 to 6 are fetched straight from the `item_url` the
+        reward-URL endpoint returns; the others route through the store.
+      enum:
+        - 4
+        - 5
+        - 6
+      type: 'integer'
+      x-enum-descriptions:
+        - 'A marker.'
+        - 'A sticker.'
+        - 'A second sticker class.'
+    MissionSheet:
+      description: 'One mission sheet.'
+      properties:
+        amount:
+          description: 'Missions completed on this sheet.'
+          type: 'integer'
+        confirm_flag:
+          description: |
+            The client treats mere presence of this key as the confirmed flag and never reads its
+            value, so any value at all marks the sheet confirmed.
+        is_event:
+          type: 'boolean'
+        mission_list:
+          additionalProperties:
+            $ref: '#/components/schemas/MissionTerm'
+          description: 'The missions, keyed by mission identifier as a decimal string.'
+          type: 'object'
+        name:
+          type: 'string'
+        reward:
+          $ref: '#/components/schemas/MissionReward'
+        sheet_id:
+          description: |
+            Present on a stand-alone sheet fetch. Inside `sheet_list` the client fills this in from
+            the map key instead.
+          type: 'integer'
+        total:
+          description: 'Missions on this sheet.'
+          type: 'integer'
+        version:
+          description: 'Defaults to the empty string when absent.'
+          type: 'string'
+        view_end:
+          $ref: '#/components/schemas/ServerTimestamp'
+        view_start:
+          $ref: '#/components/schemas/ServerTimestamp'
+      type: 'object'
+    MissionTerm:
+      description: 'One mission on a sheet.'
+      properties:
+        condition:
+          type: 'integer'
+        data:
+          description: 'The condition operand, whose meaning depends on `condition`.'
+        description:
+          type: 'string'
+        fee_skip:
+          description: 'Cubes it costs to skip this mission.'
+          type: 'integer'
+        id:
+          type: 'integer'
+        name:
+          type: 'string'
+      type: 'object'
+    Present:
+      description: 'One unclaimed present.'
+      properties:
+        name:
+          description: 'Rendered into the accept prompt.'
+          type: 'string'
+        present_id:
+          type: 'string'
+      type: 'object'
+    RankingEntry:
+      description: 'One ranking row.'
+      properties:
+        name:
+          type: 'string'
+        prize_count:
+          description: 'Clamped to two digits in the badge, so a value above 99 draws as 99.'
+          type: 'integer'
+        score:
+          type: 'integer'
+        user_id:
+          type: 'string'
+        user_type:
+          description: 'Type 7 draws the prize badge.'
+          type: 'integer'
+      type: 'object'
+    RegionCode:
+      description: 'The region. Only `JP` is ever sent.'
+      enum:
+        - 'JP'
+      type: 'string'
+    ScratchPanel:
+      description: |
+        One occupied board cell. `openUpdate` on the detail response adds `my_rank`; the list form
+        carries only the position and the tune.
+      properties:
+        music_id:
+          description: 'Zero, or absent, leaves the cell empty.'
+          type: 'integer'
+        position:
+          description: 'The board index this cell occupies.'
+          type: 'integer'
+      type: 'object'
+    ScratchResults:
+      additionalProperties:
+        properties:
+          is_fullcombo:
+            type: 'boolean'
+          rank:
+            type: 'integer'
+          score:
+            type: 'integer'
+        type: 'object'
+      description: |
+        Per-difficulty results, keyed by `BSC`, `ADV`, `EXT`, and `TOTAL`. A missing key leaves that
+        difficulty at score -1, rank -1, and no full combo.
+      type: 'object'
+    ServerError:
+      description: |
+        The shape every signed endpoint falls back to. A non-zero `status` means the request failed
+        and `err_message` carries the text to show; when it is missing the client shows its own
+        localised `ServerErrorMsg`.
+      properties:
+        err_message:
+          type: 'string'
+        status:
+          $ref: '#/components/schemas/Status'
+      required:
+        - 'status'
+      type: 'object'
+    ServerTimestamp:
+      description: |
+        A JST timestamp in the server's own format, `yyyy-MM-ddHH:mm:ss` — no separator between the
+        date and the time. A value that does not parse becomes a nil date rather than an error.
+      examples:
+        - '2015-04-0103:00:00'
+      type: 'string'
+    SocialRecommendRequest:
+      description: |
+        The body shared by the pack-search and the two share-text endpoints. The credentials are
+        sent only when the keychain holds an editor identity.
+      properties:
+        music_id:
+          type: 'integer'
+        target:
+          $ref: '#/components/schemas/RegionCode'
+        user_id:
+          type: 'string'
+        uuid:
+          $ref: '#/components/schemas/ClientUuid'
+      required:
+        - 'music_id'
+        - 'target'
+        - 'uuid'
+      type: 'object'
+    Status:
+      description: |
+        The result code. Zero is success. The 1012xx band is handled by the transport rather than
+        the caller: 101200 through 101202 make the client silently re-open its session and replay
+        the request, and 101203 either re-opens the session or ends the challenge-mode screen,
+        depending on the request's API tag.
+      examples:
+        - 0
+      type: 'integer'
+      x-status-codes:
+        100010: 'Accepted with no retry.'
+        100011: 'The client build is too old; the app shows its update prompt.'
+        101200: 'The session is stale. Re-opened and replayed transparently.'
+        101201: 'The session is stale. Re-opened and replayed transparently.'
+        101202: 'The session is stale. Re-opened and replayed transparently.'
+        101203: 'The session is dead. Re-opened for a session-scoped tag, otherwise fatal for the screen.'
+        103105: 'The rival is already registered.'
+        103107: 'The transfer code is not valid.'
+        103108: 'The transfer code is not valid.'
+        104208: 'Not enough cubes; the client offers the purchase screen.'
+        203102: 'Accepting this present would overflow the coin balance. Re-send with `agree` true to accept anyway.'
+        204103: 'The panel was already scratched, so no cubes were spent. The client treats this as success.'
+        206104: 'The coin balance is already at its limit.'
+    StoreGenre:
+      description: |
+        Extra presentation for one genre, keyed by genre identifier as a decimal string. Each field
+        is applied only when it is a non-empty string.
+      properties:
+        buttonImageUrl:
+          format: 'uri'
+          type: 'string'
+        color:
+          description: 'Slash-separated colour components.'
+          examples:
+            - '255/128/0'
+          type: 'string'
+        genreImageUrl:
+          format: 'uri'
+          type: 'string'
+        introduction:
+          type: 'string'
+      type: 'object'
+    StoreMusic:
+      description: |
+        One tune. A record whose `ID` is below 1 is rejected outright, before anything else is
+        read.
+      properties:
+        Artist:
+          type: 'string'
+        ArtworkURL:
+          description: 'Dropped unless it parses as an `http`/`https` URL.'
+          format: 'uri'
+          type: 'string'
+        ID:
+          type: 'integer'
+        ItemURL:
+          description: 'The chart archive. Stored unconditionally, unlike the three validated URLs.'
+          format: 'uri'
+          type: 'string'
+        Level:
+          description: |
+            Basic, advanced, and extreme levels in that order. All three are read or none: the
+            client requires more than two entries, and clamps each into 1-10.
+          items:
+            type: 'integer'
+          type: 'array'
+        Name:
+          type: 'string'
+        SampleURL:
+          description: 'Dropped unless it parses as an `http`/`https` URL.'
+          format: 'uri'
+          type: 'string'
+        extID:
+          description: |
+            The extended chart's tune identifier. Its presence makes the client synthesise a second
+            tune from this same record, with `extID` as the id and `extURL` as the item URL.
+          type: 'integer'
+        extURL:
+          format: 'uri'
+          type: 'string'
+        extendFlag:
+          type: 'integer'
+        holdFlag:
+          type: 'integer'
+        iTunesURL:
+          description: 'Dropped unless it parses as an `http`/`https` URL.'
+          format: 'uri'
+          type: 'string'
+        playable:
+          description: |
+            Becomes the synthesised extended tune's `extendFlag`, defaulting to 7 when the server
+            omits it.
+          type: 'integer'
+      required:
+        - 'ID'
+      type: 'object'
+    StorePack:
+      description: |
+        One pack. The list endpoints send the summary fields; the pack-info endpoints add
+        `MusicList` and the artist links.
+      properties:
+        ArtistBannerURL:
+          description: 'Used as the related-site link title.'
+          type: 'string'
+        ArtistURL:
+          format: 'uri'
+          type: 'string'
+        ArtworkURL:
+          format: 'uri'
+          type: 'string'
+        Comment:
+          type: 'string'
+        Copyright:
+          type: 'string'
+        HDArtworkURL:
+          description: 'Preferred over `ArtworkURL` on a retina iPad, when it is a valid URL.'
+          format: 'uri'
+          type: 'string'
+        ID:
+          description: 'The pack identifier. The App Store product is `jubeat.pack%05d` of this.'
+          type: 'integer'
+        IsNew:
+          type: 'boolean'
+        MusicList:
+          items:
+            $ref: '#/components/schemas/StoreMusic'
+          type: 'array'
+        Name:
+          type: 'string'
+        RegularPriceJPY:
+          description: |
+            The undiscounted yen price. Shown struck through, but only when the StoreKit price is
+            in yen and is lower than this.
+          type: 'number'
+        ShortComment:
+          type: 'string'
+        extData:
+          description: 'A value of 1 marks the pack as carrying extended charts.'
+          type: 'integer'
+      required:
+        - 'ID'
+      type: 'object'
+    StorePackListDocument:
+      description: |
+        The store listing. The client refuses the whole document when `Version` is newer than the
+        running build, before it looks at the packs at all, and treats an empty `PackList` as an
+        error rather than as an empty page.
+      properties:
+        Comment:
+          description: 'Read and then discarded by the client.'
+          type: 'string'
+        Date:
+          description: |
+            The server month as `YYYYMM`. A value newer than the stored one resets the monthly
+            spending total.
+          type: 'integer'
+        Error:
+          description: 'Shown when `PackList` is empty.'
+          type: 'string'
+        Genre:
+          description: |
+            Two parallel arrays: the genre identifiers, then their names, paired positionally.
+            Enumeration stops at whichever runs out first.
+          items:
+            type: 'array'
+          maxItems: 2
+          minItems: 2
+          type: 'array'
+        GenreMetaInfo:
+          additionalProperties:
+            $ref: '#/components/schemas/StoreGenre'
+          description: 'Keyed by genre identifier as a decimal string.'
+          type: 'object'
+        HasNext:
+          description: 'Whether another page follows this one.'
+          type: 'boolean'
+        PackList:
+          items:
+            $ref: '#/components/schemas/StorePack'
+          type: 'array'
+        Promotion:
+          items:
+            $ref: '#/components/schemas/StorePromotion'
+          type: 'array'
+        Version:
+          description: 'The minimum client version. A newer value stops the store dead.'
+          type: 'string'
+      type: 'object'
+    StorePolicyDocument:
+      description: |
+        The store terms of service. An empty `Version` or `PolicyVersion` is read as "the client
+        must update", and an empty `Policy` as "there is nothing to agree to".
+      properties:
+        Error:
+          description: 'Its presence alone suppresses the agreement flow.'
+          type: 'string'
+        ErrorMsg:
+          type: 'string'
+        Policy:
+          type: 'string'
+        PolicyVersion:
+          type: 'string'
+        Version:
+          description: 'The minimum client version.'
+          type: 'string'
+      type: 'object'
+    StorePromotion:
+      description: |
+        One promotion banner. The `ID` prefix decides what it links to: `p_` a pack, `g_` a genre.
+        An entry whose `ImageURL` is not a valid URL is dropped.
+      properties:
+        ID:
+          examples:
+            - 'p_00042'
+            - 'g_130'
+          type: 'string'
+        ImageURL:
+          format: 'uri'
+          type: 'string'
+        SampleURL:
+          format: 'uri'
+          type: 'string'
+      type: 'object'
+    SystemVersion:
+      description: 'The iOS version string.'
+      examples:
+        - '12.5.7'
+      type: 'string'
+info:
+  description: |
+    The HTTP API that jubeat plus speaks. A response schema here is a lower bound: the client
+    ignores any field it does not need.
+
+    Three separate services are described. The challenge-mode API on `agx11` is a signed JSON API;
+    the store CGI on `agx` is a query-string API whose responses carry a SHA-256 prefix; and jubeat
+    Lab is the editor-sharing service. Each path names the server it belongs to.
+
+    The bundled Applilink advertising SDK talks to its own hosts and is not part of this document.
+  license:
+    name: 'MIT'
+    url: 'https://github.com/Tatsh/expert-satphone/blob/master/LICENSE.txt'
+  summary: 'The HTTP API that jubeat plus (jp.konami.jubeatplus) uses.'
+  title: 'jubeat plus server API'
+  version: '3.9.11'
+openapi: '3.1.0'
+paths:
+  /agx/main/cgi/campaign/fetch/index.jsp:
+    post:
+      description: |
+        Fetches one campaign giveaway. A marker is downloaded straight from `URL`; a tune uses
+        `URL` only as a presence check and then goes to `/agx/main/cgi/musicinfo_secure/`.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                campId:
+                  description: 'The campaign identifier, as a decimal string.'
+                  type: 'string'
+                passwd:
+                  description: 'Sent only when the keychain holds an editor identity.'
+                  type: 'string'
+                target:
+                  $ref: '#/components/schemas/RegionCode'
+                userId:
+                  description: 'Sent only when the keychain holds an editor identity.'
+                  type: 'string'
+              required:
+                - 'campId'
+                - 'target'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  Error:
+                    type: 'string'
+                  Status:
+                    type: 'integer'
+                  URL:
+                    format: 'uri'
+                    type: 'string'
+                type: 'object'
+          description: 'The giveaway and where to fetch it.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Fetch one campaign giveaway.'
+      tags:
+        - 'campaign'
+  /agx/main/cgi/campaign/list/index.jsp:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                head:
+                  description: 'The index of the first campaign to return.'
+                  type: 'integer'
+                limit:
+                  type: 'integer'
+                passwd:
+                  description: 'Sent only when the keychain holds an editor identity.'
+                  type: 'string'
+                target:
+                  $ref: '#/components/schemas/RegionCode'
+                userId:
+                  description: 'Sent only when the keychain holds an editor identity.'
+                  type: 'string'
+              required:
+                - 'head'
+                - 'limit'
+                - 'target'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  Error:
+                    description: 'Shown when `Status` is not zero. An absent message shows nothing at all.'
+                    type: 'string'
+                  List:
+                    items:
+                      $ref: '#/components/schemas/CampaignItem'
+                    type: 'array'
+                  Status:
+                    type: 'integer'
+                type: 'object'
+          description: 'The campaign giveaways on offer.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'List the serial-code campaigns.'
+      tags:
+        - 'campaign'
+  /agx/main/cgi/campaign/verify/index.jsp:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                campId:
+                  description: 'The campaign identifier, as a decimal string.'
+                  type: 'string'
+                code:
+                  description: 'The serial code the player typed.'
+                  type: 'string'
+                passwd:
+                  description: 'Sent only when the keychain holds an editor identity.'
+                  type: 'string'
+                target:
+                  $ref: '#/components/schemas/RegionCode'
+                userId:
+                  description: 'Sent only when the keychain holds an editor identity.'
+                  type: 'string'
+              required:
+                - 'campId'
+                - 'code'
+                - 'target'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  Error:
+                    type: 'string'
+                  Status:
+                    description: 'Zero marks the item unlocked and starts the fetch.'
+                    type: 'integer'
+                type: 'object'
+          description: 'Whether the code unlocked the campaign.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Redeem a campaign serial code.'
+      tags:
+        - 'campaign'
+  /agx/main/cgi/check_marker/:
+    get:
+      description: |
+        Each entry is downloaded in turn from its `ItemURL`. The body must end in its own MD5
+        digest, which is checked before the marker is installed. The client refuses the whole list
+        if it holds fewer entries than the built-in marker count.
+      parameters:
+        - $ref: '#/components/parameters/Target'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkerListDocument'
+          description: 'The marker catalogue, behind the store signature prefix.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'List the downloadable markers.'
+      tags:
+        - 'store'
+  /agx/main/cgi/gamecenterlist/:
+    post:
+      description: |
+        The only form-encoded endpoint in the application, and the only one that sends a POST body
+        without a `Content-Type`. `range` is always 0.27.
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                lat:
+                  format: 'double'
+                  type: 'number'
+                long:
+                  format: 'double'
+                  type: 'number'
+                range:
+                  format: 'double'
+                  type: 'number'
+              required:
+                - 'lat'
+                - 'long'
+                - 'range'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  GameCenterList:
+                    items:
+                      $ref: '#/components/schemas/ArcadeSpot'
+                    type: 'array'
+                type: 'object'
+          description: 'The arcades near the point.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Search for arcades near a coordinate.'
+      tags:
+        - 'social'
+  /agx/main/cgi/knit/change_color/index.jsp:
+    get:
+      description: |
+        Fetched during the splash animation, alongside the campaign-type request. A campaign image
+        is cached enciphered on disk, so the cached file is not a usable PNG on its own.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  Array:
+                    description: 'The theme colour components.'
+                    type: 'array'
+                  imageName:
+                    description: |
+                      The campaign splash image. Its absence is meaningful: it clears the cached
+                      image.
+                    type: 'string'
+                  imageURL:
+                    description: 'Fetched only when no cached copy of `imageName` exists.'
+                    format: 'uri'
+                    type: 'string'
+                type: 'object'
+          description: 'The theme colours and the current campaign splash image.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Fetch the theme colours and campaign splash image.'
+      tags:
+        - 'session'
+  /agx/main/cgi/log/play/:
+    post:
+      description: |
+        Fire and forget: the response is never inspected. Note that `music_id` and `score` are sent
+        as strings here, unlike the challenge-mode score submission.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                difficulty:
+                  enum:
+                    - 'bas'
+                    - 'adv'
+                    - 'ext'
+                    - 'cus'
+                  type: 'string'
+                music_id:
+                  type: 'string'
+                score:
+                  type: 'string'
+                target:
+                  $ref: '#/components/schemas/RegionCode'
+                user_id:
+                  type: 'string'
+                uuid:
+                  $ref: '#/components/schemas/ClientUuid'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          description: 'Accepted. The body is never read.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Log a play of an edited chart.'
+      tags:
+        - 'telemetry'
+  /agx/main/cgi/musiclistfree_secure/:
+    get:
+      description: |
+        The client builds this URL but never sends it, so its response body is not documented.
+      parameters:
+        - $ref: '#/components/parameters/Target'
+        - in: 'query'
+          name: 'head'
+          required: true
+          schema:
+            type: 'integer'
+        - in: 'query'
+          name: 'limit'
+          required: true
+          schema:
+            type: 'integer'
+        - in: 'query'
+          name: 'key'
+          required: true
+          schema:
+            type: 'integer'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: 'object'
+          description: |
+            The free tunes, behind the store signature prefix. Its keys are not documented.
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'List the free tunes for a privilege key.'
+      tags:
+        - 'store'
+  /agx/main/cgi/musicinfo_secure/:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/Target'
+        - in: 'query'
+          name: 'music'
+          required: true
+          schema:
+            type: 'integer'
+        - $ref: '#/components/parameters/ClientInfoUuid'
+        - $ref: '#/components/parameters/ClientInfoVersion'
+        - $ref: '#/components/parameters/ClientInfoDevice'
+        - $ref: '#/components/parameters/ClientInfoOs'
+        - $ref: '#/components/parameters/ClientInfoLocale'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreMusic'
+          description: 'The tune, behind the store signature prefix.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Fetch one tune.'
+      tags:
+        - 'store'
+  /agx/main/cgi/new/:
+    get:
+      description: |
+        Drives the "new" badges on the tune-select screen. The client compares `UpdateTime` and
+        `ScratchId` against what it last saw locally.
+      parameters:
+        - $ref: '#/components/parameters/Target'
+        - $ref: '#/components/parameters/ClientInfoUuid'
+        - $ref: '#/components/parameters/ClientInfoVersion'
+        - $ref: '#/components/parameters/ClientInfoDevice'
+        - $ref: '#/components/parameters/ClientInfoOs'
+        - $ref: '#/components/parameters/ClientInfoLocale'
+        - description: 'Appended only when the keychain holds an editor identity.'
+          in: 'query'
+          name: 'userid'
+          required: false
+          schema:
+            type: 'string'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ScratchId:
+                    description: |
+                      The current event. A value above the last one seen lights the challenge-mode
+                      badge.
+                    type: 'integer'
+                  UpdateText:
+                    description: |
+                      The scrolling news ticker. Each entry is `{Message, Link}`; a `jbtstore://`
+                      or `jbtchallenge://` link navigates inside the app.
+                    items:
+                      properties:
+                        Link:
+                          type: 'string'
+                        Message:
+                          type: 'string'
+                      type: 'object'
+                    type: 'array'
+                  UpdateTime:
+                    description: 'Compared numerically against the last value seen, not parsed as a date.'
+                    type: 'string'
+                type: 'object'
+          description: 'The store news and badge state.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Fetch the store news ticker and badge state.'
+      tags:
+        - 'store'
+  /agx/main/cgi/optional_packlist/:
+    get:
+      description: |
+        Used to resolve the packs a restore returned. The client fetches them ten at a time and
+        sends no client-info query here.
+      parameters:
+        - $ref: '#/components/parameters/Target'
+        - description: 'Comma-separated pack identifiers.'
+          in: 'query'
+          name: 'packs'
+          required: true
+          schema:
+            examples:
+              - '12,34,56'
+            type: 'string'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePackListDocument'
+          description: |
+            The named packs, behind the store signature prefix. Only `PackList`, `Version`, and
+            `Error` are read on this path.
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Fetch a named set of packs.'
+      tags:
+        - 'store'
+  /agx/main/cgi/packinfo_secure/:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/Target'
+        - in: 'query'
+          name: 'pack'
+          required: true
+          schema:
+            type: 'integer'
+        - $ref: '#/components/parameters/ClientInfoUuid'
+        - $ref: '#/components/parameters/ClientInfoVersion'
+        - $ref: '#/components/parameters/ClientInfoDevice'
+        - $ref: '#/components/parameters/ClientInfoOs'
+        - $ref: '#/components/parameters/ClientInfoLocale'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePack'
+          description: |
+            The pack, behind the store signature prefix. A body with no usable `MusicList` is
+            reported as a server error, so the tune list is effectively required.
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Fetch one pack and its tunes.'
+      tags:
+        - 'store'
+  /agx/main/cgi/packlist_secure/:
+    get:
+      description: |
+        The store's main listing. The client refuses the whole response when `Version` is newer
+        than the running build, before it looks at the packs at all.
+      parameters:
+        - $ref: '#/components/parameters/Target'
+        - description: 'The index of the first pack to return.'
+          in: 'query'
+          name: 'head'
+          required: true
+          schema:
+            type: 'integer'
+        - in: 'query'
+          name: 'limit'
+          required: true
+          schema:
+            type: 'integer'
+        - description: 'Omitted entirely when zero, rather than sent as `genre=0`.'
+          in: 'query'
+          name: 'genre'
+          required: false
+          schema:
+            type: 'integer'
+        - $ref: '#/components/parameters/ClientInfoUuid'
+        - $ref: '#/components/parameters/ClientInfoVersion'
+        - $ref: '#/components/parameters/ClientInfoDevice'
+        - $ref: '#/components/parameters/ClientInfoOs'
+        - $ref: '#/components/parameters/ClientInfoLocale'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePackListDocument'
+          description: 'The store listing, behind the store signature prefix.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'List packs, genres, and promotions.'
+      tags:
+        - 'store'
+  /agx/main/cgi/policy/store/:
+    get:
+      description: |
+        The store terms of service. The client sends the agreed revision it has stored, and treats
+        an empty `Version` or `PolicyVersion` as "must update".
+      parameters:
+        - $ref: '#/components/parameters/Target'
+        - description: 'The revision already agreed to, or the empty string.'
+          in: 'query'
+          name: 'version'
+          required: true
+          schema:
+            type: 'string'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePolicyDocument'
+          description: 'The store terms, behind the store signature prefix.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Fetch the store terms of service.'
+      tags:
+        - 'terms'
+  /agx/main/cgi/recommend/facebook/:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialRecommendRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  Message:
+                    description: 'The text pre-filled into the share sheet.'
+                    type: 'string'
+                type: 'object'
+          description: |
+            Plain JSON, not a signed body: the social endpoints are the exception to the store
+            CGI's signature prefix.
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Fetch the Facebook share text for a tune.'
+      tags:
+        - 'social'
+  /agx/main/cgi/recommend/twitter/:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialRecommendRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  Message:
+                    description: 'The text pre-filled into the share sheet.'
+                    type: 'string'
+                type: 'object'
+          description: 'Plain JSON, not a signed body.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Fetch the Twitter share text for a tune.'
+      tags:
+        - 'social'
+  /agx/main/cgi/recommended_pack/:
+    post:
+      description: |
+        Answers "which pack contains this tune". The client sends the body as a POST while still
+        putting the tune in the query string, so both carry it.
+      parameters:
+        - $ref: '#/components/parameters/Target'
+        - in: 'query'
+          name: 'music'
+          required: true
+          schema:
+            type: 'integer'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialRecommendRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ID:
+                    description: 'The pack identifier.'
+                    type: 'integer'
+                  Message:
+                    description: 'Only read on the share-text variants of this request.'
+                    type: 'string'
+                type: 'object'
+          description: |
+            The pack, behind the store signature prefix. A body with no `ID` is reported to the
+            player as "pack not found".
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Find the pack that contains a tune.'
+      tags:
+        - 'store'
+  /agx/main/cgi/restore_packinfo_secure/:
+    get:
+      description: 'The restore-flow twin of `/agx/main/cgi/packinfo_secure/`.'
+      parameters:
+        - $ref: '#/components/parameters/Target'
+        - in: 'query'
+          name: 'pack'
+          required: true
+          schema:
+            type: 'integer'
+        - $ref: '#/components/parameters/ClientInfoUuid'
+        - $ref: '#/components/parameters/ClientInfoVersion'
+        - $ref: '#/components/parameters/ClientInfoDevice'
+        - $ref: '#/components/parameters/ClientInfoOs'
+        - $ref: '#/components/parameters/ClientInfoLocale'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePack'
+          description: 'The pack, behind the store signature prefix.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Fetch a previously purchased pack and its tunes.'
+      tags:
+        - 'store'
+  /agx/main/cgi/reward/check/:
+    post:
+      description: |
+        The cross-promotion reward check. `reward_id` 0 asks for the list of reward campaigns; a
+        subsequent call names one of them. The response must echo the nonce or the whole check is
+        abandoned.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                appli_id:
+                  description: 'Always sent empty by the shipped build.'
+                  items:
+                    type: 'string'
+                  type: 'array'
+                nonce:
+                  description: 'A random string the response must echo as `Nonce`.'
+                  type: 'string'
+                passwd:
+                  description: 'Sent only when the keychain holds an editor identity.'
+                  type: 'string'
+                reward_id:
+                  description: 'The campaign, as a decimal string. `0` requests the campaign list.'
+                  type: 'string'
+                target:
+                  $ref: '#/components/schemas/RegionCode'
+                user_id:
+                  description: 'Sent only when the keychain holds an editor identity.'
+                  type: 'string'
+              required:
+                - 'appli_id'
+                - 'nonce'
+                - 'reward_id'
+                - 'target'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  Nonce:
+                    description: |
+                      Must equal the `nonce` that was sent. A mismatch ends the check silently, so
+                      this is the endpoint's real authentication.
+                    type: 'string'
+                  RewardIDList:
+                    description: |
+                      The campaigns. Only those whose `Version` is newer than the running build are
+                      queued.
+                    items:
+                      properties:
+                        RewardID:
+                          type: 'integer'
+                        Version:
+                          type: 'string'
+                      type: 'object'
+                    type: 'array'
+                  RewardList:
+                    description: 'The apps credited for this campaign.'
+                    items:
+                      properties:
+                        AppliID:
+                          type: 'string'
+                        Point:
+                          type: 'integer'
+                      type: 'object'
+                    type: 'array'
+                type: 'object'
+          description: 'The reward campaigns and their credited apps.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Check the cross-promotion rewards.'
+      tags:
+        - 'telemetry'
+  /agx/main/cgi/startup/:
+    get:
+      description: |
+        Read at the title screen. `SvTime` also gates the hidden April Fools flags: on 1 April the
+        client turns on rectangle waves, random marker direction, and auto-play.
+      parameters:
+        - $ref: '#/components/parameters/Target'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  AnotherURL:
+                    description: 'The information-list page. Stored enciphered locally.'
+                    format: 'uri'
+                    type: 'string'
+                  Status:
+                    type: 'integer'
+                  SvTime:
+                    description: 'Server time as `YYYYMMddHHmmss`.'
+                    type: 'string'
+                  URL:
+                    description: 'The notification page, adopted only when `UpdateTime` is newer than the stored one.'
+                    format: 'uri'
+                    type: 'string'
+                  UpdateTime:
+                    description: 'As `YYYYMMddHHmm`.'
+                    type: 'string'
+                type: 'object'
+          description: 'Server time and the notification page URLs.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'Fetch server time and the notification page URLs.'
+      tags:
+        - 'session'
+  /agx/main/news/passed_info.jsp:
+    get:
+      description: |
+        Opened in a web view from the settings screen, as the fallback when no information-list URL
+        has been stored.
+      responses:
+        '200':
+          content:
+            text/html:
+              schema:
+                type: 'string'
+          description: 'The past-notifications page.'
+      servers:
+        - url: 'https://agx.s.konaminet.jp'
+      summary: 'The past-notifications web page.'
+      tags:
+        - 'session'
+  /aqq/api/JP/v1/policy:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  MsgUser:
+                    type: 'string'
+                  Policy:
+                    description: 'The document text. An empty document is treated as "nothing to agree to".'
+                    type: 'string'
+                  Status:
+                    $ref: '#/components/schemas/LabStatus'
+                type: 'object'
+          description: 'The editor terms of service.'
+      servers:
+        - url: 'https://jubeat-lab.s.game.konami.jp'
+      summary: 'Fetch the editor terms of service.'
+      tags:
+        - 'lab'
+  /aqq/api/JP/v1/policy/lastUpdate:
+    get:
+      description: |
+        Fetched before the document itself: the client only downloads the policy when this date is
+        later than the one it has agreed to.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  LastUpdate:
+                    description: 'As `YYYY-MM-dd HH:mm:ss`.'
+                    type: 'string'
+                  Status:
+                    $ref: '#/components/schemas/LabStatus'
+                type: 'object'
+          description: 'When the editor terms last changed.'
+      servers:
+        - url: 'https://jubeat-lab.s.game.konami.jp'
+      summary: 'Fetch the editor terms revision date.'
+      tags:
+        - 'lab'
+  /aqq/api/JP/v1/seqs/{seqID}:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/SeqID'
+        - description: 'The editor identifier.'
+          in: 'query'
+          name: 'userID'
+          required: true
+          schema:
+            type: 'string'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  JcfData:
+                    contentEncoding: 'base64'
+                    description: 'The chart file.'
+                    type: 'string'
+                  MsgUser:
+                    type: 'string'
+                  SeqID:
+                    type: 'string'
+                  Status:
+                    $ref: '#/components/schemas/LabStatus'
+                  UserType:
+                    type: 'integer'
+                type: 'object'
+          description: 'The shared chart.'
+      servers:
+        - url: 'https://jubeat-lab.s.game.konami.jp'
+      summary: 'Download a shared chart.'
+      tags:
+        - 'lab'
+  /aqq/api/JP/v1/seqs/{seqID}/Like:
+    post:
+      parameters:
+        - $ref: '#/components/parameters/SeqID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                musicID:
+                  type: 'integer'
+                userID:
+                  description: 'The literal `ERRUSR` when the keychain holds no editor identity.'
+                  type: 'string'
+              required:
+                - 'musicID'
+                - 'userID'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    description: 'Lower-case here, unlike the other jubeat Lab endpoints.'
+                    type: 'integer'
+                type: 'object'
+          description: 'Whether the vote was recorded.'
+      servers:
+        - url: 'https://jubeat-lab.s.game.konami.jp'
+      summary: 'Vote a shared chart up.'
+      tags:
+        - 'lab'
+  /aqq/api/JP/v1/seqs/{seqID}/Played:
+    post:
+      parameters:
+        - $ref: '#/components/parameters/SeqID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                musicID:
+                  type: 'integer'
+                userID:
+                  description: 'The literal `ERRUSR` when the keychain holds no editor identity.'
+                  type: 'string'
+              required:
+                - 'musicID'
+                - 'userID'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: 'integer'
+                type: 'object'
+          description: 'Whether the play was recorded.'
+      servers:
+        - url: 'https://jubeat-lab.s.game.konami.jp'
+      summary: 'Record a play of a shared chart.'
+      tags:
+        - 'lab'
+  /aqq/api/JP/v1/seqs/{seqID}/VoteLevel:
+    post:
+      parameters:
+        - $ref: '#/components/parameters/SeqID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                level:
+                  description: 'The difficulty the player thinks the chart deserves.'
+                  type: 'integer'
+                musicID:
+                  type: 'integer'
+                userID:
+                  description: 'The literal `ERRUSR` when the keychain holds no editor identity.'
+                  type: 'string'
+              required:
+                - 'level'
+                - 'musicID'
+                - 'userID'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: 'integer'
+                type: 'object'
+          description: 'Whether the vote was recorded.'
+      servers:
+        - url: 'https://jubeat-lab.s.game.konami.jp'
+      summary: 'Vote on a shared chart difficulty.'
+      tags:
+        - 'lab'
+  /aqq/api/JP/v1/users:
+    post:
+      description: 'Mints the editor identity, which is then held in the keychain.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                uuid:
+                  $ref: '#/components/schemas/ClientUuid'
+              required:
+                - 'uuid'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  MsgUser:
+                    type: 'string'
+                  Passwd:
+                    type: 'string'
+                  Status:
+                    $ref: '#/components/schemas/LabStatus'
+                  UserID:
+                    type: 'string'
+                type: 'object'
+          description: |
+            The new identity. A response missing either `UserID` or `Passwd` fails with no message,
+            whatever `Status` says.
+      servers:
+        - url: 'https://jubeat-lab.s.game.konami.jp'
+      summary: 'Create an editor identity.'
+      tags:
+        - 'lab'
+  /aqq/api/JP/v1/users/SpecialUser:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                userID:
+                  type: 'string'
+                userName:
+                  type: 'string'
+                userType:
+                  type: 'integer'
+              required:
+                - 'userID'
+                - 'userName'
+                - 'userType'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  MsgUser:
+                    type: 'string'
+                  Status:
+                    $ref: '#/components/schemas/LabStatus'
+                type: 'object'
+          description: 'Whether the account was created.'
+      servers:
+        - url: 'https://jubeat-lab.s.game.konami.jp'
+      summary: 'Create a named editor account.'
+      tags:
+        - 'lab'
+  /aqq/api/JP/v1/users/{userID}/Session:
+    post:
+      description: 'Opens the web session the editor pages run under.'
+      parameters:
+        - $ref: '#/components/parameters/LabUserID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                passwd:
+                  type: 'string'
+              required:
+                - 'passwd'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  MsgUser:
+                    type: 'string'
+                  Status:
+                    $ref: '#/components/schemas/LabStatus'
+                type: 'object'
+          description: 'Whether the session opened. The session itself rides on the response cookies.'
+      servers:
+        - url: 'https://jubeat-lab.s.game.konami.jp'
+      summary: 'Open an editor web session.'
+      tags:
+        - 'lab'
+  /aqq/api/JP/v1/users/{userID}/Session2:
+    post:
+      description: 'The top-page twin of `Session`, with the same body and response.'
+      parameters:
+        - $ref: '#/components/parameters/LabUserID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                passwd:
+                  type: 'string'
+              required:
+                - 'passwd'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  MsgUser:
+                    type: 'string'
+                  Status:
+                    $ref: '#/components/schemas/LabStatus'
+                type: 'object'
+          description: 'Whether the session opened.'
+      servers:
+        - url: 'https://jubeat-lab.s.game.konami.jp'
+      summary: 'Open an editor top-page session.'
+      tags:
+        - 'lab'
+  /aqq/api/JP/v1/users/{userID}/seqs:
+    post:
+      parameters:
+        - $ref: '#/components/parameters/LabUserID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                jcfData:
+                  contentEncoding: 'base64'
+                  description: 'The chart file.'
+                  type: 'string'
+                passwd:
+                  type: 'string'
+                uuid:
+                  $ref: '#/components/schemas/ClientUuid'
+              required:
+                - 'jcfData'
+                - 'passwd'
+                - 'uuid'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  Comm:
+                    description: 'On status 10160, the rejected comment.'
+                    type: 'string'
+                  Editor:
+                    description: 'On status 10160, the rejected editor name.'
+                    type: 'string'
+                  MsgUser:
+                    type: 'string'
+                  Status:
+                    $ref: '#/components/schemas/LabStatus'
+                  Title:
+                    description: 'On status 10160, the rejected title.'
+                    type: 'string'
+                type: 'object'
+          description: |
+            The upload result. On status 30170 the response also carries `UserID` and `Passwd`,
+            which replace the keychain before the upload is retried.
+      servers:
+        - url: 'https://jubeat-lab.s.game.konami.jp'
+      summary: 'Upload an edited chart.'
+      tags:
+        - 'lab'
+  /common/iOS/v1/BeginSession.json:
+    post:
+      description: |
+        Opens the signed session. `SessionDownloader` sends this automatically whenever it holds no
+        session cookies, or when a 1012xx status says the session went stale, and then replays the
+        request that triggered it. It is never called directly by a screen.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                passwd:
+                  type: 'string'
+                target:
+                  $ref: '#/components/schemas/RegionCode'
+                user_id:
+                  type: 'string'
+              required:
+                - 'cnonce'
+                - 'passwd'
+                - 'target'
+                - 'user_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: |
+            The session. What matters is the `Set-Cookie` header, which every later request carries;
+            the body is only checked for its status.
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Open a signed session.'
+      tags:
+        - 'session'
+  /common/iOS/v1/FetchCampaign.json:
+    post:
+      description: |
+        Fetched during the splash animation. Campaign 1 switches the theme to the Hinabita
+        collaboration; campaign 2 turns on the Naga-Cora mode that also enables the map pin.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientInfoOnlyRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  camp_list:
+                    items:
+                      properties:
+                        id:
+                          enum:
+                            - 1
+                            - 2
+                          type: 'integer'
+                      type: 'object'
+                    type: 'array'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: 'The collaboration campaigns currently running.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Fetch the running collaboration campaigns.'
+      tags:
+        - 'session'
+  /common/iOS/v1/FetchCampaignMap.json:
+    post:
+      description: 'Only requested while the Naga-Cora campaign is running.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientInfoOnlyRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  camp_map_list:
+                    description: 'Only the first entry is used; the rest are ignored.'
+                    items:
+                      properties:
+                        description:
+                          type: 'string'
+                        name:
+                          type: 'string'
+                        pos_x:
+                          description: 'Latitude, despite the name.'
+                          format: 'double'
+                          type: 'number'
+                        pos_y:
+                          description: 'Longitude, despite the name.'
+                          format: 'double'
+                          type: 'number'
+                      type: 'object'
+                    type: 'array'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: 'Where to draw the campaign pin.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Fetch the campaign map pin.'
+      tags:
+        - 'social'
+  /common/iOS/v1/FetchJcubeList.json:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                target:
+                  $ref: '#/components/schemas/RegionCode'
+                user_id:
+                  type: 'string'
+              required:
+                - 'target'
+                - 'user_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  item:
+                    description: 'An empty array is treated as an error, not as an empty catalogue.'
+                    items:
+                      $ref: '#/components/schemas/CubeItem'
+                    type: 'array'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  sum:
+                    description: 'The running purchase total, used for the monthly spending cap.'
+                    type: 'integer'
+                type: 'object'
+          description: 'The cube bundles on sale.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'List the purchasable cube bundles.'
+      tags:
+        - 'purchase'
+  /common/iOS/v1/FetchPolicy.json:
+    post:
+      description: |
+        Serves four separate documents, selected by `type`. Sending `revision` -1 asks for the
+        current one.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                revision:
+                  description: 'The revision already agreed to, or -1 for the current one.'
+                  type: 'integer'
+                target:
+                  $ref: '#/components/schemas/RegionCode'
+                type:
+                  description: |
+                    1 the content usage terms, 2 the in-game currency terms, 3 the challenge-mode
+                    policy, 4 the Payment Services Act notice, 8 the notice for minors.
+                  enum:
+                    - 1
+                    - 2
+                    - 3
+                    - 4
+                    - 8
+                  type: 'integer'
+              required:
+                - 'target'
+                - 'type'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  policy:
+                    description: |
+                      The document text. An empty string means there is nothing to agree to, which
+                      the client treats as success rather than as an error.
+                    type: 'string'
+                  revision:
+                    description: 'Recorded locally once the player agrees.'
+                    type: 'string'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: 'The requested document.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Fetch a terms or policy document.'
+      tags:
+        - 'terms'
+  /common/iOS/v1/RegistPushToken.json:
+    post:
+      description: 'Sent once per install, the first time the tune-select screen appears with a token in hand.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                token:
+                  description: 'The APNs device token.'
+                  type: 'string'
+                user_id:
+                  type: 'string'
+              required:
+                - 'token'
+                - 'user_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: |
+            The result. The client marks the token sent regardless of what comes back, so a failure
+            here is not retried until the next install.
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Register the push token.'
+      tags:
+        - 'session'
+  /common/iOS/v1/SendSumPrice.json:
+    post:
+      description: |
+        Reports the locally accumulated spend before challenge mode opens, so the server can apply
+        the monthly cap.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                sum:
+                  type: 'integer'
+              required:
+                - 'sum'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: 'Whether the total was accepted.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Report the accumulated purchase total.'
+      tags:
+        - 'purchase'
+  /common/iOS/v1/VerifyReceipt.json:
+    post:
+      description: |
+        Verifies an App Store receipt server-side. Two body shapes reach the same endpoint: a
+        non-consumable purchase or restore sends `products` and `prices`, while a consumable
+        (a cube bundle) sends `sku`, `price`, `market`, and the credentials.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+                - description: 'The pack purchase and restore form.'
+                  properties:
+                    cnonce:
+                      $ref: '#/components/schemas/Cnonce'
+                    prices:
+                      description: 'One entry per product, -1 where the price is unknown.'
+                      items:
+                        type: 'integer'
+                      type: 'array'
+                    products:
+                      items:
+                        type: 'string'
+                      type: 'array'
+                    receipt:
+                      contentEncoding: 'base64'
+                      type: 'string'
+                  required:
+                    - 'prices'
+                    - 'products'
+                    - 'receipt'
+                  type: 'object'
+                - description: 'The consumable (cube) form.'
+                  properties:
+                    cnonce:
+                      $ref: '#/components/schemas/Cnonce'
+                    market:
+                      description: 'Always 1.'
+                      type: 'integer'
+                    passwd:
+                      description: 'Sent only when the keychain holds an editor identity.'
+                      type: 'string'
+                    price:
+                      items:
+                        type: 'integer'
+                      type: 'array'
+                    receipt:
+                      contentEncoding: 'base64'
+                      type: 'string'
+                    sku:
+                      description: 'The App Store product identifier, prefixed `jubeat.cube`.'
+                      type: 'string'
+                    target:
+                      $ref: '#/components/schemas/RegionCode'
+                    user_id:
+                      description: 'Sent only when the keychain holds an editor identity.'
+                      type: 'string'
+                  required:
+                    - 'market'
+                    - 'price'
+                    - 'receipt'
+                    - 'sku'
+                    - 'target'
+                  type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: |
+            Whether the receipt verified. Fields beyond `status` are not documented.
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Verify an App Store receipt.'
+      tags:
+        - 'purchase'
+  /common/store/iOS/v1/RecommendPack.json:
+    post:
+      description: 'Drives the "you might also like" strip on a pack detail screen.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                pack_id:
+                  description: 'The pack being viewed.'
+                  type: 'integer'
+                user_id:
+                  type: 'string'
+              required:
+                - 'pack_id'
+                - 'user_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  pack_list:
+                    description: 'Each entry needs only `ID`; the rest is resolved through StoreKit.'
+                    items:
+                      properties:
+                        ID:
+                          type: 'integer'
+                      type: 'object'
+                    type: 'array'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: 'The recommended packs.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Fetch packs recommended alongside one pack.'
+      tags:
+        - 'store'
+  /info/iOS/v1/Inquiry/:
+    get:
+      description: |
+        Opened in a web view. The page uses an `openurl://` scheme for links that should leave the
+        app, which the controller rewrites to `https://`.
+      responses:
+        '200':
+          content:
+            text/html:
+              schema:
+                type: 'string'
+          description: 'The inquiry form.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'The player inquiry web page.'
+      tags:
+        - 'session'
+  /log/iOS/v1/PushNotificationReaction.json:
+    post:
+      description: |
+        Sent with no delegate, so nothing observes the outcome. The body is built with
+        `setValue:forKey:`, which means a missing push identifier drops the key rather than raising.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                push_id:
+                  type: 'string'
+                status:
+                  description: '1 launched from the notification, 2 received in the foreground, 3 tapped in-app.'
+                  enum:
+                    - 1
+                    - 2
+                    - 3
+                  type: 'integer'
+                user_id:
+                  type: 'string'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          description: 'Accepted. The body is never read.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Report what the player did with a push notification.'
+      tags:
+        - 'telemetry'
+  /log/iOS/v1/RegistAge.json:
+    post:
+      description: |
+        Records the age band the player selected, which sets the monthly spending cap. The value is
+        the selected button index minus one.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                age:
+                  type: 'integer'
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+              required:
+                - 'age'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: 'Whether the age band was accepted.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Register the age band.'
+      tags:
+        - 'purchase'
+  /scratch/iOS/v1/ExchangeItem.json:
+    post:
+      description: |
+        Spends cubes. `item_type` 1 scratches the panel at `position`; `item_type` 2 refills the
+        play coins and takes neither other field.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                item_type:
+                  enum:
+                    - 1
+                    - 2
+                  type: 'integer'
+                position:
+                  description: 'Sent for `item_type` 1 only.'
+                  type: 'integer'
+                scratch_id:
+                  description: 'Sent for `item_type` 1 only.'
+                  type: 'integer'
+              required:
+                - 'item_type'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ServerError'
+                  - $ref: '#/components/schemas/ChallengeStatus'
+          description: |
+            The updated balances, plus the revealed panel for `item_type` 1. Status 204103 means
+            the panel was already scratched: the client rewrites the status to zero, applies the
+            body anyway, and tells the player no cubes were spent.
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Spend cubes on a scratch or a coin refill.'
+      tags:
+        - 'scratch'
+  /scratch/iOS/v1/FetchMusicInfo.json:
+    post:
+      description: 'Opens the detail panel for one board cell.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                kind:
+                  description: 'Always 0 in the shipped build.'
+                  type: 'integer'
+                music_id:
+                  type: 'integer'
+                scratch_id:
+                  type: 'integer'
+              required:
+                - 'kind'
+                - 'music_id'
+                - 'scratch_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  my_rank:
+                    $ref: '#/components/schemas/ScratchResults'
+                  server_time:
+                    $ref: '#/components/schemas/ServerTimestamp'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: "The player's results on that tune."
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: "Fetch one tune's detail and results."
+      tags:
+        - 'scratch'
+  /scratch/iOS/v1/FetchPresent.json:
+    post:
+      description: |
+        Accepts or declines one present. A coin-overflow refusal (203102) is re-sent with `agree`
+        true once the player confirms.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                agree:
+                  description: 'True accepts even when it would overflow the balance.'
+                  type: 'boolean'
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                present_id:
+                  type: 'string'
+              required:
+                - 'agree'
+                - 'present_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ServerError'
+                  - $ref: '#/components/schemas/ChallengeStatus'
+                  - properties:
+                      message:
+                        description: |
+                          Shown on success, and preferred over `err_message` on failure. Falls back
+                          to the client's own text when absent.
+                        type: 'string'
+                    type: 'object'
+          description: 'The updated balances after the present was applied.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Accept or decline a present.'
+      tags:
+        - 'present'
+  /scratch/iOS/v1/FetchPresentList.json:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                target:
+                  $ref: '#/components/schemas/RegionCode'
+                user_id:
+                  type: 'string'
+              required:
+                - 'target'
+                - 'user_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  present:
+                    items:
+                      $ref: '#/components/schemas/Present'
+                    type: 'array'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: 'The unclaimed presents. The array length also becomes the badge count.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'List the unclaimed presents.'
+      tags:
+        - 'present'
+  /scratch/iOS/v1/FetchPrevScratchInfo.json:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                prev:
+                  description: 'Always 1.'
+                  type: 'integer'
+              required:
+                - 'prev'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  music_list:
+                    description: |
+                      The previous event line-up. Each entry needs `music_id`, `name`, and
+                      `image_url`; the artwork is downloaded separately.
+                    items:
+                      $ref: '#/components/schemas/ChallengeTune'
+                    type: 'array'
+                  scratch_id:
+                    description: 'The previous event, which the ranking requests then quote.'
+                    type: 'integer'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: "The previous event's line-up."
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: "Fetch the previous event's line-up."
+      tags:
+        - 'ranking'
+  /scratch/iOS/v1/FetchRanking.json:
+    post:
+      description: 'One page of a ranking. A page is thirty rows.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                difficulty:
+                  description: '0 basic, 1 advanced, 2 extreme, 3 total.'
+                  type: 'integer'
+                head:
+                  type: 'integer'
+                kind:
+                  description: '0 the country-wide ranking, 1 the rival ranking.'
+                  enum:
+                    - 0
+                    - 1
+                  type: 'integer'
+                limit:
+                  type: 'integer'
+                music_id:
+                  description: 'Zero asks for the all-tunes ranking.'
+                  type: 'integer'
+                scratch_id:
+                  type: 'integer'
+              required:
+                - 'difficulty'
+                - 'head'
+                - 'kind'
+                - 'limit'
+                - 'music_id'
+                - 'scratch_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  has_next:
+                    type: 'boolean'
+                  my_position:
+                    description: "The player's row index. Defaults to `my_rank` when absent."
+                    type: 'integer'
+                  my_rank:
+                    type: 'integer'
+                  rank:
+                    items:
+                      $ref: '#/components/schemas/RankingEntry'
+                    type: 'array'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  total:
+                    description: 'The number of ranked players, not the number of rows returned.'
+                    type: 'integer'
+                  updated:
+                    description: |
+                      When the all-tunes ranking last changed. Rendered into the header only for
+                      the current event.
+                    type: 'string'
+                type: 'object'
+          description: 'One page of the ranking.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Fetch a page of a ranking.'
+      tags:
+        - 'ranking'
+  /scratch/iOS/v1/FetchRivalList.json:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                target:
+                  $ref: '#/components/schemas/RegionCode'
+                user_id:
+                  type: 'string'
+              required:
+                - 'target'
+                - 'user_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  rival:
+                    description: |
+                      One two-element array per rival: the name first, then the identifier. Note
+                      that this is the opposite order to `FetchNameById.json`.
+                    items:
+                      items:
+                        type: 'string'
+                      type: 'array'
+                    type: 'array'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: 'The registered rivals.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'List the registered rivals.'
+      tags:
+        - 'rival'
+  /scratch/iOS/v1/Init.json:
+    post:
+      description: |
+        Opens challenge mode and returns its entire state. `RefreshDisplay.json` is the cheaper
+        follow-up once the client has been initialised at least once.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/ClientInfo'
+                - properties:
+                    cnonce:
+                      $ref: '#/components/schemas/Cnonce'
+                    markerID:
+                      description: 'The marker the player currently has selected.'
+                      type: 'string'
+                  type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ServerError'
+                  - $ref: '#/components/schemas/ChallengeStatus'
+          description: 'The full challenge-mode state.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Open challenge mode.'
+      tags:
+        - 'challenge'
+  /scratch/iOS/v1/ManageRival.json:
+    post:
+      description: |
+        Adds or removes a rival. The client builds the same request from two different URL
+        accessors, `registRivalURL` and `removeRivalURL`, which return this same path.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                is_add:
+                  description: 'True registers, false unregisters.'
+                  type: 'boolean'
+                rival_id:
+                  type: 'string'
+              required:
+                - 'is_add'
+                - 'rival_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: |
+            Whether the change took. Status 103105 means the rival was already registered, which
+            the client reports as its own message rather than as an error.
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Register or unregister a rival.'
+      tags:
+        - 'rival'
+  /scratch/iOS/v1/RefreshDisplay.json:
+    post:
+      description: |
+        The same request and response as `Init.json`, sent instead of it once the client has been
+        initialised. It refreshes the balances, the board, and the mission sheets, but not the
+        identity or the event timing.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/ClientInfo'
+                - properties:
+                    cnonce:
+                      $ref: '#/components/schemas/Cnonce'
+                    markerID:
+                      type: 'string'
+                  type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ServerError'
+                  - $ref: '#/components/schemas/ChallengeStatus'
+          description: 'The refreshed challenge-mode state.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Refresh the challenge-mode state.'
+      tags:
+        - 'challenge'
+  /scratch/iOS/v1/ScratchCell.json:
+    post:
+      description: 'Spends one free scratch on a board cell.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                position:
+                  type: 'integer'
+                scratch_id:
+                  type: 'integer'
+              required:
+                - 'position'
+                - 'scratch_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ServerError'
+                  - $ref: '#/components/schemas/ChallengeStatus'
+          description: 'The revealed cell and the updated balances.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Scratch one board cell.'
+      tags:
+        - 'scratch'
+  /scratch/iOS/v1/SendScore.json:
+    post:
+      description: |
+        Submits a challenge-mode result. `session_seed` is the value `StartPlay.json` returned,
+        which is what ties the score to a play the server authorised.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                difficulty:
+                  type: 'integer'
+                is_fullcombo:
+                  description: 'True for a full combo or an excellent.'
+                  type: 'boolean'
+                music_id:
+                  type: 'integer'
+                scratch_id:
+                  type: 'integer'
+                score:
+                  type: 'integer'
+                session_seed:
+                  type: 'string'
+              required:
+                - 'difficulty'
+                - 'is_fullcombo'
+                - 'music_id'
+                - 'scratch_id'
+                - 'score'
+                - 'session_seed'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: 'Whether the score was recorded.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Submit a challenge-mode score.'
+      tags:
+        - 'scratch'
+  /scratch/iOS/v1/StartPlay.json:
+    post:
+      description: 'Spends the play coins and authorises one play.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                difficulty_num:
+                  type: 'integer'
+                music_id:
+                  type: 'integer'
+                scratch_id:
+                  type: 'integer'
+              required:
+                - 'difficulty_num'
+                - 'music_id'
+                - 'scratch_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ServerError'
+                  - $ref: '#/components/schemas/ChallengeStatus'
+                  - properties:
+                      session_seed:
+                        description: 'Quoted back by `SendScore.json` when the play finishes.'
+                        type: 'string'
+                    type: 'object'
+          description: 'The play authorisation and the updated coin balance.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Start a challenge-mode play.'
+      tags:
+        - 'scratch'
+  /scratch/mission/iOS/v1/CheckAchievement.json:
+    post:
+      description: |
+        The client builds this URL but never sends it, so neither body is documented.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: 'Not documented.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Check mission achievements.'
+      tags:
+        - 'mission'
+  /scratch/mission/iOS/v1/CloseMissionAchievement.json:
+    post:
+      description: |
+        The client builds this URL but never sends it, so neither body is documented.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: 'Not documented.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Dismiss a mission achievement.'
+      tags:
+        - 'mission'
+  /scratch/mission/iOS/v1/FetchMissionList.json:
+    post:
+      description: |
+        The client builds this URL but never sends it: the sheets it uses arrive inside
+        `sheet_list` on `Init.json`.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: 'Not documented.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Fetch the missions on one sheet.'
+      tags:
+        - 'mission'
+  /scratch/mission/iOS/v1/FetchRewardList.json:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientInfoOnlyRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  reward_list:
+                    items:
+                      $ref: '#/components/schemas/MissionReward'
+                    type: 'array'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: 'The rewards already earned. An empty list shows the "no rewards" placeholder.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'List the earned mission rewards.'
+      tags:
+        - 'mission'
+  /scratch/mission/iOS/v1/FetchRewardUrl.json:
+    post:
+      description: |
+        Vends the download URL for one earned reward. Item types 4 to 6 are fetched straight from
+        `item_url`; the others route back through the store.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                reward_id:
+                  type: 'integer'
+              required:
+                - 'reward_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  item_url:
+                    format: 'uri'
+                    type: 'string'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: 'Where to fetch the reward.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Fetch a reward download URL.'
+      tags:
+        - 'mission'
+  /scratch/mission/iOS/v1/FetchSheetList.json:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientInfoOnlyRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  sheet_list:
+                    additionalProperties:
+                      $ref: '#/components/schemas/MissionSheet'
+                    description: |
+                      Keyed by sheet identifier as a decimal string, sorted numerically by the
+                      client.
+                    type: 'object'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: 'The mission sheets. An empty map shows the "no missions" placeholder.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'List the mission sheets.'
+      tags:
+        - 'mission'
+  /scratch/mission/iOS/v1/SkipMission.json:
+    post:
+      description: |
+        The client builds this URL but never sends it, so neither body is documented. `fee_skip` on
+        each mission is the cube cost this would charge.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: 'Not documented.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Skip a mission for cubes.'
+      tags:
+        - 'mission'
+  /scratch/mission/iOS/v1/UpdateAchievement.json:
+    post:
+      description: 'Claims the missions the client believes are complete.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                term_id:
+                  items:
+                    type: 'integer'
+                  type: 'array'
+              required:
+                - 'term_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: 'Whether the achievements were recorded.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Claim completed missions.'
+      tags:
+        - 'mission'
+  /user/iOS/v1/ChangeName.json:
+    post:
+      description: |
+        Sets the challenge-mode display name. The accessor that builds this URL is called
+        `getUserNameURL`, which reads as a fetch; it is a write.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                name:
+                  type: 'string'
+              required:
+                - 'name'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: |
+            Whether the name took. On success the client records the name it sent, not one echoed
+            back, so any server-side normalisation is lost until the next `Init.json`.
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Set the challenge-mode display name.'
+      tags:
+        - 'challenge'
+  /user/iOS/v1/ConfirmUserId.json:
+    post:
+      description: |
+        Step two of a device transfer: checks the code and describes the account it belongs to. A
+        response with a `user_id` but no `password` means the code is the player's own account, and
+        the client refuses the transfer.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                token:
+                  type: 'string'
+              required:
+                - 'token'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  password:
+                    type: 'string'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  user_id:
+                    type: 'string'
+                type: 'object'
+          description: |
+            The account behind the code. Statuses 103107 and 103108 both mean the code is invalid.
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Check a transfer code.'
+      tags:
+        - 'challenge'
+  /user/iOS/v1/FetchNameById.json:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                user_id:
+                  description: "The search identifier the player typed, not the caller's own id."
+                  type: 'string'
+              required:
+                - 'user_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  name:
+                    description: |
+                      Despite the key, an array of matches: the client reads `name[0][0]` as the
+                      identifier and `name[0][1]` as the display name. An empty array means no
+                      match.
+                    items:
+                      items:
+                        type: 'string'
+                      type: 'array'
+                    type: 'array'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                type: 'object'
+          description: 'The matching player.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Look up a player by search identifier.'
+      tags:
+        - 'rival'
+  /user/iOS/v1/FetchTransferToken.json:
+    post:
+      description: |
+        Step one of a device transfer: issues the code the new device types in. Note that the
+        passphrase key is `pass` here, not `passwd` as everywhere else.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                pass:
+                  type: 'string'
+                user_id:
+                  type: 'string'
+              required:
+                - 'pass'
+                - 'user_id'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  err_message:
+                    type: 'string'
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  token:
+                    description: 'The transfer code, shown to the player.'
+                    type: 'string'
+                type: 'object'
+          description: 'The issued transfer code.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Issue a device transfer code.'
+      tags:
+        - 'challenge'
+  /user/iOS/v1/FinishTransferUserId.json:
+    post:
+      description: |
+        Step three of a device transfer. On success the client swaps its keychain to the identity
+        `ConfirmUserId.json` returned, which also clears every stored cookie.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                cnonce:
+                  $ref: '#/components/schemas/Cnonce'
+                token:
+                  type: 'string'
+              required:
+                - 'token'
+              type: 'object'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          description: 'Whether the transfer completed.'
+      servers:
+        - url: 'https://agx11.s.konaminet.jp/agx/api'
+      summary: 'Complete a device transfer.'
+      tags:
+        - 'challenge'
+servers:
+  - description: |
+      The challenge-mode API. Every request is a JSON POST signed with a SHA-256 MAC of the body
+      plus a fixed salt in `JBT_REQUEST_MAC`, and the reply's `JBT_RESPONSE_MAC` is checked the same
+      way with the request's `cnonce` folded in. A reply whose MAC does not verify is discarded
+      before it is parsed, so a replacement server has to reproduce both.
+    url: 'https://agx11.s.konaminet.jp/agx/api'
+  - description: |
+      The store and news CGI. Requests are unsigned, but most replies carry a **store signature
+      prefix**: the first 64 bytes are the lower-case SHA-256 hex of the whole body with those same
+      64 bytes overwritten by a fixed 64-byte salt, and the JSON document follows them. A body
+      shorter than 64 bytes, or one whose digest does not match, is discarded without being parsed,
+      so a replacement server has to reproduce the prefix. The endpoints whose response is
+      described as sitting "behind the store signature prefix" are the ones this applies to; the
+      others (`/new/`, `/startup/`, `/knit/change_color/`, `/gamecenterlist/`, the campaign JSPs,
+      `/reward/check/`, and the two `/recommend/` share-text endpoints) return plain JSON.
+    url: 'https://agx.s.konaminet.jp'
+  - description: 'The jubeat Lab editor-sharing service. Unsigned JSON over cookie sessions.'
+    url: 'https://jubeat-lab.s.game.konami.jp'
+tags:
+  - description: 'Start-up, device registration, campaigns, and the splash-screen fetches.'
+    name: 'session'
+  - description: 'Opening and refreshing challenge mode, the display name, and device transfers.'
+    name: 'challenge'
+  - description: 'The scratch board: revealing cells, spending cubes, and playing tunes.'
+    name: 'scratch'
+  - description: 'Mission sheets, their missions, and their rewards.'
+    name: 'mission'
+  - description: 'Rival search, registration, and listing.'
+    name: 'rival'
+  - description: 'Country-wide and rival rankings, current and previous events.'
+    name: 'ranking'
+  - description: 'Unclaimed presents.'
+    name: 'present'
+  - description: 'The in-app catalogue: packs, tunes, markers, and promotions.'
+    name: 'store'
+  - description: 'Serial-code campaigns and their giveaways.'
+    name: 'campaign'
+  - description: 'Receipt verification, cube bundles, and the monthly spending cap.'
+    name: 'purchase'
+  - description: 'Terms of service listing and fetching.'
+    name: 'terms'
+  - description: 'Play logs, push reactions, and cross-promotion rewards.'
+    name: 'telemetry'
+  - description: 'Arcade search, campaign map pins, and share text.'
+    name: 'social'
+  - description: 'jubeat Lab, the editor chart-sharing service.'
+    name: 'lab'
