@@ -49,7 +49,9 @@ components:
       schema:
         type: 'string'
     Target:
-      description: 'The region code. The shipped build only ever sends `JP`.'
+      description: |
+        The region code. The shipped build always sends `JP`, but the server treats it as optional
+        and answers in English when it is absent.
       in: 'query'
       name: 'target'
       required: true
@@ -463,7 +465,9 @@ components:
           type: 'integer'
       type: 'object'
     RegionCode:
-      description: 'The region. Only `JP` is ever sent.'
+      description: |
+        The region. `JP` is the only value the client sends and the only one that selects Japanese
+        copy; the server falls back to English for anything else.
       enum:
         - 'JP'
       type: 'string'
@@ -572,6 +576,21 @@ components:
           type: 'string'
         introduction:
           type: 'string'
+      type: 'object'
+    StoreError:
+      description: |
+        Replaces the expected document during a maintenance window, behind the same signature
+        prefix. The message is localised from `target`: Japanese for `JP`, English when the
+        parameter is absent.
+      examples:
+        - Error: |-
+            サーバのメンテナンス中です。
+            ご不便をおかけしますが、メンテナンス終了までお待ちください。
+      properties:
+        Error:
+          type: 'string'
+      required:
+        - 'Error'
       type: 'object'
     StoreMusic:
       description: |
@@ -929,8 +948,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MarkerListDocument'
-          description: 'The marker catalogue, behind the store signature prefix.'
+                anyOf:
+                  - $ref: '#/components/schemas/MarkerListDocument'
+                  - $ref: '#/components/schemas/StoreError'
+          description: |
+            The marker catalogue, behind the store signature prefix. The client never reads `Error`
+            here, so a maintenance reply reaches it as a list too short to use and raises its own
+            retry-or-skip alert.
       servers:
         - url: 'https://agx.s.konaminet.jp'
       summary: 'List the downloadable markers.'
@@ -3332,6 +3356,9 @@ servers:
       described as sitting "behind the store signature prefix" are the ones this applies to; the
       others (`/new/`, `/startup/`, `/knit/change_color/`, `/gamecenterlist/`, the campaign JSPs,
       `/reward/check/`, and the two `/recommend/` share-text endpoints) return plain JSON.
+
+      During a maintenance window a signed endpoint answers with `StoreError` in place of its usual
+      document, still behind the prefix.
     url: 'https://agx.s.konaminet.jp'
   - description: 'The jubeat Lab editor-sharing service. Unsigned JSON over cookie sessions.'
     url: 'https://jubeat-lab.s.game.konami.jp'
