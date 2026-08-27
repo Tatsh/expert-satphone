@@ -466,11 +466,18 @@ static const int kScoreUploaderTag = 1;
 // The result-screen "decide" menu sound-effect base name.
 static NSString *const kDecideSoundName = @"OK"; // @ghidraAddress 0x2d4d80
 
+#ifdef ENABLE_PATCHES
+// Preservation patch, not in the binary. The message the binary builds (0x2d4e20) ends with the
+// App Store URL at 0x2d4e00, which points at a listing that no longer exists, so the patched
+// message stops after the hashtag and takes the tune name and score alone.
+static NSString *const kPatchTweetMessageFormat = @"%@をプレー！ Score:%d #jubeat_plus";
+#else
 // The result-share tweet message format (tune name, score, and the App Store URL) and the URL.
 static NSString *const kTweetMessageFormat =
     @"%@をプレー！ Score:%d #jubeat_plus %@"; // @ghidraAddress 0x2d4e20
 static NSString *const kTweetURL =
     @"https://itunes.apple.com/jp/app/jubeat-plus/id395192484"; // @ghidraAddress 0x2d4e00
+#endif
 
 // The number of good-job sound-effect variants selected at random: the binary reduces rand()
 // modulo 3, so only SD_EEFMN_00 through SD_EEFMN_02 are ever played.
@@ -834,10 +841,15 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
                     // The image view is built and discarded; the tweet carries the raw image.
                     (void)[[UIImageView alloc] initWithImage:tweetImage];
                     int score = self.sequence.getScore->totalPoint;
+#ifdef ENABLE_PATCHES
+                    NSString *message = [NSString
+                        stringWithFormat:kPatchTweetMessageFormat, self.currentTune.name, score];
+#else
                     NSString *message = [NSString stringWithFormat:kTweetMessageFormat,
                                                                    self.currentTune.name,
                                                                    score,
                                                                    kTweetURL];
+#endif
                     [self sendTwitter:tweetImage mesStr:message];
                 }
             }
@@ -2013,6 +2025,38 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
 
 /** @ghidraAddress 0x1a3f0 */
 - (void)sendTwitter:(UIImage *)image mesStr:(NSString *)mesStr {
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. Apple withdrew the Twitter service from
+    // Social.framework after iOS 10, so +composeViewControllerForServiceType: now answers nil, the
+    // -setInitialText: and -addImage: below go to nil, and presenting nil raises. The result image
+    // is composited entirely offline, so the only dead part is the delivery, and the system share
+    // sheet delivers the same image and text to whichever apps are installed.
+    //
+    // The completion handler must not dismiss anything. SLComposeViewController stays up until it
+    // is dismissed, which is why the faithful arm below does it; UIActivityViewController has
+    // already dismissed itself by the time the handler runs, so the same call would find nothing
+    // presented and travel up to dismiss the game.
+    //
+    // In a regular size class the sheet is a popover and raises unless it is given an anchor. The
+    // twitter button is the panel the player just touched, and the view is a fallback for the
+    // teardown paths that clear it.
+    self->bIsOpenSocialSend = YES;
+    NSArray *items = (image != nil) ? @[ mesStr, image ] : @[ mesStr ];
+    UIActivityViewController *sheet = [[UIActivityViewController alloc] initWithActivityItems:items
+                                                                        applicationActivities:nil];
+    sheet.completionWithItemsHandler =
+        ^(UIActivityType activityType, BOOL completed, NSArray *returnedItems, NSError *error) {
+          self->bIsOpenSocialSend = NO;
+        };
+    UIPopoverPresentationController *popover = sheet.popoverPresentationController;
+    if (popover != nil) {
+        UIView *anchor = self.twitterBtn ?: self.view;
+        popover.sourceView = anchor;
+        popover.sourceRect = anchor.bounds;
+        popover.permittedArrowDirections = UIPopoverArrowDirectionAny;
+    }
+    [self presentViewController:sheet animated:YES completion:nil];
+#else
     self->bIsOpenSocialSend = YES;
     SLComposeViewController *composer =
         [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
@@ -2027,6 +2071,7 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
       }
     }];
     [self presentViewController:composer animated:YES completion:nil];
+#endif
 }
 
 #pragma mark - Pack-ID download

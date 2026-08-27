@@ -191,6 +191,6 @@
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false />
     <key>CADisableMinimumFrameDurationOnPhone</key>
-    <true />@APP_USER_INTERFACE_STYLE_ENTRY@
+    <true />@APP_USER_INTERFACE_STYLE_ENTRY@@APP_PHOTO_LIBRARY_ADD_USAGE_ENTRY@
   </dict>
 </plist>

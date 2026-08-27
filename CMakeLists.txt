@@ -132,6 +132,18 @@ else()
     set(APP_USER_INTERFACE_STYLE_ENTRY "")
 endif()
 
+# Preservation patch, not in the original plist. The patched result screen offers the system share
+# sheet, whose stock Save Image activity needs add-only photo library access. Without the key iOS
+# terminates the app the moment that activity is chosen, so it accompanies the share-sheet patch.
+if(ENABLE_PATCHES)
+    string(
+        CONCAT APP_PHOTO_LIBRARY_ADD_USAGE_ENTRY
+        "\n    <key>NSPhotoLibraryAddUsageDescription</key>"
+        "\n    <string>Saves the result image to your photo library.</string>")
+else()
+    set(APP_PHOTO_LIBRARY_ADD_USAGE_ENTRY "")
+endif()
+
 set(INFO_PLIST "${CMAKE_CURRENT_BINARY_DIR}/Info.plist")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in" "${INFO_PLIST}" @ONLY)
 

@@ -296,6 +296,37 @@ it and never completes would leave every later tap on every row dead. This patch
 that, and it did not need to — the rows respond, so the latch was not what was swallowing the taps.
 It remains a live hazard on the download path, where the servers no longer answer.
 
+### Result-screen tweet sharing
+
+**File:** `Project/GameViewController.m` — `-sendTwitter:mesStr:` (0x1a3f0) and the message the
+result handler builds from the format at 0x2d4e20 and the URL at 0x2d4e00.
+
+_Modern iOS._ Tapping the twitter panel on the result screen composites a 540×380 image through
+`-[ResultTweet generateTweetImage]` (0xbc1c8) and hands it to `-sendTwitter:mesStr:`, which posts it
+with an `SLComposeViewController` for `SLServiceTypeTwitter`. Apple withdrew that service from
+`Social.framework` after iOS 10, so `+composeViewControllerForServiceType:` answers nil, the
+`-setInitialText:` and `-addImage:` that follow go to nil, and presenting nil raises. Nothing
+upstream is broken — the frame archives are bundled and the image is composited offline — so only
+the delivery is dead. The patch presents a `UIActivityViewController` carrying the same text and
+image, which reaches whichever apps are installed.
+
+Two differences from the composer are deliberate. The binary's completion handler dismisses the
+composer because `SLComposeViewController` stays up until it is dismissed;
+`UIActivityViewController` has already dismissed itself by the time its handler runs, so the same
+call would find nothing presented and travel up to dismiss the game view controller. And the sheet
+is a popover in a regular size class, which raises without an anchor, so it is anchored on the
+twitter button — the panel the player just touched — with the view as a fallback for the teardown
+paths that clear the button.
+
+`bIsOpenSocialSend` keeps its meaning: it is raised on present and cleared on completion, so the
+end-button guard at 0x1a3f0's caller still swallows taps while the sheet is up and the game loop
+continues to run behind it.
+
+The message drops the trailing App Store URL, which points at a listing that no longer exists, and
+keeps the tune name, score, and hashtag. The five other `SLComposeViewController` call sites are
+left alone: each of them takes its text from `agx.s.konaminet.jp`, so they fail before a composer is
+reached.
+
 ## Bundle metadata
 
 ### Light appearance
@@ -310,3 +341,13 @@ empty string otherwise, so a faithful build keeps the original plist exactly.
 
 Because this is a configure-time substitution rather than a compile-time one, toggling the flag
 requires re-running CMake to regenerate `Info.plist`.
+
+### Photo library usage
+
+**Files:** `CMakeLists.txt` (the `APP_PHOTO_LIBRARY_ADD_USAGE_ENTRY` block), `Info.plist.in`.
+
+_Modern iOS._ The share sheet the patched result screen presents offers the stock Save Image
+activity, and add-only photo library access has required `NSPhotoLibraryAddUsageDescription` since
+iOS 11. The original plist has no photo library key because the binary never touches the library, so
+without the substitution iOS terminates the app as soon as that activity is chosen. It is
+substituted the same way as the appearance key above and is likewise empty in a faithful build.
