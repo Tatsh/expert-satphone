@@ -3,7 +3,7 @@
 // The domain and code all three entry points report for empty input. The code is the same -11
 // whichever top-level type was asked for.
 static NSString *const kErrorDomain = @"CJSONDeserializerErrorDomain";
-enum { kEmptyInputErrorCode = -11 };
+static const NSInteger kEmptyInputErrorCode = -11;
 
 @implementation CJSONDeserializer {
     // Neither ivar carries an underscore, which is TouchJSON's convention rather than this tree's.

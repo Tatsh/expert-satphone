@@ -11,9 +11,7 @@
 #import "UIDevice+SystemVersionCheck.h"
 
 // A frame row is a positional array; only element 1 (its identifier / file name) is read here.
-enum {
-    kFrameRowIdentifierIndex = 1 // The frame identifier / catalogue file name.
-};
+static const NSUInteger kFrameRowIdentifierIndex = 1;
 
 // The keys of a TweetResourceManager catalogue entry read while building the working table.
 static NSString *const kResourceItemTypeKey = @"itemType";     // 0x2d4720

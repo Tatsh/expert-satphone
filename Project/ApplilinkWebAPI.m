@@ -75,9 +75,7 @@ enum {
 static const NSInteger kApplilinkWebAPISessionRegenerateResult = 100000000;
 
 // Retry policy: the request is attempted at most twice before the counter is forced to the cap.
-enum {
-    kApplilinkWebAPIRetryCap = 2,
-};
+static const int kApplilinkWebAPIRetryCap = 2;
 
 // HTTP status codes in the 4xx and 5xx server-error ranges are retried.
 enum {

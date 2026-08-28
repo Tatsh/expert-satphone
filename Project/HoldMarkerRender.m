@@ -1,7 +1,7 @@
 #import "HoldMarkerRender.h"
 
 // The play grid.
-enum { kPanelCount = 16 };
+static const int kPanelCount = 16;
 
 // Every metric below has one value per idiom, chosen from the isPad ivar.
 enum {

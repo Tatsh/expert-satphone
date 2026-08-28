@@ -201,7 +201,7 @@ static NSString *const kEndAlertCancel = @"いいえ"; // @ghidraAddress 0x2d4ec
 static NSString *const kEndAlertConfirm = @"はい";  // @ghidraAddress 0x2d4ee0
 
 // The item-chance sentinel that marks "no chance item".
-enum { kChanceItemTypeNone = -1 };
+static const int kChanceItemTypeNone = -1;
 
 // The number of playfield panels (a 4x4 grid), sizing the per-panel state arrays.
 enum { kGamePanelCount = 16 };

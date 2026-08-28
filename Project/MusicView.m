@@ -13,9 +13,7 @@
 // The three difficulty charts, ordered as the rank arrays are populated (extreme first, then
 // advanced, then basic) and indexed the way the fixed-index blocks read them (basic 0, advanced 1,
 // extreme 2).
-enum {
-    kDifficultyCount = 3,
-};
+static const int kDifficultyCount = 3;
 
 // Column-type-indexed layout tables live in __const. Each is a run of six 4-byte integers keyed by
 // the music-select column type. iPad and non-iPad idioms take different tables where they differ.

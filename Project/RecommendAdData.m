@@ -112,9 +112,7 @@ enum {
 };
 
 // The advert-content kind that marks a playable movie creative.
-enum {
-    kRecommendAdContentKindMovie = 2,
-};
+static const int kRecommendAdContentKindMovie = 2;
 
 // The maximum number of lottery icons drawn per request.
 static const int kMaxLotteryIconCount = 4;

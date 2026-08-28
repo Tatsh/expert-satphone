@@ -62,7 +62,7 @@ enum { kTemplateSlotCount = 4 };
 static const int kGridDivideFree = 15;
 
 // The number of 4x4 panels tested for touches each frame.
-enum { kPanelCount = 16 };
+static const unsigned int kPanelCount = 16;
 
 // The compressed-archive member names inside a chart's KUnzip container.
 static NSString *const kArchiveSequenceMember = @"bgm";

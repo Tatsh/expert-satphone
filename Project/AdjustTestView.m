@@ -77,9 +77,7 @@ enum {
 
 // The atlas cell grid is three sub-images wide; a frame cell is 120 texels square and a button cell
 // 144, both laid out on a 120-texel stride.
-enum {
-    kAtlasColumns = 3,
-};
+static const int kAtlasColumns = 3;
 static const CGFloat kAtlasCellStride = 120.0;    // @ghidraAddress 0x291be8
 static const CGFloat kFrameSubImageSize = 120.0;  // @ghidraAddress 0x28f210
 static const CGFloat kButtonSubImageSize = 144.0; // @ghidraAddress 0x28f660

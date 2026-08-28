@@ -46,9 +46,7 @@ static NSString *const kExtAppMovieURLPrefix = @"applilink://ext-app:80/movie";
 static NSString *const kWebKitErrorDomain = @"WebKitErrorDomain";
 
 // The external-application scheme's port.
-enum {
-    kExtAppPort = 80,
-};
+static const int kExtAppPort = 80;
 
 // The system version at and above which the navigation bar is tinted and the modern rotation path
 // is used. Both are read as fmov immediates in the binary (7.0 at 0x40e00000, 8.0 at 0x41000000).

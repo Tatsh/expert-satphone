@@ -16,9 +16,7 @@
 #import "music_grid_layout.h"
 
 // The music-select grid is three tiles wide.
-enum {
-    kMusicListColumnsPerRow = 3,
-};
+static const NSUInteger kMusicListColumnsPerRow = 3;
 
 // The reuse identifier the binary registers and dequeues with. It genuinely contains a space.
 static NSString *const kCollectionCellReuseIdentifier = @"collection cell";
@@ -107,9 +105,7 @@ static const NSTimeInterval kBalloonFadeDuration = 0.3; // 0x28f260
 static const NSTimeInterval kIgnoreInteractionDelay = 0.2;
 
 // The largest delete+insert batch that still animates rather than reloading.
-enum {
-    kMaxAnimatedBatchCount = 201,
-};
+static const NSUInteger kMaxAnimatedBatchCount = 201;
 
 @interface MusicListView () <UIGestureRecognizerDelegate> {
 @public

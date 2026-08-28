@@ -35,9 +35,7 @@ enum {
 };
 
 // The port the applilink external-application scheme listens on.
-enum {
-    RecommendAdAreaViewExtAppPort = 80,
-};
+static const NSInteger RecommendAdAreaViewExtAppPort = 80;
 
 // Result of redirectWithRequest: whether the web view should proceed with the request. The
 // external-scheme value is distinct from the load value so a caller can tell the two apart.
@@ -48,9 +46,7 @@ enum {
 };
 
 // The advert-tag value that opts the video area into the superview walk in showVideoViewWithQuery:.
-enum {
-    RecommendAdAreaViewVideoTag = 5,
-};
+static const NSInteger RecommendAdAreaViewVideoTag = 5;
 
 static NSString *const kRecommendAdAreaViewFormatObject = @"%@";
 static NSString *const kRecommendAdAreaViewFormatScheme = @"%@://";
