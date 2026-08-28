@@ -207,7 +207,3 @@ int unzCloseCurrentFile(unzFile file);
 #endif
 
 #endif
-
-// code: language=C
-// kate: hl C;
-// vim: set ft=c :

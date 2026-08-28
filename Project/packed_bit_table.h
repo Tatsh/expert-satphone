@@ -38,7 +38,3 @@ void SetPackedTwoBitValue(unsigned char *pbTable, unsigned int nIndex, unsigned 
 #endif
 
 #endif /* PACKED_BIT_TABLE_H */
-
-// code: language=C
-// kate: hl C;
-// vim: set ft=c :

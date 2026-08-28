@@ -88,7 +88,3 @@ private:
     // key expansion in setKey, which chains each output pair back in as the next input.
     void encipherHalves(uint64_t &left, uint64_t &right) const;
 };
-
-// code: language=C++
-// kate: hl C++;
-// vim: set ft=cpp :

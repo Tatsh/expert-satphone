@@ -41,7 +41,3 @@ unsigned char ClassifyNoteTimingGrade(int nDeltaFrames);
 #endif
 
 #endif /* NOTE_TIMING_GRADE_H */
-
-// code: language=C
-// kate: hl C;
-// vim: set ft=c :

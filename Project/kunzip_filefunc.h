@@ -203,7 +203,3 @@ int KUnzip_ferror_mem_func(voidpf opaque, voidpf stream);
 #endif
 
 #endif
-
-// code: language=C
-// kate: hl C;
-// vim: set ft=c :

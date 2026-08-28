@@ -66,7 +66,3 @@ double GetMusicCellScaleForColumnType(int nColumnType);
 #ifdef __cplusplus
 }
 #endif
-
-// code: language=C++
-// kate: hl C++;
-// vim: set ft=cpp :

@@ -74,7 +74,3 @@ void SetQuadTexCoordsAndAlpha(float flU0,
                               float flAlpha,
                               SpriteVertex *pQuadVerts,
                               SpriteTransform bTransform);
-
-// code: language=C++
-// kate: hl C++;
-// vim: set ft=cpp :

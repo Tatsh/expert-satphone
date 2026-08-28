@@ -66,7 +66,3 @@ float InterpolateFloatByPosition(
 #endif
 
 #endif /* NEENGINEBRIDGE_H */
-
-// code: language=C
-// kate: hl C;
-// vim: set ft=c :

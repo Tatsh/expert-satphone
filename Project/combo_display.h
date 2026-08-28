@@ -139,7 +139,3 @@ float EvalComboScaleCurve(float flTime, unsigned int dwCurveIndex);
 #ifdef __cplusplus
 }
 #endif
-
-// code: language=C++
-// kate: hl C++;
-// vim: set ft=cpp :

@@ -93,7 +93,3 @@ static inline void neDebugLog(const char *fmt, ...) {
 #ifndef JBDBG_BUILD_SHA
 #define JBDBG_BUILD_SHA "unknown"
 #endif
-
-// code: language=C++
-// kate: hl C++;
-// vim: set ft=cpp :
