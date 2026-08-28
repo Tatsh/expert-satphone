@@ -21,15 +21,35 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface ApplilinkDebug : NSObject
 
-/** @brief The configured country code. @ghidraAddress 0x250f60 */
+/**
+ * @brief The configured country code.
+ * @return The country code.
+ * @ghidraAddress 0x250f60
+ */
 + (nullable NSString *)countryCode;
-/** @brief The configured advert category identifier. @ghidraAddress 0x250f78 */
+/**
+ * @brief The configured advert category identifier.
+ * @return The advert category identifier.
+ * @ghidraAddress 0x250f78
+ */
 + (nullable NSString *)categoryId;
-/** @brief The cached device UDID. @ghidraAddress 0x250f90 */
+/**
+ * @brief The cached device UDID.
+ * @return The device UDID.
+ * @ghidraAddress 0x250f90
+ */
 + (nullable NSString *)udid;
-/** @brief The cached advertising UDID. @ghidraAddress 0x250fa8 */
+/**
+ * @brief The cached advertising UDID.
+ * @return The advertising UDID.
+ * @ghidraAddress 0x250fa8
+ */
 + (nullable NSString *)ad_udid;
-/** @brief The cached old UDID. @ghidraAddress 0x250fc0 */
+/**
+ * @brief The cached old UDID.
+ * @return The old UDID.
+ * @ghidraAddress 0x250fc0
+ */
 + (nullable NSString *)old_udid;
 /** @brief Clears the stored device UDID. @ghidraAddress 0x250fd8 */
 + (void)clearUDID;
@@ -37,7 +57,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)clearKeyChainOldUDID;
 /** @brief Clears the stored advertising UDID. @ghidraAddress 0x251008 */
 + (void)clearAdUDID;
-/** @brief The SDK development version string. @ghidraAddress 0x251020 */
+/**
+ * @brief The SDK development version string.
+ * @return The development version string.
+ * @ghidraAddress 0x251020
+ */
 + (nullable NSString *)versionDev;
 /** @brief Clears the reward and recommend sessions. @ghidraAddress 0x25106c */
 + (void)clearSession;
@@ -47,15 +71,31 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)clearInitalize;
 /** @brief Clears the analytics daily-active-user date. @ghidraAddress 0x2511c0 */
 + (void)clearDAU;
-/** @brief Sets the recommend debug-mode override. @ghidraAddress 0x2511d8 */
+/**
+ * @brief Sets the recommend debug-mode override.
+ * @param debugMode The override to install.
+ * @ghidraAddress 0x2511d8
+ */
 + (void)debugMode:(nullable id)debugMode;
-/** @brief The recommend debug-mode override. @ghidraAddress 0x2511f0 */
+/**
+ * @brief The recommend debug-mode override.
+ * @return The installed override.
+ * @ghidraAddress 0x2511f0
+ */
 + (nullable id)getDebugMode;
 /** @brief Clears every cached banner image. @ghidraAddress 0x251208 */
 + (void)allClearCacheBannerImage;
-/** @brief The recommend interstitial frequency state. @ghidraAddress 0x251220 */
+/**
+ * @brief The recommend interstitial frequency state.
+ * @return The interstitial frequency state.
+ * @ghidraAddress 0x251220
+ */
 + (nullable NSMutableDictionary *)getFrequencyStatus;
-/** @brief The recommend display-specification state. @ghidraAddress 0x251238 */
+/**
+ * @brief The recommend display-specification state.
+ * @return The display-specification state.
+ * @ghidraAddress 0x251238
+ */
 + (nullable NSMutableDictionary *)getDisplaySpec;
 
 @end

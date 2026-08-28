@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param style The table style to pass to the superclass.
  * @param delegate The delegate, held weakly.
+ * @return The initialised controller.
  * @ghidraAddress 0x1e587c
  */
 - (instancetype)initWithStyle:(UITableViewStyle)style delegate:(nullable id)delegate;

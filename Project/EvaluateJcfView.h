@@ -25,7 +25,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol EvaluateJcfViewDelegate <NSObject>
 @optional
-/** @brief The evaluation panel finished and should be dismissed. */
+/**
+ * @brief The evaluation panel finished and should be dismissed.
+ * @param sender The panel sending the message.
+ */
 - (void)closeEvaluate:(nullable id)sender;
 @end
 

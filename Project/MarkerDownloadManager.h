@@ -19,14 +19,26 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol MarkerDownloadManagerDelegate <NSObject>
 @optional
-/** @brief A task has started. */
+/**
+ * @brief A task has started.
+ * @param manager The download manager reporting the task.
+ */
 - (void)downloadManagerStartTask:(nonnull MarkerDownloadManager *)manager;
-/** @brief The current task made progress. */
+/**
+ * @brief The current task made progress.
+ * @param manager The download manager reporting progress.
+ */
 - (void)downloadManagerProceed:(nonnull MarkerDownloadManager *)manager;
-/** @brief All tasks completed. */
+/**
+ * @brief All tasks completed.
+ * @param manager The download manager reporting completion.
+ */
 - (void)downloadManagerCompleted:(nonnull MarkerDownloadManager *)manager;
-/** @brief A task failed. The manager is @c nil when the view fails the download itself, before any
- * manager exists (the illegal-marker path). */
+/**
+ * @brief A task failed. The manager is @c nil when the view fails the download itself, before any
+ * manager exists (the illegal-marker path).
+ * @param manager The download manager reporting the failure, or nil on the illegal-marker path.
+ */
 - (void)downloadManagerFailed:(nullable MarkerDownloadManager *)manager;
 @end
 

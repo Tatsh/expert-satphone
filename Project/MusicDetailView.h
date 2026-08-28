@@ -2,7 +2,7 @@
  * The music-selection detail card.
  *
  * Reconstructed from Ghidra program Jubeat (class @c MusicDetailView, image base 0x100000000). All
- * @c @ghidraAddress values are offsets relative to that image base. The superclass is @c UIView,
+ * @c @@ghidraAddress values are offsets relative to that image base. The superclass is @c UIView,
  * from the @c initWithFrame: chain-up at 0x126714.
  *
  * The card shows the picked tune's artwork with a mirrored reflection, its name plate, a random
@@ -456,6 +456,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/**
+ * @brief The selectors the base declares but only the concrete theme subclasses implement.
+ */
 @interface MusicDetailView (ThemeOverrides)
 
 /**

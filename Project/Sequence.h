@@ -23,14 +23,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// The number of playfield panels (a 4x4 grid), sizing the per-panel judgement arrays.
-enum { kSequencePanelCount = 16 };
+enum {
+    kSequencePanelCount = 16 /*!< The number of playfield panels (a 4x4 grid), sizing the per-panel
+                                  judgement arrays. */
+};
 
-/// The number of segments in the result-screen music bar; each note maps to one via its sector.
-enum { kSequenceMusicBarSegmentCount = 120 };
+enum {
+    kSequenceMusicBarSegmentCount = 120 /*!< The number of segments in the result-screen music bar;
+                                             each note maps to one via its sector. */
+};
 
-/// The length of the raw music-bar bitmap the chart carries, in bytes.
-enum { kSequenceMusicBarByteCount = 60 };
+enum {
+    kSequenceMusicBarByteCount = 60 /*!< The length of the raw music-bar bitmap the chart carries,
+                                         in bytes. */
+};
 
 /**
  * @brief A judgement grade for a single note hit.
@@ -78,12 +84,12 @@ typedef NS_ENUM(short, SequenceRank) {
  * press writes @c holdHeadJudge .
  */
 typedef struct {
-    short kind;          // +0x00 The event kind (1 tap, 3 measure, 4 haku, 5 tempo, 6 hold).
-    short judge;         // +0x02 The tap grade, or a hold's release grade.
-    unsigned int sector; // +0x04 The event's timing position, in sectors.
-    unsigned int value;  // +0x08 Panel index in the low four bits, plus packed hold data.
-    short holdHeadJudge; // +0x0c A hold's head-press grade.
-    unsigned int holdReleaseSector; // +0x10 The sector at which a hold was released.
+    short kind; /*!< The event kind (1 tap, 3 measure, 4 haku, 5 tempo, 6 hold). */      // +0x00
+    short judge; /*!< The tap grade, or a hold's release grade. */                       // +0x02
+    unsigned int sector; /*!< The event's timing position, in sectors. */                // +0x04
+    unsigned int value; /*!< Panel index in the low four bits, plus packed hold data. */ // +0x08
+    short holdHeadJudge; /*!< A hold's head-press grade. */                              // +0x0c
+    unsigned int holdReleaseSector; /*!< The sector at which a hold was released. */     // +0x10
 } SequenceEvent;
 
 /**
@@ -212,18 +218,21 @@ typedef struct {
 
 /**
  * @brief Returns whether every scoring note has been judged at least good (a full combo).
+ * @return YES on a full combo, NO otherwise.
  * @ghidraAddress 0x1acfe0
  */
 - (BOOL)isFullcombo;
 
 /**
  * @brief Returns whether every scoring note was judged perfect (an excellent).
+ * @return YES on an excellent, NO otherwise.
  * @ghidraAddress 0x1ad008
  */
 - (BOOL)isExcellent;
 
 /**
  * @brief Returns the score rank tier for the current total points.
+ * @return The rank tier the current total points fall in.
  * @ghidraAddress 0x1ad030
  */
 - (SequenceRank)rank;
@@ -237,12 +246,14 @@ typedef struct {
 
 /**
  * @brief Returns the tap events as boxed @c [grade, panel] number pairs.
+ * @return The tap events, each a boxed grade and panel pair.
  * @ghidraAddress 0x1adbb8
  */
 - (nullable NSArray *)getPlayEvents;
 
 /**
  * @brief Returns the hold events as boxed @c [grade, value] number pairs.
+ * @return The hold events, each a boxed grade and value pair.
  * @ghidraAddress 0x1adbc8
  */
 - (nullable NSArray *)getHoldEvents;

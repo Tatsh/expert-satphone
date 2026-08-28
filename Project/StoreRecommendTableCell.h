@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param frame The row's frame. Only @c size.width is read.
  * @param reuseIdentifier Passed straight through.
+ * @return The initialised cell.
  * @ghidraAddress 0x165bf4
  */
 - (instancetype)initWithFrame:(CGRect)frame reuseIdentifier:(nullable NSString *)reuseIdentifier;
@@ -46,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param style Passed straight through to @c UITableViewCell.
  * @param reuseIdentifier Passed straight through.
+ * @return The initialised cell.
  * @ghidraAddress 0x165d88
  */
 - (instancetype)initWithStyle:(UITableViewCellStyle)style

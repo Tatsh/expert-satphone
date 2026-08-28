@@ -41,6 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Builds the surface: interaction enabled, fully flexible autoresizing, aspect-fit content.
+ * @param frame The view's initial frame.
+ * @return The initialised view.
  * @ghidraAddress 0x226fd0
  */
 - (instancetype)initWithFrame:(CGRect)frame;

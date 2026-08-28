@@ -16,9 +16,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol ChallengeListViewDelegate <NSObject>
 @optional
-/** @brief The close button was tapped. */
+/**
+ * @brief The close button was tapped.
+ * @param sender The close button.
+ */
 - (void)tapClose:(nullable id)sender;
-/** @brief The row at the given index path was selected. */
+/**
+ * @brief The row at the given index path was selected.
+ * @param indexPath The selected row's index path.
+ */
 - (void)selectListCell:(nullable NSIndexPath *)indexPath;
 @end
 

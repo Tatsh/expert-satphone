@@ -36,12 +36,29 @@ endif()
 # in the original binary (address relative to the program's image base).
 # DOXYGEN_VERBATIM_VARS stops CMake re-quoting the alias, so the embedded
 # Doxygen-side quoting reaches the Doxyfile intact.
+#
+# Doxygen does not know the Foundation enumeration macros, so without the
+# PREDEFINED expansions below it reads each NS_ENUM/NS_OPTIONS/NS_CLOSED_ENUM as
+# a function-like member, emits a spurious "return type ... is not documented"
+# warning for it, and never indexes the enumerators.
+#
+# WARN_NO_PARAMDOC and WARN_IF_UNDOC_ENUM_VAL are off by default; they are the
+# two checks that catch an undocumented parameter or enumerator, which is most of
+# what a member-level documentation gap looks like here.
 # ---------------------------------------------------------------------------
 if(BUILD_DOCS OR BUILD_DOCS_ONLY)
     set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_VERBATIM_VARS DOXYGEN_ALIASES)
     set(DOXYGEN_ALIASES [[ghidraAddress="\par Ghidra address:^^"]])
+    set(DOXYGEN_ENABLE_PREPROCESSING YES)
+    set(DOXYGEN_MACRO_EXPANSION YES)
+    set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
+    set(DOXYGEN_PREDEFINED "NS_ENUM(type,name)=enum name : type"
+                           "NS_OPTIONS(type,name)=enum name : type"
+                           "NS_CLOSED_ENUM(type,name)=enum name : type")
+    set(DOXYGEN_WARN_NO_PARAMDOC YES)
+    set(DOXYGEN_WARN_IF_UNDOC_ENUM_VAL YES)
     find_package(Doxygen REQUIRED)
     doxygen_add_docs(docs README.md Project ALL)
 endif()

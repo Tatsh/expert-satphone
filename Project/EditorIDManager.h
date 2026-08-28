@@ -67,11 +67,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The keychain account for the editor identifier, the constant @c "EditorUniqueID".
+ * @return The keychain account name @c "EditorUniqueID" .
  * @ghidraAddress 0x1d3034
  */
 + (NSString *)getEditorIDKey;
 /**
  * @brief The keychain account for the editor passphrase, the constant @c "EditorPassword".
+ * @return The keychain account name @c "EditorPassword" .
  * @ghidraAddress 0x1d3060
  */
 + (NSString *)getEditorPassKey;

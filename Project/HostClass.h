@@ -15,6 +15,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * @brief One discovered share-play host and the music data it offers.
+ */
 @interface HostClass : NSObject
 
 /** @brief The host's downloaded music data. */

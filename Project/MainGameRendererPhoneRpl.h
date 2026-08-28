@@ -137,6 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The ready-go countdown duration, in seconds.
+ * @return The countdown duration, in seconds.
  * @ghidraAddress 0x14d70c
  */
 - (double)durationOfReadyGo;
@@ -332,10 +333,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Draws the full-combo flourish over the grid corners and the corner glyphs.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @ghidraAddress 0x14e254
  */
-- (void)renderFullcombo:(int)frame;
+- (void)renderFullcombo:(int)animFrame;
 
 /**
  * @brief Draws the finish banner: the full-combo flourish when a full combo, and advances the
@@ -346,34 +347,34 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Draws the excellent flourish, its beam, its ring of chips, and the "EXCELLENT" wipe.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @return Whether the animation has finished.
  * @ghidraAddress 0x14f0e8
  */
-- (BOOL)renderExcellent:(unsigned int)frame;
+- (BOOL)renderExcellent:(unsigned int)animFrame;
 
 /**
  * @brief Draws the rank rating (judgement) graphic, sliding and scaling in.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @ghidraAddress 0x14feb8
  */
-- (void)renderRating:(unsigned int)frame;
+- (void)renderRating:(unsigned int)animFrame;
 
 /**
  * @brief Draws the cleared result graphic and its rating.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @return Whether the animation is still running.
  * @ghidraAddress 0x150348
  */
-- (BOOL)renderCleared:(unsigned int)frame;
+- (BOOL)renderCleared:(unsigned int)animFrame;
 
 /**
  * @brief Draws the failed result graphic and its rating.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @return Whether the animation is still running.
  * @ghidraAddress 0x1507cc
  */
-- (BOOL)renderFailed:(unsigned int)frame;
+- (BOOL)renderFailed:(unsigned int)animFrame;
 
 /**
  * @brief Draws the result screen: the cleared/failed/excellent graphic, the score, the rating, the

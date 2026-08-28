@@ -49,6 +49,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Resource-load hook that stamps the app's user agent onto every outgoing request.
+ * @param uiWebView The web view loading the resource.
+ * @param resource The resource being loaded.
+ * @param request The outgoing request, stamped with the user agent.
+ * @param redirectResponse The redirect that led here, or nil when there was none.
+ * @param dataSource The data source driving the load.
+ * @return The request to send.
  * @ghidraAddress 0xd8e2c
  */
 - (nullable NSURLRequest *)uiWebView:(nullable id)uiWebView
@@ -61,6 +67,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Intercepts the page's @c openurl:// links: rewrites them to @c https:// , opens them
  *        externally, and pops this controller. Returns @c NO for a handled link and @c YES
  *        otherwise.
+ * @param webView The web view asking.
+ * @param request The request it is about to load.
+ * @param navigationType What triggered the navigation.
+ * @return NO for a handled link, YES otherwise.
  * @ghidraAddress 0xd8f74
  */
 - (BOOL)webView:(UIWebView *)webView
@@ -76,6 +86,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Shows a network-error alert on a load failure.
+ * @param webView The web view reporting the failure.
+ * @param error The load failure.
  * @ghidraAddress 0xd9188
  */
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error;
@@ -83,18 +95,22 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Whether to rotate to a given interface orientation; portrait and portrait-upside-down
  *        only.
+ * @param interfaceOrientation The orientation asked about.
+ * @return YES for the two portrait orientations, NO otherwise.
  * @ghidraAddress 0xd9270
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
  * @brief The supported interface orientations: portrait and portrait-upside-down.
+ * @return Both portrait orientations.
  * @ghidraAddress 0xd9280
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
  * @brief Whether the controller supports autorotation; always @c YES.
+ * @return Always YES.
  * @ghidraAddress 0xd9288
  */
 - (BOOL)shouldAutorotate;

@@ -18,13 +18,25 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol StoreDownloadManagerDelegate <NSObject>
 @optional
-/** @brief A task has started. */
+/**
+ * @brief A task has started.
+ * @param manager The download manager reporting the task.
+ */
 - (void)downloadManagerStartTask:(nonnull StoreDownloadManager *)manager;
-/** @brief The current task made progress. */
+/**
+ * @brief The current task made progress.
+ * @param manager The download manager reporting progress.
+ */
 - (void)downloadManagerProceed:(nonnull StoreDownloadManager *)manager;
-/** @brief All tasks completed. */
+/**
+ * @brief All tasks completed.
+ * @param manager The download manager reporting completion.
+ */
 - (void)downloadManagerCompleted:(nonnull StoreDownloadManager *)manager;
-/** @brief A task failed. */
+/**
+ * @brief A task failed.
+ * @param manager The download manager reporting the failure.
+ */
 - (void)downloadManagerFailed:(nonnull StoreDownloadManager *)manager;
 @end
 

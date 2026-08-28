@@ -37,6 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Builds the plate and the three-line label at the metrics for the current idiom.
+ * @param style The cell style.
+ * @param reuseIdentifier The reuse identifier, or nil for a non-reusable cell.
+ * @return The initialised cell.
  * @ghidraAddress 0x1fc1cc
  */
 - (instancetype)initWithStyle:(UITableViewCellStyle)style

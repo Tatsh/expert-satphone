@@ -173,26 +173,37 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - PurchaseManagerDelegate
 
 /**
+ * @brief A purchase completed: starts the pack's download and refreshes the purchased and
+ * campaign-unlock lists.
+ * @param productID The purchased product's identifier, mapped to a pack ID to download.
  * @ghidraAddress 0x8c9fc
  */
 - (void)purchaseSucceeded:(nullable NSString *)productID;
 
 /**
+ * @brief A purchase failed: hides the modal dialog and shows the failure or cancellation message.
+ * @param productID The product that failed.
+ * @param error The failure, distinguishing a cancellation from a genuine error by its domain.
  * @ghidraAddress 0x8cb0c
  */
 - (void)purchaseFailed:(nullable NSString *)productID error:(nullable NSError *)error;
 
 /**
+ * @brief A restore completed: clears the purchase delegate, hides the dialog, and shows the
+ * restore-complete alert. The lists refresh when that alert is dismissed.
  * @ghidraAddress 0x8d08c
  */
 - (void)restoreSucceeded;
 
 /**
+ * @brief A restore failed: clears the purchase delegate, hides the dialog, and shows the message.
+ * @param error The failure, distinguishing a cancellation from a genuine error.
  * @ghidraAddress 0x8d288
  */
 - (void)restoreFailed:(nullable NSError *)error;
 
 /**
+ * @brief A restore found nothing to restore: hides the dialog and tells the player.
  * @ghidraAddress 0x8d4e4
  */
 - (void)restoreNothing;
@@ -206,6 +217,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - AlertViewManagerDelegate
 
 /**
+ * @brief An alert button was tapped: acts on the alert identified by the info dictionary's tag.
+ * @param info The alert's result, carrying the tapped button and the alert's tag.
  * @ghidraAddress 0x8d850
  */
 - (void)alertSelect:(nonnull NSDictionary *)info;
@@ -213,6 +226,9 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - StoreDialogViewDelegate
 
 /**
+ * @brief The modal dialog's abort button was pressed: cancels the download and updates the pack's
+ * purchase state.
+ * @param dialogView The dialog whose abort button was pressed.
  * @ghidraAddress 0x8dfa8
  */
 - (void)storeDialogCancel:(nullable id)dialogView;
@@ -220,21 +236,29 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - StoreDownloadManagerDelegate
 
 /**
+ * @brief A download task started: shows the downloading tune's name in the modal dialog.
+ * @param manager The download manager reporting the task.
  * @ghidraAddress 0x8e0c4
  */
 - (void)downloadManagerStartTask:(nonnull StoreDownloadManager *)manager;
 
 /**
+ * @brief The download queue completed: drops the manager and hides the modal dialog.
+ * @param manager The download manager reporting completion.
  * @ghidraAddress 0x8e350
  */
 - (void)downloadManagerCompleted:(nonnull StoreDownloadManager *)manager;
 
 /**
+ * @brief The download queue failed: drops the manager and updates the pack's purchase state.
+ * @param manager The download manager reporting the failure.
  * @ghidraAddress 0x8e38c
  */
 - (void)downloadManagerFailed:(nonnull StoreDownloadManager *)manager;
 
 /**
+ * @brief A download task made progress: drives the modal dialog's progress bar.
+ * @param manager The download manager reporting progress.
  * @ghidraAddress 0x8e5f8
  */
 - (void)downloadManagerProceed:(nonnull StoreDownloadManager *)manager;
@@ -317,11 +341,15 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - DownloaderDelegate
 
 /**
+ * @brief A request finished: dispatches on the downloader's tag to handle its JSON response.
+ * @param downloader The downloader reporting the result.
  * @ghidraAddress 0x8f170
  */
 - (void)downloaderFinished:(nullable id)downloader;
 
 /**
+ * @brief A request failed: alerts the player when it was the mission-achievement check.
+ * @param downloader The downloader reporting the failure.
  * @ghidraAddress 0x8f8b8
  */
 - (void)downloaderError:(nullable id)downloader;
@@ -329,11 +357,16 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - EditorIDManagerDelegate
 
 /**
+ * @brief The editor identity downloaded: drops the manager and builds the store's child screens.
+ * @param manager The editor-ID manager reporting the result.
  * @ghidraAddress 0x89f10
  */
 - (void)successIDDownload:(nullable id)manager;
 
 /**
+ * @brief The editor-identity download failed: shows the message to the player.
+ * @param manager The editor-ID manager reporting the failure.
+ * @param msg The message to show; the default network-error text when nil or empty.
  * @ghidraAddress 0x89cd4
  */
 - (void)errorIDDownload:(nullable id)manager msgStr:(nullable NSString *)msg;
@@ -350,41 +383,58 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - View lifecycle
 
 /**
+ * @brief Handles a low-memory warning.
  * @ghidraAddress 0x90634
  */
 - (void)didReceiveMemoryWarning;
 
 /**
+ * @brief The view is about to appear.
+ * @param animated Whether the appearance is animated.
  * @ghidraAddress 0x9066c
  */
 - (void)viewWillAppear:(BOOL)animated;
 
 /**
+ * @brief The view has appeared.
+ * @param animated Whether the appearance was animated.
  * @ghidraAddress 0x906a4
  */
 - (void)viewDidAppear:(BOOL)animated;
 
 /**
+ * @brief The view is about to disappear.
+ * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x906dc
  */
 - (void)viewWillDisappear:(BOOL)animated;
 
 /**
+ * @brief The view has disappeared.
+ * @param animated Whether the disappearance was animated.
  * @ghidraAddress 0x90714
  */
 - (void)viewDidDisappear:(BOOL)animated;
 
 /**
+ * @brief Whether the screen may rotate to an orientation.
+ * @param interfaceOrientation The orientation asked about.
+ * @return YES for the two portrait orientations, NO otherwise. This contradicts
+ *         @c -supportedInterfaceOrientations , which reports landscape; the binary does both.
  * @ghidraAddress 0x9074c
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
+ * @brief The orientations the screen supports.
+ * @return @c UIInterfaceOrientationMaskLandscape .
  * @ghidraAddress 0x9075c
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
+ * @brief Whether the screen rotates.
+ * @return Always YES.
  * @ghidraAddress 0x90764
  */
 - (BOOL)shouldAutorotate;

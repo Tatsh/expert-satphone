@@ -22,7 +22,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol JcfDownloadPageNavControllerDelegate <NSObject>
 @optional
-/** @brief The user closed the custom-sequence web page. */
+/**
+ * @brief The user closed the custom-sequence web page.
+ * @param controller The navigation controller sending the message.
+ * @param seqIndex The sequence index the page was showing.
+ */
 - (void)customWebViewClose:(nullable JcfDownloadPageNavController *)controller
                   seqIndex:(nullable NSString *)seqIndex;
 @end
@@ -34,11 +38,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Builds the local test-page request URL used by the download web view.
- * @param sequenceID Unused; present to match the binary's selector.
+ * @param sequenceIDArg Unused; present to match the binary's selector.
  * @return A request for the @c DlTestPage.html file in the app documents directory.
  * @ghidraAddress 0x1e5914
  */
-- (nullable NSURLRequest *)createCustomSequenceURL:(unsigned int)sequenceID;
+- (nullable NSURLRequest *)createCustomSequenceURL:(unsigned int)sequenceIDArg;
 
 /**
  * @brief Configures the navigation bar chrome (style, tint, and background colours).

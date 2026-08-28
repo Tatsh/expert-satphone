@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Builds the digit and the countdown label, scaled for the current idiom.
+ * @param frame The view's initial frame.
+ * @return The initialised view.
  * @ghidraAddress 0x73c20
  */
 - (instancetype)initWithFrame:(CGRect)frame;

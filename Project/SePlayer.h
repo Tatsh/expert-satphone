@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  * never generated, and the load continues against handle zero.
  *
  * @param path A filesystem path, converted to a file URL before decoding.
+ * @return The initialised player.
  * @ghidraAddress 0x153b34
  */
 - (instancetype)initWithPath:(nullable NSString *)path;

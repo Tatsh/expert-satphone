@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Sets both colours to clear.
+ * @param frame The view's initial frame.
+ * @return The initialised view.
  * @ghidraAddress 0x253cbc
  */
 - (instancetype)initWithFrame:(CGRect)frame;

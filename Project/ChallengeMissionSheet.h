@@ -54,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns an empty sheet.
+ * @return The initialised sheet.
  * @ghidraAddress 0x1f0c08
  */
 - (instancetype)init;

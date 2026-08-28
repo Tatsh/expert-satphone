@@ -56,6 +56,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Resource-load hook that stamps the app's user agent onto every outgoing request.
+ * @param uiWebView The web view loading the resource.
+ * @param resource The resource being loaded.
+ * @param request The outgoing request, stamped with the user agent.
+ * @param redirectResponse The redirect that led here, or nil when there was none.
+ * @param dataSource The data source driving the load.
+ * @return The request to send.
  * @ghidraAddress 0x1f7dfc
  */
 - (nullable NSURLRequest *)uiWebView:(nullable id)uiWebView
@@ -69,6 +75,10 @@ NS_ASSUME_NONNULL_BEGIN
  *        clicked @c twitter:// link is turned into share text and sent to Twitter; any other
  *        clicked link is stored as the next request. Returns @c NO for a handled link and @c YES
  *        otherwise.
+ * @param webView The web view asking.
+ * @param request The request it is about to load.
+ * @param navigationType What triggered the navigation.
+ * @return NO for a handled link, YES otherwise.
  * @ghidraAddress 0x1f7f44
  */
 - (BOOL)webView:(UIWebView *)webView
@@ -77,6 +87,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Shows a communication-error alert on a load failure.
+ * @param webView The web view reporting the failure.
+ * @param error The load failure.
  * @ghidraAddress 0x1f8134
  */
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error;
@@ -132,24 +144,29 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Whether to rotate to a given interface orientation; portrait and portrait-upside-down
  *        only.
+ * @param interfaceOrientation The orientation asked about.
+ * @return YES for the two portrait orientations, NO otherwise.
  * @ghidraAddress 0x1f8754
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
  * @brief The supported interface orientations: portrait and portrait-upside-down.
+ * @return Both portrait orientations.
  * @ghidraAddress 0x1f8764
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
  * @brief Whether the controller supports autorotation; always @c YES.
+ * @return Always YES.
  * @ghidraAddress 0x1f876c
  */
 - (BOOL)shouldAutorotate;
 
 /**
  * @brief Closes any open alert when the view disappears.
+ * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x1f8774
  */
 - (void)viewWillDisappear:(BOOL)animated;

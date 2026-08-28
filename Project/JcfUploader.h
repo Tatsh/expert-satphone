@@ -22,11 +22,23 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol JcfUploaderDelegate <NSObject>
 @optional
-/** @brief The upload succeeded, with the server's returned info. */
+/**
+ * @brief The upload succeeded, with the server's returned info.
+ * @param sender The uploader reporting the result.
+ * @param info The server's response.
+ */
 - (void)uploadSuccess:(nullable id)sender uploadInfo:(nullable NSDictionary *)info;
-/** @brief The upload was rejected for NG words (title, editor, and comment). */
+/**
+ * @brief The upload was rejected for NG words (title, editor, and comment).
+ * @param sender The uploader reporting the rejection.
+ * @param ngWords The rejected words, in title, editor, and comment order.
+ */
 - (void)uploadNG:(nullable id)sender ngWords:(nullable NSArray *)ngWords;
-/** @brief The upload failed, with an optional user-facing message. */
+/**
+ * @brief The upload failed, with an optional user-facing message.
+ * @param sender The uploader reporting the failure.
+ * @param msg The message to show, or nil when there is none.
+ */
 - (void)uploadError:(nullable id)sender msgStr:(nullable NSString *)msg;
 @end
 
@@ -73,30 +85,36 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief jubeatLab access progress callback (a no-op).
+ * @param access The access reporting progress. The binary ignores it.
  * @ghidraAddress 0x1d832c
  */
 - (void)jubeatLabAccessProceed:(nullable jubeatLabAccess *)access;
 
 /**
  * @brief jubeatLab access failure callback: reports the error for the matching request.
+ * @param access The access reporting the failure.
  * @ghidraAddress 0x1d8330
  */
 - (void)jubeatLabAccessError:(nullable jubeatLabAccess *)access;
 
 /**
  * @brief jubeatLab access success callback: maps the response status to the delegate callbacks.
+ * @param access The access reporting the result.
  * @ghidraAddress 0x1d8390
  */
 - (void)jubeatLabAccessFinished:(nullable jubeatLabAccess *)access;
 
 /**
  * @brief @c EditorIDManager success callback: begins the upload once an editor id exists.
+ * @param sender The editor-ID manager reporting the result.
  * @ghidraAddress 0x1d86dc
  */
 - (void)successIDDownload:(nullable id)sender;
 
 /**
  * @brief @c EditorIDManager failure callback: reports the upload error.
+ * @param sender The editor-ID manager reporting the failure.
+ * @param msg The message to report, or nil when there is none.
  * @ghidraAddress 0x1d8754
  */
 - (void)errorIDDownload:(nullable id)sender msgStr:(nullable NSString *)msg;

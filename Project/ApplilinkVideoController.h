@@ -37,8 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
  * view's callbacks); the two protocols share the ready/close/repeat/store/error selectors, which is
  * why one controller can be both.
  */
-@interface ApplilinkVideoController
-    : UIViewController <VideoViewDelegate, SdkViewDelegate, AppliViewDelegate>
+// clang-format off
+// One protocol per line: the packed form, which begins a continuation line with ": UIViewController
+// <", is read by Doxygen as undocumented ivars named after the trailing protocols.
+@interface ApplilinkVideoController : UIViewController <VideoViewDelegate,
+                                                        SdkViewDelegate,
+                                                        AppliViewDelegate>
+// clang-format on
 
 /**
  * @brief The SDK delegate told about ready and close events.

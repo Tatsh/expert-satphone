@@ -20,8 +20,13 @@ NS_ASSUME_NONNULL_BEGIN
  * key in @c NSUserDefaults . The Agree button becomes enabled only once the user scrolls the policy
  * text to the bottom.
  */
-@interface LicenseAgreementView
-    : UIView <DownloaderDelegate, UIScrollViewDelegate, UITextViewDelegate>
+// clang-format off
+// One protocol per line: the packed form, which begins a continuation line with ": UIView <", is
+// read by Doxygen as undocumented ivars named after the trailing protocols.
+@interface LicenseAgreementView : UIView <DownloaderDelegate,
+                                          UIScrollViewDelegate,
+                                          UITextViewDelegate>
+// clang-format on
 
 /**
  * @brief The layer class, so the view is backed by a @c CAGradientLayer .

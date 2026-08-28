@@ -173,11 +173,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Builds the control with the library defaults and the supplied segment titles.
- * @param titlesArray The segment titles.
+ * @param sectionTitles The segment titles.
  * @return The initialised control.
  * @ghidraAddress 0x16a4b0
  */
-- (instancetype)initWithSectionTitles:(NSArray<NSString *> *)titlesArray;
+- (instancetype)initWithSectionTitles:(NSArray<NSString *> *)sectionTitles;
 
 /**
  * @brief Selects a segment, optionally animating the thumb to it.

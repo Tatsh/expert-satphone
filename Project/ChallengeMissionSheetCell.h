@@ -28,8 +28,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol ChallengeMissionSheetCellDelegate <NSObject>
 @optional
+/**
+ * @brief The row was tapped.
+ * @param cell The tapped cell.
+ */
 - (void)tapStampCell:(ChallengeMissionSheetCell *)cell;
+/**
+ * @brief The row was long-pressed.
+ * @param cell The pressed cell.
+ */
 - (void)pressStampCell:(ChallengeMissionSheetCell *)cell;
+/**
+ * @brief The cell's stamp animation finished.
+ * @param cell The cell whose animation finished.
+ */
 - (void)stampAnimationEnd:(ChallengeMissionSheetCell *)cell;
 @end
 

@@ -195,12 +195,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The supported orientations mask: portrait only.
+ * @return The portrait orientation mask.
  * @ghidraAddress 0x1e80e8
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
  * @brief Whether the controller may autorotate: always @c YES.
+ * @return Always YES.
  * @ghidraAddress 0x1e80f0
  */
 - (BOOL)shouldAutorotate;

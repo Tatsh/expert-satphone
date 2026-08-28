@@ -121,6 +121,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Recentres on the first user-location fix, then stops observing.
+ * @param keyPath The observed key path.
+ * @param object The observed object.
+ * @param change The change dictionary.
+ * @param context The observer context.
  * @ghidraAddress 0x117248
  */
 - (void)observeValueForKeyPath:(nullable NSString *)keyPath
@@ -228,12 +232,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The supported interface orientations: portrait and portrait-upside-down.
+ * @return Both portrait orientations.
  * @ghidraAddress 0x119104
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
  * @brief Whether the controller supports autorotation; always @c YES.
+ * @return Always YES.
  * @ghidraAddress 0x11910c
  */
 - (BOOL)shouldAutorotate;

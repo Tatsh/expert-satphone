@@ -113,15 +113,15 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Draws one clipped sprite region: a sprite index at a position within a clip area, at an
  *        opacity.
- * @param sprite The sprite index.
- * @param position The draw position.
- * @param area The clip rectangle.
+ * @param clip The sprite index.
+ * @param drawPosition The draw position.
+ * @param drawArea The clip rectangle.
  * @param alpha The opacity.
  * @ghidraAddress 0x18c1a0
  */
-- (void)drawClip:(int)sprite
-    drawPosition:(CGPoint)position
-        drawArea:(CGRect)area
+- (void)drawClip:(int)clip
+    drawPosition:(CGPoint)drawPosition
+        drawArea:(CGRect)drawArea
            alpha:(float)alpha;
 
 /**
@@ -145,10 +145,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Draws the beat shutter over the play field.
- * @param opened Whether the shutter is opened.
+ * @param drive Whether the shutter is opened.
  * @ghidraAddress 0x18d194
  */
-- (void)renderShutter:(BOOL)opened;
+- (void)renderShutter:(BOOL)drive;
 
 /**
  * @brief Draws the combo number and its burst and cut-in animations.
@@ -178,34 +178,34 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Draws the partner score at a point, with a horizontal scale and alpha.
- * @param partnerScore The partner's score.
+ * @param score The partner's score.
  * @param point The partner score block's origin.
  * @param scale The horizontal scale.
  * @param alpha The opacity.
  * @ghidraAddress 0x18dfb8
  */
-- (void)renderPartnerScore:(unsigned int)partnerScore
+- (void)renderPartnerScore:(unsigned int)score
                    atPoint:(CGPoint)point
                      scale:(double)scale
                      alpha:(double)alpha;
 
 /**
  * @brief Draws the difficulty music bar and its optional timeline cursor.
- * @param position The bar's origin.
+ * @param pos The bar's origin.
  * @param timeline Whether to draw the timeline cursor.
  * @param alpha The opacity.
  * @ghidraAddress 0x18e34c
  */
-- (void)renderMusicBar:(CGPoint)position timeline:(BOOL)timeline alpha:(double)alpha;
+- (void)renderMusicBar:(CGPoint)pos timeline:(BOOL)timeline alpha:(double)alpha;
 
 /**
  * @brief Draws the tune information block: jacket, title, difficulty word, and level.
- * @param position The block's origin.
+ * @param point The block's origin.
  * @param artworkSize The jacket's square size.
  * @param alpha The opacity.
  * @ghidraAddress 0x18e810
  */
-- (void)renderTuneInfo:(CGPoint)position artworkSize:(double)artworkSize alpha:(double)alpha;
+- (void)renderTuneInfo:(CGPoint)point artworkSize:(double)artworkSize alpha:(double)alpha;
 
 /**
  * @brief Draws the knit upper background band.
@@ -240,11 +240,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Draws the full-combo celebration banner and word.
- * @param frame The animation frame; the result-screen path adds 150 to it.
+ * @param animFrame The animation frame; the result-screen path adds 150 to it.
  * @param isResult Whether the banner is being shown on the result screen.
  * @ghidraAddress 0x18fc64
  */
-- (void)renderFullcombo:(int)frame isResult:(BOOL)isResult;
+- (void)renderFullcombo:(int)animFrame isResult:(BOOL)isResult;
 
 /**
  * @brief Draws the finish transition.
@@ -254,34 +254,34 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Draws the excellent celebration animation for a frame.
- * @param frame The animation frame.
+ * @param animFrame The animation frame.
  * @return Whether the animation is still running.
  * @ghidraAddress 0x190674
  */
-- (BOOL)renderExcellent:(unsigned int)frame;
+- (BOOL)renderExcellent:(unsigned int)animFrame;
 
 /**
  * @brief Draws the result-screen rating chips for a frame.
- * @param frame The animation frame.
+ * @param animFrame The animation frame.
  * @ghidraAddress 0x19134c
  */
-- (void)renderRating:(unsigned int)frame;
+- (void)renderRating:(unsigned int)animFrame;
 
 /**
  * @brief Draws the cleared-screen animation for a frame.
- * @param frame The animation frame.
+ * @param animFrame The animation frame.
  * @return Whether the animation is still running.
  * @ghidraAddress 0x1917fc
  */
-- (BOOL)renderCleared:(unsigned int)frame;
+- (BOOL)renderCleared:(unsigned int)animFrame;
 
 /**
  * @brief Draws the failed-screen animation for a frame.
- * @param frame The animation frame.
+ * @param animFrame The animation frame.
  * @return Whether the animation is still running.
  * @ghidraAddress 0x191d6c
  */
-- (BOOL)renderFailed:(unsigned int)frame;
+- (BOOL)renderFailed:(unsigned int)animFrame;
 
 /**
  * @brief Draws the result screen.

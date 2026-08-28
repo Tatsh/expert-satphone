@@ -65,6 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Designated initialiser; builds every subview.
  * @param style The cell style forwarded to @c UITableViewCell.
  * @param reuseIdentifier The reuse identifier forwarded to @c UITableViewCell.
+ * @return The initialised cell.
  * @ghidraAddress 0xfbec8
  */
 - (instancetype)initWithStyle:(UITableViewCellStyle)style

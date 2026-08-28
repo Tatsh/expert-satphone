@@ -39,7 +39,10 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 /** @brief Dismisses the cube-purchase menu. */
 - (void)closeCubePurchase;
-/** @brief Shows the modal processing dialog with a message. */
+/**
+ * @brief Shows the modal processing dialog with a message.
+ * @param message The message to show in the dialog.
+ */
 - (void)showPurchaseDialog:(nonnull NSString *)message;
 /** @brief Hides the modal processing dialog. */
 - (void)hidePurchaseDialog;

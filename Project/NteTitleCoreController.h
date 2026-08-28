@@ -47,10 +47,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Sets the @c unsealHeight ivar: the top strip's height, used to offset the marker view and
  * the licence sheet on iPad.
- * @param unsealHeight The unseal strip height in points.
+ * @param unsealHeight_ The unseal strip height in points.
  * @ghidraAddress 0x1ce434
  */
-- (void)setUnsealHeight:(int)unsealHeight;
+- (void)setUnsealHeight:(int)unsealHeight_;
 
 /**
  * @brief Initialises the controller with the background artwork names and the GL background bounds.

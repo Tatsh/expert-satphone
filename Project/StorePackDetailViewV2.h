@@ -36,8 +36,13 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief A downloaded pack's detail card (version 2).
  */
-@interface StorePackDetailViewV2
-    : UIView <DownloaderDelegate, AlertViewManagerDelegate, SKProductsRequestDelegate>
+// clang-format off
+// One protocol per line: the packed form, which begins a continuation line with ": UIView <", is
+// read by Doxygen as undocumented ivars named after the trailing protocols.
+@interface StorePackDetailViewV2 : UIView <DownloaderDelegate,
+                                           AlertViewManagerDelegate,
+                                           SKProductsRequestDelegate>
+// clang-format on
 
 /**
  * @brief The pack being shown.

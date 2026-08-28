@@ -31,32 +31,73 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)openedNotice;
 /** @brief The advert closed. */
 - (void)closeNotice;
-/** @brief An @c ApplilinkWebView "close" link was followed. */
+/**
+ * @brief An @c ApplilinkWebView "close" link was followed.
+ * @param webView The web view sending the message.
+ */
 - (void)closeNotice:(nonnull id)webView;
-/** @brief An @c ApplilinkWebView finished loading and is ready. */
+/**
+ * @brief An @c ApplilinkWebView finished loading and is ready.
+ * @param webView The web view sending the message.
+ */
 - (void)viewReady:(nonnull id)webView;
-/** @brief An @c ApplilinkWebView "repeat" link was followed. */
+/**
+ * @brief An @c ApplilinkWebView "repeat" link was followed.
+ * @param webView The web view sending the message.
+ */
 - (void)repeatNotice:(nonnull id)webView;
-/** @brief An @c ApplilinkWebView "store" link was followed. */
+/**
+ * @brief An @c ApplilinkWebView "store" link was followed.
+ * @param webView The web view sending the message.
+ */
 - (void)storeNotice:(nonnull id)webView;
-/** @brief An @c ApplilinkWebView load error occurred. */
+/**
+ * @brief An @c ApplilinkWebView load error occurred.
+ * @param webView The web view sending the message.
+ * @param error The load failure.
+ */
 - (void)linkErrorNotice:(nonnull id)webView error:(nonnull NSError *)error;
-/** @brief An advert open failed. */
+/**
+ * @brief An advert open failed.
+ * @param error The failure.
+ */
 - (void)failOpenNoticeWithError:(nullable NSError *)error;
-/** @brief An advert link failed. */
+/**
+ * @brief An advert link failed.
+ * @param error The failure.
+ */
 - (void)failLinkNoticeWithError:(nullable NSError *)error;
-/** @brief The delegate cancelled an advert open. */
+/**
+ * @brief The delegate cancelled an advert open.
+ * @param error The cancellation, as an error.
+ */
 - (void)openCancelWithError:(nullable NSError *)error;
-/** @brief The App Store product page opened. */
+/**
+ * @brief The App Store product page opened.
+ * @param appParam The advert parameters the page was opened for.
+ */
 - (void)appStoreOpenedNoticeWithAppParam:(nullable ApplilinkParameters *)appParam;
-/** @brief The App Store product page is about to close. */
+/**
+ * @brief The App Store product page is about to close.
+ * @param appParam The advert parameters the page was opened for.
+ */
 - (void)appStoreCloseNoticeWithAppParam:(nullable ApplilinkParameters *)appParam;
-/** @brief The App Store product page closed. */
+/**
+ * @brief The App Store product page closed.
+ * @param appParam The advert parameters the page was opened for.
+ */
 - (void)appStoreClosedNoticeWithAppParam:(nullable ApplilinkParameters *)appParam;
-/** @brief An App Store product-page load failed. */
+/**
+ * @brief An App Store product-page load failed.
+ * @param error The load failure.
+ * @param appParam The advert parameters the page was opened for.
+ */
 - (void)appStoreFailLoadNoticeWithError:(nullable NSError *)error
                                appParam:(nullable ApplilinkParameters *)appParam;
-/** @brief The App Store product page transitioned. */
+/**
+ * @brief The App Store product page transitioned.
+ * @param appParam The advert parameters the page was opened for.
+ */
 - (void)appStoreTransitionNoticeWithAppParam:(nullable ApplilinkParameters *)appParam;
 @end
 

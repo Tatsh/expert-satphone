@@ -20,18 +20,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The reward-check endpoint.
+ * @return The reward-check URL.
  * @ghidraAddress 0x1a4770
  */
 + (nullable NSURL *)rewardCheckURL;
 
 /**
  * @brief The reward-enable (startup) endpoint.
+ * @return The reward-enable URL.
  * @ghidraAddress 0x1a4808
  */
 + (nullable NSURL *)rewardEnableURL;
 
 /**
  * @brief The recommend-enable (startup) endpoint.
+ * @return The recommend-enable URL.
  * @ghidraAddress 0x1a48e4
  */
 + (nullable NSURL *)recommendEnableURL;
@@ -52,18 +55,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The score/play-log endpoint.
+ * @return The score/play-log URL.
  * @ghidraAddress 0x1a4e84
  */
 + (nullable NSURL *)scoreSendURL;
 
 /**
  * @brief The recommend-Twitter endpoint.
+ * @return The recommend-Twitter URL.
  * @ghidraAddress 0x1a4f58
  */
 + (nullable NSURL *)recommendTwitterURL;
 
 /**
  * @brief The recommend-Facebook endpoint.
+ * @return The recommend-Facebook URL.
  * @ghidraAddress 0x1a4ff0
  */
 + (nullable NSURL *)recommendFacebookURL;

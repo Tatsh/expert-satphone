@@ -57,6 +57,7 @@ extern EditButtonSelectionKey const EditButtonSelectionKeySelect;
  * @param selNum The index whose artwork is loaded from its selected variant instead.
  * @param delegate The object told about taps. Stored weakly.
  * @param ctrlName This controller's name, handed back to the delegate on every tap.
+ * @return The initialised controller.
  * @ghidraAddress 0x207348
  */
 - (instancetype)initWithButtonArray:(nullable NSArray<NSString *> *)buttonArray

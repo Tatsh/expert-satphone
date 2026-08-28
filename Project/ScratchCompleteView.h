@@ -23,6 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol ScratchCompleteViewDelegate <NSObject>
 @optional
+/**
+ * @brief The completion view closed.
+ * @param view The view that closed.
+ */
 - (void)scratchCompleteViewDidClose:(ScratchCompleteView *)view;
 @end
 

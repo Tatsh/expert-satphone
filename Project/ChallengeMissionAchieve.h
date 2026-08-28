@@ -49,6 +49,7 @@ extern ChallengeMissionAchieveKey const ChallengeMissionAchieveKeyClearDate;
 
 /**
  * @brief Returns an empty record with the three identifiers set to -1.
+ * @return The initialised record.
  * @ghidraAddress 0x1eed9c
  */
 - (instancetype)init;

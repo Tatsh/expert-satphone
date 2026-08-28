@@ -205,7 +205,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief The installed path of a marker's ZIP data.
  *
  * @param name The marker's base name.
- * @return The @c <markerDir>/<name>.zip path.
+ * @return The @c \<markerDir\>/\<name\>.zip path.
  * @ghidraAddress 0x1b884c
  */
 + (nullable NSString *)getMarkerPath:(nullable NSString *)name;
@@ -214,7 +214,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief The installed path of a marker's banner PNG.
  *
  * @param name The banner's base name.
- * @return The @c <markerDir>/banner/<name>.png path.
+ * @return The @c \<markerDir\>/banner/\<name\>.png path.
  * @ghidraAddress 0x1b8910
  */
 + (nullable NSString *)getMarkerBannerPath:(nullable NSString *)name;

@@ -119,6 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The ready-go countdown duration, in seconds.
+ * @return The countdown duration, in seconds.
  * @ghidraAddress 0x106f6c
  */
 - (double)durationOfReadyGo;
@@ -347,21 +348,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Draws the cleared result graphic.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @param centerY The graphic's vertical centre.
  * @return Whether the animation is still running.
  * @ghidraAddress 0x107e44
  */
-- (BOOL)renderCleared:(unsigned int)frame centerY:(double)centerY;
+- (BOOL)renderCleared:(unsigned int)animFrame centerY:(double)centerY;
 
 /**
  * @brief Draws the failed result graphic.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @param centerY The graphic's vertical centre.
  * @return Whether the animation is still running.
  * @ghidraAddress 0x10823c
  */
-- (BOOL)renderFailed:(unsigned int)frame centerY:(double)centerY;
+- (BOOL)renderFailed:(unsigned int)animFrame centerY:(double)centerY;
 
 /**
  * @brief Draws the result screen: the cleared/failed graphic, the score, the rating, and the

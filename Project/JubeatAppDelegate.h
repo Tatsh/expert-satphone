@@ -511,11 +511,13 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  *
  * Writes @c _currentTheme, mirrors it into @c NSUserDefaults under the key "PrefTheme" as an
  * @c NSNumber, synchronises, and then sends @c -changeThemeAndGoTitle to @c rootViewCtrl.
+ * @param theme The theme to select.
  * @ghidraAddress 0x8584
  */
 - (void)changeTheme:(JubeatTheme)theme;
 /**
  * @brief Hands a colour array to the knit-colour manager.
+ * @param knitColor The colours to install.
  * @ghidraAddress 0x8f38
  */
 - (void)setKnitColor:(NSArray *)knitColor;
@@ -551,6 +553,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * Because the item is stored with @c kSecAttrAccessibleAfterFirstUnlock and never deleted, the
  * value survives reinstalling the application, which is what makes @c +clientInfo's "uuid" entry a
  * stable per-install identifier.
+ * @return The per-install identifier, minted and stored on first use.
  * @ghidraAddress 0x8814
  */
 - (NSString *)musicListKey;
@@ -568,6 +571,8 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * @c +[NSScanner localizedScannerWithString:], not the plain @c +scannerWithString:, so it carries
  * the current locale. And its @c charactersToBeSkipped is explicitly set to nil, which disables the
  * default whitespace skipping — without that a string of spaces and digits would pass.
+ * @param string The candidate string.
+ * @return YES when the string is non-empty and all ASCII digits, NO otherwise.
  * @ghidraAddress 0x8fa8
  */
 - (BOOL)digitStringCheck:(nullable NSString *)string;
@@ -587,6 +592,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * Surprising but faithful: this is a hardcoded string literal, not a computed or stored date. The
  * CFString at 0x2d4300 points at 19 bytes reading "2015-04-14 17:00:02", and the method returns it
  * through @c objc_retainAutorelease with no formatting of any kind.
+ * @return The hardcoded licence date string.
  * @ghidraAddress 0x8dd4
  */
 - (NSString *)getCurrentLicenseDate;
@@ -596,6 +602,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * Looks up the key "Use policy Message" with @c -localizedStringForKey:value:table:, passing an
  * empty default and a nil table. When the lookup comes back equal to that empty default the method
  * returns nil rather than the empty string, so callers can test for absence.
+ * @return The localized use-policy message, or nil when the bundle has no translation.
  * @ghidraAddress 0x8e00
  */
 - (nullable NSString *)getCurrentLicenseMessage;
@@ -612,17 +619,27 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * @ghidraAddress 0x8eb0
  */
 - (void)moveChallengeOpenFlag;
-/** @brief Sets @c bChallengeMode. @ghidraAddress 0x8ed8 */
+/**
+ * @brief Sets @c bChallengeMode.
+ * @param challengeMode Whether challenge mode is engaged.
+ * @ghidraAddress 0x8ed8
+ */
 - (void)setChallengeMode:(BOOL)challengeMode;
 /**
  * @brief Selects the challenge's music and difficulty, and engages challenge mode.
  *
  * Note that it also sets @c bChallengeMode to YES as a side effect, which the selector name does
  * not suggest.
+ * @param musicID The challenge tune's identifier.
+ * @param difficulty The challenge difficulty.
  * @ghidraAddress 0x8ee8
  */
 - (void)setChallengeMusic:(unsigned int)musicID diff:(int)difficulty;
-/** @brief Sets @c totalPurchaseAmount. @ghidraAddress 0x8f14 */
+/**
+ * @brief Sets @c totalPurchaseAmount.
+ * @param amount The running total the player has spent.
+ * @ghidraAddress 0x8f14
+ */
 - (void)setTotalAmount:(int)amount;
 
 #pragma mark - Notification persistence
@@ -630,8 +647,9 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 /**
  * @brief The on-disk path of the persisted notification queue, creating its directory if needed.
  *
- * Builds @c <caches>/notification, creates that directory with intermediate directories when it
- * does not already exist, and returns @c <caches>/notification/noti.txt.
+ * Builds @c \<caches\>/notification, creates that directory with intermediate directories when it
+ * does not already exist, and returns @c \<caches\>/notification/noti.txt.
+ * @return The notification queue's file path.
  * @ghidraAddress 0xa530
  */
 - (NSString *)getNotificationFilePath;
@@ -657,6 +675,8 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * @c -[NSDate timeIntervalSince1970], against @c fireTime and answers YES when the current time is
  * less than or equal to it. Note the comparison is inclusive, so a notification due at exactly the
  * current second still counts as active.
+ * @param fireTime The scheduled fire time, as a Unix timestamp.
+ * @return YES while the current time is at or before @p fireTime , NO once it has passed.
  * @ghidraAddress 0xb534
  */
 - (BOOL)pushActiveCheck:(NSInteger)fireTime;
@@ -669,6 +689,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  *
  * The queue is only persisted when the loop actually ran: an already-empty queue returns nil
  * without calling @c -saveNotification, whereas both loop exits do call it.
+ * @return The first notification that has not expired, or nil when none remains.
  * @ghidraAddress 0xb594
  */
 - (nullable NSDictionary *)popNotification;
@@ -689,6 +710,9 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * Several small oddities are reproduced rather than corrected and are listed in TYPES_PENDING.md:
  * the discarded @c arc4random and @c systemVersion, the four unread @c NSError out-parameters, and
  * the notification registration calls being made in the opposite order to Apple's.
+ * @param application The application being launched.
+ * @param launchOptions The launch options, whose remote-notification entry is routed by scheme.
+ * @return Always YES.
  * @ghidraAddress 0x933c
  */
 - (BOOL)application:(UIApplication *)application
@@ -704,6 +728,9 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  *
  * Two of its four routes are unreachable as compiled — see the implementation comment at the
  * "jbtstore" arm.
+ * @param application The application opening the URL.
+ * @param url The @c jubeatplus:// URL to route.
+ * @return Always YES, on every path.
  * @ghidraAddress 0x9090
  */
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url;
@@ -718,6 +745,8 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * "aps", and "url", "expire", and "id" from the top level.
  *
  * The "alert" to "body" rename is the only key that changes name; every other entry keeps its own.
+ * @param userInfo The APNs payload.
+ * @return The flattened payload, or nil when the payload has no "aps" entry.
  * @ghidraAddress 0xa990
  */
 - (nullable NSMutableDictionary *)apsDictionary:(NSDictionary *)userInfo;
@@ -729,6 +758,8 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  *
  * The settings argument is ignored: the binary does not inspect which types were granted, so this
  * registers even when the user allowed nothing.
+ * @param application The application reporting the settings.
+ * @param notificationSettings The settings the user granted. The binary ignores this.
  * @ghidraAddress 0xa868
  */
 - (void)application:(UIApplication *)application
@@ -739,6 +770,8 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * Takes @c -description of the @c NSData and strips the three literals "<", ">", and " " from it in
  * that order. This is the pre-iOS-13 idiom for turning a token into hex; it depends on
  * @c NSData.description's format and is reproduced as written.
+ * @param application The application reporting the token.
+ * @param deviceToken The APNs device token.
  * @ghidraAddress 0xa8a4
  */
 - (void)application:(UIApplication *)application
@@ -748,6 +781,8 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  *
  * Surprising but faithful: the compiled method at 0xa98c is a single @c ret. A failed registration
  * is neither recorded nor reported, so @c deviceToken simply stays nil.
+ * @param application The application reporting the failure. The binary ignores this.
+ * @param error The registration failure. The binary ignores this.
  * @ghidraAddress 0xa98c
  */
 - (void)application:(UIApplication *)application
@@ -769,6 +804,8 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  *
  * This is the working twin of @c -application:handleOpenURL:. Both route the same three tokens, but
  * this one reads them off @c NSURL.scheme, where they are, rather than off a path component.
+ * @param application The application delivering the notification.
+ * @param notification The local notification; dropped when it carries no @c userInfo .
  * @ghidraAddress 0xac48
  */
 - (void)application:(UIApplication *)application
@@ -789,6 +826,8 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * The report is @c -responseRemoteNotification:pushInfo: with @c NO, meaning the notification
  * arrived at a running app. @c -application:didFinishLaunchingWithOptions: passes @c YES for the
  * cold-launch case at 0x9dfc.
+ * @param application The application delivering the notification.
+ * @param userInfo The remote notification's payload.
  * @ghidraAddress 0xb0c8
  */
 - (void)application:(UIApplication *)application
@@ -801,6 +840,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  *
  * The whole body is @c [[ChallengeStatus sharedStatus] createCoinNotification]; the
  * @c UIApplication argument is ignored.
+ * @param application The application entering the background. The binary ignores this.
  * @ghidraAddress 0xb6f8
  */
 - (void)applicationDidEnterBackground:(UIApplication *)application;
@@ -809,6 +849,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  *
  * Surprising but faithful: the compiled method is a single @c ret. It is present only to satisfy
  * the delegate protocol.
+ * @param application The application resigning active. The binary ignores this.
  * @ghidraAddress 0xb740
  */
 - (void)applicationWillResignActive:(UIApplication *)application;
@@ -817,11 +858,13 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  *
  * Note that it messages @c UIApplication.sharedApplication twice rather than reusing the argument
  * it was handed, which is ignored.
+ * @param application The application becoming active. The binary ignores this.
  * @ghidraAddress 0xb744
  */
 - (void)applicationDidBecomeActive:(UIApplication *)application;
 /**
  * @brief Shuts the purchase manager down and flushes the score records.
+ * @param application The application terminating.
  * @ghidraAddress 0xb7c8
  */
 - (void)applicationWillTerminate:(UIApplication *)application;
@@ -830,6 +873,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  *
  * As with @c -applicationWillResignActive:, the compiled method is a single @c ret. The binary
  * takes no action on a memory warning.
+ * @param application The application reporting the warning. The binary ignores this.
  * @ghidraAddress 0xb844
  */
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application;
@@ -840,15 +884,27 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 - (void)resetDownLoadIndex;
 /** @brief Clears @c storeGenreID. @ghidraAddress 0x8c50 */
 - (void)resetDownloadGenreID;
-/** @brief Sets @c storeGenreID. @ghidraAddress 0x8c68 */
+/**
+ * @brief Sets @c storeGenreID.
+ * @param genreID The store genre to open on the next store visit.
+ * @ghidraAddress 0x8c68
+ */
 - (void)setDownloadGenreID:(nullable id)genreID;
 /** @brief Clears @c storePackID. @ghidraAddress 0x8c7c */
 - (void)resetDownloadPackID;
-/** @brief Sets @c storePackID. @ghidraAddress 0x8c94 */
+/**
+ * @brief Sets @c storePackID.
+ * @param packID The store pack to open on the next store visit.
+ * @ghidraAddress 0x8c94
+ */
 - (void)setDownloadPackID:(nullable id)packID;
 /** @brief Clears @c storeCampaignID. @ghidraAddress 0x8ca8 */
 - (void)resetCampaignID;
-/** @brief Sets @c storeCampaignID. @ghidraAddress 0x8cc0 */
+/**
+ * @brief Sets @c storeCampaignID.
+ * @param campaignID The campaign to open on the next store visit.
+ * @ghidraAddress 0x8cc0
+ */
 - (void)setCampaignID:(nullable id)campaignID;
 
 #pragma mark - Notification page mutators
@@ -857,19 +913,37 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * @brief Records the notification page endpoint and the timestamp that goes with it.
  *
  * A nil @c pageURL clears @c notificationURL rather than storing a URL built from nil.
+ * @param pageURL The notification page's address, or nil to clear it.
+ * @param updateTime The timestamp that goes with @p pageURL .
  * @ghidraAddress 0x8cd4
  */
 - (void)setNotificationPageURL:(nullable NSString *)pageURL updateTime:(nullable id)updateTime;
 
 #pragma mark - Option flag mutators
 
-/** @brief Sets @c isRandom. @ghidraAddress 0x8d7c */
+/**
+ * @brief Sets @c isRandom.
+ * @param flag Whether random select is on.
+ * @ghidraAddress 0x8d7c
+ */
 - (void)setRandomFlag:(BOOL)flag;
-/** @brief Sets @c isExtend. @ghidraAddress 0x8d8c */
+/**
+ * @brief Sets @c isExtend.
+ * @param flag Whether the extend filter is on.
+ * @ghidraAddress 0x8d8c
+ */
 - (void)setExtendFlag:(BOOL)flag;
-/** @brief Sets @c isHold. @ghidraAddress 0x8d9c */
+/**
+ * @brief Sets @c isHold.
+ * @param flag Whether the hold filter is on.
+ * @ghidraAddress 0x8d9c
+ */
 - (void)setHoldFlag:(BOOL)flag;
-/** @brief Sets @c searchString. @ghidraAddress 0x8dac */
+/**
+ * @brief Sets @c searchString.
+ * @param searchString The music-list search text.
+ * @ghidraAddress 0x8dac
+ */
 - (void)setSearchString:(nullable id)searchString;
 /** @brief Latches @c isMarkerLegal to YES. @ghidraAddress 0x8dc0 */
 - (void)markerDownloadComplete;

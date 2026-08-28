@@ -16,7 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol RewardCheckDelegate <NSObject>
 @optional
-/** @brief Sent when the reward check finishes (successfully or not). */
+/**
+ * @brief Sent when the reward check finishes (successfully or not).
+ * @param rewardCheck The reward check that finished.
+ */
 - (void)rewardCheckEnd:(nonnull id)rewardCheck;
 @end
 

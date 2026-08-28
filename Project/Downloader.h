@@ -45,6 +45,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloaderError:(id)downloader;
 @end
 
+/**
+ * @brief A one-shot HTTP request that reports its result to a delegate.
+ */
 @interface Downloader : NSObject <NSURLSessionDataDelegate>
 
 /**

@@ -29,9 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 
 /**
- * @brief Sent when the page's @c jbtstore://.../pack/<id> deep link is followed. The controller
+ * @brief Sent when the page's @c jbtstore://.../pack/\<id\> deep link is followed. The controller
  *        dispatches it through @c performSelector:withObject: , so the argument is optional.
- * @param packInfomation A dictionary of the form @c {@"pack": <id>} , or nil when the link's path
+ * @param packInfomation A dictionary of the form @c {@"pack": \<id\>} , or nil when the link's path
  *        did not name a pack. The binary spelling @c clickPackInfomation is preserved verbatim.
  */
 - (void)clickPackInfomation:(nullable NSDictionary<NSString *, NSString *> *)packInfomation;
@@ -89,6 +89,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Resource-load hook that stamps the app's user agent onto every outgoing request.
+ * @param uiWebView The web view loading the resource.
+ * @param resource The resource being loaded.
+ * @param request The outgoing request, stamped with the user agent.
+ * @param redirectResponse The redirect that led here, or nil when there was none.
+ * @param dataSource The data source driving the load.
+ * @return The request to send.
  * @ghidraAddress 0x1eabc0
  */
 - (nullable NSURLRequest *)uiWebView:(nullable id)uiWebView
@@ -100,8 +106,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Gates the page's navigation. Only a user-clicked link is inspected: a @c twitter:// link
  *        is blocked, an @c openurl:// link is opened externally as @c https:// , and a
- *        @c jbtstore://.../pack/<id> link is delivered to the delegate. Returns @c NO for a
+ *        @c jbtstore://.../pack/\<id\> link is delivered to the delegate. Returns @c NO for a
  *        handled link and @c YES otherwise.
+ * @param webView The web view asking.
+ * @param request The request it is about to load.
+ * @param navigationType What triggered the navigation.
+ * @return NO for a handled link, YES otherwise.
  * @ghidraAddress 0x1ead08
  */
 - (BOOL)webView:(UIWebView *)webView
@@ -116,6 +126,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Shows a network-error alert on a load failure, then stops the indicator.
+ * @param webView The web view reporting the failure.
+ * @param error The load failure.
  * @ghidraAddress 0x1eb164
  */
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error;
@@ -144,6 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Closes any open alert when the view disappears.
+ * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x1eb3bc
  */
 - (void)viewWillDisappear:(BOOL)animated;
@@ -168,18 +181,22 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Whether to rotate to a given interface orientation; portrait and portrait-upside-down
  *        only.
+ * @param interfaceOrientation The orientation asked about.
+ * @return YES for the two portrait orientations, NO otherwise.
  * @ghidraAddress 0x1eb41c
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
  * @brief The supported interface orientations: portrait and portrait-upside-down.
+ * @return Both portrait orientations.
  * @ghidraAddress 0x1eb42c
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
  * @brief Whether the controller supports autorotation; always @c YES.
+ * @return Always YES.
  * @ghidraAddress 0x1eb434
  */
 - (BOOL)shouldAutorotate;

@@ -15,6 +15,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * @brief One pin on the settings map, carrying its coordinate and callout text.
+ */
 @interface SettingsMapItem : NSObject <MKAnnotation>
 
 /** @brief The annotation's map coordinate. */

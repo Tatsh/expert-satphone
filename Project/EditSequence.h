@@ -28,20 +28,30 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// The number of playfield panels (a 4x4 grid), sizing the per-panel judgement arrays.
-enum { kEditSequencePanelCount = 16 };
+enum {
+    kEditSequencePanelCount = 16 /*!< The number of playfield panels (a 4x4 grid), sizing the
+                                      per-panel judgement arrays. */
+};
 
-/// The number of template slots: an empty structural template plus three difficulty templates.
-enum { kEditSequenceTemplateSlotCount = 4 };
+enum {
+    kEditSequenceTemplateSlotCount = 4 /*!< The number of template slots: an empty structural
+                                            template plus three difficulty templates. */
+};
 
-/// The number of segments in the music bar; each note maps to one via its sector.
-enum { kEditSequenceMusicBarSegmentCount = 120 };
+enum {
+    kEditSequenceMusicBarSegmentCount = 120 /*!< The number of segments in the music bar; each note
+                                                 maps to one via its sector. */
+};
 
-/// The length of the packed music-bar and conflict-bar bitmaps, in bytes (two segments per byte).
-enum { kEditSequenceMusicBarByteCount = 60 };
+enum {
+    kEditSequenceMusicBarByteCount = 60 /*!< The length of the packed music-bar and conflict-bar
+                                             bitmaps, in bytes (two segments per byte). */
+};
 
-/// The per-template raw music-bar buffer length, in bytes (one segment per byte).
-enum { kEditSequenceTemplateMusicBarByteCount = 120 };
+enum {
+    kEditSequenceTemplateMusicBarByteCount = 120 /*!< The per-template raw music-bar buffer length,
+                                                      in bytes (one segment per byte). */
+};
 
 /**
  * @brief The chart-editor data model.
@@ -160,6 +170,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
  * @brief Returns whether the note event at an index is a note on a given button.
  * @param index The event index.
  * @param btn The panel index to match.
+ * @return YES when the event is a note on that button, NO otherwise.
  * @ghidraAddress 0x215168
  */
 - (BOOL)checkConflictEvent:(int)index btn:(unsigned int)btn;
@@ -168,6 +179,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
  * @brief Returns the index of the note nearest a sector on a given button, or -1.
  * @param sector The reference sector.
  * @param btn The panel index to match.
+ * @return The nearest matching note's event index, or -1 when there is none.
  * @ghidraAddress 0x2151b4
  */
 - (int)searchBtnNearSector:(int)sector btn:(int)btn;
@@ -175,6 +187,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
 /**
  * @brief Returns the event index nearest a sector.
  * @param sector The reference sector.
+ * @return The nearest event's index.
  * @ghidraAddress 0x215244
  */
 - (int)searchNearIndex:(int)sector;
@@ -217,6 +230,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
  * @param btn The panel index to match.
  * @param area The maximum sector distance that still counts as a conflict.
  * @param sameCheck Whether the reference sector's own note is excluded.
+ * @return YES when a conflicting note is within the area, NO otherwise.
  * @ghidraAddress 0x215860
  */
 - (BOOL)checkConflictBySector:(int)sector
@@ -230,6 +244,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
  * @param btn The panel index to match.
  * @param area The maximum sector distance that still counts as a conflict.
  * @param sameCheck Whether the reference index itself is excluded.
+ * @return YES when a conflicting note is within the area, NO otherwise.
  * @ghidraAddress 0x2158f8
  */
 - (BOOL)checkConflictByIndex:(int)index
@@ -241,6 +256,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
  * @brief Returns whether the note at an index conflicts with another note in the given direction.
  * @param index The event index whose button and area are tested.
  * @param direction The search direction.
+ * @return YES when the note conflicts with another in that direction, NO otherwise.
  * @ghidraAddress 0x215988
  */
 - (BOOL)checkConflictArea:(unsigned int)index vector:(int)direction;
@@ -249,6 +265,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
  * @brief Returns whether the note at the current index conflicts, on a button, in a direction.
  * @param btn The panel index to match.
  * @param direction The search direction.
+ * @return YES when the note at the current index conflicts, NO otherwise.
  * @ghidraAddress 0x2159d4
  */
 - (BOOL)checkConflict:(unsigned int)btn vector:(int)direction;
@@ -256,6 +273,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
 /**
  * @brief Returns whether adding a note on a button at the current sector would conflict.
  * @param btn The panel index to test.
+ * @return YES when adding the note would conflict, NO otherwise.
  * @ghidraAddress 0x215a1c
  */
 - (BOOL)checkKeyConflict:(int)btn;
@@ -264,6 +282,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
  * @brief Returns whether a run of notes on a button starting at the current index conflicts.
  * @param btn The panel index to match.
  * @param direction The scan direction.
+ * @return YES when the run of notes conflicts, NO otherwise.
  * @ghidraAddress 0x215a8c
  */
 - (BOOL)conflictKeyCheck:(unsigned int)btn vector:(int)direction;
@@ -347,6 +366,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
 /**
  * @brief Returns the beat-line rate nearest a fractional position, from the empty template.
  * @param rate The fractional position over the chart, in [0, 1].
+ * @return The nearest beat-line rate.
  * @ghidraAddress 0x216c98
  */
 - (float)getNearBeatRate:(float)rate;
@@ -355,6 +375,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
  * @brief Returns the sector nearest a sector on a subdivided beat grid.
  * @param sector The reference sector.
  * @param divide The beat subdivision (@c 15 returns the sector unchanged).
+ * @return The nearest sector on the subdivided beat grid.
  * @ghidraAddress 0x216d14
  */
 - (int)getNearDiveBeatSector:(int)sector divide:(int)divide;
@@ -363,6 +384,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
  * @brief Returns the fractional position nearest a fractional position on a subdivided beat grid.
  * @param rate The fractional position over the chart, in [0, 1].
  * @param divide The beat subdivision.
+ * @return The nearest fractional position on the subdivided beat grid.
  * @ghidraAddress 0x216ee8
  */
 - (float)getNearDivBeatRate:(float)rate divide:(int)divide;
@@ -370,6 +392,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
 /**
  * @brief Converts a sector to a fractional position over the chart.
  * @param sector The sector.
+ * @return The fractional position over the chart, in [0, 1].
  * @ghidraAddress 0x216f40
  */
 - (float)sector2rate:(int)sector;
@@ -377,6 +400,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
 /**
  * @brief Converts a fractional position over the chart to a sector.
  * @param rate The fractional position, in [0, 1].
+ * @return The corresponding sector.
  * @ghidraAddress 0x216f5c
  */
 - (unsigned int)rate2sector:(float)rate;
@@ -384,6 +408,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
 /**
  * @brief Returns the index of the beat line at or before a sector, from the empty template.
  * @param sector The reference sector.
+ * @return The index of the beat line at or before the sector.
  * @ghidraAddress 0x216f78
  */
 - (int)getFrontBeatSector:(int)sector;
@@ -391,6 +416,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
 /**
  * @brief Returns the sector of the first beat line after a sector, from the empty template.
  * @param sector The reference sector.
+ * @return The sector of the first beat line after the reference sector.
  * @ghidraAddress 0x216fd4
  */
 - (int)getBackBeatSector:(int)sector;
@@ -441,42 +467,49 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
 
 /**
  * @brief Returns the packed note-density music bar.
+ * @return The packed note-density music bar.
  * @ghidraAddress 0x217b64
  */
 - (const char *)getMusicBar;
 
 /**
  * @brief Returns the packed conflict music bar.
+ * @return The packed conflict music bar.
  * @ghidraAddress 0x217b74
  */
 - (const char *)getConflictBar;
 
 /**
  * @brief Returns the working event array.
+ * @return The working event array.
  * @ghidraAddress 0x217b84
  */
 - (const SequenceEvent *)getSequenceEventTable;
 
 /**
  * @brief Returns the area copy/paste clipboard event array.
+ * @return The clipboard event array.
  * @ghidraAddress 0x217b94
  */
 - (const SequenceEvent *)getSequencePasteTable;
 
 /**
  * @brief Returns the chart's end sector.
+ * @return The chart's end sector.
  * @ghidraAddress 0x217ba4
  */
 - (unsigned int)getEndSector;
 
 /**
  * @brief Returns the fixed conflict-detection window, in sectors.
+ * @return The conflict-detection window, in sectors.
  * @ghidraAddress 0x217bb4
  */
 - (unsigned int)getConflictSector;
 
 /**
  * @brief Returns the sector of the measure two measures before the current position.
+ * @return The rewind-target measure sector.
  * @ghidraAddress 0x217bbc
  */
 - (int)getRewindMeasureSector;
@@ -502,6 +535,7 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
 /**
  * @brief Returns the index of the first event at or after a sector, or -1 past a terminator.
  * @param sector The reference sector.
+ * @return The index of the first event at or after the sector, or -1 past a terminator.
  * @ghidraAddress 0x217d08
  */
 - (int)searchSectorIndex:(int)sector;
@@ -534,30 +568,35 @@ enum { kEditSequenceTemplateMusicBarByteCount = 120 };
 /**
  * @brief Returns the note count of a template slot.
  * @param slot The template slot.
+ * @return The template slot's note count.
  * @ghidraAddress 0x218484
  */
 - (unsigned int)getTemplateNoteNum:(int)slot;
 
 /**
  * @brief Returns the working note count.
+ * @return The number of note events in the working array.
  * @ghidraAddress 0x2184a4
  */
 - (unsigned int)getNoteNum;
 
 /**
  * @brief Returns the working event count.
+ * @return The number of events in the working array.
  * @ghidraAddress 0x2184b4
  */
 - (unsigned int)getEventNum;
 
 /**
  * @brief Returns the first-marker panel bitmask, computed from the leading same-sector notes.
+ * @return The panel bitmask of the chart's first marker.
  * @ghidraAddress 0x2184c4
  */
 - (unsigned int)getFirstMarker;
 
 /**
  * @brief Returns the sector of the first note.
+ * @return The first note's sector.
  * @ghidraAddress 0x21853c
  */
 - (unsigned int)getFirstSector;

@@ -17,7 +17,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol ChallengeTextInputViewDelegate <NSObject>
 @optional
-/** @brief The field's text was committed. */
+/**
+ * @brief The field's text was committed.
+ * @param inputView The input view whose text was committed.
+ */
 - (void)commitText:(nonnull ChallengeTextInputView *)inputView;
 @end
 

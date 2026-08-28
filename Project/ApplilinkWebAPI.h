@@ -196,6 +196,16 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
  *
  * The work is dispatched to a global concurrent queue, where a throwaway instance sends the
  * request through the instance method of the same selector.
+ * @param URL The base URL string.
+ * @param method The HTTP method.
+ * @param parameters The request parameters.
+ * @param userInfo Caller context; the callback blocks are instead handed the sent request.
+ * @param tag A caller-supplied request tag.
+ * @param cachePolicy The cache policy as a boxed @c NSNumber , or @c nil for the default policy.
+ * @param timeout The request timeout, in seconds.
+ * @param retry Whether the request participates in the timeout-retry policy.
+ * @param finishedBlock The success callback.
+ * @param failedBlock The failure callback.
  * @ghidraAddress 0x253604
  */
 + (void)requestAsynchronousWithURL:(nullable NSString *)URL
@@ -212,6 +222,11 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
 /**
  * @brief Convenience class factory for @c requestSynchronousWithURL:method:parameters:cachePolicy:
  * error:.
+ * @param URL The base URL string.
+ * @param method The HTTP method.
+ * @param parameters The request parameters.
+ * @param cachePolicy The cache policy as a boxed @c NSNumber , or @c nil for the default policy.
+ * @param error On failure, the localised error; may be @c nullptr.
  * @return The parsed JSON response, or @c nil on failure.
  * @ghidraAddress 0x253930
  */
@@ -224,6 +239,11 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
 /**
  * @brief Convenience class factory for @c responseFromContentsServer:request:data:finishedBlock:
  * failedBlock:.
+ * @param response The request URL, matched against the contents-server URL.
+ * @param request The request that was sent, handed back to @p failedBlock .
+ * @param data The raw response data.
+ * @param finishedBlock The success callback (unused on this path).
+ * @param failedBlock The failure callback.
  * @return The value forwarded from the instance method.
  * @ghidraAddress 0x253a30
  */

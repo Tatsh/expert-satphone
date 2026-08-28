@@ -30,19 +30,28 @@ NS_ASSUME_NONNULL_BEGIN
 /** @brief The shared modal progress/download dialog panel, or @c nil before it is built. */
 @property(nonatomic, readonly, nullable) StoreDialogView *modalDialog;
 
-/** @brief Shows the modal download dialog over the given sender. */
+/**
+ * @brief Shows the modal download dialog over the given sender.
+ * @param sender The view the dialog is shown over.
+ */
 - (void)showModalDialog:(nullable id)sender;
 
 /** @brief Hides the modal download dialog. */
 - (void)hideModalDialog;
 
-/** @brief Opens the detail view for a pack. */
+/**
+ * @brief Opens the detail view for a pack.
+ * @param packID The pack whose detail to open, boxed.
+ */
 - (void)openDetail:(nullable NSNumber *)packID;
 
 /** @brief Begins the first restore-purchases pass. */
 - (void)firstRestore;
 
-/** @brief Tears the store down. */
+/**
+ * @brief Tears the store down.
+ * @param sender The control that ended the store.
+ */
 - (void)storeEnd:(nullable id)sender;
 
 @end

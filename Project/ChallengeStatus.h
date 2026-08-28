@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Sets the initial economy defaults and computes the phone layout scale.
+ * @return The initialised status.
  * @ghidraAddress 0x1cad10
  */
 - (instancetype)init;
@@ -307,6 +308,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Renders a second count as @c "m:ss" , clamping the minutes to 200.
  * @param interval The interval in seconds.
+ * @return The interval as @c "m:ss" .
  * @ghidraAddress 0x1cd2d0
  */
 - (nullable NSString *)timeStringFromInterval_Minute:(double)interval;
@@ -314,6 +316,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Renders a second count as @c "hh:mm:ss" , clamping the hours to 999.
  * @param interval The interval in seconds.
+ * @return The interval as @c "hh:mm:ss" .
  * @ghidraAddress 0x1cd35c
  */
 - (nullable NSString *)timeStringFromInterval:(double)interval;
@@ -321,6 +324,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Seconds remaining until the given date, corrected by the server-time delay.
  * @param date The target date.
+ * @return The seconds remaining until @p date , corrected by the server-time delay.
  * @ghidraAddress 0x1cd3e8
  */
 - (double)getTimeLeft:(nullable NSDate *)date;
@@ -328,6 +332,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Seconds until the given panel's tune stops being playable, or -1 when the panel is closed.
  * @param index The scratch panel index.
+ * @return The seconds until the tune stops being playable, or -1 when the panel is closed.
  * @ghidraAddress 0x1cd47c
  */
 - (double)getMusicEnableTime:(int)index;
@@ -335,6 +340,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The given panel's enabled time as display text.
  * @param index The scratch panel index.
+ * @return The panel's enabled time as display text.
  * @ghidraAddress 0x1cd54c
  */
 - (nullable NSString *)getMusicEnableTimeString:(int)index;
@@ -352,6 +358,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The cached square artwork for a tune, keyed by its music identifier.
  * @param musicID The tune identifier key.
+ * @return The cached artwork for the tune, or nil when none is cached.
  * @ghidraAddress 0x1cd5dc
  */
 - (nullable UIImage *)getLineupImage:(nullable id)musicID;
@@ -367,6 +374,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The number of scratch panels not yet opened (those whose info entry has no music
  * identifier).
+ * @return The number of unopened scratch panels.
  * @ghidraAddress 0x1cd60c
  */
 - (int)scratchablePanelNum;
@@ -374,6 +382,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The number of scratch panels already opened (those whose info entry has a music
  * identifier).
+ * @return The number of opened scratch panels.
  * @ghidraAddress 0x1cd740
  */
 - (int)scratchOpenedPanelNum;
@@ -401,6 +410,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The currently selected mission sheet, looked up in the mission-file manager.
+ * @return The selected mission sheet, or nil when none is selected.
  * @ghidraAddress 0x1cdcdc
  */
 - (nullable ChallengeMissionSheet *)getSelectedMissionSheet;
@@ -415,6 +425,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The currently selected mission sheet identifier.
+ * @return The selected mission sheet's identifier.
  * @ghidraAddress 0x1cdf68
  */
 - (int)getSelectedMissionSheetID;

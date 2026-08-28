@@ -132,6 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The ready-go countdown duration, in seconds.
+ * @return The countdown duration, in seconds.
  * @ghidraAddress 0x203238
  */
 - (double)durationOfReadyGo;
@@ -140,12 +141,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The vertical offset of the button area, in points. Always zero for the knit pad.
+ * @return Always 0.
  * @ghidraAddress 0x205a98
  */
 - (double)buttonAreaOffset;
 
 /**
  * @brief The vertical offset of the game area, in points.
+ * @return The game-area offset, in points.
  * @ghidraAddress 0x205aa0
  */
 - (double)gameAreaOffset;
@@ -219,6 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The rectangle of the result-screen music bar.
+ * @return The music-bar rectangle.
  * @ghidraAddress 0x202390
  */
 - (CGRect)getMusicBarRect;
@@ -360,11 +364,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Draws the full-combo flourish.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @param isResult Whether the flourish is drawn on the result screen (which offsets the frame).
  * @ghidraAddress 0x203a70
  */
-- (void)renderFullcombo:(int)frame isResult:(BOOL)isResult;
+- (void)renderFullcombo:(int)animFrame isResult:(BOOL)isResult;
 
 /**
  * @brief Draws the finish banner and, once done, loads the result texture off-thread.
@@ -374,34 +378,34 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Draws the excellent (perfect-score) result flourish.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @return Whether the animation has finished.
  * @ghidraAddress 0x2042e4
  */
-- (BOOL)renderExcellent:(unsigned int)frame;
+- (BOOL)renderExcellent:(unsigned int)animFrame;
 
 /**
  * @brief Draws the rank rating graphic.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @ghidraAddress 0x204dd0
  */
-- (void)renderRating:(unsigned int)frame;
+- (void)renderRating:(unsigned int)animFrame;
 
 /**
  * @brief Draws the cleared result graphic.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @return Whether the animation has finished.
  * @ghidraAddress 0x2051b8
  */
-- (BOOL)renderCleared:(unsigned int)frame;
+- (BOOL)renderCleared:(unsigned int)animFrame;
 
 /**
  * @brief Draws the failed result graphic.
- * @param frame The animation frame counter.
+ * @param animFrame The animation frame counter.
  * @return Whether the animation has finished.
  * @ghidraAddress 0x205628
  */
-- (BOOL)renderFailed:(unsigned int)frame;
+- (BOOL)renderFailed:(unsigned int)animFrame;
 
 /**
  * @brief Draws the result screen: the flourish, the score, the rating, the new-record banner, and

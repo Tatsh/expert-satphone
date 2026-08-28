@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Creates the backing cache and caps it at a hundred and twenty-eight entries.
+ * @return The initialised cache.
  * @ghidraAddress 0xced48
  */
 - (instancetype)init;

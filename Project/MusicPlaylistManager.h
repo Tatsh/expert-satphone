@@ -48,6 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns the number of playlists.
+ * @return The playlist count.
  * @ghidraAddress 0x164c74
  */
 - (NSUInteger)numberOfPlaylists;
@@ -66,6 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Returns the index of @p playlist by identity, or @c NSNotFound .
  * @param playlist The playlist dictionary to search for.
+ * @return The playlist's index, or @c NSNotFound when it is not present.
  * @ghidraAddress 0x164e4c
  */
 - (NSUInteger)indexOfPlaylist:(nonnull NSDictionary *)playlist;
@@ -80,12 +82,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns the display name of the playlist at @p index, or @c nil if out of range.
+ * @param index The playlist index.
+ * @return The playlist's display name, or nil when the index is out of range.
  * @ghidraAddress 0x165068
  */
 - (nullable NSString *)nameOfPlaylistAtIndex:(NSUInteger)index;
 
 /**
  * @brief Returns the identifier of the playlist at @p index, or @c nil if out of range.
+ * @param index The playlist index.
+ * @return The playlist's identifier, or nil when the index is out of range.
  * @ghidraAddress 0x165144
  */
 - (nullable NSString *)identifierOfPlaylistAtIndex:(NSUInteger)index;
@@ -112,6 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Removes the playlist at @p index.
+ * @param index The playlist index.
  * @return @c YES if the index was in range, @c NO otherwise.
  * @ghidraAddress 0x165560
  */
@@ -119,6 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns the number of music entries in the playlist at @p index.
+ * @param index The playlist index.
  * @return The count, or @c 0 if the index is out of range or the playlist has no music list.
  * @ghidraAddress 0x165608
  */

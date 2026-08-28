@@ -6,8 +6,8 @@
  *
  * The superclass is @c UIViewController : every @c super call in the class targets
  * @c UIViewController , and the controller builds its own @c StorePackTableView ivar, wires itself
- * as that table's view controller, and adds it as a subview — it is not a @c UITableViewController
- * .
+ * as that table's view controller, and adds it as a subview. It is not a
+ * @c UITableViewController .
  *
  * The screen lists the packs the user has already purchased (or has pending). It gathers the
  * owned/pending pack identifiers from the @c PurchaseManager , fetches the matching catalogue
@@ -133,24 +133,29 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The catalogue fetch finished: resolve product identifiers and fire the product request.
+ * @param downloader The downloader reporting the result.
  * @ghidraAddress 0x1b6414
  */
 - (void)downloaderFinished:(id)downloader;
 
 /**
  * @brief The catalogue fetch failed: show a network error.
+ * @param downloader The downloader reporting the failure.
  * @ghidraAddress 0x1b69c8
  */
 - (void)downloaderError:(id)downloader;
 
 /**
  * @brief Progress callback; the shipped body is empty.
+ * @param downloader The downloader reporting progress. The binary ignores it.
  * @ghidraAddress 0x1b6a88
  */
 - (void)downloaderProceed:(id)downloader;
 
 /**
  * @brief The product request resolved: build the pack list and reload the table.
+ * @param request The product request that resolved.
+ * @param response The resolved products.
  * @ghidraAddress 0x1b6a8c
  */
 - (void)productsRequest:(SKProductsRequest *)request
@@ -158,12 +163,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The product request finished: clears the request.
+ * @param request The request that finished.
  * @ghidraAddress 0x1b6f80
  */
 - (void)requestDidFinish:(SKRequest *)request;
 
 /**
  * @brief The product request failed: re-enable restore and clear the request state.
+ * @param request The request that failed.
+ * @param error The failure.
  * @ghidraAddress 0x1b6f98
  */
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error;
@@ -174,21 +182,29 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)viewDidUnload;
 
 /**
+ * @brief The view is about to appear.
+ * @param animated Whether the appearance is animated.
  * @ghidraAddress 0x1b702c
  */
 - (void)viewWillAppear:(BOOL)animated;
 
 /**
+ * @brief The view has appeared.
+ * @param animated Whether the appearance was animated.
  * @ghidraAddress 0x1b71a8
  */
 - (void)viewDidAppear:(BOOL)animated;
 
 /**
+ * @brief The view is about to disappear.
+ * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x1b720c
  */
 - (void)viewWillDisappear:(BOOL)animated;
 
 /**
+ * @brief The view has disappeared.
+ * @param animated Whether the disappearance was animated.
  * @ghidraAddress 0x1b72d4
  */
 - (void)viewDidDisappear:(BOOL)animated;
@@ -200,16 +216,23 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)storeClose;
 
 /**
+ * @brief Whether the screen may rotate to an orientation.
+ * @param interfaceOrientation The orientation asked about.
+ * @return YES for the two portrait orientations, NO otherwise.
  * @ghidraAddress 0x1b7354
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
+ * @brief The orientations the screen supports.
+ * @return Both portrait orientations.
  * @ghidraAddress 0x1b7364
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
+ * @brief Whether the screen rotates.
+ * @return Always YES.
  * @ghidraAddress 0x1b736c
  */
 - (BOOL)shouldAutorotate;

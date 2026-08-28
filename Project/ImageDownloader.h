@@ -63,6 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The loaded image, or nil.
+ * @return The loaded image, or nil when the download has not produced one.
  * @ghidraAddress 0xfee58
  */
 - (nullable UIImage *)getImage;

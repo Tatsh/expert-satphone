@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Builds the row, its lock overlay, and a blank badge.
+ * @return The initialised cell.
  * @ghidraAddress 0x1f89f0
  */
 - (instancetype)init;

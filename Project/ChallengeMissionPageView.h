@@ -44,8 +44,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The challenge-mode mission page: two toggled tables over a shared plate.
  */
-@interface ChallengeMissionPageView
-    : UIView <UITableViewDataSource, UITableViewDelegate, DownloaderDelegate, UIAlertViewDelegate>
+// clang-format off
+// Kept one protocol per line: clang-format would otherwise pack the list onto a continuation line
+// beginning ": UIView <", which Doxygen then reads as undocumented ivars named after the protocols.
+@interface ChallengeMissionPageView : UIView <UITableViewDataSource,
+                                              UITableViewDelegate,
+                                              DownloaderDelegate,
+                                              UIAlertViewDelegate>
+// clang-format on
 
 /**
  * @brief The object told about close, purchase, and refresh events. Held weakly.
@@ -127,6 +133,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Whitens the tint of a section header view before it is displayed.
+ * @param tableView The table asking.
+ * @param view The header view about to be drawn.
+ * @param section The section the header belongs to.
  * @ghidraAddress 0xaca30
  */
 - (void)tableView:(nonnull UITableView *)tableView
@@ -136,6 +145,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Vends a mission-sheet or reward cell, alternating the background plate per row and
  * formatting the sheet's period.
+ * @param tableView The table asking.
+ * @param indexPath The row's index path.
+ * @return The mission-sheet or reward cell for the row.
  * @ghidraAddress 0xad12c
  */
 - (UITableViewCell *)tableView:(nonnull UITableView *)tableView
@@ -143,6 +155,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Empty @c UITableViewDelegate hook.
+ * @param tableView The table asking. The binary ignores it.
+ * @param cell The cell about to be drawn. The binary ignores it.
+ * @param indexPath The row's index path. The binary ignores it.
  * @ghidraAddress 0xad87c
  */
 - (void)tableView:(nonnull UITableView *)tableView
@@ -151,6 +166,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The fixed per-row height, in points.
+ * @param tableView The table asking.
+ * @param indexPath The row's index path.
+ * @return The fixed row height, in points.
  * @ghidraAddress 0xad880
  */
 - (CGFloat)tableView:(nonnull UITableView *)tableView
@@ -158,12 +176,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Two sections on the mission table when event sheets exist, otherwise one.
+ * @param tableView The table asking.
+ * @return Two when event sheets exist, otherwise one.
  * @ghidraAddress 0xad898
  */
 - (NSInteger)numberOfSectionsInTableView:(nonnull UITableView *)tableView;
 
 /**
  * @brief The row count for the given section and table.
+ * @param tableView The table asking.
+ * @param section The section asked about.
+ * @return The row count for that section of that table.
  * @ghidraAddress 0xad8f4
  */
 - (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
@@ -171,6 +194,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Row-selection callback: opens a @c ChallengeMissionSheetView (mission list) or a
  * @c MissionRewardDownloadView (reward list).
+ * @param tableView The table sending the message.
+ * @param indexPath The tapped row's index path.
  * @ghidraAddress 0xad9a4
  */
 - (void)tableView:(nonnull UITableView *)tableView

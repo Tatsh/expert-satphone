@@ -23,6 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Sets the cell's background colour and selection style. Creates no subviews.
+ * @param style The cell style.
+ * @param reuseIdentifier The reuse identifier, or nil for a non-reusable cell.
+ * @return The initialised cell.
  * @ghidraAddress 0xaa4fc
  */
 - (instancetype)initWithStyle:(UITableViewCellStyle)style

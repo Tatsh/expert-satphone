@@ -32,17 +32,32 @@ NS_ASSUME_NONNULL_BEGIN
 /** @brief Resumes the SDK. @ghidraAddress 0x27c220 */
 + (void)resume;
 
-/** @brief Sets the applilink user identifier, or nil to clear it. @ghidraAddress 0x27c238 */
+/**
+ * @brief Sets the applilink user identifier, or nil to clear it.
+ * @param userId The user identifier, or nil to clear it.
+ * @ghidraAddress 0x27c238
+ */
 + (void)setUserId:(nullable NSString *)userId;
 
-/** @brief Sets whether the SDK applies its common navigation-bar appearance.
- *  @ghidraAddress 0x27c250 */
+/**
+ * @brief Sets whether the SDK applies its common navigation-bar appearance.
+ * @param navigationBarCommonAppearance Whether the SDK styles the navigation bar.
+ * @ghidraAddress 0x27c250
+ */
 + (void)setNavigationBarCommonAppearance:(BOOL)navigationBarCommonAppearance;
 
-/** @brief Sets whether the device languages take priority. @ghidraAddress 0x27c268 */
+/**
+ * @brief Sets whether the device languages take priority.
+ * @param priorityDeviceLanguages Whether the device languages win over the configured one.
+ * @ghidraAddress 0x27c268
+ */
 + (void)setPriorityDeviceLanguages:(BOOL)priorityDeviceLanguages;
 
-/** @brief Sets the loading-indicator colour. @ghidraAddress 0x27c280 */
+/**
+ * @brief Sets the loading-indicator colour.
+ * @param indicatorColor The colour to draw the loading indicator in.
+ * @ghidraAddress 0x27c280
+ */
 + (void)setIndicatorColor:(nullable UIColor *)indicatorColor;
 
 /** @brief Marks the SDK unused in the store build. @ghidraAddress 0x27c298 */
@@ -51,19 +66,39 @@ NS_ASSUME_NONNULL_BEGIN
 /** @brief Marks the build as produced under Xcode 6. @ghidraAddress 0x27c2b0 */
 + (void)buildUnderXcode6;
 
-/** @brief The applilink application identifier. @ghidraAddress 0x27c2c8 */
+/**
+ * @brief The applilink application identifier.
+ * @return The application identifier.
+ * @ghidraAddress 0x27c2c8
+ */
 + (nullable NSString *)appliId;
 
-/** @brief The SDK version. @ghidraAddress 0x27c2e0 */
+/**
+ * @brief The SDK version.
+ * @return The SDK version string.
+ * @ghidraAddress 0x27c2e0
+ */
 + (nullable NSString *)version;
 
-/** @brief The SDK development version. @ghidraAddress 0x27c2f8 */
+/**
+ * @brief The SDK development version.
+ * @return The development version string.
+ * @ghidraAddress 0x27c2f8
+ */
 + (nullable NSString *)versionDev;
 
-/** @brief Whether the running iOS version supports the SDK. @ghidraAddress 0x27c310 */
+/**
+ * @brief Whether the running iOS version supports the SDK.
+ * @return YES when the running iOS version is supported, NO otherwise.
+ * @ghidraAddress 0x27c310
+ */
 + (BOOL)isSupportediOSVersion;
 
-/** @brief The current advertising UDID. @ghidraAddress 0x27c328 */
+/**
+ * @brief The current advertising UDID.
+ * @return The advertising UDID.
+ * @ghidraAddress 0x27c328
+ */
 + (nullable NSString *)currentUdid;
 
 /**

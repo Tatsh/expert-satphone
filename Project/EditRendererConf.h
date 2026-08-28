@@ -15,6 +15,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * @brief The marker, sound, and display settings the chart editor's renderer draws with.
+ */
 @interface EditRendererConf : NSObject
 
 /**

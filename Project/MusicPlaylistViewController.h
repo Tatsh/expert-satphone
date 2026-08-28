@@ -137,18 +137,26 @@ typedef NS_ENUM(NSUInteger, MusicPlaylistListMode) {
 
 /**
  * @brief Number of sections: three in @c Playlists mode, one otherwise.
+ * @param tableView The table asking.
+ * @return Three in @c Playlists mode, one otherwise.
  * @ghidraAddress 0x15dcd0
  */
 - (NSInteger)numberOfSectionsInTableView:(nonnull UITableView *)tableView;
 
 /**
  * @brief Number of rows in a section.
+ * @param tableView The table asking.
+ * @param section The section asked about.
+ * @return The row count for that section.
  * @ghidraAddress 0x15dcfc
  */
 - (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
 
 /**
  * @brief Deletes a playlist when its row is swiped.
+ * @param tableView The table asking.
+ * @param editingStyle The editing action committed.
+ * @param indexPath The row's index path.
  * @ghidraAddress 0x15dd9c
  */
 - (void)tableView:(nonnull UITableView *)tableView
@@ -159,6 +167,9 @@ typedef NS_ENUM(NSUInteger, MusicPlaylistListMode) {
  * @brief Whether a row may be edited (swipe-deleted).
  *
  * Only playlist rows in @c Playlists mode are editable, and never the currently-selected playlist.
+ * @param tableView The table asking.
+ * @param indexPath The row's index path.
+ * @return YES for an editable playlist row, NO otherwise.
  * @ghidraAddress 0x15df6c
  */
 - (BOOL)tableView:(nonnull UITableView *)tableView
@@ -166,6 +177,8 @@ typedef NS_ENUM(NSUInteger, MusicPlaylistListMode) {
 
 /**
  * @brief Blocks selection of an already-active row.
+ * @param tableView The table asking.
+ * @param indexPath The row about to be selected.
  * @return The index path when selectable, @c nil otherwise.
  * @ghidraAddress 0x15e094
  */
@@ -175,6 +188,8 @@ typedef NS_ENUM(NSUInteger, MusicPlaylistListMode) {
 /**
  * @brief Routes a selection: a filter or playlist notifies the delegate, the level row pushes the
  * level selector.
+ * @param tableView The table sending the message.
+ * @param indexPath The tapped row's index path.
  * @ghidraAddress 0x15e2ec
  */
 - (void)tableView:(nonnull UITableView *)tableView
@@ -182,6 +197,9 @@ typedef NS_ENUM(NSUInteger, MusicPlaylistListMode) {
 
 /**
  * @brief Whitens a cell's background, tinting the level row when a level filter is active.
+ * @param tableView The table asking.
+ * @param cell The cell about to be drawn.
+ * @param indexPath The row's index path.
  * @ghidraAddress 0x15e4fc
  */
 - (void)tableView:(nonnull UITableView *)tableView
@@ -230,24 +248,28 @@ typedef NS_ENUM(NSUInteger, MusicPlaylistListMode) {
 
 /**
  * @brief Chains up to @c super .
+ * @param animated Whether the appearance is animated.
  * @ghidraAddress 0x15e9d8
  */
 - (void)viewWillAppear:(BOOL)animated;
 
 /**
  * @brief Chains up to @c super .
+ * @param animated Whether the appearance was animated.
  * @ghidraAddress 0x15ea10
  */
 - (void)viewDidAppear:(BOOL)animated;
 
 /**
  * @brief Chains up to @c super .
+ * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x15ea48
  */
 - (void)viewWillDisappear:(BOOL)animated;
 
 /**
  * @brief Chains up to @c super .
+ * @param animated Whether the disappearance was animated.
  * @ghidraAddress 0x15ea80
  */
 - (void)viewDidDisappear:(BOOL)animated;

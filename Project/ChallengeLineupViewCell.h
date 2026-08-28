@@ -57,6 +57,9 @@ typedef NS_ENUM(int, ChallengeLineupStoreType) {
  *
  * On the phone the store button is never created, so the row is plate, artwork and label only and
  * the label takes the full remaining width.
+ * @param style The cell style.
+ * @param reuseIdentifier The reuse identifier, or nil for a non-reusable cell.
+ * @return The initialised cell.
  * @ghidraAddress 0x145a60
  */
 - (instancetype)initWithStyle:(UITableViewCellStyle)style

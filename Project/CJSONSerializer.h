@@ -17,6 +17,10 @@ NS_ASSUME_NONNULL_BEGIN
  *        point.
  */
 @protocol CJSONDataRepresentation <NSObject>
+/**
+ * @brief The receiver's own JSON encoding.
+ * @return The receiver serialised as JSON data.
+ */
 - (NSData *)JSONDataRepresentation;
 @end
 
@@ -58,6 +62,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Serialises a null to the shared @c "null" token data.
+ * @param null The null to serialise.
+ * @param error On failure, the reason; may be @c nullptr .
+ * @return The @c "null" token data, or nil on failure.
  * @ghidraAddress 0x67118
  */
 - (nullable NSData *)serializeNull:(nullable NSNull *)null
@@ -66,6 +73,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Serialises a number: a boolean to the shared @c "true"/"false" token data, otherwise its
  * string value as UTF-8.
+ * @param number The number to serialise.
+ * @param error On failure, the reason; may be @c nullptr .
+ * @return The serialised number, or nil on failure.
  * @ghidraAddress 0x67124
  */
 - (nullable NSData *)serializeNumber:(nullable NSNumber *)number
@@ -73,6 +83,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Serialises a string as a quoted, escaped JSON string.
+ * @param string The string to serialise.
+ * @param error On failure, the reason; may be @c nullptr .
+ * @return The quoted, escaped string, or nil on failure.
  * @ghidraAddress 0x67220
  */
 - (nullable NSData *)serializeString:(nullable NSString *)string
@@ -80,6 +93,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Serialises an array as a JSON array.
+ * @param array The array to serialise.
+ * @param error On failure, the reason; may be @c nullptr .
+ * @return The serialised array, or nil on failure.
  * @ghidraAddress 0x6743c
  */
 - (nullable NSData *)serializeArray:(nullable NSArray *)array
@@ -87,6 +103,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Serialises a dictionary as a JSON object.
+ * @param dictionary The dictionary to serialise.
+ * @param error On failure, the reason; may be @c nullptr .
+ * @return The serialised object, or nil on failure.
  * @ghidraAddress 0x67608
  */
 - (nullable NSData *)serializeDictionary:(nullable NSDictionary *)dictionary

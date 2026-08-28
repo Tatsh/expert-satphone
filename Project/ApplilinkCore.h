@@ -39,34 +39,71 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 /** @brief The advert list started. */
 - (void)appListDidStart;
-/** @brief The advert list started, with request parameters. */
+/**
+ * @brief The advert list started, with request parameters.
+ * @param appParam The parameters the request was made with.
+ */
 - (void)appListDidStart:(nullable ApplilinkParameters *)appParam;
 /** @brief The advert list appeared. */
 - (void)appListDidAppear;
-/** @brief The advert list appeared, with request parameters. */
+/**
+ * @brief The advert list appeared, with request parameters.
+ * @param appParam The parameters the request was made with.
+ */
 - (void)appListDidAppear:(nullable ApplilinkParameters *)appParam;
 /** @brief The advert list disappeared. */
 - (void)appListDidDisappear;
-/** @brief The advert list disappeared, with request parameters. */
+/**
+ * @brief The advert list disappeared, with request parameters.
+ * @param appParam The parameters the request was made with.
+ */
 - (void)appListDidDisappear:(nullable ApplilinkParameters *)appParam;
-/** @brief The advert list failed to open. */
+/**
+ * @brief The advert list failed to open.
+ * @param error The failure.
+ */
 - (void)appListFailOpenWithError:(nullable NSError *)error;
-/** @brief The advert list failed to open, with request parameters. */
+/**
+ * @brief The advert list failed to open, with request parameters.
+ * @param error The failure.
+ * @param appParam The parameters the request was made with.
+ */
 - (void)appListFailOpenWithError:(nullable NSError *)error
          withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
-/** @brief The advert list failed to load. */
+/**
+ * @brief The advert list failed to load.
+ * @param error The failure.
+ */
 - (void)appListFailLoadWithError:(nullable NSError *)error;
-/** @brief The advert list failed to load, with request parameters. */
+/**
+ * @brief The advert list failed to load, with request parameters.
+ * @param error The failure.
+ * @param appParam The parameters the request was made with.
+ */
 - (void)appListFailLoadWithError:(nullable NSError *)error
          withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
-/** @brief The advert list failed. */
+/**
+ * @brief The advert list failed.
+ * @param error The failure.
+ */
 - (void)appListFailWithError:(nullable NSError *)error;
-/** @brief The advert list failed, with request parameters. */
+/**
+ * @brief The advert list failed, with request parameters.
+ * @param error The failure.
+ * @param appParam The parameters the request was made with.
+ */
 - (void)appListFailWithError:(nullable NSError *)error
      withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
-/** @brief The advert list failed to link. */
+/**
+ * @brief The advert list failed to link.
+ * @param error The failure.
+ */
 - (void)appListFailLinkWithError:(nullable NSError *)error;
-/** @brief The advert list failed to link, with request parameters. */
+/**
+ * @brief The advert list failed to link, with request parameters.
+ * @param error The failure.
+ * @param appParam The parameters the request was made with.
+ */
 - (void)appListFailLinkWithError:(nullable NSError *)error
          withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
 /** @brief Advert sound use started. */

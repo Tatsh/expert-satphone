@@ -47,12 +47,12 @@ typedef NS_CLOSED_ENUM(short, EditSequenceEventType) {
  * @c EditSequence .
  */
 typedef struct EditSequenceEvent {
-    EditSequenceEventType type; // +0x00
-    short measure;              // +0x02
-    unsigned int position;      // +0x04 The event's dot position.
-    int keyIndex;               // +0x08 The 0..15 panel index of a note.
-    int endPosition;            // +0x0c A bar's end dot position.
-    unsigned int reserved;      // +0x10 Unread by the renderer; present so the stride is 20 bytes.
+    EditSequenceEventType type; /*!< The event kind. */                          // +0x00
+    short measure; /*!< The measure number a tempo event names. */               // +0x02
+    unsigned int position; /*!< The event's dot position. */                     // +0x04
+    int keyIndex; /*!< The 0..15 panel index of a note. */                       // +0x08
+    int endPosition; /*!< A bar's end dot position. */                           // +0x0c
+    unsigned int reserved; /*!< Unread; present so the stride stays 20 bytes. */ // +0x10
 } EditSequenceEvent;
 
 /**

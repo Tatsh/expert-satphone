@@ -35,8 +35,13 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief A challenge-mission reward-item download overlay.
  */
-@interface MissionRewardDownloadView
-    : UIView <AlertViewManagerDelegate, DownloaderDelegate, StoreDownloadManagerDelegate>
+// clang-format off
+// One protocol per line: the packed form, which begins a continuation line with ": UIView <", is
+// read by Doxygen as undocumented ivars named after the trailing protocols.
+@interface MissionRewardDownloadView : UIView <AlertViewManagerDelegate,
+                                               DownloaderDelegate,
+                                               StoreDownloadManagerDelegate>
+// clang-format on
 
 /**
  * @brief The overlay's owner, told when the window is closed.

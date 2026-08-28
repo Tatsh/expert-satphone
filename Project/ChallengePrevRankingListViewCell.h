@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param style Passed straight through to @c UITableViewCell.
  * @param reuseIdentifier Passed straight through to @c UITableViewCell.
+ * @return The initialised cell.
  * @ghidraAddress 0x72ba0
  */
 - (instancetype)initWithStyle:(UITableViewCellStyle)style

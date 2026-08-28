@@ -60,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param nameArray The artwork base names, one per page.
  * @param bounds The rectangle each page's artwork fills, in the loaded view's coordinates.
+ * @return The initialised controller.
  * @ghidraAddress 0x15c094
  */
 - (instancetype)initWithNameArray:(nullable NSArray<NSString *> *)nameArray bounds:(CGRect)bounds;

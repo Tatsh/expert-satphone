@@ -184,11 +184,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Draws the full-combo banner, sliding and squashing over the animation and playing the
  *        full-combo sounds on the result variant.
- * @param frame The animation frame.
+ * @param frameArg The animation frame.
  * @param isResult Whether the result variant (offset by the intro length) is drawn.
  * @ghidraAddress 0x211978
  */
-- (void)renderFullcombo:(int)frame isResult:(BOOL)isResult;
+- (void)renderFullcombo:(int)frameArg isResult:(BOOL)isResult;
 
 /**
  * @brief Draws the finish region. This phone override does nothing.

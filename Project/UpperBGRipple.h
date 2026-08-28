@@ -36,27 +36,27 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * The mass is not a parameter: it is chosen here at random, between 4 and 6.875.
  *
- * @param sprite The sprite index within the texture.
- * @param point The starting position. Its @c y is a height above @c yGround .
+ * @param aSprite The sprite index within the texture.
+ * @param aPoint The starting position. Its @c y is a height above @c yGround .
  * @param xSpeed How far the sprite moves left each step.
  * @param yGround The ground line.
  * @param yAmp The wave amplitude.
  * @param yCenter The wave centre.
  * @param yPeriod The wave period.
  * @param yPhase The wave phase.
- * @param mag The draw scale.
+ * @param aMag The draw scale.
  * @return The initialised sprite.
  * @ghidraAddress 0x143dd0
  */
-- (instancetype)initWithSprite:(NSUInteger)sprite
-                       atPoint:(CGPoint)point
+- (instancetype)initWithSprite:(NSUInteger)aSprite
+                       atPoint:(CGPoint)aPoint
                         xSpeed:(float)xSpeed
                        yGround:(float)yGround
                           yAmp:(float)yAmp
                        yCenter:(float)yCenter
                        yPeriod:(unsigned int)yPeriod
                         yPhase:(unsigned int)yPhase
-                           mag:(float)mag;
+                           mag:(float)aMag;
 
 /**
  * @brief Launches the sprite upwards, but only from rest.

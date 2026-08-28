@@ -28,6 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Clears the button, goes clear-backed and drops the selection style. Builds no subviews.
+ * @param style The cell style.
+ * @param reuseIdentifier The reuse identifier, or nil for a non-reusable cell.
+ * @return The initialised cell.
  * @ghidraAddress 0x41b74
  */
 - (instancetype)initWithStyle:(UITableViewCellStyle)style

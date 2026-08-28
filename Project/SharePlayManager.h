@@ -186,6 +186,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief A candidate host was found while browsing.
+ * @param browser The browser reporting the peer.
+ * @param peerID The peer that was found.
+ * @param info The peer's discovery information, or nil when it advertised none.
  * @ghidraAddress 0xc5c08
  */
 - (void)browser:(MCNearbyServiceBrowser *)browser
@@ -193,23 +196,33 @@ NS_ASSUME_NONNULL_BEGIN
     withDiscoveryInfo:(nullable NSDictionary<NSString *, NSString *> *)info;
 /**
  * @brief A previously found host was lost.
+ * @param browser The browser reporting the loss.
+ * @param peerID The peer that was lost.
  * @ghidraAddress 0xc5ccc
  */
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID;
 /**
  * @brief Browsing failed to start.
+ * @param browser The browser that failed.
+ * @param error The failure.
  * @ghidraAddress 0xc5d90
  */
 - (void)browser:(MCNearbyServiceBrowser *)browser didNotStartBrowsingForPeers:(NSError *)error;
 
 /**
  * @brief Advertising failed to start.
+ * @param advertiser The advertiser that failed.
+ * @param error The failure.
  * @ghidraAddress 0xc5d94
  */
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser
     didNotStartAdvertisingPeer:(NSError *)error;
 /**
  * @brief An invitation arrived while advertising; accepted only while @c bAccept is set.
+ * @param advertiser The advertiser that received the invitation.
+ * @param peerID The inviting peer.
+ * @param context The invitation's context data, or nil when none was sent.
+ * @param handler Called with the accept decision and the session to join.
  * @ghidraAddress 0xc5d98
  */
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser
@@ -227,6 +240,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Session-state change callback; forwards to -changeState:state:.
+ * @param session The session reporting the change.
+ * @param peerID The peer whose state changed.
+ * @param state The peer's new state.
  * @ghidraAddress 0xc62b8
  */
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state;
@@ -240,11 +256,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)receiveData:(MCSession *)session data:(NSData *)data fromPeer:(MCPeerID *)peer;
 /**
  * @brief Data-received callback; defers handling to -receiveData:data:fromPeer: on the main queue.
+ * @param session The session the data arrived on.
+ * @param data The received payload.
+ * @param peerID The peer that sent it.
  * @ghidraAddress 0xc70e4
  */
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID;
 /**
  * @brief Stream-received callback; schedules the input stream and opens it.
+ * @param session The session the stream arrived on.
+ * @param stream The incoming stream.
+ * @param streamName The stream's name.
+ * @param peerID The peer that opened it.
  * @ghidraAddress 0xc7270
  */
 - (void)session:(MCSession *)session
@@ -253,6 +276,10 @@ NS_ASSUME_NONNULL_BEGIN
             fromPeer:(MCPeerID *)peerID;
 /**
  * @brief Resource-transfer start callback (unused).
+ * @param session The session the transfer arrived on.
+ * @param resourceName The resource's name.
+ * @param peerID The peer sending it.
+ * @param progress The transfer's progress.
  * @ghidraAddress 0xc731c
  */
 - (void)session:(MCSession *)session
@@ -261,6 +288,11 @@ NS_ASSUME_NONNULL_BEGIN
                          withProgress:(NSProgress *)progress;
 /**
  * @brief Resource-transfer finish callback (unused).
+ * @param session The session the transfer arrived on.
+ * @param resourceName The resource's name.
+ * @param peerID The peer that sent it.
+ * @param localURL Where the resource was written, or nil on failure.
+ * @param error The failure, or nil on success.
  * @ghidraAddress 0xc7320
  */
 - (void)session:(MCSession *)session
@@ -343,6 +375,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Input-stream event handler; accumulates the incoming music data and acks completion.
+ * @param stream The stream reporting the event.
+ * @param eventCode The event that occurred.
  * @ghidraAddress 0xc8840
  */
 - (void)stream:(NSStream *)stream handleEvent:(NSStreamEvent)eventCode;

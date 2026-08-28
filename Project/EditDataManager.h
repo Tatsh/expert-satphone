@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Returns the per-music custom-sequence directory path, creating the tree if needed.
  *
- * The path is @c <documents>/edit/<%09d> where the last component is the zero-padded nine-digit
+ * The path is @c \<documents\>/edit/\<%09d\> where the last component is the zero-padded nine-digit
  * music identifier. Both the @c edit folder and the music subfolder are created on demand, and the
  * @c edit folder is flagged no-backup on creation.
  *
@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Builds a fresh @c .jcf file name from the current date and time.
- * @return A name of the form @c <yyyyMMddHHmmssSSS>.jcf .
+ * @return A name of the form @c \<yyyyMMddHHmmssSSS\>.jcf .
  * @ghidraAddress 0x1c5e6c
  */
 - (nullable NSString *)createJCFName;
@@ -308,6 +308,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns the score dictionary.
+ * @return The score dictionary.
  * @ghidraAddress 0x1c9040
  */
 - (nullable NSMutableDictionary *)getScoreData;
@@ -321,6 +322,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns the editor-info dictionary.
+ * @return The editor-info dictionary.
  * @ghidraAddress 0x1c90d0
  */
 - (nullable NSMutableDictionary *)getEditorInfo;
@@ -334,6 +336,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns the simple-data dictionary.
+ * @return The simple-data dictionary.
  * @ghidraAddress 0x1c9160
  */
 - (nullable NSMutableDictionary *)getEditSimpleData;
@@ -359,6 +362,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns the sequence table.
+ * @return The sequence table.
  * @ghidraAddress 0x1c95a0
  */
 - (nullable NSMutableArray<NSNumber *> *)getSequenceTable;
@@ -455,6 +459,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns the current encoded custom-data buffer.
+ * @return The encoded custom-data buffer.
  * @ghidraAddress 0x1ca3b8
  */
 - (nullable NSMutableData *)getCurrentCustomData;

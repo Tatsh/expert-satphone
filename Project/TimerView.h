@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Forwards to @c UIView and does nothing else.
+ * @param frame The view's initial frame.
+ * @return The initialised view.
  * @ghidraAddress 0x15c8ac
  */
 - (instancetype)initWithFrame:(CGRect)frame;

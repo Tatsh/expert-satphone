@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The path of the append-data directory, creating it and its parents on demand.
  *
- * The directory is @c <Library>/Private Documents/appendData ; the method creates the library
+ * The directory is @c \<Library\>/Private Documents/appendData ; the method creates the library
  * directory, the @c Private Documents directory, and the @c appendData directory in turn when any
  * is absent.
  * @return The @c appendData directory path.
@@ -111,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Copies each bundled background-frame archive into the append-data layout.
  *
  * For every frame whose @c itemType is zero, copies @c twitterResources.zip out of the app bundle's
- * @c appendData/<frameName> directory into the frame's on-disk directory, replacing any existing
+ * @c appendData/\<frameName\> directory into the frame's on-disk directory, replacing any existing
  * copy.
  * @return Always @c NO ; the binary discards the per-frame copy results and returns a fixed value.
  * @ghidraAddress 0x7a8f4

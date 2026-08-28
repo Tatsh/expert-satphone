@@ -38,22 +38,43 @@ typedef NS_ENUM(int, ScratchViewState) {
  */
 @protocol ScratchViewDelegate <NSObject>
 @required
-/** @brief Whether the card may currently be scratched. */
+/**
+ * @brief Whether the card may currently be scratched.
+ * @return YES while scratching is enabled, NO otherwise.
+ */
 - (BOOL)isScratchEnable;
-/** @brief Enables or disables scratching across the host. */
+/**
+ * @brief Enables or disables scratching across the host.
+ * @param enable YES to enable scratching, NO to disable it.
+ */
 - (void)scratchEnable:(BOOL)enable;
-/** @brief The host's modal download dialog, or @c nil before it has been built. */
+/**
+ * @brief The host's modal download dialog, or @c nil before it has been built.
+ * @return The modal download dialog, or nil when it has not been built.
+ */
 - (nullable StoreDialogView *)modalDialog;
-/** @brief Shows the modal download dialog over the given sender. */
+/**
+ * @brief Shows the modal download dialog over the given sender.
+ * @param sender The view the dialog is shown over.
+ */
 - (void)showModalDialog:(id)sender;
 /** @brief Hides the modal download dialog. */
 - (void)hideModalDialog;
 @optional
-/** @brief Sent when this card is chosen. */
+/**
+ * @brief Sent when this card is chosen.
+ * @param sender The card that was chosen.
+ */
 - (void)selectScratch:(id)sender;
-/** @brief Sent once the scratch gesture crosses its start threshold. */
+/**
+ * @brief Sent once the scratch gesture crosses its start threshold.
+ * @param sender The card being scratched.
+ */
 - (void)scratchStart:(id)sender;
-/** @brief Sent once the card is fully scratched open. */
+/**
+ * @brief Sent once the card is fully scratched open.
+ * @param sender The card that was scratched open.
+ */
 - (void)scratchEnd:(id)sender;
 @end
 

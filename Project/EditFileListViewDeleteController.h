@@ -68,6 +68,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns the cell for a row across all three sections.
+ * @param tableView The table asking.
+ * @param indexPath The row's index path.
+ * @return The cell for the row: a blank slot, a saved chart, or a menu action.
  * @ghidraAddress 0x1f8f78
  */
 - (UITableViewCell *)tableView:(UITableView *)tableView
@@ -75,6 +78,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Tints a cell's background just before it is shown.
+ * @param tableView The table asking.
+ * @param cell The cell about to be drawn.
+ * @param indexPath The row's index path.
  * @ghidraAddress 0x1f97b0
  */
 - (void)tableView:(UITableView *)tableView
@@ -83,18 +89,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns the row count for a section.
+ * @param tableView The table asking.
+ * @param section The section asked about.
+ * @return The blank-slot, saved-chart, or menu-action count for that section.
  * @ghidraAddress 0x1f9ba8
  */
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
 
 /**
  * @brief Returns the section count (always three).
+ * @param tableView The table asking.
+ * @return Always three: the blank slots, the saved charts, and the menu.
  * @ghidraAddress 0x1f9c7c
  */
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView;
 
 /**
  * @brief Deletes a saved chart, updates the counts, and re-lays the table.
+ * @param tableView The table asking.
+ * @param editingStyle The editing action committed.
+ * @param indexPath The row's index path.
  * @ghidraAddress 0x1f9c84
  */
 - (void)tableView:(UITableView *)tableView
@@ -103,24 +117,35 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Only saved-chart rows that exist may be edited (deleted).
+ * @param tableView The table asking.
+ * @param indexPath The row's index path.
+ * @return YES for a populated saved-chart row, NO otherwise.
  * @ghidraAddress 0x1fa274
  */
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
  * @brief Returns the footer height for a section.
+ * @param tableView The table asking.
+ * @param section The section asked about.
+ * @return The section's footer height, in points.
  * @ghidraAddress 0x1fa3d0
  */
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section;
 
 /**
  * @brief Builds the coloured footer strip for a section once the slots are full.
+ * @param tableView The table asking.
+ * @param section The section asked about.
+ * @return The footer strip, or nil when the section needs none.
  * @ghidraAddress 0x1fa3f0
  */
 - (nullable UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section;
 
 /**
  * @brief Handles taps: opens the menu actions or reports the chosen chart.
+ * @param tableView The table sending the message.
+ * @param indexPath The tapped row's index path.
  * @ghidraAddress 0x1fa5e4
  */
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;

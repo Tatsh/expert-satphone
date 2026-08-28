@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The accumulated response body.
+ * @return The bytes received so far.
  * @ghidraAddress 0x1daf10
  */
 - (nullable NSData *)getData;
@@ -48,18 +49,21 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The response body decoded as a JSON dictionary, or nil when it is absent or not a
  * dictionary.
+ * @return The decoded JSON dictionary, or nil when it is absent or not a dictionary.
  * @ghidraAddress 0x1daf20
  */
 - (nullable NSDictionary *)getDataInJSON;
 
 /**
  * @brief The number of bytes received so far.
+ * @return The byte count received so far.
  * @ghidraAddress 0x1dae8c
  */
 - (NSUInteger)currentSize;
 
 /**
  * @brief The download progress in [0, 1], or 0 when the expected length is unknown.
+ * @return The progress in [0, 1], or 0 when the expected length is unknown.
  * @ghidraAddress 0x1daea4
  */
 - (float)currentProgress;
@@ -174,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Starts an upload of a custom sequence.
  *
- * POSTs @c {uuid, passwd, jcfData} to @c users/<editorID>/seqs , with the sequence data
+ * POSTs @c {uuid, passwd, jcfData} to @c users/\<editorID\>/seqs , with the sequence data
  * base64-encoded.
  * @param delegate The object told how the request finished.
  * @param seqData The sequence data to upload.
@@ -186,7 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Starts a GET of a shared sequence by its identifier.
  *
- * Fetches @c seqs/<seqID>?userID=<editorID> .
+ * Fetches @c seqs/\<seqID\>?userID=\<editorID\> .
  * @param delegate The object told how the request finished.
  * @param seqID The sequence identifier.
  * @return The initialised client.
@@ -206,7 +210,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Starts a good-job (like) POST for a sequence.
  *
- * POSTs @c {userID, musicID} to @c seqs/<seqID>/Like . A missing editor identifier is sent as
+ * POSTs @c {userID, musicID} to @c seqs/\<seqID\>/Like . A missing editor identifier is sent as
  * @c "ERRUSR".
  * @param delegate The object told how the request finished.
  * @param tuneID The tune identifier.
@@ -219,7 +223,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Starts a vote-level POST for a sequence.
  *
- * POSTs @c {level, userID, musicID} to @c seqs/<seqID>/VoteLevel .
+ * POSTs @c {level, userID, musicID} to @c seqs/\<seqID\>/VoteLevel .
  * @param delegate The object told how the request finished.
  * @param tuneID The tune identifier.
  * @param seqID The sequence identifier.
@@ -235,7 +239,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Starts a play-count POST for a sequence.
  *
- * POSTs @c {userID, musicID} to @c seqs/<seqID>/Played .
+ * POSTs @c {userID, musicID} to @c seqs/\<seqID\>/Played .
  * @param delegate The object told how the request finished.
  * @param tuneID The tune identifier.
  * @param seqID The sequence identifier.
@@ -275,12 +279,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The user-management web page URL.
+ * @return The user-management page URL.
  * @ghidraAddress 0x1db05c
  */
 + (nullable NSURL *)getUserPageURL;
 
 /**
  * @brief The session-error web page URL.
+ * @return The session-error page URL.
  * @ghidraAddress 0x1db0e8
  */
 + (nullable NSURL *)getUserPageSessionFailedURL;

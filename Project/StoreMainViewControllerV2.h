@@ -198,6 +198,10 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - StorePackListDelegate
 
 /**
+ * @brief The pack list finished downloading: reloads the table and reveals a pack when asked.
+ * @param controller The pack-list controller reporting the result.
+ * @param isInitial Whether this is the first page of the list.
+ * @param showPack The pack to reveal once the list is shown, or nil to reveal none.
  * @ghidraAddress 0x17d3fc
  */
 - (void)packListDownloadSuccess:(StorePackListController *)controller
@@ -205,18 +209,27 @@ NS_ASSUME_NONNULL_BEGIN
                        showPack:(nullable StorePackInfo *)showPack;
 
 /**
+ * @brief A further page of pack information arrived: reveals the named pack's detail, if any.
+ * @param controller The pack-list controller reporting the result.
+ * @param showPack The pack whose detail to open, or nil to do nothing.
  * @ghidraAddress 0x17e7f4
  */
 - (void)additionPackInfoDownloadSuccess:(StorePackListController *)controller
                                showPack:(nullable StorePackInfo *)showPack;
 
 /**
+ * @brief The pack-list download failed: shows the error to the player.
+ * @param controller The pack-list controller reporting the failure.
+ * @param errorMessage The message to show, or nil to use the default network-error text.
  * @ghidraAddress 0x17e8e0
  */
 - (void)packListDownloadError:(StorePackListController *)controller
                  errorMessage:(nullable NSString *)errorMessage;
 
 /**
+ * @brief The pack-list download returned no packs: ends load-more, or shows the server error when
+ * the list is not yet on screen.
+ * @param controller The pack-list controller reporting the empty result.
  * @ghidraAddress 0x17eb68
  */
 - (void)packListDownloadNothing:(StorePackListController *)controller;
@@ -224,11 +237,17 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - StorePromotionViewDelegate
 
 /**
+ * @brief A pack was tapped in the promotion carousel: opens that pack's detail.
+ * @param view The promotion carousel sending the message.
+ * @param packInfo The tapped pack.
  * @ghidraAddress 0x17ec58
  */
 - (void)storePromotionView:(StorePromotionView *)view packSelected:(StorePackInfo *)packInfo;
 
 /**
+ * @brief A genre was tapped in the promotion carousel: scrolls the table to that genre.
+ * @param view The promotion carousel sending the message.
+ * @param genreIndex The index of the tapped genre.
  * @ghidraAddress 0x17ec70
  */
 - (void)storePromotionView:(StorePromotionView *)view genreSelected:(NSUInteger)genreIndex;
@@ -236,6 +255,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - StoreGenreSelectViewDelegate
 
 /**
+ * @brief A genre was chosen in the genre selector: reloads the table for that genre.
+ * @param index The index of the chosen genre.
  * @ghidraAddress 0x17ec80
  */
 - (void)StoreGenreSelectViewDelegateGenreSelected:(NSUInteger)index;
@@ -295,11 +316,16 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - EditorIDManagerDelegate
 
 /**
+ * @brief The editor identity downloaded: drops the manager and refetches the current genre.
+ * @param manager The editor-ID manager reporting the result.
  * @ghidraAddress 0x180160
  */
 - (void)successIDDownload:(nullable id)manager;
 
 /**
+ * @brief The editor-identity download failed: drops the manager and refetches the current genre.
+ * @param manager The editor-ID manager reporting the failure.
+ * @param msgStr The failure message. The binary ignores it; no alert is shown.
  * @ghidraAddress 0x1801d8
  */
 - (void)errorIDDownload:(nullable id)manager msgStr:(nullable NSString *)msgStr;
@@ -307,6 +333,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - AlertViewManagerDelegate
 
 /**
+ * @brief An alert button was tapped: on Restore, starts the restore and shows the library tab.
+ * @param info The alert's result, carrying the tapped button under the button-message key.
  * @ghidraAddress 0x17e80c
  */
 - (void)alertSelect:(nonnull NSDictionary *)info;
@@ -314,6 +342,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - SKStoreProductViewControllerDelegate
 
 /**
+ * @brief The StoreKit product page finished: dismisses it and drops the retained controller.
+ * @param viewController The product view controller that finished.
  * @ghidraAddress 0x17eef0
  */
 - (void)productViewControllerDidFinish:(SKStoreProductViewController *)viewController;
@@ -321,27 +351,46 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - UITableViewDataSource / UITableViewDelegate
 
 /**
+ * @brief The number of sections in the genre popover table.
+ * @param tableView The table asking.
+ * @return Always 1; the genres occupy a single section.
  * @ghidraAddress 0x17f1e0
  */
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView;
 
 /**
+ * @brief The number of rows in the genre popover table.
+ * @param tableView The table asking.
+ * @param section The section asked about.
+ * @return The genre count held by the pack-list controller.
  * @ghidraAddress 0x17f1e8
  */
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
 
 /**
+ * @brief The cell for a genre row.
+ * @param tableView The table asking.
+ * @param indexPath The row's index path.
+ * @return The dequeued cell, titled with the genre's name.
  * @ghidraAddress 0x17ef80
  */
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
+ * @brief The height of a genre row.
+ * @param tableView The table asking.
+ * @param indexPath The row's index path.
+ * @return The fixed genre-popover row height.
  * @ghidraAddress 0x17f204
  */
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
+ * @brief A genre row is about to be drawn.
+ * @param tableView The table asking.
+ * @param cell The cell about to be drawn.
+ * @param indexPath The row's index path.
  * @ghidraAddress 0x17f200
  */
 - (void)tableView:(UITableView *)tableView
@@ -349,6 +398,9 @@ NS_ASSUME_NONNULL_BEGIN
     forRowAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
+ * @brief A genre row was tapped: selects that genre and closes the popover.
+ * @param tableView The table sending the message.
+ * @param indexPath The tapped row's index path.
  * @ghidraAddress 0x17f210
  */
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
@@ -356,56 +408,76 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - View lifecycle
 
 /**
+ * @brief The view is about to appear.
+ * @param animated Whether the appearance is animated.
  * @ghidraAddress 0x17f2c0
  */
 - (void)viewWillAppear:(BOOL)animated;
 
 /**
+ * @brief The view has appeared.
+ * @param animated Whether the appearance was animated.
  * @ghidraAddress 0x17f438
  */
 - (void)viewDidAppear:(BOOL)animated;
 
 /**
+ * @brief The view is about to disappear.
+ * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x17f68c
  */
 - (void)viewWillDisappear:(BOOL)animated;
 
 /**
+ * @brief The view has disappeared.
+ * @param animated Whether the disappearance was animated.
  * @ghidraAddress 0x17f780
  */
 - (void)viewDidDisappear:(BOOL)animated;
 
 /**
+ * @brief Handles a low-memory warning.
  * @ghidraAddress 0x17f7b8
  */
 - (void)didReceiveMemoryWarning;
 
 /**
+ * @brief Gives every navigation-bar subview exclusive touch so a tap cannot fall through.
  * @ghidraAddress 0x17f7f0
  */
 - (void)viewDidLoad;
 
 /**
+ * @brief Releases the table, pad cover, pad detail overlay, and loading view.
  * @ghidraAddress 0x17f980
  */
 - (void)viewDidUnload;
 
 /**
+ * @brief Whether the screen may rotate to an orientation.
+ * @param interfaceOrientation The orientation asked about.
+ * @return YES for the two portrait orientations, NO otherwise. This contradicts
+ *         @c -supportedInterfaceOrientations , which reports landscape; the binary does both.
  * @ghidraAddress 0x1800b8
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
+ * @brief The orientations the screen supports.
+ * @return @c UIInterfaceOrientationMaskLandscape .
  * @ghidraAddress 0x1800c8
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
+ * @brief Whether the screen rotates.
+ * @return Always YES.
  * @ghidraAddress 0x1800d0
  */
 - (BOOL)shouldAutorotate;
 
 /**
+ * @brief Clears the pack table's current genre and cancels any editor-ID download in flight.
  * @ghidraAddress 0x1800d8
  */
 - (void)dealloc;

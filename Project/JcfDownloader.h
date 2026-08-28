@@ -27,16 +27,34 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol JcfDownloaderDelegate <NSObject>
 @optional
-/** @brief The download failed, with an optional user-facing message. */
+/**
+ * @brief The download failed, with an optional user-facing message.
+ * @param downloader The downloader reporting the failure.
+ * @param msg The message to show, or nil when there is none.
+ */
 - (void)errorSequenceDownload:(nullable JcfDownloader *)downloader msgStr:(nullable NSString *)msg;
-/** @brief The chart downloaded and saved for the given tune id. */
+/**
+ * @brief The chart downloaded and saved for the given tune id.
+ * @param downloader The downloader reporting the result.
+ * @param tuneID The tune the chart was saved for.
+ */
 - (void)finishedSequenceDownload:(nullable JcfDownloader *)downloader
                           tuneID:(nullable NSString *)tuneID;
-/** @brief The chart could not be saved because the edit-slot cap was reached. */
+/**
+ * @brief The chart could not be saved because the edit-slot cap was reached.
+ * @param downloader The downloader reporting the result.
+ */
 - (void)finishedSequenceOverCap:(nullable JcfDownloader *)downloader;
-/** @brief The follow-up pack lookup finished and the tune is already available. */
+/**
+ * @brief The follow-up pack lookup finished and the tune is already available.
+ * @param downloader The downloader reporting the result.
+ */
 - (void)finishedSequenceDownload:(nullable JcfDownloader *)downloader;
-/** @brief The tune is not part of any purchasable pack. */
+/**
+ * @brief The tune is not part of any purchasable pack.
+ * @param downloader The downloader reporting the result.
+ * @param packID The pack that was looked up.
+ */
 - (void)finishedSequenceNotExistPack:(nullable JcfDownloader *)downloader
                               packID:(nullable NSString *)packID;
 @end
@@ -49,6 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The store-new-info endpoint used for the comprised-pack lookup.
  * @param customID Unused; present to match the binary's selector.
+ * @return The store-new-info endpoint URL.
  * @ghidraAddress 0x1d4624
  */
 - (nullable NSURL *)createCustomSequenceURL:(nullable id)customID;
@@ -70,12 +89,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief jubeatLab access progress callback (a no-op).
+ * @param access The access reporting progress. The binary ignores it.
  * @ghidraAddress 0x1d47bc
  */
 - (void)jubeatLabAccessProceed:(nullable jubeatLabAccess *)access;
 
 /**
  * @brief jubeatLab access failure callback: reports the error for the matching request.
+ * @param access The access reporting the failure.
  * @ghidraAddress 0x1d47c0
  */
 - (void)jubeatLabAccessError:(nullable jubeatLabAccess *)access;
@@ -96,18 +117,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief jubeatLab access success callback: decodes and saves the chart, then looks up its pack.
+ * @param access The access reporting the result.
  * @ghidraAddress 0x1d4ca4
  */
 - (void)jubeatLabAccessFinished:(nullable jubeatLabAccess *)access;
 
 /**
  * @brief @c EditorIDManager success callback: begins the download once an editor id exists.
+ * @param sender The editor-ID manager reporting the result.
  * @ghidraAddress 0x1d5608
  */
 - (void)successIDDownload:(nullable id)sender;
 
 /**
  * @brief @c EditorIDManager failure callback: reports the download error.
+ * @param sender The editor-ID manager reporting the failure.
+ * @param msg The message to report, or nil when there is none.
  * @ghidraAddress 0x1d568c
  */
 - (void)errorIDDownload:(nullable id)sender msgStr:(nullable NSString *)msg;

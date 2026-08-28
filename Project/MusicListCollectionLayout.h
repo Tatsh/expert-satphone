@@ -88,30 +88,64 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (CGFloat)frameScale;
 
-/** @ghidraAddress 0xd9600 */
+/**
+ * @brief Caches the device idiom and clears the paging state.
+ * @return The initialised layout.
+ * @ghidraAddress 0xd9600
+ */
 - (instancetype)init;
 
-/** @ghidraAddress 0xd9748 */
+/**
+ * @brief Tears the layout down.
+ * @ghidraAddress 0xd9748
+ */
 - (void)dealloc;
 
-/** @ghidraAddress 0xd97b0 */
+/**
+ * @brief Lays the grid out, filling the cached attributes and the content width.
+ * @ghidraAddress 0xd97b0
+ */
 - (void)prepareLayout;
 
-/** @ghidraAddress 0xd9b90 */
+/**
+ * @brief The laid-out content size.
+ * @return The computed content width by the collection view's own height.
+ * @ghidraAddress 0xd9b90
+ */
 - (CGSize)collectionViewContentSize;
 
-/** @ghidraAddress 0xd9bf4 */
+/**
+ * @brief The attributes of every cell intersecting a rectangle.
+ * @param rect The rectangle to test against.
+ * @return The attributes of the cells that intersect @p rect .
+ * @ghidraAddress 0xd9bf4
+ */
 - (nullable NSArray<UICollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:
     (CGRect)rect;
 
-/** @ghidraAddress 0xd9d5c */
+/**
+ * @brief The attributes of one cell.
+ * @param indexPath The cell's index path.
+ * @return The cell's layout attributes.
+ * @ghidraAddress 0xd9d5c
+ */
 - (nullable UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:
     (NSIndexPath *)indexPath;
 
-/** @ghidraAddress 0xd9da0 */
+/**
+ * @brief Whether a bounds change invalidates the layout.
+ * @param newBounds The proposed new bounds.
+ * @return Always NO; the layout does not depend on the bounds.
+ * @ghidraAddress 0xd9da0
+ */
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds;
 
-/** @ghidraAddress 0xd9e18 */
+/**
+ * @brief The content offset to settle on, honouring a frozen offset when one is set.
+ * @param proposedContentOffset The offset the collection view proposes.
+ * @return The frozen offset while one is set, otherwise the superclass's answer.
+ * @ghidraAddress 0xd9e18
+ */
 - (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset;
 
 @end

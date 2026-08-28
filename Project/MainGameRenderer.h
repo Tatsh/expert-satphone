@@ -19,8 +19,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// The number of panels in the game's 4x4 grid, sizing the per-panel state arrays.
-enum { kMainGameGridPanelCount = 16 };
+enum {
+    kMainGameGridPanelCount = 16 /*!< The number of panels in the game's 4x4 grid, sizing the
+                                      per-panel state arrays. */
+};
 
 /**
  * @brief One panel's hold-marker tracking state.
@@ -29,10 +31,10 @@ enum { kMainGameGridPanelCount = 16 };
  * signed and three unsigned 32-bit fields, and the field names are the binary's own.
  */
 typedef struct {
-    int state;                  // +0x00 The hold's lifecycle state.
-    unsigned int move;          // +0x04 Whether and how the hold is moving.
-    unsigned int currentSector; // +0x08 The sector the hold currently occupies.
-    unsigned int endSector;     // +0x0c The sector the hold terminates in.
+    int state; /*!< The hold's lifecycle state. */                              // +0x00
+    unsigned int move; /*!< Whether and how the hold is moving. */              // +0x04
+    unsigned int currentSector; /*!< The sector the hold currently occupies. */ // +0x08
+    unsigned int endSector; /*!< The sector the hold terminates in. */          // +0x0c
 } MainGameHoldState;
 
 /**
@@ -44,18 +46,18 @@ typedef struct {
  * yet, so it is declared here where this class first needs it.
  */
 typedef struct {
-    int nMiss;               // +0x00
-    int nPoor;               // +0x04
-    int nGood;               // +0x08
-    int nGreat;              // +0x0c
-    int nPerfect;            // +0x10
-    int curCombo;            // +0x14
-    int maxCombo;            // +0x18
-    int tension;             // +0x1c
-    int point;               // +0x20
-    int bonusPoint;          // +0x24
-    int totalPoint;          // +0x28
-    char musicBarResult[30]; // +0x2c A per-bar grade string for the result-screen music bar.
+    int nMiss; /*!< The number of missed notes. */                                 // +0x00
+    int nPoor; /*!< The number of notes judged poor. */                            // +0x04
+    int nGood; /*!< The number of notes judged good. */                            // +0x08
+    int nGreat; /*!< The number of notes judged great. */                          // +0x0c
+    int nPerfect; /*!< The number of notes judged perfect. */                      // +0x10
+    int curCombo; /*!< The combo running at the play position. */                  // +0x14
+    int maxCombo; /*!< The longest combo reached. */                               // +0x18
+    int tension; /*!< The tension gauge level, clamped to its maximum. */          // +0x1c
+    int point; /*!< The base score from notes, nine tenths of the raw. */          // +0x20
+    int bonusPoint; /*!< The bonus scaled from @c tension . */                     // +0x24
+    int totalPoint; /*!< @c point plus @c bonusPoint ; the final score. */         // +0x28
+    char musicBarResult[30]; /*!< The result-screen music bar's per-bar grades. */ // +0x2c
 } ScoreData;
 
 @class RendererConf;

@@ -60,14 +60,14 @@ typedef int (*testerror_file_func)(voidpf opaque, voidpf stream);
  * callbacks followed by the opaque cookie, totalling 0x40 bytes.
  */
 typedef struct zlib_filefunc_def_s {
-    open_file_func zopen_file;       // +0x00
-    read_file_func zread_file;       // +0x08
-    write_file_func zwrite_file;     // +0x10
-    tell_file_func ztell_file;       // +0x18
-    seek_file_func zseek_file;       // +0x20
-    close_file_func zclose_file;     // +0x28
-    testerror_file_func zerror_file; // +0x30
-    voidpf opaque;                   // +0x38
+    open_file_func zopen_file; /*!< Opens the archive. */                       // +0x00
+    read_file_func zread_file; /*!< Reads bytes from the archive. */            // +0x08
+    write_file_func zwrite_file; /*!< Writes bytes to the archive. */           // +0x10
+    tell_file_func ztell_file; /*!< Reports the current offset. */              // +0x18
+    seek_file_func zseek_file; /*!< Moves the current offset. */                // +0x20
+    close_file_func zclose_file; /*!< Closes the archive. */                    // +0x28
+    testerror_file_func zerror_file; /*!< Reports the pending error, if any. */ // +0x30
+    voidpf opaque; /*!< The cookie handed back to every callback above. */      // +0x38
 } zlib_filefunc_def;
 
 /**

@@ -60,12 +60,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Sets the ring line width and the inner and outer border widths.
- * @param lineWidth The ring line width.
+ * @param lineWidth_ The ring line width.
  * @param borderInside The inner border width.
  * @param borderOutsize The outer border width.
  * @ghidraAddress 0x9fb48
  */
-- (void)setLineWidth:(float)lineWidth
+- (void)setLineWidth:(float)lineWidth_
         borderInside:(float)borderInside
        borderOutsize:(float)borderOutsize;
 

@@ -24,7 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol JcfManageNavControllerDelegate <NSObject>
 @optional
-/** @brief The user closed the custom-sequence management list. */
+/**
+ * @brief The user closed the custom-sequence management list.
+ * @param controller The navigation controller sending the message.
+ */
 - (void)editFileListViewCancel:(nullable JcfManageNavController *)controller;
 @end
 

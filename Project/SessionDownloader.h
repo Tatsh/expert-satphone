@@ -20,6 +20,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * @brief A @c Downloader whose every request is session-signed and retried on a stale session.
+ */
 @interface SessionDownloader : Downloader
 
 /**
@@ -30,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @c -initWithURL:postData:delegate: .
  * @param url The endpoint.
  * @param postDictionary The request parameters.
- * @param delegate The object told how the request finished.
+ * @param aDelegate The object told how the request finished.
  * @return The initialised client.
  * @ghidraAddress 0xff324
  */
@@ -41,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Builds a signed GET-style request that carries a fresh random @c cnonce.
  * @param url The endpoint.
- * @param delegate The object told how the request finished.
+ * @param aDelegate The object told how the request finished.
  * @return The initialised client.
  * @ghidraAddress 0xffb48
  */
@@ -51,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Builds a signed POST from a URL and a ready request body.
  * @param url The endpoint.
  * @param postData The request body.
- * @param delegate The object told how the request finished.
+ * @param aDelegate The object told how the request finished.
  * @return The initialised client.
  * @ghidraAddress 0xffe1c
  */

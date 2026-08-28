@@ -26,21 +26,21 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Sets the ripple up. Nothing here is animated yet.
  *
- * @param sprite The sprite index within the background texture.
- * @param point Where the ripple is centred.
- * @param xSpeed How far it drifts each step, horizontally only.
- * @param lifetime How many steps it lasts.
+ * @param aSprite The sprite index within the background texture.
+ * @param aPoint Where the ripple is centred.
+ * @param anXSpeed How far it drifts each step, horizontally only.
+ * @param aLifetime How many steps it lasts.
  * @param basesize The sprite's nominal size, used only to offset the draw from its anchor.
- * @param mag The scale before the swell is applied.
+ * @param aMag The scale before the swell is applied.
  * @param alpha The opacity before the fades are applied.
  * @ghidraAddress 0x143b38
  */
-- (instancetype)initWithSprite:(NSUInteger)sprite
-                       atPoint:(CGPoint)point
-                        xSpeed:(float)xSpeed
-                      lifetime:(unsigned int)lifetime
+- (instancetype)initWithSprite:(NSUInteger)aSprite
+                       atPoint:(CGPoint)aPoint
+                        xSpeed:(float)anXSpeed
+                      lifetime:(unsigned int)aLifetime
                       basesize:(float)basesize
-                           mag:(float)mag
+                           mag:(float)aMag
                          alpha:(float)alpha;
 
 /**

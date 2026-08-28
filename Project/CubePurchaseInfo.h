@@ -34,18 +34,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The pack's product identifier.
+ * @return The product identifier.
  * @ghidraAddress 0x63c5c
  */
 - (nullable NSString *)getProductID;
 
 /**
  * @brief The pack's price, already formatted for display. DECLARED ONLY.
+ * @return The formatted price.
  * @ghidraAddress 0x63c6c
  */
 - (nullable NSString *)getPriceString;
 
 /**
  * @brief The attached StoreKit product.
+ * @return The attached StoreKit product, or nil when none has been resolved.
  * @ghidraAddress 0x63d10
  */
 - (nullable SKProduct *)getProduct;
@@ -60,12 +63,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The pack's name (also the cube count as a string).
+ * @return The pack's name.
  * @ghidraAddress 0x63d38
  */
 - (nullable NSString *)getName;
 
 /**
  * @brief The pack's description line.
+ * @return The pack's description line.
  * @ghidraAddress 0x63d48
  */
 - (nullable NSString *)getDescription;

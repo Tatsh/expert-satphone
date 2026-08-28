@@ -23,10 +23,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol PurchaseManagerDelegate <NSObject>
 @optional
+/**
+ * @brief A purchase failed.
+ * @param productID The product that failed.
+ * @param error The failure, distinguishing a cancellation from a genuine error by its domain.
+ */
 - (void)purchaseFailed:(NSString *)productID error:(NSError *)error;
+/** @brief A restore finished with nothing to restore. */
 - (void)restoreNothing;
 @end
 
+/**
+ * @brief The StoreKit purchase and restore front end, shared across the store screens.
+ */
 @interface PurchaseManager : NSObject <SKPaymentTransactionObserver, SKRequestDelegate>
 
 /**

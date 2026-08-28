@@ -24,7 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol ChallengeMenuViewDelegate <NSObject>
 /** @brief The close button was tapped. */
 - (void)closeRootMenu;
-/** @brief A menu row was tapped. The argument boxes the row's tag. */
+/**
+ * @brief A menu row was tapped. The argument boxes the row's tag.
+ * @param menu The tapped row's tag, boxed.
+ */
 - (void)selectMenu:(nullable NSNumber *)menu;
 @end
 

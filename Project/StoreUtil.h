@@ -21,21 +21,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The store tab header height, 44 points.
+ * @return Always 44.
  * @ghidraAddress 0xb9844
  */
 + (int)storeTabHeaderHeight;
 /**
  * @brief The store tab footer height, 49 points.
+ * @return Always 49.
  * @ghidraAddress 0xb984c
  */
 + (int)storeTabFooterHeight;
 /**
  * @brief The store category list height, 80 points.
+ * @return Always 80.
  * @ghidraAddress 0xb9854
  */
 + (int)storeCategoryListHeight;
 /**
  * @brief The store category title height, 100 points.
+ * @return Always 100.
  * @ghidraAddress 0xb985c
  */
 + (int)storeCategoryTitleHeight;
@@ -53,6 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The store's new-information URL, carrying the client info as a query.
+ * @return The new-information URL.
  * @ghidraAddress 0xba318
  */
 + (nullable NSURL *)storeNewInfoURL;
@@ -65,6 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param head The first index.
  * @param limit The page size.
  * @param genre The genre filter, or 0 for none.
+ * @return The pack-list URL for the page.
  * @ghidraAddress 0xb9a2c
  */
 + (nullable NSURL *)packListURL:(unsigned int)head
@@ -77,6 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
  * When @p useGenre is non-zero it appends @c "&genre=%d" with a value chosen at random from a
  * ten-entry table.
  * @param useGenre Whether to append a random genre filter.
+ * @return The recommended-pack-list URL.
  * @ghidraAddress 0xb9ba0
  */
 + (nullable NSURL *)recommendPackListURL:(unsigned int)useGenre;
@@ -85,6 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Formats @c optional_packlist with a comma-separated @c packs list. Returns nil for an empty set.
  * @param packIDs The pack identifiers, as @c NSNumber s.
+ * @return The optional-pack-list URL, or nil for an empty set.
  * @ghidraAddress 0xb9d48
  */
 + (nullable NSURL *)selectivePackListURL:(nullable NSArray *)packIDs;
@@ -92,79 +100,93 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The pack-info URL for a pack, carrying the client info as a query.
  * @param packID The pack identifier.
+ * @return The pack-info URL.
  * @ghidraAddress 0xb9f28
  */
 + (nullable NSURL *)packInfoURL:(unsigned int)packID;
 /**
  * @brief The restore-pack-info URL for a pack, carrying the client info as a query.
  * @param packID The pack identifier.
+ * @return The restore-pack-info URL.
  * @ghidraAddress 0xba078
  */
 + (nullable NSURL *)restorePackInfoURL:(unsigned int)packID;
 /**
  * @brief The music-info URL for a tune, carrying the client info as a query.
  * @param musicID The tune identifier.
+ * @return The music-info URL.
  * @ghidraAddress 0xba1c8
  */
 + (nullable NSURL *)musicInfoURL:(unsigned int)musicID;
 /**
  * @brief The free-music-list (privilege) URL keyed by a value.
  * @param key The list key.
+ * @return The free-music-list URL.
  * @ghidraAddress 0xba48c
  */
 + (nullable NSURL *)privilegeListURL:(int)key;
 /**
  * @brief The privilege music-info URL; forwards to @c +musicInfoURL: .
  * @param musicID The tune identifier.
+ * @return Whatever @c +musicInfoURL: returns for the tune.
  * @ghidraAddress 0xba56c
  */
 + (nullable NSURL *)privilegeMusicInfoURL:(unsigned int)musicID;
 
 /**
  * @brief The receipt-verify URL for a new purchase; delegates to @c ScratchUtil .
+ * @return The receipt-verify URL.
  * @ghidraAddress 0xba464
  */
 + (nullable NSURL *)verifyReceiptNewURL;
 /**
  * @brief The receipt-verify URL for a consumable purchase; delegates to @c ScratchUtil . Identical
  * to @c +verifyReceiptNewURL .
+ * @return The receipt-verify URL.
  * @ghidraAddress 0xba478
  */
 + (nullable NSURL *)verifyReceiptConsumeURL;
 
 /**
  * @brief The campaign-list URL.
+ * @return The campaign-list URL.
  * @ghidraAddress 0xba578
  */
 + (nullable NSURL *)campaignListURL;
 /**
  * @brief The campaign serial-check URL.
+ * @return The campaign serial-check URL.
  * @ghidraAddress 0xba64c
  */
 + (nullable NSURL *)campaignSerialCheckURL;
 /**
  * @brief The campaign-item fetch URL.
+ * @return The campaign-item fetch URL.
  * @ghidraAddress 0xba720
  */
 + (nullable NSURL *)campaignItemURL;
 /**
  * @brief The marker-list check URL.
+ * @return The marker-list check URL.
  * @ghidraAddress 0xba8c8
  */
 + (nullable NSURL *)markerListURL;
 /**
  * @brief The recommended-pack URL for a tune, carrying the client info as a query.
  * @param musicID The tune identifier.
+ * @return The recommended-pack URL.
  * @ghidraAddress 0xbb3bc
  */
 + (nullable NSURL *)recommendPackURL:(unsigned int)musicID;
 /**
  * @brief The startup-news URL.
+ * @return The startup-news URL.
  * @ghidraAddress 0xbb50c
  */
 + (nullable NSURL *)startNewsURL;
 /**
  * @brief The passed-information list URL.
+ * @return The passed-information list URL.
  * @ghidraAddress 0xbb5e8
  */
 + (nullable NSURL *)passedInfoListURL;
@@ -172,6 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief The store user-policy URL, carrying the agreed licence version.
  *
  * The query is @c {version: <PrefStoreAgreeLicenseVersion or "">, target: "JP"} .
+ * @return The store user-policy URL.
  * @ghidraAddress 0xbb67c
  */
 + (nullable NSURL *)storeUserPolicyURL;
@@ -180,6 +203,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Structurally identical to @c +storeUserPolicyURL but the version value is read from
  * @c PrefExtendListLastUpdate .
+ * @return The store extend-list URL.
  * @ghidraAddress 0xbb8b8
  */
 + (nullable NSURL *)storeExtendListURL;
@@ -216,6 +240,7 @@ NS_ASSUME_NONNULL_BEGIN
  * answers NO, so an unusable URL is dropped rather than stored. DECLARED ONLY.
  *
  * @param url The candidate, as it arrived from the server.
+ * @return YES when the string is a URL worth keeping, NO when it should be dropped.
  */
 + (BOOL)isValidURL:(nullable NSString *)url;
 
@@ -248,6 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @c StoreMusicListManager 's built-in list; otherwise it tests whether
  * @c "<documents>/%d.jbt" exists on disk.
  * @param musicID The tune identifier.
+ * @return YES when the tune's file is present, NO otherwise.
  * @ghidraAddress 0xbbaf4
  */
 + (BOOL)existMusicFile:(int)musicID;
@@ -258,6 +284,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Answers YES for the first entry whose base tune is in the store list and present on disk while
  * its non-zero @c extendMusicID is not.
  * @param entries The store music entries.
+ * @return YES when at least one entry has a downloadable extend tune, NO otherwise.
  * @ghidraAddress 0xbbda8
  */
 + (BOOL)existDownloadableExtendMusic:(nullable NSArray *)entries;

@@ -2,7 +2,7 @@
  * The music-select screen.
  *
  * Reconstructed from Ghidra program Jubeat (class @c MusicSelectViewController, image base
- * 0x100000000). All @c @ghidraAddress values are offsets relative to that image base. The class
+ * 0x100000000). All @c @@ghidraAddress values are offsets relative to that image base. The class
  * object is at 0x348a68 and the superclass is @c UIViewController.
  *
  * This is the hub screen the player picks a song from. It owns the scrolling music list and the
@@ -70,94 +70,183 @@ NS_ASSUME_NONNULL_BEGIN
                                                          EditorIDManagerDelegate,
                                                          JcfDownloadPageNavControllerDelegate,
                                                          SettingsNavControllerDelegate> {
+    /** The how-to page index. Carried for the binary's ivar layout; nothing reads it. */
     unsigned int pageHowto;
+    /** Whether the marker-select overlay is open. */
     BOOL isMarkerSelectOpen;
+    /** The store-info banner index. Carried for the binary's ivar layout; nothing reads it. */
     unsigned int indexStoreInfo;
+    /** Whether the device is a pad idiom. */
     BOOL isPad;
+    /** Whether the display is Retina. */
     BOOL isRetina;
+    /** Whether the device is a Retina pad. */
     BOOL isPadRetina;
+    /** Whether a play is about to start, suppressing further selection. */
     BOOL willStart;
+    /** Whether the menu BGM was suspended by another audio session. */
     BOOL mainBgmSuspended;
+    /** The screen's background image. */
     UIImageView *bgImageView;
+    /** The scrolling music list. */
     MusicListView *musicListView;
+    /** The dimming cover placed behind an overlay. */
     UIView *coverView;
+    /** Whether the delegate-owned cover is currently showing. */
     BOOL bOpenDelegateCover;
+    /** The extra cover views layered over the screen alongside @c coverView . */
     NSArray *appendCoverView;
+    /** The tap recogniser attached to the cover, dismissing it when tapped. */
     UIGestureRecognizer *appendCoverGesture;
+    /** The song tile the player currently has selected. */
     MusicView *selectedMusicView;
+    /** The detail card shown for @c selectedMusicView . */
     MusicDetailView *musicDetailView;
+    /** Every tune known to the game. */
     NSArray *arrayAllTune;
+    /** The extend (bonus) tunes, keyed by music ID. */
     NSDictionary *dictAllExtendTune;
+    /** The tunes the player has not yet played. */
     NSMutableArray *arrayNotPlayedTune;
+    /** The tunes matching the selected difficulty level. */
     NSMutableArray *arrayLevelList;
+    /** The tunes in the active playlist. */
     NSMutableArray *arrayCurrentPlaylist;
+    /** The index paths to remove on the next music-list update. */
     NSMutableArray *arrayDeleteList;
+    /** The index paths to insert on the next music-list update. */
     NSMutableArray *arrayAddList;
+    /** The tunes the player has held (marked as favourites). */
     NSMutableArray *arrayHoldList;
+    /** The tunes the player has not held. */
     NSMutableArray *arrayNotHoldList;
+    /** The store the playlists are read from and written to. */
     MusicPlaylistManager *playlistManager;
+    /** The array backing the active playlist, one of the @c array... lists above. */
     id currentPlaylistSource;
+    /** The active playlist index; -1 selects the not-yet-played list. */
     int playListIndex;
+    /** The navigation controller hosting @c playlistViewCtrl . */
     RotatableNavigationController *playlistNavCtrl;
+    /** The playlist picker presented over the list. */
     MusicPlaylistViewController *playlistViewCtrl;
+    /** The button opening the settings screen. */
     UIButton *btnSettings;
+    /** The button joining a local share-play session. */
     UIButton *btnJoinSession;
+    /** The button opening the Game Center leaderboard. */
     UIButton *btnLeaderboard;
+    /** The button opening the store. */
     UIButton *btnStore;
+    /** The button opening challenge mode. */
     UIButton *btnChallenge;
+    /** The "new" badge drawn over @c btnStore . */
     UIImageView *imgStoreNew;
+    /** The "new" badge drawn over @c btnChallenge . */
     UIImageView *imgChallengeNew;
+    /** The scratch ID of the running challenge, or negative when there is none. */
     int currentScratchID;
+    /** The marker-select overlay. */
     MarkerSelectView *markerSelectView;
+    /** The dimming cover placed behind @c markerSelectView . */
     UIView *markerSelectCover;
+    /** The button opening @c markerSelectView . */
     UIButton *btnMarker;
+    /** The image showing the selected marker on @c btnMarker . */
     UIImageView *btnMarkerImg;
+    /** The store-information request, live between its start and completion. */
     Downloader *infoDownloader;
+    /** The store's last-updated timestamp, compared against the stored one to raise the badge. */
     NSString *storeUpdateTime;
+    /** The navigation controller hosting the settings screen. */
     SettingsNavController *settingsNavCtrl;
+    /** The view shown to a share-play client while it waits for the host. */
     MusicShareView *shareClientView;
+    /** The chart data sent to share-play clients. */
     NSData *shareMusicData;
+    /** The chart upload view. */
     JcfUpLoadView *upLoadView;
+    /** The chart download view. */
     JcfDownloadView *jcfDownloadView;
+    /** The balloon tip pointing at the store button. */
     BalloonView *balloonView;
+    /** The timer rotating the store-information banner. */
     NSTimer *infoBannerTimer;
+    /** The off-screen tile the detail-open animation expands from. */
     MusicView *farOpenMusicView;
+    /** Whether shake-to-shuffle is enabled. */
     BOOL bEnableShuffle;
+    /** Whether @c musicDetailView is open. */
     BOOL bOpenMusicDetail;
+    /** Whether the shuffle animation is running. The binary spells it with one @c f . */
     BOOL bSuffleAnim;
+    /** Whether the search box is open. */
     BOOL bOpenSearchBox;
+    /** The tunes matching the current search text. */
     NSMutableArray *searchArray;
+    /** The song search box. */
     UISearchBar *searchBox;
+    /** The swipe recognisers driving the list's page changes. */
     NSArray *arraySwipeRecognizer;
+    /** The button cancelling the search and closing @c searchBox . */
     UIButton *searchCancelBtn;
+    /** The search index mapping a search term to its matching tunes. */
     NSMutableDictionary *searchDictionary;
+    /** The one-off tutorial overlay explaining search. */
     UIView *searchTutorialView;
+    /** The one-off tutorial overlay explaining extend tunes. */
     UIView *extendTutorialView;
+    /** The framing button dismissing @c extendTutorialView . */
     UIButton *extendTutorialFrame;
+    /** The description image drawn inside @c extendTutorialView . */
     UIImageView *extendTutorialDescription;
+    /** The search text saved while the search box is closed, restored when it reopens. */
     NSString *backUpString;
+    /** Whether a modal is presented over the screen. */
     BOOL bOpenModal;
+    /** Whether the settings screen is open. */
     BOOL bOpenSetting;
+    /** Whether the notification page is open. */
     BOOL bOpenInfo;
+    /** Whether challenge mode is open. */
     BOOL bOpenChallenge;
+    /** The navigation controller hosting the chart-download pages. */
     JcfDownloadPageNavController *jcfDLPageViewController;
+    /** The navigation controller hosting the notification pages. */
     NotificationPageNavController *notificationViewController;
+    /** The jubeat Lab URL fetched at launch, or @c nil when the fetch failed. */
     NSString *jubeatLabURL;
+    /** Which flow asked for purchase verification; see the @c kVerifyPurchaseType values. */
     int verifyPurchaseType;
+    /** The store parameters held while the store is opened, then consumed and cleared. */
     NSDictionary *storeParams;
+    /** The challenge-mode root view. */
     ChallengeModeRootView *challengeModeView;
+    /** Whether challenge mode is being launched. */
     BOOL bLaunchCMode;
+    /** The dimming cover shown while challenge mode loads. */
     UIView *challengeCoverView;
+    /** The purchase-verification dialogue. */
     StoreDialogView *verifyDialog;
+    /** The editor-ID download manager. */
     EditorIDManager *idManager;
+    /** Whether the player has accepted the challenge-mode policy. */
     BOOL checkPolicy;
+    /** The spinner shown while challenge information downloads. */
     UIActivityIndicatorView *indicatorChallenge;
+    /** The timer that times the challenge-information download out. */
     NSTimer *indicatorTimer;
+    /** The challenge-information request. */
     SessionDownloader *challengeInfoDownloader;
+    /** The challenge mission tasks parsed from the challenge information. */
     NSMutableArray *missionTasks;
+    /** The push-notification view. */
     PushNotificationView *notificationView;
+    /** The paged scroll view carrying the background artwork. */
     UIScrollView *scrollBg;
+    /** The number of pages in @c scrollBg . */
     int scrollPageNum;
+    /** The bottom bar carrying the mode and playlist controls. */
     MusicSelectBottomView *bottomView;
 }
 

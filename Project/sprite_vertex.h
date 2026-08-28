@@ -23,15 +23,15 @@
  * than one packed word.
  */
 struct SpriteVertex {
-    float fX;             // +0x00 Position X, written by the caller.
-    float fY;             // +0x04 Position Y, written by the caller.
-    float fZ;             // +0x08 Position Z, untouched by the 2D sprite path.
-    float flU;            // +0x0c Texture U coordinate.
-    float flV;            // +0x10 Texture V coordinate.
-    std::uint8_t byRed;   // +0x14 Red channel, 0-255.
-    std::uint8_t byGreen; // +0x15 Green channel, 0-255.
-    std::uint8_t byBlue;  // +0x16 Blue channel, 0-255.
-    std::uint8_t byAlpha; // +0x17 Alpha channel, 0-255.
+    float fX; /*!< Position X, written by the caller. */           // +0x00
+    float fY; /*!< Position Y, written by the caller. */           // +0x04
+    float fZ; /*!< Position Z, untouched by the 2D sprite path. */ // +0x08
+    float flU; /*!< Texture U coordinate. */                       // +0x0c
+    float flV; /*!< Texture V coordinate. */                       // +0x10
+    std::uint8_t byRed; /*!< Red channel, 0-255. */                // +0x14
+    std::uint8_t byGreen; /*!< Green channel, 0-255. */            // +0x15
+    std::uint8_t byBlue; /*!< Blue channel, 0-255. */              // +0x16
+    std::uint8_t byAlpha; /*!< Alpha channel, 0-255. */            // +0x17
 };
 
 /**

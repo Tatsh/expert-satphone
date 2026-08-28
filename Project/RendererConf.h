@@ -16,6 +16,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * @brief The marker, sound, and display settings the gameplay renderer draws a play session with.
+ */
 @interface RendererConf : NSObject
 
 /**

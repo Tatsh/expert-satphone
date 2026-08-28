@@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Builds the grey plate and its clipped, aspect-filling image view.
+ * @param frame The view's initial frame.
+ * @return The initialised view.
  * @ghidraAddress 0x1bae8c
  */
 - (instancetype)initWithFrame:(CGRect)frame;

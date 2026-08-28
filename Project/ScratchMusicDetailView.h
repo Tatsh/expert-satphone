@@ -2,7 +2,7 @@
  * The challenge-mode scratch-mode music-detail card.
  *
  * Reconstructed from Ghidra program Jubeat (class @c ScratchMusicDetailView, image base
- * 0x100000000). All @c @ghidraAddress values are offsets relative to that image base. The class
+ * 0x100000000). All @c @@ghidraAddress values are offsets relative to that image base. The class
  * object is at 0x349220.
  *
  * The superclass is @c MusicDetailView, proven by the @c initWithFrame: chain-up at 0x15f658 and by
@@ -158,7 +158,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Sets the seven high-score digit views, the rating view, and the combo view from a score
  *        and full-combo flag. A negative score blanks everything; a score of 1,000,000 or more
  *        shows the excellent mark instead of a rating.
- * @param score The score value.
+ * @param scoreValue The score value.
  * @param fullcombo Whether the chart was full-comboed.
  * @ghidraAddress 0x162920
  */
@@ -200,10 +200,10 @@ NS_ASSUME_NONNULL_BEGIN
  *        pack id, wires the start-play and store buttons, reads the per-difficulty score/rank/combo
  *        from the panel's @c ChallengeMusicInfo, decrypts the tune archive into a @c TuneInfo and
  *        music-bar data, and sets the three level digits.
- * @param itemSlot The scratch panel index.
+ * @param slot The scratch panel index.
  * @ghidraAddress 0x1631c8
  */
-- (void)setDetailInfo:(int)itemSlot;
+- (void)setDetailInfo:(int)slot;
 
 /**
  * @brief Start-play button action: when enabled, plays the confirm sound and tells the delegate to

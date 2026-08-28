@@ -49,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param frame The modal frame to lay out over.
  * @param mInfo The resolved track, whose id, name, and the player's rank seed the list.
  * @param rankType The initial area (0 = country, 1 = rival).
+ * @return The initialised list view.
  * @ghidraAddress 0x156254
  */
 - (instancetype)initWithFrame:(CGRect)frame
@@ -60,6 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param frame The modal frame to lay out over.
  * @param mDict The line-up record, carrying @c name and @c music_id .
  * @param scratchID The event's scratch id, boxed for the request body.
+ * @return The initialised list view.
  * @ghidraAddress 0x1564cc
  */
 - (instancetype)initWithFrame:(CGRect)frame

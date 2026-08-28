@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Builds the hosted music view and installs it.
+ * @param info The tune the hosted music view shows.
  * @param parentDelegate The delegate messaged to load artwork; also the music view's delegate.
  * @param viewType The music view's column type.
  * @param labelDisp Whether the music view shows its label.
@@ -53,18 +54,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief The hosted music view.
+ * @return The hosted music view, or nil when the cell hosts none.
  * @ghidraAddress 0x3b084
  */
 - (nullable MusicView *)getMusicView;
 
 /**
  * @brief The hosted view's current tune identifier.
+ * @return The hosted view's tune identifier.
  * @ghidraAddress 0x3b094
  */
 - (int)getTuneID;
 
 /**
  * @brief Whether the cell currently hosts a music view.
+ * @return YES when the cell hosts a music view, NO otherwise.
  * @ghidraAddress 0x3b0ec
  */
 - (BOOL)existMusicView;

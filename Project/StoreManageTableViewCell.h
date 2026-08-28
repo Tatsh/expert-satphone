@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param isPad Whether to use the larger of the two font sizes.
  * @param reuseIdentifier Passed straight to the superclass.
+ * @return The initialised cell.
  * @ghidraAddress 0x9096c
  */
 - (instancetype)initWithPad:(BOOL)isPad reuseIdentifier:(nullable NSString *)reuseIdentifier;

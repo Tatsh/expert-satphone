@@ -40,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Builds the shade: interaction enabled, and a flat dark fill at 80% alpha.
+ * @param frame The view's initial frame.
+ * @return The initialised view.
  * @ghidraAddress 0x25d674
  */
 - (instancetype)initWithFrame:(CGRect)frame;

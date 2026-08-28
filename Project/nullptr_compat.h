@@ -16,6 +16,7 @@
 
 #if !defined(__cplusplus) && (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 202311L)
 #ifndef nullptr
+/** @brief The C23 null pointer constant, for the pre-C23 C compilers that lack it. */
 #define nullptr ((void *)0)
 #endif
 #endif

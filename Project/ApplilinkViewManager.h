@@ -25,8 +25,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol ApplilinkViewManagerSdkDelegate <NSObject>
 @optional
+/** @brief The managed view opened. */
 - (void)openedNotice;
+/**
+ * @brief The managed view was closed.
+ * @param view The view that closed.
+ */
 - (void)closeNotice:(nullable id)view;
+/**
+ * @brief The managed view finished loading and is ready.
+ * @param view The view that became ready.
+ */
 - (void)viewReady:(nullable id)view;
 @end
 

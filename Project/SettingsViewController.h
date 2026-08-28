@@ -24,8 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
  * The controller is its own data source and delegate, and acts as the @c AlertViewManager delegate
  * for the delete-custom-sequence confirmation (see @c -alertSelect:).
  */
-@interface SettingsViewController
-    : UITableViewController <UITableViewDataSource, UITableViewDelegate, AlertViewManagerDelegate>
+// clang-format off
+// One protocol per line: the packed form, which begins a continuation line with
+// ": UITableViewController <", is read by Doxygen as undocumented ivars named after the trailing
+// protocols.
+@interface SettingsViewController : UITableViewController <UITableViewDataSource,
+                                                           UITableViewDelegate,
+                                                           AlertViewManagerDelegate>
+// clang-format on
 
 /**
  * @brief The object forwarded to sub-controllers that need to notify the settings owner (for

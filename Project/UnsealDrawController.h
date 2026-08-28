@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param name The encrypted @c .tex resource's base name, with no scale suffix or extension.
  * @param frame The rectangle the artwork fills, in the loaded view's coordinates.
+ * @return The initialised controller.
  * @ghidraAddress 0x15bcf0
  */
 - (instancetype)initWithFileName:(nullable NSString *)name frame:(CGRect)frame;

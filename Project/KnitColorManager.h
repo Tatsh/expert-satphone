@@ -31,9 +31,9 @@ typedef struct {
  * Offsets are documentation of the shipped 64-bit layout; always go through the named fields.
  */
 typedef struct {
-    KnitColorComponents base; // +0x00
-    KnitColorComponents line; // +0x10
-    KnitColorComponents wave; // +0x20
+    KnitColorComponents base; /*!< The background fill colour. */ // +0x00
+    KnitColorComponents line; /*!< The knit line colour. */       // +0x10
+    KnitColorComponents wave; /*!< The wave overlay colour. */    // +0x20
 } KnitColorPalette;
 
 /**

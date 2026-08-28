@@ -350,36 +350,51 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)didReceiveMemoryWarning;
 
 /**
+ * @brief The view is about to appear.
+ * @param animated Whether the appearance is animated.
  * @ghidraAddress 0xf8d74
  */
 - (void)viewWillAppear:(BOOL)animated;
 
 /**
+ * @brief The view has appeared.
+ * @param animated Whether the appearance was animated.
  * @ghidraAddress 0xf8dac
  */
 - (void)viewDidAppear:(BOOL)animated;
 
 /**
+ * @brief The view is about to disappear.
+ * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0xf8de4
  */
 - (void)viewWillDisappear:(BOOL)animated;
 
 /**
+ * @brief The view has disappeared.
+ * @param animated Whether the disappearance was animated.
  * @ghidraAddress 0xf8e1c
  */
 - (void)viewDidDisappear:(BOOL)animated;
 
 /**
+ * @brief Whether the screen may rotate to an orientation.
+ * @param interfaceOrientation The orientation asked about.
+ * @return YES for the two portrait orientations, NO otherwise.
  * @ghidraAddress 0xf8e54
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
+ * @brief The orientations the screen supports.
+ * @return Both portrait orientations.
  * @ghidraAddress 0xf8e64
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
+ * @brief Whether the screen rotates.
+ * @return Always YES.
  * @ghidraAddress 0xf8e6c
  */
 - (BOOL)shouldAutorotate;

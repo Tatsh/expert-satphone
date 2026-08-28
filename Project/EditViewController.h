@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Initialises the editor: reads the saved adjust-sector offset, resolves the device idiom,
  *        builds the @c EAGLView sized to the screen, and resets the editing state.
+ * @return The initialised controller.
  * @ghidraAddress 0x21aa54
  */
 - (instancetype)init;

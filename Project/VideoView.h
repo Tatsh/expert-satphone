@@ -30,7 +30,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol VideoViewDelegate <NSObject>
 @optional
-/** @brief The on-screen chrome finished building. */
+/**
+ * @brief The on-screen chrome finished building.
+ * @param view The player sending the message.
+ */
 - (void)viewReady:(nullable VideoView *)view;
 /** @brief The movie became ready to play. */
 - (void)movieReady;
@@ -46,9 +49,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)movieError;
 /** @brief The movie could not auto-start because it was not yet cached. */
 - (void)movieAutoStartError;
-/** @brief The player wants to close. */
+/**
+ * @brief The player wants to close.
+ * @param view The player sending the message.
+ */
 - (void)closeNotice:(nullable VideoView *)view;
-/** @brief The player wants to open the store. */
+/**
+ * @brief The player wants to open the store.
+ * @param view The player sending the message.
+ */
 - (void)storeNotice:(nullable VideoView *)view;
 @end
 
@@ -192,6 +201,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief KVO handler for the player item's status and buffering key paths.
+ * @param keyPath The observed key path.
+ * @param object The observed object.
+ * @param change The change dictionary.
+ * @param context The observer context.
  * @ghidraAddress 0x229690
  */
 - (void)observeValueForKeyPath:(nullable NSString *)keyPath
@@ -259,6 +272,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Toggles the menu overlay on touch.
+ * @param touches The touches that began.
+ * @param event The event they belong to.
  * @ghidraAddress 0x22a3ec
  */
 - (void)touchesBegan:(nullable NSSet *)touches withEvent:(nullable UIEvent *)event;

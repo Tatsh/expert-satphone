@@ -42,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Returns an empty term with @c -reset already applied.
+ * @return The initialised term.
  * @ghidraAddress 0x1ef288
  */
 - (instancetype)init;

@@ -23,8 +23,13 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief A modal, paged frame-select gallery for the Twitter-share background frame.
  */
-@interface SettingsTwSelectViewController
-    : UIViewController <UIScrollViewDelegate, EditorIDManagerDelegate, RewardCheckDelegate>
+// clang-format off
+// One protocol per line: the packed form, which begins a continuation line with ": UIViewController
+// <", is read by Doxygen as undocumented ivars named after the trailing protocols.
+@interface SettingsTwSelectViewController : UIViewController <UIScrollViewDelegate,
+                                                              EditorIDManagerDelegate,
+                                                              RewardCheckDelegate>
+// clang-format on
 
 /**
  * @brief Scales a rect's every component by the device scale @c fScale .

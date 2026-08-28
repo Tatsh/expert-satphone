@@ -2,7 +2,7 @@
  * The music-selection detail card for the Knit theme.
  *
  * Reconstructed from Ghidra program Jubeat (class @c MusicDetailViewKnt, image base 0x100000000).
- * All @c @ghidraAddress values are offsets relative to that image base. The superclass is
+ * All @c @@ghidraAddress values are offsets relative to that image base. The superclass is
  * @c MusicDetailView, confirmed from the class metadata.
  *
  * This theme variant carries the real per-difficulty layout the base @c MusicDetailView leaves
@@ -32,39 +32,73 @@ NS_ASSUME_NONNULL_BEGIN
                                                  JcfDownloadPageNavControllerDelegate,
                                                  JcfManageNavControllerDelegate,
                                                  JcfUpLoadViewDelegate> {
+    /** The difficulty buttons, indexed basic, advanced, extreme, then extend. */
     UIButton *btnDiff[4];
+    /** The level number drawn on each difficulty button. */
     UIImageView *levelNumView[4];
+    /** The level digit images, indexed by digit. */
     UIImage *levelNumImg[10];
+    /** The board the high score is drawn on. */
     UIImageView *highscoreBoardView;
+    /** The "HIGH SCORE" caption drawn on the board. */
     UIImageView *highscoreTextView;
+    /** The clear-rating badge. */
     UIImageView *ratingView;
+    /** The full-combo badge. */
     UIImageView *comboView;
+    /** The high-score digits, most significant first. */
     UIImageView *highscoreNumView[7];
+    /** The high-score digit images, indexed by digit. */
     UIImage *highscoreNumImg[10];
+    /** The clear-rating badge images, indexed by rating. */
     UIImage *ratingImg[9];
+    /** The full-combo badge image. */
     UIImage *fullcomboImg;
+    /** The excellent badge image, replacing @c fullcomboImg on a perfect play. */
     UIImage *excellentImg;
+    /** The measure bar the note-density dots are drawn in. */
     UIImageView *mbarBarView;
+    /** The measure-bar dots, one per bar column. */
     UIImageView *mbarDotView[120];
+    /** The measure-bar backgrounds, one per difficulty. */
     UIImage *mbarBarImg[4];
+    /** The measure-bar dot images, by difficulty then density level. */
     UIImage *mbarDotImg[4][8];
+    /** The measure-bar density map per difficulty, rows basic, advanced, and extreme. */
     char mbarDots[3][60];
+    /** The frame drawn around the extend section. */
     UIImageView *extendFrame;
+    /** The extend section's description image. The binary misspells "description". */
     UIImageView *extendDecription;
+    /** The random-select state as of the last refresh, used to skip redundant updates. */
     BOOL bRandomBak;
+    /** The editor chart names, one per difficulty. */
     UILabel *editTxt[3];
+    /** The button opening the tune information page. */
     UIButton *infoBtn;
+    /** The button uploading the editor chart. */
     UIButton *uploadBtn;
+    /** The button opening the chart editor. */
     UIButton *editBtn;
+    /** The buttons scrolling the detail card, previous then next. */
     UIButton *detailScrollButton[2];
+    /** The lamp marking that the card can be scrolled. */
     UIImageView *scrollLamp;
+    /** The lamp drawn on the extend difficulty button. */
     UIImageView *diffBtnLamp;
+    /** The badge marking the chart's author, or @c nil when there is none. */
     UIImageView *userTagIcon;
+    /** The chart upload view, live while an upload is in progress. */
     JcfUpLoadView *upLoadView;
+    /** The cover shading the top of the card. */
     UIView *topcover;
+    /** The extend measure-bar density map, in the same row order as @c mbarDots . */
     char extendMbarDots[3][60];
+    /** The hold (favourite) marks, one per difficulty. */
     UIImageView *holdMark[3];
+    /** The extend-available marks, one per difficulty. */
     UIImageView *extendMark[3];
+    /** The extend-unlocked marks, one per difficulty. */
     UIImageView *extendOnMark[3];
 }
 

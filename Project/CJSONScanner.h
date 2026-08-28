@@ -28,25 +28,56 @@ NS_ASSUME_NONNULL_BEGIN
     char *end;     ///< One past the last byte of the input.
 }
 
-/** @brief Points the scanner at some bytes. */
+/**
+ * @brief Points the scanner at some bytes.
+ * @param data The bytes to scan.
+ */
 - (void)setData:(nullable NSData *)data;
 /** @brief Advances past any whitespace at the cursor. */
 - (void)skipWhitespace;
-/** @brief The character at the cursor without consuming it. */
+/**
+ * @brief The character at the cursor without consuming it.
+ * @return The character at the cursor.
+ */
 - (unichar)currentCharacter;
-/** @brief Consumes and returns the character at the cursor. */
+/**
+ * @brief Consumes and returns the character at the cursor.
+ * @return The consumed character.
+ */
 - (unichar)scanCharacter;
-/** @brief Consumes the cursor character when it matches. */
+/**
+ * @brief Consumes the cursor character when it matches.
+ * @param character The character to match.
+ * @return YES when the character matched and was consumed, NO otherwise.
+ */
 - (BOOL)scanCharacter:(unichar)character;
-/** @brief Consumes a fixed UTF-8 run, optionally returning it. */
+/**
+ * @brief Consumes a fixed UTF-8 run, optionally returning it.
+ * @param string The UTF-8 run to match.
+ * @param outString On a match, the matched run; may be @c nullptr .
+ * @return YES when the run matched and was consumed, NO otherwise.
+ */
 - (BOOL)scanUTF8String:(const char *)string intoString:(NSString *_Nullable *_Nullable)outString;
-/** @brief Consumes a JSON number literal. */
+/**
+ * @brief Consumes a JSON number literal.
+ * @param outNumber On success, the scanned number; may be @c nullptr .
+ * @return YES when a number was scanned, NO otherwise.
+ */
 - (BOOL)scanNumber:(NSNumber *_Nullable *_Nullable)outNumber;
-/** @brief The current byte offset. */
+/**
+ * @brief The current byte offset.
+ * @return The cursor's byte offset.
+ */
 - (NSUInteger)scanLocation;
-/** @brief Rewinds or advances the cursor to a byte offset. */
+/**
+ * @brief Rewinds or advances the cursor to a byte offset.
+ * @param location The byte offset to move the cursor to.
+ */
 - (void)setScanLocation:(NSUInteger)location;
-/** @brief Diagnostic user-info describing where the cursor is. */
+/**
+ * @brief Diagnostic user-info describing where the cursor is.
+ * @return An error user-info dictionary naming the cursor's position.
+ */
 - (NSDictionary *)userInfoForScanLocation;
 
 @end

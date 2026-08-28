@@ -41,14 +41,14 @@ NS_ASSUME_NONNULL_BEGIN
  * build; this method is only the visual half.
  *
  * @param animationName The transition to run once the screen is black.
- * @param durationIn How long the fade to black takes.
- * @param durationOut How long the fade back takes. Not used here — it is stored for the second
+ * @param inDuration How long the fade to black takes.
+ * @param outDuration How long the fade back takes. Not used here — it is stored for the second
  * half.
  * @ghidraAddress 0x1a7770
  */
 - (void)fade:(NSString *)animationName
-     durationIn:(double)durationIn
-    durationOut:(double)durationOut;
+     durationIn:(double)inDuration
+    durationOut:(double)outDuration;
 /**
  * @brief Swaps the screens for the transition just faded out, then fades back in.
  *

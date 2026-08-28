@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @brief Records a download to perform later.
  * @param url The source, as a string.
  * @param path The destination path.
+ * @return The initialised task.
  * @ghidraAddress 0x87c60
  */
 - (instancetype)initWithURL:(nullable NSString *)url path:(nullable NSString *)path;

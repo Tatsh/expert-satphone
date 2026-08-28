@@ -19,7 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 /** @brief The close button was tapped. */
 - (void)closeLineupView;
-/** @brief The row at the given index path was selected. */
+/**
+ * @brief The row at the given index path was selected.
+ * @param indexPath The selected row's index path.
+ */
 - (void)selectListCell:(nullable NSIndexPath *)indexPath;
 @end
 

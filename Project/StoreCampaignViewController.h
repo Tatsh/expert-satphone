@@ -6,8 +6,8 @@
  *
  * The superclass is @c UIViewController : every @c super call in the class targets
  * @c UIViewController , and the controller builds its own @c UITableView ivar, wires itself as that
- * table's data source and delegate, and adds it as a subview — it is not a @c UITableViewController
- * .
+ * table's data source and delegate, and adds it as a subview. It is not a
+ * @c UITableViewController .
  *
  * The screen lists downloadable campaign items (unlockable tunes and markers), one banner per row.
  * Tapping a row opens a detail card: on the phone a pushed @c CampaignDetailViewController , on the
@@ -67,36 +67,50 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @brief Vends and lays out a banner row for a campaign item, installing cached artwork when ready.
+ * @param aTableView The table asking.
+ * @param indexPath The row's index path.
+ * @return The banner cell for the campaign item.
  * @ghidraAddress 0xbf344
  */
-- (UITableViewCell *)tableView:(UITableView *)tableView
+- (UITableViewCell *)tableView:(UITableView *)aTableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
  * @brief The number of campaign items.
+ * @param aTableView The table asking.
+ * @param section The section asked about.
+ * @return The campaign-item count, or 0 before the list has been fetched.
  * @ghidraAddress 0xbf770
  */
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
+- (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section;
 
 /**
  * @brief Clears each cell's background before display.
+ * @param aTableView The table asking.
+ * @param cell The cell about to be drawn.
+ * @param indexPath The row's index path.
  * @ghidraAddress 0xbf790
  */
-- (void)tableView:(UITableView *)tableView
+- (void)tableView:(UITableView *)aTableView
       willDisplayCell:(UITableViewCell *)cell
     forRowAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
  * @brief Always one section.
+ * @param aTableView The table asking.
+ * @return Always 1.
  * @ghidraAddress 0xbf800
  */
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView;
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)aTableView;
 
 /**
  * @brief The row height for the device idiom.
+ * @param aTableView The table asking.
+ * @param indexPath The row's index path.
+ * @return The campaign cell height for the current idiom.
  * @ghidraAddress 0xbf808
  */
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (CGFloat)tableView:(UITableView *)aTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
  * @brief Pad cover-view tap: fades out the detail card and cover, then tears them down.
@@ -275,36 +289,51 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)viewDidUnload;
 
 /**
+ * @brief The view is about to appear.
+ * @param animated Whether the appearance is animated.
  * @ghidraAddress 0xc3afc
  */
 - (void)viewWillAppear:(BOOL)animated;
 
 /**
+ * @brief The view has appeared.
+ * @param animated Whether the appearance was animated.
  * @ghidraAddress 0xc3b78
  */
 - (void)viewDidAppear:(BOOL)animated;
 
 /**
+ * @brief The view is about to disappear.
+ * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0xc3bd4
  */
 - (void)viewWillDisappear:(BOOL)animated;
 
 /**
+ * @brief The view has disappeared.
+ * @param animated Whether the disappearance was animated.
  * @ghidraAddress 0xc3c5c
  */
 - (void)viewDidDisappear:(BOOL)animated;
 
 /**
+ * @brief Whether the screen may rotate to an orientation.
+ * @param interfaceOrientation The orientation asked about.
+ * @return YES for the two portrait orientations, NO otherwise.
  * @ghidraAddress 0xc3c94
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
+ * @brief The orientations the screen supports.
+ * @return Both portrait orientations.
  * @ghidraAddress 0xc3ca4
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
+ * @brief Whether the screen rotates.
+ * @return Always YES.
  * @ghidraAddress 0xc3cac
  */
 - (BOOL)shouldAutorotate;

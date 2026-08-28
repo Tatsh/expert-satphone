@@ -370,6 +370,7 @@ otsuka
 overscroll
 packinfo
 packlist
+paramdoc
 parameteri
 parameteriv
 pbase
@@ -529,6 +530,7 @@ unapplied
 unarchiver
 undiceided
 undiscounted
+undoc
 undraft
 undrafted
 unfetched
