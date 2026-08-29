@@ -19,7 +19,7 @@
  *        colour channels.
  *
  * The engine draws a sprite as four consecutive vertices at a stride of @c 0x18 bytes. The ivar's
- * runtime type encoding is @c ^{?=fffffCCCC}, so the colour is four separate byte channels rather
+ * runtime type encoding is `^{?=fffffCCCC}`, so the colour is four separate byte channels rather
  * than one packed word.
  */
 struct SpriteVertex {

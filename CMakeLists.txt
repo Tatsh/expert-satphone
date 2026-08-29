@@ -45,6 +45,12 @@ endif()
 # WARN_NO_PARAMDOC and WARN_IF_UNDOC_ENUM_VAL are off by default; they are the
 # two checks that catch an undocumented parameter or enumerator, which is most of
 # what a member-level documentation gap looks like here.
+#
+# EXTRACT_LOCAL_CLASSES defaults to YES, which indexes every compound declared in
+# an implementation file: each `@interface Foo ()` extension as a separate class
+# named "Foo()" beside the real Foo, plus the private categories and file-local
+# structs. Those are not public identifiers, they carry plain // comments rather
+# than Doxygen blocks, and they made up 86 of the 524 index entries.
 # ---------------------------------------------------------------------------
 if(BUILD_DOCS OR BUILD_DOCS_ONLY)
     set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
@@ -59,6 +65,7 @@ if(BUILD_DOCS OR BUILD_DOCS_ONLY)
                            "NS_CLOSED_ENUM(type,name)=enum name : type")
     set(DOXYGEN_WARN_NO_PARAMDOC YES)
     set(DOXYGEN_WARN_IF_UNDOC_ENUM_VAL YES)
+    set(DOXYGEN_EXTRACT_LOCAL_CLASSES NO)
     find_package(Doxygen REQUIRED)
     doxygen_add_docs(docs README.md Project ALL)
 endif()

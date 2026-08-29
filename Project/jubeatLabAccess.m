@@ -5,6 +5,7 @@
 #import "CJSONSerializer.h"
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
+#import "NSData+Base64.h"
 #import "NSDictionary+JSONExtensions.h"
 
 @interface jubeatLabAccess ()
@@ -15,11 +16,6 @@
 // StoreUtil is reached only for the recommended-pack URL; not reconstructed yet.
 @interface NSObject (JubeatLabStoreUtil)
 + (NSURL *)recommendPackURL:(unsigned int)tuneID;
-@end
-
-// TouchJSON's base64 category on NSData, used to encode an uploaded sequence.
-@interface NSData (Base64)
-- (NSString *)base64EncodedString;
 @end
 
 // The API host and the versioned path prefix every endpoint hangs off. From the CFString at

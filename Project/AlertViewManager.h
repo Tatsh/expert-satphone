@@ -10,8 +10,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The optional delegate of @c AlertViewManager. Both methods are dispatched with
- * @c performSelector:withObject: after a @c respondsToSelector: guard, so neither is required.
+ * @brief The optional delegate of @c AlertViewManager.
+ *
+ * Both methods are dispatched with @c performSelector:withObject: after a @c respondsToSelector:
+ * guard, so neither is required.
  */
 @protocol AlertViewManagerDelegate <NSObject>
 @optional
@@ -31,8 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * The process-wide alert manager. It presents either a @c UIAlertController (when the class is
- * available at runtime) or a @c UIAlertView, exposing a single construction API for both.
+ * @brief The process-wide alert manager.
+ *
+ * It presents either a @c UIAlertController (when the class is available at runtime) or a
+ * @c UIAlertView, exposing a single construction API for both.
  */
 @interface AlertViewManager : NSObject <UIAlertViewDelegate>
 

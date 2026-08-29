@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief One panel's hold-marker state.
  *
- * The metadata types it @c {?=iIII} — anonymous, sixteen bytes, one signed and three unsigned
+ * The metadata types it `{?=iIII}` — anonymous, sixteen bytes, one signed and three unsigned
  * 32-bit fields. The field names are inferred from use, not recovered; the struct carries no
  * name of its own in the binary.
  */

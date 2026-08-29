@@ -4,14 +4,10 @@
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
 #import "LatelyJcfListManager.h"
+#import "NSData+Base64.h"
 #import "StoreMusicListManager.h"
 #import "StoreUtil.h"
 #import "jubeatLabAccess.h"
-
-// TouchJSON / NSData's base64 decoder category.
-@interface NSData (Base64)
-+ (NSData *)dataFromBase64String:(NSString *)string;
-@end
 
 // The jubeatLab JSON response keys.
 static NSString *const kStatusKey = @"Status";

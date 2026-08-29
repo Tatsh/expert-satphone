@@ -28,7 +28,7 @@ enum {
 /**
  * @brief One panel's hold-marker tracking state.
  *
- * The metadata types it @c {?="state"i"move"I"currentSector"I"endSector"I} : sixteen bytes, one
+ * The metadata types it `{?="state"i"move"I"currentSector"I"endSector"I}`: sixteen bytes, one
  * signed and three unsigned 32-bit fields, and the field names are the binary's own.
  */
 typedef struct {
@@ -41,7 +41,7 @@ typedef struct {
 /**
  * @brief A play session's cumulative score summary.
  *
- * The metadata types it @c {?=iiiiiiiiiii[30c]} , seventy-six bytes; the field names are the
+ * The metadata types it `{?=iiiiiiiiiii[30c]}`, seventy-six bytes; the field names are the
  * binary's own, recovered from the @c _replayBackupScore ivar encoding. The type is shared with the
  * score system (it is what @c -[Sequence getScore] returns), but no reconstructed file defines it
  * yet, so it is declared here where this class first needs it.

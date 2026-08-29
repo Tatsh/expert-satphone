@@ -77,7 +77,7 @@ typedef NS_ENUM(short, SequenceRank) {
 /**
  * @brief One note event of a chart.
  *
- * The metadata types the malloc'd @c events array element as @c {?=ssIIsI} : twenty bytes (padded
+ * The metadata types the malloc'd @c events array element as `{?=ssIIsI}`: twenty bytes (padded
  * from eighteen), recovered from @c -initWithData: at 0x1abe24, @c -judge:btnPress: at 0x1ad360,
  * and @c -seekToTime: at 0x1acaac. The chart packs each event as two 32-bit words: the first holds
  * @c kind in its low byte and @c sector in its upper twenty-four bits, the second is @c value . The
