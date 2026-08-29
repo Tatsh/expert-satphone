@@ -48,14 +48,6 @@ endif()
 # two checks that catch an undocumented parameter or enumerator, which is most of
 # what a member-level documentation gap looks like here.
 #
-# JAVADOC_AUTOBRIEF and QT_AUTOBRIEF make the first sentence of a /** ... */ or a
-# trailing /*!< ... */ comment the member's brief. Without them a member with a
-# perfectly good comment but no explicit @brief tag renders with an empty
-# description in every summary table, which is how 448 ivars, struct fields and
-# methods were listed. Doxygen never warns about this: it reports a missing
-# comment, never a missing brief. The first sentence ends at the first ". ", so
-# an abbreviation such as "i.e." in an opening sentence would truncate a brief.
-#
 # EXTRACT_LOCAL_CLASSES defaults to YES, which indexes every compound declared in
 # an implementation file: each `@interface Foo ()` extension as a separate class
 # named "Foo()" beside the real Foo, plus the private categories and file-local
