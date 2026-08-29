@@ -1,5 +1,6 @@
-/** @file
- * The texture and image cache.
+/**
+ * @file
+ * @brief The texture and image cache.
  *
  * Reconstructed from Ghidra program Jubeat (class ImageCache, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

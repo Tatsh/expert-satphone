@@ -1,5 +1,6 @@
-/** @file
- * The chart-editor top-level view controller.
+/**
+ * @file
+ * @brief The chart-editor top-level view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class EditViewController, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief The audio-file decoder that feeds raw PCM samples to OpenAL.
+ */
+
 #ifndef OPENALSUPPORT_H
 #define OPENALSUPPORT_H
 

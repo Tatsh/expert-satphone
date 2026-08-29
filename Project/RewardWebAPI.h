@@ -1,5 +1,6 @@
-/** @file
- * The Applilink reward network's web-API client.
+/**
+ * @file
+ * @brief The Applilink reward network's web-API client.
  *
  * A stateless class-method facade over @c ApplilinkWebAPI that builds, signs, and posts the reward
  * server's install, login, application-list, status-flag, install-report, and banner requests, and

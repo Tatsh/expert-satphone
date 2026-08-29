@@ -1,5 +1,6 @@
-/** @file
- * The challenge subsystem's shared state object.
+/**
+ * @file
+ * @brief The challenge subsystem's shared state object.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeStatus, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x348150.

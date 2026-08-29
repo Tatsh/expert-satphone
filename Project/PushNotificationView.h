@@ -1,5 +1,6 @@
-/** @file
- * A sliding push-notification banner that pops queued local notices.
+/**
+ * @file
+ * @brief A sliding push-notification banner that pops queued local notices.
  *
  * Reconstructed from Ghidra program Jubeat (class PushNotificationView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

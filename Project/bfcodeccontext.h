@@ -1,5 +1,6 @@
-/** @file
- * The C++ Blowfish key schedule and block cipher that @c BFCodec wraps.
+/**
+ * @file
+ * @brief The C++ Blowfish key schedule and block cipher that @c BFCodec wraps.
  *
  * Reconstructed from Ghidra program Jubeat (class BFCodecContext, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

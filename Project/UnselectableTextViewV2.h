@@ -1,5 +1,6 @@
-/** @file
- * A text view that cannot take focus.
+/**
+ * @file
+ * @brief A text view that cannot take focus.
  *
  * Reconstructed from Ghidra program Jubeat (class UnselectableTextViewV2, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

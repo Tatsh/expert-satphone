@@ -1,5 +1,6 @@
-/** @file
- * Thin wrappers over UIKit, Core Animation, and the file system.
+/**
+ * @file
+ * @brief Thin wrappers over UIKit, Core Animation, and the file system.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The sliding reveal over the NTE game-option strip.
+/**
+ * @file
+ * @brief The sliding reveal over the NTE game-option strip.
  *
  * Reconstructed from Ghidra program Jubeat (class NteGameOptionRenderer, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * A row of the store's pack grid, holding two pack tiles.
+/**
+ * @file
+ * @brief A row of the store's pack grid, holding two pack tiles.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreTableCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

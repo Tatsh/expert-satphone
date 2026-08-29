@@ -1,5 +1,6 @@
-/** @file
- * A row of the editor's user list.
+/**
+ * @file
+ * @brief A row of the editor's user list.
  *
  * Reconstructed from Ghidra program Jubeat (class EditorInfoCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

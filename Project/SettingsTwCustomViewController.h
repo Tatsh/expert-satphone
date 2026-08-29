@@ -1,8 +1,11 @@
-/** @file
- * The Twitter-share customisation preview screen. It shows the currently selected background frame
- * with the accessory composited over it, scaled to fit the device, and acts as the delegate of the
- * @c SettingsTwFrameSelectView so a live preview follows the row the user is touching. Selecting a
- * frame persists it; merely changing the highlighted row only previews it without committing.
+/**
+ * @file
+ * @brief The Twitter-share customisation preview screen.
+ *
+ * It shows the currently selected background frame with the accessory composited over it, scaled
+ * to fit the device, and acts as the delegate of the @c SettingsTwFrameSelectView so a live
+ * preview follows the row the user is touching. Selecting a frame persists it; merely changing the
+ * highlighted row only previews it without committing.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsTwCustomViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

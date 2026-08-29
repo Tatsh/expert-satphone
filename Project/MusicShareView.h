@@ -1,7 +1,8 @@
-/** @file
- * A modal "share music" panel over a dimmed, rounded gradient board: it lists the nearby peer
- * hosts a client can join, carries a status message and a spinning activity indicator, and offers
- * a single Cancel button.
+/**
+ * @file
+ * @brief A modal "share music" panel over a dimmed, rounded gradient board: it lists the nearby
+ * peer hosts a client can join, carries a status message and a spinning activity indicator, and
+ * offers a single Cancel button.
  *
  * Reconstructed from Ghidra program Jubeat (class MusicShareView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

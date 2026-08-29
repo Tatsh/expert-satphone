@@ -1,5 +1,6 @@
-/** @file
- * A one-shot sound effect, played through OpenAL.
+/**
+ * @file
+ * @brief A one-shot sound effect, played through OpenAL.
  *
  * Reconstructed from Ghidra program Jubeat (class SePlayer, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

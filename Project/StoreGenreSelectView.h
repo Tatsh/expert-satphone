@@ -1,7 +1,10 @@
-/** @file
- * A horizontally-scrolling store genre picker: a row of tappable genre banners inside a paging
- * scroll view, with a selected index. The picker pads its banner list with wrap-around copies so
- * that paging past either end loops seamlessly.
+/**
+ * @file
+ * @brief A horizontally-scrolling store genre picker: a row of tappable genre banners inside a
+ * paging scroll view, with a selected index.
+ *
+ * The picker pads its banner list with wrap-around copies so that paging past either end loops
+ * seamlessly.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreGenreSelectView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

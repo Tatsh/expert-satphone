@@ -1,5 +1,6 @@
-/** @file
- * The challenge-mode (scratch event) root view.
+/**
+ * @file
+ * @brief The challenge-mode (scratch event) root view.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeModeRootView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

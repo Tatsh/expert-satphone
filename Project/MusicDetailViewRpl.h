@@ -1,5 +1,6 @@
-/** @file
- * The music-selection detail card for the Ripples theme.
+/**
+ * @file
+ * @brief The music-selection detail card for the Ripples theme.
  *
  * Reconstructed from Ghidra program Jubeat (class @c MusicDetailViewRpl, image base 0x100000000).
  * All @c @@ghidraAddress values are offsets relative to that image base. The superclass is

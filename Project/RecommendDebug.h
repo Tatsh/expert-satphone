@@ -1,5 +1,6 @@
-/** @file
- * The Applilink recommend SDK's debug-override store.
+/**
+ * @file
+ * @brief The Applilink recommend SDK's debug-override store.
  *
  * @c RecommendDebug is a stateless utility class: every member is a class method and the class
  * holds no instance state. When debug mode is active it supplies canned advert-model setting,

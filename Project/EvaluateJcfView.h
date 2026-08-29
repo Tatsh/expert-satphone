@@ -1,5 +1,6 @@
-/** @file
- * The jubeatLab chart-evaluation view.
+/**
+ * @file
+ * @brief The jubeatLab chart-evaluation view.
  *
  * Reconstructed from Ghidra program Jubeat (class EvaluateJcfView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

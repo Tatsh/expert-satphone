@@ -1,5 +1,6 @@
-/** @file
- * The @c UILabel @c renderImage category.
+/**
+ * @file
+ * @brief The @c UILabel @c renderImage category.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The runtime metadata attributes @c renderImage to

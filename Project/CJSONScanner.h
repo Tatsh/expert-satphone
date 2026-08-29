@@ -1,5 +1,6 @@
-/** @file
- * TouchJSON's scanner, which does the actual parsing.
+/**
+ * @file
+ * @brief TouchJSON's scanner, which does the actual parsing.
  *
  * Reconstructed from Ghidra program Jubeat (class CJSONScanner, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

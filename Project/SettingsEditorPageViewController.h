@@ -1,5 +1,6 @@
-/** @file
- * The jubeatLab editor web-page view controller.
+/**
+ * @file
+ * @brief The jubeatLab editor web-page view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsEditorPageViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It hosts a

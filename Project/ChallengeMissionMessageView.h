@@ -1,5 +1,6 @@
-/** @file
- * The "you have a new mission sheet" prompt.
+/**
+ * @file
+ * @brief The "you have a new mission sheet" prompt.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionMessageView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

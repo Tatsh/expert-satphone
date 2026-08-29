@@ -1,5 +1,6 @@
-/** @file
- * A row of the store's purchase-management table.
+/**
+ * @file
+ * @brief A row of the store's purchase-management table.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreManageTableViewCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

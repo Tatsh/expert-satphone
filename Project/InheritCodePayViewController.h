@@ -1,5 +1,7 @@
-/** @file
- * The inherit-code payment view controller — the screen that hosts the inherit-code issue panel.
+/**
+ * @file
+ * @brief The inherit-code payment view controller — the screen that hosts the inherit-code issue
+ * panel.
  *
  * Reconstructed from Ghidra program Jubeat (class InheritCodePayViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

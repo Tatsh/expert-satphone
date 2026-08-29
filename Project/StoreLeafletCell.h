@@ -1,5 +1,6 @@
-/** @file
- * A leaflet row in the store — unfinished scaffolding rather than a working cell.
+/**
+ * @file
+ * @brief A leaflet row in the store — unfinished scaffolding rather than a working cell.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreLeafletCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

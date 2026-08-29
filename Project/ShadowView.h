@@ -1,5 +1,6 @@
-/** @file
- * A view that draws an inner shadow along its own edge.
+/**
+ * @file
+ * @brief A view that draws an inner shadow along its own edge.
  *
  * Reconstructed from Ghidra program Jubeat (class ShadowView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

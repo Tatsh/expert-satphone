@@ -1,5 +1,6 @@
-/** @file
- * A rounded speech-balloon view that draws itself with a triangular arrow on one edge.
+/**
+ * @file
+ * @brief A rounded speech-balloon view that draws itself with a triangular arrow on one edge.
  *
  * Reconstructed from Ghidra program Jubeat (class BalloonView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

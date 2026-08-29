@@ -1,6 +1,7 @@
-/** @file
- * The per-tune scratch ranking list: the country/rival ranking table for one challenge tune,
- * with the difficulty and area selectors, paging controls, and the rival-add overlay.
+/**
+ * @file
+ * @brief The per-tune scratch ranking list: the country/rival ranking table for one challenge
+ * tune, with the difficulty and area selectors, paging controls, and the rival-add overlay.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeRankingListView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

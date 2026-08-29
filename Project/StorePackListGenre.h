@@ -1,6 +1,9 @@
-/** @file
- * A store genre model describing one pack-list genre: its display name, identifier, banner artwork
- * and colours, description, and the pack identifiers it accumulates as catalogue pages are fetched.
+/**
+ * @file
+ * @brief A store genre model describing one pack-list genre: its display name, identifier, banner
+ * artwork and colours, description, and the pack identifiers it accumulates as catalogue pages are
+ * fetched.
+ *
  * Used by the pack store's genre list and headings (@c StoreGenreTitleView and
  * @c StoreGenreBannerView).
  *

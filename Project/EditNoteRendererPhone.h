@@ -1,5 +1,6 @@
-/** @file
- * The iPhone edit-mode note renderer.
+/**
+ * @file
+ * @brief The iPhone edit-mode note renderer.
  *
  * Reconstructed from Ghidra program Jubeat (class EditNoteRendererPhone, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

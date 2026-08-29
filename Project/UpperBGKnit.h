@@ -1,5 +1,6 @@
-/** @file
- * The knit upper-background decoration.
+/**
+ * @file
+ * @brief The knit upper-background decoration.
  *
  * Reconstructed from Ghidra program Jubeat (class UpperBGKnit, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

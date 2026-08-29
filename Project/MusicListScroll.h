@@ -1,5 +1,6 @@
-/** @file
- * A scroll view that shares its touches with the responder chain.
+/**
+ * @file
+ * @brief A scroll view that shares its touches with the responder chain.
  *
  * Reconstructed from Ghidra program Jubeat (class MusicListScroll, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

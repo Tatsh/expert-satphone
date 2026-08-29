@@ -1,5 +1,6 @@
-/** @file
- * The challenge-mode scratch-mode music-detail card.
+/**
+ * @file
+ * @brief The challenge-mode scratch-mode music-detail card.
  *
  * Reconstructed from Ghidra program Jubeat (class @c ScratchMusicDetailView, image base
  * 0x100000000). All @c @@ghidraAddress values are offsets relative to that image base. The class

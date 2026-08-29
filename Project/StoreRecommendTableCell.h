@@ -1,5 +1,6 @@
-/** @file
- * A store row holding two recommended-pack tiles side by side.
+/**
+ * @file
+ * @brief A store row holding two recommended-pack tiles side by side.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreRecommendTableCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

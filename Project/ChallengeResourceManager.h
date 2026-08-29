@@ -1,5 +1,6 @@
-/** @file
- * The scratch-panel resource store.
+/**
+ * @file
+ * @brief The scratch-panel resource store.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeResourceManager, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. The class object

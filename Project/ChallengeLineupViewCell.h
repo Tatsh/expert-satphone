@@ -1,5 +1,6 @@
-/** @file
- * One row of the challenge lineup, optionally with a store button.
+/**
+ * @file
+ * @brief One row of the challenge lineup, optionally with a store button.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeLineupViewCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

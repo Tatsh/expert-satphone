@@ -1,5 +1,6 @@
-/** @file
- * The archive reader for the game's packed asset files.
+/**
+ * @file
+ * @brief The archive reader for the game's packed asset files.
  *
  * Reconstructed from Ghidra program Jubeat (class KUnzip, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

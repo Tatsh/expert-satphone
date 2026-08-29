@@ -1,6 +1,7 @@
-/** @file
- * A music row of the store detail table: jacket artwork, title, artist, level list, a sample
- * overlay with a play indicator, and an iTunes link button.
+/**
+ * @file
+ * @brief A music row of the store detail table: jacket artwork, title, artist, level list, a
+ * sample overlay with a play indicator, and an iTunes link button.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreDetailMusicCell, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

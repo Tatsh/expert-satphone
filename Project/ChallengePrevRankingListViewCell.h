@@ -1,5 +1,6 @@
-/** @file
- * One row of the previous challenge's ranking list.
+/**
+ * @file
+ * @brief One row of the previous challenge's ranking list.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengePrevRankingListViewCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

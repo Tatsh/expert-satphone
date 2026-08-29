@@ -1,5 +1,6 @@
-/** @file
- * The store pack-detail card, the V2 (relation-tab, recommend-aware) variant.
+/**
+ * @file
+ * @brief The store pack-detail card, the V2 (relation-tab, recommend-aware) variant.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePackDetailViewV2, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

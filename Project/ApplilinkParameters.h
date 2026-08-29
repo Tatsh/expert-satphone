@@ -1,5 +1,6 @@
-/** @file
- * The applilink SDK's advert-request descriptor.
+/**
+ * @file
+ * @brief The applilink SDK's advert-request descriptor.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkParameters, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

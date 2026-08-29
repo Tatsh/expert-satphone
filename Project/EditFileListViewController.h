@@ -1,5 +1,6 @@
-/** @file
- * A popover listing the player's saved edit charts.
+/**
+ * @file
+ * @brief A popover listing the player's saved edit charts.
  *
  * Reconstructed from Ghidra program Jubeat (class EditFileListViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

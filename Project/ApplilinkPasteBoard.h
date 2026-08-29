@@ -1,5 +1,6 @@
-/** @file
- * The KONAMI Applilink SDK's pasteboard-backed UDID store.
+/**
+ * @file
+ * @brief The KONAMI Applilink SDK's pasteboard-backed UDID store.
  *
  * @c ApplilinkPasteBoard mirrors the advertising UDID records into named, persistent
  * @c UIPasteboard slots so they survive an app reinstall. Each slot stores an @c NSKeyedArchiver

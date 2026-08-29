@@ -1,5 +1,6 @@
-/** @file
- * The challenge-mode mission-sheet detail view.
+/**
+ * @file
+ * @brief The challenge-mode mission-sheet detail view.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionSheetView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

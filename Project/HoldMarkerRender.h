@@ -1,5 +1,6 @@
-/** @file
- * Draws the hold markers and their tails over the sixteen-panel grid.
+/**
+ * @file
+ * @brief Draws the hold markers and their tails over the sixteen-panel grid.
  *
  * Reconstructed from Ghidra program Jubeat (class HoldMarkerRender, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

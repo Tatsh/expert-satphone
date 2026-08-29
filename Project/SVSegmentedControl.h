@@ -1,6 +1,8 @@
-/** @file
- * A draggable, cross-fading segmented control from Sam Vermette's third-party SVSegmentedControl
- * library (MIT licence), with Konami additions layered on top of the early-2012 fork.
+/**
+ * @file
+ * @brief A draggable, cross-fading segmented control from Sam Vermette's third-party
+ * SVSegmentedControl library (MIT licence), with Konami additions layered on top of the early-2012
+ * fork.
  *
  * Reconstructed from Ghidra program Jubeat (class SVSegmentedControl, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class has no embedded

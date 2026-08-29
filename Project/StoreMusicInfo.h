@@ -1,5 +1,6 @@
-/** @file
- * One purchasable track, as the store server describes it.
+/**
+ * @file
+ * @brief One purchasable track, as the store server describes it.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreMusicInfo, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

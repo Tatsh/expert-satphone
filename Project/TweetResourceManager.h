@@ -1,5 +1,6 @@
-/** @file
- * The tweet/result-frame resource manager.
+/**
+ * @file
+ * @brief The tweet/result-frame resource manager.
  *
  * Reconstructed from Ghidra program Jubeat (class TweetResourceManager, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

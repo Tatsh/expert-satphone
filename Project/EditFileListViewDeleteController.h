@@ -1,5 +1,6 @@
-/** @file
- * The edit-chart file list with per-row deletion.
+/**
+ * @file
+ * @brief The edit-chart file list with per-row deletion.
  *
  * Reconstructed from Ghidra program Jubeat (class @c EditFileListViewDeleteController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

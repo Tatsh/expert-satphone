@@ -1,5 +1,6 @@
-/** @file
- * The knit-colour palette manager.
+/**
+ * @file
+ * @brief The knit-colour palette manager.
  *
  * Reconstructed from Ghidra program Jubeat (class KnitColorManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

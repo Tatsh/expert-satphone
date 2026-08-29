@@ -1,5 +1,7 @@
-/** @file
- * One challenge mission sheet: a named, dated group of missions with its reward and progress.
+/**
+ * @file
+ * @brief One challenge mission sheet: a named, dated group of missions with its reward and
+ * progress.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionSheet, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

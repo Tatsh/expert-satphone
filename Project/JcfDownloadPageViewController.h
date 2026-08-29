@@ -1,5 +1,6 @@
-/** @file
- * The view controller that presents the jubeatLab custom-sequence (jcf) download web page.
+/**
+ * @file
+ * @brief The view controller that presents the jubeatLab custom-sequence (jcf) download web page.
  *
  * Reconstructed from Ghidra program Jubeat (class JcfDownloadPageViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

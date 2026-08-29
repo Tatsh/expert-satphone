@@ -1,5 +1,6 @@
-/** @file
- * The applilink recommend SDK's streaming-video player view.
+/**
+ * @file
+ * @brief The applilink recommend SDK's streaming-video player view.
  *
  * @c VideoView is the SDK @c UIView that plays an advert movie through an @c AVPlayer /
  * @c AVPlayerLayer, overlaying a menu (back, store, sound-state, and play/pause controls, two

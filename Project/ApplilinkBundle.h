@@ -1,5 +1,6 @@
-/** @file
- * The applilink SDK's localised resource bundle.
+/**
+ * @file
+ * @brief The applilink SDK's localised resource bundle.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkBundle, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * Keeps track of which sound effects are playing.
+/**
+ * @file
+ * @brief Keeps track of which sound effects are playing.
  *
  * Reconstructed from Ghidra program Jubeat (class SEManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

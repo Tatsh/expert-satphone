@@ -1,5 +1,6 @@
-/** @file
- * The marker (note-skin) asset manager.
+/**
+ * @file
+ * @brief The marker (note-skin) asset manager.
  *
  * Reconstructed from Ghidra program Jubeat (class MarkerManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x3480d0.

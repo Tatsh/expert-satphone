@@ -1,5 +1,6 @@
-/** @file
- * A helper that stores a two-bit value into a packed byte table.
+/**
+ * @file
+ * @brief A helper that stores a two-bit value into a packed byte table.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000); all @ghidraAddress values are
  * offsets relative to that image base. This is a genuine free function: it takes a raw byte buffer

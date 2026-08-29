@@ -1,5 +1,6 @@
-/** @file
- * The applilink SDK's App Store product-page view controller.
+/**
+ * @file
+ * @brief The applilink SDK's App Store product-page view controller.
  *
  * @c ApplilinkViewController is the SDK @c UIViewController that owns and presents the native App
  * Store product page through a @c RotateStoreProductViewController (a rotation-unlocking

@@ -1,5 +1,6 @@
-/** @file
- * The music-select song tile.
+/**
+ * @file
+ * @brief The music-select song tile.
  *
  * Reconstructed from Ghidra program Jubeat (class MusicView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The superclass is @c UIView, from

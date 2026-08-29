@@ -1,5 +1,6 @@
-/** @file
- * Runtime UIKit diagnostics for the settings sheet's presentation and navigation.
+/**
+ * @file
+ * @brief Runtime UIKit diagnostics for the settings sheet's presentation and navigation.
  *
  * This code is NOT part of the original binary. Every entry point below is an empty inline unless
  * the build defines @c JBDBG (see the JBDBG CMake option and @c neDebugLog.h ), so a faithful

@@ -1,5 +1,6 @@
-/** @file
- * The score-to-rank-image helper.
+/**
+ * @file
+ * @brief The score-to-rank-image helper.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. This is a genuine free function: it takes no object

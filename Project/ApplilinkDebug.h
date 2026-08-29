@@ -1,5 +1,6 @@
-/** @file
- * The Applilink advert-SDK debug console's facade.
+/**
+ * @file
+ * @brief The Applilink advert-SDK debug console's facade.
  *
  * @c ApplilinkDebug is a stateless utility class: every member is a class method and the class
  * holds no instance state. Each method is a thin forwarder exposing an SDK internal to the debug UI

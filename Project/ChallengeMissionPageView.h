@@ -1,5 +1,6 @@
-/** @file
- * The challenge-mode mission page.
+/**
+ * @file
+ * @brief The challenge-mode mission page.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionPageView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * A row of the editor's accessory list.
+/**
+ * @file
+ * @brief A row of the editor's accessory list.
  *
  * Reconstructed from Ghidra program Jubeat (class accessoryTableCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

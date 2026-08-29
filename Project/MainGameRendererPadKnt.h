@@ -1,6 +1,7 @@
-/** @file
- * The knit-theme iPad in-game renderer: the @c MainGameRenderer subclass that draws a play session
- * on the pad idiom with the "Knit" visual theme.
+/**
+ * @file
+ * @brief The knit-theme iPad in-game renderer: the @c MainGameRenderer subclass that draws a play
+ * session on the pad idiom with the "Knit" visual theme.
  *
  * Reconstructed from Ghidra program Jubeat (class MainGameRendererPadKnt, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

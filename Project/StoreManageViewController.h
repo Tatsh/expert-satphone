@@ -1,5 +1,6 @@
-/** @file
- * The store's downloaded-music management screen.
+/**
+ * @file
+ * @brief The store's downloaded-music management screen.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreManageViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

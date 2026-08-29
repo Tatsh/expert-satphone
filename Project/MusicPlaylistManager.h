@@ -1,7 +1,8 @@
-/** @file
- * The model behind the music-select "playlists" feature: an ordered set of user playlists, each a
- * dictionary of an identifier, a display name, and a list of music identifiers, persisted to a
- * property-list file on disk.
+/**
+ * @file
+ * @brief The model behind the music-select "playlists" feature: an ordered set of user playlists,
+ * each a dictionary of an identifier, a display name, and a list of music identifiers, persisted
+ * to a property-list file on disk.
  *
  * Reconstructed from Ghidra program Jubeat (class MusicPlaylistManager, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The challenge-mode present-list table view.
+/**
+ * @file
+ * @brief The challenge-mode present-list table view.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengePresentListView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. The class object

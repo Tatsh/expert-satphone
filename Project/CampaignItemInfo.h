@@ -1,5 +1,6 @@
-/** @file
- * One campaign item and the rule that unlocks it.
+/**
+ * @file
+ * @brief One campaign item and the rule that unlocks it.
  *
  * Reconstructed from Ghidra program Jubeat (class CampaignItemInfo, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

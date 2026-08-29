@@ -1,5 +1,6 @@
-/** @file
- * The in-app notification/news web-page view controller.
+/**
+ * @file
+ * @brief The in-app notification/news web-page view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class NotificationPageViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It hosts a

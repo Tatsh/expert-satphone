@@ -1,5 +1,6 @@
-/** @file
- * A dimming overlay that reports taps to its delegate.
+/**
+ * @file
+ * @brief A dimming overlay that reports taps to its delegate.
  *
  * Reconstructed from Ghidra program Jubeat (class ShadeView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

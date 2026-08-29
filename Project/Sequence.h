@@ -1,5 +1,6 @@
-/** @file
- * The core gameplay judgement engine for a single play session.
+/**
+ * @file
+ * @brief The core gameplay judgement engine for a single play session.
  *
  * Reconstructed from Ghidra program Jubeat (class Sequence, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The settings-screen credits view controller.
+/**
+ * @file
+ * @brief The settings-screen credits view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsCreditsViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It lays out the

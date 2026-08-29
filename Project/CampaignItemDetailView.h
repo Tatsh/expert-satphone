@@ -1,5 +1,6 @@
-/** @file
- * The store campaign item-detail card.
+/**
+ * @file
+ * @brief The store campaign item-detail card.
  *
  * Reconstructed from Ghidra program Jubeat (class CampaignItemDetailView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

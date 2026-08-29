@@ -1,5 +1,6 @@
-/** @file
- * The applilink advert-view delegate protocol.
+/**
+ * @file
+ * @brief The applilink advert-view delegate protocol.
  *
  * The applilink SDK dispatches every advert lifecycle callback through
  * @c +[ApplilinkCore toDelegate...:delegate:], each guarded by a @c -respondsToSelector: test, so

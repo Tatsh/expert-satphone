@@ -1,5 +1,6 @@
-/** @file
- * The applilink SDK's compile-time and runtime constants and persisted configuration.
+/**
+ * @file
+ * @brief The applilink SDK's compile-time and runtime constants and persisted configuration.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkConsts, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x351da8.

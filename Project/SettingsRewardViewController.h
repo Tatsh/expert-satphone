@@ -1,5 +1,6 @@
-/** @file
- * The settings-screen reward advert view controller.
+/**
+ * @file
+ * @brief The settings-screen reward advert view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsRewardViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It hosts a

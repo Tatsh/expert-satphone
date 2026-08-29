@@ -1,5 +1,6 @@
-/** @file
- * The settings-screen map view controller.
+/**
+ * @file
+ * @brief The settings-screen map view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsMapViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It presents an

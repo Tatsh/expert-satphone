@@ -1,7 +1,10 @@
-/** @file
- * A modal table listing the Twitter-account accessory items, letting the user pick one to equip or
- * unlock. Each row is an @c accessoryTableCell built from a positional array; picking a locked row
- * (one with a positive point cost) raises a point-purchase confirmation alert, and confirming it
+/**
+ * @file
+ * @brief A modal table listing the Twitter-account accessory items, letting the user pick one to
+ * equip or unlock.
+ *
+ * Each row is an @c accessoryTableCell built from a positional array; picking a locked row (one
+ * with a positive point cost) raises a point-purchase confirmation alert, and confirming it
  * unlocks the item.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsTwAccSelectView, image base

@@ -1,5 +1,6 @@
-/** @file
- * The applilink SDK's blocking activity overlay.
+/**
+ * @file
+ * @brief The applilink SDK's blocking activity overlay.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkIndicator, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

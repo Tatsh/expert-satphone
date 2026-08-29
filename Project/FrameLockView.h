@@ -1,5 +1,6 @@
-/** @file
- * The lock overlay shown over a tweet frame that is not yet unlocked.
+/**
+ * @file
+ * @brief The lock overlay shown over a tweet frame that is not yet unlocked.
  *
  * Reconstructed from Ghidra program Jubeat (class FrameLockView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

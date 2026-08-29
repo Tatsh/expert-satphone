@@ -1,5 +1,6 @@
-/** @file
- * The store-parent interface shared by the two store tab controllers.
+/**
+ * @file
+ * @brief The store-parent interface shared by the two store tab controllers.
  *
  * The store's child tab controllers (@c StoreMainViewController, @c StorePurchasedViewController,
  * @c StoreManageViewController, and @c StoreCampaignViewController) are built by, and report back

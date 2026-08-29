@@ -1,5 +1,6 @@
-/** @file
- * The navigation wrapper around the in-app settings screen, with a close button.
+/**
+ * @file
+ * @brief The navigation wrapper around the in-app settings screen, with a close button.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsNavController, image base 0x100000000).
  * All @c \@ghidraAddress values are offsets relative to that image base.

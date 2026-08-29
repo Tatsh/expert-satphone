@@ -1,5 +1,6 @@
-/** @file
- * The challenge scratch line-up modal.
+/**
+ * @file
+ * @brief The challenge scratch line-up modal.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeLineupView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

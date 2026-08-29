@@ -1,5 +1,6 @@
-/** @file
- * One scratch track's identity and the player's per-difficulty results.
+/**
+ * @file
+ * @brief One scratch track's identity and the player's per-difficulty results.
  *
  * Reconstructed from Ghidra program Jubeat (class ScratchInfo, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x350a20.

@@ -1,5 +1,6 @@
-/** @file
- * The @c NSData Base64 category and its two upstream C codecs.
+/**
+ * @file
+ * @brief The @c NSData Base64 category and its two upstream C codecs.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. This is Matt Gallagher's @c NSData+Base64, so the two C

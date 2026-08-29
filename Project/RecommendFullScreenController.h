@@ -1,5 +1,6 @@
-/** @file
- * The applilink recommend SDK's full-screen (interstitial) advert controller.
+/**
+ * @file
+ * @brief The applilink recommend SDK's full-screen (interstitial) advert controller.
  *
  * @c RecommendFullScreenController is the @c UIViewController the applilink recommend SDK presents
  * for a full-screen interstitial advert. It lays a full-screen @c ShadeView dimmer over the window

@@ -1,5 +1,6 @@
-/** @file
- * A page-turning viewer over a set of unsealed-artwork files.
+/**
+ * @file
+ * @brief A page-turning viewer over a set of unsealed-artwork files.
  *
  * Reconstructed from Ghidra program Jubeat (class UnsealViewController, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

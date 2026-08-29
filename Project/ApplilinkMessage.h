@@ -1,5 +1,6 @@
-/** @file
- * The applilink SDK's localised-message helper.
+/**
+ * @file
+ * @brief The applilink SDK's localised-message helper.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkMessage, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

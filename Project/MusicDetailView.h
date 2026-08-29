@@ -1,5 +1,6 @@
-/** @file
- * The music-selection detail card.
+/**
+ * @file
+ * @brief The music-selection detail card.
  *
  * Reconstructed from Ghidra program Jubeat (class @c MusicDetailView, image base 0x100000000). All
  * @c @@ghidraAddress values are offsets relative to that image base. The superclass is @c UIView,

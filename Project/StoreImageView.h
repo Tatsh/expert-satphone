@@ -1,5 +1,6 @@
-/** @file
- * An image view that fetches its own artwork over HTTP.
+/**
+ * @file
+ * @brief An image view that fetches its own artwork over HTTP.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreImageView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

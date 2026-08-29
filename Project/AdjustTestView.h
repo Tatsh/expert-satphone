@@ -1,5 +1,6 @@
-/** @file
- * The timing-adjust test view.
+/**
+ * @file
+ * @brief The timing-adjust test view.
  *
  * Reconstructed from Ghidra program Jubeat (class AdjustTestView, image base 0x100000000); all
  * @ghidraAddress values are offsets relative to that image base. This class has no embedded

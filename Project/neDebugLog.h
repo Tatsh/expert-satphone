@@ -1,10 +1,10 @@
-//
-//  neDebugLog.h
-//  jubeat plus
-//
-//  Optional runtime diagnostics. Emits os_log lines tagged "JBPDBG" so they can be captured on
-//  device with:  idevicesyslog | grep JBPDBG
-//
+/**
+ * @file
+ * @brief Optional runtime diagnostics, emitting os_log lines tagged "JBPDBG".
+ *
+ * Capture them on device with @c idevicesyslog | @c grep @c JBPDBG.
+ */
+
 //  This code is NOT part of the original binary. It is compiled in only when the build defines
 //  JBDBG (see the JBDBG CMake option, which is enable-able in any build configuration and is
 //  turned on in CI). With JBDBG off the helpers below collapse to no-ops, so every translation

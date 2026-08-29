@@ -1,7 +1,8 @@
-/** @file
- * The screen for naming a new music playlist: a single rounded-rect text field with a navigation
- * bar carrying a Cancel back button and a Done button that is enabled only while the field holds
- * text.
+/**
+ * @file
+ * @brief The screen for naming a new music playlist: a single rounded-rect text field with a
+ * navigation bar carrying a Cancel back button and a Done button that is enabled only while the
+ * field holds text.
  *
  * Reconstructed from Ghidra program Jubeat (class MusicPlaylistCreateViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

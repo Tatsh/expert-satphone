@@ -1,5 +1,6 @@
-/** @file
- * TouchJSON's low-level byte scanner.
+/**
+ * @file
+ * @brief TouchJSON's low-level byte scanner.
  *
  * Reconstructed from Ghidra program Jubeat (class CDataScanner, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

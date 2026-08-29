@@ -1,5 +1,6 @@
-/** @file
- * The editor identifier store, backed by the keychain.
+/**
+ * @file
+ * @brief The editor identifier store, backed by the keychain.
  *
  * Reconstructed from Ghidra program Jubeat (class EditorIDManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

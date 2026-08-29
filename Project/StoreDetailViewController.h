@@ -1,6 +1,7 @@
-/** @file
- * The store pack-detail page: a header panel over a table of the pack's tunes, with per-row sample
- * playback, artwork download, in-app purchase, restore, and extend-music download.
+/**
+ * @file
+ * @brief The store pack-detail page: a header panel over a table of the pack's tunes, with per-row
+ * sample playback, artwork download, in-app purchase, restore, and extend-music download.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreDetailViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

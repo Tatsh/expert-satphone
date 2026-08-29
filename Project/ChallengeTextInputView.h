@@ -1,5 +1,6 @@
-/** @file
- * The challenge-mode name-entry field with its commit button.
+/**
+ * @file
+ * @brief The challenge-mode name-entry field with its commit button.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeTextInputView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

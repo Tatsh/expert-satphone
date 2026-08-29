@@ -1,5 +1,6 @@
-/** @file
- * One mission's achievement record, as the challenge server sends it.
+/**
+ * @file
+ * @brief One mission's achievement record, as the challenge server sends it.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionAchieve, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

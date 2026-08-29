@@ -1,5 +1,6 @@
-/** @file
- * Reconstructed interface for the Applilink recommend SDK's @c RecommendAdData.
+/**
+ * @file
+ * @brief Reconstructed interface for the Applilink recommend SDK's @c RecommendAdData.
  *
  * @c RecommendAdData is the recommend network's advert-data model store. It is a stateless utility
  * class: every member is a class method and the class holds no instance state. The store reads the

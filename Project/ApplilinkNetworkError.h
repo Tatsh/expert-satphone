@@ -1,5 +1,6 @@
-/** @file
- * The applilink SDK's localised @c NSError factory.
+/**
+ * @file
+ * @brief The applilink SDK's localised @c NSError factory.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkNetworkError, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

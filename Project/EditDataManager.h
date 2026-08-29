@@ -1,5 +1,6 @@
-/** @file
- * The chart-editor data model and file manager.
+/**
+ * @file
+ * @brief The chart-editor data model and file manager.
  *
  * Reconstructed from Ghidra program Jubeat (class EditDataManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

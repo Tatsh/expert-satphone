@@ -1,5 +1,6 @@
-/** @file
- * The applilink SDK's analytics and advert-tracking transport.
+/**
+ * @file
+ * @brief The applilink SDK's analytics and advert-tracking transport.
  *
  * Reconstructed from Ghidra program Jubeat (class AnalysisNetworkCore, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

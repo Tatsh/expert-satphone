@@ -1,5 +1,6 @@
-/** @file
- * Store helper routines.
+/**
+ * @file
+ * @brief Store helper routines.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreUtil, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

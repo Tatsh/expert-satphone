@@ -1,5 +1,6 @@
-/** @file
- * Reconstructed interface for the applilink recommend-advert SDK's @c RecommendAdWebView.
+/**
+ * @file
+ * @brief Reconstructed interface for the applilink recommend-advert SDK's @c RecommendAdWebView.
  *
  * @c RecommendAdWebView is the @c UIWebView subclass that renders a live recommend advert and
  * drives its whole network lifecycle. It acts as its own @c UIWebViewDelegate: it opens a recommend

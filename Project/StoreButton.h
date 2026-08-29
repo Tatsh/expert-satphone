@@ -1,5 +1,6 @@
-/** @file
- * A rounded, flat-coloured button used throughout the store.
+/**
+ * @file
+ * @brief A rounded, flat-coloured button used throughout the store.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreButton, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The header panel atop a store pack's detail page.
+/**
+ * @file
+ * @brief The header panel atop a store pack's detail page.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreDetailHeaderView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

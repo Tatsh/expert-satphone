@@ -1,5 +1,6 @@
-/** @file
- * The terms of one challenge mission.
+/**
+ * @file
+ * @brief The terms of one challenge mission.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionTerms, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

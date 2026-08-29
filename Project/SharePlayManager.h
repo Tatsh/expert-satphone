@@ -1,5 +1,6 @@
-/** @file
- * The local multiplayer ("share play" / versus) session manager.
+/**
+ * @file
+ * @brief The local multiplayer ("share play" / versus) session manager.
  *
  * Reconstructed from Ghidra program Jubeat (class SharePlayManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

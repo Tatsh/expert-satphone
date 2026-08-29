@@ -1,5 +1,6 @@
-/** @file
- * The terms/policy menu table for the in-app terms-of-service screen.
+/**
+ * @file
+ * @brief The terms/policy menu table for the in-app terms-of-service screen.
  *
  * Reconstructed from Ghidra program Jubeat (class TermsViewController, image base 0x100000000).
  * All @c \@ghidraAddress values are offsets relative to that image base.

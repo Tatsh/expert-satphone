@@ -1,5 +1,7 @@
-/** @file
- * The challenge-mode list view: a titled, closable table used for the rival and line-up lists.
+/**
+ * @file
+ * @brief The challenge-mode list view: a titled, closable table used for the rival and line-up
+ * lists.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeListView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x351808.

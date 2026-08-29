@@ -1,5 +1,6 @@
-/** @file
- * The Applilink SDK's in-app video-player and notice host.
+/**
+ * @file
+ * @brief The Applilink SDK's in-app video-player and notice host.
  *
  * A queue-guarded singleton that owns the on-screen @c ApplilinkVideoController: it presents the
  * player inside a caller-supplied view on the main queue, tears it back down, and relays the

@@ -1,5 +1,6 @@
-/** @file
- * The applilink reward-check network client.
+/**
+ * @file
+ * @brief The applilink reward-check network client.
  *
  * Reconstructed from Ghidra program Jubeat (class RewardCheck, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x34f198.

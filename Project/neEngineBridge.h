@@ -1,5 +1,6 @@
-/** @file
- * Free functions and globals shared across the game engine.
+/**
+ * @file
+ * @brief Free functions and globals shared across the game engine.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.

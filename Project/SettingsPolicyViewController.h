@@ -1,5 +1,6 @@
-/** @file
- * The settings-screen policy/terms view controller.
+/**
+ * @file
+ * @brief The settings-screen policy/terms view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsPolicyViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It downloads one

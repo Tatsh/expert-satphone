@@ -1,5 +1,6 @@
-/** @file
- * An unimplemented countdown view.
+/**
+ * @file
+ * @brief An unimplemented countdown view.
  *
  * Reconstructed from Ghidra program Jubeat (class TimerView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

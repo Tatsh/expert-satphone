@@ -1,5 +1,6 @@
-/** @file
- * One expanding ripple on the background.
+/**
+ * @file
+ * @brief One expanding ripple on the background.
  *
  * Reconstructed from Ghidra program Jubeat (class BGRipple, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

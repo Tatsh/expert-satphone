@@ -1,6 +1,7 @@
-/** @file
- * The iPad edit-mode note renderer: the concrete @c EditNoteRenderer subclass that draws the
- * chart editor on the pad idiom.
+/**
+ * @file
+ * @brief The iPad edit-mode note renderer: the concrete @c EditNoteRenderer subclass that draws
+ * the chart editor on the pad idiom.
  *
  * Reconstructed from Ghidra program Jubeat (class EditNoteRendererPad, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,7 @@
-/** @file
- * The navigation controller that wraps the jubeatLab custom-sequence (jcf) download web page.
+/**
+ * @file
+ * @brief The navigation controller that wraps the jubeatLab custom-sequence (jcf) download web
+ * page.
  *
  * Reconstructed from Ghidra program Jubeat (class JcfDownloadPageNavController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

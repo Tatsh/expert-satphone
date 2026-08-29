@@ -1,7 +1,10 @@
-/** @file
- * The Applilink reward-network advert facade: a thin public wrapper over the private @c RewardCore
- * singleton and the @c ApplilinkConsts / @c ApplilinkNetworkError helpers. It opens and closes the
- * advert screen and forwards the ad-status, all-install-flag, and ad-display-status queries.
+/**
+ * @file
+ * @brief The Applilink reward-network advert facade: a thin public wrapper over the private
+ * @c RewardCore singleton and the @c ApplilinkConsts / @c ApplilinkNetworkError helpers.
+ *
+ * It opens and closes the advert screen and forwards the ad-status, all-install-flag, and
+ * ad-display-status queries.
  *
  * Reconstructed from Ghidra program Jubeat (class RewardNetwork, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x3522f8.

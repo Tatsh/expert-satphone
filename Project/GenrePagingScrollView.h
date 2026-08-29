@@ -1,5 +1,6 @@
-/** @file
- * A paging scroll view whose neighbouring pages stay touchable.
+/**
+ * @file
+ * @brief A paging scroll view whose neighbouring pages stay touchable.
  *
  * Reconstructed from Ghidra program Jubeat (class GenrePagingScrollView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

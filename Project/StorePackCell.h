@@ -1,5 +1,6 @@
-/** @file
- * One pack's row in the store's pack table.
+/**
+ * @file
+ * @brief One pack's row in the store's pack table.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePackCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

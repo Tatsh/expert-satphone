@@ -1,5 +1,6 @@
-/** @file
- * The challenge-mode player-name setting sheet.
+/**
+ * @file
+ * @brief The challenge-mode player-name setting sheet.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeNameSettingView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. The class object

@@ -1,5 +1,6 @@
-/** @file
- * The heading above a store genre's pack list.
+/**
+ * @file
+ * @brief The heading above a store genre's pack list.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreGenreTitleView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

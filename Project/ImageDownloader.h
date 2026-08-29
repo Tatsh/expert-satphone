@@ -1,5 +1,6 @@
-/** @file
- * A one-shot NSURLSession image downloader keyed for a cache.
+/**
+ * @file
+ * @brief A one-shot NSURLSession image downloader keyed for a cache.
  *
  * Reconstructed from Ghidra program Jubeat (class ImageDownloader, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x34ed38.

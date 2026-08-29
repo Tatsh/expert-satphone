@@ -1,5 +1,6 @@
-/** @file
- * The music-select screen.
+/**
+ * @file
+ * @brief The music-select screen.
  *
  * Reconstructed from Ghidra program Jubeat (class @c MusicSelectViewController, image base
  * 0x100000000). All @c @@ghidraAddress values are offsets relative to that image base. The class

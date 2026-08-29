@@ -1,5 +1,6 @@
-/** @file
- * The main settings-menu screen.
+/**
+ * @file
+ * @brief The main settings-menu screen.
  *
  * Reconstructed from Ghidra program Jubeat (class @c SettingsViewController, image base
  * @c 0x100000000). All @c \@ghidraAddress values are offsets relative to that image base. It is a

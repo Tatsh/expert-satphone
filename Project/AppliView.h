@@ -1,5 +1,6 @@
-/** @file
- * The applilink SDK's advert surface.
+/**
+ * @file
+ * @brief The applilink SDK's advert surface.
  *
  * Reconstructed from Ghidra program Jubeat (class AppliView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

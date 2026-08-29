@@ -1,5 +1,6 @@
-/** @file
- * IO for reading .zip files, the subset of minizip's @c unz* API that @c KUnzip drives.
+/**
+ * @file
+ * @brief IO for reading .zip files, the subset of minizip's @c unz* API that @c KUnzip drives.
  *
  * This is upstream third-party library code, not a routine reconstructed from the binary: it is
  * Gilles Vollant's minizip @c unzip.c/unzip.h (the version bundled with zlib's

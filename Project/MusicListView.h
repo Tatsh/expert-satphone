@@ -1,5 +1,6 @@
-/** @file
- * The music-select song-list view: a paged, horizontally-scrolling grid of song tiles.
+/**
+ * @file
+ * @brief The music-select song-list view: a paged, horizontally-scrolling grid of song tiles.
  *
  * Reconstructed from Ghidra program Jubeat (class MusicListView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The superclass is @c UIView, from

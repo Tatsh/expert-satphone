@@ -1,5 +1,6 @@
-/** @file
- * The challenge-mode present-list modal.
+/**
+ * @file
+ * @brief The challenge-mode present-list modal.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengePresentView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

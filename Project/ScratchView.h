@@ -1,6 +1,7 @@
-/** @file
- * A single scratch-card view: an artwork jacket hidden behind five stacked cover layers that the
- * user rubs away to reveal the artwork.
+/**
+ * @file
+ * @brief A single scratch-card view: an artwork jacket hidden behind five stacked cover layers
+ * that the user rubs away to reveal the artwork.
  *
  * Reconstructed from Ghidra program Jubeat (class ScratchView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

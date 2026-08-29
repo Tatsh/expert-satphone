@@ -1,5 +1,6 @@
-/** @file
- * TouchJSON's @c NSDictionary @c JSONExtensions category.
+/**
+ * @file
+ * @brief TouchJSON's @c NSDictionary @c JSONExtensions category.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. This is TouchJSON's convenience category, so the names are

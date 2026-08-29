@@ -1,5 +1,6 @@
-/** @file
- * The purchasable-music catalogue.
+/**
+ * @file
+ * @brief The purchasable-music catalogue.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreMusicListManager, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

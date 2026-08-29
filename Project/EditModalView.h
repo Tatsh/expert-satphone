@@ -1,5 +1,6 @@
-/** @file
- * The edit-mode modal form for a custom sequence's metadata.
+/**
+ * @file
+ * @brief The edit-mode modal form for a custom sequence's metadata.
  *
  * Reconstructed from Ghidra program Jubeat (class EditModalView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

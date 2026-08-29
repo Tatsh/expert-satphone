@@ -1,5 +1,6 @@
-/** @file
- * One row of the challenge menu, with a badge showing an unread count.
+/**
+ * @file
+ * @brief One row of the challenge menu, with a badge showing an unread count.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMenuViewCell, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

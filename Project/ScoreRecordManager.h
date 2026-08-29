@@ -1,5 +1,6 @@
-/** @file
- * The player's score record store, backed by Core Data.
+/**
+ * @file
+ * @brief The player's score record store, backed by Core Data.
  *
  * Reconstructed from Ghidra program Jubeat (class ScoreRecordManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

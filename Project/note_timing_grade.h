@@ -1,5 +1,6 @@
-/** @file
- * The note hit-timing classifier used by the gameplay renderer.
+/**
+ * @file
+ * @brief The note hit-timing classifier used by the gameplay renderer.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000); all @ghidraAddress values are
  * offsets relative to that image base. This is a genuine free function: it takes no object

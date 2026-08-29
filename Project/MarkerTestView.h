@@ -1,5 +1,6 @@
-/** @file
- * The marker (note-hit graphic) preview view.
+/**
+ * @file
+ * @brief The marker (note-hit graphic) preview view.
  *
  * Reconstructed from Ghidra program Jubeat (class MarkerTestView, image base 0x100000000); all
  * @ghidraAddress values are offsets relative to that image base. This class has no embedded

@@ -1,5 +1,6 @@
-/** @file
- * One peer's state in a multipeer play session.
+/**
+ * @file
+ * @brief One peer's state in a multipeer play session.
  *
  * Reconstructed from Ghidra program Jubeat (class SessionClass, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The message-board modal that downloads and shows a text message with an Agree button.
+/**
+ * @file
+ * @brief The message-board modal that downloads and shows a text message with an Agree button.
  *
  * Reconstructed from Ghidra program Jubeat (class MessageTextView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * A label whose text is inset from the left edge.
+/**
+ * @file
+ * @brief A label whose text is inset from the left edge.
  *
  * Reconstructed from Ghidra program Jubeat (class InfoLabel, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

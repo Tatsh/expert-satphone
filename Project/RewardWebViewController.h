@@ -1,5 +1,6 @@
-/** @file
- * The applilink reward SDK's in-application web-view host controller.
+/**
+ * @file
+ * @brief The applilink reward SDK's in-application web-view host controller.
  *
  * @c RewardWebViewController is the reward-advert SDK's in-application web-view host: a
  * @c UIViewController that owns a base @c UIView, a @c UIWebView, an optional @c UINavigationBar

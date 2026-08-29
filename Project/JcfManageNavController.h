@@ -1,5 +1,6 @@
-/** @file
- * The navigation controller that manages downloaded jubeatLab custom-sequence (jcf) files.
+/**
+ * @file
+ * @brief The navigation controller that manages downloaded jubeatLab custom-sequence (jcf) files.
  *
  * Reconstructed from Ghidra program Jubeat (class JcfManageNavController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

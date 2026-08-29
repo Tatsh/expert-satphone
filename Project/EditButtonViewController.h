@@ -1,5 +1,6 @@
-/** @file
- * The popover of editor buttons.
+/**
+ * @file
+ * @brief The popover of editor buttons.
  *
  * Reconstructed from Ghidra program Jubeat (class EditButtonViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * One bouncing sprite in the upper background, with its reflection.
+/**
+ * @file
+ * @brief One bouncing sprite in the upper background, with its reflection.
  *
  * Reconstructed from Ghidra program Jubeat (class UpperBGRipple, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

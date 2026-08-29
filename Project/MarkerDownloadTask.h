@@ -1,5 +1,6 @@
-/** @file
- * One queued marker download.
+/**
+ * @file
+ * @brief One queued marker download.
  *
  * Reconstructed from Ghidra program Jubeat (class MarkerDownloadTask, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

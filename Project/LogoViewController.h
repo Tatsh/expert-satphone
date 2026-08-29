@@ -1,5 +1,7 @@
-/** @file
- * The splash screen shown at launch: the Konami and BEMANI logos, then the age-rating notice.
+/**
+ * @file
+ * @brief The splash screen shown at launch: the Konami and BEMANI logos, then the age-rating
+ * notice.
  *
  * Reconstructed from Ghidra program Jubeat (class LogoViewController, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

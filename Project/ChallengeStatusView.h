@@ -1,5 +1,6 @@
-/** @file
- * The challenge coin/cube status bar with a buy-cube button.
+/**
+ * @file
+ * @brief The challenge coin/cube status bar with a buy-cube button.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeStatusView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x34d488.

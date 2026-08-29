@@ -1,5 +1,6 @@
-/** @file
- * The combo-number display maths helpers used by @c MainGameRenderer(Pad)::renderCombo_.
+/**
+ * @file
+ * @brief The combo-number display maths helpers used by @c MainGameRenderer(Pad)::renderCombo_.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000); all @ghidraAddress values are
  * offsets relative to that image base. These are free functions: none takes an object receiver,

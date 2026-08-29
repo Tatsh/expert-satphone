@@ -1,5 +1,6 @@
-/** @file
- * One row of the mission-achievement download list.
+/**
+ * @file
+ * @brief One row of the mission-achievement download list.
  *
  * Reconstructed from Ghidra program Jubeat (class MissionAchieveDownloadPageViewCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,7 @@
-/** @file
- * Reconstructed interface for the applilink recommend SDK's @c RecommendWebAPI web-API facade.
+/**
+ * @file
+ * @brief Reconstructed interface for the applilink recommend SDK's @c RecommendWebAPI web-API
+ * facade.
  *
  * @c RecommendWebAPI is the recommend network's high-level web API. Each request method builds a
  * parameter dictionary, merges it with the user-agent parameters through @c ApplilinkUtilities,

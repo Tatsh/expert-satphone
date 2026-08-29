@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief The OpenGL ES 1.1 rendering view backing the game.
+ */
+
 #import <OpenGLES/EAGL.h>
 #import <UIKit/UIKit.h>
 

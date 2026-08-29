@@ -1,5 +1,6 @@
-/** @file
- * The challenge previous-ranking line-up list view.
+/**
+ * @file
+ * @brief The challenge previous-ranking line-up list view.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengePrevRankingListView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. The class object

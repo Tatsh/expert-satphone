@@ -1,5 +1,6 @@
-/** @file
- * The sliding selected-segment highlight ("thumb") view of Sam Vermette's third-party
+/**
+ * @file
+ * @brief The sliding selected-segment highlight ("thumb") view of Sam Vermette's third-party
  * SVSegmentedControl library.
  *
  * Reconstructed from Ghidra program Jubeat (class SVSegmentedThumb, image base 0x100000000). All

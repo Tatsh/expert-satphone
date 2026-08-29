@@ -1,5 +1,6 @@
-/** @file
- * Reconstructed interface for the applilink advert SDK's @c ApplilinkFile helper.
+/**
+ * @file
+ * @brief Reconstructed interface for the applilink advert SDK's @c ApplilinkFile helper.
  *
  * @c ApplilinkFile is the SDK's stateless file and cache utility: it fetches banner, resource, and
  * data files from URLs (backed by an on-disk cache), saves, deletes, and tests files under a cache

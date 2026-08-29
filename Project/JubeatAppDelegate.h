@@ -1,7 +1,8 @@
-/** @file
- * The application delegate for jubeat plus: owns the root view controller, exposes the device and
- * client identification the servers are told about, holds the persisted gameplay option flags and
- * store selection state, and drives the application lifecycle and notification handling.
+/**
+ * @file
+ * @brief The application delegate for jubeat plus: owns the root view controller, exposes the
+ * device and client identification the servers are told about, holds the persisted gameplay option
+ * flags and store selection state, and drives the application lifecycle and notification handling.
  *
  * Reconstructed from Ghidra program Jubeat (class JubeatAppDelegate, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

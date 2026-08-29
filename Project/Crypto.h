@@ -1,5 +1,6 @@
-/** @file
- * Hashing and AES helpers.
+/**
+ * @file
+ * @brief Hashing and AES helpers.
  *
  * Reconstructed from Ghidra program Jubeat (class Crypto, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

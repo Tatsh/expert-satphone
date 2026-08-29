@@ -1,6 +1,7 @@
-/** @file
- * The engine's sprite-sheet texture: a single OpenGL ES texture that batches many sprite quads
- * into one draw call.
+/**
+ * @file
+ * @brief The engine's sprite-sheet texture: a single OpenGL ES texture that batches many sprite
+ * quads into one draw call.
  *
  * Reconstructed from Ghidra program Jubeat (class Texture2D, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

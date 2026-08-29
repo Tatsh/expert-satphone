@@ -1,5 +1,6 @@
-/** @file
- * The jubeatLab custom-sequence (jcf) downloader.
+/**
+ * @file
+ * @brief The jubeatLab custom-sequence (jcf) downloader.
  *
  * Reconstructed from Ghidra program Jubeat (class JcfDownloader, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

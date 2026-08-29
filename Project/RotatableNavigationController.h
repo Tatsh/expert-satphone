@@ -1,5 +1,6 @@
-/** @file
- * A navigation controller that delegates its rotation policy to the top view controller.
+/**
+ * @file
+ * @brief A navigation controller that delegates its rotation policy to the top view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class RotatableNavigationController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The applilink recommendation web view — a self-delegating UIWebView.
+/**
+ * @file
+ * @brief The applilink recommendation web view — a self-delegating UIWebView.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkWebView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x351d58.

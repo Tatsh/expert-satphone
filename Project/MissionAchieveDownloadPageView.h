@@ -1,5 +1,6 @@
-/** @file
- * The mission-achievement bonus-sheet download page.
+/**
+ * @file
+ * @brief The mission-achievement bonus-sheet download page.
  *
  * Reconstructed from Ghidra program Jubeat (class MissionAchieveDownloadPageView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

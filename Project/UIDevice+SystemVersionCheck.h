@@ -1,5 +1,6 @@
-/** @file
- * The @c UIDevice @c SystemVersionCheck category.
+/**
+ * @file
+ * @brief The @c UIDevice @c SystemVersionCheck category.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The runtime metadata records this as category

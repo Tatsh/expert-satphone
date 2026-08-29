@@ -1,5 +1,6 @@
-/** @file
- * The in-game pause overlay with resume, restart, and end buttons.
+/**
+ * @file
+ * @brief The in-game pause overlay with resume, restart, and end buttons.
  *
  * Reconstructed from Ghidra program Jubeat (class GamePauseView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x34d848.

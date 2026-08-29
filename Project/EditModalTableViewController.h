@@ -1,5 +1,6 @@
-/** @file
- * The grouped-table content controller inside the edit-metadata modal.
+/**
+ * @file
+ * @brief The grouped-table content controller inside the edit-metadata modal.
  *
  * Reconstructed from Ghidra program Jubeat (class EditModalTableViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

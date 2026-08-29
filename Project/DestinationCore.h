@@ -1,5 +1,6 @@
-/** @file
- * Registers a destination URL with the applilink advertising back end.
+/**
+ * @file
+ * @brief Registers a destination URL with the applilink advertising back end.
  *
  * Reconstructed from Ghidra program Jubeat (class DestinationCore, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

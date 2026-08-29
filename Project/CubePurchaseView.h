@@ -1,5 +1,6 @@
-/** @file
- * The in-app-purchase view for buying cubes (the in-game currency).
+/**
+ * @file
+ * @brief The in-app-purchase view for buying cubes (the in-game currency).
  *
  * Reconstructed from Ghidra program Jubeat (class CubePurchaseView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

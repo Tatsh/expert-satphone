@@ -1,5 +1,6 @@
-/** @file
- * NTE (new title event) core title-screen controller.
+/**
+ * @file
+ * @brief NTE (new title event) core title-screen controller.
  *
  * Reconstructed from Ghidra program Jubeat (class @c NteTitleCoreController , image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

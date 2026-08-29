@@ -1,5 +1,6 @@
-/** @file
- * The on-disk store for challenge-mission sheets.
+/**
+ * @file
+ * @brief The on-disk store for challenge-mission sheets.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionFileManager, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

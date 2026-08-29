@@ -1,5 +1,6 @@
-/** @file
- * The modal board that looks up which purchasable pack contains a given tune.
+/**
+ * @file
+ * @brief The modal board that looks up which purchasable pack contains a given tune.
  *
  * Reconstructed from Ghidra program Jubeat (class SearchPackIDView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

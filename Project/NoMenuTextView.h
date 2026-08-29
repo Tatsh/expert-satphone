@@ -1,5 +1,6 @@
-/** @file
- * A text view with no edit menu and no long-press.
+/**
+ * @file
+ * @brief A text view with no edit menu and no long-press.
  *
  * Reconstructed from Ghidra program Jubeat (class NoMenuTextView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

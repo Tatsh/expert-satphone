@@ -1,5 +1,6 @@
-/** @file
- * The cube-purchase pack list view.
+/**
+ * @file
+ * @brief The cube-purchase pack list view.
  *
  * Reconstructed from Ghidra program Jubeat (class CubePurchaseListView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

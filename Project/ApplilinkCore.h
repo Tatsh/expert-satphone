@@ -1,5 +1,6 @@
-/** @file
- * The KONAMI Applilink advert SDK's central core.
+/**
+ * @file
+ * @brief The KONAMI Applilink advert SDK's central core.
  *
  * @c ApplilinkCore is the Applilink SDK's stateless facade: its entire surface is class (@c +)
  * methods and the class carries no instance ivars. All mutable state lives in @c NSUserDefaults and

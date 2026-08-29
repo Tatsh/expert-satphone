@@ -1,5 +1,6 @@
-/** @file
- * The @c NSArray @c FromData category.
+/**
+ * @file
+ * @brief The @c NSArray @c FromData category.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The runtime metadata records this as category @c FromData on

@@ -1,6 +1,7 @@
-/** @file
- * The iPad Ripples-theme in-game renderer: the concrete @c MainGameRenderer subclass that draws a
- * play session with the "Ripples" (rpl) theme skin on the pad idiom.
+/**
+ * @file
+ * @brief The iPad Ripples-theme in-game renderer: the concrete @c MainGameRenderer subclass that
+ * draws a play session with the "Ripples" (rpl) theme skin on the pad idiom.
  *
  * Reconstructed from Ghidra program Jubeat (class MainGameRendererPadRpl, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

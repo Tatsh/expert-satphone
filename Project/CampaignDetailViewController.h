@@ -1,6 +1,7 @@
-/** @file
- * The campaign-detail page: a table with a campaign header, the item's terms and licence, and the
- * artwork it downloads.
+/**
+ * @file
+ * @brief The campaign-detail page: a table with a campaign header, the item's terms and licence,
+ * and the artwork it downloads.
  *
  * Reconstructed from Ghidra program Jubeat (class CampaignDetailViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The scratch board: a 4×4 grid of scratch panels with a message view.
+/**
+ * @file
+ * @brief The scratch board: a 4×4 grid of scratch panels with a message view.
  *
  * Reconstructed from Ghidra program Jubeat (class ScratchBoardView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x34d398.

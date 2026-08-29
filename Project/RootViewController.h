@@ -1,5 +1,6 @@
-/** @file
- * The application's root view controller.
+/**
+ * @file
+ * @brief The application's root view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class RootViewController, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The inherit-code payment view — the screen that requests and displays an inherit code.
+/**
+ * @file
+ * @brief The inherit-code payment view — the screen that requests and displays an inherit code.
  *
  * Reconstructed from Ghidra program Jubeat (class InheritCodePayView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

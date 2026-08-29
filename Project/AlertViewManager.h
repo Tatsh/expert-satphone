@@ -1,5 +1,7 @@
-/** @file
- * A shared alert presenter that hides the UIAlertController/UIAlertView split behind one API.
+/**
+ * @file
+ * @brief A shared alert presenter that hides the UIAlertController/UIAlertView split behind one
+ * API.
  */
 
 #import <Foundation/Foundation.h>

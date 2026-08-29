@@ -1,5 +1,6 @@
-/** @file
- * The challenge-mode rival-search modal.
+/**
+ * @file
+ * @brief The challenge-mode rival-search modal.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeRivalSearchView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

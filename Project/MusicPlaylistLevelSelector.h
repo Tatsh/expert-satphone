@@ -1,7 +1,9 @@
-/** @file
- * A table listing the ten difficulty levels used to filter a music playlist. Each row shows a
- * level and how many charts sit at that level; picking a row tells the delegate which level was
- * chosen.
+/**
+ * @file
+ * @brief A table listing the ten difficulty levels used to filter a music playlist.
+ *
+ * Each row shows a level and how many charts sit at that level; picking a row tells the delegate
+ * which level was chosen.
  *
  * Reconstructed from Ghidra program Jubeat (class MusicPlaylistLevelSelector, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

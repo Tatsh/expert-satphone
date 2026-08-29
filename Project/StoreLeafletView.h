@@ -1,5 +1,6 @@
-/** @file
- * The store's "leaflet" scroller: an empty rounded plate that hosts a single leaflet cell.
+/**
+ * @file
+ * @brief The store's "leaflet" scroller: an empty rounded plate that hosts a single leaflet cell.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreLeafletView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The mission-achievement message banner.
+/**
+ * @file
+ * @brief The mission-achievement message banner.
  *
  * Reconstructed from Ghidra program Jubeat (class MissionAchievementMessage, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

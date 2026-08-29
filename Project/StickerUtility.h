@@ -1,5 +1,6 @@
-/** @file
- * The iMessage sticker store, shared with the app extension through an app group.
+/**
+ * @file
+ * @brief The iMessage sticker store, shared with the app extension through an app group.
  *
  * Reconstructed from Ghidra program Jubeat (class StickerUtility, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

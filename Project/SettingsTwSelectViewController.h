@@ -1,9 +1,12 @@
-/** @file
- * The Twitter share-frame selector settings screen: a paged, horizontally scrolling gallery of
- * selectable frame designs. Each page shows one frame sample (with an accessory composited over it)
- * plus a set of selection-cursor markers, a page control tracks the current page, two edge arrows
- * fade in and out with the scroll offset, and a reward-check button drives the reward-unlock
- * download flow through an @c EditorIDManager provisioning download.
+/**
+ * @file
+ * @brief The Twitter share-frame selector settings screen: a paged, horizontally scrolling gallery
+ * of selectable frame designs.
+ *
+ * Each page shows one frame sample (with an accessory composited over it) plus a set of
+ * selection-cursor markers, a page control tracks the current page, two edge arrows fade in and
+ * out with the scroll offset, and a reward-check button drives the reward-unlock download flow
+ * through an @c EditorIDManager provisioning download.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsTwSelectViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

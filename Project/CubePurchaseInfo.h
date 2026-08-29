@@ -1,5 +1,6 @@
-/** @file
- * One purchasable cube pack.
+/**
+ * @file
+ * @brief One purchasable cube pack.
  *
  * Reconstructed from Ghidra program Jubeat (class CubePurchaseInfo, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

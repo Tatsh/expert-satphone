@@ -1,5 +1,6 @@
-/** @file
- * An animated circular progress (pie-ring) view.
+/**
+ * @file
+ * @brief An animated circular progress (pie-ring) view.
  *
  * Reconstructed from Ghidra program Jubeat (class PieChartView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x34da28.

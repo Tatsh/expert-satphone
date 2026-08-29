@@ -1,5 +1,6 @@
-/** @file
- * Reconstructed interface for the applilink recommend SDK's @c RecommendAdCache store.
+/**
+ * @file
+ * @brief Reconstructed interface for the applilink recommend SDK's @c RecommendAdCache store.
  *
  * @c RecommendAdCache is the recommend network's advert-cache store: a pure class-method utility
  * (no instances, no ivars) that refreshes the aggregated advert-status table, fetches every

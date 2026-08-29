@@ -1,5 +1,6 @@
-/** @file
- * The application's Blowfish key factories.
+/**
+ * @file
+ * @brief The application's Blowfish key factories.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.

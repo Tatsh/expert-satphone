@@ -1,5 +1,6 @@
-/** @file
- * The modal board that downloads one jubeatLab custom sequence (a @c .jcf chart).
+/**
+ * @file
+ * @brief The modal board that downloads one jubeatLab custom sequence (a @c .jcf chart).
  *
  * Reconstructed from Ghidra program Jubeat (class JcfDownloadView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

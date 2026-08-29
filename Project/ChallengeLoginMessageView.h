@@ -1,5 +1,6 @@
-/** @file
- * The daily-login sheet that tells the player how many free scratches remain.
+/**
+ * @file
+ * @brief The daily-login sheet that tells the player how many free scratches remain.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeLoginMessageView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

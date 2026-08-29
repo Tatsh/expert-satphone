@@ -1,5 +1,6 @@
-/** @file
- * The session-signed HTTP client.
+/**
+ * @file
+ * @brief The session-signed HTTP client.
  *
  * Reconstructed from Ghidra program Jubeat (class SessionDownloader, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The banner showing how many free scratches remain and when they reset.
+/**
+ * @file
+ * @brief The banner showing how many free scratches remain and when they reset.
  *
  * Reconstructed from Ghidra program Jubeat (class ScratchMessageView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

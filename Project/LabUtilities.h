@@ -1,5 +1,6 @@
-/** @file
- * The jubeat Lab URL cipher.
+/**
+ * @file
+ * @brief The jubeat Lab URL cipher.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.

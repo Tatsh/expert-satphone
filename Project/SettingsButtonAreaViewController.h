@@ -1,5 +1,6 @@
-/** @file
- * The settings-screen touch-area preview.
+/**
+ * @file
+ * @brief The settings-screen touch-area preview.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsButtonAreaViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. The screen

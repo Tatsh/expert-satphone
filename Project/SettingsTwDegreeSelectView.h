@@ -1,8 +1,11 @@
-/** @file
- * A modal table listing the Twitter-share DEGREE (rank/title) items, letting the user pick one to
- * equip or unlock. Each row is a @c degreeTableCell built from a positional array; picking a locked
- * row (one with a positive point cost) raises a point-purchase confirmation alert, and confirming
- * it unlocks the item.
+/**
+ * @file
+ * @brief A modal table listing the Twitter-share DEGREE (rank/title) items, letting the user pick
+ * one to equip or unlock.
+ *
+ * Each row is a @c degreeTableCell built from a positional array; picking a locked row (one with a
+ * positive point cost) raises a point-purchase confirmation alert, and confirming it unlocks the
+ * item.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsTwDegreeSelectView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

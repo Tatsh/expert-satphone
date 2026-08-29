@@ -1,5 +1,6 @@
-/** @file
- * The store's top-level tab-bar container, the V2 (recommend-aware) variant.
+/**
+ * @file
+ * @brief The store's top-level tab-bar container, the V2 (recommend-aware) variant.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreViewControllerV2, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

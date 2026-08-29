@@ -1,5 +1,6 @@
-/** @file
- * The store pack-detail card.
+/**
+ * @file
+ * @brief The store pack-detail card.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePackDetailView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

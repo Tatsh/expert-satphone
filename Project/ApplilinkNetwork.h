@@ -1,5 +1,6 @@
-/** @file
- * The applilink advertising SDK's public network front end.
+/**
+ * @file
+ * @brief The applilink advertising SDK's public network front end.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkNetwork, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x3529d8.

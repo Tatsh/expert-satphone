@@ -1,5 +1,6 @@
-/** @file
- * Licence agreement overlay shown on the title screen.
+/**
+ * @file
+ * @brief Licence agreement overlay shown on the title screen.
  *
  * Reconstructed from Ghidra program Jubeat (class LicenseAgreementView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The store's modal progress panel.
+/**
+ * @file
+ * @brief The store's modal progress panel.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreDialogView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

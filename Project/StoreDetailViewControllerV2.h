@@ -1,5 +1,6 @@
-/** @file
- * The store pack-detail page, the V2 (recommend-aware, relation-tab) variant.
+/**
+ * @file
+ * @brief The store pack-detail page, the V2 (recommend-aware, relation-tab) variant.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreDetailViewControllerV2, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

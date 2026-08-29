@@ -1,5 +1,6 @@
-/** @file
- * Base title controller.
+/**
+ * @file
+ * @brief Base title controller.
  *
  * Reconstructed from Ghidra program Jubeat (class TitleViewController, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

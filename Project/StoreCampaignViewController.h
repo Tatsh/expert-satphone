@@ -1,5 +1,6 @@
-/** @file
- * The store's campaign (privilege / gift) screen.
+/**
+ * @file
+ * @brief The store's campaign (privilege / gift) screen.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreCampaignViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

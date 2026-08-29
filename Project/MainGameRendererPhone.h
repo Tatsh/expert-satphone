@@ -1,5 +1,6 @@
-/** @file
- * The iPhone in-game play renderer.
+/**
+ * @file
+ * @brief The iPhone in-game play renderer.
  *
  * Reconstructed from Ghidra program Jubeat (class MainGameRendererPhone, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

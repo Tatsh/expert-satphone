@@ -1,6 +1,7 @@
-/** @file
- * A modal "select where to send" panel: a dimmed, rounded gradient board carrying a title, a
- * two-row table of social targets (Twitter and Facebook), and OK/Cancel buttons.
+/**
+ * @file
+ * @brief A modal "select where to send" panel: a dimmed, rounded gradient board carrying a title,
+ * a two-row table of social targets (Twitter and Facebook), and OK/Cancel buttons.
  *
  * Reconstructed from Ghidra program Jubeat (class SocialSendSelectView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

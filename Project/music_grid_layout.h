@@ -1,6 +1,7 @@
-/** @file
- * The music-selection grid layout maths: how many cells fit on a page, how they split into columns
- * and rows, and the per-column-type cell scale.
+/**
+ * @file
+ * @brief The music-selection grid layout maths: how many cells fit on a page, how they split into
+ * columns and rows, and the per-column-type cell scale.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000); all @ghidraAddress values are
  * offsets relative to that image base. These are free functions: none takes an object receiver,

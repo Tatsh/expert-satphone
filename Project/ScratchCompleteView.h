@@ -1,5 +1,6 @@
-/** @file
- * The scratch completion celebration view.
+/**
+ * @file
+ * @brief The scratch completion celebration view.
  *
  * Reconstructed from Ghidra program Jubeat (class ScratchCompleteView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

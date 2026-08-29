@@ -4,8 +4,8 @@
 
 /**
  * @file
- * The interleaved sprite-quad vertex and the helper that fills a quad's texture coordinates and
- * colour.
+ * @brief The interleaved sprite-quad vertex and the helper that fills a quad's texture coordinates
+ * and colour.
  *
  * Reconstructed from Ghidra program Jubeat, image base 0x100000000; all @ghidraAddress values are
  * offsets relative to that base. Neither @c SpriteVertex nor @c SetQuadTexCoordsAndAlpha carries

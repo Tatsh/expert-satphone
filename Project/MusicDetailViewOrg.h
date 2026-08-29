@@ -1,5 +1,6 @@
-/** @file
- * The music-selection detail card for the original (classic) theme.
+/**
+ * @file
+ * @brief The music-selection detail card for the original (classic) theme.
  *
  * Reconstructed from Ghidra program Jubeat (class @c MusicDetailViewOrg, image base 0x100000000).
  * All @c @@ghidraAddress values are offsets relative to that image base. The superclass is

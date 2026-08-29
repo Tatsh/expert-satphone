@@ -1,5 +1,6 @@
-/** @file
- * The navigation controller for the custom-sequence page.
+/**
+ * @file
+ * @brief The navigation controller for the custom-sequence page.
  *
  * Reconstructed from Ghidra program Jubeat (class CustomSequencePageNavViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

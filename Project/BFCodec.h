@@ -1,5 +1,6 @@
-/** @file
- * The Blowfish codec.
+/**
+ * @file
+ * @brief The Blowfish codec.
  *
  * Reconstructed from Ghidra program Jubeat (class BFCodec, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

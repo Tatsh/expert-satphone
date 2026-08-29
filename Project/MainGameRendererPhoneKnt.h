@@ -1,5 +1,6 @@
-/** @file
- * The knit-theme iPhone in-game play renderer.
+/**
+ * @file
+ * @brief The knit-theme iPhone in-game play renderer.
  *
  * Reconstructed from Ghidra program Jubeat (class MainGameRendererPhoneKnt, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

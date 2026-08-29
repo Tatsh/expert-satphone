@@ -1,5 +1,6 @@
-/** @file
- * The edit-mode "how to" help view controller.
+/**
+ * @file
+ * @brief The edit-mode "how to" help view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class EditHowtoViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It presents a

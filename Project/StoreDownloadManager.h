@@ -1,5 +1,6 @@
-/** @file
- * Downloads a queue of store packs in sequence, verifying, unpacking, and registering each.
+/**
+ * @file
+ * @brief Downloads a queue of store packs in sequence, verifying, unpacking, and registering each.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreDownloadManager, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

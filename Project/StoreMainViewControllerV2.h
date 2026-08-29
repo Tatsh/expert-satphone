@@ -1,5 +1,6 @@
-/** @file
- * The store's main "browse packs" screen, the V2 (recommend-aware) variant.
+/**
+ * @file
+ * @brief The store's main "browse packs" screen, the V2 (recommend-aware) variant.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreMainViewControllerV2, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

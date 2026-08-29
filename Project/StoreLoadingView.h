@@ -1,5 +1,6 @@
-/** @file
- * The store's inline loading and error overlay.
+/**
+ * @file
+ * @brief The store's inline loading and error overlay.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreLoadingView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

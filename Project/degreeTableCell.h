@@ -1,5 +1,6 @@
-/** @file
- * A row of the editor's degree list.
+/**
+ * @file
+ * @brief A row of the editor's degree list.
  *
  * Reconstructed from Ghidra program Jubeat (class degreeTableCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

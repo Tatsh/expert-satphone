@@ -1,5 +1,6 @@
-/** @file
- * A label whose text can be copied by tapping it.
+/**
+ * @file
+ * @brief A label whose text can be copied by tapping it.
  *
  * Reconstructed from Ghidra program Jubeat (class CopyableUiLabel, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

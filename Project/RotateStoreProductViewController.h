@@ -1,5 +1,6 @@
-/** @file
- * The App Store product sheet, unlocked from portrait.
+/**
+ * @file
+ * @brief The App Store product sheet, unlocked from portrait.
  *
  * Reconstructed from Ghidra program Jubeat (class RotateStoreProductViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

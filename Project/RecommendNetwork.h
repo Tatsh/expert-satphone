@@ -1,5 +1,6 @@
-/** @file
- * The Applilink recommend network's public facade.
+/**
+ * @file
+ * @brief The Applilink recommend network's public facade.
  *
  * A thin class-method facade over the private @c RecommendCore singleton: each entry point asks
  * @c ApplilinkConsts whether it may run, then forwards to @c RecommendCore (dispatching the status

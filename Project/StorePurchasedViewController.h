@@ -1,5 +1,6 @@
-/** @file
- * The store's "restore / manage purchased packs" screen.
+/**
+ * @file
+ * @brief The store's "restore / manage purchased packs" screen.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePurchasedViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

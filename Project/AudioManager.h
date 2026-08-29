@@ -1,5 +1,7 @@
-/** @file
- * The single owner of all sound: one background music player, plus a delegated sound-effect pool.
+/**
+ * @file
+ * @brief The single owner of all sound: one background music player, plus a delegated sound-effect
+ * pool.
  *
  * Reconstructed from Ghidra program Jubeat (class AudioManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

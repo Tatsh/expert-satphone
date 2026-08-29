@@ -1,5 +1,6 @@
-/** @file
- * The challenge-mode menu container.
+/**
+ * @file
+ * @brief The challenge-mode menu container.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMenuRootView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

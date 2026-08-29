@@ -1,5 +1,6 @@
-/** @file
- * The modal that downloads the marker (note-hit graphic) list and each marker.
+/**
+ * @file
+ * @brief The modal that downloads the marker (note-hit graphic) list and each marker.
  *
  * Reconstructed from Ghidra program Jubeat (class MarkerDownloadView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

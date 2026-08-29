@@ -1,5 +1,6 @@
-/** @file
- * Reconstructed interface for the Applilink recommend SDK's @c RecommendCore singleton.
+/**
+ * @file
+ * @brief Reconstructed interface for the Applilink recommend SDK's @c RecommendCore singleton.
  *
  * @c RecommendCore is KONAMI's Applilink recommend-advert controller: a shared instance that
  * regenerates the authentication session, queries advert status, unread counts, and display

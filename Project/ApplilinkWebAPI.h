@@ -1,5 +1,6 @@
-/** @file
- * Reconstructed interface for the applilink advert SDK's @c ApplilinkWebAPI transport layer.
+/**
+ * @file
+ * @brief Reconstructed interface for the applilink advert SDK's @c ApplilinkWebAPI transport layer.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkWebAPI, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

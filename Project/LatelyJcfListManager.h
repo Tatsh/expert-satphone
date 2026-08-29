@@ -1,5 +1,6 @@
-/** @file
- * The list of recently seen JCF owners.
+/**
+ * @file
+ * @brief The list of recently seen JCF owners.
  *
  * Reconstructed from Ghidra program Jubeat (class LatelyJcfListManager, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

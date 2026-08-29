@@ -1,5 +1,6 @@
-/** @file
- * One track row inside a store pack's detail page.
+/**
+ * @file
+ * @brief One track row inside a store pack's detail page.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePackMusicView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x34e3d8.

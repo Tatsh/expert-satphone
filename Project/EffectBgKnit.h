@@ -1,5 +1,6 @@
-/** @file
- * One knit-background effect sprite.
+/**
+ * @file
+ * @brief One knit-background effect sprite.
  *
  * Reconstructed from Ghidra program Jubeat (class EffectBgKnit, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

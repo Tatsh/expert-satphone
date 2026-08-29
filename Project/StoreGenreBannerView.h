@@ -1,5 +1,6 @@
-/** @file
- * A tappable genre banner button in the store's pack list.
+/**
+ * @file
+ * @brief A tappable genre banner button in the store's pack list.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreGenreBannerView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

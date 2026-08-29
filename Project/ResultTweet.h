@@ -1,5 +1,6 @@
-/** @file
- * Score-tweet composition.
+/**
+ * @file
+ * @brief Score-tweet composition.
  *
  * Reconstructed from Ghidra program Jubeat (class ResultTweet, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

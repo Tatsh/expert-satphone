@@ -1,5 +1,6 @@
-/** @file
- * One tune's catalogue entry.
+/**
+ * @file
+ * @brief One tune's catalogue entry.
  *
  * Reconstructed from Ghidra program Jubeat (class TuneInfo, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

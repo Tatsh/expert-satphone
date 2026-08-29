@@ -1,5 +1,6 @@
-/** @file
- * The base gameplay renderer and driver for a single play session.
+/**
+ * @file
+ * @brief The base gameplay renderer and driver for a single play session.
  *
  * Reconstructed from Ghidra program Jubeat (class MainGameRenderer, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

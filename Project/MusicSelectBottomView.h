@@ -1,6 +1,7 @@
-/** @file
- * The bottom bar of the music-select screen: an all-songs / playlists button on the left, a
- * jubeat Lab. button on the right, and a scrolling "new store info" ticker between them.
+/**
+ * @file
+ * @brief The bottom bar of the music-select screen: an all-songs / playlists button on the left,
+ * a jubeat Lab. button on the right, and a scrolling "new store info" ticker between them.
  *
  * Reconstructed from Ghidra program Jubeat (class MusicSelectBottomView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

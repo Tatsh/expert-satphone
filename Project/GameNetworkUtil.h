@@ -1,5 +1,6 @@
-/** @file
- * Game-network URL and install-count helpers.
+/**
+ * @file
+ * @brief Game-network URL and install-count helpers.
  *
  * Reconstructed from Ghidra program Jubeat (class GameNetworkUtil, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

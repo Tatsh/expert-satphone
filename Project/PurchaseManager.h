@@ -1,5 +1,6 @@
-/** @file
- * The StoreKit purchase manager.
+/**
+ * @file
+ * @brief The StoreKit purchase manager.
  *
  * Reconstructed from Ghidra program Jubeat (class PurchaseManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

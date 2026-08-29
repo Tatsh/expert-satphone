@@ -1,5 +1,7 @@
-/** @file
- * The inherit-code input view — the screen that enters an inherit code to migrate an account.
+/**
+ * @file
+ * @brief The inherit-code input view — the screen that enters an inherit code to migrate an
+ * account.
  *
  * Reconstructed from Ghidra program Jubeat (class InheritCodeInputView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at

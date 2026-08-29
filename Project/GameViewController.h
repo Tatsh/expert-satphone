@@ -1,5 +1,6 @@
-/** @file
- * The in-game (play) top-level view controller.
+/**
+ * @file
+ * @brief The in-game (play) top-level view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class GameViewController, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

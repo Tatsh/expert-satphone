@@ -1,5 +1,6 @@
-/** @file
- * One queued store download.
+/**
+ * @file
+ * @brief One queued store download.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreDownloadTask, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

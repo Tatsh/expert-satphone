@@ -1,6 +1,7 @@
-/** @file
- * A title-screen ornament: a background plate that tilts, a car image that bobs on a loop, and a
- * puff of smog that fades in from nothing as the title appears.
+/**
+ * @file
+ * @brief A title-screen ornament: a background plate that tilts, a car image that bobs on a loop,
+ * and a puff of smog that fades in from nothing as the title appears.
  *
  * Reconstructed from Ghidra program Jubeat (class NteTitleOptionView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

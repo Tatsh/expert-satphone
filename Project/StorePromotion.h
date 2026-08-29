@@ -1,5 +1,6 @@
-/** @file
- * One promoted item in the store.
+/**
+ * @file
+ * @brief One promoted item in the store.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePromotion, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

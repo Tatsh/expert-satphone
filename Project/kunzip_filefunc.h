@@ -1,5 +1,6 @@
-/** @file
- * KUnzip's own minizip I/O callback sets.
+/**
+ * @file
+ * @brief KUnzip's own minizip I/O callback sets.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.

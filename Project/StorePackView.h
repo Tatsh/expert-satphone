@@ -1,5 +1,6 @@
-/** @file
- * One pack tile in the store's pack grid.
+/**
+ * @file
+ * @brief One pack tile in the store's pack grid.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePackView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

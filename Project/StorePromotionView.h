@@ -1,5 +1,6 @@
-/** @file
- * The store's promotion-banner carousel.
+/**
+ * @file
+ * @brief The store's promotion-banner carousel.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePromotionView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

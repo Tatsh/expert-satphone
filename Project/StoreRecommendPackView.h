@@ -1,5 +1,6 @@
-/** @file
- * One recommended pack's tile in the store.
+/**
+ * @file
+ * @brief One recommended pack's tile in the store.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreRecommendPackView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

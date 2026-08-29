@@ -1,5 +1,6 @@
-/** @file
- * The marker (note-skin) selection screen.
+/**
+ * @file
+ * @brief The marker (note-skin) selection screen.
  *
  * Reconstructed from Ghidra program Jubeat (class MarkerSelectView, image base 0x100000000); all
  * @ghidraAddress values are offsets relative to that image base. This class has no embedded

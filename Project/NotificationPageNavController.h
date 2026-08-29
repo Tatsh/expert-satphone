@@ -1,5 +1,6 @@
-/** @file
- * The navigation wrapper around the in-app notification page.
+/**
+ * @file
+ * @brief The navigation wrapper around the in-app notification page.
  *
  * Reconstructed from Ghidra program Jubeat (class NotificationPageNavController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

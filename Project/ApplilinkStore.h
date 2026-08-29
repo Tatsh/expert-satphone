@@ -1,5 +1,6 @@
-/** @file
- * The applilink SDK's App Store product-page facade singleton.
+/**
+ * @file
+ * @brief The applilink SDK's App Store product-page facade singleton.
  *
  * @c ApplilinkStore is created once, presents the store through an @c ApplilinkViewController
  * (which owns the @c SKStoreProductViewController), and is itself the @c SdkViewDelegate of that

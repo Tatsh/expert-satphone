@@ -1,5 +1,6 @@
-/** @file
- * A view that fills itself with a vertical two-stop gradient.
+/**
+ * @file
+ * @brief A view that fills itself with a vertical two-stop gradient.
  *
  * Reconstructed from Ghidra program Jubeat (class GradationView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

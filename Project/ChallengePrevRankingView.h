@@ -1,5 +1,6 @@
-/** @file
- * The challenge-mode previous-event ranking and line-up view.
+/**
+ * @file
+ * @brief The challenge-mode previous-event ranking and line-up view.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengePrevRankingView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. The class object

@@ -1,5 +1,6 @@
-/** @file
- * The guarded facade in front of the applilink SDK's analytics transport.
+/**
+ * @file
+ * @brief The guarded facade in front of the applilink SDK's analytics transport.
  *
  * Reconstructed from Ghidra program Jubeat (class AnalysisNetwork, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

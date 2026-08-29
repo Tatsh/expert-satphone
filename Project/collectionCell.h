@@ -1,5 +1,6 @@
-/** @file
- * A collection-view cell wrapping a music view.
+/**
+ * @file
+ * @brief A collection-view cell wrapping a music view.
  *
  * Reconstructed from Ghidra program Jubeat (class collectionCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class name is the binary's

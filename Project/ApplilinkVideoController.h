@@ -1,5 +1,6 @@
-/** @file
- * The applilink recommend SDK's advert-video host controller.
+/**
+ * @file
+ * @brief The applilink recommend SDK's advert-video host controller.
  *
  * @c ApplilinkVideoController is the SDK @c UIViewController that hosts an advert movie: it parses
  * the advert query into its many string parameters, builds a full-screen @c AppliView surface with

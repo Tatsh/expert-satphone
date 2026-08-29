@@ -1,5 +1,6 @@
-/** @file
- * The title screen, knit (KNT) theme.
+/**
+ * @file
+ * @brief The title screen, knit (KNT) theme.
  *
  * Reconstructed from Ghidra program Jubeat (class @c TitleViewControllerKnt , image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

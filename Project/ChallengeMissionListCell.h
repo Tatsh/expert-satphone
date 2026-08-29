@@ -1,5 +1,6 @@
-/** @file
- * One mission sheet's row in the challenge mission list.
+/**
+ * @file
+ * @brief One mission sheet's row in the challenge mission list.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionListCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

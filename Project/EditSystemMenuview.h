@@ -1,6 +1,7 @@
-/** @file
- * The edit-mode system menu: a two-section table of the EXIT command and the saved-chart load
- * slots.
+/**
+ * @file
+ * @brief The edit-mode system menu: a two-section table of the EXIT command and the saved-chart
+ * load slots.
  *
  * Reconstructed from Ghidra program Jubeat (class EditSystemMenuview, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

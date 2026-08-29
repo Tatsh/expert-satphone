@@ -1,5 +1,6 @@
-/** @file
- * The KONAMI Applilink SDK's device-identifier helper.
+/**
+ * @file
+ * @brief The KONAMI Applilink SDK's device-identifier helper.
  *
  * @c ApplilinkUdid is the Applilink reward-network SDK's device-identifier manager. It resolves the
  * device advertising identifier (through @c ASIdentifierManager, reached by name so the framework

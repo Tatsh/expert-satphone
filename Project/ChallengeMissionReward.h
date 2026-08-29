@@ -1,5 +1,6 @@
-/** @file
- * One reward offered for completing a challenge mission.
+/**
+ * @file
+ * @brief One reward offered for completing a challenge mission.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionReward, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

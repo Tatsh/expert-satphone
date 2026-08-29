@@ -1,5 +1,6 @@
-/** @file
- * Fallback definition of @c nullptr for pre-C23 C compilers.
+/**
+ * @file
+ * @brief Fallback definition of @c nullptr for pre-C23 C compilers.
  *
  * The reconstructed sources use @c nullptr for every C and C++ null pointer. @c nullptr is a
  * keyword in C++11 and later and in C23, so no definition is needed there. This header supplies a

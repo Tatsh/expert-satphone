@@ -1,5 +1,6 @@
-/** @file
- * One purchasable pack in the store.
+/**
+ * @file
+ * @brief One purchasable pack in the store.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePackInfo, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x34ded8.

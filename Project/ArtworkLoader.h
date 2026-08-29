@@ -1,5 +1,6 @@
-/** @file
- * Loads one tune's jacket artwork out of a packed, enciphered archive.
+/**
+ * @file
+ * @brief Loads one tune's jacket artwork out of a packed, enciphered archive.
  *
  * Reconstructed from Ghidra program Jubeat (class ArtworkLoader, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

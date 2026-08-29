@@ -1,5 +1,6 @@
-/** @file
- * A page of the unsealed-artwork viewer.
+/**
+ * @file
+ * @brief A page of the unsealed-artwork viewer.
  *
  * Reconstructed from Ghidra program Jubeat (class UnsealDrawController, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

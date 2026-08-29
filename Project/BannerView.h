@@ -1,5 +1,6 @@
-/** @file
- * A store banner that fetches its own artwork.
+/**
+ * @file
+ * @brief A store banner that fetches its own artwork.
  *
  * Reconstructed from Ghidra program Jubeat (class BannerView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

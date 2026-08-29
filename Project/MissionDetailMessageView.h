@@ -1,5 +1,6 @@
-/** @file
- * A mission-detail message overlay.
+/**
+ * @file
+ * @brief A mission-detail message overlay.
  *
  * Reconstructed from Ghidra program Jubeat (class MissionDetailMessageView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

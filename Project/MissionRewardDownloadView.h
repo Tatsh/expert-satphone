@@ -1,5 +1,6 @@
-/** @file
- * A challenge-mission reward-item download overlay.
+/**
+ * @file
+ * @brief A challenge-mission reward-item download overlay.
  *
  * Reconstructed from Ghidra program Jubeat (class MissionRewardDownloadView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

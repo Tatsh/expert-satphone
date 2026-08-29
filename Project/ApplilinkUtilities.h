@@ -1,5 +1,6 @@
-/** @file
- * Reconstructed interface for the applilink advert SDK's @c ApplilinkUtilities helper.
+/**
+ * @file
+ * @brief Reconstructed interface for the applilink advert SDK's @c ApplilinkUtilities helper.
  *
  * @c ApplilinkUtilities is the SDK's stateless utilities class: it builds the user-agent parameter
  * dictionary, resolves the device model name, locale, and country code, serialises parameter

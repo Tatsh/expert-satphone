@@ -1,6 +1,7 @@
-/** @file
- * The store's recommended-pack table: a self-hosting @c UITableView that lists recommended packs
- * with asynchronously-downloaded artwork.
+/**
+ * @file
+ * @brief The store's recommended-pack table: a self-hosting @c UITableView that lists recommended
+ * packs with asynchronously-downloaded artwork.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreRecommendPackTableView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

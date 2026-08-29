@@ -1,5 +1,6 @@
-/** @file
- * The stdio I/O callbacks the game hands to minizip's unzip API.
+/**
+ * @file
+ * @brief The stdio I/O callbacks the game hands to minizip's unzip API.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. This is the stock zlib @c contrib/minizip/ioapi.c file

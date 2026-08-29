@@ -1,5 +1,6 @@
-/** @file
- * TouchJSON's serialiser.
+/**
+ * @file
+ * @brief TouchJSON's serialiser.
  *
  * Reconstructed from Ghidra program Jubeat (class CJSONSerializer, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

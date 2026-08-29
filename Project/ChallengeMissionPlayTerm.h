@@ -1,5 +1,7 @@
-/** @file
- * The play restrictions a challenge mission imposes, derived from its terms and current progress.
+/**
+ * @file
+ * @brief The play restrictions a challenge mission imposes, derived from its terms and current
+ * progress.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionPlayTerm, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The Applilink recommend SDK's advertising-identifier record.
+/**
+ * @file
+ * @brief The Applilink recommend SDK's advertising-identifier record.
  *
  * @c RecommendAdId persists the advertising identifier keyed by country code and category id, and
  * resolves the identifier used for an inbound advert redirect. The Applilink SDK ships as a closed

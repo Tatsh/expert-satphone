@@ -1,7 +1,10 @@
-/** @file
- * The music-select "playlists" screen: a table listing the built-in filter rows, a level filter,
- * and the user's playlists. It supports creating a new playlist, deleting one with a swipe, and
- * picking either a filter, a level, or a playlist to drive the selected music identifier.
+/**
+ * @file
+ * @brief The music-select "playlists" screen: a table listing the built-in filter rows, a level
+ * filter, and the user's playlists.
+ *
+ * It supports creating a new playlist, deleting one with a swipe, and picking either a filter, a
+ * level, or a playlist to drive the selected music identifier.
  *
  * Reconstructed from Ghidra program Jubeat (class MusicPlaylistViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

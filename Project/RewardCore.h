@@ -1,5 +1,6 @@
-/** @file
- * Reconstructed interface for the Applilink reward SDK's private @c RewardCore singleton.
+/**
+ * @file
+ * @brief Reconstructed interface for the Applilink reward SDK's private @c RewardCore singleton.
  *
  * @c RewardCore is the reward SDK's stateful core: a lazily-created (via @c dispatch_once)
  * singleton that owns the reward-advert session lifecycle. It drives the create-UDID,

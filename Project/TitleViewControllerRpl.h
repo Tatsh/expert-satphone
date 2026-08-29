@@ -1,5 +1,6 @@
-/** @file
- * The title screen, ripples (Rpl) theme.
+/**
+ * @file
+ * @brief The title screen, ripples (Rpl) theme.
  *
  * Reconstructed from Ghidra program Jubeat (class TitleViewControllerRpl, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.

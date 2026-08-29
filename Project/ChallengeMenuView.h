@@ -1,6 +1,7 @@
-/** @file
- * The challenge-mode menu: a seven-row table over a background plate, with a close button and an
- * unread-present badge on its first row.
+/**
+ * @file
+ * @brief The challenge-mode menu: a seven-row table over a background plate, with a close button
+ * and an unread-present badge on its first row.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMenuView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.

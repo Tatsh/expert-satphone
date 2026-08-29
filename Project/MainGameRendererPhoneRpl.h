@@ -1,6 +1,7 @@
-/** @file
- * The iPhone Ripples-theme in-game renderer: the concrete @c MainGameRenderer subclass that draws a
- * play session with the "Ripples" (rpl) theme skin on the phone idiom.
+/**
+ * @file
+ * @brief The iPhone Ripples-theme in-game renderer: the concrete @c MainGameRenderer subclass that
+ * draws a play session with the "Ripples" (rpl) theme skin on the phone idiom.
  *
  * Reconstructed from Ghidra program Jubeat (class MainGameRendererPhoneRpl, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

@@ -1,5 +1,6 @@
-/** @file
- * The search-term expansion dictionary editor.
+/**
+ * @file
+ * @brief The search-term expansion dictionary editor.
  *
  * Reconstructed from Ghidra program Jubeat (class SearchExpandEditor, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x34fa58.

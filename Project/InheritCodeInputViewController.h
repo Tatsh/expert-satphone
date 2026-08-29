@@ -1,5 +1,7 @@
-/** @file
- * The inherit-code input view controller — the screen that hosts the inherit-code entry panel.
+/**
+ * @file
+ * @brief The inherit-code input view controller — the screen that hosts the inherit-code entry
+ * panel.
  *
  * Reconstructed from Ghidra program Jubeat (class InheritCodeInputViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.

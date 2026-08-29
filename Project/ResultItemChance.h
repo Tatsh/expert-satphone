@@ -1,5 +1,6 @@
-/** @file
- * The result screen's "item chance" flourish.
+/**
+ * @file
+ * @brief The result screen's "item chance" flourish.
  *
  * Reconstructed from Ghidra program Jubeat (class ResultItemChance, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
