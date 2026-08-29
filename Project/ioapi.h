@@ -21,22 +21,22 @@ typedef void *voidpf;
 /** @brief minizip's wide unsigned integer type (zlib's @c uLong). */
 typedef unsigned long uLong;
 
-/** ZLIB_FILEFUNC_MODE_READ: open for reading. */
+/** @brief Open for reading. */
 #define ZLIB_FILEFUNC_MODE_READ 1
-/** ZLIB_FILEFUNC_MODE_WRITE: open for writing. */
+/** @brief Open for writing. */
 #define ZLIB_FILEFUNC_MODE_WRITE 2
-/** ZLIB_FILEFUNC_MODE_READWRITEFILTER: the mask used to isolate the read/write mode bits. */
+/** @brief The mask used to isolate the read/write mode bits. */
 #define ZLIB_FILEFUNC_MODE_READWRITEFILTER 3
-/** ZLIB_FILEFUNC_MODE_EXISTING: open an existing file for update. */
+/** @brief Open an existing file for update. */
 #define ZLIB_FILEFUNC_MODE_EXISTING 4
-/** ZLIB_FILEFUNC_MODE_CREATE: create (truncate) the file. */
+/** @brief Create (truncate) the file. */
 #define ZLIB_FILEFUNC_MODE_CREATE 8
 
-/** ZLIB_FILEFUNC_SEEK_SET: seek relative to the start of the stream. */
+/** @brief Seek relative to the start of the stream. */
 #define ZLIB_FILEFUNC_SEEK_SET 0
-/** ZLIB_FILEFUNC_SEEK_CUR: seek relative to the current position. */
+/** @brief Seek relative to the current position. */
 #define ZLIB_FILEFUNC_SEEK_CUR 1
-/** ZLIB_FILEFUNC_SEEK_END: seek relative to the end of the stream. */
+/** @brief Seek relative to the end of the stream. */
 #define ZLIB_FILEFUNC_SEEK_END 2
 
 /** @brief Callback that opens a file and returns its stream. */

@@ -20,6 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @brief The game grid's panel count. */
 enum {
     kMainGameGridPanelCount = 16 /*!< The number of panels in the game's 4x4 grid, sizing the
                                       per-panel state arrays. */

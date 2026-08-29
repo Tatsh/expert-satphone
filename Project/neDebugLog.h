@@ -27,6 +27,7 @@
 #pragma once
 
 #ifndef JBDBG
+/** @brief Set to 1 to compile the diagnostics in; 0 collapses every helper below to a no-op. */
 #define JBDBG 0
 #endif
 
@@ -49,23 +50,37 @@ static inline void neDebugLog(const char *fmt, ...) {
     os_log(OS_LOG_DEFAULT, "JBPDBG %{public}s", buf);
 }
 
-// A call counter helper: returns true for the first @c limit invocations at a given site, so a
-// per-frame draw call can log a bounded burst instead of flooding the log at 60 fps. This is a
-// statement expression rather than a lambda so that it compiles in the project's pure Objective-C
-// (.m) translation units as well as the C++ ones.
+/**
+ * @brief True for the first @p limit invocations at a given site.
+ *
+ * A per-frame draw call can log a bounded burst instead of flooding the log at 60 fps. This is a
+ * statement expression rather than a lambda so that it compiles in the project's pure Objective-C
+ * (.m) translation units as well as the C++ ones.
+ *
+ * @param limit The number of invocations to report true for.
+ */
 #define NE_DBG_FIRST(limit)                                                                        \
     __extension__({                                                                                \
         static int _c = 0;                                                                         \
         _c < (limit) ? (++_c, 1) : 0;                                                              \
     })
 
-// The uncapped counterpart of NE_DBG_FIRST, for a diagnostic block on a rarely-taken path where
-// the repetition itself is the evidence -- a settings screen presented twice in a row logs both
-// times, where NE_DBG_FIRST would silently drop the interesting one once its cap was reached.
+/**
+ * @brief The uncapped counterpart of @c NE_DBG_FIRST.
+ *
+ * For a diagnostic block on a rarely-taken path where the repetition itself is the evidence: a
+ * settings screen presented twice in a row logs both times, where @c NE_DBG_FIRST would silently
+ * drop the interesting one once its cap was reached. Never use it on a per-frame path.
+ */
 #define NE_DBG_EVERY (1)
 
-// Wrap debug-only statements with real side effects. Internal `;` separates multiple statements;
-// the macro supplies the trailing one.
+/**
+ * @brief Wraps debug-only statements that have real side effects.
+ *
+ * Internal @c ; separates multiple statements; the macro supplies the trailing one. Use it for
+ * work that must not run in the faithful build, such as @c glGetError(), which clears GL error
+ * state.
+ */
 #define NE_DBG(...)                                                                                \
     do {                                                                                           \
         __VA_ARGS__;                                                                               \
@@ -88,8 +103,12 @@ static inline void neDebugLog(const char *fmt, ...) {
 
 #endif
 
-// The build's git SHA (set by CMake at configure time). Logged once at startup under JBDBG so a
-// captured os_log identifies exactly which build produced it.
 #ifndef JBDBG_BUILD_SHA
+/**
+ * @brief The build's git SHA, set by CMake at configure time.
+ *
+ * Logged once at startup under @c JBDBG so a captured @c os_log identifies exactly which build
+ * produced it.
+ */
 #define JBDBG_BUILD_SHA "unknown"
 #endif

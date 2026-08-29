@@ -29,21 +29,21 @@ typedef void *unzFile;
 /** @brief minizip's 64-bit file-position type (zlib's @c ZPOS64_T). */
 typedef unsigned long long ZPOS64_T;
 
-/** UNZ_OK: the operation succeeded. */
+/** @brief The operation succeeded. */
 #define UNZ_OK (0)
-/** UNZ_END_OF_LIST_OF_FILE: the directory walk passed the last entry. */
+/** @brief The directory walk passed the last entry. */
 #define UNZ_END_OF_LIST_OF_FILE (-100)
-/** UNZ_ERRNO: an I/O callback failed. */
+/** @brief An I/O callback failed. */
 #define UNZ_ERRNO (Z_ERRNO)
-/** UNZ_EOF: the end of the current entry's data was reached. */
+/** @brief The end of the current entry's data was reached. */
 #define UNZ_EOF (0)
-/** UNZ_PARAMERROR: an argument was invalid. */
+/** @brief An argument was invalid. */
 #define UNZ_PARAMERROR (-102)
-/** UNZ_BADZIPFILE: the archive is not a valid .zip. */
+/** @brief The archive is not a valid .zip. */
 #define UNZ_BADZIPFILE (-103)
-/** UNZ_INTERNALERROR: an internal allocation or state error occurred. */
+/** @brief An internal allocation or state error occurred. */
 #define UNZ_INTERNALERROR (-104)
-/** UNZ_CRCERROR: the decompressed data failed its CRC check. */
+/** @brief The decompressed data failed its CRC check. */
 #define UNZ_CRCERROR (-105)
 
 /** @brief An entry's last-modified date and time, decoded from the DOS date field. */

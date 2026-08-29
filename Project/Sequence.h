@@ -24,16 +24,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @brief The playfield panel count. */
 enum {
     kSequencePanelCount = 16 /*!< The number of playfield panels (a 4x4 grid), sizing the per-panel
                                   judgement arrays. */
 };
 
+/** @brief The result-screen music-bar segment count. */
 enum {
     kSequenceMusicBarSegmentCount = 120 /*!< The number of segments in the result-screen music bar;
                                              each note maps to one via its sector. */
 };
 
+/** @brief The chart's raw music-bar bitmap length. */
 enum {
     kSequenceMusicBarByteCount = 60 /*!< The length of the raw music-bar bitmap the chart carries,
                                          in bytes. */

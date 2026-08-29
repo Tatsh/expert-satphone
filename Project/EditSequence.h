@@ -29,26 +29,31 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @brief The playfield panel count. */
 enum {
     kEditSequencePanelCount = 16 /*!< The number of playfield panels (a 4x4 grid), sizing the
                                       per-panel judgement arrays. */
 };
 
+/** @brief The template slot count. */
 enum {
     kEditSequenceTemplateSlotCount = 4 /*!< The number of template slots: an empty structural
                                             template plus three difficulty templates. */
 };
 
+/** @brief The music-bar segment count. */
 enum {
     kEditSequenceMusicBarSegmentCount = 120 /*!< The number of segments in the music bar; each note
                                                  maps to one via its sector. */
 };
 
+/** @brief The packed music-bar and conflict-bar bitmap length. */
 enum {
     kEditSequenceMusicBarByteCount = 60 /*!< The length of the packed music-bar and conflict-bar
                                              bitmaps, in bytes (two segments per byte). */
 };
 
+/** @brief The per-template raw music-bar buffer length. */
 enum {
     kEditSequenceTemplateMusicBarByteCount = 120 /*!< The per-template raw music-bar buffer length,
                                                       in bytes (one segment per byte). */

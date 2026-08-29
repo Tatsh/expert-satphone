@@ -40,7 +40,9 @@ endif()
 # Doxygen does not know the Foundation enumeration macros, so without the
 # PREDEFINED expansions below it reads each NS_ENUM/NS_OPTIONS/NS_CLOSED_ENUM as
 # a function-like member, emits a spurious "return type ... is not documented"
-# warning for it, and never indexes the enumerators.
+# warning for it, and never indexes the enumerators. JBDBG is predefined to 1 so
+# that neDebugLog.h documents its real diagnostic helpers rather than the no-op
+# fallbacks the #else branch supplies when the option is off.
 #
 # WARN_NO_PARAMDOC and WARN_IF_UNDOC_ENUM_VAL are off by default; they are the
 # two checks that catch an undocumented parameter or enumerator, which is most of
@@ -62,7 +64,8 @@ if(BUILD_DOCS OR BUILD_DOCS_ONLY)
     set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
     set(DOXYGEN_PREDEFINED "NS_ENUM(type,name)=enum name : type"
                            "NS_OPTIONS(type,name)=enum name : type"
-                           "NS_CLOSED_ENUM(type,name)=enum name : type")
+                           "NS_CLOSED_ENUM(type,name)=enum name : type"
+                           "JBDBG=1")
     set(DOXYGEN_WARN_NO_PARAMDOC YES)
     set(DOXYGEN_WARN_IF_UNDOC_ENUM_VAL YES)
     set(DOXYGEN_EXTRACT_LOCAL_CLASSES NO)
