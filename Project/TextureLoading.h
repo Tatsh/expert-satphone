@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The bundled-resource texture and image loaders.
+ * The bundled-resource texture and image loaders.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Decrypts an encrypted image blob in place and builds a @c UIImage from it.
+ * Decrypts an encrypted image blob in place and builds a @c UIImage from it.
  *
  * Deciphers @p encryptedData through @p cipher — which rewrites the buffer in place — then builds
  * an image from the payload after a fixed four-byte header. The header skip is unconditional and
@@ -46,7 +46,7 @@ extern "C" {
 UIImage *_Nullable CreateImageFromEncryptedData(BFCodec *cipher, NSMutableData *encryptedData);
 
 /**
- * @brief Loads a bundled PNG and blits it into an existing texture atlas at a point.
+ * Loads a bundled PNG and blits it into an existing texture atlas at a point.
  *
  * Resolves @p resourceName as a @c .png in the main bundle and, if present, draws it into
  * @p texture at @p point . A missing resource leaves the atlas untouched and returns @c NO .
@@ -60,7 +60,7 @@ UIImage *_Nullable CreateImageFromEncryptedData(BFCodec *cipher, NSMutableData *
 BOOL LoadTextureSubImageFromResource(Texture2D *texture, NSString *resourceName, CGPoint point);
 
 /**
- * @brief Decrypts a bundled @c .tex asset and blits it into an existing texture atlas at a point.
+ * Decrypts a bundled @c .tex asset and blits it into an existing texture atlas at a point.
  *
  * The encrypted twin of @c LoadTextureSubImageFromResource : reads the @c .tex, deciphers it
  * through @p cipher , skips the four-byte header, and blits the decoded image into @p texture at
@@ -80,7 +80,7 @@ BOOL LoadTextureSubImageFromEncryptedTex(Texture2D *texture,
                                          CGPoint point);
 
 /**
- * @brief Vends a fully-populated @c Texture2D atlas from a bundled PNG plus its sprite-rect plist.
+ * Vends a fully-populated @c Texture2D atlas from a bundled PNG plus its sprite-rect plist.
  *
  * Loads @p resourceName as a @c .png, wraps it in a @c Texture2D , then sets the sprite table from
  * the matching @c .plist . A missing @c .plist fails the whole load even when the PNG decoded; the
@@ -93,7 +93,7 @@ BOOL LoadTextureSubImageFromEncryptedTex(Texture2D *texture,
 Texture2D *_Nullable CreateTexture2DFromPngResource(NSString *resourceName);
 
 /**
- * @brief Vends a @c Texture2D atlas from an encrypted @c .tex asset plus its plaintext plist.
+ * Vends a @c Texture2D atlas from an encrypted @c .tex asset plus its plaintext plist.
  *
  * The encrypted twin of @c CreateTexture2DFromPngResource . Only the image bytes pass through
  * @p cipher ; the sprite-rect @c .plist is read unencrypted.

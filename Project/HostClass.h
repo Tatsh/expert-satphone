@@ -1,6 +1,6 @@
 /**
  * @file HostClass.h
- * @brief The per-partner host-session state carried by the share-play manager.
+ * The per-partner host-session state carried by the share-play manager.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -16,26 +16,26 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief One discovered share-play host and the music data it offers.
+ * One discovered share-play host and the music data it offers.
  */
 @interface HostClass : NSObject
 
-/** @brief The host's downloaded music data. */
+/** The host's downloaded music data. */
 @property(nonatomic, strong, nullable) NSData *musicData;
 
-/** @brief Whether the music data has finished loading. Encodes as @c B . */
+/** Whether the music data has finished loading. Encodes as @c B . */
 @property(nonatomic, assign) BOOL dataLoaded;
 
-/** @brief The host's score. Encodes as @c i . */
+/** The host's score. Encodes as @c i . */
 @property(nonatomic, assign) int score;
 
-/** @brief The host's final bonus. Encodes as @c i . */
+/** The host's final bonus. Encodes as @c i . */
 @property(nonatomic, assign) int finalBonus;
 
-/** @brief Whether the host achieved a full combo. Encodes as @c B . */
+/** Whether the host achieved a full combo. Encodes as @c B . */
 @property(nonatomic, assign) BOOL fullcombo;
 
-/** @brief Whether the host has finished the tune. Encodes as @c B . */
+/** Whether the host has finished the tune. Encodes as @c B . */
 @property(nonatomic, assign) BOOL finished;
 
 @end

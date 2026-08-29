@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The applilink advertising SDK's public network front end.
+ * The applilink advertising SDK's public network front end.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkNetwork, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class object is at 0x3529d8.
@@ -15,12 +15,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The SDK's network front end.
+ * The SDK's network front end.
  */
 @interface ApplilinkNetwork : NSObject
 
 /**
- * @brief Brings the SDK up. @c +[JubeatAppDelegate initialize] passes @c "3" and @c "0".
+ * Brings the SDK up. @c +[JubeatAppDelegate initialize] passes @c "3" and @c "0".
  * @param appliId The applilink application identifier.
  * @param env The server environment name, or nil for production.
  * @param callback Invoked with an error, or nil on success.
@@ -30,80 +30,80 @@ NS_ASSUME_NONNULL_BEGIN
                           env:(nullable NSString *)env
                      callback:(nullable void (^)(NSError *_Nullable error))callback;
 
-/** @brief Resumes the SDK. @ghidraAddress 0x27c220 */
+/** Resumes the SDK. @ghidraAddress 0x27c220 */
 + (void)resume;
 
 /**
- * @brief Sets the applilink user identifier, or nil to clear it.
+ * Sets the applilink user identifier, or nil to clear it.
  * @param userId The user identifier, or nil to clear it.
  * @ghidraAddress 0x27c238
  */
 + (void)setUserId:(nullable NSString *)userId;
 
 /**
- * @brief Sets whether the SDK applies its common navigation-bar appearance.
+ * Sets whether the SDK applies its common navigation-bar appearance.
  * @param navigationBarCommonAppearance Whether the SDK styles the navigation bar.
  * @ghidraAddress 0x27c250
  */
 + (void)setNavigationBarCommonAppearance:(BOOL)navigationBarCommonAppearance;
 
 /**
- * @brief Sets whether the device languages take priority.
+ * Sets whether the device languages take priority.
  * @param priorityDeviceLanguages Whether the device languages win over the configured one.
  * @ghidraAddress 0x27c268
  */
 + (void)setPriorityDeviceLanguages:(BOOL)priorityDeviceLanguages;
 
 /**
- * @brief Sets the loading-indicator colour.
+ * Sets the loading-indicator colour.
  * @param indicatorColor The colour to draw the loading indicator in.
  * @ghidraAddress 0x27c280
  */
 + (void)setIndicatorColor:(nullable UIColor *)indicatorColor;
 
-/** @brief Marks the SDK unused in the store build. @ghidraAddress 0x27c298 */
+/** Marks the SDK unused in the store build. @ghidraAddress 0x27c298 */
 + (void)unusedInStore;
 
-/** @brief Marks the build as produced under Xcode 6. @ghidraAddress 0x27c2b0 */
+/** Marks the build as produced under Xcode 6. @ghidraAddress 0x27c2b0 */
 + (void)buildUnderXcode6;
 
 /**
- * @brief The applilink application identifier.
+ * The applilink application identifier.
  * @return The application identifier.
  * @ghidraAddress 0x27c2c8
  */
 + (nullable NSString *)appliId;
 
 /**
- * @brief The SDK version.
+ * The SDK version.
  * @return The SDK version string.
  * @ghidraAddress 0x27c2e0
  */
 + (nullable NSString *)version;
 
 /**
- * @brief The SDK development version.
+ * The SDK development version.
  * @return The development version string.
  * @ghidraAddress 0x27c2f8
  */
 + (nullable NSString *)versionDev;
 
 /**
- * @brief Whether the running iOS version supports the SDK.
+ * Whether the running iOS version supports the SDK.
  * @return YES when the running iOS version is supported, NO otherwise.
  * @ghidraAddress 0x27c310
  */
 + (BOOL)isSupportediOSVersion;
 
 /**
- * @brief The current advertising UDID.
+ * The current advertising UDID.
  * @return The advertising UDID.
  * @ghidraAddress 0x27c328
  */
 + (nullable NSString *)currentUdid;
 
 /**
- * @brief Forwards a rotation to the reward, recommend, and view-manager collaborators.
+ * Forwards a rotation to the reward, recommend, and view-manager collaborators.
  * @param interfaceOrientation The new interface orientation.
  * @param duration The rotation duration.
  * @ghidraAddress 0x27c340
@@ -111,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)rotateWithInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
                               duration:(NSTimeInterval)duration;
 
-/** @brief Collects device information for the SDK. @ghidraAddress 0x27c458 */
+/** Collects device information for the SDK. @ghidraAddress 0x27c458 */
 + (void)collectDeviceInfo;
 
 @end

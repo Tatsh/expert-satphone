@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Message-digest helpers.
+ * Message-digest helpers.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Hashes a NUL-terminated C string and returns the digest as a hexadecimal string.
+ * Hashes a NUL-terminated C string and returns the digest as a hexadecimal string.
  *
  * Plain CommonCrypto MD5 over @c strlen bytes, rendered as 32 lower-case hexadecimal characters.
  * The binary unrolls the sixteen per-byte appends rather than looping.
@@ -33,7 +33,7 @@ extern "C" {
 NSString *CreateMd5HexStringFromCString(const char *lpcszInput);
 
 /**
- * @brief Hashes a NUL-terminated C string and returns the raw 16-byte digest as data.
+ * Hashes a NUL-terminated C string and returns the raw 16-byte digest as data.
  *
  * Plain CommonCrypto MD5 over @c strlen bytes, wrapped in @c +[NSData dataWithBytes:length:] .
  * Because the input is measured with @c strlen an embedded NUL truncates the hashed region, so
@@ -46,7 +46,7 @@ NSString *CreateMd5HexStringFromCString(const char *lpcszInput);
 NSData *CreateMd5DataFromCString(const char *lpcszInput);
 
 /**
- * @brief Hashes an explicit-length buffer and returns the digest as a hexadecimal string.
+ * Hashes an explicit-length buffer and returns the digest as a hexadecimal string.
  *
  * The save-data integrity hash, used on both the encode and decode sides. Plain CommonCrypto MD5
  * over @p cbLength bytes, rendered as 32 lower-case hexadecimal characters. The binary unrolls the
@@ -60,7 +60,7 @@ NSData *CreateMd5DataFromCString(const char *lpcszInput);
 NSString *CreateMD5HexString(const void *pvData, unsigned int cbLength);
 
 /**
- * @brief Hashes an explicit-length buffer with MD5 and compares it against an expected digest.
+ * Hashes an explicit-length buffer with MD5 and compares it against an expected digest.
  *
  * Plain CommonCrypto MD5 over @p cbLength bytes, whose sixteen-byte result is compared against the
  * caller's expected digest. The comparison is byte-by-byte and short-circuits on the first
@@ -81,7 +81,7 @@ bool VerifyMd5Digest(const void *pvData,
                      const unsigned char *pbExpectedDigest);
 
 /**
- * @brief Hashes an @c NSData with SHA-256 and returns the digest as a hexadecimal string.
+ * Hashes an @c NSData with SHA-256 and returns the digest as a hexadecimal string.
  *
  * Plain CommonCrypto SHA-256 over the data's explicit length, rendered as sixty-four hexadecimal
  * characters. Hashes arbitrary binary data correctly, unlike the @c strlen -based MD5 helpers. The

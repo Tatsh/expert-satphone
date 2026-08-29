@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The inherit-code payment view — the screen that requests and displays an inherit code.
+ * The inherit-code payment view — the screen that requests and displays an inherit code.
  *
  * Reconstructed from Ghidra program Jubeat (class InheritCodePayView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -17,18 +17,18 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The view that requests an inherit code from the server and displays it.
+ * The view that requests an inherit code from the server and displays it.
  */
 @interface InheritCodePayView : UIView
 
 /**
- * @brief The controller the alerts are presented from.
+ * The controller the alerts are presented from.
  * @ghidraAddress 0x349a94
  */
 @property(nonatomic, weak, nullable) UIViewController *parentCtrl;
 
 /**
- * @brief Builds the view: a background image, a caution label, and the issue button.
+ * Builds the view: a background image, a caution label, and the issue button.
  * @param frame The frame.
  * @return The initialised view.
  * @ghidraAddress 0x39714
@@ -36,21 +36,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Sends the issue request through a @c SessionDownloader with the editor identity.
+ * Sends the issue request through a @c SessionDownloader with the editor identity.
  * @param sender The issue button.
  * @ghidraAddress 0x39b40
  */
 - (void)tapCodeOutput:(nullable id)sender;
 
 /**
- * @brief Called when the request finishes; on success it builds and reveals the code panel.
+ * Called when the request finishes; on success it builds and reveals the code panel.
  * @param downloader The finished downloader.
  * @ghidraAddress 0x39d08
  */
 - (void)downloaderFinished:(id)downloader;
 
 /**
- * @brief Called when the request fails; shows the server-error alert.
+ * Called when the request fails; shows the server-error alert.
  * @param downloader The failed downloader.
  * @ghidraAddress 0x3a998
  */

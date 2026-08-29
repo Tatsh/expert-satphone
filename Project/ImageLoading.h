@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The application's own scaled-image loader.
+ * The application's own scaled-image loader.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Loads a PNG from the bundle at the right Retina variant and tags it with the right scale.
+ * Loads a PNG from the bundle at the right Retina variant and tags it with the right scale.
  *
  * The application's replacement for @c +[UIImage imageNamed:], with 479 call sites and no caching.
  * The variant is chosen by @c GetScaledResourcePath, which uses @c _pn2 / @c _pn3 suffixes rather
@@ -35,7 +35,7 @@ extern "C" {
 UIImage *_Nullable LoadScaledPngImage(NSString *pszBaseName);
 
 /**
- * @brief Builds a vertically-flipped, gradient-faded reflection of an image.
+ * Builds a vertically-flipped, gradient-faded reflection of an image.
  *
  * The well-known iOS reflection idiom: the top @p height rows of @p image are drawn upside-down
  * into an offscreen context and masked with a black-to-white vertical ramp so the copy fades out.
@@ -51,7 +51,7 @@ UIImage *_Nullable LoadScaledPngImage(NSString *pszBaseName);
 UIImage *_Nullable CreateReflectedImage(UIImage *_Nullable image, int height);
 
 /**
- * @brief The same job as @c LoadScaledPngImage, for the encrypted @c .tex assets.
+ * The same job as @c LoadScaledPngImage, for the encrypted @c .tex assets.
  *
  * Resolves the variant through the same @c GetScaledResourcePath, reads the file, decrypts it
  * through @c BFCodec with a key derived by MD5, and re-wraps the result at the right scale for the
@@ -66,7 +66,7 @@ UIImage *_Nullable CreateReflectedImage(UIImage *_Nullable image, int height);
 UIImage *_Nullable LoadScaledEncryptedTexImage(NSString *pszBaseName);
 
 /**
- * @brief Resolves a resource name to the bundle path of the variant this device should use.
+ * Resolves a resource name to the bundle path of the variant this device should use.
  *
  * Chooses between the plain, @c _pn2 and @c _pn3 variants from the interface idiom and the main
  * screen's scale, and reports back both whether a scaled variant was chosen and what scale it
@@ -88,7 +88,7 @@ NSString *_Nullable GetScaledResourcePath(NSString *pszBaseName,
                                           NSString *pszExtension);
 
 /**
- * @brief The Blowfish key downloaded resource data is enciphered with.
+ * The Blowfish key downloaded resource data is enciphered with.
  *
  * DECLARED ONLY — the body has not been reconstructed yet. Handed to
  * @c -[BFCodec cipherInit:] before a downloaded campaign image is written to disk, so the cached

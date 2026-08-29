@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Draws the hold markers and their tails over the sixteen-panel grid.
+ * Draws the hold markers and their tails over the sixteen-panel grid.
  *
  * Reconstructed from Ghidra program Jubeat (class HoldMarkerRender, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief One panel's hold-marker state.
+ * One panel's hold-marker state.
  *
  * The metadata types it `{?=iIII}` — anonymous, sixteen bytes, one signed and three unsigned
  * 32-bit fields. The field names are inferred from use, not recovered; the struct carries no
@@ -35,12 +35,12 @@ typedef struct {
 } HoldMarkerInfo;
 
 /**
- * @brief Draws hold markers from a sixteen-entry panel array.
+ * Draws hold markers from a sixteen-entry panel array.
  */
 @interface HoldMarkerRender : NSObject
 
 /**
- * @brief Builds a renderer bound to a texture.
+ * Builds a renderer bound to a texture.
  *
  * @param tex The sprite sheet to draw from. Held **weakly** — the store is @c objc_storeWeak , not
  * @c objc_storeStrong , which the ivar's own encoding does not record.
@@ -52,7 +52,7 @@ typedef struct {
 - (instancetype)init:(nullable Texture2D *)tex isPad:(BOOL)isPad gameAreaDelay:(int)gameAreaDelay;
 
 /**
- * @brief Draws one hold tail between two panels.
+ * Draws one hold tail between two panels.
  *
  * The tail runs either vertically or horizontally depending on @c vector , and the rectangle is
  * built differently in each of the four arms. **An out-of-range @c vector draws with uninitialised
@@ -78,7 +78,7 @@ typedef struct {
              addLength:(int)addLength;
 
 /**
- * @brief Draws every panel's hold marker.
+ * Draws every panel's hold marker.
  *
  * @param markers A sixteen-entry array, one per panel of the grid.
  * @ghidraAddress 0xe8674
@@ -86,7 +86,7 @@ typedef struct {
 - (void)renderHoldMarker:(nullable HoldMarkerInfo *)markers;
 
 /**
- * @brief Draws one panel's hold marker.
+ * Draws one panel's hold marker.
  *
  * Three states draw: pressed, retracting and released. A zero state draws nothing at all.
  *

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The lock overlay shown over a tweet frame that is not yet unlocked.
+ * The lock overlay shown over a tweet frame that is not yet unlocked.
  *
  * Reconstructed from Ghidra program Jubeat (class FrameLockView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -14,7 +14,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A dimming panel with a padlock and a "install N more apps" caption.
+ * A dimming panel with a padlock and a "install N more apps" caption.
  *
  * The caption's number counts down as the player installs the promoted apps; reaching zero fades
  * the whole overlay away.
@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FrameLockView : UIView
 
 /**
- * @brief Builds the overlay over a frame of the given size.
+ * Builds the overlay over a frame of the given size.
  *
  * A number of zero or less starts the overlay already hidden, so an unlocked frame costs nothing
  * to construct.
@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame unlockNumber:(int)unlockNumber;
 
 /**
- * @brief Updates the caption, and fades the overlay away when the count reaches zero.
+ * Updates the caption, and fades the overlay away when the count reaches zero.
  *
  * The fade runs only when the overlay is currently visible, so setting zero twice animates once.
  * A count above zero updates the caption but never brings a hidden overlay back.
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setUnlockNumber:(int)unlockNumber;
 
 /**
- * @brief Chooses between the caption and the padlock.
+ * Chooses between the caption and the padlock.
  *
  * YES shows the caption at full opacity and leaves the padlock as it was. NO hides the caption and
  * re-loads the padlock at its selected artwork, re-centred on the frame this view was built with.

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The local multiplayer ("share play" / versus) session manager.
+ * The local multiplayer ("share play" / versus) session manager.
  *
  * Reconstructed from Ghidra program Jubeat (class SharePlayManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -22,105 +22,105 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Delegate through which a SharePlayManager reports discovery, connection, data-transfer,
+ * Delegate through which a SharePlayManager reports discovery, connection, data-transfer,
  * and gameplay-result events.
  */
 @protocol SharePlayManagerDelegate <NSObject>
 
 @optional
 /**
- * @brief Reports the progress of the incoming music-data stream as a fraction in @c 0..1.
+ * Reports the progress of the incoming music-data stream as a fraction in @c 0..1.
  * @param manager The reporting manager.
  * @param progress The received fraction, clamped to @c 1.0.
  */
 - (void)sharePlayManager:(SharePlayManager *)manager receiveProgress:(float)progress;
 /**
- * @brief A candidate host was discovered while browsing.
+ * A candidate host was discovered while browsing.
  * @param manager The reporting manager.
  * @param hostID The discovered host's peer identifier.
  */
 - (void)sharePlayManager:(SharePlayManager *)manager findHostID:(MCPeerID *)hostID;
 /**
- * @brief A previously discovered host is no longer reachable.
+ * A previously discovered host is no longer reachable.
  * @param manager The reporting manager.
  * @param hostID The lost host's peer identifier.
  */
 - (void)sharePlayManager:(SharePlayManager *)manager lostHostID:(MCPeerID *)hostID;
 /**
- * @brief The client established a connection to the host.
+ * The client established a connection to the host.
  * @param manager The reporting manager.
  */
 - (void)sharePlayManagerConnectHost:(SharePlayManager *)manager;
 /**
- * @brief The client accepted a role change back to the ready-to-invite state after a drop.
+ * The client accepted a role change back to the ready-to-invite state after a drop.
  * @param manager The reporting manager.
  */
 - (void)sharePlayManagerDisconnect:(SharePlayManager *)manager;
 /**
- * @brief The host lost its client, or gave up clock synchronisation.
+ * The host lost its client, or gave up clock synchronisation.
  * @param manager The reporting manager.
  * @param peer The peer that dropped.
  */
 - (void)sharePlayManager:(SharePlayManager *)manager disconnectClient:(MCPeerID *)peer;
 /**
- * @brief The host learned whether the client already has the music data.
+ * The host learned whether the client already has the music data.
  * @param manager The reporting manager.
  * @param exist Whether the client reported it already has the data.
  */
 - (void)sharePlayManager:(SharePlayManager *)manager receiveExistMusicData:(BOOL)exist;
 /**
- * @brief The music data was delivered to the client successfully.
+ * The music data was delivered to the client successfully.
  * @param manager The reporting manager.
  */
 - (void)sharePlayManagerSuccessSendMusicData:(SharePlayManager *)manager;
 /**
- * @brief The host chose the song and requested the shared play to begin.
+ * The host chose the song and requested the shared play to begin.
  * @param manager The reporting manager.
  */
 - (void)sharePlayManagerHostSelectStart:(SharePlayManager *)manager;
 /**
- * @brief Requests that play begin after the given number of seconds, clock-corrected per side.
+ * Requests that play begin after the given number of seconds, clock-corrected per side.
  * @param manager The reporting manager.
  * @param time Seconds from now until play should start.
  */
 - (void)sharePlayManager:(SharePlayManager *)manager startMusicTime:(float)time;
 /**
- * @brief The client received the song's metadata and is asked whether it accepts it.
+ * The client received the song's metadata and is asked whether it accepts it.
  * @param manager The reporting manager.
  * @param musicInfo The song's metadata dictionary.
  * @return Whether the client already possesses the music data.
  */
 - (BOOL)sharePlayManager:(SharePlayManager *)manager receiveMusicInfo:(NSDictionary *)musicInfo;
 /**
- * @brief The client received the music data payload.
+ * The client received the music data payload.
  * @param manager The reporting manager.
  * @param musicData The received music data.
  * @return Whether loading of the received data succeeded.
  */
 - (BOOL)sharePlayManager:(SharePlayManager *)manager musicDataReceived:(NSData *)musicData;
 /**
- * @brief Both sides signalled they are ready to load the chart.
+ * Both sides signalled they are ready to load the chart.
  * @param manager The reporting manager.
  */
 - (void)sharePlayManagerAllClientReady:(SharePlayManager *)manager;
 /**
- * @brief Both sides finished loading the chart.
+ * Both sides finished loading the chart.
  * @param manager The reporting manager.
  */
 - (void)sharePlayManagerAllClientLoaded:(SharePlayManager *)manager;
 /**
- * @brief The clock handshake settled and the client connection is confirmed on the host.
+ * The clock handshake settled and the client connection is confirmed on the host.
  * @param manager The reporting manager.
  */
 - (void)sharePlayManagerConnectClient:(SharePlayManager *)manager;
 /**
- * @brief A mid-play score update arrived from the peer.
+ * A mid-play score update arrived from the peer.
  * @param manager The reporting manager.
  * @param score The peer's score.
  */
 - (void)sharePlayManager:(SharePlayManager *)manager receiveScore:(int)score;
 /**
- * @brief The peer's end-of-play result arrived.
+ * The peer's end-of-play result arrived.
  * @param manager The reporting manager.
  * @param score The peer's final score.
  * @param bonus The peer's end-of-play bonus.
@@ -134,59 +134,59 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * @brief Manages a two-peer MultipeerConnectivity session for shared ("versus") play.
+ * Manages a two-peer MultipeerConnectivity session for shared ("versus") play.
  */
 @interface SharePlayManager : NSObject <MCNearbyServiceBrowserDelegate,
                                         MCNearbyServiceAdvertiserDelegate,
                                         MCSessionDelegate,
                                         NSStreamDelegate>
 
-/** @brief Whether this device is the host of the session. @ghidraAddress 0xc51d4 */
+/** Whether this device is the host of the session. @ghidraAddress 0xc51d4 */
 @property(nonatomic, readonly) BOOL isHost;
-/** @brief The connected partner's display name, or nil before one connects. */
+/** The connected partner's display name, or nil before one connects. */
 @property(nonatomic, readonly, nullable) NSString *partnerScreenName;
-/** @brief The underlying multipeer session. */
+/** The underlying multipeer session. */
 @property(nonatomic, strong, nullable) MCSession *session;
-/** @brief The event delegate. */
+/** The event delegate. */
 @property(nonatomic, weak, nullable) id<SharePlayManagerDelegate> delegate;
-/** @brief The display name advertised for this device's peer. */
+/** The display name advertised for this device's peer. */
 @property(nonatomic, assign, nullable) NSString *displayName;
 
 /**
- * @brief Designated initialiser.
+ * Designated initialiser.
  * @param screenName The name to advertise, or nil to use the device name.
  * @return The initialised manager.
  * @ghidraAddress 0xc51e4
  */
 - (instancetype)initWithScreenName:(nullable NSString *)screenName;
 
-/** @brief Creates the MCSession bound to this device's peer. @ghidraAddress 0xc5324 */
+/** Creates the MCSession bound to this device's peer. @ghidraAddress 0xc5324 */
 - (void)sessionCreate;
-/** @brief Starts browsing for a host as a client. @ghidraAddress 0xc53b8 */
+/** Starts browsing for a host as a client. @ghidraAddress 0xc53b8 */
 - (void)startClient;
 /**
- * @brief Starts advertising as a host with the chosen song.
+ * Starts advertising as a host with the chosen song.
  * @param musicInfo The song's metadata; the file size is added under @c fileSize.
  * @param filePath The path to the music data file.
  * @ghidraAddress 0xc54a8
  */
 - (void)startHostModeWithMusicInfo:(NSDictionary *)musicInfo filePath:(NSString *)filePath;
 
-/** @brief Tears down advertising, browsing, streams, and the session. @ghidraAddress 0xc5708 */
+/** Tears down advertising, browsing, streams, and the session. @ghidraAddress 0xc5708 */
 - (void)connectCancel;
-/** @brief Disconnects from the session. @ghidraAddress 0xc5898 */
+/** Disconnects from the session. @ghidraAddress 0xc5898 */
 - (void)disconnect;
 
-/** @brief Host: tells the client the song was chosen and play should begin. @ghidraAddress 0xc58a4
+/** Host: tells the client the song was chosen and play should begin. @ghidraAddress 0xc58a4
  */
 - (void)sendSelectStart;
-/** @brief Host: begins the clock-corrected start-of-play countdown. @ghidraAddress 0xc5954 */
+/** Host: begins the clock-corrected start-of-play countdown. @ghidraAddress 0xc5954 */
 - (void)startPlaySync;
-/** @brief Client: tells the host it is ready to load the chart. @ghidraAddress 0xc5b6c */
+/** Client: tells the host it is ready to load the chart. @ghidraAddress 0xc5b6c */
 - (void)sendClientReady;
 
 /**
- * @brief A candidate host was found while browsing.
+ * A candidate host was found while browsing.
  * @param browser The browser reporting the peer.
  * @param peerID The peer that was found.
  * @param info The peer's discovery information, or nil when it advertised none.
@@ -196,14 +196,14 @@ NS_ASSUME_NONNULL_BEGIN
             foundPeer:(MCPeerID *)peerID
     withDiscoveryInfo:(nullable NSDictionary<NSString *, NSString *> *)info;
 /**
- * @brief A previously found host was lost.
+ * A previously found host was lost.
  * @param browser The browser reporting the loss.
  * @param peerID The peer that was lost.
  * @ghidraAddress 0xc5ccc
  */
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID;
 /**
- * @brief Browsing failed to start.
+ * Browsing failed to start.
  * @param browser The browser that failed.
  * @param error The failure.
  * @ghidraAddress 0xc5d90
@@ -211,7 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)browser:(MCNearbyServiceBrowser *)browser didNotStartBrowsingForPeers:(NSError *)error;
 
 /**
- * @brief Advertising failed to start.
+ * Advertising failed to start.
  * @param advertiser The advertiser that failed.
  * @param error The failure.
  * @ghidraAddress 0xc5d94
@@ -219,7 +219,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser
     didNotStartAdvertisingPeer:(NSError *)error;
 /**
- * @brief An invitation arrived while advertising; accepted only while @c bAccept is set.
+ * An invitation arrived while advertising; accepted only while @c bAccept is set.
  * @param advertiser The advertiser that received the invitation.
  * @param peerID The inviting peer.
  * @param context The invitation's context data, or nil when none was sent.
@@ -232,7 +232,7 @@ NS_ASSUME_NONNULL_BEGIN
                invitationHandler:(void (^)(BOOL accept, MCSession *_Nullable session))handler;
 
 /**
- * @brief Drives the connection state machine for a peer.
+ * Drives the connection state machine for a peer.
  * @param peer The peer whose state changed.
  * @param state The new session state.
  * @ghidraAddress 0xc5e98
@@ -240,7 +240,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)changeState:(MCPeerID *)peer state:(MCSessionState)state;
 
 /**
- * @brief Session-state change callback; forwards to -changeState:state:.
+ * Session-state change callback; forwards to -changeState:state:.
  * @param session The session reporting the change.
  * @param peerID The peer whose state changed.
  * @param state The peer's new state.
@@ -248,7 +248,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state;
 /**
- * @brief Decodes and dispatches a received message by its @c dataType tag.
+ * Decodes and dispatches a received message by its @c dataType tag.
  * @param session The session the data arrived on.
  * @param data The archived message payload.
  * @param peer The originating peer.
@@ -256,7 +256,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)receiveData:(MCSession *)session data:(NSData *)data fromPeer:(MCPeerID *)peer;
 /**
- * @brief Data-received callback; defers handling to -receiveData:data:fromPeer: on the main queue.
+ * Data-received callback; defers handling to -receiveData:data:fromPeer: on the main queue.
  * @param session The session the data arrived on.
  * @param data The received payload.
  * @param peerID The peer that sent it.
@@ -264,7 +264,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID;
 /**
- * @brief Stream-received callback; schedules the input stream and opens it.
+ * Stream-received callback; schedules the input stream and opens it.
  * @param session The session the stream arrived on.
  * @param stream The incoming stream.
  * @param streamName The stream's name.
@@ -276,7 +276,7 @@ NS_ASSUME_NONNULL_BEGIN
             withName:(NSString *)streamName
             fromPeer:(MCPeerID *)peerID;
 /**
- * @brief Resource-transfer start callback (unused).
+ * Resource-transfer start callback (unused).
  * @param session The session the transfer arrived on.
  * @param resourceName The resource's name.
  * @param peerID The peer sending it.
@@ -288,7 +288,7 @@ NS_ASSUME_NONNULL_BEGIN
                              fromPeer:(MCPeerID *)peerID
                          withProgress:(NSProgress *)progress;
 /**
- * @brief Resource-transfer finish callback (unused).
+ * Resource-transfer finish callback (unused).
  * @param session The session the transfer arrived on.
  * @param resourceName The resource's name.
  * @param peerID The peer that sent it.
@@ -303,47 +303,47 @@ NS_ASSUME_NONNULL_BEGIN
                              withError:(nullable NSError *)error;
 
 /**
- * @brief Client: invites the given host peer to this device's session.
+ * Client: invites the given host peer to this device's session.
  * @param peer The host peer to invite.
  * @ghidraAddress 0xc7324
  */
 - (void)sendConnectRequest:(MCPeerID *)peer;
 /**
- * @brief Host: sends its current clock and counts a ping attempt.
+ * Host: sends its current clock and counts a ping attempt.
  * @param peer The client peer.
  * @ghidraAddress 0xc73ec
  */
 - (void)sendHostClock:(MCPeerID *)peer;
 
-/** @brief Host: if both sides finished, exchanges and reports the final result. @ghidraAddress
+/** Host: if both sides finished, exchanges and reports the final result. @ghidraAddress
  * 0xc7548 */
 - (void)checkFinishStatus;
 /**
- * @brief Records a mid-play score for the peer and notifies the delegate.
+ * Records a mid-play score for the peer and notifies the delegate.
  * @param score The peer's score, boxed.
  * @ghidraAddress 0xc78fc
  */
 - (void)receiveScore:(NSNumber *)score;
 /**
- * @brief Records the peer's end-of-play result and reports or reconciles it.
+ * Records the peer's end-of-play result and reports or reconciles it.
  * @param finalData The peer's final-result dictionary.
  * @ghidraAddress 0xc79fc
  */
 - (void)receiveFinalData:(NSDictionary *)finalData;
 
-/** @brief Notifies the delegate once both sides have loaded the chart. @ghidraAddress 0xc7d64 */
+/** Notifies the delegate once both sides have loaded the chart. @ghidraAddress 0xc7d64 */
 - (void)checkMusicDataLoadingStatus;
-/** @brief Marks this side's chart as loaded and reconciles or reports it. @ghidraAddress 0xc7e4c */
+/** Marks this side's chart as loaded and reconciles or reports it. @ghidraAddress 0xc7e4c */
 - (void)completeLoadingMusicData;
 
 /**
- * @brief Sends a mid-play score to the peer.
+ * Sends a mid-play score to the peer.
  * @param score The score to send.
  * @ghidraAddress 0xc7f34
  */
 - (void)sendScore:(int)score;
 /**
- * @brief Sends the end-of-play result, or records it on the host.
+ * Sends the end-of-play result, or records it on the host.
  * @param score The final score.
  * @param bonus The end-of-play bonus.
  * @param fullCombo Whether a full combo was achieved.
@@ -352,21 +352,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)sendFinalScore:(int)score bonus:(int)bonus fullCombo:(BOOL)fullCombo;
 
 /**
- * @brief Archives a bare message-type tag and sends it to the peer.
+ * Archives a bare message-type tag and sends it to the peer.
  * @param type The message-type tag.
  * @param peer The destination peer.
  * @ghidraAddress 0xc83b8
  */
 - (void)sendTypeData:(int)type toPeer:(MCPeerID *)peer;
 /**
- * @brief Sends an archived payload to a single peer reliably.
+ * Sends an archived payload to a single peer reliably.
  * @param data The archived payload.
  * @param peer The destination peer.
  * @ghidraAddress 0xc84b0
  */
 - (void)sendData:(NSData *)data toPeer:(MCPeerID *)peer;
 /**
- * @brief Streams a payload to a peer over a one-shot NSOutputStream on a background queue.
+ * Streams a payload to a peer over a one-shot NSOutputStream on a background queue.
  * @param data The payload to stream.
  * @param peer The destination peer.
  * @param dataName The stream name.
@@ -375,7 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)sendDataStream:(NSData *)data toPeer:(MCPeerID *)peer dataName:(NSString *)dataName;
 
 /**
- * @brief Input-stream event handler; accumulates the incoming music data and acks completion.
+ * Input-stream event handler; accumulates the incoming music data and acks completion.
  * @param stream The stream reporting the event.
  * @param eventCode The event that occurred.
  * @ghidraAddress 0xc8840

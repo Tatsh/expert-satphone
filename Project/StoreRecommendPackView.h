@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One recommended pack's tile in the store.
+ * One recommended pack's tile in the store.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreRecommendPackView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -14,24 +14,24 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What a @c StoreRecommendPackView tells its owner.
+ * What a @c StoreRecommendPackView tells its owner.
  */
 @protocol StoreRecommendPackViewDelegate <NSObject>
 @optional
 /**
- * @brief Sent when the tile is tapped.
+ * Sent when the tile is tapped.
  * @param packView The tile that was tapped.
  */
 - (void)storePackViewSelected:(id)packView;
 @end
 
 /**
- * @brief A tappable tile showing one pack's artwork, name, price and status markers.
+ * A tappable tile showing one pack's artwork, name, price and status markers.
  */
 @interface StoreRecommendPackView : UIView
 
 /**
- * @brief The object told when the tile is tapped.
+ * The object told when the tile is tapped.
  *
  * Weak and untyped in the metadata, so the dispatch goes through @c -respondsToSelector: rather
  * than a declared conformance. @c StoreRecommendTableCell nils this in its @c -dealloc.
@@ -40,20 +40,20 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak) id delegate;
 
 /**
- * @brief The tile's artwork view.
+ * The tile's artwork view.
  * @ghidraAddress 0x145940 (getter)
  */
 @property(nonatomic, strong, nullable) UIImageView *artworkView;
 
 /**
- * @brief The tile's position in the recommendation list, as last given to
+ * The tile's position in the recommendation list, as last given to
  * @c -loadPackInfo:index: .
  * @ghidraAddress 0x145930 (getter)
  */
 @property(nonatomic, readonly) NSUInteger index;
 
 /**
- * @brief Builds the tile's seven subviews.
+ * Builds the tile's seven subviews.
  *
  * The tap recogniser goes on the background rather than on the tile itself. The comment and price
  * labels are sized from the "Purchased" badge's fitted frame, so both move with it.
@@ -65,14 +65,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Sets the tile's background artwork.
+ * Sets the tile's background artwork.
  * @param bgImg The artwork.
  * @ghidraAddress 0x145638
  */
 - (void)setBgImage:(nullable UIImage *)bgImg;
 
 /**
- * @brief Fills the tile in from a pack and records its position.
+ * Fills the tile in from a pack and records its position.
  *
  * A pack whose purchase is merely pending shows as owned, since the purchased marker is driven by
  * @c -isPurchased: **or** @c -isPending: .
@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadPackInfo:(nullable StorePackInfo *)packInfo index:(NSUInteger)index;
 
 /**
- * @brief The tile's tap handler.
+ * The tile's tap handler.
  * @param sender The gesture recogniser. Unused — the delegate is handed the tile.
  * @ghidraAddress 0x145650
  */

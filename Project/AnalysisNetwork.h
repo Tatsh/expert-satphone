@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The guarded facade in front of the applilink SDK's analytics transport.
+ * The guarded facade in front of the applilink SDK's analytics transport.
  *
  * Reconstructed from Ghidra program Jubeat (class AnalysisNetwork, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -16,14 +16,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Forwards analytics calls to @c AnalysisNetworkCore, guarding the one that has a callback.
+ * Forwards analytics calls to @c AnalysisNetworkCore, guarding the one that has a callback.
  *
  * Note the guard is not applied uniformly — see @c +openWebBrowserWithAppliId:env:callback: .
  */
 @interface AnalysisNetwork : NSObject
 
 /**
- * @brief Posts one analysis record, or reports that the SDK is unusable.
+ * Posts one analysis record, or reports that the SDK is unusable.
  *
  * The only member that consults @c ApplilinkConsts. When the SDK cannot be used the callback is
  * invoked directly with error 1025, @c ApplilinkErrorSdkVersionNotSupported, and nothing is sent.
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
                             callback:(nullable ApplilinkAnalysisCallback)callback;
 
 /**
- * @brief Opens an advert in the external browser, discarding any error.
+ * Opens an advert in the external browser, discarding any error.
  *
  * Supplies an empty callback to the core, so a failure here is silent. Note also that this does
  * not check whether the SDK can be used.
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)openExternalWebBrowser:(nullable NSString *)url env:(nullable NSString *)env;
 
 /**
- * @brief Opens an advert for one application identifier.
+ * Opens an advert for one application identifier.
  *
  * A straight forward with no SDK-availability check, so on an unsupported OS this reaches the
  * transport where @c +postAnalysisDataWithResultId:callback: would have refused.

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The store's inline loading and error overlay.
+ * The store's inline loading and error overlay.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreLoadingView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,12 +17,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A spinner with a caption, swapped for a message when something fails.
+ * A spinner with a caption, swapped for a message when something fails.
  */
 @interface StoreLoadingView : UIView
 
 /**
- * @brief Builds the spinner and the two labels.
+ * Builds the spinner and the two labels.
  *
  * None of the three is added to the hierarchy here; @c -startLoading and @c -showError: do that.
  *
@@ -33,13 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Shows the spinner and its caption, and takes the error message away.
+ * Shows the spinner and its caption, and takes the error message away.
  * @ghidraAddress 0x1b9dac
  */
 - (void)startLoading;
 
 /**
- * @brief Hides the overlay and takes the spinner and its caption away.
+ * Hides the overlay and takes the spinner and its caption away.
  *
  * The spinner is removed rather than stopped; @c -stopAnimating is never sent.
  * @ghidraAddress 0x1b9eb4
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)stopLoading;
 
 /**
- * @brief Replaces the spinner with a message.
+ * Replaces the spinner with a message.
  * @param error The message to show.
  * @ghidraAddress 0x1b9f6c
  */

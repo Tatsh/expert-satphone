@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The application's root view controller.
+ * The application's root view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class RootViewController, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -14,7 +14,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Hosts the game's screens and owns the music-select controller it presents.
+ * Hosts the game's screens and owns the music-select controller it presents.
  *
  * The eight ivars reached so far sit at offset globals 0x34b770 to 0x34b794. Not one of them has an
  * accessor pair anywhere in the binary, so they are all declared in a class extension rather than
@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RootViewController : UIViewController
 
 /**
- * @brief Builds the controller and its two persistent child screens.
+ * Builds the controller and its two persistent child screens.
  *
  * Allocates the game and edit view controllers once and keeps them as children for the whole
  * lifetime, registers the three application-state observers, and builds the achievement-message
@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 
 /**
- * @brief Runs a named cross-fade and hands the name to the transition dispatcher.
+ * Runs a named cross-fade and hands the name to the transition dispatcher.
  *
  * Blocks input, parks both durations in ivars, builds a fresh full-screen black cover, and fades it
  * in over @p durationIn. The name is passed to @c +[UIView beginAnimations:context:] and comes back
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
      durationIn:(double)inDuration
     durationOut:(double)outDuration;
 /**
- * @brief Swaps the screens for the transition just faded out, then fades back in.
+ * Swaps the screens for the transition just faded out, then fades back in.
  *
  * The transition dispatcher, and the largest method in the class at roughly 1.5 KB. It branches on
  * the animation name across nine transitions, tears down the outgoing screen, builds the incoming
@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
                finished:(nullable NSNumber *)finished
                 context:(nullable void *)context;
 /**
- * @brief Finishes a transition once the screen has faded back in.
+ * Finishes a transition once the screen has faded back in.
  *
  * Records which scene is now up, wakes the screen just revealed, tears the black cover down, runs
  * whatever the delegate parked while another screen was in front, and finally lifts the input block
@@ -88,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
               finished:(nullable NSNumber *)finished
                context:(nullable void *)context;
 /**
- * @brief Builds the knit-theme title screen into @c titleViewCtrl.
+ * Builds the knit-theme title screen into @c titleViewCtrl.
  *
  * Unlike the other two themes, which allocate their controller inline, the knit theme is delegated
  * to this factory because it picks between two classes: @c TitleViewControllerNte when the delegate
@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)createKnitTitleViewController;
 /**
- * @brief Re-runs the title screen's own switch animation.
+ * Re-runs the title screen's own switch animation.
  *
  * Replaces whatever title screen is up with a @c TitleViewControllerKnt. The outgoing screen is
  * sent @c -stopAnimation only when it is a @c TitleViewControllerNte, which makes this a class test
@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)titleSwitch;
 /**
- * @brief Finishes the slide into the store screen.
+ * Finishes the slide into the store screen.
  *
  * The store transition does not go through @c -fade:durationIn:durationOut: at all. It rotates the
  * root view's sublayer transform in 3-D and rasterises both layers for the duration, so this
@@ -125,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
                  finished:(nullable NSNumber *)finished
                   context:(nullable void *)context;
 /**
- * @brief Finishes the slide back out of the store screen.
+ * Finishes the slide back out of the store screen.
  *
  * The mirror of @c -openStoreAnimStop:finished:context:, with two differences worth knowing: input
  * is released first here rather than last, and on the way back only a pending chart download is
@@ -141,7 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
                  context:(nullable void *)context;
 
 /**
- * @brief Slides the store screen in over music select with a 3-D cube-flip.
+ * Slides the store screen in over music select with a 3-D cube-flip.
  *
  * Blocks input, marks the scene @c SceneStore , clears the image cache, fades out the BGM, and then
  * flips the store in about the Y axis while music select rotates out the far side. The rotation is
@@ -152,7 +152,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)openStore:(nullable id)startupParameters;
 /**
- * @brief Slides the store screen back out, flipping a fresh music-select screen in.
+ * Slides the store screen back out, flipping a fresh music-select screen in.
  *
  * The mirror of @c -openStore: : it does not set the scene identifier, stops the BGM outright
  * rather than fading it, and asks the store to close before the flip. @c
@@ -162,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)endStore;
 
 /**
- * @brief Dismisses the music-select screen and returns to the title under the new theme.
+ * Dismisses the music-select screen and returns to the title under the new theme.
  *
  * Branches on @c JubeatAppDelegate.appDelegate.isPad, and the two arms differ in ordering rather
  * than in effect: the iPad arm dismisses with a nil completion and then runs the fade itself, while
@@ -175,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)changeThemeAndGoTitle;
 /**
- * @brief Refreshes the title screen for the current theme or event.
+ * Refreshes the title screen for the current theme or event.
  *
  * A single tail call to @c -fade:durationIn:durationOut: with "AnimTitleSwitch" and 1.5 for both
  * durations. Nothing is dismissed.
@@ -183,7 +183,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)changeTitleTheme;
 /**
- * @brief Rebuilds the marker list.
+ * Rebuilds the marker list.
  *
  * A single tail call forwarding to @c -reloadMarkerSelectView on @c musicSelectViewCtrl. Nothing
  * guards against that being nil; a nil receiver simply makes the call a no-op.
@@ -191,7 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)reloadMarkers;
 /**
- * @brief Presents the notification the delegate has just queued, if the select screen is up.
+ * Presents the notification the delegate has just queued, if the select screen is up.
  *
  * Forwards to the identically named selector on @c musicSelectViewCtrl, but only when
  * @c currentSceneID is "SceneSelect" and that controller is non-nil. A notification arriving on any
@@ -200,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)pushNotificate;
 /**
- * @brief Installs the logo screen as a child and starts it.
+ * Installs the logo screen as a child and starts it.
  *
  * The last thing @c -[JubeatAppDelegate application:didFinishLaunchingWithOptions:] does to the UI.
  * Builds a @c LogoViewController, adds it as a child, adds its view, sends it @c -start, and then
@@ -209,7 +209,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)startLogo;
 /**
- * @brief Takes the logo screen back down and starts the Game Center login.
+ * Takes the logo screen back down and starts the Game Center login.
  *
  * Fades the logo out over 0.5 and back in over 1.0 through @c -fade:durationIn:durationOut: with
  * "AnimTitle", then sends @c -loginGameCenter to the delegate. Called by
@@ -218,35 +218,35 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)endLogo;
 /**
- * @brief Fades from the title screen into the music-select screen.
+ * Fades from the title screen into the music-select screen.
  *
  * A single @c -fade:durationIn:durationOut: with "AnimSelect", 1.5, and 0.5.
  * @ghidraAddress 0x1a7b3c
  */
 - (void)endTitle;
 /**
- * @brief Restarts the current tune, keeping its audio and textures.
+ * Restarts the current tune, keeping its audio and textures.
  *
  * A single @c -fade:durationIn:durationOut: with "AnimGameRestart", 1.0, and 0.5.
  * @ghidraAddress 0x1a925c
  */
 - (void)musicRestart;
 /**
- * @brief Replays the current tune, keeping its audio and textures.
+ * Replays the current tune, keeping its audio and textures.
  *
  * A single @c -fade:durationIn:durationOut: with "AnimGameReplay", 1.0, and 0.5.
  * @ghidraAddress 0x1a9278
  */
 - (void)musicReplay;
 /**
- * @brief Returns from the game to the music-select screen.
+ * Returns from the game to the music-select screen.
  *
  * A single @c -fade:durationIn:durationOut: with "AnimReturnMusicSelect", 1.0, and 0.5.
  * @ghidraAddress 0x1a9294
  */
 - (void)returnToMusicSelect;
 /**
- * @brief Starts a tune on the game screen and fades into it.
+ * Starts a tune on the game screen and fades into it.
  *
  * Flushes user defaults, pushes the tune, the current difficulty (@c PrefDifficulty ), and the
  * current marker (@c PrefCurrentMarkerID ) into the game screen, wires up the share manager when
@@ -260,7 +260,7 @@ NS_ASSUME_NONNULL_BEGIN
          shareManager:(nullable id)shareManager
             musicData:(nullable id)musicData;
 /**
- * @brief Starts editing a tune on the note editor and fades into it.
+ * Starts editing a tune on the note editor and fades into it.
  *
  * The mirror of @c -startMainGame:shareManager:musicData: without a share manager. It takes a
  * @p jcfName but never reads it, then fades in with "AnimStartEdit".
@@ -273,7 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
             musicData:(nullable id)musicData
               jcfName:(nullable id)jcfName;
 /**
- * @brief Shows the achievement-message overlay with the given title.
+ * Shows the achievement-message overlay with the given title.
  *
  * Forwards @p title to the overlay's @c -setAchieveTitle: , resets its transform, starts its enter
  * animation, and adds it to the root view.
@@ -282,14 +282,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)openAchiveMessage:(nullable id)title;
 /**
- * @brief Removes the achievement-message overlay.
+ * Removes the achievement-message overlay.
  *
  * Resets the overlay's transform and removes it from its superview.
  * @ghidraAddress 0x1ab094
  */
 - (void)messageClose;
 /**
- * @brief Reports a remote notification back to the server.
+ * Reports a remote notification back to the server.
  *
  * POSTs a three-entry JSON dictionary — @c "user_id" from
  * @c +[EditorIDManager getEditorIDKey], @c "push_id" from the payload's @c "id" entry, and
@@ -304,7 +304,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)responseRemoteNotification:(BOOL)launchedFromNotification pushInfo:(NSDictionary *)pushInfo;
 
 /**
- * @brief Dismisses any alert and suspends the visible game or edit screen as the app deactivates.
+ * Dismisses any alert and suspends the visible game or edit screen as the app deactivates.
  *
  * Closes the shared alert, clears @c _isActive so a transition arriving now parks its name rather
  * than running, and sends @c -suspend to the game and edit controllers only while their view is a
@@ -315,7 +315,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)appWillResignActive:(nullable NSNotification *)notification;
 /**
- * @brief Resumes activity: runs any parked transition, then the three auto-move checks.
+ * Resumes activity: runs any parked transition, then the three auto-move checks.
  *
  * Sets @c _isActive , runs the transition parked in @c suspendedAnimID (clearing it first), kicks
  * off the custom-sequence download and the challenge and pack auto-moves, and resumes the visible
@@ -326,7 +326,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)appDidBecomeActive:(nullable NSNotification *)notification;
 /**
- * @brief Flushes user defaults and terminates the game and edit screens as the app quits.
+ * Flushes user defaults and terminates the game and edit screens as the app quits.
  *
  * @param notification The termination notification. Never read.
  * @ghidraAddress 0x1aae84
@@ -334,14 +334,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)appWillTerminate:(nullable NSNotification *)notification;
 
 /**
- * @brief Returns from the note editor to the music-select screen.
+ * Returns from the note editor to the music-select screen.
  *
  * A single @c -fade:durationIn:durationOut: with "AnimEndEdit", 1.0, and 0.5.
  * @ghidraAddress 0x1a9404
  */
 - (void)returnFromEdit;
 /**
- * @brief Acts on a pending custom-sequence download for whichever screen is up.
+ * Acts on a pending custom-sequence download for whichever screen is up.
  *
  * Returns immediately when the delegate has no @c jcfDownloadID . The logo and title screens ignore
  * it; the select screen resumes the download itself; the game and edit screens are sent @c -end ;
@@ -350,7 +350,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)downloadCustomSequence;
 /**
- * @brief Consumes a queued challenge-open request for whichever screen is up.
+ * Consumes a queued challenge-open request for whichever screen is up.
  *
  * Returns immediately unless the delegate's @c bChallengeOpen is set. The store screen backs out
  * through @c -endStore ; the select and edit screens drop the flag; every other screen leaves it
@@ -359,7 +359,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)autoMoveChallenge;
 /**
- * @brief Acts on a queued store pack, campaign, or genre for whichever screen is up.
+ * Acts on a queued store pack, campaign, or genre for whichever screen is up.
  *
  * Returns immediately when the delegate has no queued store identifier. The logo and title screens
  * ignore it; the select screen forwards to the store through @c -schemeMoveStore ; the game and
@@ -370,7 +370,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)autoMovePackDownload;
 
 /**
- * @brief Whether a scene is up and transitions run immediately; when clear, a transition parks its
+ * Whether a scene is up and transitions run immediately; when clear, a transition parks its
  *        name in @c suspendedAnimID instead. Backed by the @c _isActive ivar.
  * @ghidraAddress 0x1ab3f8
  */

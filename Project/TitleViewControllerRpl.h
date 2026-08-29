@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The title screen, ripples (Rpl) theme.
+ * The title screen, ripples (Rpl) theme.
  *
  * Reconstructed from Ghidra program Jubeat (class TitleViewControllerRpl, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The title screen in the ripples livery.
+ * The title screen in the ripples livery.
  */
 // clang-format off
 // One protocol per line: a continuation line that begins with ": Base <" is read by Doxygen as
@@ -31,20 +31,20 @@ NS_ASSUME_NONNULL_BEGIN
 // clang-format on
 
 /**
- * @brief Builds the controller, records whether this is a pad, and subscribes to notifications.
+ * Builds the controller, records whether this is a pad, and subscribes to notifications.
  * @return The initialised controller.
  * @ghidraAddress 0x13d140
  */
 - (instancetype)init;
 
 /**
- * @brief Tears down the controller and unsubscribes from notifications.
+ * Tears down the controller and unsubscribes from notifications.
  * @ghidraAddress 0x13ff9c
  */
 - (void)dealloc;
 
 /**
- * @brief Builds the view hierarchy.
+ * Builds the view hierarchy.
  *
  * Stores yHorizon, builds the sky and reflection gradient layers, and the jubeat logo, touch,
  * copyright, and marker views.
@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadView;
 
 /**
- * @brief Begins the title sequence.
+ * Begins the title sequence.
  *
  * Hides the logo views, adds ripple layers, and starts the title BGM.
  * @ghidraAddress 0x13e918
@@ -61,31 +61,31 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)start;
 
 /**
- * @brief Fades the touch prompt in and out forever.
+ * Fades the touch prompt in and out forever.
  * @ghidraAddress 0x13ea74
  */
 - (void)blinkPrompt;
 
 /**
- * @brief Adds ripple layers to the background.
+ * Adds ripple layers to the background.
  * @ghidraAddress 0x13d250
  */
 - (void)addRippleLayers;
 
 /**
- * @brief Starts the prompt blink and installs the four swipe and one tap recognisers.
+ * Starts the prompt blink and installs the four swipe and one tap recognisers.
  * @ghidraAddress 0x13ecac
  */
 - (void)startBlinkPrompt;
 
 /**
- * @brief Fades the logo in and then starts the marker check.
+ * Fades the logo in and then starts the marker check.
  * @ghidraAddress 0x13efe8
  */
 - (void)showLogo;
 
 /**
- * @brief Handles a tap on the title screen.
+ * Handles a tap on the title screen.
  *
  * Part of the Konami-code handler.
  * @param sender The recogniser.
@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleTap:(id)sender;
 
 /**
- * @brief Handles a swipe on the title screen.
+ * Handles a swipe on the title screen.
  *
  * Konami-code state machine on kcState.
  * @param sender The recogniser.
@@ -103,45 +103,45 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleSwipe:(id)sender;
 
 /**
- * @brief Pauses the title animation when the app backgrounds.
+ * Pauses the title animation when the app backgrounds.
  * @param sender The notification.
  * @ghidraAddress 0x13fa80
  */
 - (void)suspend:(id)sender;
 
 /**
- * @brief Resumes the title animation when the app foregrounds.
+ * Resumes the title animation when the app foregrounds.
  * @param sender The notification.
  * @ghidraAddress 0x13fca4
  */
 - (void)resume:(id)sender;
 
 /**
- * @brief Drops the views created in @c -loadView.
+ * Drops the views created in @c -loadView.
  * @ghidraAddress 0x13fea0
  */
 - (void)viewDidUnload;
 
 /**
- * @brief Called when the marker check finishes.
+ * Called when the marker check finishes.
  * @ghidraAddress 0x13ff70
  */
 - (void)markerCheckEnd;
 
 /**
- * @brief Advances to the next scene.
+ * Advances to the next scene.
  * @ghidraAddress 0x140018
  */
 - (void)nextScene;
 
 /**
- * @brief Creates the licence agreement view.
+ * Creates the licence agreement view.
  * @ghidraAddress 0x140454
  */
 - (void)createPolicyView;
 
 /**
- * @brief Reports that only portrait orientations are supported.
+ * Reports that only portrait orientations are supported.
  * @param interfaceOrientation The orientation being asked about.
  * @return @c YES for portrait and portrait-upside-down.
  * @ghidraAddress 0x13ff7c
@@ -149,21 +149,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * @brief The orientations the title screen allows.
+ * The orientations the title screen allows.
  * @return Portrait and portrait-upside-down (6).
  * @ghidraAddress 0x13ff8c
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
- * @brief Whether the title screen rotates at all.
+ * Whether the title screen rotates at all.
  * @return Always @c YES .
  * @ghidraAddress 0x13ff94
  */
 - (BOOL)shouldAutorotate;
 
 /**
- * @brief Handles a licence agreement error.
+ * Handles a licence agreement error.
  * @param agreement The agreement.
  * @param msgStr The error message.
  * @ghidraAddress 0x1405a0
@@ -171,21 +171,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)agreementError:(id)agreement msgStr:(NSString *)msgStr;
 
 /**
- * @brief Handles a licence agreement success.
+ * Handles a licence agreement success.
  * @param agreement The agreement.
  * @ghidraAddress 0x140740
  */
 - (void)agreementSuccess:(id)agreement;
 
 /**
- * @brief Handles a licence agreement failure.
+ * Handles a licence agreement failure.
  * @param agreement The agreement.
  * @ghidraAddress 0x1407b8
  */
 - (void)agreementFailed:(id)agreement;
 
 /**
- * @brief Handles an ID download error.
+ * Handles an ID download error.
  * @param download The download.
  * @param msgStr The error message.
  * @ghidraAddress 0x140820
@@ -193,7 +193,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)errorIDDownload:(nullable id)download msgStr:(nullable NSString *)msgStr;
 
 /**
- * @brief Handles a successful ID download.
+ * Handles a successful ID download.
  * @param download The download.
  * @ghidraAddress 0x1409c8
  */

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief An unimplemented countdown view.
+ * An unimplemented countdown view.
  *
  * Reconstructed from Ghidra program Jubeat (class TimerView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -20,18 +20,18 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A countdown view that never counts.
+ * A countdown view that never counts.
  */
 @interface TimerView : UIView
 
 /**
- * @brief Weak and untyped, per the metadata. Nothing this class defines reads it.
+ * Weak and untyped, per the metadata. Nothing this class defines reads it.
  * @ghidraAddress 0x15c8f0 (getter)
  */
 @property(nonatomic, weak) id aDelegate;
 
 /**
- * @brief Forwards to @c UIView and does nothing else.
+ * Forwards to @c UIView and does nothing else.
  * @param frame The view's initial frame.
  * @return The initialised view.
  * @ghidraAddress 0x15c8ac
@@ -39,21 +39,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Empty. The compiled body is a single return instruction.
+ * Empty. The compiled body is a single return instruction.
  * @param timeFont Ignored.
  * @ghidraAddress 0x15c8e4
  */
 - (void)setTimeFont:(nullable UIFont *)timeFont;
 
 /**
- * @brief Empty. The compiled body is a single return instruction.
+ * Empty. The compiled body is a single return instruction.
  * @param timer Ignored. A @c double, per the @c d encoding — a duration, not the @c NSTimer ivar.
  * @ghidraAddress 0x15c8e8
  */
 - (void)setTimer:(double)timer;
 
 /**
- * @brief Empty. The compiled body is a single return instruction.
+ * Empty. The compiled body is a single return instruction.
  * @ghidraAddress 0x15c8ec
  */
 - (void)timerStart;

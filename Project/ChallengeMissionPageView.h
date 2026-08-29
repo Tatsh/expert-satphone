@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The challenge-mode mission page.
+ * The challenge-mode mission page.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionPageView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -26,24 +26,24 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What a @c ChallengeMissionPageView tells its owner.
+ * What a @c ChallengeMissionPageView tells its owner.
  *
  * The delegate ivar is weak and untyped in the metadata (@c \@,W,N). @c -closeMenu is sent
  * directly, so it is effectively required; @c -cubePurchase and @c -refreshStatus are guarded by
  * @c -respondsToSelector: and are optional.
  */
 @protocol ChallengeMissionPageViewDelegate <NSObject>
-/** @brief The page should be dismissed. */
+/** The page should be dismissed. */
 - (void)closeMenu;
 @optional
-/** @brief The player asked to buy cubes. */
+/** The player asked to buy cubes. */
 - (void)cubePurchase;
-/** @brief The player's status changed and should be refreshed. */
+/** The player's status changed and should be refreshed. */
 - (void)refreshStatus;
 @end
 
 /**
- * @brief The challenge-mode mission page: two toggled tables over a shared plate.
+ * The challenge-mode mission page: two toggled tables over a shared plate.
  */
 // clang-format off
 // Kept one protocol per line: clang-format would otherwise pack the list onto a continuation line
@@ -55,13 +55,13 @@ NS_ASSUME_NONNULL_BEGIN
 // clang-format on
 
 /**
- * @brief The object told about close, purchase, and refresh events. Held weakly.
+ * The object told about close, purchase, and refresh events. Held weakly.
  * @ghidraAddress 0xae940 (getter), 0xae960 (setter)
  */
 @property(nonatomic, weak, nullable) id<ChallengeMissionPageViewDelegate> aDelegate;
 
 /**
- * @brief Builds the background plate, the title, close and list buttons, and starts the
+ * Builds the background plate, the title, close and list buttons, and starts the
  * sheet-list download.
  * @param frame The view's frame.
  * @return The initialised view.
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief List-button callback: records the tapped list, swaps the two button images, downloads
+ * List-button callback: records the tapped list, swaps the two button images, downloads
  * the reward list the first time the reward tab is chosen, and otherwise cross-fades the tables.
  * @param sender The tapped @c UIButton, whose tag is the list index (0 mission, 1 reward).
  * @ghidraAddress 0xab448
@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)tapListBtn:(nullable id)sender;
 
 /**
- * @brief Cross-fades between the mission-sheet and reward tables, updating the empty-state label
+ * Cross-fades between the mission-sheet and reward tables, updating the empty-state label
  * and re-enabling the buttons when both lists are empty.
  * @param list The list to switch to (0 mission, 1 reward).
  * @ghidraAddress 0xab60c
@@ -86,14 +86,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)switchListView:(int)list;
 
 /**
- * @brief Close-button callback: tells the delegate to dismiss the page.
+ * Close-button callback: tells the delegate to dismiss the page.
  * @param sender The tapped control.
  * @ghidraAddress 0xabbf4
  */
 - (void)tapClose:(nullable id)sender;
 
 /**
- * @brief Alert callback: closes the page, or reports a challenge-mode session error when the
+ * Alert callback: closes the page, or reports a challenge-mode session error when the
  * boxed flag is set.
  * @param sender The boxed @c BOOL selection.
  * @ghidraAddress 0xabc34
@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)cancelSettingMenu:(nullable id)sender;
 
 /**
- * @brief Close-button callback while a sheet is shown: returns to the sheet list, otherwise tells
+ * Close-button callback while a sheet is shown: returns to the sheet list, otherwise tells
  * the delegate to dismiss the page.
  * @param sender The tapped control.
  * @ghidraAddress 0xabce0
@@ -109,14 +109,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)closeSettingMenu:(nullable id)sender;
 
 /**
- * @brief Called when the presented mission sheet finishes displaying: clears the download-wait
+ * Called when the presented mission sheet finishes displaying: clears the download-wait
  * flag and re-enables the close button.
  * @ghidraAddress 0xabda0
  */
 - (void)missionSheetDisplayEnd;
 
 /**
- * @brief @c DownloaderDelegate success callback: parses the sheet-list or reward-list JSON and
+ * @c DownloaderDelegate success callback: parses the sheet-list or reward-list JSON and
  * builds the matching table.
  * @param downloader The finished @c SessionDownloader; its tag selects the list (0 sheet, 1
  * reward).
@@ -125,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloaderFinished:(nullable id)downloader;
 
 /**
- * @brief @c DownloaderDelegate failure callback: re-enables the buttons and shows the server-error
+ * @c DownloaderDelegate failure callback: re-enables the buttons and shows the server-error
  * alert.
  * @param downloader The failed @c SessionDownloader.
  * @ghidraAddress 0xacf9c
@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloaderError:(nullable id)downloader;
 
 /**
- * @brief Whitens the tint of a section header view before it is displayed.
+ * Whitens the tint of a section header view before it is displayed.
  * @param tableView The table asking.
  * @param view The header view about to be drawn.
  * @param section The section the header belongs to.
@@ -144,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
                forSection:(NSInteger)section;
 
 /**
- * @brief Vends a mission-sheet or reward cell, alternating the background plate per row and
+ * Vends a mission-sheet or reward cell, alternating the background plate per row and
  * formatting the sheet's period.
  * @param tableView The table asking.
  * @param indexPath The row's index path.
@@ -155,7 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
          cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath;
 
 /**
- * @brief Empty @c UITableViewDelegate hook.
+ * Empty @c UITableViewDelegate hook.
  * @param tableView The table asking. The binary ignores it.
  * @param cell The cell about to be drawn. The binary ignores it.
  * @param indexPath The row's index path. The binary ignores it.
@@ -166,7 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
     forRowAtIndexPath:(nonnull NSIndexPath *)indexPath;
 
 /**
- * @brief The fixed per-row height, in points.
+ * The fixed per-row height, in points.
  * @param tableView The table asking.
  * @param indexPath The row's index path.
  * @return The fixed row height, in points.
@@ -176,7 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
     heightForRowAtIndexPath:(nonnull NSIndexPath *)indexPath;
 
 /**
- * @brief Two sections on the mission table when event sheets exist, otherwise one.
+ * Two sections on the mission table when event sheets exist, otherwise one.
  * @param tableView The table asking.
  * @return Two when event sheets exist, otherwise one.
  * @ghidraAddress 0xad898
@@ -184,7 +184,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSInteger)numberOfSectionsInTableView:(nonnull UITableView *)tableView;
 
 /**
- * @brief The row count for the given section and table.
+ * The row count for the given section and table.
  * @param tableView The table asking.
  * @param section The section asked about.
  * @return The row count for that section of that table.
@@ -193,7 +193,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
 
 /**
- * @brief Row-selection callback: opens a @c ChallengeMissionSheetView (mission list) or a
+ * Row-selection callback: opens a @c ChallengeMissionSheetView (mission list) or a
  * @c MissionRewardDownloadView (reward list).
  * @param tableView The table sending the message.
  * @param indexPath The tapped row's index path.
@@ -203,7 +203,7 @@ NS_ASSUME_NONNULL_BEGIN
     didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath;
 
 /**
- * @brief Presents the appropriate alert for a challenge-connect error carried in the response
+ * Presents the appropriate alert for a challenge-connect error carried in the response
  * dictionary.
  * @param info The response dictionary, keyed by @c "status" and optionally @c "err_message".
  * @ghidraAddress 0xacaa8
@@ -211,34 +211,34 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)challengeConnectError:(nullable NSDictionary *)info;
 
 /**
- * @brief Cross-fades between the sheet list and the presented mission sheet.
+ * Cross-fades between the sheet list and the presented mission sheet.
  * @param showSheet YES to fade the mission sheet in, NO to return to the list.
  * @ghidraAddress 0xadf4c
  */
 - (void)switchMissionView:(BOOL)showSheet;
 
 /**
- * @brief @c UIAlertView delegate callback: reports a challenge-mode session error for tag 9999.
+ * @c UIAlertView delegate callback: reports a challenge-mode session error for tag 9999.
  * @param info The alert-result dictionary, keyed by @c "Tag".
  * @ghidraAddress 0xae498
  */
 - (void)alertSelect:(nullable NSDictionary *)info;
 
 /**
- * @brief Reward-download callback: cross-fades the reward-download view out and removes it.
+ * Reward-download callback: cross-fades the reward-download view out and removes it.
  * @param sender The reward-download view.
  * @ghidraAddress 0xae558
  */
 - (void)closeRewardWin:(nullable id)sender;
 
 /**
- * @brief Forwards a cube-purchase request to the delegate when it responds to @c -cubePurchase .
+ * Forwards a cube-purchase request to the delegate when it responds to @c -cubePurchase .
  * @ghidraAddress 0xae7e0
  */
 - (void)cubePurchase;
 
 /**
- * @brief Forwards a status refresh to the delegate when it responds to @c -refreshStatus .
+ * Forwards a status refresh to the delegate when it responds to @c -refreshStatus .
  * @ghidraAddress 0xae890
  */
 - (void)refreshStatus;

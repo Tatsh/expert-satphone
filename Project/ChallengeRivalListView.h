@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The challenge-mode rival-list modal.
+ * The challenge-mode rival-list modal.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeRivalListView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at
@@ -16,28 +16,28 @@ NS_ASSUME_NONNULL_BEGIN
 @class ChallengeRivalListView;
 
 /**
- * @brief Told when the rival modal closes.
+ * Told when the rival modal closes.
  */
 @protocol ChallengeRivalListViewDelegate <NSObject>
 @optional
-/** @brief Close the modal. */
+/** Close the modal. */
 - (void)closeMenu;
 @end
 
 /**
- * @brief A modal that downloads the player's rival list, shows it in a table, and lets each rival's
+ * A modal that downloads the player's rival list, shows it in a table, and lets each rival's
  * registration be removed through the server.
  */
 @interface ChallengeRivalListView : UIView <ChallengeListViewDelegate>
 
 /**
- * @brief The delegate told when the modal closes. Held weakly.
+ * The delegate told when the modal closes. Held weakly.
  * @ghidraAddress 0xdb17c (getter), 0xdb19c (setter)
  */
 @property(nonatomic, weak, nullable) id<ChallengeRivalListViewDelegate> aDelegate;
 
 /**
- * @brief Builds the modal and kicks off the rival-list download.
+ * Builds the modal and kicks off the rival-list download.
  * @param frame The modal's frame.
  * @return The initialised view.
  * @ghidraAddress 0xd9ec4

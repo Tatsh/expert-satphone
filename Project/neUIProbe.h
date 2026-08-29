@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Runtime UIKit diagnostics for the settings sheet's presentation and navigation.
+ * Runtime UIKit diagnostics for the settings sheet's presentation and navigation.
  *
  * This code is NOT part of the original binary. Every entry point below is an empty inline unless
  * the build defines @c JBDBG (see the JBDBG CMake option and @c neDebugLog.h ), so a faithful
@@ -28,7 +28,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Installs the touch tracer, the main-thread heartbeat, and the run-loop watchdog.
+ * Installs the touch tracer, the main-thread heartbeat, and the run-loop watchdog.
  *
  * Safe to call more than once; only the first call installs. Must be called on the main thread,
  * after the key window exists. Does nothing unless the build defines @c JBDBG .
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 void neUIProbeInstall(void);
 
 /**
- * @brief Logs one line describing where a view controller currently sits in UIKit's appearance and
+ * Logs one line describing where a view controller currently sits in UIKit's appearance and
  *        transition state machine.
  *
  * Reports the presented/dismissed/moving flags, whether the view is in a window, whether a
@@ -50,7 +50,7 @@ void neUIProbeInstall(void);
 void neUIProbeLogController(const char *tag, UIViewController *_Nullable controller);
 
 /**
- * @brief Registers a completion on the controller's current transition coordinator.
+ * Registers a completion on the controller's current transition coordinator.
  *
  * Call from @c -viewWillAppear: or @c -viewWillDisappear: . The completion logs when the
  * transition ends and, critically, whether it was @b cancelled -- a cancelled transition leaves a
@@ -66,7 +66,7 @@ void neUIProbeLogController(const char *tag, UIViewController *_Nullable control
 void neUIProbeTraceTransition(const char *tag, UIViewController *controller);
 
 /**
- * @brief Logs every window and, for the key window, its view tree.
+ * Logs every window and, for the key window, its view tree.
  *
  * Each view reports its class, frame, alpha, hidden and user-interaction flags, so a full-screen
  * transparent view that takes every touch is visible as a row in the dump. Bounded in depth and in

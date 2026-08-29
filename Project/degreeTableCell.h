@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A row of the editor's degree list.
+ * A row of the editor's degree list.
  *
  * Reconstructed from Ghidra program Jubeat (class degreeTableCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -22,12 +22,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A cell showing a degree's name, unlock cost, and a lock overlay.
+ * A cell showing a degree's name, unlock cost, and a lock overlay.
  */
 @interface degreeTableCell : UITableViewCell
 
 /**
- * @brief Builds the row's subviews, laid out against the table's width.
+ * Builds the row's subviews, laid out against the table's width.
  *
  * The same four subviews as @c accessoryTableCell, built in the same order, but with a wider item
  * label that starts further left — this list has no per-row artwork to leave room for.
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithWidth:(int)width;
 /**
- * @brief Fills the row in from a four-element array.
+ * Fills the row in from a four-element array.
  *
  * Unlike @c accessoryTableCell, element 2 is a **format string** and element 1 is its argument, so
  * the data controls how the name is rendered. Nothing is loaded into @c icon, which stays empty for

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The scratch completion celebration view.
+ * The scratch completion celebration view.
  *
  * Reconstructed from Ghidra program Jubeat (class ScratchCompleteView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -20,31 +20,31 @@ NS_ASSUME_NONNULL_BEGIN
 @class ScratchInfo;
 
 /**
- * @brief Delegate for the scratch completion view.
+ * Delegate for the scratch completion view.
  */
 @protocol ScratchCompleteViewDelegate <NSObject>
 @optional
 /**
- * @brief The completion view closed.
+ * The completion view closed.
  * @param view The view that closed.
  */
 - (void)scratchCompleteViewDidClose:(ScratchCompleteView *)view;
 @end
 
 /**
- * @brief The view shown when a scratch is completed.
+ * The view shown when a scratch is completed.
  */
 @interface ScratchCompleteView : UIView
 
 /**
- * @brief The delegate. The binary names the accessor pair @c aDelegate / @c setADelegate: over the
+ * The delegate. The binary names the accessor pair @c aDelegate / @c setADelegate: over the
  *        @c _aDelegate ivar.
  * @ghidraAddress 0x34b350
  */
 @property(nonatomic, weak, nullable) id<ScratchCompleteViewDelegate> aDelegate;
 
 /**
- * @brief Builds the view for a completed scratch.
+ * Builds the view for a completed scratch.
  * @param frame The frame.
  * @param musicInfo The tune that was scratched (provides musicID, musicName, artistName).
  * @return The initialised view.
@@ -53,13 +53,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame musicInfo:(nullable ScratchInfo *)musicInfo;
 
 /**
- * @brief Starts the reveal animation.
+ * Starts the reveal animation.
  * @ghidraAddress 0x16e730
  */
 - (void)animationStart;
 
 /**
- * @brief Closes the view with a fade-out.
+ * Closes the view with a fade-out.
  * @ghidraAddress 0x16f244
  */
 - (void)closeView;

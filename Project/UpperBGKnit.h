@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The knit upper-background decoration.
+ * The knit upper-background decoration.
  *
  * Reconstructed from Ghidra program Jubeat (class UpperBGKnit, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -20,19 +20,19 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A four-line knit wave drawn across the upper background.
+ * A four-line knit wave drawn across the upper background.
  */
 @interface UpperBGKnit : NSObject
 
 /**
- * @brief Builds the empty decoration.
+ * Builds the empty decoration.
  * @return The initialised object.
  * @ghidraAddress 0x193e38
  */
 - (instancetype)init;
 
 /**
- * @brief Sets up the geometry, palette, and precomputed wave tables.
+ * Sets up the geometry, palette, and precomputed wave tables.
  *
  * Fetches the base, line, and wave colours from the shared @c KnitColorManager, records the draw
  * area (widened by two points), and fills the four wave tables and the pulse table. Whether the
@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
           isPad:(BOOL)isPad;
 
 /**
- * @brief Advances the plug-in pulse tables and eases the baseline towards its target.
+ * Advances the plug-in pulse tables and eases the baseline towards its target.
  *
  * Clears the accumulated pulse buffer and rebuilds it from every active rise, decaying each rise's
  * timer. Then moves @c wavePosY towards @c pushWaveHeight : gently while playing, or with a fixed
@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)pulseUpdate:(int)tension isResult:(BOOL)isResult;
 
 /**
- * @brief Draws the four wave lines and the background fill into the given layers.
+ * Draws the four wave lines and the background fill into the given layers.
  *
  * @param layers The six @c Texture2D drawing layers, indexed 0 to 5.
  * @param tension The current tension, forwarded to @c -pulseUpdate:isResult: .
@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderUpperBg:(NSArray<Texture2D *> *)layers tension:(int)tension isResult:(BOOL)isResult;
 
 /**
- * @brief Triggers a rise pulse in every column at one row.
+ * Triggers a rise pulse in every column at one row.
  *
  * The first argument only selects the column whose existing pulse is tested; when that cell is
  * clear the pulse is started in all four columns at row @c riseColumn .
@@ -87,28 +87,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)riseUp:(int)row riseColumn:(int)riseColumn;
 
 /**
- * @brief Commits all six drawing layers, from front to back.
+ * Commits all six drawing layers, from front to back.
  * @param layers The six @c Texture2D drawing layers, indexed 0 to 5.
  * @ghidraAddress 0x194d94
  */
 - (void)commitBg:(NSArray<Texture2D *> *)layers;
 
 /**
- * @brief Sets the tilt angle applied to the waves.
+ * Sets the tilt angle applied to the waves.
  * @param deg The tilt, in the units the wave maths expects.
  * @ghidraAddress 0x194eec
  */
 - (void)setDeg:(float)deg;
 
 /**
- * @brief Sets the acceleration amount.
+ * Sets the acceleration amount.
  * @param accelerated The acceleration.
  * @ghidraAddress 0x194efc
  */
 - (void)addAccelerated:(float)accelerated;
 
 /**
- * @brief Starts or extends a plug-in wave pulse when the value crosses the threshold.
+ * Starts or extends a plug-in wave pulse when the value crosses the threshold.
  * @param value The plug amount; a pulse starts only at or above @c pi/16 .
  * @ghidraAddress 0x194f0c
  */

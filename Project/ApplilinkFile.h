@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Reconstructed interface for the applilink advert SDK's @c ApplilinkFile helper.
+ * Reconstructed interface for the applilink advert SDK's @c ApplilinkFile helper.
  *
  * @c ApplilinkFile is the SDK's stateless file and cache utility: it fetches banner, resource, and
  * data files from URLs (backed by an on-disk cache), saves, deletes, and tests files under a cache
@@ -16,7 +16,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The outcome of a cached-file fetch.
+ * The outcome of a cached-file fetch.
  *
  * Backed by @c int to match the 4-byte value the fetch methods return in @c w0.
  */
@@ -30,12 +30,12 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 };
 
 /**
- * @brief Applilink SDK banner, resource, and data file cache utilities.
+ * Applilink SDK banner, resource, and data file cache utilities.
  */
 @interface ApplilinkFile : NSObject
 
 /**
- * @brief Fetch a banner image, caching it under the banner-image cache directory.
+ * Fetch a banner image, caching it under the banner-image cache directory.
  *
  * When @p url is an @c NSNull, or the banner is already cached, the file is left untouched.
  * Otherwise the file is downloaded, decoded as a @c UIImage to validate it, and written to the
@@ -47,7 +47,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (ApplilinkFileFetchResult)getBannerWithUrl:(nullable id)url;
 
 /**
- * @brief Fetch a resource image, caching it under the resource cache directory.
+ * Fetch a resource image, caching it under the resource cache directory.
  *
  * The resource is downloaded and validated as a @c UIImage before being written to the cache under
  * the URL's trailing file-name component; an already-cached resource is left untouched.
@@ -58,7 +58,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (ApplilinkFileFetchResult)getResourceWithUrl:(nullable NSString *)url;
 
 /**
- * @brief Fetch a data file, caching it under the resource cache directory.
+ * Fetch a data file, caching it under the resource cache directory.
  *
  * Unlike @c +getResourceWithUrl: the payload is not decoded as an image; any downloaded data is
  * written to the cache under the URL's trailing file-name component.
@@ -69,7 +69,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (ApplilinkFileFetchResult)getDataWithUrl:(nullable NSString *)url;
 
 /**
- * @brief Fetch a data file, caching it under the cache-data directory.
+ * Fetch a data file, caching it under the cache-data directory.
  * @param url The data URL.
  * @return The fetch outcome.
  * @ghidraAddress 0x237920
@@ -77,7 +77,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (ApplilinkFileFetchResult)getCacheDataWithUrl:(nullable NSString *)url;
 
 /**
- * @brief Download the contents of a URL synchronously.
+ * Download the contents of a URL synchronously.
  * @param url The URL to download.
  * @return The downloaded data, or @c nil when the request failed.
  * @ghidraAddress 0x237a40
@@ -85,7 +85,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (nullable NSData *)getFileWithUrl:(nullable NSString *)url;
 
 /**
- * @brief Write data to a named file under a directory.
+ * Write data to a named file under a directory.
  * @param data The data to write.
  * @param file The file name to write under @p path.
  * @param path The directory to write into.
@@ -96,7 +96,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
             path:(nullable NSString *)path;
 
 /**
- * @brief Delete a named file under a directory.
+ * Delete a named file under a directory.
  * @param file The file name to delete under @p path.
  * @param path The directory containing the file.
  * @ghidraAddress 0x237bd8
@@ -104,7 +104,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (void)deleteFile:(nullable NSString *)file path:(nullable NSString *)path;
 
 /**
- * @brief Delete a file at a path.
+ * Delete a file at a path.
  *
  * The path is deleted only when it is non-@c nil and non-empty.
  * @param path The path to delete.
@@ -113,7 +113,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (void)deleteFile:(nullable NSString *)path;
 
 /**
- * @brief Test whether a named file exists under a directory.
+ * Test whether a named file exists under a directory.
  * @param file The file name to test under @p path.
  * @param path The directory to look in.
  * @return @c YES when the file exists.
@@ -122,7 +122,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (BOOL)existFile:(nullable NSString *)file path:(nullable NSString *)path;
 
 /**
- * @brief Test whether a named image file exists and is loadable under a directory.
+ * Test whether a named image file exists and is loadable under a directory.
  *
  * When the file exists but cannot be decoded as a @c UIImage, it is deleted and @c NO is returned.
  * @param file The image file name to test under @p path.
@@ -133,7 +133,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (BOOL)existImageFile:(nullable NSString *)file path:(nullable NSString *)path;
 
 /**
- * @brief Create the applilink cache folder tree if it is missing.
+ * Create the applilink cache folder tree if it is missing.
  *
  * Ensures the @c applilink directory in the temporary directory and, beneath its @c contents
  * subdirectory, the @c cache_img, @c cache_data, and @c res directories all exist.
@@ -142,35 +142,35 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (void)createFolder;
 
 /**
- * @brief The @c applilink/contents directory under the temporary directory.
+ * The @c applilink/contents directory under the temporary directory.
  * @return The contents directory path.
  * @ghidraAddress 0x238230
  */
 + (nullable NSString *)getContentsPath;
 
 /**
- * @brief The banner-image cache directory (@c contents/cache_img).
+ * The banner-image cache directory (@c contents/cache_img).
  * @return The banner cache directory path.
  * @ghidraAddress 0x2382bc
  */
 + (nullable NSString *)getBannerCachePath;
 
 /**
- * @brief The resource directory (@c contents/res).
+ * The resource directory (@c contents/res).
  * @return The resource directory path.
  * @ghidraAddress 0x238320
  */
 + (nullable NSString *)getResourcePath;
 
 /**
- * @brief The cache-data directory (@c contents/cache_data).
+ * The cache-data directory (@c contents/cache_data).
  * @return The cache-data directory path.
  * @ghidraAddress 0x238384
  */
 + (nullable NSString *)getCacheDataPath;
 
 /**
- * @brief Build the HTML template path for an ad model and location.
+ * Build the HTML template path for an ad model and location.
  *
  * The file name is formatted as @c "<adModel>_<adLocation>.html" under the contents directory.
  * @param adModel The ad-model identifier.
@@ -182,7 +182,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
                                        adLocation:(nullable NSString *)adLocation;
 
 /**
- * @brief Delete the entire contents directory tree.
+ * Delete the entire contents directory tree.
  *
  * The selector keeps the binary's misspelling (@c delateFolder) verbatim.
  * @ghidraAddress 0x2384bc
@@ -190,7 +190,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (void)delateFolder;
 
 /**
- * @brief Prune stale banner-image cache files.
+ * Prune stale banner-image cache files.
  *
  * Ensures the banner cache directory exists, then removes every file whose modification date is
  * more than one day old.
@@ -199,7 +199,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (void)clearCacheBannerImage;
 
 /**
- * @brief Prune stale cache-data files.
+ * Prune stale cache-data files.
  *
  * Ensures the cache-data directory exists, then removes every file whose modification date is more
  * than one day old.
@@ -208,7 +208,7 @@ typedef NS_ENUM(int, ApplilinkFileFetchResult) {
 + (void)clearCacheData;
 
 /**
- * @brief Delete and recreate the banner-image cache directory.
+ * Delete and recreate the banner-image cache directory.
  * @ghidraAddress 0x238cc0
  */
 + (void)allClearCacheBannerImage;

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief KUnzip's own minizip I/O callback sets.
+ * KUnzip's own minizip I/O callback sets.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Opens the file-handle-backed archive for reading.
+ * Opens the file-handle-backed archive for reading.
  *
  * Wraps @p filename in an @c NSString, opens it with @c +[NSFileHandle
  * fileHandleForReadingAtPath:], stores the handle on the @c KUnzip via @c -setFileHandle: when
@@ -39,7 +39,7 @@ extern "C" {
 voidpf KUnzip_fopen_filehandle_func(voidpf opaque, const char *filename, int mode);
 
 /**
- * @brief Reads @p size bytes from the file-handle-backed archive into @p buf.
+ * Reads @p size bytes from the file-handle-backed archive into @p buf.
  *
  * Reads at the handle's current @c offsetInFile through @c -readDataOfLength:, clamped so a read
  * can never cross @c dataRange.length, which this backend treats as an absolute end offset.
@@ -54,7 +54,7 @@ voidpf KUnzip_fopen_filehandle_func(voidpf opaque, const char *filename, int mod
 uLong KUnzip_fread_filehandle_func(voidpf opaque, voidpf stream, void *buf, uLong size);
 
 /**
- * @brief Write stub for the file-handle-backed archive; always fails.
+ * Write stub for the file-handle-backed archive; always fails.
  *
  * @param opaque The @c KUnzip; ignored.
  * @param stream The minizip stream cookie; ignored.
@@ -66,7 +66,7 @@ uLong KUnzip_fread_filehandle_func(voidpf opaque, voidpf stream, void *buf, uLon
 uLong KUnzip_fwrite_filehandle_func(voidpf opaque, voidpf stream, const void *buf, uLong size);
 
 /**
- * @brief Reports the file-handle-backed archive's current position.
+ * Reports the file-handle-backed archive's current position.
  *
  * @param opaque The @c KUnzip that owns the handle.
  * @param stream The minizip stream cookie; ignored.
@@ -76,7 +76,7 @@ uLong KUnzip_fwrite_filehandle_func(voidpf opaque, voidpf stream, const void *bu
 long KUnzip_ftell_filehandle_func(voidpf opaque, voidpf stream);
 
 /**
- * @brief Seeks the file-handle-backed archive.
+ * Seeks the file-handle-backed archive.
  *
  * The base is 0 for @c ZLIB_FILEFUNC_SEEK_SET, the handle's @c offsetInFile for
  * @c ZLIB_FILEFUNC_SEEK_CUR, and @c dataRange.length (an absolute end offset) for
@@ -92,7 +92,7 @@ long KUnzip_ftell_filehandle_func(voidpf opaque, voidpf stream);
 long KUnzip_fseek_filehandle_func(voidpf opaque, voidpf stream, uLong offset, int origin);
 
 /**
- * @brief Closes the file-handle-backed archive.
+ * Closes the file-handle-backed archive.
  *
  * @param opaque The @c KUnzip that owns the handle.
  * @param stream The minizip stream cookie; ignored.
@@ -102,7 +102,7 @@ long KUnzip_fseek_filehandle_func(voidpf opaque, voidpf stream, uLong offset, in
 int KUnzip_fclose_filehandle_func(voidpf opaque, voidpf stream);
 
 /**
- * @brief Reports the error state of the file-handle-backed archive.
+ * Reports the error state of the file-handle-backed archive.
  *
  * @param opaque The @c KUnzip; ignored.
  * @param stream The minizip stream cookie; ignored.
@@ -112,7 +112,7 @@ int KUnzip_fclose_filehandle_func(voidpf opaque, voidpf stream);
 int KUnzip_ferror_filehandle_func(voidpf opaque, voidpf stream);
 
 /**
- * @brief Opens the memory-backed archive by rewinding the cursor.
+ * Opens the memory-backed archive by rewinding the cursor.
  *
  * Sends @c -setDataCurrentPos: with @c dataRange.location and returns the @c KUnzip itself as the
  * stream cookie. @p filename and @p mode are ignored.
@@ -126,7 +126,7 @@ int KUnzip_ferror_filehandle_func(voidpf opaque, voidpf stream);
 voidpf KUnzip_fopen_mem_func(voidpf opaque, const char *filename, int mode);
 
 /**
- * @brief Reads @p size bytes from the memory-backed archive into @p buf.
+ * Reads @p size bytes from the memory-backed archive into @p buf.
  *
  * Copies out of @c data starting at the absolute cursor @c dataCurrentPos through
  * @c -getBytes:range:, clamped to @c dataRange.location + @c dataRange.length, then advances the
@@ -142,7 +142,7 @@ voidpf KUnzip_fopen_mem_func(voidpf opaque, const char *filename, int mode);
 uLong KUnzip_fread_mem_func(voidpf opaque, voidpf stream, void *buf, uLong size);
 
 /**
- * @brief Write stub for the memory-backed archive; always fails.
+ * Write stub for the memory-backed archive; always fails.
  *
  * @param opaque The @c KUnzip; ignored.
  * @param stream The minizip stream cookie; ignored.
@@ -154,7 +154,7 @@ uLong KUnzip_fread_mem_func(voidpf opaque, voidpf stream, void *buf, uLong size)
 uLong KUnzip_fwrite_mem_func(voidpf opaque, voidpf stream, const void *buf, uLong size);
 
 /**
- * @brief Reports the memory-backed archive's current position, relative to the range start.
+ * Reports the memory-backed archive's current position, relative to the range start.
  *
  * @param opaque The @c KUnzip that owns the cursor and range.
  * @param stream The minizip stream cookie; ignored.
@@ -164,7 +164,7 @@ uLong KUnzip_fwrite_mem_func(voidpf opaque, voidpf stream, const void *buf, uLon
 long KUnzip_ftell_mem_func(voidpf opaque, voidpf stream);
 
 /**
- * @brief Seeks the memory-backed archive.
+ * Seeks the memory-backed archive.
  *
  * The base is @c dataRange.location for @c ZLIB_FILEFUNC_SEEK_SET, @c dataCurrentPos for
  * @c ZLIB_FILEFUNC_SEEK_CUR, and @c dataRange.location + @c dataRange.length for
@@ -180,7 +180,7 @@ long KUnzip_ftell_mem_func(voidpf opaque, voidpf stream);
 long KUnzip_fseek_mem_func(voidpf opaque, voidpf stream, uLong offset, int origin);
 
 /**
- * @brief Closes the memory-backed archive.
+ * Closes the memory-backed archive.
  *
  * @param opaque The @c KUnzip; ignored.
  * @param stream The minizip stream cookie; ignored.
@@ -190,7 +190,7 @@ long KUnzip_fseek_mem_func(voidpf opaque, voidpf stream, uLong offset, int origi
 int KUnzip_fclose_mem_func(voidpf opaque, voidpf stream);
 
 /**
- * @brief Reports the error state of the memory-backed archive.
+ * Reports the error state of the memory-backed archive.
  *
  * @param opaque The @c KUnzip; ignored.
  * @param stream The minizip stream cookie; ignored.

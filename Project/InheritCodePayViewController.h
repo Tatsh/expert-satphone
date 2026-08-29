@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The inherit-code payment view controller — the screen that hosts the inherit-code issue
+ * The inherit-code payment view controller — the screen that hosts the inherit-code issue
  * panel.
  *
  * Reconstructed from Ghidra program Jubeat (class InheritCodePayViewController, image base
@@ -19,12 +19,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A view controller presenting the inherit-code issue panel.
+ * A view controller presenting the inherit-code issue panel.
  */
 @interface InheritCodePayViewController : UIViewController
 
 /**
- * @brief Builds the controller: sets the navigation title and subscribes to the app
+ * Builds the controller: sets the navigation title and subscribes to the app
  *        suspend and resume notifications.
  * @return The initialised controller.
  * @ghidraAddress 0xaeb90

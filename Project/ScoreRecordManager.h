@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The player's score record store, backed by Core Data.
+ * The player's score record store, backed by Core Data.
  *
  * Reconstructed from Ghidra program Jubeat (class ScoreRecordManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -16,26 +16,26 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Owns the persisted score records.
+ * Owns the persisted score records.
  */
 @interface ScoreRecordManager : NSObject
 
 /**
- * @brief The shared instance.
+ * The shared instance.
  *
  * DECLARED ONLY — the body has not been located yet. See TYPES_PENDING.md.
  */
 @property(class, nonatomic, readonly) ScoreRecordManager *sharedManager;
 
 /**
- * @brief The Core Data context the records live in.
+ * The Core Data context the records live in.
  *
  * Backed by the @c _managedObjectContext ivar, whose offset global is at 0x34b39c. Nullable:
  * @c -saveRecords guards against it being nil rather than assuming it exists.
  */
 @property(nonatomic, readonly, nullable) NSManagedObjectContext *managedObjectContext;
 /**
- * @brief The compiled Core Data model, loaded from the bundle on first use.
+ * The compiled Core Data model, loaded from the bundle on first use.
  *
  * Built lazily by a hand-written getter, not synthesised. Nil when the model resource is missing,
  * which is the only route by which @c managedObjectContext can end up nil.
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly, nullable) NSManagedObjectModel *managedObjectModel;
 /**
- * @brief The store coordinator, opened on first use.
+ * The store coordinator, opened on first use.
  *
  * Also hand-written and lazy. It opens a SQLite store in the Documents directory with automatic
  * migration and automatic mapping-model inference both enabled, which is what allows
@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, nullable) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 
 /**
- * @brief Flushes pending score-record changes to the store.
+ * Flushes pending score-record changes to the store.
  *
  * Does nothing when the context is nil or reports no changes. Both the result of @c -save: and the
  * @c NSError it can write are discarded, so a failed save is silent.

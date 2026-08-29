@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A paging scroll view whose neighbouring pages stay touchable.
+ * A paging scroll view whose neighbouring pages stay touchable.
  *
  * Reconstructed from Ghidra program Jubeat (class GenrePagingScrollView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A @c UIScrollView that hit-tests its own subviews directly.
+ * A @c UIScrollView that hit-tests its own subviews directly.
  *
  * Its one method is instruction-for-instruction the same as
  * @c -[PagingScrollView hitTest:withEvent:]. The binary ships the two as separate classes with no

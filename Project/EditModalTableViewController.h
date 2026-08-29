@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The grouped-table content controller inside the edit-metadata modal.
+ * The grouped-table content controller inside the edit-metadata modal.
  *
  * Reconstructed from Ghidra program Jubeat (class EditModalTableViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -18,7 +18,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What an @c EditModalTableViewController tells its owner.
+ * What an @c EditModalTableViewController tells its owner.
  *
  * The delegate ivar is a bare weak @c id in the binary, so this protocol collects the one selector
  * the controller actually sends it. The concrete delegate is the wrapping @c EditModalView .
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @optional
 /**
- * @brief Sent when the upload row is tapped, asking the owner to save and re-select the entry.
+ * Sent when the upload row is tapped, asking the owner to save and re-select the entry.
  * @param sender The controller.
  */
 - (void)selectUpdate:(EditModalTableViewController *)sender;
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * @brief The edit-metadata form: text fields, a level slider, a copy switch, and an upload row.
+ * The edit-metadata form: text fields, a level slider, a copy switch, and an upload row.
  */
 // clang-format off
 // One protocol per line: a continuation line that begins with ": Base <" is read by Doxygen as
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 // clang-format on
 
 /**
- * @brief The object told about the upload-row tap.
+ * The object told about the upload-row tap.
  *
  * Stored weakly (the binary uses @c objc_storeWeak / @c objc_loadWeakRetained ).
  * @ghidraAddress 0x1e4d2c
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak, nullable) id<EditModalTableViewControllerDelegate> delegate;
 
 /**
- * @brief Builds the controller, choosing whether the upload section is present.
+ * Builds the controller, choosing whether the upload section is present.
  * @param enableUpload Whether the extra upload-button section is shown.
  * @return The initialised controller.
  * @ghidraAddress 0x1e2ec0
@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initEnableUpload:(BOOL)enableUpload;
 
 /**
- * @brief Persists the edited field texts, level, and copy flag to the shared edit data.
+ * Persists the edited field texts, level, and copy flag to the shared edit data.
  * @ghidraAddress 0x1e3d8c
  */
 - (void)setEditorInfo;

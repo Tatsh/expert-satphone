@@ -1,6 +1,6 @@
 /**
  * @file EditRendererConf.h
- * @brief Chart-editor render configuration passed to the edit-mode note renderers.
+ * Chart-editor render configuration passed to the edit-mode note renderers.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -16,30 +16,30 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The marker, sound, and display settings the chart editor's renderer draws with.
+ * The marker, sound, and display settings the chart editor's renderer draws with.
  */
 @interface EditRendererConf : NSObject
 
 /**
- * @brief The marker resource identifier for the chart being edited.
+ * The marker resource identifier for the chart being edited.
  * @ghidraAddress 0x20ad50
  */
 @property(nonatomic, assign, nullable) NSString *markerID;
 
 /**
- * @brief The difficulty index the board is drawn for. Encodes as @c I .
+ * The difficulty index the board is drawn for. Encodes as @c I .
  * @ghidraAddress 0x20ad70
  */
 @property(nonatomic, assign) unsigned int diff;
 
 /**
- * @brief The chart level. Encodes as @c I .
+ * The chart level. Encodes as @c I .
  * @ghidraAddress 0x20ad90
  */
 @property(nonatomic, assign) unsigned int level;
 
 /**
- * @brief The tune identifier. Encodes as @c I .
+ * The tune identifier. Encodes as @c I .
  * @ghidraAddress 0x20adb0
  */
 @property(nonatomic, assign) unsigned int tuneID;

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The store's genre table, locked to portrait.
+ * The store's genre table, locked to portrait.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreGenreTableViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A genre table that rotates only between the two portrait orientations.
+ * A genre table that rotates only between the two portrait orientations.
  */
 @interface StoreGenreTableViewController : UITableViewController
 @end

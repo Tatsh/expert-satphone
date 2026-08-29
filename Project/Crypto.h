@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Hashing and AES helpers.
+ * Hashing and AES helpers.
  *
  * Reconstructed from Ghidra program Jubeat (class Crypto, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -13,12 +13,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Four CommonCrypto wrappers.
+ * Four CommonCrypto wrappers.
  */
 @interface Crypto : NSObject
 
 /**
- * @brief SHA-1 of a data buffer, returned as the raw twenty-byte digest.
+ * SHA-1 of a data buffer, returned as the raw twenty-byte digest.
  *
  * The only one of the three digest methods that takes data rather than a string, and the only one
  * whose length handling is correct.
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nonnull NSData *)createHash:(nullable NSData *)data;
 
 /**
- * @brief SHA-1 of a string, returned as forty lower-case hexadecimal characters.
+ * SHA-1 of a string, returned as forty lower-case hexadecimal characters.
  *
  * **Mis-measures non-ASCII input.** It takes the string's UTF-8 C string but its *character* count
  * from @c -length, so any string containing a character outside ASCII is hashed over the wrong
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nonnull NSString *)sha1:(nullable NSString *)string;
 
 /**
- * @brief SHA-256 of a string, returned as sixty-four lower-case hexadecimal characters.
+ * SHA-256 of a string, returned as sixty-four lower-case hexadecimal characters.
  *
  * Carries the same length mismatch as @c +sha1: .
  *
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nonnull NSString *)sha256:(nullable NSString *)string;
 
 /**
- * @brief AES-128 encrypt or decrypt with PKCS#7 padding and no initialisation vector.
+ * AES-128 encrypt or decrypt with PKCS#7 padding and no initialisation vector.
  *
  * The key length is fixed at sixteen bytes whatever @c key actually holds, so a shorter key reads
  * past its own buffer and a longer one is silently truncated. Running with no IV means ECB mode,

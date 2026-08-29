@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A text view that cannot take focus.
+ * A text view that cannot take focus.
  *
  * Reconstructed from Ghidra program Jubeat (class UnselectableTextView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A @c UITextView that refuses first-responder status.
+ * A @c UITextView that refuses first-responder status.
  *
  * Byte-for-byte the same override as @c DetailTextView and @c UnselectableTextViewV2. The binary
  * ships three separate classes rather than one shared base, so all three are reconstructed

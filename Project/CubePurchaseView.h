@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The in-app-purchase view for buying cubes (the in-game currency).
+ * The in-app-purchase view for buying cubes (the in-game currency).
  *
  * Reconstructed from Ghidra program Jubeat (class CubePurchaseView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -32,27 +32,27 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What a @c CubePurchaseView tells its owner (the challenge-mode root view in the shipped
+ * What a @c CubePurchaseView tells its owner (the challenge-mode root view in the shipped
  * tree). The binary types the @c aDelegate ivar as a bare @c id and dispatches these dynamically;
  * the protocol names that implicit contract so the sends are typed.
  */
 @protocol CubePurchaseViewDelegate <NSObject>
 @optional
-/** @brief Dismisses the cube-purchase menu. */
+/** Dismisses the cube-purchase menu. */
 - (void)closeCubePurchase;
 /**
- * @brief Shows the modal processing dialog with a message.
+ * Shows the modal processing dialog with a message.
  * @param message The message to show in the dialog.
  */
 - (void)showPurchaseDialog:(nonnull NSString *)message;
-/** @brief Hides the modal processing dialog. */
+/** Hides the modal processing dialog. */
 - (void)hidePurchaseDialog;
-/** @brief Refreshes the owner's cube-count and related status. */
+/** Refreshes the owner's cube-count and related status. */
 - (void)refreshStatus;
 @end
 
 /**
- * @brief A modal view that sells cubes: a scrollable product list backed by StoreKit, an age /
+ * A modal view that sells cubes: a scrollable product list backed by StoreKit, an age /
  * spend-limit gate, and SPTL and cube-policy overlays.
  */
 @interface CubePurchaseView : UIView <AlertViewManagerDelegate,
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
                                       MessageTextViewDelegate>
 
 /**
- * @brief Builds the whole view: the background plate, the close, SPTL, and cube-policy buttons, and
+ * Builds the whole view: the background plate, the close, SPTL, and cube-policy buttons, and
  * the (initially transparent) product list, then kicks off a signed fetch of the cube product list.
  * @param frame The view's frame.
  * @return The initialised view.
@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Close-button action: plays the cancel sound, cancels any live products request, and tells
+ * Close-button action: plays the cancel sound, cancels any live products request, and tells
  * the delegate the purchase menu closed.
  * @param sender The close button.
  * @ghidraAddress 0x1c0d18
@@ -80,14 +80,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)closePurchaseMenu:(nullable id)sender;
 
 /**
- * @brief SPTL-button action: opens the specified-commercial-transactions (TOKUSHO) page in Safari.
+ * SPTL-button action: opens the specified-commercial-transactions (TOKUSHO) page in Safari.
  * @param sender The SPTL button.
  * @ghidraAddress 0x1c0dc8
  */
 - (void)tapSptl:(nullable id)sender;
 
 /**
- * @brief Cube-policy-button action: opens the in-game-currency policy in a @c MessageTextView
+ * Cube-policy-button action: opens the in-game-currency policy in a @c MessageTextView
  * overlay and disables interaction on the root view behind it.
  * @param sender The cube-policy button.
  * @ghidraAddress 0x1c0e48
@@ -95,14 +95,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)tapCubePolicy:(nullable id)sender;
 
 /**
- * @brief Removes the policy / message overlay and re-enables interaction on the root view.
+ * Removes the policy / message overlay and re-enables interaction on the root view.
  * @param sender The overlay reporting that it closed.
  * @ghidraAddress 0x1c1064
  */
 - (void)closeMessage:(nullable id)sender;
 
 /**
- * @brief Enforces the monthly-spend limit for the buyer's age band before a purchase.
+ * Enforces the monthly-spend limit for the buyer's age band before a purchase.
  *
  * Adds the product's price (only when it is priced in @c JPY ) to the running total, compares it to
  * the limit for the stored @c PrefPurchaseLimitType , and, when the limit would be exceeded, shows
@@ -114,14 +114,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)checkAttainLimitPurchase:(nullable SKProduct *)product;
 
 /**
- * @brief Begins the StoreKit purchase of a product and shows the "processing" dialog.
+ * Begins the StoreKit purchase of a product and shows the "processing" dialog.
  * @param product The product to buy.
  * @ghidraAddress 0x1c1438
  */
 - (void)purchaseStart:(nullable SKProduct *)product;
 
 /**
- * @brief Product-list delegate callback: records the chosen row and, if the spend limit allows,
+ * Product-list delegate callback: records the chosen row and, if the spend limit allows,
  * begins its purchase.
  * @param indexPath The selected row.
  * @ghidraAddress 0x1c1550
@@ -129,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)selectListCell:(nullable NSIndexPath *)indexPath;
 
 /**
- * @brief Handles a completed signed download.
+ * Handles a completed signed download.
  *
  * The tag-0 response is the cube product list: it updates the running total, builds a
  * @c CubePurchaseInfo per item into @c cubeList , and fires an @c SKProductsRequest for the product
@@ -141,7 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloaderFinished:(nullable id)downloader;
 
 /**
- * @brief Handles a failed signed download: the tag-1 age request shows the server-error alert, the
+ * Handles a failed signed download: the tag-1 age request shows the server-error alert, the
  * tag-0 list request shows its failure text in the error label.
  * @param downloader The failed request.
  * @ghidraAddress 0x1c1dd0
@@ -149,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloaderError:(nullable id)downloader;
 
 /**
- * @brief Alert delegate callback: closes the view on a completed purchase (tag 1), registers the
+ * Alert delegate callback: closes the view on a completed purchase (tag 1), registers the
  * chosen age band (tag 2), or closes the challenge-mode session-error overlay (tag 9999).
  * @param info The alert result carrying @c Tag and @c btnMessage .
  * @ghidraAddress 0x1c1f78
@@ -157,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)alertSelect:(nonnull NSDictionary *)info;
 
 /**
- * @brief Purchase-manager callback for a successful purchase: ends interaction ignoring, shows the
+ * Purchase-manager callback for a successful purchase: ends interaction ignoring, shows the
  * completion alert, and asks the delegate to refresh its status.
  * @param productID The purchased product identifier.
  * @ghidraAddress 0x1c2324
@@ -165,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)purchaseSucceeded:(nullable NSString *)productID;
 
 /**
- * @brief Purchase-manager callback for a failed purchase: ends interaction ignoring and shows the
+ * Purchase-manager callback for a failed purchase: ends interaction ignoring and shows the
  * server-error alert.
  * @param productID The product identifier that failed.
  * @param error The StoreKit error.
@@ -174,7 +174,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)purchaseFailed:(nullable NSString *)productID error:(nullable NSError *)error;
 
 /**
- * @brief @c SKProductsRequestDelegate callback: matches the returned products to the pending list,
+ * @c SKProductsRequestDelegate callback: matches the returned products to the pending list,
  * populates the product list view, and fades it in. An empty response shows the no-items text.
  * @param request The products request.
  * @param response The StoreKit response.
@@ -184,14 +184,14 @@ NS_ASSUME_NONNULL_BEGIN
      didReceiveResponse:(nullable SKProductsResponse *)response;
 
 /**
- * @brief @c SKRequestDelegate callback: drops the finished products request.
+ * @c SKRequestDelegate callback: drops the finished products request.
  * @param request The request that finished.
  * @ghidraAddress 0x1c2b40
  */
 - (void)requestDidFinish:(nullable SKRequest *)request;
 
 /**
- * @brief @c SKRequestDelegate callback: drops the failed products request and shows the no-items
+ * @c SKRequestDelegate callback: drops the failed products request and shows the no-items
  * text.
  * @param request The request that failed.
  * @param error The StoreKit error.
@@ -200,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)request:(nullable SKRequest *)request didFailWithError:(nullable NSError *)error;
 
 /**
- * @brief The delegate told when the purchase menu closes and when the purchase dialog should be
+ * The delegate told when the purchase menu closes and when the purchase dialog should be
  * shown, hidden, or its status refreshed. Held weakly.
  * @ghidraAddress 0x1c2ba4 (getter), 0x1c2bc4 (setter)
  */

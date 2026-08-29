@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The applilink recommend SDK's full-screen (interstitial) advert controller.
+ * The applilink recommend SDK's full-screen (interstitial) advert controller.
  *
  * @c RecommendFullScreenController is the @c UIViewController the applilink recommend SDK presents
  * for a full-screen interstitial advert. It lays a full-screen @c ShadeView dimmer over the window
@@ -30,7 +30,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The applilink recommend full-screen (interstitial) advert controller.
+ * The applilink recommend full-screen (interstitial) advert controller.
  *
  * The class metadata declares conformance to the closed-SDK @c ShadeViewDelegate,
  * @c ApplilinkViewDelegate, and @c SdkViewDelegate protocols.
@@ -38,13 +38,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RecommendFullScreenController : UIViewController <ApplilinkViewDelegate>
 
 /**
- * @brief Whether the interstitial advert is currently on screen.
+ * Whether the interstitial advert is currently on screen.
  * @ghidraAddress 0x27bf78 (getter), 0x27bf88 (setter)
  */
 @property(nonatomic, assign) BOOL isVisible;
 
 /**
- * @brief Open a full-screen HTML interstitial advert.
+ * Open a full-screen HTML interstitial advert.
  *
  * Stores the request parameters and delegates, lays the view out, and — once
  * @c RecommendAdCache has cached the advert body and its template exists on disk — spawns a
@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
                 closeDelegate:(nullable id)closeDelegate;
 
 /**
- * @brief Open a full-screen movie interstitial advert.
+ * Open a full-screen movie interstitial advert.
  *
  * Stores the request parameters and delegates, lays the view out, asks @c RecommendAdCache for the
  * movie query dictionary, picks one movie URL (a random entry from the @c movie_url_list, or the
@@ -90,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
                closeDelegate:(nullable id)closeDelegate;
 
 /**
- * @brief Present the in-app movie player for @p query through @c ApplilinkViewManager.
+ * Present the in-app movie player for @p query through @c ApplilinkViewManager.
  *
  * Hosts the player in this controller's own view, auto-playing, and makes this controller the
  * manager's SDK delegate.
@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)showVideoViewWithQuery:(nullable NSString *)query;
 
 /**
- * @brief Lay the shade view out over the whole screen and the advert base view centred within it.
+ * Lay the shade view out over the whole screen and the advert base view centred within it.
  *
  * Sized for the current interface orientation, the status bar, and the running iOS version.
  * @ghidraAddress 0x27ab90
@@ -108,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setViewSize;
 
 /**
- * @brief Rotate and resize the controller's view to match the current interface orientation.
+ * Rotate and resize the controller's view to match the current interface orientation.
  *
  * Re-runs @c -setViewSize, then on the legacy (pre-iOS 8 or non-Xcode 6) path applies a rotation
  * transform and bounds animated over @p duration.

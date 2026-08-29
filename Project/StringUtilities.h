@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief String-producing utility helpers.
+ * String-producing utility helpers.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Builds a random string of the given length from a fixed sixty-four-character alphabet.
+ * Builds a random string of the given length from a fixed sixty-four-character alphabet.
  *
  * Each character is drawn from the alphabet with a masked @c arc4random() value (a bitmask, not a
  * modulo: the alphabet is exactly sixty-four bytes, so the mask is uniform with no bias). Because
@@ -34,7 +34,7 @@ extern "C" {
 NSString *CreateRandomString(NSUInteger length);
 
 /**
- * @brief Percent-encodes a string for use in a URL, allowing only alphanumerics.
+ * Percent-encodes a string for use in a URL, allowing only alphanumerics.
  *
  * Forwards to @c -stringByAddingPercentEncodingWithAllowedCharacters: with
  * @c +[NSCharacterSet alphanumericCharacterSet], which is stricter than the URL query set: the

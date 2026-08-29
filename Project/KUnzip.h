@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The archive reader for the game's packed asset files.
+ * The archive reader for the game's packed asset files.
  *
  * Reconstructed from Ghidra program Jubeat (class KUnzip, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -16,21 +16,21 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Reads named entries out of one packed archive.
+ * Reads named entries out of one packed archive.
  */
 @interface KUnzip : NSObject
 
-/** @brief The file handle a file-handle-backed archive reads through; set by its open callback. */
+/** The file handle a file-handle-backed archive reads through; set by its open callback. */
 @property(strong, nonatomic, nullable) NSFileHandle *fileHandle;
-/** @brief The bytes a memory-backed archive reads from. */
+/** The bytes a memory-backed archive reads from. */
 @property(strong, nonatomic, nullable) NSData *data;
-/** @brief The current read position of a memory-backed archive within @c data. */
+/** The current read position of a memory-backed archive within @c data. */
 @property(assign, nonatomic) NSUInteger dataCurrentPos;
-/** @brief The byte range of the backing store the archive occupies. */
+/** The byte range of the backing store the archive occupies. */
 @property(readonly, nonatomic) NSRange dataRange;
 
 /**
- * @brief Opens an archive at a path.
+ * Opens an archive at a path.
  *
  * @param path The archive's path.
  * @return The opened archive, or nil when the archive cannot be opened.
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithPath:(nullable NSString *)path;
 
 /**
- * @brief Opens an archive at a path, skipping a fixed-size trailer.
+ * Opens an archive at a path, skipping a fixed-size trailer.
  *
  * The one reconstructed caller passes a tail of 16. Reads through a file-handle-backed I/O set.
  *
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithPath:(nullable NSString *)path tail:(NSUInteger)tail;
 
 /**
- * @brief Opens an archive held in memory over a byte range.
+ * Opens an archive held in memory over a byte range.
  *
  * @c -[StoreDownloadManager downloaderFinished:] passes the downloaded pack's data and its full
  * range. Reads through a memory-backed I/O set.
@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithData:(nullable NSData *)data range:(NSRange)range;
 
 /**
- * @brief Reports whether the archive contains an entry with the given name.
+ * Reports whether the archive contains an entry with the given name.
  *
  * @param name The entry's name; matched case-insensitively.
  * @return YES when the entry exists, NO otherwise.
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)fileExists:(nullable NSString *)name;
 
 /**
- * @brief Returns the uncompressed size of a named entry.
+ * Returns the uncompressed size of a named entry.
  *
  * @param name The entry's name; matched case-sensitively.
  * @return The entry's uncompressed size in bytes, or 0 when it is absent or its info cannot be
@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)uncompressedSize:(nullable NSString *)name;
 
 /**
- * @brief Lists the names of every entry in the archive.
+ * Lists the names of every entry in the archive.
  *
  * @return An array of the entries' names, or nil when the archive is empty or cannot be walked.
  * @ghidraAddress 0x76c70
@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSArray<NSString *> *)fileList;
 
 /**
- * @brief Reads one entry out of the archive.
+ * Reads one entry out of the archive.
  *
  * The bytes come back still enciphered — @c -[ArtworkLoader loadArtwork] runs them through
  * @c BFCodec before they are an image.

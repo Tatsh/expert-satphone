@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The settings-screen rating-chip picker.
+ * The settings-screen rating-chip picker.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsRatingChipViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It is a
@@ -16,14 +16,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Notified when the player picks a new rating-chip style.
+ * Notified when the player picks a new rating-chip style.
  */
 @protocol SettingsRatingChipViewControllerDelegate <NSObject>
 
 @optional
 
 /**
- * @brief Asks the delegate to refresh the rating chip after the picked style changed.
+ * Asks the delegate to refresh the rating chip after the picked style changed.
  *
  * Invoked through @c -performSelector: only when the delegate responds to it.
  */
@@ -32,12 +32,12 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * @brief A view controller letting the player pick the rating-chip style in the settings screen.
+ * A view controller letting the player pick the rating-chip style in the settings screen.
  */
 @interface SettingsRatingChipViewController : UITableViewController
 
 /**
- * @brief The object refreshed when the picked rating-chip style changes.
+ * The object refreshed when the picked rating-chip style changes.
  *
  * Held weakly and backed by @c _settingsDelegate.
  * @ghidraAddress 0x973bc (getter)
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak, nullable) id<SettingsRatingChipViewControllerDelegate> settingsDelegate;
 
 /**
- * @brief Maps a rating-chip type index to its style name string.
+ * Maps a rating-chip type index to its style name string.
  * @param type The rating-chip type (0 none, 1 played, 2 all); any other value yields the empty
  *        string.
  * @return The style name, or the empty string when @p type is out of range.
@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nonnull NSString *)ratingChipType:(NSUInteger)type;
 
 /**
- * @brief Sets the navigation title to "RATING CHIP" and seeds the selection from the persisted
+ * Sets the navigation title to "RATING CHIP" and seeds the selection from the persisted
  *        rating-chip type.
  * @param style The table-view style handed to @c UITableViewController.
  * @return The initialised controller.
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithStyle:(UITableViewStyle)style;
 
 /**
- * @brief Loads the table view, setting its row height per idiom and hiding the separators.
+ * Loads the table view, setting its row height per idiom and hiding the separators.
  * @ghidraAddress 0x96820
  */
 - (void)loadView;

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The @c Downloader ivars shared with its @c SessionDownloader subclass.
+ * The @c Downloader ivars shared with its @c SessionDownloader subclass.
  *
  * The binary's @c SessionDownloader reads and writes @c Downloader 's own request, session, task,
  * data, size, and delegate slots directly by offset (it is a compiled subclass in the same image),
@@ -15,7 +15,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The @c Downloader ivars its @c SessionDownloader subclass reaches directly.
+ * The @c Downloader ivars its @c SessionDownloader subclass reaches directly.
  */
 @interface Downloader () {
 @public

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Reconstructed interface for the applilink advert SDK's @c ApplilinkWebAPI transport layer.
+ * Reconstructed interface for the applilink advert SDK's @c ApplilinkWebAPI transport layer.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkWebAPI, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -28,14 +28,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Block invoked when an applilink request finishes successfully.
+ * Block invoked when an applilink request finishes successfully.
  * @param request The request that was sent.
  * @param result The parsed response, an @c NSDictionary for the JSON path.
  */
 typedef void (^ApplilinkWebAPIFinishedBlock)(id _Nullable request, id _Nullable result);
 
 /**
- * @brief Block invoked when an applilink request fails.
+ * Block invoked when an applilink request fails.
  * @param request The request that was sent.
  * @param error The failure, an @c NSError in the @c ApplilinkErrorDomain or @c NSURLErrorDomain
  * domain.
@@ -43,26 +43,26 @@ typedef void (^ApplilinkWebAPIFinishedBlock)(id _Nullable request, id _Nullable 
 typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nullable error);
 
 /**
- * @brief Applilink SDK HTTP transport, retry policy, and response parsing.
+ * Applilink SDK HTTP transport, retry policy, and response parsing.
  */
 @interface ApplilinkWebAPI : NSObject
 
 /**
- * @brief Initialise the transport with a cleared retry counter.
+ * Initialise the transport with a cleared retry counter.
  * @return The initialised instance.
  * @ghidraAddress 0x251250
  */
 - (instancetype)init;
 
 /**
- * @brief The parameters common to every applilink request.
+ * The parameters common to every applilink request.
  * @return A dictionary carrying @c cr=0 and @c format=json .
  * @ghidraAddress 0x2512ac
  */
 - (nullable NSDictionary *)commonParameters;
 
 /**
- * @brief Build a request for a URL, method, parameters, timeout, and cache policy.
+ * Build a request for a URL, method, parameters, timeout, and cache policy.
  *
  * The parameters are merged with @c commonParameters , then dispatched to
  * @c requestForGetWithURL:parameters: or @c requestForPostWithURL:parameters: depending on whether
@@ -86,7 +86,7 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
                                      cachePolicy:(nullable NSNumber *)cachePolicy;
 
 /**
- * @brief Build a @c GET request, appending the parameters to the URL as a query string.
+ * Build a @c GET request, appending the parameters to the URL as a query string.
  * @param URL The base URL string.
  * @param parameters The parameters to append.
  * @return The GET request.
@@ -96,7 +96,7 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
                                             parameters:(nullable NSDictionary *)parameters;
 
 /**
- * @brief Build a @c POST request, serialising the parameters into a form-encoded body.
+ * Build a @c POST request, serialising the parameters into a form-encoded body.
  *
  * Each value is percent-joined into a @c key=value pair; an array value expands into repeated
  * @c key[]=value pairs. The pairs are joined with @c & and set as the request body with a
@@ -110,7 +110,7 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
                                              parameters:(nullable NSDictionary *)parameters;
 
 /**
- * @brief Send a request asynchronously with a bounded timeout-retry policy.
+ * Send a request asynchronously with a bounded timeout-retry policy.
  *
  * The request is blocked while a session regeneration is in flight, short-circuited when it is
  * itself the session-regeneration request, then sent through @c NSURLConnection on the main queue.
@@ -141,7 +141,7 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
                        failedBlock:(nullable ApplilinkWebAPIFailedBlock)failedBlock;
 
 /**
- * @brief Parse a contents-server response and dispatch any failure.
+ * Parse a contents-server response and dispatch any failure.
  *
  * When @p response equals the reward contents-server URL (the @c ApplilinkReward.appliURL default)
  * and @p data is non-empty, the newline-delimited body is parsed: the first line carries the status
@@ -165,7 +165,7 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
                               failedBlock:(nullable ApplilinkWebAPIFailedBlock)failedBlock;
 
 /**
- * @brief Send a request synchronously with a bounded timeout-retry loop and parse the JSON body.
+ * Send a request synchronously with a bounded timeout-retry loop and parse the JSON body.
  *
  * The request is sent through @c NSURLConnection with a ten-second timeout. Server errors in the
  * 400-599 range, and connection timeouts, are retried up to the retry cap; on final failure a
@@ -186,14 +186,14 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
                                    error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Whether this device's operating-system version supports the network-retry policy.
+ * Whether this device's operating-system version supports the network-retry policy.
  * @return @c YES when the operating-system version is at least 6.0.
  * @ghidraAddress 0x253bf0
  */
 - (BOOL)canUseNetworkRetry;
 
 /**
- * @brief Convenience class factory for the asynchronous request.
+ * Convenience class factory for the asynchronous request.
  *
  * The work is dispatched to a global concurrent queue, where a throwaway instance sends the
  * request through the instance method of the same selector.
@@ -221,7 +221,7 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
                        failedBlock:(nullable ApplilinkWebAPIFailedBlock)failedBlock;
 
 /**
- * @brief Convenience class factory for @c requestSynchronousWithURL:method:parameters:cachePolicy:
+ * Convenience class factory for @c requestSynchronousWithURL:method:parameters:cachePolicy:
  * error:.
  * @param URL The base URL string.
  * @param method The HTTP method.
@@ -238,7 +238,7 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
                                    error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Convenience class factory for @c responseFromContentsServer:request:data:finishedBlock:
+ * Convenience class factory for @c responseFromContentsServer:request:data:finishedBlock:
  * failedBlock:.
  * @param response The request URL, matched against the contents-server URL.
  * @param request The request that was sent, handed back to @p failedBlock .
@@ -255,13 +255,13 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
                               failedBlock:(nullable ApplilinkWebAPIFailedBlock)failedBlock;
 
 /**
- * @brief Cancel the timeout-retry policy for outstanding requests.
+ * Cancel the timeout-retry policy for outstanding requests.
  * @ghidraAddress 0x253b44
  */
 + (void)retryCancel;
 
 /**
- * @brief Arm or disarm the session-connection wait gate.
+ * Arm or disarm the session-connection wait gate.
  *
  * When set, asynchronous requests block until the gate clears; the gate is auto-cleared after ten
  * seconds through @c calcelSessionConnection .
@@ -271,14 +271,14 @@ typedef void (^ApplilinkWebAPIFailedBlock)(id _Nullable request, NSError *_Nulla
 + (void)setSessionConnectionWait:(BOOL)sessionConnectionWait;
 
 /**
- * @brief Clear the session-connection wait gate. The binary spells this selector
+ * Clear the session-connection wait gate. The binary spells this selector
  * @c calcelSessionConnection without correcting the @c cancel typo.
  * @ghidraAddress 0x253bd0
  */
 + (void)calcelSessionConnection;
 
 /**
- * @brief Set whether the session is established, gating the session-regeneration short circuit.
+ * Set whether the session is established, gating the session-regeneration short circuit.
  * @param sessionStatus @c YES when the session is established.
  * @ghidraAddress 0x253be0
  */

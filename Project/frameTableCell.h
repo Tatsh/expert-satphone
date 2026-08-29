@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A row of the tweet-frame picker.
+ * A row of the tweet-frame picker.
  *
  * Reconstructed from Ghidra program Jubeat (class frameTableCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -21,18 +21,18 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A cell for one tweet background frame, ticked when it is the one in use.
+ * A cell for one tweet background frame, ticked when it is the one in use.
  */
 @interface frameTableCell : UITableViewCell
 
 /**
- * @brief Builds the row's subviews, laid out against the table's width.
+ * Builds the row's subviews, laid out against the table's width.
  * @param width The table's width in points.
  * @ghidraAddress 0xfda00
  */
 - (instancetype)initWithWidth:(int)width;
 /**
- * @brief Fills the row in and ticks it when it names the frame currently in use.
+ * Fills the row in and ticks it when it names the frame currently in use.
  *
  * The only one of the three cells that reads outside its argument: it compares element 2 against
  * the @c "PrefTwitterBgFrame" user default and sets a checkmark accessory on a match. That is the

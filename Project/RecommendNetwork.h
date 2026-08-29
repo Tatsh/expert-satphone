@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The Applilink recommend network's public facade.
+ * The Applilink recommend network's public facade.
  *
  * A thin class-method facade over the private @c RecommendCore singleton: each entry point asks
  * @c ApplilinkConsts whether it may run, then forwards to @c RecommendCore (dispatching the status
@@ -15,7 +15,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The recommend advert models.
+ * The recommend advert models.
  */
 typedef NS_ENUM(NSInteger, RecommendAdModel) {
     RecommendAdModelAppList = 1,      /*!< The companion-application list advert model. */
@@ -23,27 +23,27 @@ typedef NS_ENUM(NSInteger, RecommendAdModel) {
     RecommendAdModelOwnAd = 100,      /*!< The first-party (own) advert model. */
 };
 
-/** @brief Called with an advert status code and an optional error. */
+/** Called with an advert status code and an optional error. */
 typedef void (^RecommendAdStatusCallback)(NSInteger status, NSError *_Nullable error);
 
-/** @brief Called with an advert display-status dictionary and an optional error. */
+/** Called with an advert display-status dictionary and an optional error. */
 typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                                                  NSError *_Nullable error);
 
 /**
- * @brief The recommend network's public advert facade.
+ * The recommend network's public advert facade.
  */
 @interface RecommendNetwork : NSObject
 
 /**
- * @brief Queries the application-list status.
+ * Queries the application-list status.
  * @param callback Called with the status code, or with an error when the query cannot run.
  * @ghidraAddress 0x23f588
  */
 + (void)getAppListStatusWithCallback:(nullable RecommendAdStatusCallback)callback;
 
 /**
- * @brief Queries the advert status for a model.
+ * Queries the advert status for a model.
  * @param adModel The advert model to query.
  * @param callback Called with the status code, or with an error when the query cannot run.
  * @ghidraAddress 0x23f5a4
@@ -52,7 +52,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                       callback:(nullable RecommendAdStatusCallback)callback;
 
 /**
- * @brief Queries the unread count for a model at a location.
+ * Queries the unread count for a model at a location.
  * @param adModel The advert model to query.
  * @param adLocation The advert placement identifier.
  * @param callback Called with the unread count, or with an error when the query cannot run.
@@ -63,7 +63,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                          callback:(nullable RecommendAdStatusCallback)callback;
 
 /**
- * @brief Queries the advert display status for a model at a location.
+ * Queries the advert display status for a model at a location.
  * @param adModel The advert model to query.
  * @param adLocation The advert placement identifier.
  * @param callback Called with the display-status dictionary, or with an error when the query cannot
@@ -75,7 +75,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                              callback:(nullable RecommendAdDisplayStatusCallback)callback;
 
 /**
- * @brief Shows a first-party advert.
+ * Shows a first-party advert.
  * @param adLocation The advert placement identifier.
  * @param appliId The advertised application's identifier.
  * @param creativeId The advert creative's identifier.
@@ -86,7 +86,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                      creativeId:(nullable NSString *)creativeId;
 
 /**
- * @brief Shows a first-party advert for a model.
+ * Shows a first-party advert for a model.
  * @param adLocation The advert placement identifier.
  * @param adModel The advert model to show.
  * @param appliId The advertised application's identifier.
@@ -99,7 +99,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                      creativeId:(nullable NSString *)creativeId;
 
 /**
- * @brief Registers a first-party advert touch.
+ * Registers a first-party advert touch.
  * @param adLocation The advert placement identifier.
  * @param appliId The advertised application's identifier.
  * @param creativeId The advert creative's identifier.
@@ -114,7 +114,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                         delegate:(nullable id)delegate;
 
 /**
- * @brief Registers a first-party advert touch for a model.
+ * Registers a first-party advert touch for a model.
  * @param adLocation The advert placement identifier.
  * @param adModel The advert model that was touched.
  * @param appliId The advertised application's identifier.
@@ -131,7 +131,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                         delegate:(nullable id)delegate;
 
 /**
- * @brief Opens the application list.
+ * Opens the application list.
  * @param adLocation The advert placement identifier.
  * @param delegate The object told how the request finished.
  * @ghidraAddress 0x23ff80
@@ -139,7 +139,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
 + (void)openAppListWithAdLocation:(nullable NSString *)adLocation delegate:(nullable id)delegate;
 
 /**
- * @brief Opens the application list with a request code.
+ * Opens the application list with a request code.
  * @param adLocation The advert placement identifier.
  * @param requestCode The caller's token, handed back to @p delegate to correlate the result.
  * @param delegate The object told how the request finished.
@@ -150,7 +150,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                          delegate:(nullable id)delegate;
 
 /**
- * @brief Opens the advert screen for a model.
+ * Opens the advert screen for a model.
  * @param adModel The advert model to show.
  * @param adLocation The advert placement identifier.
  * @param delegate The object told how the request finished.
@@ -161,7 +161,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                        delegate:(nullable id)delegate;
 
 /**
- * @brief Opens the advert screen for a model with a request code.
+ * Opens the advert screen for a model with a request code.
  * @param adModel The advert model to show.
  * @param adLocation The advert placement identifier.
  * @param requestCode The caller's token, handed back to @p delegate to correlate the result.
@@ -174,7 +174,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                        delegate:(nullable id)delegate;
 
 /**
- * @brief Opens an advert area inside a view.
+ * Opens an advert area inside a view.
  * @param parentView The view the advert area is added to.
  * @param rect The advert area's frame within @p parentView .
  * @param adModel The advert model to show.
@@ -191,7 +191,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                         delegate:(nullable id)delegate;
 
 /**
- * @brief Opens an advert area inside a view with a request code.
+ * Opens an advert area inside a view with a request code.
  * @param parentView The view the advert area is added to.
  * @param rect The advert area's frame within @p parentView .
  * @param adModel The advert model to show.
@@ -210,7 +210,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                         delegate:(nullable id)delegate;
 
 /**
- * @brief Opens an interstitial advert.
+ * Opens an interstitial advert.
  * @param adLocation The advert placement identifier.
  * @param delegate The object told how the request finished.
  * @ghidraAddress 0x240718
@@ -219,7 +219,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                               delegate:(nullable id)delegate;
 
 /**
- * @brief Opens an interstitial advert with a request code.
+ * Opens an interstitial advert with a request code.
  * @param adLocation The advert placement identifier.
  * @param requestCode The caller's token, handed back to @p delegate to correlate the result.
  * @param delegate The object told how the request finished.
@@ -230,7 +230,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                               delegate:(nullable id)delegate;
 
 /**
- * @brief Opens an interstitial movie advert.
+ * Opens an interstitial movie advert.
  * @param adLocation The advert placement identifier.
  * @param delegate The object told how the request finished.
  * @ghidraAddress 0x240958
@@ -239,7 +239,7 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                                    delegate:(nullable id)delegate;
 
 /**
- * @brief Opens an interstitial movie advert with a request code.
+ * Opens an interstitial movie advert with a request code.
  * @param adLocation The advert placement identifier.
  * @param requestCode The caller's token, handed back to @p delegate to correlate the result.
  * @param delegate The object told how the request finished.
@@ -249,18 +249,18 @@ typedef void (^RecommendAdDisplayStatusCallback)(NSDictionary *_Nullable status,
                                 requestCode:(nullable id)requestCode
                                    delegate:(nullable id)delegate;
 
-/** @brief Closes the advert screen. @ghidraAddress 0x240b98 */
+/** Closes the advert screen. @ghidraAddress 0x240b98 */
 + (void)closeAdScreen;
 
 /**
- * @brief Closes any advert area inside a view.
+ * Closes any advert area inside a view.
  * @param parentView The view whose advert area is closed.
  * @ghidraAddress 0x240c10
  */
 + (void)closeAdAreaWithParentView:(nullable UIView *)parentView;
 
 /**
- * @brief Shows or hides any advert area inside a view.
+ * Shows or hides any advert area inside a view.
  * @param parentView The view whose advert area is shown or hidden.
  * @param flag YES to show the advert area, NO to hide it.
  * @ghidraAddress 0x240e54

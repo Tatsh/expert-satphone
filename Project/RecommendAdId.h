@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The Applilink recommend SDK's advertising-identifier record.
+ * The Applilink recommend SDK's advertising-identifier record.
  *
  * @c RecommendAdId persists the advertising identifier keyed by country code and category id, and
  * resolves the identifier used for an inbound advert redirect. The Applilink SDK ships as a closed
@@ -14,12 +14,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The recommend network's advertising-identifier record.
+ * The recommend network's advertising-identifier record.
  */
 @interface RecommendAdId : NSObject
 
 /**
- * @brief Initialises the record for a country code and category id.
+ * Initialises the record for a country code and category id.
  * @param countryCode The country code.
  * @param categoryId The advert category identifier.
  * @return The initialised record.
@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
                          categoryId:(nullable NSString *)categoryId;
 
 /**
- * @brief Loads the stored advertising identifier for a country code and category id.
+ * Loads the stored advertising identifier for a country code and category id.
  * @param countryCode The country code.
  * @param categoryId The advert category identifier.
  * @param error On failure, the localised error; may be @c nullptr.
@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
                                         error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Stores the advertising identifier for an inbound advert redirect.
+ * Stores the advertising identifier for an inbound advert redirect.
  * @param adIdFrom The source advertising identifier.
  * @param countryCode The country code.
  * @param categoryId The advert category identifier.
@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
                   error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Deletes the stored advertising identifier for a country code and category id.
+ * Deletes the stored advertising identifier for a country code and category id.
  * @param countryCode The country code.
  * @param categoryId The advert category identifier.
  * @param error On failure, the localised error; may be @c nullptr.

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The jubeat Lab URL cipher.
+ * The jubeat Lab URL cipher.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Blowfish-encrypts a string with the Lab key.
+ * Blowfish-encrypts a string with the Lab key.
  *
  * The launch handler calls this once, on first launch only, to turn the plaintext Lab URL into the
  * blob it persists under the "PrefjubeatLabURL" user default.
@@ -39,7 +39,7 @@ extern "C" {
 NSMutableData *_Nullable CreateLabEncryptedData(NSString *_Nullable pszString);
 
 /**
- * @brief The Blowfish key the packed asset archives are enciphered with.
+ * The Blowfish key the packed asset archives are enciphered with.
  *
  * DECLARED ONLY. Despite the name it is not limited to audio: @c -[ArtworkLoader loadArtwork] uses
  * it to decipher artwork out of the same archives. The name is Ghidra's, already applied to the

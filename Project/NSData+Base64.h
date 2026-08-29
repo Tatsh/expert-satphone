@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The @c NSData Base64 category and its two upstream C codecs.
+ * The @c NSData Base64 category and its two upstream C codecs.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. This is Matt Gallagher's @c NSData+Base64, so the two C
@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Base64-encodes a byte buffer, returning a freshly allocated NUL-terminated ASCII string.
+ * Base64-encodes a byte buffer, returning a freshly allocated NUL-terminated ASCII string.
  *
  * The output is sized @c ((cbLength+2)/3)*4+1 and uses the standard alphabet with @c '=' padding.
  * This copy is the three-argument variant with upstream's @c separateLines parameter stripped, so
@@ -37,7 +37,7 @@ char *_Nullable NewBase64Encode(const void *pvBuffer,
                                 size_t *_Nullable pcbOutputLength);
 
 /**
- * @brief Base64-decodes an ASCII buffer, returning a freshly allocated byte buffer.
+ * Base64-decodes an ASCII buffer, returning a freshly allocated byte buffer.
  *
  * A @p cbLength of @c (size_t)-1 means the input is NUL-terminated and its length is measured with
  * @c strlen. Invalid characters are skipped rather than rejected. The output is sized
@@ -58,12 +58,12 @@ void *_Nullable NewBase64Decode(const char *pszInput,
 #endif
 
 /**
- * @brief Base64 encoding and decoding for @c NSData, from Matt Gallagher's @c NSData+Base64.
+ * Base64 encoding and decoding for @c NSData, from Matt Gallagher's @c NSData+Base64.
  */
 @interface NSData (Base64)
 
 /**
- * @brief Decodes a Base64 string into the bytes it represents.
+ * Decodes a Base64 string into the bytes it represents.
  * @param aString The Base64 text; UTF-8 bytes are decoded.
  * @return The decoded data, autoreleased.
  * @ghidraAddress 0x1adfc4
@@ -71,7 +71,7 @@ void *_Nullable NewBase64Decode(const char *pszInput,
 + (NSData *)dataFromBase64String:(NSString *)aString;
 
 /**
- * @brief Encodes the receiver's bytes as a Base64 string.
+ * Encodes the receiver's bytes as a Base64 string.
  * @return The Base64 text, autoreleased.
  * @ghidraAddress 0x1ae084
  */

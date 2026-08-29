@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The applilink SDK's advert-request descriptor.
+ * The applilink SDK's advert-request descriptor.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkParameters, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -15,27 +15,27 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Carries one advert request's model, location, alignment and caller request code.
+ * Carries one advert request's model, location, alignment and caller request code.
  */
 @interface ApplilinkParameters : NSObject
 
 /**
- * @brief The advert-model identifier. Four bytes in the metadata, so @c int.
+ * The advert-model identifier. Four bytes in the metadata, so @c int.
  */
 @property(nonatomic) int adModel;
 /**
- * @brief The advert-location identifier.
+ * The advert-location identifier.
  */
 @property(nonatomic, strong, nullable) NSString *adLocation;
 /**
- * @brief The vertical alignment. Four bytes in the metadata, so @c int.
+ * The vertical alignment. Four bytes in the metadata, so @c int.
  *
  * Nothing in this class ever writes it: the only setter that takes an alignment discards it, so it
  * holds whatever a caller assigns through this property and nothing else.
  */
 @property(nonatomic) int verticalAlign;
 /**
- * @brief The caller's request code, handed back with the response.
+ * The caller's request code, handed back with the response.
  *
  * Untyped in the metadata, and the synthesised setter copies. Note that the two
  * @c -setRequestWith… methods assign the ivar directly and therefore do **not** copy.
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, nullable) id requestCode;
 
 /**
- * @brief Populates the request with a model, a location and a request code.
+ * Populates the request with a model, a location and a request code.
  *
  * @param adModel The advert-model identifier.
  * @param adLocation The advert-location identifier.
@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
                   requestCode:(nullable id)requestCode;
 
 /**
- * @brief The same, with an alignment argument that is accepted and then discarded.
+ * The same, with an alignment argument that is accepted and then discarded.
  *
  * @param adModel The advert-model identifier.
  * @param adLocation The advert-location identifier.

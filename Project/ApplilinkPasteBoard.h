@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The KONAMI Applilink SDK's pasteboard-backed UDID store.
+ * The KONAMI Applilink SDK's pasteboard-backed UDID store.
  *
  * @c ApplilinkPasteBoard mirrors the advertising UDID records into named, persistent
  * @c UIPasteboard slots so they survive an app reinstall. Each slot stores an @c NSKeyedArchiver
@@ -16,12 +16,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Pasteboard-backed UDID store for the Applilink SDK.
+ * Pasteboard-backed UDID store for the Applilink SDK.
  */
 @interface ApplilinkPasteBoard : NSObject
 
 /**
- * @brief Whether the current UDID was resolved from the old-service pasteboard rather than the
+ * Whether the current UDID was resolved from the old-service pasteboard rather than the
  *        current one. Set when @c storageData exhausts every current-service slot and falls back to
  *        @c storageDataOld , and cleared once a current-service slot answers.
  * @ghidraAddress 0x2688b0 (getter), 0x2688c0 (setter)
@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic) BOOL nonPasteBoardUdidFlag;
 
 /**
- * @brief Validates a decoded pasteboard record dictionary.
+ * Validates a decoded pasteboard record dictionary.
  * @param dict The un-archived record.
  * @param error Set to a localised error describing the first invalid field.
  * @return @c YES when the record has a value, entry date, last-access date, and a positive version.
@@ -38,21 +38,21 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)validate:(nullable NSDictionary *)dict error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief The stored current-UDID pasteboard record.
+ * The stored current-UDID pasteboard record.
  * @return The stored record, or nil.
  * @ghidraAddress 0x26700c
  */
 - (nullable NSDictionary *)storageData;
 
 /**
- * @brief The stored old-service UDID pasteboard record.
+ * The stored old-service UDID pasteboard record.
  * @return The stored record, or nil.
  * @ghidraAddress 0x267208
  */
 - (nullable NSDictionary *)storageDataOld;
 
 /**
- * @brief The pasteboard record for a service name and storage index.
+ * The pasteboard record for a service name and storage index.
  * @param serviceName The pasteboard service name.
  * @param storageIndex The storage slot index.
  * @param error Set to a localised error when the slot is empty or invalid.
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                 error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Writes a UDID into the first empty current-service pasteboard slot.
+ * Writes a UDID into the first empty current-service pasteboard slot.
  * @param udid The UDID to store.
  * @param error Set to a localised error on failure.
  * @return The stored record, or nil on failure.
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
                                       error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Writes a UDID into a current-service pasteboard slot at a storage index.
+ * Writes a UDID into a current-service pasteboard slot at a storage index.
  * @param udid The UDID to store.
  * @param storageIndex The storage slot index.
  * @param error Set to a localised error on failure.
@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
                                       error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Deletes the current-service pasteboard slot at a storage index.
+ * Deletes the current-service pasteboard slot at a storage index.
  * @param storageIndex The storage slot index.
  * @param error Set to a localised error on failure.
  * @return @c YES on success.
@@ -95,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)deleteWithStorageIndex:(int)storageIndex error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Builds the caller-facing record dictionary from a decoded record.
+ * Builds the caller-facing record dictionary from a decoded record.
  * @param record The decoded record dictionary.
  * @param serviceName The pasteboard service name whose hash keys the value cipher.
  * @param storageIndex The storage slot index recorded in the result.
@@ -107,21 +107,21 @@ NS_ASSUME_NONNULL_BEGIN
                             storageIndex:(int)storageIndex;
 
 /**
- * @brief The pasteboard service name for advertising UDIDs.
+ * The pasteboard service name for advertising UDIDs.
  * @return The advertising service name.
  * @ghidraAddress 0x268524
  */
 - (NSString *)getServiceName;
 
 /**
- * @brief The pasteboard service name for old-server UDIDs.
+ * The pasteboard service name for old-server UDIDs.
  * @return The old service name.
  * @ghidraAddress 0x2685e4
  */
 - (NSString *)getServiceNameOld;
 
 /**
- * @brief Logs the stored pasteboard UDID values across every current-service slot.
+ * Logs the stored pasteboard UDID values across every current-service slot.
  * @ghidraAddress 0x2686a4
  */
 - (void)debugLog;

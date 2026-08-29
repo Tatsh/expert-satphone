@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The applilink SDK's localised resource bundle.
+ * The applilink SDK's localised resource bundle.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkBundle, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -16,12 +16,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Vends the SDK's resource bundle.
+ * Vends the SDK's resource bundle.
  */
 @interface ApplilinkBundle : NSObject
 
 /**
- * @brief The SDK's @c ApplilinkNetworkResources bundle, loaded once and cached.
+ * The SDK's @c ApplilinkNetworkResources bundle, loaded once and cached.
  *
  * Prefers the device-language @c .lproj sub-bundle when @c ApplilinkCore prioritises the device
  * languages, and falls back to the resource bundle itself.

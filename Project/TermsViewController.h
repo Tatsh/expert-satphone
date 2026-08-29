@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The terms/policy menu table for the in-app terms-of-service screen.
+ * The terms/policy menu table for the in-app terms-of-service screen.
  *
  * Reconstructed from Ghidra program Jubeat (class TermsViewController, image base 0x100000000).
  * All @c \@ghidraAddress values are offsets relative to that image base.
@@ -22,12 +22,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A grouped table listing the terms/policy documents, each row opening its target page.
+ * A grouped table listing the terms/policy documents, each row opening its target page.
  */
 @interface TermsViewController : UITableViewController
 
 /**
- * @brief The owner notified when the screen closes. Stored only; pushed down from
+ * The owner notified when the screen closes. Stored only; pushed down from
  *        @c TermsNavController and untyped (@c \@ ) in the metadata, so it reuses the sibling
  *        @c SettingsNavControllerDelegate protocol.
  * @ghidraAddress 0x1141f0
@@ -36,14 +36,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property(weak, nonatomic, nullable) id<SettingsNavControllerDelegate> settingsDelegate;
 
 /**
- * @brief Builds the two backing arrays: the per-section row values (0 to 5) and the per-row cell
+ * Builds the two backing arrays: the per-section row values (0 to 5) and the per-row cell
  *        styles (all zero).
  * @ghidraAddress 0x113094
  */
 - (void)createMenuTable;
 
 /**
- * @brief Sets the navigation title and builds the menu table.
+ * Sets the navigation title and builds the menu table.
  * @param style The table view style. Passed to the superclass.
  * @return The initialised controller.
  * @ghidraAddress 0x1132a0
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithStyle:(UITableViewStyle)style;
 
 /**
- * @brief Maps a menu value to its index path within a given section, or @c nil when absent.
+ * Maps a menu value to its index path within a given section, or @c nil when absent.
  * @param targetPath The menu value to locate.
  * @param section The section to search.
  * @return The index path of the matching row, or @c nil.
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSIndexPath *)getTargetPath:(int)targetPath inSection:(int)section;
 
 /**
- * @brief Maps a menu value to its index path across all sections, or @c nil when absent.
+ * Maps a menu value to its index path across all sections, or @c nil when absent.
  * @param targetPath The menu value to locate.
  * @return The index path of the matching row, or @c nil.
  * @ghidraAddress 0x11405c

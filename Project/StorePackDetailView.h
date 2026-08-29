@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The store pack-detail card.
+ * The store pack-detail card.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePackDetailView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -27,19 +27,19 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A downloaded pack's detail card.
+ * A downloaded pack's detail card.
  */
 @interface StorePackDetailView : UIView <DownloaderDelegate, AlertViewManagerDelegate>
 
 /**
- * @brief The pack being shown.
+ * The pack being shown.
  * @ghidraAddress 0xb4e50 (getter)
  * @ghidraAddress 0xb4e60 (setter)
  */
 @property(nonatomic, strong, nullable) StorePackInfo *packInfo;
 
 /**
- * @brief The card's delegate, told when to start a purchase, redownload, or extend download. Held
+ * The card's delegate, told when to start a purchase, redownload, or extend download. Held
  * weakly.
  * @ghidraAddress 0xb4e74 (getter)
  * @ghidraAddress 0xb4e94 (setter)
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak, nullable) id<StoreDetailViewControllerDelegate> delegate;
 
 /**
- * @brief The controller that owns this card, messaged to close the card and to open iTunes. Held
+ * The controller that owns this card, messaged to close the card and to open iTunes. Held
  * weakly.
  * @ghidraAddress 0xb4ea8 (getter)
  * @ghidraAddress 0xb4ec8 (setter)
@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak, nullable) UIViewController *viewController;
 
 /**
- * @brief Builds the card: the pack background, the pack artwork, the name and comment labels, the
+ * Builds the card: the pack background, the pack artwork, the name and comment labels, the
  * copyright text view, the link button, the purchase button, the extend-download button, the
  * scrolling tune list with its four seed tune views, the loading label, and the activity
  * indicator.
@@ -66,34 +66,34 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Clears the pack and returns every subview to its empty state, and unsubscribes from the
+ * Clears the pack and returns every subview to its empty state, and unsubscribes from the
  * BGM finish notification.
  * @ghidraAddress 0xb17fc
  */
 - (void)removePackInfo;
 
 /**
- * @brief Cancels the in-flight info download, if any.
+ * Cancels the in-flight info download, if any.
  * @ghidraAddress 0xb1b3c
  */
 - (void)cancelLoading;
 
 /**
- * @brief Stops the sample tune: fades out the BGM, drops the sample downloader, resets every tune
+ * Stops the sample tune: fades out the BGM, drops the sample downloader, resets every tune
  * view, and clears the playing-row marker.
  * @ghidraAddress 0xb1b88
  */
 - (void)stopSample;
 
 /**
- * @brief Refreshes the purchase button's colour, title, and enabled state, and shows or hides the
+ * Refreshes the purchase button's colour, title, and enabled state, and shows or hides the
  * extend-download button, from the pack's purchase state.
  * @ghidraAddress 0xb1d10
  */
 - (void)updatePurchaseState;
 
 /**
- * @brief Populates the card from the loaded pack: sizes the tune list, fills the labels and
+ * Populates the card from the loaded pack: sizes the tune list, fills the labels and
  * artwork, lays out the link button, starts the artwork downloads, and subscribes to the BGM
  * finish notification. Runs once, guarded by the loaded flag.
  * @ghidraAddress 0xb2374
@@ -101,20 +101,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)showPackInfo;
 
 /**
- * @brief Loads the pack detail: shows it directly when the track list is already present,
+ * Loads the pack detail: shows it directly when the track list is already present,
  * otherwise starts the info download for the pack.
  * @ghidraAddress 0xb3080
  */
 - (void)loadInfo;
 
 /**
- * @brief Loads the pack detail for a restore: like @c -loadInfo but fetches the restore endpoint.
+ * Loads the pack detail for a restore: like @c -loadInfo but fetches the restore endpoint.
  * @ghidraAddress 0xb329c
  */
 - (void)loadRestoreInfo;
 
 /**
- * @brief Purchase-button tap: stops the sample, then asks the delegate to start a redownload or a
+ * Purchase-button tap: stops the sample, then asks the delegate to start a redownload or a
  * purchase depending on the pack's ownership.
  * @param sender The purchase button.
  * @ghidraAddress 0xb34b8
@@ -122,7 +122,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)doPurchase:(nullable id)sender;
 
 /**
- * @brief Extend-download-button tap: stops the sample, hides the button, and asks the delegate to
+ * Extend-download-button tap: stops the sample, hides the button, and asks the delegate to
  * start the extend download.
  * @param sender The extend-download button.
  * @ghidraAddress 0xb3614
@@ -130,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloadExtendMusic:(nullable id)sender;
 
 /**
- * @brief Link-button tap: builds the jump URL and raises a confirmation alert. The pack-level link
+ * Link-button tap: builds the jump URL and raises a confirmation alert. The pack-level link
  * button confirms opening the related site in Safari; a tune's link button confirms opening the
  * iTunes Store.
  * @param sender The tapped link button.
@@ -139,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleLink:(nullable id)sender;
 
 /**
- * @brief Sample-button tap: toggles the tapped tune's preview. Stops it if already playing,
+ * Sample-button tap: toggles the tapped tune's preview. Stops it if already playing,
  * otherwise stops any other playing tune and starts downloading the tapped tune's preview.
  * @param sender The tapped sample button.
  * @ghidraAddress 0xb3d58
@@ -147,14 +147,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleSample:(nullable id)sender;
 
 /**
- * @brief BGM-finish notification handler: resets every tune view and clears the playing-row marker.
+ * BGM-finish notification handler: resets every tune view and clears the playing-row marker.
  * @param notification The notification.
  * @ghidraAddress 0xb41a8
  */
 - (void)finishBgm:(nullable NSNotification *)notification;
 
 /**
- * @brief @c Downloader completion: parses the pack detail on the info download, or loads and plays
+ * @c Downloader completion: parses the pack detail on the info download, or loads and plays
  * the preview on the sample download.
  * @param downloader The finished request.
  * @ghidraAddress 0xb42e0
@@ -162,21 +162,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloaderFinished:(id)downloader;
 
 /**
- * @brief @c Downloader failure: raises a network-error alert for the info or sample download.
+ * @c Downloader failure: raises a network-error alert for the info or sample download.
  * @param downloader The failed request.
  * @ghidraAddress 0xb4684
  */
 - (void)downloaderError:(id)downloader;
 
 /**
- * @brief @c Downloader progress. The shipped body is empty.
+ * @c Downloader progress. The shipped body is empty.
  * @param downloader The request.
  * @ghidraAddress 0xb4a64
  */
 - (void)downloaderProceed:(id)downloader;
 
 /**
- * @brief Alert-button delegate: on the server-error alert closes the card; on the link alert opens
+ * Alert-button delegate: on the server-error alert closes the card; on the link alert opens
  * iTunes with the jump URL when the confirm button was tapped.
  * @param info The alert result dictionary.
  * @ghidraAddress 0xb4a68
@@ -184,14 +184,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)alertSelect:(nonnull NSDictionary *)info;
 
 /**
- * @brief Alert-dismiss delegate: on the server-error alert tells the owning controller to close.
+ * Alert-dismiss delegate: on the server-error alert tells the owning controller to close.
  * @param info The alert result dictionary.
  * @ghidraAddress 0xb4c54
  */
 - (void)alertClose:(nonnull NSDictionary *)info;
 
 /**
- * @brief Closes any presented alert.
+ * Closes any presented alert.
  * @ghidraAddress 0xb4d50
  */
 - (void)detailClose;

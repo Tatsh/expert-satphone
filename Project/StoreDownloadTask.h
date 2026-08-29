@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One queued store download.
+ * One queued store download.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreDownloadTask, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -16,23 +16,23 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A source and destination pair describing one store download.
+ * A source and destination pair describing one store download.
  */
 @interface StoreDownloadTask : NSObject
 
 /**
- * @brief Where to fetch from.
+ * Where to fetch from.
  *
  * An @c NSString despite the name and despite the initialiser's @c URL keyword. The property
  * metadata encodes it as @c T@"NSString" and the initialiser stores its argument straight into it
  * with no conversion, so the argument is a string too.
  */
 @property(nonatomic, strong, nullable) NSString *sourceURL;
-/** @brief Where to write it. */
+/** Where to write it. */
 @property(nonatomic, strong, nullable) NSString *destPath;
 
 /**
- * @brief Records a download to perform later.
+ * Records a download to perform later.
  * @param url The source, as a string.
  * @param path The destination path.
  * @return The initialised task.

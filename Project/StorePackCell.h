@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One pack's row in the store's pack table.
+ * One pack's row in the store's pack table.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePackCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -16,7 +16,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A table row showing one pack's artwork, name, price and status markers.
+ * A table row showing one pack's artwork, name, price and status markers.
  *
  * The row's six subviews are ivars rather than properties; only the artwork is exposed, and only
  * for reading.
@@ -24,13 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface StorePackCell : UITableViewCell
 
 /**
- * @brief The row's artwork view.
+ * The row's artwork view.
  * @ghidraAddress 0xf1aec (getter)
  */
 @property(nonatomic, readonly, strong, nullable) UIImageView *artworkView;
 
 /**
- * @brief Whether the row shows its owned marker.
+ * Whether the row shows its owned marker.
  *
  * There is no backing ivar: the property is stored in the purchased label's own visibility, and
  * both accessors invert it.
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic) BOOL isPurchased;
 
 /**
- * @brief Builds the row's six subviews.
+ * Builds the row's six subviews.
  *
  * The background image view becomes the cell's @c backgroundView rather than a subview. The other
  * six go on the content view, and their horizontal frames are measured against its width once,
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
               reuseIdentifier:(nullable NSString *)reuseIdentifier;
 
 /**
- * @brief Fills the row in from a pack.
+ * Fills the row in from a pack.
  *
  * A pack whose purchase is merely pending shows as owned, since the purchased marker is driven by
  * @c -isPurchased: **or** @c -isPending: .
@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadPackInfo:(nullable StorePackInfo *)packInfo;
 
 /**
- * @brief Sets the row's background artwork.
+ * Sets the row's background artwork.
  * @param bgImg The artwork.
  * @ghidraAddress 0xf1ad4
  */

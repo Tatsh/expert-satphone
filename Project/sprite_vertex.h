@@ -4,7 +4,7 @@
 
 /**
  * @file
- * @brief The interleaved sprite-quad vertex and the helper that fills a quad's texture coordinates
+ * The interleaved sprite-quad vertex and the helper that fills a quad's texture coordinates
  * and colour.
  *
  * Reconstructed from Ghidra program Jubeat, image base 0x100000000; all @ghidraAddress values are
@@ -15,7 +15,7 @@
  */
 
 /**
- * @brief One vertex of an interleaved sprite quad: position, texture coordinate, and four 8-bit
+ * One vertex of an interleaved sprite quad: position, texture coordinate, and four 8-bit
  *        colour channels.
  *
  * The engine draws a sprite as four consecutive vertices at a stride of @c 0x18 bytes. The ivar's
@@ -35,7 +35,7 @@ struct SpriteVertex {
 };
 
 /**
- * @brief How a sprite quad's texture coordinates are permuted across its four vertices.
+ * How a sprite quad's texture coordinates are permuted across its four vertices.
  *
  * Any value outside 0..5 is treated as @c SpriteTransformNone. The two transposing modes are the
  * pair of 90-degree rotations; which is clockwise depends on the render target's Y-axis direction
@@ -51,7 +51,7 @@ enum SpriteTransform {
 };
 
 /**
- * @brief Writes the texture coordinates and packed colour of one four-vertex sprite quad.
+ * Writes the texture coordinates and packed colour of one four-vertex sprite quad.
  *
  * Clamps @p flAlpha into [0, 1] (a NaN propagates, matching the binary's unordered compare),
  * lays the (@p flU0, @p flV0)-(@p flU1, @p flV1) texture rectangle across the four vertices in the

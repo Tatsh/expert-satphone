@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Thin wrappers over UIKit, Core Animation, and the file system.
+ * Thin wrappers over UIKit, Core Animation, and the file system.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Returns the main screen's bounds, in points.
+ * Returns the main screen's bounds, in points.
  *
  * A one-liner over @c [UIScreen mainScreen].bounds . Reports the full screen bounds, ignoring
  * safe-area insets and interface orientation, so on a rotated device the width and height are not
@@ -35,7 +35,7 @@ extern "C" {
 CGRect GetMainScreenBounds(void);
 
 /**
- * @brief Freezes a layer's animations in place, the standard Core Animation "pause layer" idiom.
+ * Freezes a layer's animations in place, the standard Core Animation "pause layer" idiom.
  *
  * Captures the layer's current local time with @c -convertTime:fromLayer: BEFORE dropping the speed
  * to zero, because once the speed is zero the layer's local time stops advancing; the captured time
@@ -48,7 +48,7 @@ CGRect GetMainScreenBounds(void);
 void PauseLayerAnimation(CALayer *pLayer);
 
 /**
- * @brief Resumes a layer frozen by @c PauseLayerAnimation without the animation jumping.
+ * Resumes a layer frozen by @c PauseLayerAnimation without the animation jumping.
  *
  * Reads back the stashed @c timeOffset , restores the speed to one, clears both @c timeOffset and
  * @c beginTime , then shifts @c beginTime forward by the wall-clock time spent paused so the
@@ -63,7 +63,7 @@ void PauseLayerAnimation(CALayer *pLayer);
 void ResumeLayerAnimation(CALayer *pLayer);
 
 /**
- * @brief Marks a file URL so that iCloud and iTunes will not back it up.
+ * Marks a file URL so that iCloud and iTunes will not back it up.
  *
  * Sets @c NSURLIsExcludedFromBackupKey to @c YES on the URL. The @c NSError out-parameter is
  * written but never examined, so a failure is silent; if the URL is not a file URL, or the file
@@ -76,7 +76,7 @@ void ResumeLayerAnimation(CALayer *pLayer);
 void ExcludeUrlFromICloudBackup(NSURL *pUrl);
 
 /**
- * @brief Reports whether the shared App Group container directory exists on disk.
+ * Reports whether the shared App Group container directory exists on disk.
  *
  * Resolves the container URL for the group identifier and tests its path with
  * @c -fileExistsAtPath: . If the app group is not provisioned the URL is nil, so the path is nil
@@ -90,7 +90,7 @@ void ExcludeUrlFromICloudBackup(NSURL *pUrl);
 BOOL IsAppGroupContainerAvailable(void);
 
 /**
- * @brief Writes sticker data into the shared App Group container and records it in the index.
+ * Writes sticker data into the shared App Group container and records it in the index.
  *
  * Writes @p pData into the group container under @p pszFileName, and on success adds a
  * filename-to-info mapping to the shared @c NSUserDefaults suite that the share extension reads.

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The settings-screen "inquiry" (contact/support) view controller.
+ * The settings-screen "inquiry" (contact/support) view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsInquiryViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It hosts a
@@ -15,26 +15,26 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A view controller presenting the support inquiry page in a @c UIWebView.
+ * A view controller presenting the support inquiry page in a @c UIWebView.
  */
 @interface SettingsInquiryViewController : UIViewController <UIWebViewDelegate>
 
 /**
- * @brief Initialises the controller and builds its request and title from the inquiry URL.
+ * Initialises the controller and builds its request and title from the inquiry URL.
  * @return The initialised controller.
  * @ghidraAddress 0xd8908
  */
 - (instancetype)init;
 
 /**
- * @brief Builds the web view and loading indicator, then loads the inquiry request. Called after
+ * Builds the web view and loading indicator, then loads the inquiry request. Called after
  *        the view is available; the request is built from @c +[ScratchUtil getInquiryURL].
  * @ghidraAddress 0xd8964
  */
 - (void)initPageView;
 
 /**
- * @brief Initialises the controller to load an explicit URL instead of the inquiry URL.
+ * Initialises the controller to load an explicit URL instead of the inquiry URL.
  * @param url The URL string to load.
  * @return The initialised controller.
  * @ghidraAddress 0xd8ccc
@@ -42,14 +42,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithURL:(nullable NSString *)url;
 
 /**
- * @brief Clears the shared URL cache when a load starts.
+ * Clears the shared URL cache when a load starts.
  * @param webView The web view that started loading.
  * @ghidraAddress 0xd8de4
  */
 - (void)webViewDidStartLoad:(UIWebView *)webView;
 
 /**
- * @brief Resource-load hook that stamps the app's user agent onto every outgoing request.
+ * Resource-load hook that stamps the app's user agent onto every outgoing request.
  * @param uiWebView The web view loading the resource.
  * @param resource The resource being loaded.
  * @param request The outgoing request, stamped with the user agent.
@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
                       fromDataSource:(nullable id)dataSource;
 
 /**
- * @brief Intercepts the page's @c openurl:// links: rewrites them to @c https:// , opens them
+ * Intercepts the page's @c openurl:// links: rewrites them to @c https:// , opens them
  *        externally, and pops this controller. Returns @c NO for a handled link and @c YES
  *        otherwise.
  * @param webView The web view asking.
@@ -79,14 +79,14 @@ NS_ASSUME_NONNULL_BEGIN
                 navigationType:(UIWebViewNavigationType)navigationType;
 
 /**
- * @brief Stops and removes the loading indicator when a load finishes.
+ * Stops and removes the loading indicator when a load finishes.
  * @param webView The web view that finished loading.
  * @ghidraAddress 0xd912c
  */
 - (void)webViewDidFinishLoad:(UIWebView *)webView;
 
 /**
- * @brief Shows a network-error alert on a load failure.
+ * Shows a network-error alert on a load failure.
  * @param webView The web view reporting the failure.
  * @param error The load failure.
  * @ghidraAddress 0xd9188
@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error;
 
 /**
- * @brief Whether to rotate to a given interface orientation; portrait and portrait-upside-down
+ * Whether to rotate to a given interface orientation; portrait and portrait-upside-down
  *        only.
  * @param interfaceOrientation The orientation asked about.
  * @return YES for the two portrait orientations, NO otherwise.
@@ -103,14 +103,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * @brief The supported interface orientations: portrait and portrait-upside-down.
+ * The supported interface orientations: portrait and portrait-upside-down.
  * @return Both portrait orientations.
  * @ghidraAddress 0xd9280
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
- * @brief Whether the controller supports autorotation; always @c YES.
+ * Whether the controller supports autorotation; always @c YES.
  * @return Always YES.
  * @ghidraAddress 0xd9288
  */

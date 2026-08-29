@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The session-signed HTTP client.
+ * The session-signed HTTP client.
  *
  * Reconstructed from Ghidra program Jubeat (class SessionDownloader, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -22,12 +22,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A @c Downloader whose every request is session-signed and retried on a stale session.
+ * A @c Downloader whose every request is session-signed and retried on a stale session.
  */
 @interface SessionDownloader : Downloader
 
 /**
- * @brief Builds a signed POST from a URL and a parameter dictionary.
+ * Builds a signed POST from a URL and a parameter dictionary.
  *
  * Copies @p postDictionary, ensures it carries a @c cnonce (a random one when absent), merges every
  * @c +[JubeatAppDelegate clientInfo] entry, JSON-serialises it, and chains to
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
                    delegate:(nullable id)aDelegate;
 
 /**
- * @brief Builds a signed GET-style request that carries a fresh random @c cnonce.
+ * Builds a signed GET-style request that carries a fresh random @c cnonce.
  * @param url The endpoint.
  * @param aDelegate The object told how the request finished.
  * @return The initialised client.
@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithURL:(nullable NSURL *)url delegate:(nullable id)aDelegate;
 
 /**
- * @brief Builds a signed POST from a URL and a ready request body.
+ * Builds a signed POST from a URL and a ready request body.
  * @param url The endpoint.
  * @param postData The request body.
  * @param aDelegate The object told how the request finished.
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
                    delegate:(nullable id)aDelegate;
 
 /**
- * @brief The request's API tag, used to decide the session-retry behaviour.
+ * The request's API tag, used to decide the session-retry behaviour.
  * @ghidraAddress 0x100e3c
  */
 @property(nonatomic) int apiTag;

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The challenge-mode login/information modal — a self-delegating @c UIWebView sheet.
+ * The challenge-mode login/information modal — a self-delegating @c UIWebView sheet.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeLoginInformationView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. The sheet
@@ -13,41 +13,41 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What a @c ChallengeLoginInformationView tells its owner. The delegate ivar is untyped
+ * What a @c ChallengeLoginInformationView tells its owner. The delegate ivar is untyped
  * (@c \@) in the binary and every message is guarded by @c -respondsToSelector: , so all methods
  * are optional.
  */
 @protocol ChallengeLoginInformationViewDelegate <NSObject>
 @optional
-/** @brief The sheet's close button was tapped and the owner should dismiss the login sheet. */
+/** The sheet's close button was tapped and the owner should dismiss the login sheet. */
 - (void)closeLoginInformation;
-/** @brief The close button was tapped and, lacking @c closeLoginInformation , the owner should
+/** The close button was tapped and, lacking @c closeLoginInformation , the owner should
  * close its menu instead. */
 - (void)closeMenu;
 /**
- * @brief A @c jbtstore://pack/\<id\> link was followed.
+ * A @c jbtstore://pack/\<id\> link was followed.
  * @param info A dictionary @c \@{\@"pack": \<id\>} , or @c nil when the link carries no id.
  */
 - (void)clickPackInfomation:(nullable NSDictionary *)info;
 @end
 
 /**
- * @brief A @c UIWebView sheet that shows the challenge login/information page and routes its
+ * A @c UIWebView sheet that shows the challenge login/information page and routes its
  * custom link schemes back to a delegate.
  */
 @interface ChallengeLoginInformationView : UIView <UIWebViewDelegate>
 
 /**
- * @brief Whether this sheet stands alone (plays its own close sound); backed by @c _bIndependMenu .
+ * Whether this sheet stands alone (plays its own close sound); backed by @c _bIndependMenu .
  */
 @property(nonatomic) BOOL bIndependMenu;
 
-/** @brief The owner told about close and pack-link events. Held weakly; backed by @c _aDelegate .
+/** The owner told about close and pack-link events. Held weakly; backed by @c _aDelegate .
  */
 @property(nonatomic, weak, nullable) id<ChallengeLoginInformationViewDelegate> aDelegate;
 
 /**
- * @brief The designated initialiser.
+ * The designated initialiser.
  * @param frame The sheet's frame in its superview.
  * @param dispURL The page URL to load; when @c nil the challenge information URL is used.
  * @param btnType The close-button art selector; @c 1 uses the "back" image, otherwise "cancel".
@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
                       btnType:(int)btnType;
 
 /**
- * @brief Builds the sheet's subviews and starts loading. Funnelled to by the designated
+ * Builds the sheet's subviews and starts loading. Funnelled to by the designated
  * initialiser.
  * @param frame The view's initial frame.
  * @return The initialised view.
@@ -68,21 +68,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Loads the sheet's request into the web view, building one from @c dispURL when
+ * Loads the sheet's request into the web view, building one from @c dispURL when
  * @c firstRequest is not already set.
  * @ghidraAddress 0xaf914
  */
 - (void)notificationRequest;
 
 /**
- * @brief Close-button action: plays the close sound when independent, then notifies the delegate.
+ * Close-button action: plays the close sound when independent, then notifies the delegate.
  * @param sender The close button.
  * @ghidraAddress 0xaf9e0
  */
 - (void)closeMessage:(nullable id)sender;
 
 /**
- * @brief Resource-load hook that stamps the app's user agent onto every outgoing request.
+ * Resource-load hook that stamps the app's user agent onto every outgoing request.
  * @param uiWebView The web view loading the resource.
  * @param resource The resource being loaded.
  * @param request The outgoing request, stamped with the user agent.
@@ -98,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
                       fromDataSource:(nullable id)dataSource;
 
 /**
- * @brief Intercepts the page's custom link schemes; returns @c NO for a handled link and @c YES to
+ * Intercepts the page's custom link schemes; returns @c NO for a handled link and @c YES to
  * let the web view load the request.
  * @param webView The web view asking.
  * @param request The request it is about to load.
@@ -111,13 +111,13 @@ NS_ASSUME_NONNULL_BEGIN
                 navigationType:(UIWebViewNavigationType)navigationType;
 
 /**
- * @brief Stops and removes the loading indicator.
+ * Stops and removes the loading indicator.
  * @ghidraAddress 0xb00a8
  */
 - (void)stopIndicator;
 
 /**
- * @brief Shows a network-error alert and stops the indicator on a load failure.
+ * Shows a network-error alert and stops the indicator on a load failure.
  * @param webView The web view reporting the failure.
  * @param error The load failure.
  * @ghidraAddress 0xb0104
@@ -125,14 +125,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error;
 
 /**
- * @brief Clears the shared URL cache when a load starts.
+ * Clears the shared URL cache when a load starts.
  * @param webView The web view that started loading.
  * @ghidraAddress 0xb01f8
  */
 - (void)webViewDidStartLoad:(UIWebView *)webView;
 
 /**
- * @brief Stops the indicator and disables the WebKit touch callout when a load finishes.
+ * Stops the indicator and disables the WebKit touch callout when a load finishes.
  * @param webView The web view that finished loading.
  * @ghidraAddress 0xb0240
  */

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The mission-achievement message banner.
+ * The mission-achievement message banner.
  *
  * Reconstructed from Ghidra program Jubeat (class MissionAchievementMessage, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -17,29 +17,29 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Told when the banner has dismissed itself.
+ * Told when the banner has dismissed itself.
  */
 @protocol MissionAchievementMessageDelegate <NSObject>
 @optional
 /**
- * @brief Sent when the banner finishes its exit animation and should be removed.
+ * Sent when the banner finishes its exit animation and should be removed.
  */
 - (void)messageClose;
 @end
 
 /**
- * @brief A tappable banner that slides in to announce a completed mission and auto-dismisses.
+ * A tappable banner that slides in to announce a completed mission and auto-dismisses.
  */
 @interface MissionAchievementMessage : UIView
 
 /**
- * @brief The object told when the banner dismisses. Held weakly.
+ * The object told when the banner dismisses. Held weakly.
  * @ghidraAddress 0x349c78
  */
 @property(nonatomic, weak, nullable) id<MissionAchievementMessageDelegate> aDelegate;
 
 /**
- * @brief Builds the banner for a mission title and its achievement state.
+ * Builds the banner for a mission title and its achievement state.
  *
  * Fills the whole screen with a dimming background, lays out the spinning completion icon, the
  * balloon message background, and the achievement text, then parks everything off-screen with
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithTitle:(nullable id)title;
 
 /**
- * @brief Runs the four-stage entry animation and plays the completion sound.
+ * Runs the four-stage entry animation and plays the completion sound.
  *
  * Clears the tap flag, plays @c SD_MISSION_GAUGE , and fades the banner in over 0.2s; the
  * completion blocks start the icon spinning, slide the message view down, settle the balloon, and
@@ -61,13 +61,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)enterAnimationStart;
 
 /**
- * @brief Runs the exit animation that slides the banner back off-screen.
+ * Runs the exit animation that slides the banner back off-screen.
  * @ghidraAddress 0x4f058
  */
 - (void)outerAnimationStart;
 
 /**
- * @brief Parks the balloon and message view off-screen and hides the banner, ready for entry.
+ * Parks the balloon and message view off-screen and hides the banner, ready for entry.
  *
  * Collapses the balloon toward its arrow with a zero scale and pushes the message view up by its
  * own height, then sets the banner's alpha to zero.
@@ -76,27 +76,27 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)transReset;
 
 /**
- * @brief The auto-dismiss timer callback: clears the timer and starts the exit animation.
+ * The auto-dismiss timer callback: clears the timer and starts the exit animation.
  * @param timer The fired timer.
  * @ghidraAddress 0x4f730
  */
 - (void)dispEnd:(nullable NSTimer *)timer;
 
 /**
- * @brief Tells the delegate the banner has closed, if it responds.
+ * Tells the delegate the banner has closed, if it responds.
  * @ghidraAddress 0x4f76c
  */
 - (void)messageEnd;
 
 /**
- * @brief Builds the balloon background sized to @p size and adds it to the message view.
+ * Builds the balloon background sized to @p size and adds it to the message view.
  * @param size The balloon's content size.
  * @ghidraAddress 0x4f81c
  */
 - (void)createMassageBg:(CGSize)size;
 
 /**
- * @brief Measures the height the achievement text needs for a title.
+ * Measures the height the achievement text needs for a title.
  *
  * With no title the base line height (40 on a pad, 20 otherwise) is returned; otherwise the text is
  * measured in a throwaway label and the height grows by one line per achieved entry.
@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (int)messageHeight:(nullable id)title;
 
 /**
- * @brief Replaces the banner's text with a new title and re-lays out the balloon.
+ * Replaces the banner's text with a new title and re-lays out the balloon.
  *
  * Tears down the old balloon and text, re-lays the text inside the balloon content box, sizes a new
  * balloon to fit, and recentres the completion icon over it.
@@ -117,7 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setAchieveTitle:(nullable id)title;
 
 /**
- * @brief Builds the attributed achievement text for a title.
+ * Builds the attributed achievement text for a title.
  *
  * The title is an array of lines of segments; segment zero of each line is the sheet name in white
  * and the rest are achieved sub-titles in orange, one per line, closed with a white flourish.
@@ -128,7 +128,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSAttributedString *)createAchiveText:(nullable id)title;
 
 /**
- * @brief Builds the array of reward-title lines for the mission sheets and their achievement state.
+ * Builds the array of reward-title lines for the mission sheets and their achievement state.
  *
  * For every sheet, opens a line group with the sheet name, then for each of the sheet's mission
  * terms whose id matches an achievement record renders a "title" or "title(progress/target)" entry;

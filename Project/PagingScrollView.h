@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A paging scroll view whose neighbouring pages stay touchable.
+ * A paging scroll view whose neighbouring pages stay touchable.
  *
  * Reconstructed from Ghidra program Jubeat (class PagingScrollView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A @c UIScrollView that hit-tests its own subviews directly.
+ * A @c UIScrollView that hit-tests its own subviews directly.
  *
  * The one override is the standard trick for a carousel whose pages are narrower than the screen:
  * the scroll view is made full width so it receives touches across the whole screen, and this

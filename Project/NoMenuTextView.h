@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A text view with no edit menu and no long-press.
+ * A text view with no edit menu and no long-press.
  *
  * Reconstructed from Ghidra program Jubeat (class NoMenuTextView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A @c UITextView that suppresses the selection menu from both ends.
+ * A @c UITextView that suppresses the selection menu from both ends.
  *
  * The fourth text view in this binary that fights the edit menu, and the only one that does more
  * than refuse first-responder status: it disables the long-press recogniser that raises the menu,

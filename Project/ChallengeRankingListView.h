@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The per-tune scratch ranking list: the country/rival ranking table for one challenge
+ * The per-tune scratch ranking list: the country/rival ranking table for one challenge
  * tune, with the difficulty and area selectors, paging controls, and the rival-add overlay.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeRankingListView, image base
@@ -16,7 +16,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The delegate a @c ChallengeRankingListView reports back to.
+ * The delegate a @c ChallengeRankingListView reports back to.
  *
  * Every selector is optional: the list only messages the delegate when it responds. The committed
  * @c ScratchMusicDetailView and @c ChallengePrevRankingView both adopt this protocol.
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * @brief A challenge-tune ranking list built over a modal frame.
+ * A challenge-tune ranking list built over a modal frame.
  *
  * Two initialisers construct it: one from a resolved @c ScratchInfo (the music-detail path), the
  * other from a raw line-up dictionary (the previous-event path). Both build the same chrome in
@@ -39,14 +39,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ChallengeRankingListView : UIView
 
 /**
- * @brief The delegate, weakly held and untyped in the metadata.
+ * The delegate, weakly held and untyped in the metadata.
  * @ghidraAddress 0x15a8c8 (getter)
  * @ghidraAddress 0x15a8e8 (setter)
  */
 @property(nonatomic, weak, nullable) id<ChallengeRankingListViewDelegate> aDelegate;
 
 /**
- * @brief Builds the list for a resolved scratch track.
+ * Builds the list for a resolved scratch track.
  * @param frame The modal frame to lay out over.
  * @param mInfo The resolved track, whose id, name, and the player's rank seed the list.
  * @param rankType The initial area (0 = country, 1 = rival).
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
                      rankType:(int)rankType;
 
 /**
- * @brief Builds the list for a line-up dictionary from the previous-event listing.
+ * Builds the list for a line-up dictionary from the previous-event listing.
  * @param frame The modal frame to lay out over.
  * @param mDict The line-up record, carrying @c name and @c music_id .
  * @param scratchID The event's scratch id, boxed for the request body.
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
                     scratchID:(int)scratchID;
 
 /**
- * @brief Swaps the back button's image for the ranking-screen variant.
+ * Swaps the back button's image for the ranking-screen variant.
  * @ghidraAddress 0x15a440
  */
 - (void)replaceBackBtnImage;

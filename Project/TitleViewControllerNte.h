@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief NTE (new title event) split title-screen controller.
+ * NTE (new title event) split title-screen controller.
  *
  * Reconstructed from Ghidra program Jubeat (class TitleViewControllerNte, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class NteTitleCoreController;
 
 /**
- * @brief The NTE themed title screen composed of a top flip-book and a bottom core controller.
+ * The NTE themed title screen composed of a top flip-book and a bottom core controller.
  *
  * Acts as the @c UnsealViewController flip-book's delegate, relaying its page changes into the
  * bottom controller's background.
@@ -50,38 +50,38 @@ NS_ASSUME_NONNULL_BEGIN
 @property(strong, nonatomic, nullable) NteTitleCoreController *bottomController;
 
 /**
- * @brief Initialises the controller and builds both child controllers sized to the device idiom.
+ * Initialises the controller and builds both child controllers sized to the device idiom.
  * @return The initialised controller.
  * @ghidraAddress 0x71e74
  */
 - (instancetype)init;
 
 /**
- * @brief Builds the base view hierarchy, then loads both child controllers' views.
+ * Builds the base view hierarchy, then loads both child controllers' views.
  * @ghidraAddress 0x72288
  */
 - (void)loadView;
 
 /**
- * @brief Begins the base title network work, then starts the bottom controller.
+ * Begins the base title network work, then starts the bottom controller.
  * @ghidraAddress 0x722f8
  */
 - (void)start;
 
 /**
- * @brief Forwards the logo reveal to the bottom controller.
+ * Forwards the logo reveal to the bottom controller.
  * @ghidraAddress 0x72354
  */
 - (void)showLogo;
 
 /**
- * @brief Tears down both child controllers and stops the bottom controller's animation.
+ * Tears down both child controllers and stops the bottom controller's animation.
  * @ghidraAddress 0x7236c
  */
 - (void)stopAnimation;
 
 /**
- * @brief Delegate callback from the flip-book: swaps the bottom controller's background image.
+ * Delegate callback from the flip-book: swaps the bottom controller's background image.
  * @param index The index of the newly shown artwork.
  * @param completed Whether the page-turn animation ran to completion.
  * @ghidraAddress 0x72474
@@ -89,33 +89,33 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)changeSelectedImage:(int)index completed:(BOOL)completed;
 
 /**
- * @brief Notification handler for entering the background. Does nothing.
+ * Notification handler for entering the background. Does nothing.
  * @param notification The @c UIApplicationDidEnterBackgroundNotification .
  * @ghidraAddress 0x7248c
  */
 - (void)suspend:(nullable NSNotification *)notification;
 
 /**
- * @brief Notification handler for returning to the foreground. Does nothing.
+ * Notification handler for returning to the foreground. Does nothing.
  * @param notification The @c UIApplicationWillEnterForegroundNotification .
  * @ghidraAddress 0x72490
  */
 - (void)resume:(nullable NSNotification *)notification;
 
 /**
- * @brief Builds the top and bottom container views and installs each child controller's view.
+ * Builds the top and bottom container views and installs each child controller's view.
  * @ghidraAddress 0x72494
  */
 - (void)viewDidLoad;
 
 /**
- * @brief Chains up to the base implementation. Adds nothing.
+ * Chains up to the base implementation. Adds nothing.
  * @ghidraAddress 0x72868
  */
 - (void)viewDidUnload;
 
 /**
- * @brief Rotation hook. Does nothing.
+ * Rotation hook. Does nothing.
  * @param toInterfaceOrientation The orientation being rotated to.
  * @param duration The rotation animation duration.
  * @ghidraAddress 0x728a0
@@ -124,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
                                 duration:(NSTimeInterval)duration;
 
 /**
- * @brief Size-transition hook. Does nothing.
+ * Size-transition hook. Does nothing.
  * @param size The size being transitioned to.
  * @param coordinator The transition coordinator.
  * @ghidraAddress 0x728a4
@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
        withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator;
 
 /**
- * @brief Permits rotation only to the two portrait orientations.
+ * Permits rotation only to the two portrait orientations.
  * @param interfaceOrientation The candidate orientation.
  * @return @c YES for portrait or upside-down portrait.
  * @ghidraAddress 0x728a8
@@ -141,21 +141,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * @brief The supported orientations: portrait and upside-down portrait.
+ * The supported orientations: portrait and upside-down portrait.
  * @return @c UIInterfaceOrientationMaskPortrait | @c UIInterfaceOrientationMaskPortraitUpsideDown .
  * @ghidraAddress 0x728b8
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
- * @brief Allows autorotation.
+ * Allows autorotation.
  * @return @c YES .
  * @ghidraAddress 0x728c0
  */
 - (BOOL)shouldAutorotate;
 
 /**
- * @brief Releases the container views and removes the notification observers.
+ * Releases the container views and removes the notification observers.
  * @ghidraAddress 0x728c8
  */
 - (void)dealloc;

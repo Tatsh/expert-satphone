@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The Twitter-share customisation preview screen.
+ * The Twitter-share customisation preview screen.
  *
  * It shows the currently selected background frame with the accessory composited over it, scaled
  * to fit the device, and acts as the delegate of the @c SettingsTwFrameSelectView so a live
@@ -20,13 +20,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A modal preview of the composed Twitter-share image (frame plus accessory) that doubles as
+ * A modal preview of the composed Twitter-share image (frame plus accessory) that doubles as
  * the frame-select view's delegate.
  */
 @interface SettingsTwCustomViewController : UIViewController <SettingsTwFrameSelectViewDelegate>
 
 /**
- * @brief Builds the navigation item, the frame table of selectable themes, and seeds the selected
+ * Builds the navigation item, the frame table of selectable themes, and seeds the selected
  * frame default when none is stored.
  * @return The initialised controller.
  * @ghidraAddress 0x1c47a8
@@ -34,14 +34,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 
 /**
- * @brief Builds the preview: a dimmed backdrop, the frame sample image scaled to the device, and
+ * Builds the preview: a dimmed backdrop, the frame sample image scaled to the device, and
  * the accessory image composited over it.
  * @ghidraAddress 0x1c4cc4
  */
 - (void)loadView;
 
 /**
- * @brief Sent by the frame-select view while the user drags across rows: previews the frame without
+ * Sent by the frame-select view while the user drags across rows: previews the frame without
  * persisting it, restoring the stored frame afterwards.
  * @param identifier The highlighted frame's identifier.
  * @ghidraAddress 0x1c53b0
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)frameChange:(nullable NSString *)identifier;
 
 /**
- * @brief Sent by the frame-select view when a row is chosen: previews the frame and then persists
+ * Sent by the frame-select view when a row is chosen: previews the frame and then persists
  * it as the selected frame.
  * @param identifier The chosen frame's identifier.
  * @ghidraAddress 0x1c5494
@@ -57,35 +57,35 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)frameSelected:(nullable NSString *)identifier;
 
 /**
- * @brief Chains to the superclass.
+ * Chains to the superclass.
  * @param animated Whether the appearance is animated.
  * @ghidraAddress 0x1c5524
  */
 - (void)viewWillAppear:(BOOL)animated;
 
 /**
- * @brief Chains to the superclass.
+ * Chains to the superclass.
  * @param animated Whether the appearance is animated.
  * @ghidraAddress 0x1c555c
  */
 - (void)viewDidAppear:(BOOL)animated;
 
 /**
- * @brief Chains to the superclass, then flushes the user defaults so the frame choice is saved.
+ * Chains to the superclass, then flushes the user defaults so the frame choice is saved.
  * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x1c5594
  */
 - (void)viewWillDisappear:(BOOL)animated;
 
 /**
- * @brief Chains to the superclass.
+ * Chains to the superclass.
  * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x1c5608
  */
 - (void)viewDidDisappear:(BOOL)animated;
 
 /**
- * @brief Whether the controller may rotate to an interface orientation (portrait orientations
+ * Whether the controller may rotate to an interface orientation (portrait orientations
  * only).
  * @param interfaceOrientation The candidate orientation.
  * @return @c YES for portrait and portrait-upside-down.
@@ -94,14 +94,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * @brief The supported interface orientations (portrait mask).
+ * The supported interface orientations (portrait mask).
  * @return @c UIInterfaceOrientationMaskPortrait | @c UIInterfaceOrientationMaskPortraitUpsideDown .
  * @ghidraAddress 0x1c5650
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
- * @brief Whether the controller should autorotate.
+ * Whether the controller should autorotate.
  * @return Always @c YES .
  * @ghidraAddress 0x1c5658
  */

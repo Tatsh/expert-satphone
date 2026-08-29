@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The applilink SDK's URL percent-encoding helper.
+ * The applilink SDK's URL percent-encoding helper.
  *
  * Reconstructed from Ghidra program Jubeat (class NSStringURLEncoding, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -18,12 +18,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Wraps the two CoreFoundation percent-escape calls.
+ * Wraps the two CoreFoundation percent-escape calls.
  */
 @interface NSStringURLEncoding : NSObject
 
 /**
- * @brief Percent-encodes a string for use in a URL query component.
+ * Percent-encodes a string for use in a URL query component.
  *
  * Escapes the RFC 3986 reserved set plus the percent sign and square brackets, in UTF-8.
  *
@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSString *)URLEncodedString:(nullable NSString *)string;
 
 /**
- * @brief Percent-decodes a URL-encoded string.
+ * Percent-decodes a URL-encoded string.
  *
  * Leaves nothing escaped, so every sequence in the input is decoded.
  *

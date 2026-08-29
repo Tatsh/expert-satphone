@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One row of the challenge reward list.
+ * One row of the challenge reward list.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeRewardListCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -18,12 +18,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A reward row: a background plate carrying a title and an optional validity period.
+ * A reward row: a background plate carrying a title and an optional validity period.
  */
 @interface ChallengeRewardListCell : UITableViewCell
 
 /**
- * @brief Sets the cell's background colour and selection style. Creates no subviews.
+ * Sets the cell's background colour and selection style. Creates no subviews.
  * @param style The cell style.
  * @param reuseIdentifier The reuse identifier, or nil for a non-reusable cell.
  * @return The initialised cell.
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
               reuseIdentifier:(nullable NSString *)reuseIdentifier;
 
 /**
- * @brief Creates the plate on first use and sets its image.
+ * Creates the plate on first use and sets its image.
  *
  * The plate is sized to the image and placed at the cell's origin. Must be called before
  * @c -setTitle:period:, which measures against this plate and does nothing without it.
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setBgImage:(nullable UIImage *)bgImg;
 
 /**
- * @brief Creates the two labels on first use and fills them in.
+ * Creates the two labels on first use and fills them in.
  *
  * Returns immediately when @c -setBgImage: has not run, since every coordinate here is derived
  * from the plate's frame. A nil @c period leaves the period label uncreated and centres the title

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Score-tweet composition.
+ * Score-tweet composition.
  *
  * Reconstructed from Ghidra program Jubeat (class ResultTweet, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -21,12 +21,12 @@ NS_ASSUME_NONNULL_BEGIN
 @class Sequence;
 
 /**
- * @brief Builds the image a score tweet carries.
+ * Builds the image a score tweet carries.
  */
 @interface ResultTweet : NSObject
 
 /**
- * @brief Initialises the composer with the play sequence and its renderer configuration.
+ * Initialises the composer with the play sequence and its renderer configuration.
  *
  * @param info The finished play @c Sequence , the source of the score and music-bar result.
  * @param conf The @c RendererConf describing the played chart's difficulty and level.
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithInfo:(Sequence *)info conf:(RendererConf *)conf;
 
 /**
- * @brief Sets the two title images, one drawn over a dark plate and one over a light plate.
+ * Sets the two title images, one drawn over a dark plate and one over a light plate.
  *
  * @param title The title image drawn when the dark base plate is used.
  * @param white The title image drawn when the light base plate is used.
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setTitle:(nullable UIImage *)title white:(nullable UIImage *)white;
 
 /**
- * @brief Composes and returns the finished tweet image.
+ * Composes and returns the finished tweet image.
  *
  * @return The composed image, or nil when no image context could be produced.
  * @ghidraAddress 0xbc1c8
@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable UIImage *)generateTweetImage;
 
 /**
- * @brief Vends the sample image for a named tweet frame.
+ * Vends the sample image for a named tweet frame.
  *
  * @param frameName The frame's resource name, passed to
  * @c +[TweetResourceManager getResourceData:].
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable UIImage *)getSampleImage:(nullable NSString *)frameName;
 
 /**
- * @brief Vends the accessory sample image.
+ * Vends the accessory sample image.
  *
  * The argument is ignored; the accessory is taken from the current marker default.
  *
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable UIImage *)getAccessoryImage:(nullable NSString *)accessoryName;
 
 /**
- * @brief The on-disk path of one of the tweet decoration images.
+ * The on-disk path of one of the tweet decoration images.
  *
  * Resolves against the append-data directory, falling back to the @c shareData subtree when the
  * frame-specific file is absent. Callers load the result with

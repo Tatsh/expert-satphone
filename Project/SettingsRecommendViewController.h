@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The settings-screen recommend advert view controller.
+ * The settings-screen recommend advert view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsRecommendViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. The class object
@@ -13,16 +13,16 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A view controller presenting the recommend advert list in the settings screen.
+ * A view controller presenting the recommend advert list in the settings screen.
  */
 @interface SettingsRecommendViewController : UIViewController
 
-/** @brief The loading spinner shown until the advert list appears.
+/** The loading spinner shown until the advert list appears.
  *  @ghidraAddress 0xd00c8 (getter), 0xd00d8 (setter) */
 @property(nonatomic, strong, nullable) UIActivityIndicatorView *indicatorView;
 
 /**
- * @brief Builds the controller: a grey background, a recommend ad-area web view, and a centred
+ * Builds the controller: a grey background, a recommend ad-area web view, and a centred
  *        loading spinner, and opens the ad area.
  * @return The initialised controller.
  * @ghidraAddress 0xcf890

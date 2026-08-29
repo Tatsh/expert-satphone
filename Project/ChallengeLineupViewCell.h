@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One row of the challenge lineup, optionally with a store button.
+ * One row of the challenge lineup, optionally with a store button.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeLineupViewCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -18,7 +18,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief How a store type maps onto the button's state.
+ * How a store type maps onto the button's state.
  *
  * The raw values are the two compares in @c -setLineupCell:name:bgImg:storeType: ; the names are
  * inferred from what each arm does, since the metadata types the argument only as @c i.
@@ -29,24 +29,24 @@ typedef NS_ENUM(int, ChallengeLineupStoreType) {
 };
 
 /**
- * @brief What a @c ChallengeLineupViewCell tells its owner.
+ * What a @c ChallengeLineupViewCell tells its owner.
  */
 @protocol ChallengeLineupViewCellDelegate <NSObject>
 @optional
 /**
- * @brief Sent when the row's store button is tapped.
+ * Sent when the row's store button is tapped.
  * @param cell The row that was tapped — not the button.
  */
 - (void)tapStoreBtn:(id)cell;
 @end
 
 /**
- * @brief A lineup row: a plate, a square artwork, a name, and on the pad a store button.
+ * A lineup row: a plate, a square artwork, a name, and on the pad a store button.
  */
 @interface ChallengeLineupViewCell : UITableViewCell
 
 /**
- * @brief The object told when the store button is tapped.
+ * The object told when the store button is tapped.
  *
  * Weak and untyped in the metadata.
  * @ghidraAddress 0x14607c (getter)
@@ -54,7 +54,7 @@ typedef NS_ENUM(int, ChallengeLineupStoreType) {
 @property(nonatomic, weak) id aDelegate;
 
 /**
- * @brief Builds the row at the metrics for the current idiom.
+ * Builds the row at the metrics for the current idiom.
  *
  * On the phone the store button is never created, so the row is plate, artwork and label only and
  * the label takes the full remaining width.
@@ -67,7 +67,7 @@ typedef NS_ENUM(int, ChallengeLineupStoreType) {
               reuseIdentifier:(nullable NSString *)reuseIdentifier;
 
 /**
- * @brief Fills the row in and sets the store button's state.
+ * Fills the row in and sets the store button's state.
  *
  * A store type outside the two named values hides the button and leaves its enabled state alone.
  *
@@ -83,7 +83,7 @@ typedef NS_ENUM(int, ChallengeLineupStoreType) {
             storeType:(int)storeType;
 
 /**
- * @brief The store button's action.
+ * The store button's action.
  *
  * Takes no argument, unlike the tap handlers on the other cells in this tree, and hands the
  * delegate the cell.

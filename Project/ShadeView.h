@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A dimming overlay that reports taps to its delegate.
+ * A dimming overlay that reports taps to its delegate.
  *
  * Reconstructed from Ghidra program Jubeat (class ShadeView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -14,12 +14,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What a @c ShadeView tells its owner.
+ * What a @c ShadeView tells its owner.
  */
 @protocol ShadeViewDelegate <NSObject>
 @optional
 /**
- * @brief Sent when the shade is tapped.
+ * Sent when the shade is tapped.
  *
  * Optional: the view tests for it with @c -respondsToSelector: before sending.
  */
@@ -27,12 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * @brief A flat dark panel that swallows touches and reports each tap.
+ * A flat dark panel that swallows touches and reports each tap.
  */
 @interface ShadeView : UIView
 
 /**
- * @brief The object told when the shade is tapped.
+ * The object told when the shade is tapped.
  *
  * The metadata gives no ownership attribute, so this is @c assign rather than @c strong or
  * @c weak — the view does not keep the delegate alive and does not have it nilled on release.
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign, nullable) id<ShadeViewDelegate> delegate;
 
 /**
- * @brief Builds the shade: interaction enabled, and a flat dark fill at 80% alpha.
+ * Builds the shade: interaction enabled, and a flat dark fill at 80% alpha.
  * @param frame The view's initial frame.
  * @return The initialised view.
  * @ghidraAddress 0x25d674

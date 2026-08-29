@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The heading above a store genre's pack list.
+ * The heading above a store genre's pack list.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreGenreTitleView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What a @c StoreGenreTitleView tells its owner.
+ * What a @c StoreGenreTitleView tells its owner.
  *
  * The protocol's name is the binary's own, from the delegate ivar's encoding
  * @c \@"<StoreGenreTitleViewDelegate>" .
@@ -30,17 +30,17 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * @brief A genre heading with a title, a description, and an optional downloaded banner.
+ * A genre heading with a title, a description, and an optional downloaded banner.
  */
 @interface StoreGenreTitleView : UIView <DownloaderDelegate>
 
 /**
- * @brief The object told about the heading's events.
+ * The object told about the heading's events.
  */
 @property(nonatomic, weak, nullable) id<StoreGenreTitleViewDelegate> delegate;
 
 /**
- * @brief Builds the heading, differently per idiom.
+ * Builds the heading, differently per idiom.
  *
  * @param frame The heading's frame.
  * @return The initialised heading.
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Fills the heading in from a genre record, and reports how tall it needs to be.
+ * Fills the heading in from a genre record, and reports how tall it needs to be.
  *
  * On the pad this also starts a banner fetch, unless the cache already holds one. On the phone the
  * comment is re-fitted and centred instead.
@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (int)setGenreTitleInfo:(nullable StorePackListGenre *)info;
 
 /**
- * @brief Puts a banner up and fades it in.
+ * Puts a banner up and fades it in.
  *
  * The fade is driven from zero every time, so re-setting the image replays the animation.
  *
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setBannerImage:(nullable UIImage *)image;
 
 /**
- * @brief Takes the fetched banner, and caches it under its address.
+ * Takes the fetched banner, and caches it under its address.
  *
  * Ignores any downloader that is not the one this view started.
  *

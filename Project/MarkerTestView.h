@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The marker (note-hit graphic) preview view.
+ * The marker (note-hit graphic) preview view.
  *
  * Reconstructed from Ghidra program Jubeat (class MarkerTestView, image base 0x100000000); all
  * @ghidraAddress values are offsets relative to that image base. This class has no embedded
@@ -19,19 +19,19 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A self-contained OpenGL ES view that previews a marker's hit animation.
+ * A self-contained OpenGL ES view that previews a marker's hit animation.
  */
 @interface MarkerTestView : UIView
 
 /**
- * @brief Returns @c CAEAGLLayer so the view is backed by a Core Animation EAGL layer.
+ * Returns @c CAEAGLLayer so the view is backed by a Core Animation EAGL layer.
  * @return The @c CAEAGLLayer class.
  * @ghidraAddress 0x80294
  */
 + (Class)layerClass;
 
 /**
- * @brief Initialises the view, its EAGL context and framebuffer, and the per-theme sound names.
+ * Initialises the view, its EAGL context and framebuffer, and the per-theme sound names.
  * @param frame The view's frame.
  * @return The initialised view, or @c nil if the GL context could not be created.
  * @ghidraAddress 0x802a8
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Creates the framebuffer, colour renderbuffer, and shared quad index buffer, and configures
+ * Creates the framebuffer, colour renderbuffer, and shared quad index buffer, and configures
  *        the fixed-function GL state.
  * @return @c YES if the framebuffer is complete, otherwise @c NO.
  * @ghidraAddress 0x80710
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)createFramebuffer;
 
 /**
- * @brief Loads a marker's animation frames and press button into the ten sprite-sheet textures.
+ * Loads a marker's animation frames and press button into the ten sprite-sheet textures.
  *
  * Opens the marker's data archive, decrypts each named entry into an image, and packs the marker
  * frames and the up/down button graphics into the texture table with @c -setSubImage:inRect: .
@@ -58,37 +58,37 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadMarkerTex:(nullable NSString *)markerID;
 
 /**
- * @brief Releases the ten sprite-sheet textures and resets the current marker.
+ * Releases the ten sprite-sheet textures and resets the current marker.
  * @ghidraAddress 0x80e58
  */
 - (void)releaseTex;
 
 /**
- * @brief Resets the press flags, timing state, and base time to start a fresh preview.
+ * Resets the press flags, timing state, and base time to start a fresh preview.
  * @ghidraAddress 0x80f54
  */
 - (void)reset;
 
 /**
- * @brief Advances the timing state machine, plays the matching hit sound, and renders one frame.
+ * Advances the timing state machine, plays the matching hit sound, and renders one frame.
  * @ghidraAddress 0x80fa4
  */
 - (void)draw;
 
 /**
- * @brief Deletes the framebuffer, colour renderbuffer, and index buffer.
+ * Deletes the framebuffer, colour renderbuffer, and index buffer.
  * @ghidraAddress 0x81620
  */
 - (void)destroyFramebuffer;
 
 /**
- * @brief The current marker identifier, set when marker textures are loaded.
+ * The current marker identifier, set when marker textures are loaded.
  * @ghidraAddress 0x817a0 (getter)
  */
 @property(atomic, readonly, nullable) NSString *currentMarker;
 
 /**
- * @brief The per-theme hit-sound names, indexed by @c JubeatTheme .
+ * The per-theme hit-sound names, indexed by @c JubeatTheme .
  *
  * A three-element array (original, ripples, knit), each element a four-element array of
  * sound names ordered perfect, good, fast, slow.

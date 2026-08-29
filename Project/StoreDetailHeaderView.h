@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The header panel atop a store pack's detail page.
+ * The header panel atop a store pack's detail page.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreDetailHeaderView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at
@@ -17,43 +17,43 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A pack's detail header: artwork with its reflection, name, comment, purchase and extend
+ * A pack's detail header: artwork with its reflection, name, comment, purchase and extend
  * buttons, a related-site link, and a "new" marker.
  */
 @interface StoreDetailHeaderView : UIView <AlertViewManagerDelegate>
 
 /**
- * @brief The pack's title label.
+ * The pack's title label.
  * @ghidraAddress 0xfa9e4 (getter)
  */
 @property(nonatomic, strong, nullable) UILabel *labelName;
 
 /**
- * @brief The pack's description label.
+ * The pack's description label.
  * @ghidraAddress 0xfaa08 (getter)
  */
 @property(nonatomic, strong, nullable) UILabel *labelComment;
 
 /**
- * @brief The purchase button.
+ * The purchase button.
  * @ghidraAddress 0xfaa2c (getter)
  */
 @property(nonatomic, strong, nullable) StoreButton *buttonPurchase;
 
 /**
- * @brief The "download extension" button, hidden unless the pack has an extension.
+ * The "download extension" button, hidden unless the pack has an extension.
  * @ghidraAddress 0xfaa50 (getter)
  */
 @property(nonatomic, strong, nullable) UIButton *buttonExtendDownload;
 
 /**
- * @brief The related-site link button.
+ * The related-site link button.
  * @ghidraAddress 0xfaa74 (getter)
  */
 @property(nonatomic, readonly, nullable) StoreLinkButton *buttonLink;
 
 /**
- * @brief Builds the header's subviews.
+ * Builds the header's subviews.
  * @param frame The header's frame.
  * @return The initialised header.
  * @ghidraAddress 0xf9074
@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Lays the header out for a pack: sizes the name and comment to their text, positions the
+ * Lays the header out for a pack: sizes the name and comment to their text, positions the
  * link button, resizes the header to fit, and shows the "new" marker when appropriate.
  * @param packInfo The pack to display.
  * @ghidraAddress 0xf9dc4
@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadPackInfo:(nullable StorePackInfo *)packInfo;
 
 /**
- * @brief Sets the artwork and rebuilds its reflection.
+ * Sets the artwork and rebuilds its reflection.
  * @param artwork The artwork image.
  * @ghidraAddress 0xfa84c
  */

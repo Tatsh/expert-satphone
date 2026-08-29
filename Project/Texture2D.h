@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The engine's sprite-sheet texture: a single OpenGL ES texture that batches many sprite
+ * The engine's sprite-sheet texture: a single OpenGL ES texture that batches many sprite
  * quads into one draw call.
  *
  * Reconstructed from Ghidra program Jubeat (class Texture2D, image base 0x100000000). All
@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The internal storage format of a texture, chosen when its pixels are uploaded.
+ * The internal storage format of a texture, chosen when its pixels are uploaded.
  *
  * Backed by @c NSUInteger to match the @c Q -encoded @c pixelFormat ivar. The name is inferred
  * from the GL formats each value selects in @c -setData:pixelFormat:pixelSize:width:height: rather
@@ -34,12 +34,12 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 };
 
 /**
- * @brief A texture that can draw any of the sprites packed into it.
+ * A texture that can draw any of the sprites packed into it.
  */
 @interface Texture2D : NSObject
 
 /**
- * @brief Scales a rectangle about an anchor point.
+ * Scales a rectangle about an anchor point.
  *
  * The origin moves towards @p anchor as @p scale shrinks, and the size scales directly:
  * @c origin = anchor + (rect.origin - anchor) * scale , @c size = rect.size * scale .
@@ -53,14 +53,14 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 + (CGRect)scaledRect:(CGRect)rect scale:(double)scale anchor:(CGPoint)anchor;
 
 /**
- * @brief Initialises an empty texture with no GL name and a null clip rectangle.
+ * Initialises an empty texture with no GL name and a null clip rectangle.
  * @return The initialised texture.
  * @ghidraAddress 0xdc70
  */
 - (instancetype)init;
 
 /**
- * @brief Uploads pixel data into the texture, (re)creating its GL name.
+ * Uploads pixel data into the texture, (re)creating its GL name.
  *
  * Deletes any existing GL texture, generates a fresh one, sets linear filtering and repeat
  * wrapping, then uploads a @p pixelSize by @p pixelSize image in @p pixelFormat . The content
@@ -80,7 +80,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
          height:(int)height;
 
 /**
- * @brief Uploads a square image, using @p pixelSize as both the texture size and the content size.
+ * Uploads a square image, using @p pixelSize as both the texture size and the content size.
  * @param data The pixel bytes.
  * @param pixelFormat The storage format.
  * @param pixelSize The square texture dimension in texels.
@@ -91,7 +91,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
       pixelSize:(GLuint)pixelSize;
 
 /**
- * @brief Initialises a texture and uploads pixel data into it.
+ * Initialises a texture and uploads pixel data into it.
  * @param data The pixel bytes.
  * @param pixelFormat The storage format.
  * @param pixelSize The square texture dimension in texels.
@@ -107,7 +107,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
                       height:(int)height;
 
 /**
- * @brief Initialises a square texture, using @p pixelSize as both the texture and content size.
+ * Initialises a square texture, using @p pixelSize as both the texture and content size.
  * @param data The pixel bytes.
  * @param pixelFormat The storage format.
  * @param pixelSize The square texture dimension in texels.
@@ -119,7 +119,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
                    pixelSize:(GLuint)pixelSize;
 
 /**
- * @brief Initialises a texture from a @c UIImage , rasterising it into a power-of-two buffer.
+ * Initialises a texture from a @c UIImage , rasterising it into a power-of-two buffer.
  *
  * Picks a storage format from the image's alpha info and colour space, rounds the larger image
  * dimension up to a power of two, and halves that (and the content dimensions) while it exceeds
@@ -133,7 +133,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 - (instancetype)initWithImage:(nullable UIImage *)image;
 
 /**
- * @brief Replaces a sub-rectangle of the texture with an image's pixels.
+ * Replaces a sub-rectangle of the texture with an image's pixels.
  *
  * Rasterises @p image into a bitmap context matching the texture's pixel format, then uploads it
  * with @c glTexSubImage2D at @p rect .
@@ -145,7 +145,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 - (void)setSubImage:(nullable UIImage *)image inRect:(CGRect)rect;
 
 /**
- * @brief Replaces a sub-region of the texture with an image drawn at its own size.
+ * Replaces a sub-region of the texture with an image drawn at its own size.
  * @param image The source image.
  * @param point The destination origin in texels.
  * @ghidraAddress 0xe52c
@@ -153,7 +153,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 - (void)setSubImage:(nullable UIImage *)image atPoint:(CGPoint)point;
 
 /**
- * @brief Appends a quad drawing the whole texture at @p point , scaled by @p scale .
+ * Appends a quad drawing the whole texture at @p point , scaled by @p scale .
  *
  * The quad spans @c _size * scale texels from @p point . Only the positions and texture
  * coordinates are written; the vertex colours are left as whatever the slot last held.
@@ -165,7 +165,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 - (void)drawAtPoint:(CGPoint)point scale:(double)scale;
 
 /**
- * @brief Appends a quad drawing a texture region into a rectangle, tinted by a colour.
+ * Appends a quad drawing a texture region into a rectangle, tinted by a colour.
  *
  * @param rect The destination rectangle.
  * @param region The source region in texels.
@@ -179,7 +179,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
              color:(nullable UIColor *)color;
 
 /**
- * @brief Appends a quad drawing a texture region into a rectangle at a given alpha.
+ * Appends a quad drawing a texture region into a rectangle at a given alpha.
  *
  * @param rect The destination rectangle.
  * @param region The source region in texels.
@@ -193,7 +193,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
              alpha:(float)alpha;
 
 /**
- * @brief Appends a quad for one packed sprite, with a scale, a rotation about an anchor, and an
+ * Appends a quad for one packed sprite, with a scale, a rotation about an anchor, and an
  *        alpha.
  *
  * The scale, rotation, and alpha are @c float ; @p transform is a @c char . The four corner
@@ -217,7 +217,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
              alpha:(float)alpha;
 
 /**
- * @brief Appends a quad for one packed sprite at a point, at its own size.
+ * Appends a quad for one packed sprite at a point, at its own size.
  *
  * A transposing @p transform (mode 1 or 3, a 90-degree rotation) swaps the sprite's width and
  * height to produce the draw size; any other value uses them as they are.
@@ -234,7 +234,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
              alpha:(float)alpha;
 
 /**
- * @brief Appends a quad for one packed sprite stretched into a rectangle.
+ * Appends a quad for one packed sprite stretched into a rectangle.
  * @param sprite The sprite index.
  * @param rect Where to draw it.
  * @param transform The texture-coordinate orientation, 0..5.
@@ -247,7 +247,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
              alpha:(float)alpha;
 
 /**
- * @brief Appends a quad for one packed sprite at a point, at its own size, opaque and unrotated.
+ * Appends a quad for one packed sprite at a point, at its own size, opaque and unrotated.
  * @param sprite The sprite index.
  * @param point Where to draw it.
  * @ghidraAddress 0xeea4
@@ -255,7 +255,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 - (void)drawSprite:(NSUInteger)sprite atPoint:(CGPoint)point;
 
 /**
- * @brief Appends a quad for one packed sprite stretched into a rectangle, tinted by a colour.
+ * Appends a quad for one packed sprite stretched into a rectangle, tinted by a colour.
  * @param sprite The sprite index.
  * @param rect Where to draw it.
  * @param color The tint colour.
@@ -264,7 +264,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 - (void)drawSprite:(NSUInteger)sprite inRect:(CGRect)rect color:(nullable UIColor *)color;
 
 /**
- * @brief Appends a quad for one packed sprite stretched into a rectangle, opaque and unrotated.
+ * Appends a quad for one packed sprite stretched into a rectangle, opaque and unrotated.
  * @param sprite The sprite index.
  * @param rect Where to draw it.
  * @ghidraAddress 0xef64
@@ -272,7 +272,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 - (void)drawSprite:(NSUInteger)sprite inRect:(CGRect)rect;
 
 /**
- * @brief Flushes every batched quad in one @c glDrawElements , honouring the clip rectangle.
+ * Flushes every batched quad in one @c glDrawElements , honouring the clip rectangle.
  *
  * Points the fixed-function vertex, texture-coordinate, and colour pointers at the interleaved
  * scratch buffer, binds the texture, enables a scissor from @c _clipRect unless it is null, draws
@@ -282,13 +282,13 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 - (void)commitDraw;
 
 /**
- * @brief Discards every batched quad without drawing.
+ * Discards every batched quad without drawing.
  * @ghidraAddress 0xf0cc
  */
 - (void)resetDrawBuffer;
 
 /**
- * @brief Replaces the sprite table from an array of four-element rectangle descriptions.
+ * Replaces the sprite table from an array of four-element rectangle descriptions.
  *
  * Each element of @p sprites is itself an array of four @c NSNumber values giving the sprite's
  * @c x , @c y , @c width , and @c height in texels.
@@ -299,7 +299,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 - (void)setSprites:(nullable NSArray<NSArray<NSNumber *> *> *)sprites;
 
 /**
- * @brief Returns the rectangle of one packed sprite, halved when @c isScale2x is set.
+ * Returns the rectangle of one packed sprite, halved when @c isScale2x is set.
  * @param index The sprite index.
  * @return The sprite rectangle, or @c CGRectZero if @p index is out of range.
  * @ghidraAddress 0xf3a0
@@ -307,7 +307,7 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 - (CGRect)spriteAtIndex:(unsigned int)index;
 
 /**
- * @brief Sets the scissor clip rectangle, flipping it into GL's bottom-left coordinate space.
+ * Sets the scissor clip rectangle, flipping it into GL's bottom-left coordinate space.
  *
  * The vertical flip uses the current device idiom's screen height (480 on a phone, 1024 on a pad).
  *
@@ -317,25 +317,25 @@ typedef NS_ENUM(NSUInteger, Texture2DPixelFormat) {
 - (void)setClipRect:(CGRect)rect;
 
 /**
- * @brief Whether packed sprites are treated as 2x-supersampled and drawn at half size.
+ * Whether packed sprites are treated as 2x-supersampled and drawn at half size.
  * @ghidraAddress 0xf53c (getter), 0xf54c (setter)
  */
 @property(nonatomic) BOOL isScale2x;
 
 /**
- * @brief The GL texture name, or 0 when no data has been uploaded.
+ * The GL texture name, or 0 when no data has been uploaded.
  * @ghidraAddress 0xf55c
  */
 @property(nonatomic, readonly) GLuint name;
 
 /**
- * @brief The content width in texels.
+ * The content width in texels.
  * @ghidraAddress 0xf56c
  */
 @property(nonatomic, readonly) NSUInteger width;
 
 /**
- * @brief The content height in texels.
+ * The content height in texels.
  * @ghidraAddress 0xf57c
  */
 @property(nonatomic, readonly) NSUInteger height;

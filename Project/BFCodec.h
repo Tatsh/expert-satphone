@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The Blowfish codec.
+ * The Blowfish codec.
  *
  * Reconstructed from Ghidra program Jubeat (class BFCodec, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -19,19 +19,19 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A Blowfish cipher that works in place on an @c NSMutableData.
+ * A Blowfish cipher that works in place on an @c NSMutableData.
  */
 @interface BFCodec : NSObject
 
 /**
- * @brief Builds a codec with a zeroed chaining vector and a fresh key schedule.
+ * Builds a codec with a zeroed chaining vector and a fresh key schedule.
  * @return The initialised codec.
  * @ghidraAddress 0x94978
  */
 - (instancetype)init;
 
 /**
- * @brief Sets the key from a raw buffer, and resets the chaining vector to its fixed value.
+ * Sets the key from a raw buffer, and resets the chaining vector to its fixed value.
  *
  * The vector is **not** derived from the key or from anything else — it is eight bytes written
  * literally into the ivar. See TYPES_PENDING.md.
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)cipherInit:(const char *)key length:(int)length;
 
 /**
- * @brief Sets the key from a data buffer.
+ * Sets the key from a data buffer.
  *
  * Callers pass a 16-byte MD5 digest. A nil key returns without touching anything, so the codec
  * keeps whatever key it had.
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)cipherInit:(nullable NSData *)key;
 
 /**
- * @brief Encrypts a buffer in place, growing it to hold the padding and a length trailer.
+ * Encrypts a buffer in place, growing it to hold the padding and a length trailer.
  *
  * The buffer is resized to @c (length @c + @c 15) @c & @c ~7 : the plaintext rounded up to a block
  * boundary, plus one more block holding the original length. Chaining is CBC from the fixed vector.
@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (unsigned int)encipher:(nullable NSMutableData *)data;
 
 /**
- * @brief Decrypts a buffer in place.
+ * Decrypts a buffer in place.
  *
  * Both of the trailer's words are checked before anything is decrypted, and the buffer is truncated
  * back to the plaintext afterwards. The return type is @c BOOL rather than the @c void this header
@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)decipher:(nullable NSMutableData *)data;
 
 /**
- * @brief Wipes the chaining vector and releases the key schedule.
+ * Wipes the chaining vector and releases the key schedule.
  * @ghidraAddress 0x9510c
  */
 - (void)dealloc;

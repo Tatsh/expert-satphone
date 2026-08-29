@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The settings-screen in-game background-colour picker.
+ * The settings-screen in-game background-colour picker.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsBgViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It is a
@@ -18,13 +18,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A view controller letting the player pick the in-game background colour in the settings
+ * A view controller letting the player pick the in-game background colour in the settings
  *        screen.
  */
 @interface SettingsBgViewController : UITableViewController
 
 /**
- * @brief Maps a background-colour index to its display name in the ripples theme.
+ * Maps a background-colour index to its display name in the ripples theme.
  * @param index The colour index (0 green, 1 blue, 2 lemon, 3 dark); any other value yields the
  *        empty string.
  * @return The colour name, or the empty string when @p index is out of range.
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nonnull NSString *)ripplesColorName:(NSUInteger)index;
 
 /**
- * @brief Maps a background-colour index to its display name in the Knit theme.
+ * Maps a background-colour index to its display name in the Knit theme.
  * @param index The colour index (0 blue, 1 green, 2 lemon, 3 dark); any other value yields the
  *        empty string.
  * @return The colour name, or the empty string when @p index is out of range.
@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nonnull NSString *)knitColorName:(NSUInteger)index;
 
 /**
- * @brief Sets the navigation title to "BG COLOR" and seeds the selection from the persisted colour
+ * Sets the navigation title to "BG COLOR" and seeds the selection from the persisted colour
  *        index for the theme in effect.
  * @param style The table-view style handed to @c UITableViewController.
  * @return The initialised controller.
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithStyle:(UITableViewStyle)style;
 
 /**
- * @brief Loads the table view, setting its row height to 42 points and hiding the separators.
+ * Loads the table view, setting its row height to 42 points and hiding the separators.
  * @ghidraAddress 0x152710
  */
 - (void)loadView;

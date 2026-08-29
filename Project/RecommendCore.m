@@ -230,7 +230,7 @@ static void RecommendCorePostOwnAdClickRegist(RecommendCore *core,
 
 /**
  * @ghidraAddress 0x268cac
- * @brief Routes every allocation through a single super-allocation so the class is a true
+ * Routes every allocation through a single super-allocation so the class is a true
  * singleton, and creates the serial queue used to serialise its work. Unlike its three
  * applilink-singleton twins, this one also resets initializeFlg to 0 on the freshly allocated
  * instance.

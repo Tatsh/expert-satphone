@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The iPhone in-game play renderer.
+ * The iPhone in-game play renderer.
  *
  * Reconstructed from Ghidra program Jubeat (class MainGameRendererPhone, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -27,7 +27,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The phone-idiom concrete in-game renderer.
+ * The phone-idiom concrete in-game renderer.
  */
 @interface MainGameRendererPhone : MainGameRenderer {
 @protected
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * @brief Initialises the renderer, caching the phone-retina and four-inch-aspect device flags.
+ * Initialises the renderer, caching the phone-retina and four-inch-aspect device flags.
  * @return The initialised renderer, or @c nil.
  * @ghidraAddress 0x10a3c0
  */
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Textures
 
 /**
- * @brief Loads every play-session texture: the debug font, the ready atlas, the front atlas (with
+ * Loads every play-session texture: the debug font, the ready atlas, the front atlas (with
  *        the difficulty, music-bar, and level words, the note markers unzipped from the marker
  *        archive, the jacket artwork, the index image, and an optional partner-name label), the
  *        hold-marker atlas (and its @c HoldMarkerRender ), and the combo atlas. The selector
@@ -73,14 +73,14 @@ NS_ASSUME_NONNULL_BEGIN
              index:(nullable UIImage *)index;
 
 /**
- * @brief Rebuilds the result-screen rating atlas for a rank.
+ * Rebuilds the result-screen rating atlas for a rank.
  * @param rank The tune's rank, selecting the rating resource.
  * @ghidraAddress 0x10b680
  */
 - (void)loadRatingTex:(short)rank;
 
 /**
- * @brief Releases the debug-font, front, ready, rating, and three cleared-screen textures. It does
+ * Releases the debug-font, front, ready, rating, and three cleared-screen textures. It does
  *        not release the marker, hold-marker, or combo textures, matching the binary.
  * @ghidraAddress 0x10b8e8
  */
@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Play lifecycle
 
 /**
- * @brief Sets the high-level render state. Entering the result state (5) loads the rating and
+ * Sets the high-level render state. Entering the result state (5) loads the rating and
  *        cleared-screen textures and starts the result BGM; the reset states (0 and 2) clear the
  *        per-frame combo and shutter counters. Every path resets the frame counter and chains up.
  * @param state The state to enter.
@@ -98,19 +98,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setState:(unsigned int)state;
 
 /**
- * @brief Clears the ready texture and enters the playing state (3).
+ * Clears the ready texture and enters the playing state (3).
  * @ghidraAddress 0x10bcf4
  */
 - (void)startPlay;
 
 /**
- * @brief Marks the session finished when it is in the result state (5).
+ * Marks the session finished when it is in the result state (5).
  * @ghidraAddress 0x10bd34
  */
 - (void)endResult;
 
 /**
- * @brief The ready-go countdown duration, in seconds.
+ * The ready-go countdown duration, in seconds.
  * @return The countdown duration.
  * @ghidraAddress 0x10e798
  */
@@ -119,28 +119,28 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Drawing
 
 /**
- * @brief Draws the note markers over the sixteen-panel grid, spinning random-direction markers,
+ * Draws the note markers over the sixteen-panel grid, spinning random-direction markers,
  *        drawing the lead-in fade, and delegating the hold markers to @c HoldMarkerRender .
  * @ghidraAddress 0x10bd80
  */
 - (void)renderMarker;
 
 /**
- * @brief Draws the play-field background: the tension shutter, the combo burst animation, and the
+ * Draws the play-field background: the tension shutter, the combo burst animation, and the
  *        shutter halves that slide with the beat.
  * @ghidraAddress 0x10c17c
  */
 - (void)renderBG;
 
 /**
- * @brief Draws the combo number and its burst and cut-in animations.
+ * Draws the combo number and its burst and cut-in animations.
  * @param combo The current combo count.
  * @ghidraAddress 0x10c78c
  */
 - (void)renderCombo:(unsigned int)combo;
 
 /**
- * @brief Draws the score digits tweening up towards a target, with a board and per-digit scale.
+ * Draws the score digits tweening up towards a target, with a board and per-digit scale.
  * @param score The target score.
  * @param point The digits' origin.
  * @param alpha Unused. The binary clobbers @c d2 with the first @c -spriteAtIndex: return and
@@ -156,7 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
                     boardY:(float)boardY;
 
 /**
- * @brief Draws the player and partner scores at a point, with a horizontal scale and alpha.
+ * Draws the player and partner scores at a point, with a horizontal scale and alpha.
  * @param score The player's score.
  * @param partnerScore The partner's score.
  * @param point The score block's origin.
@@ -171,7 +171,7 @@ NS_ASSUME_NONNULL_BEGIN
               alpha:(double)alpha;
 
 /**
- * @brief Draws the final-bonus digits at a point.
+ * Draws the final-bonus digits at a point.
  * @param bonus The bonus value.
  * @param point The digits' origin.
  * @param alpha The opacity.
@@ -180,7 +180,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderBonus:(unsigned int)bonus atPoint:(CGPoint)point alpha:(double)alpha;
 
 /**
- * @brief Draws the difficulty music bar: the leading difficulty chip, one chip per bar cell, and
+ * Draws the difficulty music bar: the leading difficulty chip, one chip per bar cell, and
  *        the optional timeline cursor.
  * @param position The bar's origin.
  * @param timeline Whether to draw the timeline cursor.
@@ -190,7 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderMusicBar:(CGPoint)position timeline:(BOOL)timeline alpha:(double)alpha;
 
 /**
- * @brief Draws the tune information block: jacket, title, difficulty word, and level.
+ * Draws the tune information block: jacket, title, difficulty word, and level.
  * @param position The block's origin.
  * @param artworkSize The jacket's square size.
  * @param alpha The opacity.
@@ -199,7 +199,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderTuneInfo:(CGPoint)position artworkSize:(double)artworkSize alpha:(double)alpha;
 
 /**
- * @brief Draws the upper background band, and on the four-inch phone the tiled filler above and
+ * Draws the upper background band, and on the four-inch phone the tiled filler above and
  *        below it.
  * @param y The band's bottom edge, in points.
  * @ghidraAddress 0x10da6c
@@ -207,26 +207,26 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderUpperBG:(double)y;
 
 /**
- * @brief Draws the upper region: the tune information, the live music bar, and the score.
+ * Draws the upper region: the tune information, the live music bar, and the score.
  * @ghidraAddress 0x10dbf8
  */
 - (void)renderUpper;
 
 /**
- * @brief Draws the 4x4 button grid, highlighting pressed panels.
+ * Draws the 4x4 button grid, highlighting pressed panels.
  * @param offset The grid's vertical offset, in points.
  * @ghidraAddress 0x10de28
  */
 - (void)renderButtons:(double)offset;
 
 /**
- * @brief Draws the pre-start intro.
+ * Draws the pre-start intro.
  * @ghidraAddress 0x10e340
  */
 - (void)renderPreStart;
 
 /**
- * @brief Draws a soft circle of the given size at a point.
+ * Draws a soft circle of the given size at a point.
  * @param center The circle's centre.
  * @param size The circle's diameter, in points.
  * @param alpha The opacity.
@@ -235,25 +235,25 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderCircle:(CGPoint)center size:(double)size alpha:(double)alpha;
 
 /**
- * @brief Draws the ready/go countdown, playing the ready and go sounds on their frames.
+ * Draws the ready/go countdown, playing the ready and go sounds on their frames.
  * @ghidraAddress 0x10e7a4
  */
 - (void)renderReadyGo;
 
 /**
- * @brief Draws the start-mark banner.
+ * Draws the start-mark banner.
  * @ghidraAddress 0x10efd4
  */
 - (void)renderStartMark;
 
 /**
- * @brief Draws the finish transition.
+ * Draws the finish transition.
  * @ghidraAddress 0x10f13c
  */
 - (void)renderFinish;
 
 /**
- * @brief Draws the cleared-screen animation for a rank.
+ * Draws the cleared-screen animation for a rank.
  * @param rank The tune's rank.
  * @param centerY The animation's vertical centre.
  * @return Whether the animation is still running.
@@ -262,7 +262,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)renderCleared:(unsigned int)rank centerY:(double)centerY;
 
 /**
- * @brief Draws the failed-screen animation for a rank.
+ * Draws the failed-screen animation for a rank.
  * @param rank The tune's rank.
  * @param centerY The animation's vertical centre.
  * @return Whether the animation is still running.
@@ -271,21 +271,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)renderFailed:(unsigned int)rank centerY:(double)centerY;
 
 /**
- * @brief Draws the result screen: the cleared or failed animation, the score, bonus, records, and
+ * Draws the result screen: the cleared or failed animation, the score, bonus, records, and
  *        the action buttons.
  * @ghidraAddress 0x10fe00
  */
 - (void)renderResult;
 
 /**
- * @brief Draws the whole play frame, dispatching on the state to the render methods and flushing
+ * Draws the whole play frame, dispatching on the state to the render methods and flushing
  *        every texture atlas.
  * @ghidraAddress 0x110fdc
  */
 - (void)draw;
 
 /**
- * @brief Draws a run of debug text from the debug-font atlas, advancing per glyph and wrapping on
+ * Draws a run of debug text from the debug-font atlas, advancing per glyph and wrapping on
  *        newlines.
  * @param text The C string to draw.
  * @param pos The starting position.
@@ -295,13 +295,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)drawDebugText:(nullable const char *)text pos:(CGPoint)pos alpha:(float)alpha;
 
 /**
- * @brief Notifies the renderer that a replay ended, clearing the replay-playing flag.
+ * Notifies the renderer that a replay ended, clearing the replay-playing flag.
  * @ghidraAddress 0x111568
  */
 - (void)replayEnd;
 
 /**
- * @brief Reacts to a replay selection: on a downloaded custom tune with music, swaps the front
+ * Reacts to a replay selection: on a downloaded custom tune with music, swaps the front
  *        atlas's sprite 8 to the replay chip and fades the good-job overlay out.
  * @ghidraAddress 0x111578
  */
@@ -310,14 +310,14 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Layout override points
 
 /**
- * @brief The vertical offset of the button area, in points. Non-zero only during the result
+ * The vertical offset of the button area, in points. Non-zero only during the result
  *        state's opening slide.
  * @ghidraAddress 0x10fb28
  */
 @property(nonatomic, readonly) double buttonAreaOffset;
 
 /**
- * @brief The vertical offset of the game area, in points. Pushed down on the four-inch phone.
+ * The vertical offset of the game area, in points. Pushed down on the four-inch phone.
  * @ghidraAddress 0x10fb94
  */
 @property(nonatomic, readonly) double gameAreaOffset;
@@ -325,49 +325,49 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Button override points
 
 /**
- * @brief The button identifier for the end action. Returns 11 for the phone.
+ * The button identifier for the end action. Returns 11 for the phone.
  * @ghidraAddress 0x10fbd4
  */
 @property(nonatomic, readonly) unsigned int endButtonID;
 
 /**
- * @brief The button identifier for the evaluate action. Returns 10 for the phone.
+ * The button identifier for the evaluate action. Returns 10 for the phone.
  * @ghidraAddress 0x10fbdc
  */
 @property(nonatomic, readonly) unsigned int evaluateButtonID;
 
 /**
- * @brief The button identifier for the good-job action. Returns 9 for the phone.
+ * The button identifier for the good-job action. Returns 9 for the phone.
  * @ghidraAddress 0x10fbe4
  */
 @property(nonatomic, readonly) unsigned int goodJobButtonID;
 
 /**
- * @brief The position of the good-job overlay, derived from @c goodJobButtonID .
+ * The position of the good-job overlay, derived from @c goodJobButtonID .
  * @ghidraAddress 0x10fbec
  */
 @property(nonatomic, readonly) CGPoint goodJobPosition;
 
 /**
- * @brief The button identifier for the tweet-send action. Returns 10 for the phone.
+ * The button identifier for the tweet-send action. Returns 10 for the phone.
  * @ghidraAddress 0x10fc98
  */
 @property(nonatomic, readonly) unsigned int twitterSendButtonID;
 
 /**
- * @brief The position of the tweet-send button, derived from @c twitterSendButtonID .
+ * The position of the tweet-send button, derived from @c twitterSendButtonID .
  * @ghidraAddress 0x10fca0
  */
 @property(nonatomic, readonly) CGPoint twitterBtnPosition;
 
 /**
- * @brief The button identifier for the store-move action. Returns 10 for the phone.
+ * The button identifier for the store-move action. Returns 10 for the phone.
  * @ghidraAddress 0x10fd4c
  */
 @property(nonatomic, readonly) unsigned int storeMoveButtonID;
 
 /**
- * @brief The position of the store-move button, derived from @c storeMoveButtonID .
+ * The position of the store-move button, derived from @c storeMoveButtonID .
  * @ghidraAddress 0x10fd54
  */
 @property(nonatomic, readonly) CGPoint storeMoveBtnPosition;

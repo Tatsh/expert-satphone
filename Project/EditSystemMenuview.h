@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The edit-mode system menu: a two-section table of the EXIT command and the saved-chart
+ * The edit-mode system menu: a two-section table of the EXIT command and the saved-chart
  * load slots.
  *
  * Reconstructed from Ghidra program Jubeat (class EditSystemMenuview, image base 0x100000000). All
@@ -17,29 +17,29 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What an @c EditSystemMenuview tells its owner.
+ * What an @c EditSystemMenuview tells its owner.
  *
  * The inherited delegate is messaged through these selectors, each sent only when the delegate
  * responds. Extends @c EditFileListViewDelegate, the base list's own protocol.
  */
 @protocol EditSystemMenuDelegate <EditFileListViewDelegate>
 @optional
-/** @brief Sent when the EXIT command row is chosen. */
+/** Sent when the EXIT command row is chosen. */
 - (void)selectExit;
 /**
- * @brief Sent when a saved-chart load slot is chosen.
+ * Sent when a saved-chart load slot is chosen.
  * @param slot The chosen load slot, boxed.
  */
 - (void)selectLoadSlot:(nullable NSNumber *)slot;
 @end
 
 /**
- * @brief The edit-mode system menu table.
+ * The edit-mode system menu table.
  */
 @interface EditSystemMenuview : EditFileListViewController
 
 /**
- * @brief Returns @c CAGradientLayer .
+ * Returns @c CAGradientLayer .
  *
  * **Never consulted**, as in the superclass: @c +layerClass is a @c UIView class method and this is
  * a @c UITableViewController . See TYPES_PENDING.md.
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (Class)layerClass;
 
 /**
- * @brief Builds the menu at a given popover size.
+ * Builds the menu at a given popover size.
  * @param size The preferred content size.
  * @return The initialised menu.
  * @ghidraAddress 0x21876c

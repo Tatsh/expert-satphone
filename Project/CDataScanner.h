@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief TouchJSON's low-level byte scanner.
+ * TouchJSON's low-level byte scanner.
  *
  * Reconstructed from Ghidra program Jubeat (class CDataScanner, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -16,7 +16,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A byte-oriented scanner over an @c NSData 's bytes.
+ * A byte-oriented scanner over an @c NSData 's bytes.
  *
  * The scanner keeps three raw pointers into the data: @c start (the first byte), @c end (one past
  * the last byte), and @c current (the next byte to read). @c scanLocation is the cursor's byte
@@ -33,44 +33,44 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * @brief The bytes being scanned. Setting new bytes resets the cursor to the start.
+ * The bytes being scanned. Setting new bytes resets the cursor to the start.
  * @note The getter is at 0x61aa0 and the setter at 0x61ab0.
  */
 @property(nonatomic, strong, nullable) NSData *data;
 
 /**
- * @brief The cursor's byte offset from the start of the data.
+ * The cursor's byte offset from the start of the data.
  * @note The getter is at 0x61a60 and the setter at 0x61bb8.
  */
 @property(nonatomic) NSUInteger scanLocation;
 
 /**
- * @brief The number of bytes between the cursor and the end of the data.
+ * The number of bytes between the cursor and the end of the data.
  * @note The getter is at 0x61a80.
  */
 @property(nonatomic, readonly) NSUInteger bytesRemaining;
 
 /**
- * @brief Whether the cursor has reached or passed the end of the data.
+ * Whether the cursor has reached or passed the end of the data.
  * @note The getter is at 0x61bd8.
  */
 @property(nonatomic, readonly) BOOL isAtEnd;
 
 /**
- * @brief Primes the shared character set of number-literal characters.
+ * Primes the shared character set of number-literal characters.
  * @ghidraAddress 0x61968
  */
 + (void)initialize;
 
 /**
- * @brief Initialises an empty scanner with no data.
+ * Initialises an empty scanner with no data.
  * @return The initialised scanner.
  * @ghidraAddress 0x619c8
  */
 - (instancetype)init;
 
 /**
- * @brief Initialises the scanner and points it at some bytes.
+ * Initialises the scanner and points it at some bytes.
  * @param someData The bytes to scan.
  * @return The initialised scanner.
  * @ghidraAddress 0x61a00
@@ -78,21 +78,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithData:(nullable NSData *)someData;
 
 /**
- * @brief The character at the cursor without consuming it.
+ * The character at the cursor without consuming it.
  * @return The byte at the cursor, widened to a @c unichar .
  * @ghidraAddress 0x61c14
  */
 - (unichar)currentCharacter;
 
 /**
- * @brief Consumes and returns the character at the cursor.
+ * Consumes and returns the character at the cursor.
  * @return The byte at the cursor, widened to a @c unichar .
  * @ghidraAddress 0x61c28
  */
 - (unichar)scanCharacter;
 
 /**
- * @brief Consumes the cursor character when it matches.
+ * Consumes the cursor character when it matches.
  * @param character The character to match.
  * @return Whether the cursor character matched and was consumed.
  * @ghidraAddress 0x61c44
@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)scanCharacter:(unichar)character;
 
 /**
- * @brief Consumes a fixed UTF-8 run, optionally returning it as a string.
+ * Consumes a fixed UTF-8 run, optionally returning it as a string.
  * @param string The NUL-terminated bytes to match at the cursor.
  * @param outString Where to return the matched run, when the caller wants it.
  * @return Whether the run matched and was consumed.
@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)scanUTF8String:(const char *)string intoString:(NSString *_Nullable *_Nullable)outString;
 
 /**
- * @brief Consumes a fixed string, optionally returning it.
+ * Consumes a fixed string, optionally returning it.
  * @param string The string to match at the cursor.
  * @param outString Where to return the matched string, when the caller wants it.
  * @return Whether the string matched and was consumed.
@@ -118,7 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)scanString:(NSString *)string intoString:(NSString *_Nullable *_Nullable)outString;
 
 /**
- * @brief Consumes the run of characters that are members of a set.
+ * Consumes the run of characters that are members of a set.
  * @param set The set whose members are consumed.
  * @param outString Where to return the consumed run, when the caller wants it.
  * @return Whether any characters were consumed.
@@ -128,7 +128,7 @@ NS_ASSUME_NONNULL_BEGIN
                    intoString:(NSString *_Nullable *_Nullable)outString;
 
 /**
- * @brief Consumes everything up to the next occurrence of a string.
+ * Consumes everything up to the next occurrence of a string.
  * @param string The delimiter to stop before.
  * @param outString Where to return the skipped-over text, when the caller wants it.
  * @return Whether the delimiter was found.
@@ -137,7 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)scanUpToString:(NSString *)string intoString:(NSString *_Nullable *_Nullable)outString;
 
 /**
- * @brief Consumes everything up to the next character that is a member of a set.
+ * Consumes everything up to the next character that is a member of a set.
  * @param set The set whose first member stops the scan.
  * @param outString Where to return the skipped-over text, when the caller wants it.
  * @return Whether any characters were consumed.
@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
                        intoString:(NSString *_Nullable *_Nullable)outString;
 
 /**
- * @brief Consumes a number literal, decoding it to an integer or a decimal.
+ * Consumes a number literal, decoding it to an integer or a decimal.
  * @param outNumber Where to return the decoded number, when the caller wants it.
  * @return Whether a number was consumed.
  * @ghidraAddress 0x620e0
@@ -155,7 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)scanNumber:(NSNumber *_Nullable *_Nullable)outNumber;
 
 /**
- * @brief Consumes a number literal, always decoding it to an @c NSDecimalNumber .
+ * Consumes a number literal, always decoding it to an @c NSDecimalNumber .
  * @param outNumber Where to return the decoded number, when the caller wants it.
  * @return Whether a number was consumed.
  * @ghidraAddress 0x62244
@@ -163,7 +163,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)scanDecimalNumber:(NSDecimalNumber *_Nullable *_Nullable)outNumber;
 
 /**
- * @brief Consumes a fixed number of bytes, returning a pointer into the data.
+ * Consumes a fixed number of bytes, returning a pointer into the data.
  * @param scanLength The number of bytes to consume.
  * @param outPointer Where to return the pointer to the consumed bytes, when the caller wants it.
  * @return Whether enough bytes remained.
@@ -173,7 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
              intoPointer:(const void *_Nullable *_Nullable)outPointer;
 
 /**
- * @brief Consumes a fixed number of bytes, returning them as an @c NSData .
+ * Consumes a fixed number of bytes, returning them as an @c NSData .
  * @param scanLength The number of bytes to consume.
  * @param outData Where to return the consumed bytes, when the caller wants it.
  * @return Whether enough bytes remained.
@@ -182,27 +182,27 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)scanDataOfLength:(NSUInteger)scanLength intoData:(NSData *_Nullable *_Nullable)outData;
 
 /**
- * @brief Advances the cursor past any whitespace.
+ * Advances the cursor past any whitespace.
  * @ghidraAddress 0x623f0
  */
 - (void)skipWhitespace;
 
 /**
- * @brief The bytes from the cursor to the end, decoded as a UTF-8 string.
+ * The bytes from the cursor to the end, decoded as a UTF-8 string.
  * @return The remaining text.
  * @ghidraAddress 0x62480
  */
 - (nullable NSString *)remainingString;
 
 /**
- * @brief The bytes from the cursor to the end.
+ * The bytes from the cursor to the end.
  * @return The remaining bytes.
  * @ghidraAddress 0x62510
  */
 - (NSData *)remainingData;
 
 /**
- * @brief Consumes a C-style block comment (slash-star to star-slash).
+ * Consumes a C-style block comment (slash-star to star-slash).
  * @param outComment Where to return the comment's inner text, when the caller wants it.
  * @return Whether a comment was consumed.
  * @ghidraAddress 0x62d4c
@@ -210,7 +210,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)scanCStyleComment:(NSString *_Nullable *_Nullable)outComment;
 
 /**
- * @brief Consumes a C++-style @c // comment through to the end of the line.
+ * Consumes a C++-style @c // comment through to the end of the line.
  * @param outComment Where to return the comment's inner text, when the caller wants it.
  * @return Whether a comment was consumed.
  * @ghidraAddress 0x62eac
@@ -218,14 +218,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)scanCPlusPlusStyleComment:(NSString *_Nullable *_Nullable)outComment;
 
 /**
- * @brief The one-based-ish count of line breaks before the cursor.
+ * The one-based-ish count of line breaks before the cursor.
  * @return The number of carriage returns and newlines between the start and the cursor.
  * @ghidraAddress 0x62ff8
  */
 - (NSUInteger)lineOfScanLocation;
 
 /**
- * @brief Diagnostic user info describing where the cursor is: its line, column, offset, and a
+ * Diagnostic user info describing where the cursor is: its line, column, offset, and a
  * snippet marking the position.
  * @return The user-info dictionary.
  * @ghidraAddress 0x63048

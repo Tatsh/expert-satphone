@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A challenge-mission reward-item download overlay.
+ * A challenge-mission reward-item download overlay.
  *
  * Reconstructed from Ghidra program Jubeat (class MissionRewardDownloadView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -34,7 +34,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A challenge-mission reward-item download overlay.
+ * A challenge-mission reward-item download overlay.
  */
 // clang-format off
 // One protocol per line: the packed form, which begins a continuation line with ": UIView <", is
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 // clang-format on
 
 /**
- * @brief The overlay's owner, told when the window is closed.
+ * The overlay's owner, told when the window is closed.
  *
  * Weak, per the @c W attribute and bare @c \@ encoding in the metadata. The close handler messages
  * it through @c -respondsToSelector: / @c -performSelector:withObject: rather than a fixed
@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak, nullable) id aDelegate;
 
 /**
- * @brief Builds the plate, icon, labels, buttons, progress dialog, and sample controls for the
+ * Builds the plate, icon, labels, buttons, progress dialog, and sample controls for the
  * current idiom.
  * @param frame The view's frame.
  * @return The initialised view.
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Reports whether the reward item is already present on disk.
+ * Reports whether the reward item is already present on disk.
  *
  * For a sticker the answer is whether the shared app-group container is available; for a music
  * item and a marker it resolves the item's on-disk path (also caching it in @c itemPath) and asks
@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)checkItemDownload;
 
 /**
- * @brief Populates the icon, labels, and download button from a reward and kicks off the image
+ * Populates the icon, labels, and download button from a reward and kicks off the image
  * fetch.
  * @param reward The reward to display.
  * @param enableDownload Whether the download button should be offered.
@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
         enableDownload:(BOOL)enableDownload;
 
 /**
- * @brief The close button's action: stops any sample playback, cancels downloads, and tells the
+ * The close button's action: stops any sample playback, cancels downloads, and tells the
  * delegate to close the reward window.
  * @param sender The close button.
  * @ghidraAddress 0x177648
@@ -93,33 +93,33 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)tapCloseBtn:(nullable id)sender;
 
 /**
- * @brief The sample button's action: downloads the sample-tune metadata, or toggles playback of an
+ * The sample button's action: downloads the sample-tune metadata, or toggles playback of an
  * already-loaded sample.
  * @ghidraAddress 0x1777fc
  */
 - (void)tapSample;
 
 /**
- * @brief Timer callback that starts sample playback once the loading delay elapses.
+ * Timer callback that starts sample playback once the loading delay elapses.
  * @ghidraAddress 0x177a38
  */
 - (void)sampleWait;
 
 /**
- * @brief The download button's action: posts the reward id and begins the metadata fetch.
+ * The download button's action: posts the reward id and begins the metadata fetch.
  * @ghidraAddress 0x177b4c
  */
 - (void)tapDownload;
 
 /**
- * @brief Downloader completion callback; dispatches on the request's tag.
+ * Downloader completion callback; dispatches on the request's tag.
  * @param downloader The finished request.
  * @ghidraAddress 0x177cf8
  */
 - (void)downloaderFinished:(nullable Downloader *)downloader;
 
 /**
- * @brief Downloader failure callback; stops spinners, dismisses the dialog, and shows an error
+ * Downloader failure callback; stops spinners, dismisses the dialog, and shows an error
  * alert for the item-download stage.
  * @param downloader The failed request.
  * @ghidraAddress 0x178f60
@@ -127,47 +127,47 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloaderError:(nullable Downloader *)downloader;
 
 /**
- * @brief Downloader progress callback; drives the dialog's progress bar during the item download.
+ * Downloader progress callback; drives the dialog's progress bar during the item download.
  * @param downloader The request making progress.
  * @ghidraAddress 0x1790a4
  */
 - (void)downloaderProceed:(nullable Downloader *)downloader;
 
 /**
- * @brief The progress dialog's abort callback: cancels the item download and hides the dialog.
+ * The progress dialog's abort callback: cancels the item download and hides the dialog.
  * @param dialogView The dialog whose abort button was pressed.
  * @ghidraAddress 0x179130
  */
 - (void)storeDialogCancel:(nullable StoreDialogView *)dialogView;
 
 /**
- * @brief Fades the progress dialog in.
+ * Fades the progress dialog in.
  * @ghidraAddress 0x1791e0
  */
 - (void)showDialog;
 
 /**
- * @brief Plays a sound effect and fades the progress dialog out.
+ * Plays a sound effect and fades the progress dialog out.
  * @ghidraAddress 0x179458
  */
 - (void)hideDialog;
 
 /**
- * @brief Alert-button callback; closes the challenge-mode session on the server-error alert.
+ * Alert-button callback; closes the challenge-mode session on the server-error alert.
  * @param info The alert's echoed-back info dictionary.
  * @ghidraAddress 0x1796bc
  */
 - (void)alertSelect:(nullable NSDictionary *)info;
 
 /**
- * @brief Store download-manager task-start callback. Empty in this view.
+ * Store download-manager task-start callback. Empty in this view.
  * @param manager The download manager.
  * @ghidraAddress 0x17977c
  */
 - (void)downloadManagerStartTask:(nullable StoreDownloadManager *)manager;
 
 /**
- * @brief Store download-manager completion callback; records the reward, dismisses the dialog, and
+ * Store download-manager completion callback; records the reward, dismisses the dialog, and
  * marks the button downloaded.
  * @param manager The download manager.
  * @ghidraAddress 0x179780
@@ -175,14 +175,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloadManagerCompleted:(nullable StoreDownloadManager *)manager;
 
 /**
- * @brief Store download-manager failure callback; shows an error alert and dismisses the dialog.
+ * Store download-manager failure callback; shows an error alert and dismisses the dialog.
  * @param manager The download manager.
  * @ghidraAddress 0x17987c
  */
 - (void)downloadManagerFailed:(nullable StoreDownloadManager *)manager;
 
 /**
- * @brief Store download-manager progress callback; drives the dialog's progress bar.
+ * Store download-manager progress callback; drives the dialog's progress bar.
  * @param manager The download manager.
  * @ghidraAddress 0x17995c
  */

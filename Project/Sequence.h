@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The core gameplay judgement engine for a single play session.
+ * The core gameplay judgement engine for a single play session.
  *
  * Reconstructed from Ghidra program Jubeat (class Sequence, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -24,26 +24,26 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @brief The playfield panel count. */
+/** The playfield panel count. */
 enum {
     kSequencePanelCount = 16 /*!< The number of playfield panels (a 4x4 grid), sizing the per-panel
                                   judgement arrays. */
 };
 
-/** @brief The result-screen music-bar segment count. */
+/** The result-screen music-bar segment count. */
 enum {
     kSequenceMusicBarSegmentCount = 120 /*!< The number of segments in the result-screen music bar;
                                              each note maps to one via its sector. */
 };
 
-/** @brief The chart's raw music-bar bitmap length. */
+/** The chart's raw music-bar bitmap length. */
 enum {
     kSequenceMusicBarByteCount = 60 /*!< The length of the raw music-bar bitmap the chart carries,
                                          in bytes. */
 };
 
 /**
- * @brief A judgement grade for a single note hit.
+ * A judgement grade for a single note hit.
  *
  * Recovered from @c -addJudge: at 0x1ad138, whose @c switch dispatches on these exact values, and
  * from the timing-window classifier inlined into @c -judge:btnPress: . A @c Poor grade resets the
@@ -60,7 +60,7 @@ typedef NS_ENUM(short, SequenceJudgeGrade) {
 };
 
 /**
- * @brief A score rank tier, returned by @c +rankOfPoint: and @c -rank .
+ * A score rank tier, returned by @c +rankOfPoint: and @c -rank .
  *
  * Recovered from the ascending point thresholds in @c +rankOfPoint: at 0x1aba80; the field is a
  * @c short return, so the enumeration is backed by @c short .
@@ -78,7 +78,7 @@ typedef NS_ENUM(short, SequenceRank) {
 };
 
 /**
- * @brief One note event of a chart.
+ * One note event of a chart.
  *
  * The metadata types the malloc'd @c events array element as `{?=ssIIsI}`: twenty bytes (padded
  * from eighteen), recovered from @c -initWithData: at 0x1abe24, @c -judge:btnPress: at 0x1ad360,
@@ -97,7 +97,7 @@ typedef struct {
 } SequenceEvent;
 
 /**
- * @brief The core gameplay judgement engine for a single play session.
+ * The core gameplay judgement engine for a single play session.
  */
 @interface Sequence : NSObject {
 @protected
@@ -131,7 +131,7 @@ typedef struct {
 }
 
 /**
- * @brief Copies the chart's raw music-bar bitmap out of an encoded sequence blob.
+ * Copies the chart's raw music-bar bitmap out of an encoded sequence blob.
  * @param raw The 60-byte destination buffer.
  * @param data The encoded sequence blob; ignored unless longer than 96 bytes.
  * @ghidraAddress 0x1ab5a4
@@ -139,7 +139,7 @@ typedef struct {
 + (void)getMusicBarData:(char *)raw raw:(nullable NSData *)data;
 
 /**
- * @brief Returns a bitmask of which difficulties in a downloaded pack contain a hold marker.
+ * Returns a bitmask of which difficulties in a downloaded pack contain a hold marker.
  * @param data The KUnzip archive holding the three difficulty sequence entries.
  * @return Bit 0 basic, bit 1 advanced, and bit 2 extreme, set where that difficulty has a hold.
  * @ghidraAddress 0x1ab608
@@ -147,7 +147,7 @@ typedef struct {
 + (unsigned int)checkExistHoldMarkerFlag:(nullable KUnzip *)data;
 
 /**
- * @brief Returns whether a single decoded sequence blob contains any hold marker.
+ * Returns whether a single decoded sequence blob contains any hold marker.
  * @param data The decoded sequence blob.
  * @return @c YES if any event is a hold event.
  * @ghidraAddress 0x1ab92c
@@ -155,7 +155,7 @@ typedef struct {
 + (BOOL)checkExistHoldMarker:(nullable NSData *)data;
 
 /**
- * @brief Maps a point total to its score rank tier.
+ * Maps a point total to its score rank tier.
  * @param point The total points.
  * @return The rank tier.
  * @ghidraAddress 0x1aba80
@@ -163,7 +163,7 @@ typedef struct {
 + (SequenceRank)rankOfPoint:(unsigned int)point;
 
 /**
- * @brief Initialises the engine from a packed binary sequence blob.
+ * Initialises the engine from a packed binary sequence blob.
  * @param data The encoded sequence blob, whose header is one of the @c "IJBQ" / @c "IJSQ" magics.
  * @return The initialised engine, or @c nil if the blob is missing or malformed.
  * @ghidraAddress 0x1abe24
@@ -171,7 +171,7 @@ typedef struct {
 - (instancetype)initWithData:(nullable NSData *)data;
 
 /**
- * @brief Initialises the engine from an editor's custom chart dictionary and note table.
+ * Initialises the engine from an editor's custom chart dictionary and note table.
  * @param data The chart-header dictionary (event count, note count, end sector, first marker).
  * @param tableData The array of boxed packed note words.
  * @return The initialised engine, or @c nil.
@@ -181,89 +181,89 @@ typedef struct {
                          tableData:(nullable NSArray *)tableData;
 
 /**
- * @brief Resets the play state for a replay, preserving the recorded replay-judge tables.
+ * Resets the play state for a replay, preserving the recorded replay-judge tables.
  * @ghidraAddress 0x1ac728
  */
 - (void)replay;
 
 /**
- * @brief Resets the play state and clears every recorded judgement for a fresh play.
+ * Resets the play state and clears every recorded judgement for a fresh play.
  * @ghidraAddress 0x1ac8fc
  */
 - (void)reset;
 
 /**
- * @brief Advances the play position to a time, updating the tempo, measure, and beat phases.
+ * Advances the play position to a time, updating the tempo, measure, and beat phases.
  * @param time The new play time, in seconds; times before the current one are ignored.
  * @ghidraAddress 0x1acaac
  */
 - (void)seekToTime:(double)time;
 
 /**
- * @brief Fills a per-panel marker-animation state array for the current position.
+ * Fills a per-panel marker-animation state array for the current position.
  * @param state A 16-element destination array of packed marker states.
  * @ghidraAddress 0x1accc4
  */
 - (void)getMarkerState:(int *)state;
 
 /**
- * @brief Fills a per-panel hold-marker state array for the current position.
+ * Fills a per-panel hold-marker state array for the current position.
  * @param state A 16-element destination array of @c MainGameHoldState .
  * @ghidraAddress 0x1ace9c
  */
 - (void)getHoldMarkerState:(MainGameHoldState *)state;
 
 /**
- * @brief Returns the live score summary.
+ * Returns the live score summary.
  * @return A pointer to the internal score data; not owned by the caller.
  * @ghidraAddress 0x1acfd0
  */
 - (const ScoreData *)getScore;
 
 /**
- * @brief Returns whether every scoring note has been judged at least good (a full combo).
+ * Returns whether every scoring note has been judged at least good (a full combo).
  * @return YES on a full combo, NO otherwise.
  * @ghidraAddress 0x1acfe0
  */
 - (BOOL)isFullcombo;
 
 /**
- * @brief Returns whether every scoring note was judged perfect (an excellent).
+ * Returns whether every scoring note was judged perfect (an excellent).
  * @return YES on an excellent, NO otherwise.
  * @ghidraAddress 0x1ad008
  */
 - (BOOL)isExcellent;
 
 /**
- * @brief Returns the score rank tier for the current total points.
+ * Returns the score rank tier for the current total points.
  * @return The rank tier the current total points fall in.
  * @ghidraAddress 0x1ad030
  */
 - (SequenceRank)rank;
 
 /**
- * @brief Returns the chart's raw music-bar bitmap.
+ * Returns the chart's raw music-bar bitmap.
  * @return A pointer to the internal 60-byte bitmap; not owned by the caller.
  * @ghidraAddress 0x1ad058
  */
 - (const char *)getMusicBar;
 
 /**
- * @brief Returns the tap events as boxed @c [grade, panel] number pairs.
+ * Returns the tap events as boxed @c [grade, panel] number pairs.
  * @return The tap events, each a boxed grade and panel pair.
  * @ghidraAddress 0x1adbb8
  */
 - (nullable NSArray *)getPlayEvents;
 
 /**
- * @brief Returns the hold events as boxed @c [grade, value] number pairs.
+ * Returns the hold events as boxed @c [grade, value] number pairs.
  * @return The hold events, each a boxed grade and value pair.
  * @ghidraAddress 0x1adbc8
  */
 - (nullable NSArray *)getHoldEvents;
 
 /**
- * @brief Judges the current button state against the notes around the play position.
+ * Judges the current button state against the notes around the play position.
  * @param btnPress The bitmask of buttons newly pressed this frame.
  * @param btnDown The bitmask of buttons currently held down.
  * @ghidraAddress 0x1ad360
@@ -271,43 +271,43 @@ typedef struct {
 - (void)judge:(int)btnPress btnPress:(int)btnDown;
 
 /**
- * @brief The normalised phase within the current beat (haku) interval, in [0, 1].
+ * The normalised phase within the current beat (haku) interval, in [0, 1].
  * @ghidraAddress 0x1ad068
  */
 @property(nonatomic, readonly) float hakuPhase;
 
 /**
- * @brief The normalised phase within the current measure interval, in [0, 1].
+ * The normalised phase within the current measure interval, in [0, 1].
  * @ghidraAddress 0x1ad0b4
  */
 @property(nonatomic, readonly) float measurePhase;
 
 /**
- * @brief The normalised play position over the whole chart, in [0, 1].
+ * The normalised play position over the whole chart, in [0, 1].
  * @ghidraAddress 0x1ad100
  */
 @property(nonatomic, readonly) float playPosition;
 
 /**
- * @brief The current play position, in seconds.
+ * The current play position, in seconds.
  * @ghidraAddress 0x1adbd8
  */
 @property(nonatomic, readonly) double currentTime;
 
 /**
- * @brief The current play position, in sectors.
+ * The current play position, in sectors.
  * @ghidraAddress 0x1adbe8
  */
 @property(nonatomic, readonly) unsigned int currentSector;
 
 /**
- * @brief The panel bitmask of the first marker.
+ * The panel bitmask of the first marker.
  * @ghidraAddress 0x1adbf8
  */
 @property(nonatomic, readonly) unsigned short firstMarker;
 
 /**
- * @brief The sector of the first marker.
+ * The sector of the first marker.
  * @ghidraAddress 0x1adc08
  */
 @property(nonatomic, readonly) unsigned int firstMarkerSector;

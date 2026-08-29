@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The store-parent interface shared by the two store tab controllers.
+ * The store-parent interface shared by the two store tab controllers.
  *
  * The store's child tab controllers (@c StoreMainViewController, @c StorePurchasedViewController,
  * @c StoreManageViewController, and @c StoreCampaignViewController) are built by, and report back
@@ -19,7 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What a store child controller needs from its owning store tab controller.
+ * What a store child controller needs from its owning store tab controller.
  *
  * The parent tab controller is also the delegate of the detail views its children open, so it
  * incorporates those delegate protocols.
@@ -28,29 +28,29 @@ NS_ASSUME_NONNULL_BEGIN
                                      StoreDetailViewControllerDelegate,
                                      CampaignDetailViewControllerDelegate>
 
-/** @brief The shared modal progress/download dialog panel, or @c nil before it is built. */
+/** The shared modal progress/download dialog panel, or @c nil before it is built. */
 @property(nonatomic, readonly, nullable) StoreDialogView *modalDialog;
 
 /**
- * @brief Shows the modal download dialog over the given sender.
+ * Shows the modal download dialog over the given sender.
  * @param sender The view the dialog is shown over.
  */
 - (void)showModalDialog:(nullable id)sender;
 
-/** @brief Hides the modal download dialog. */
+/** Hides the modal download dialog. */
 - (void)hideModalDialog;
 
 /**
- * @brief Opens the detail view for a pack.
+ * Opens the detail view for a pack.
  * @param packID The pack whose detail to open, boxed.
  */
 - (void)openDetail:(nullable NSNumber *)packID;
 
-/** @brief Begins the first restore-purchases pass. */
+/** Begins the first restore-purchases pass. */
 - (void)firstRestore;
 
 /**
- * @brief Tears the store down.
+ * Tears the store down.
  * @param sender The control that ended the store.
  */
 - (void)storeEnd:(nullable id)sender;

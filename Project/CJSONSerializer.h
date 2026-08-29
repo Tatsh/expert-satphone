@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief TouchJSON's serialiser.
+ * TouchJSON's serialiser.
  *
  * Reconstructed from Ghidra program Jubeat (class CJSONSerializer, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -14,37 +14,37 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief An object may opt into serialisation by vending its own JSON data; TouchJSON's extension
+ * An object may opt into serialisation by vending its own JSON data; TouchJSON's extension
  *        point.
  */
 @protocol CJSONDataRepresentation <NSObject>
 /**
- * @brief The receiver's own JSON encoding.
+ * The receiver's own JSON encoding.
  * @return The receiver serialised as JSON data.
  */
 - (NSData *)JSONDataRepresentation;
 @end
 
 /**
- * @brief Turns Foundation objects into JSON data.
+ * Turns Foundation objects into JSON data.
  */
 @interface CJSONSerializer : NSObject
 
 /**
- * @brief Serialisation options. A set low bit makes @c -serializeString:error: escape the forward
+ * Serialisation options. A set low bit makes @c -serializeString:error: escape the forward
  * slash.
  */
 @property(nonatomic) NSUInteger options;
 
 /**
- * @brief Vends a fresh serialiser instance.
+ * Vends a fresh serialiser instance.
  * @return A new @c CJSONSerializer .
  * @ghidraAddress 0x66acc
  */
 + (instancetype)serializer;
 
 /**
- * @brief Whether an object is one the serialiser can turn into JSON.
+ * Whether an object is one the serialiser can turn into JSON.
  * @param object The object to test.
  * @return YES for @c NSNull , @c NSNumber , @c NSString , @c NSArray , @c NSDictionary , @c NSData
  * , or any object answering @c -JSONDataRepresentation .
@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isValidJSONObject:(nullable id)object;
 
 /**
- * @brief Serialises any supported object to JSON data, dispatching on its class.
+ * Serialises any supported object to JSON data, dispatching on its class.
  * @param object The object to serialise.
  * @param error Out: the failure reason when serialisation fails.
  * @return The JSON data, or @c nil on failure.
@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSData *)serializeObject:(nullable id)object error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Serialises a null to the shared @c "null" token data.
+ * Serialises a null to the shared @c "null" token data.
  * @param null The null to serialise.
  * @param error On failure, the reason; may be @c nullptr .
  * @return The @c "null" token data, or nil on failure.
@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
                              error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Serialises a number: a boolean to the shared @c "true"/"false" token data, otherwise its
+ * Serialises a number: a boolean to the shared @c "true"/"false" token data, otherwise its
  * string value as UTF-8.
  * @param number The number to serialise.
  * @param error On failure, the reason; may be @c nullptr .
@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
                                error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Serialises a string as a quoted, escaped JSON string.
+ * Serialises a string as a quoted, escaped JSON string.
  * @param string The string to serialise.
  * @param error On failure, the reason; may be @c nullptr .
  * @return The quoted, escaped string, or nil on failure.
@@ -93,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
                                error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Serialises an array as a JSON array.
+ * Serialises an array as a JSON array.
  * @param array The array to serialise.
  * @param error On failure, the reason; may be @c nullptr .
  * @return The serialised array, or nil on failure.
@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
                               error:(NSError *_Nullable *_Nullable)error;
 
 /**
- * @brief Serialises a dictionary as a JSON object.
+ * Serialises a dictionary as a JSON object.
  * @param dictionary The dictionary to serialise.
  * @param error On failure, the reason; may be @c nullptr .
  * @return The serialised object, or nil on failure.

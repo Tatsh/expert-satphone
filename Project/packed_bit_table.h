@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A helper that stores a two-bit value into a packed byte table.
+ * A helper that stores a two-bit value into a packed byte table.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000); all @ghidraAddress values are
  * offsets relative to that image base. This is a genuine free function: it takes a raw byte buffer
@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Stores a two-bit value at an entry index into a packed byte table.
+ * Stores a two-bit value at an entry index into a packed byte table.
  *
  * Four entries share each byte: entry @p nIndex lives at byte @c nIndex>>2 and occupies the two
  * bits at shift @c (nIndex&3)*2. The two bits are written independently, each with its own

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Free functions and globals shared across the game engine.
+ * Free functions and globals shared across the game engine.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Interpolates linearly between two values across a frame range.
+ * Interpolates linearly between two values across a frame range.
  *
  * Fifteen instructions with no calls, so a genuine free function rather than a method whose
  * receiver was optimised away. Single precision throughout.
@@ -38,7 +38,7 @@ float InterpolateFloatByFrame(float flFrom,
                               unsigned int nEndFrame);
 
 /**
- * @brief Interpolates linearly between two values across a float window, clamped at both ends.
+ * Interpolates linearly between two values across a float window, clamped at both ends.
  *
  * The all-float sibling of @c InterpolateFloatByFrame: the same weighted-average maths, but the
  * window bounds are floats and the comparisons are genuine floating-point compares, so negative

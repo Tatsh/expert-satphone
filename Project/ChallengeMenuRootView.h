@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The challenge-mode menu container.
+ * The challenge-mode menu container.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMenuRootView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at
@@ -26,26 +26,26 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What a @c ChallengeMenuRootView tells its owner.
+ * What a @c ChallengeMenuRootView tells its owner.
  *
  * The delegate ivar is weak and untyped in the metadata (@c \@,W,N). @c -closeMenuView and
  * @c -refreshView are sent directly, so they are effectively required; @c -refreshStatus and
  * @c -cubePurchaseStart are guarded by @c -respondsToSelector: and are optional.
  */
 @protocol ChallengeMenuRootViewDelegate <NSObject>
-/** @brief The root menu finished fading out and the owner should dismiss it. */
+/** The root menu finished fading out and the owner should dismiss it. */
 - (void)closeMenuView;
-/** @brief A sub-view was dismissed; the owner should refresh the landing menu. */
+/** A sub-view was dismissed; the owner should refresh the landing menu. */
 - (void)refreshView;
 @optional
-/** @brief The player's status changed and should be refreshed. */
+/** The player's status changed and should be refreshed. */
 - (void)refreshStatus;
-/** @brief The player asked to buy cubes. */
+/** The player asked to buy cubes. */
 - (void)cubePurchaseStart;
 @end
 
 /**
- * @brief The challenge-mode menu container that switches between the landing menu and its
+ * The challenge-mode menu container that switches between the landing menu and its
  * sub-views with fade transitions.
  */
 @interface ChallengeMenuRootView : UIView <ChallengeMenuViewDelegate,
@@ -57,13 +57,13 @@ NS_ASSUME_NONNULL_BEGIN
                                            ChallengePrevRankingViewDelegate>
 
 /**
- * @brief The object told about close, refresh, and purchase events. Held weakly.
+ * The object told about close, refresh, and purchase events. Held weakly.
  * @ghidraAddress 0x102648 (getter), 0x102668 (setter)
  */
 @property(nonatomic, weak, nullable) id<ChallengeMenuRootViewDelegate> aDelegate;
 
 /**
- * @brief Builds the dimming cover and the landing menu, both initially transparent.
+ * Builds the dimming cover and the landing menu, both initially transparent.
  * @param frame The view's frame.
  * @return The initialised view.
  * @ghidraAddress 0x100ed8
@@ -71,53 +71,53 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Fades the cover and the landing menu in together.
+ * Fades the cover and the landing menu in together.
  * @ghidraAddress 0x1011bc
  */
 - (void)enterRootMenu;
 
 /**
- * @brief Lazily builds the sub-view for @p index and fades it in over the menu.
+ * Lazily builds the sub-view for @p index and fades it in over the menu.
  * @param index The sub-view selector (see @c -createMenuView:).
  * @ghidraAddress 0x1013b4
  */
 - (void)enterMenuSelectedView:(int)index;
 
 /**
- * @brief Close-button callback: plays the cancel sound, fades the cover and menu out, and tells
+ * Close-button callback: plays the cancel sound, fades the cover and menu out, and tells
  * the delegate to dismiss the root menu.
  * @ghidraAddress 0x1014ec
  */
 - (void)closeRootMenu;
 
 /**
- * @brief Fades the landing menu in.
+ * Fades the landing menu in.
  * @ghidraAddress 0x1017a0
  */
 - (void)enterMenu;
 
 /**
- * @brief Plays the cancel sound and fades the landing menu out.
+ * Plays the cancel sound and fades the landing menu out.
  * @ghidraAddress 0x1018c4
  */
 - (void)outerMenu;
 
 /**
- * @brief First half of the crossfade into a sub-view: fades the menu out, then fades the current
+ * First half of the crossfade into a sub-view: fades the menu out, then fades the current
  * sub-view in.
  * @ghidraAddress 0x101a2c
  */
 - (void)switchInMenu;
 
 /**
- * @brief First half of the crossfade back to the menu: plays the cancel sound, tells the delegate
+ * First half of the crossfade back to the menu: plays the cancel sound, tells the delegate
  * to refresh, removes the current sub-view, then fades the menu back in and rebuilds it.
  * @ghidraAddress 0x101cd8
  */
 - (void)switchOutMenu;
 
 /**
- * @brief Builds (replacing any existing instance) the sub-view for @p index and records it as the
+ * Builds (replacing any existing instance) the sub-view for @p index and records it as the
  * current view.
  *
  * The index maps to: @c 0 present list, @c 1 name-setting sheet, @c 2 rival search, @c 3 rival
@@ -131,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)createMenuView:(int)index;
 
 /**
- * @brief Menu-row callback: plays the labo-menu sound, builds the chosen sub-view, and starts the
+ * Menu-row callback: plays the labo-menu sound, builds the chosen sub-view, and starts the
  * crossfade into it.
  * @param menu The row's tag, boxed.
  * @ghidraAddress 0x102424
@@ -139,19 +139,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)selectMenu:(nullable NSNumber *)menu;
 
 /**
- * @brief Sub-view callback: crossfades back to the landing menu.
+ * Sub-view callback: crossfades back to the landing menu.
  * @ghidraAddress 0x1024dc
  */
 - (void)closeMenu;
 
 /**
- * @brief Forwards a status refresh to the delegate when it responds to @c -refreshStatus .
+ * Forwards a status refresh to the delegate when it responds to @c -refreshStatus .
  * @ghidraAddress 0x1024e8
  */
 - (void)refreshStatus;
 
 /**
- * @brief Forwards a cube-purchase request to the delegate when it responds to
+ * Forwards a cube-purchase request to the delegate when it responds to
  * @c -cubePurchaseStart .
  * @ghidraAddress 0x102598
  */

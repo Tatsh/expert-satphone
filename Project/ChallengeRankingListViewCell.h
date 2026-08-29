@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One row of the challenge ranking list.
+ * One row of the challenge ranking list.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeRankingListViewCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -14,19 +14,19 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A ranking row: rank, name and score across the plate, with a two-digit badge at its
+ * A ranking row: rank, name and score across the plate, with a two-digit badge at its
  * leading edge.
  */
 @interface ChallengeRankingListViewCell : UITableViewCell
 
 /**
- * @brief Weak and untyped, per the metadata. Nothing this class defines reads it.
+ * Weak and untyped, per the metadata. Nothing this class defines reads it.
  * @ghidraAddress 0x154704 (getter)
  */
 @property(nonatomic, weak) id aDelegate;
 
 /**
- * @brief Builds the plate, the three labels and the badge at the metrics for the current idiom.
+ * Builds the plate, the three labels and the badge at the metrics for the current idiom.
  * @param style The cell style.
  * @param reuseIdentifier The reuse identifier, or nil for a non-reusable cell.
  * @return The initialised cell.
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
               reuseIdentifier:(nullable NSString *)reuseIdentifier;
 
 /**
- * @brief Fills the row in, and re-frames the plate.
+ * Fills the row in, and re-frames the plate.
  *
  * Note it sets the plate's frame on every call rather than leaving the one the initialiser gave
  * it, so the plate's size is re-established from the device idiom each time.
@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
                score:(nullable NSString *)score;
 
 /**
- * @brief Sets the badge and its two digits.
+ * Sets the badge and its two digits.
  *
  * The two digit views are laid out right-aligned inside the badge and abut exactly, with
  * @c digit1Image in the trailing slot and @c digit2Image in the leading one — so the first

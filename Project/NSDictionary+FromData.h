@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The @c NSDictionary @c FromData category.
+ * The @c NSDictionary @c FromData category.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The runtime metadata records this as category @c FromData on
@@ -13,12 +13,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Property-list deserialisation vending a dictionary.
+ * Property-list deserialisation vending a dictionary.
  */
 @interface NSDictionary (FromData)
 
 /**
- * @brief Deserialises a property-list @c NSData into a dictionary.
+ * Deserialises a property-list @c NSData into a dictionary.
  * @param data The serialised property-list data.
  * @return The parsed dictionary, or @c nil when the data is not a property list whose root is a
  *         dictionary.

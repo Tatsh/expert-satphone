@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The applilink SDK's localised-message helper.
+ * The applilink SDK's localised-message helper.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkMessage, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -19,12 +19,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Maps a message key to its localised string.
+ * Maps a message key to its localised string.
  */
 @interface ApplilinkMessage : NSObject
 
 /**
- * @brief The localised text for a message key, with a built-in English fallback.
+ * The localised text for a message key, with a built-in English fallback.
  *
  * Looks the key up in the @c "Message" table of the reward bundle, passing a hard-coded English
  * default chosen by the key itself. An unrecognised key gets an empty default.

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The editor identifier store, backed by the keychain.
+ * The editor identifier store, backed by the keychain.
  *
  * Reconstructed from Ghidra program Jubeat (class EditorIDManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,17 +17,17 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Told how the editor-identifier provisioning download finished.
+ * Told how the editor-identifier provisioning download finished.
  */
 @protocol EditorIDManagerDelegate <NSObject>
 @optional
 /**
- * @brief Sent when the download succeeds and the keychain has been written.
+ * Sent when the download succeeds and the keychain has been written.
  * @param manager The manager that finished.
  */
 - (void)successIDDownload:(nullable id)manager;
 /**
- * @brief Sent when the download fails.
+ * Sent when the download fails.
  * @param manager The manager that failed.
  * @param msgStr The server-supplied message, or nil.
  */
@@ -35,12 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * @brief Holds the editor identifier and its passphrase as keychain items.
+ * Holds the editor identifier and its passphrase as keychain items.
  */
 @interface EditorIDManager : NSObject
 
 /**
- * @brief Starts a jubeatLab provisioning download that will write the editor keychain items.
+ * Starts a jubeatLab provisioning download that will write the editor keychain items.
  *
  * Stores the delegate weakly, builds a @c jubeatLabAccess client bound to this manager, and starts
  * it. The callbacks below report the outcome.
@@ -51,13 +51,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDelegate:(nullable id<EditorIDManagerDelegate>)delegate;
 
 /**
- * @brief Cancels the in-flight provisioning download.
+ * Cancels the in-flight provisioning download.
  * @ghidraAddress 0x1d27f8
  */
 - (void)cancel;
 
 /**
- * @brief Whether both the editor identifier and its passphrase are present in the keychain.
+ * Whether both the editor identifier and its passphrase are present in the keychain.
  *
  * Returns YES only when both lookups succeed. When either reports @c errSecItemNotFound it wipes
  * the keychain entries and returns NO, so a half-provisioned device is cleaned up rather than left
@@ -67,19 +67,19 @@ NS_ASSUME_NONNULL_BEGIN
 @property(class, nonatomic, readonly) BOOL isExistEditorID;
 
 /**
- * @brief The keychain account for the editor identifier, the constant @c "EditorUniqueID".
+ * The keychain account for the editor identifier, the constant @c "EditorUniqueID".
  * @return The keychain account name @c "EditorUniqueID" .
  * @ghidraAddress 0x1d3034
  */
 + (NSString *)getEditorIDKey;
 /**
- * @brief The keychain account for the editor passphrase, the constant @c "EditorPassword".
+ * The keychain account for the editor passphrase, the constant @c "EditorPassword".
  * @return The keychain account name @c "EditorPassword" .
  * @ghidraAddress 0x1d3060
  */
 + (NSString *)getEditorPassKey;
 /**
- * @brief Builds the keychain lookup query for an account.
+ * Builds the keychain lookup query for an account.
  *
  * A generic-password query scoped to the bundle identifier that asks for the item's attributes and
  * caps the match at one result.
@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSDictionary *)getKeyQuery:(id)key;
 /**
- * @brief Removes the editor keychain entries that are present.
+ * Removes the editor keychain entries that are present.
  *
  * Looks up the identifier and the passphrase in turn and deletes each one only when the lookup
  * succeeds, so an absent entry is left alone rather than delete-attempted.
@@ -98,14 +98,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)deleteKeychain;
 
 /**
- * @brief Deletes the generic-password keychain item for an account.
+ * Deletes the generic-password keychain item for an account.
  * @param key The account name.
  * @ghidraAddress 0x1d31ac
  */
 + (void)deleteKeychainString:(id)key;
 
 /**
- * @brief Builds the keychain add query for an account.
+ * Builds the keychain add query for an account.
  *
  * A generic-password entry scoped to the bundle identifier with an empty label and description, set
  * to be accessible after first unlock.
@@ -116,19 +116,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)createAddQuery:(id)key;
 
 /**
- * @brief jubeatLab callback sent as the download proceeds. Does nothing.
+ * jubeatLab callback sent as the download proceeds. Does nothing.
  * @param access The jubeatLab client.
  * @ghidraAddress 0x1d2810
  */
 - (void)jubeatLabAccessProceed:(nullable id)access;
 /**
- * @brief jubeatLab callback sent when the download fails; tells the delegate.
+ * jubeatLab callback sent when the download fails; tells the delegate.
  * @param access The jubeatLab client.
  * @ghidraAddress 0x1d2814
  */
 - (void)jubeatLabAccessError:(nullable id)access;
 /**
- * @brief jubeatLab callback sent when the download finishes; writes the keychain on success.
+ * jubeatLab callback sent when the download finishes; writes the keychain on success.
  *
  * Parses the JSON for @c Status , @c UserID , and @c Passwd . When all are present and the status
  * is zero it writes both keychain items, refreshes the user agent, and tells the delegate it
@@ -139,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)jubeatLabAccessFinished:(nullable id)access;
 
 /**
- * @brief Reads the keychain payload for an account and decodes it as a UTF-8 string.
+ * Reads the keychain payload for an account and decodes it as a UTF-8 string.
  *
  * Returns nil when either keychain lookup fails. Like
  * @c -[JubeatAppDelegate musicListKey], the first query asks only for attributes and those
@@ -149,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSString *)getKeyString:(id)key;
 
 /**
- * @brief Builds the keychain add query for an account. Identical to @c -createAddQuery: .
+ * Builds the keychain add query for an account. Identical to @c -createAddQuery: .
  * @param key The account name.
  * @return The add-query dictionary.
  * @ghidraAddress 0x1d3538
@@ -157,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSDictionary *)createAddQueryG:(id)key;
 
 /**
- * @brief Writes the editor identifier and passphrase into the keychain.
+ * Writes the editor identifier and passphrase into the keychain.
  * @param editorID The editor identifier.
  * @param passwd The passphrase.
  * @ghidraAddress 0x1d36b8
@@ -165,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setKeyChain:(id)editorID passwd:(id)passwd;
 
 /**
- * @brief Replaces the keychain from a provisioning response, when its status marks a switch.
+ * Replaces the keychain from a provisioning response, when its status marks a switch.
  *
  * Reads @c Status , @c UserID , and @c Passwd ; only when the status is @c 0x75DA does it hand the
  * identifier and passphrase to @c +replaceKeyChain:pass: .
@@ -175,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)replaceKeyChain:(id)response;
 
 /**
- * @brief Switches the editor account: rewrites the keychain and clears the derived session state.
+ * Switches the editor account: rewrites the keychain and clears the derived session state.
  *
  * When both arguments are present it deletes the keychain, writes the new pair, refreshes the user
  * agent, resets @c ChallengeStatus , and clears every stored HTTP cookie.
@@ -186,7 +186,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)replaceKeyChain:(id)editorID pass:(id)pass;
 
 /**
- * @brief Debugging hook that prints the keychain. Does nothing in the shipped build.
+ * Debugging hook that prints the keychain. Does nothing in the shipped build.
  * @ghidraAddress 0x1d3534
  */
 + (void)printKeychain;

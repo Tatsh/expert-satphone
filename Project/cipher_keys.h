@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The application's Blowfish key factories.
+ * The application's Blowfish key factories.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /**
- * @brief The Blowfish key for encrypted texture assets.
+ * The Blowfish key for encrypted texture assets.
  *
  * @c MD5("copious plus knit ripples") — a 25-character passphrase.
  *
@@ -37,7 +37,7 @@ extern "C" {
 NSData *CreateTextureCipherKey(void);
 
 /**
- * @brief The Blowfish key for encrypted tune/music metadata.
+ * The Blowfish key for encrypted tune/music metadata.
  *
  * @c MD5("Konami Bemani Mobile iOS") — a 24-character passphrase. Its rodata prefix is shared with
  * @c GetBgmCipherKey , which differs only in the "iOS"/"iPad" tail, so the two produce entirely
@@ -49,7 +49,7 @@ NSData *CreateTextureCipherKey(void);
 NSData *CreateTuneInfoCipherKey(void);
 
 /**
- * @brief The Blowfish key for the encrypted save file.
+ * The Blowfish key for the encrypted save file.
  *
  * @c MD5("js^_Yjs5ea`YUe6FQSAH;@S") — a 23-character obfuscated passphrase. The save-file encrypt
  * and decrypt paths each derive the key independently rather than sharing one.
@@ -60,7 +60,7 @@ NSData *CreateTuneInfoCipherKey(void);
 NSData *CreateSaveDataCipherKey(void);
 
 /**
- * @brief The Blowfish key protecting the "Lab" URL and its table view.
+ * The Blowfish key protecting the "Lab" URL and its table view.
  *
  * @c MD5("js^_YjfYXH`_]MQM;6.") — a 19-character obfuscated passphrase, the shortest of the
  * cluster.
@@ -73,7 +73,7 @@ NSData *CreateSaveDataCipherKey(void);
 NSData *CreateLabUrlCipherKey(void);
 
 /**
- * @brief The Blowfish key for per-sheet mission data.
+ * The Blowfish key for per-sheet mission data.
  *
  * @c MD5("jubeatmissiondata") — a 17-character passphrase. Distinct from @c CreateSaveDataCipherKey
  * despite both being save-related: that one guards the main save file, this one the mission
@@ -85,7 +85,7 @@ NSData *CreateLabUrlCipherKey(void);
 NSData *CreateMissionDataCipherKey(void);
 
 /**
- * @brief The Blowfish key for the challenge-resource (panel) data.
+ * The Blowfish key for the challenge-resource (panel) data.
  * @return The key material, to be handed to @c -[BFCodec cipherInit:] .
  * @ghidraAddress 0x7fa54
  */

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The texture and image cache.
+ * The texture and image cache.
  *
  * Reconstructed from Ghidra program Jubeat (class ImageCache, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Holds decoded images so a screen change does not re-read them from disk.
+ * Holds decoded images so a screen change does not re-read them from disk.
  *
  * Backed by an @c NSCache capped at a hundred and twenty-eight entries, so entries may be evicted
  * under memory pressure as well as by that limit. A caller must never assume a name it fetched
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ImageCache : NSObject
 
 /**
- * @brief The shared instance.
+ * The shared instance.
  *
  * A @c dispatch_once singleton; nothing vends any other instance.
  * @ghidraAddress 0xcecc8
@@ -38,14 +38,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property(class, nonatomic, readonly) ImageCache *sharedCache;
 
 /**
- * @brief Creates the backing cache and caps it at a hundred and twenty-eight entries.
+ * Creates the backing cache and caps it at a hundred and twenty-eight entries.
  * @return The initialised cache.
  * @ghidraAddress 0xced48
  */
 - (instancetype)init;
 
 /**
- * @brief Returns the named image, loading and caching it on a miss.
+ * Returns the named image, loading and caching it on a miss.
  *
  * A nil name yields nil without touching the cache. A load that fails is **not** cached, so a
  * missing resource is retried on every call rather than remembered as absent.
@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable UIImage *)getResPNG:(nullable NSString *)name;
 
 /**
- * @brief Drops everything held.
+ * Drops everything held.
  *
  * Sent on every screen transition except a game restart or replay, which is what keeps those two
  * fast.

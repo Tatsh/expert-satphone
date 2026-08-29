@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The modal that downloads the marker (note-hit graphic) list and each marker.
+ * The modal that downloads the marker (note-hit graphic) list and each marker.
  *
  * Reconstructed from Ghidra program Jubeat (class MarkerDownloadView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -25,7 +25,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What a @c MarkerDownloadView tells its owner.
+ * What a @c MarkerDownloadView tells its owner.
  *
  * The single message is dispatched with @c -performSelector: after a @c -respondsToSelector:
  * guard, so it is optional.
@@ -33,14 +33,14 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol MarkerDownloadViewDelegate <NSObject>
 @optional
 /**
- * @brief Sent once the marker check and download have finished, whether they succeeded, were
+ * Sent once the marker check and download have finished, whether they succeeded, were
  * cancelled, or were skipped.
  */
 - (void)markerCheckEnd;
 @end
 
 /**
- * @brief A full-screen dimming cover carrying a @c StoreDialogView download-progress panel.
+ * A full-screen dimming cover carrying a @c StoreDialogView download-progress panel.
  */
 @interface MarkerDownloadView : UIView <DownloaderDelegate,
                                         MarkerDownloadManagerDelegate,
@@ -48,18 +48,18 @@ NS_ASSUME_NONNULL_BEGIN
                                         StoreDialogViewDelegate>
 
 /**
- * @brief The object told when the marker check ends. Weak, and dispatched through
+ * The object told when the marker check ends. Weak, and dispatched through
  * @c -respondsToSelector: .
  */
 @property(nonatomic, weak, nullable) id<MarkerDownloadViewDelegate> delegate;
 
 /**
- * @brief The view the modal is shown over. Weak.
+ * The view the modal is shown over. Weak.
  */
 @property(nonatomic, weak, nullable) UIView *parentView;
 
 /**
- * @brief Builds the cover and the progress panel at the screen's size.
+ * Builds the cover and the progress panel at the screen's size.
  *
  * The panel is @c 400×300 on a pad and @c 300×270 otherwise, its message eighteen point on a pad
  * and sixteen otherwise, centred in the screen. The cover is a forty-per-cent black slab that
@@ -70,119 +70,119 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 
 /**
- * @brief Starts the marker check: shows the dialog (unless the markers are already legal) and
+ * Starts the marker check: shows the dialog (unless the markers are already legal) and
  * downloads the marker list.
  * @ghidraAddress 0x5ff44
  */
 - (void)show;
 
 /**
- * @brief Requests the marker list from the store.
+ * Requests the marker list from the store.
  * @ghidraAddress 0x5ffd0
  */
 - (void)downloadMarkerList;
 
 /**
- * @brief Ends the check: hides the dialog and tells the delegate @c -markerCheckEnd .
+ * Ends the check: hides the dialog and tells the delegate @c -markerCheckEnd .
  * @ghidraAddress 0x60068
  */
 - (void)markerDownloadEnd;
 
 /**
- * @brief Aborts the check: hides the dialog, cancels the queue, resets the current marker to
+ * Aborts the check: hides the dialog, cancels the queue, resets the current marker to
  * @c "mk0026" , and tells the delegate @c -markerCheckEnd .
  * @ghidraAddress 0x60128
  */
 - (void)markerDownloadCancel;
 
 /**
- * @brief Starts downloading the queued markers, or ends the check when the queue is empty.
+ * Starts downloading the queued markers, or ends the check when the queue is empty.
  * @ghidraAddress 0x60270
  */
 - (void)markerDownload;
 
 /**
- * @brief Builds the download queue by diffing the downloaded marker list against the installed
+ * Builds the download queue by diffing the downloaded marker list against the installed
  * markers, then shows the dialog when there is work to do.
  * @ghidraAddress 0x603ec
  */
 - (void)createMarkerDownloadList;
 
 /**
- * @brief @c DownloaderDelegate : the list request failed.
+ * @c DownloaderDelegate : the list request failed.
  * @param downloader The failed request.
  * @ghidraAddress 0x609bc
  */
 - (void)downloaderError:(id)downloader;
 
 /**
- * @brief @c DownloaderDelegate : the list request finished; validate it and start the markers.
+ * @c DownloaderDelegate : the list request finished; validate it and start the markers.
  * @param downloader The finished request.
  * @ghidraAddress 0x609c8
  */
 - (void)downloaderFinished:(id)downloader;
 
 /**
- * @brief Handles a failed list download: ends the check when the markers are legal, otherwise
+ * Handles a failed list download: ends the check when the markers are legal, otherwise
  * treats it as a queue failure.
  * @ghidraAddress 0x60b60
  */
 - (void)listDownloadFailed;
 
 /**
- * @brief Presents the retry-or-skip alert (tag @c 2 ).
+ * Presents the retry-or-skip alert (tag @c 2 ).
  * @ghidraAddress 0x60bec
  */
 - (void)showDownloadRetryAlert;
 
 /**
- * @brief Presents the confirm-skip alert (tag @c 1 ).
+ * Presents the confirm-skip alert (tag @c 1 ).
  * @ghidraAddress 0x60d9c
  */
 - (void)showListSkipAlert;
 
 /**
- * @brief @c AlertViewManagerDelegate : routes the retry and skip alert buttons.
+ * @c AlertViewManagerDelegate : routes the retry and skip alert buttons.
  * @param info The alert result, carrying @c "Tag" and @c "btnMessage" .
  * @ghidraAddress 0x60f4c
  */
 - (void)alertSelect:(nonnull NSDictionary *)info;
 
 /**
- * @brief Fades the cover in and puts the panel into its spinner state.
+ * Fades the cover in and puts the panel into its spinner state.
  * @ghidraAddress 0x610c8
  */
 - (void)showModalDialog;
 
 /**
- * @brief Fades the cover out, stops the spinner, and detaches the modal.
+ * Fades the cover out, stops the spinner, and detaches the modal.
  * @ghidraAddress 0x613e0
  */
 - (void)hideModalDialog;
 
 /**
- * @brief @c StoreDialogViewDelegate : the panel's abort button was pressed.
+ * @c StoreDialogViewDelegate : the panel's abort button was pressed.
  * @param dialogView The panel.
  * @ghidraAddress 0x616bc
  */
 - (void)storeDialogCancel:(id)dialogView;
 
 /**
- * @brief @c MarkerDownloadManagerDelegate : the queue made progress.
+ * @c MarkerDownloadManagerDelegate : the queue made progress.
  * @param manager The queue.
  * @ghidraAddress 0x616e4
  */
 - (void)downloadManagerProceed:(MarkerDownloadManager *)manager;
 
 /**
- * @brief @c MarkerDownloadManagerDelegate : the queue completed.
+ * @c MarkerDownloadManagerDelegate : the queue completed.
  * @param manager The queue.
  * @ghidraAddress 0x61750
  */
 - (void)downloadManagerCompleted:(MarkerDownloadManager *)manager;
 
 /**
- * @brief @c MarkerDownloadManagerDelegate : the queue failed.
+ * @c MarkerDownloadManagerDelegate : the queue failed.
  * @param manager The queue.
  * @ghidraAddress 0x617f4
  */

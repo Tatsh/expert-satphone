@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The settings-screen theme picker.
+ * The settings-screen theme picker.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsThemeViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It is a grouped
@@ -17,12 +17,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A view controller letting the player pick the game theme in the settings screen.
+ * A view controller letting the player pick the game theme in the settings screen.
  */
 @interface SettingsThemeViewController : UITableViewController
 
 /**
- * @brief The navigation-bar button that commits the picked theme.
+ * The navigation-bar button that commits the picked theme.
  *
  * Backed by @c _changeBarBtn. Created in @c -initWithStyle:, wired to
  * @c -buttonCommitChange:, and left disabled until the player selects a theme other than the one
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, nullable) UIBarButtonItem *changeBarBtn;
 
 /**
- * @brief Sets the navigation title to "THEME", builds the "Change Theme" commit button disabled,
+ * Sets the navigation title to "THEME", builds the "Change Theme" commit button disabled,
  *        and seeds the selection from the theme currently in effect.
  * @param style The table-view style handed to @c UITableViewController.
  * @return The initialised controller.
@@ -42,14 +42,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithStyle:(UITableViewStyle)style;
 
 /**
- * @brief Commits the picked theme by handing it to @c -[JubeatAppDelegate changeTheme:].
+ * Commits the picked theme by handing it to @c -[JubeatAppDelegate changeTheme:].
  * @param sender The bar-button item that fired the action.
  * @ghidraAddress 0x1443b4
  */
 - (void)buttonCommitChange:(nullable id)sender;
 
 /**
- * @brief Loads the table view and sets its row height to 42 points.
+ * Loads the table view and sets its row height to 42 points.
  * @ghidraAddress 0x14440c
  */
 - (void)loadView;

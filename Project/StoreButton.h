@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A rounded, flat-coloured button used throughout the store.
+ * A rounded, flat-coloured button used throughout the store.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreButton, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,12 +17,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A button that fills itself with a solid colour and rounds its own corners.
+ * A button that fills itself with a solid colour and rounds its own corners.
  */
 @interface StoreButton : UIButton
 
 /**
- * @brief The fill used while the button is enabled.
+ * The fill used while the button is enabled.
  *
  * Defaults to @c UIColor.blueColor , built on first read rather than in the initialiser.
  * @ghidraAddress 0x170c4c (getter)
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, nullable) UIColor *buttonColor;
 
 /**
- * @brief The fill used while the button is disabled.
+ * The fill used while the button is disabled.
  *
  * Defaults to @c UIColor.grayColor , likewise built lazily.
  * @ghidraAddress 0x170cfc (getter)
@@ -38,13 +38,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, nullable) UIColor *disabledColor;
 
 /**
- * @brief The corner radius the button rounds itself to.
+ * The corner radius the button rounds itself to.
  * @ghidraAddress 0x170dac (getter)
  */
 @property(nonatomic) double cornerRadius;
 
 /**
- * @brief Builds the button.
+ * Builds the button.
  *
  * Sets the title colour and shadow for the normal, highlighted, and disabled states, and centres
  * the content both ways. The shadow offset depends on the screen scale so that it is one device
@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Lightens a colour towards white.
+ * Lightens a colour towards white.
  *
  * Each component becomes @c c*(1-factor) @c + @c factor . **The alpha is blended too**, so a
  * partly transparent colour also becomes more opaque as the factor rises.
@@ -70,21 +70,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable UIColor *)highlightColor:(double *)components factor:(double)factor;
 
 /**
- * @brief Redraws when the highlight actually changes.
+ * Redraws when the highlight actually changes.
  * @param highlighted The new state.
  * @ghidraAddress 0x170e1c
  */
 - (void)setHighlighted:(BOOL)highlighted;
 
 /**
- * @brief Redraws when the selection actually changes.
+ * Redraws when the selection actually changes.
  * @param selected The new state.
  * @ghidraAddress 0x170ea8
  */
 - (void)setSelected:(BOOL)selected;
 
 /**
- * @brief Fills the button and draws its inner shadow.
+ * Fills the button and draws its inner shadow.
  *
  * A flat fill when disabled, otherwise a four-stop vertical gradient derived from
  * @c buttonColor . The inner shadow that follows is drawn by throwing the shadow one button-width

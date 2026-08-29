@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A label whose text is inset from the left edge.
+ * A label whose text is inset from the left edge.
  *
  * Reconstructed from Ghidra program Jubeat (class InfoLabel, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A @c UILabel that draws its text 12 points in from the left.
+ * A @c UILabel that draws its text 12 points in from the left.
  */
 @interface InfoLabel : UILabel
 @end

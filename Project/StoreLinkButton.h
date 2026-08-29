@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A store button that draws its own disclosure chevron.
+ * A store button that draws its own disclosure chevron.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreLinkButton, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -16,7 +16,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A button with a chevron drawn at its trailing edge, in the title's own colour.
+ * A button with a chevron drawn at its trailing edge, in the title's own colour.
  *
  * The chevron follows the title colour and title shadow for the current control state, so the two
  * state setters below repaint whenever that state actually changes.

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One row of the challenge menu, with a badge showing an unread count.
+ * One row of the challenge menu, with a badge showing an unread count.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMenuViewCell, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -14,7 +14,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A menu row whose badge draws its number from per-digit artwork.
+ * A menu row whose badge draws its number from per-digit artwork.
  *
  * The row owns two fixed arrays of image views, one two digits wide and one three, and picks
  * between them by magnitude rather than resizing either.
@@ -22,13 +22,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ChallengeMenuViewCell : UITableViewCell
 
 /**
- * @brief Weak and untyped, per the metadata. Nothing this class defines reads it.
+ * Weak and untyped, per the metadata. Nothing this class defines reads it.
  * @ghidraAddress 0x425e8 (getter)
  */
 @property(nonatomic, weak) id aDelegate;
 
 /**
- * @brief Clears the button, goes clear-backed and drops the selection style. Builds no subviews.
+ * Clears the button, goes clear-backed and drops the selection style. Builds no subviews.
  * @param style The cell style.
  * @param reuseIdentifier The reuse identifier, or nil for a non-reusable cell.
  * @return The initialised cell.
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
               reuseIdentifier:(nullable NSString *)reuseIdentifier;
 
 /**
- * @brief Builds the row's button, badge plate and digit views.
+ * Builds the row's button, badge plate and digit views.
  *
  * Builds everything on the first call only; later calls just re-apply the tag, the target and the
  * background. The digit views are laid out to centre exactly, three or two at a time.
@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setBgImage:(nullable UIImage *)bgImg numImage:(nullable NSArray *)numImg;
 
 /**
- * @brief Shows a number on the badge, or hides the badge entirely.
+ * Shows a number on the badge, or hides the badge entirely.
  *
  * Zero hides the plate and returns. One to nine goes in the **middle** slot of the three-wide row
  * rather than in the two-wide one. Ten to ninety-nine uses the two-wide row, and anything larger
@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setNumber:(int)number;
 
 /**
- * @brief The row button's action. Does nothing at all — the body is a single return.
+ * The row button's action. Does nothing at all — the body is a single return.
  *
  * Not dead code: @c -setBgImage:numImage: targets the button at @c aDelegate rather than at self,
  * so with a nil delegate UIKit walks the responder chain to this cell and this method absorbs the

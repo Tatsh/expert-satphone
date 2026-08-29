@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One peer's state in a multipeer play session.
+ * One peer's state in a multipeer play session.
  *
  * Reconstructed from Ghidra program Jubeat (class SessionClass, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -24,35 +24,35 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The per-peer record a multipeer session keeps.
+ * The per-peer record a multipeer session keeps.
  */
 @interface SessionClass : NSObject
 
-/** @brief The peer this record describes. */
+/** The peer this record describes. */
 @property(nonatomic, strong, nullable) MCPeerID *peerID;
-/** @brief Measured round-trip delay to the peer, in seconds. */
+/** Measured round-trip delay to the peer, in seconds. */
 @property(nonatomic) float delayTime;
-/** @brief How many pings have been attempted. A float, per the metadata. */
+/** How many pings have been attempted. A float, per the metadata. */
 @property(nonatomic) float pingTryCnt;
-/** @brief When the current receive began. */
+/** When the current receive began. */
 @property(nonatomic, strong, nullable) NSDate *receiveStartTime;
-/** @brief How long the last receive took, in seconds. */
+/** How long the last receive took, in seconds. */
 @property(nonatomic) float receiveTime;
-/** @brief The peer's score, or -1 before one has been reported. */
+/** The peer's score, or -1 before one has been reported. */
 @property(nonatomic) int score;
-/** @brief The peer's end-of-play bonus. */
+/** The peer's end-of-play bonus. */
 @property(nonatomic) int finalBonus;
-/** @brief Whether the peer has finished playing. */
+/** Whether the peer has finished playing. */
 @property(nonatomic) BOOL finished;
-/** @brief Whether the peer achieved a full combo. */
+/** Whether the peer achieved a full combo. */
 @property(nonatomic) BOOL fullcombo;
-/** @brief Whether the peer has finished loading its chart. */
+/** Whether the peer has finished loading its chart. */
 @property(nonatomic) BOOL dataLoaded;
-/** @brief Whether the peer's data has arrived. */
+/** Whether the peer's data has arrived. */
 @property(nonatomic) BOOL dataReceived;
-/** @brief Whether the peer is ready to begin loading. */
+/** Whether the peer is ready to begin loading. */
 @property(nonatomic) BOOL readyToLoad;
-/** @brief Whether clock synchronisation with the peer has settled. */
+/** Whether clock synchronisation with the peer has settled. */
 @property(nonatomic) BOOL settledSync;
 
 @end

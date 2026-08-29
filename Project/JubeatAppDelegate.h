@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The application delegate for jubeat plus: owns the root view controller, exposes the
+ * The application delegate for jubeat plus: owns the root view controller, exposes the
  * device and client identification the servers are told about, holds the persisted gameplay option
  * flags and store selection state, and drives the application lifecycle and notification handling.
  *
@@ -23,7 +23,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The three skins the game ships.
+ * The three skins the game ships.
  *
  * The binary names all three. The theme picker's row pattern images are @c theme_classic ,
  * @c theme_ripples , and @c theme_knit in this enumeration's order, and the latter two skins
@@ -45,7 +45,7 @@ typedef NS_ENUM(unsigned int, JubeatTheme) {
 };
 
 /**
- * @brief The device classes this build distinguishes.
+ * The device classes this build distinguishes.
  *
  * The binary names none of these; the names below come from the classifier at 0x9748-0x97d0 and
  * 0xa180-0xa25c, which decides purely on @c UIDevice.userInterfaceIdiom, @c UIScreen.scale, and
@@ -75,14 +75,14 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 };
 
 /**
- * @brief The application delegate for jubeat plus.
+ * The application delegate for jubeat plus.
  */
 @interface JubeatAppDelegate : UIResponder <UIApplicationDelegate>
 
 #pragma mark - Identification
 
 /**
- * @brief The shared application's delegate.
+ * The shared application's delegate.
  *
  * The binary forwards @c -[UIApplication delegate] unchanged without a class check; the concrete
  * type is stated here because that is what it is at runtime and what every caller relies on.
@@ -90,7 +90,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(class, nonatomic, readonly, nullable) JubeatAppDelegate *appDelegate;
 /**
- * @brief The device model identifier, for example @c "iPhone9,3".
+ * The device model identifier, for example @c "iPhone9,3".
  *
  * Reads @c hw.machine through @c sysctlbyname and wraps it in an @c NSString; when the sysctl
  * reports a zero length it falls back to @c UIDevice.currentDevice.model.
@@ -98,7 +98,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(class, nonatomic, readonly) NSString *deviceName;
 /**
- * @brief The device model identifier, by a second copy of the same routine.
+ * The device model identifier, by a second copy of the same routine.
  *
  * Surprising but faithful: this is byte-for-byte the same algorithm as @c +deviceName — the same
  * @c hw.machine sysctl, the same @c UIDevice.currentDevice.model fallback on a zero length, and the
@@ -108,7 +108,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(class, nonatomic, readonly) NSString *primDeviceName;
 /**
- * @brief The application version.
+ * The application version.
  *
  * Surprising but faithful: this is not read from the bundle's Info.plist. The binary builds it from
  * a hardcoded C string literal at 0x27dc66, whose bytes are "3.9.11", with
@@ -117,7 +117,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(class, nonatomic, readonly) NSString *appVersion;
 /**
- * @brief The client identification dictionary sent to the servers.
+ * The client identification dictionary sent to the servers.
  *
  * Five entries, built with @c +dictionaryWithObjects:forKeys:count: and a count of exactly 5 — the
  * slot count is read from the stack setup at 0x8100-0x81d4 rather than from the decompile, which
@@ -141,7 +141,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Standard directories
 
 /**
- * @brief The user Library directory.
+ * The user Library directory.
  *
  * @c NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) followed by
  * @c -lastObject. The directory constant 5 and the domain mask 1 were read from the immediate
@@ -150,12 +150,12 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(class, nonatomic, readonly) NSString *appLibraryDirectory;
 /**
- * @brief The user Documents directory. The directory constant is 9 (@c NSDocumentDirectory).
+ * The user Documents directory. The directory constant is 9 (@c NSDocumentDirectory).
  * @ghidraAddress 0x7da8
  */
 @property(class, nonatomic, readonly) NSString *appDocumentsDirectory;
 /**
- * @brief The user Caches directory. The directory constant is 13 (@c NSCachesDirectory).
+ * The user Caches directory. The directory constant is 13 (@c NSCachesDirectory).
  * @ghidraAddress 0x7e00
  */
 @property(class, nonatomic, readonly) NSString *appCachesDirectory;
@@ -163,7 +163,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Root view controller
 
 /**
- * @brief The root view controller of the application.
+ * The root view controller of the application.
  *
  * Backed by @c _rootViewCtrl (ivar offset global 0x349608). The class is proven rather than
  * assumed: @c -changeTheme: sends @c -changeThemeAndGoTitle to this object, and the only
@@ -176,7 +176,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Client identification
 
 /**
- * @brief The User-Agent string sent with the game's web requests.
+ * The User-Agent string sent with the game's web requests.
  *
  * Backed by @c _userAgent (0x34966c). Proven to be an @c NSString by @c -refreshUserAgent at
  * 0xa260, which assigns the result of @c +[NSString stringWithFormat:] straight into the ivar.
@@ -184,7 +184,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(nonatomic, readonly) NSString *userAgent;
 /**
- * @brief Rebuilds @c userAgent, and mirrors the app version into the user defaults on the way.
+ * Rebuilds @c userAgent, and mirrors the app version into the user defaults on the way.
  *
  * The User-Agent format is "%\@/%\@ (%\@; iOS %\@; %\@) [%\@]" with six arguments, in order: the
  * literal "jubeatplus", @c +appVersion, @c +deviceName, the system version with every "." replaced
@@ -197,7 +197,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (void)refreshUserAgent;
 /**
- * @brief The device idiom and screen class this build has classified the device as.
+ * The device idiom and screen class this build has classified the device as.
  *
  * Backed by @c _deviceType (0x349600), an 8-byte integer rather than an object despite the getter
  * loading a full word.
@@ -205,7 +205,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(nonatomic, readonly) JubeatDeviceType deviceType;
 /**
- * @brief The APNs device token, retained as received.
+ * The APNs device token, retained as received.
  *
  * Backed by @c _deviceToken (0x349670). An @c NSString, not the @c NSData the callback receives:
  * @c -application:didRegisterForRemoteNotificationsWithDeviceToken: stores the token's
@@ -217,7 +217,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Device idiom predicates
 
 /**
- * @brief Whether this is an iPad.
+ * Whether this is an iPad.
  *
  * Computed as @c (deviceType @c | @c 1) @c == @c 7, so it is true for device types 6 and 7. The
  * @c orr with 1 folds the pair into a single comparison.
@@ -225,21 +225,21 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(nonatomic, readonly) BOOL isPad;
 /**
- * @brief Whether this is a retina iPhone.
+ * Whether this is a retina iPhone.
  *
  * Computed as @c (deviceType @c - @c 1) @c < @c 5 unsigned, so it is true for device types 1 to 5.
  * @ghidraAddress 0x82dc
  */
 @property(nonatomic, readonly) BOOL isPhoneRetina;
 /**
- * @brief Whether the screen has the taller four-inch aspect ratio.
+ * Whether the screen has the taller four-inch aspect ratio.
  *
  * Computed as @c (deviceType @c - @c 2) @c < @c 4 unsigned, so it is true for device types 2 to 5.
  * @ghidraAddress 0x82f8
  */
 @property(nonatomic, readonly) BOOL is4inchAspect;
 /**
- * @brief Whether this is a retina iPad.
+ * Whether this is a retina iPad.
  *
  * Computed as @c deviceType @c == @c 7 exactly, which is the narrower half of @c isPad.
  * @ghidraAddress 0x8314
@@ -249,7 +249,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Game Center
 
 /**
- * @brief Whether Game Center is usable in this session.
+ * Whether Game Center is usable in this session.
  *
  * Backed by @c _gameCenterAvailable (0x349604). The getter is a @c ldrb, so the ivar is one byte
  * and the type is @c BOOL rather than a wider integer.
@@ -257,7 +257,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(nonatomic, readonly) BOOL gameCenterAvailable;
 /**
- * @brief The local player's Game Center alias, or nil when it cannot be had.
+ * The local player's Game Center alias, or nil when it cannot be had.
  *
  * Computed rather than stored. It returns nil on two separate paths: when @c gameCenterAvailable is
  * NO, and when @c GKLocalPlayer.localPlayer is not authenticated.
@@ -266,14 +266,14 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 @property(nonatomic, readonly, nullable) NSString *gameCenterName;
 
 /**
- * @brief Marks Game Center unusable for the rest of the session.
+ * Marks Game Center unusable for the rest of the session.
  *
  * The whole body is a single store of zero into @c _gameCenterAvailable; nothing is torn down.
  * @ghidraAddress 0x83bc
  */
 - (void)disableGameCenter;
 /**
- * @brief Starts Game Center authentication, if it is available and not already done.
+ * Starts Game Center authentication, if it is available and not already done.
  *
  * Returns immediately when @c gameCenterAvailable is NO, and also when
  * @c GKLocalPlayer.localPlayer is already authenticated — the handler is only installed on the
@@ -285,7 +285,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Presentation
 
 /**
- * @brief The currently-selected interface theme.
+ * The currently-selected interface theme.
  *
  * Backed by @c _currentTheme (0x34960c). The getter is @c ldr @c w0 — a 4-byte load — so the ivar
  * is a 32-bit integer and is spelled @c unsigned @c int rather than @c NSInteger. The signedness is
@@ -295,7 +295,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(nonatomic, readonly) JubeatTheme currentTheme;
 /**
- * @brief The installed marker set, as loaded from disk.
+ * The installed marker set, as loaded from disk.
  * @ghidraAddress 0xb9a8 (getter)
  */
 @property(nonatomic, readonly) id markerList;
@@ -303,52 +303,52 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Download and store selection
 
 /**
- * @brief The identifier of the jcf content download currently in progress.
+ * The identifier of the jcf content download currently in progress.
  *
  * Cleared to nil by @c -resetDownLoadIndex.
  * @ghidraAddress 0xb898 (getter)
  */
 @property(nonatomic, readonly) id jcfDownloadID;
 /**
- * @brief The genre selected in the store. Backed by @c _storeGenreID (0x349618).
+ * The genre selected in the store. Backed by @c _storeGenreID (0x349618).
  * @ghidraAddress 0xb968 (getter)
  */
 @property(nonatomic, readonly) id storeGenreID;
 /**
- * @brief The pack selected in the store. Backed by @c _storePackID (0x34961c).
+ * The pack selected in the store. Backed by @c _storePackID (0x34961c).
  * @ghidraAddress 0xb978 (getter)
  */
 @property(nonatomic, readonly) id storePackID;
 /**
- * @brief The campaign selected in the store. Backed by @c _storeCampaignID (0x349620).
+ * The campaign selected in the store. Backed by @c _storeCampaignID (0x349620).
  * @ghidraAddress 0xb988 (getter)
  */
 @property(nonatomic, readonly) id storeCampaignID;
 /**
- * @brief The banner image file name for the current campaign.
+ * The banner image file name for the current campaign.
  * @ghidraAddress 0xb9b8 (getter)
  * @ghidraAddress 0xb9c8 (setter)
  */
 @property(nonatomic, strong, nullable) NSString *campaignImageName;
 /**
- * @brief The on-disk path of the current campaign's banner image.
+ * The on-disk path of the current campaign's banner image.
  * @ghidraAddress 0xb9dc (getter)
  * @ghidraAddress 0xb9ec (setter)
  */
 @property(nonatomic, strong, nullable) NSString *campaignImagePath;
 /**
- * @brief The mission text shown on the store screen.
+ * The mission text shown on the store screen.
  * @ghidraAddress 0xbb00 (getter)
  * @ghidraAddress 0xbb10 (setter)
  */
 @property(nonatomic, strong) id storeMissionText;
 /**
- * @brief The music-list search term currently in effect.
+ * The music-list search term currently in effect.
  * @ghidraAddress 0xb998 (getter)
  */
 @property(nonatomic, readonly) id searchString;
 /**
- * @brief The running total of in-app purchases.
+ * The running total of in-app purchases.
  *
  * A 4-byte load, so @c int rather than @c NSInteger.
  * @ghidraAddress 0xba40 (getter)
@@ -358,47 +358,47 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Gameplay option flags
 
 /**
- * @brief Whether the random-note option is enabled. Written by @c -setRandomFlag:.
+ * Whether the random-note option is enabled. Written by @c -setRandomFlag:.
  * @ghidraAddress 0xb8c8 (getter)
  */
 @property(nonatomic, readonly) BOOL isRandom;
 /**
- * @brief Whether the extend option is enabled. Written by @c -setExtendFlag:.
+ * Whether the extend option is enabled. Written by @c -setExtendFlag:.
  * @ghidraAddress 0xb8e8 (getter)
  */
 @property(nonatomic, readonly) BOOL isExtend;
 /**
- * @brief Whether the hold option is enabled. Written by @c -setHoldFlag:.
+ * Whether the hold option is enabled. Written by @c -setHoldFlag:.
  * @ghidraAddress 0xb8f8 (getter)
  */
 @property(nonatomic, readonly) BOOL isHold;
 /**
- * @brief Whether the installed marker set is licensed for play.
+ * Whether the installed marker set is licensed for play.
  *
  * Latched to YES by @c -markerDownloadComplete and never cleared by any compiled setter.
  * @ghidraAddress 0xb8d8 (getter)
  */
 @property(nonatomic, readonly) BOOL isMarkerLegal;
 /**
- * @brief Whether the rectangle-wave sound option is enabled.
+ * Whether the rectangle-wave sound option is enabled.
  * @ghidraAddress 0xb908 (getter)
  * @ghidraAddress 0xb918 (setter)
  */
 @property(nonatomic) BOOL isRectangleWave;
 /**
- * @brief Whether marker direction is randomised.
+ * Whether marker direction is randomised.
  * @ghidraAddress 0xb928 (getter)
  * @ghidraAddress 0xb938 (setter)
  */
 @property(nonatomic) BOOL isMarkerDirRandom;
 /**
- * @brief Whether automatic play is enabled.
+ * Whether automatic play is enabled.
  * @ghidraAddress 0xb948 (getter)
  * @ghidraAddress 0xb958 (setter)
  */
 @property(nonatomic) BOOL bEnableAutoPlay;
 /**
- * @brief Whether the reward feature is enabled for this session.
+ * Whether the reward feature is enabled for this session.
  * @ghidraAddress 0xbac0 (getter)
  */
 @property(nonatomic, readonly) BOOL bEnableReward;
@@ -406,13 +406,13 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Collaboration modes
 
 /**
- * @brief Whether the naga/cora collaboration mode is active.
+ * Whether the naga/cora collaboration mode is active.
  * @ghidraAddress 0xba80 (getter)
  * @ghidraAddress 0xba90 (setter)
  */
 @property(nonatomic) BOOL isNagaCoraMode;
 /**
- * @brief Whether the hinabita collaboration mode is active.
+ * Whether the hinabita collaboration mode is active.
  * @ghidraAddress 0xbaa0 (getter)
  * @ghidraAddress 0xbab0 (setter)
  */
@@ -421,23 +421,23 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Challenge state
 
 /**
- * @brief Whether the challenge is open.
+ * Whether the challenge is open.
  * @ghidraAddress 0xba00 (getter)
  */
 @property(nonatomic, readonly) BOOL bChallengeOpen;
 /**
- * @brief Whether challenge mode is engaged. Written by @c -setChallengeMode:.
+ * Whether challenge mode is engaged. Written by @c -setChallengeMode:.
  * @ghidraAddress 0xba10 (getter)
  */
 @property(nonatomic, readonly) BOOL bChallengeMode;
 /**
- * @brief The music identifier for the current challenge. A 4-byte unsigned load, so
+ * The music identifier for the current challenge. A 4-byte unsigned load, so
  * @c unsigned @c int.
  * @ghidraAddress 0xba20 (getter)
  */
 @property(nonatomic, readonly) unsigned int challengeMusicID;
 /**
- * @brief The difficulty for the current challenge. A 4-byte load, so @c int.
+ * The difficulty for the current challenge. A 4-byte load, so @c int.
  * @ghidraAddress 0xba30 (getter)
  */
 @property(nonatomic, readonly) int challengeDifficulty;
@@ -445,7 +445,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Notifications
 
 /**
- * @brief The URL of the in-game notification page.
+ * The URL of the in-game notification page.
  *
  * Proven to be an @c NSURL: @c -setNotificationPageURL:updateTime: builds it with
  * @c +[NSURL URLWithString:] at 0x8d1c, whose class pointer at 0x3480b0 resolves to
@@ -454,7 +454,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(nonatomic, readonly, nullable) NSURL *notificationURL;
 /**
- * @brief The update timestamp that accompanies @c notificationURL.
+ * The update timestamp that accompanies @c notificationURL.
  *
  * Retained as handed in by @c -setNotificationPageURL:updateTime:. Its concrete class is not yet
  * proven; the two callers, @c -downloaderFinished: at 0x1f078 and @c -pushClose: at 0x183090,
@@ -463,7 +463,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(nonatomic, readonly, nullable) id notificationTime;
 /**
- * @brief The queued push notifications, persisted to disk between launches.
+ * The queued push notifications, persisted to disk between launches.
  *
  * Proven mutable: @c -loadNotification stores the result of sending @c -mutableCopy to the
  * unarchived object at 0xa828, so the ivar holds a mutable array rather than an immutable one.
@@ -471,7 +471,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(nonatomic, readonly) NSMutableArray *pushNotificationList;
 /**
- * @brief The payload of the remote push that launched the application.
+ * The payload of the remote push that launched the application.
  *
  * Written in exactly one place: @c -application:didFinishLaunchingWithOptions: stores a @c -copy of
  * @c launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey] at 0x96b0, which is why the
@@ -481,7 +481,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 @property(nonatomic, readonly, nullable) NSDictionary *remotePushInfo;
 /**
- * @brief Whether the device token still needs to be sent to the servers.
+ * Whether the device token still needs to be sent to the servers.
  * @ghidraAddress 0xbad0 (getter)
  * @ghidraAddress 0xbae0 (setter)
  */
@@ -490,14 +490,14 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Recommendations
 
 /**
- * @brief The number of unseen recommendation entries. A 4-byte load, so @c int.
+ * The number of unseen recommendation entries. A 4-byte load, so @c int.
  * @ghidraAddress 0xba60 (getter)
  * @ghidraAddress 0xba70 (setter)
  */
 @property(nonatomic) int hasNewRecommendNum;
 
 /**
- * @brief The Game Center leaderboard identifier for the total-score board.
+ * The Game Center leaderboard identifier for the total-score board.
  *
  * Two literals selected by @c isPad: "jubeat.totalscore" on iPad and "jubeat.totalscorephone"
  * elsewhere. The binary picks between them with a @c csel rather than a branch.
@@ -508,7 +508,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Presentation mutators
 
 /**
- * @brief Selects the interface theme, persists it, and returns to the title screen.
+ * Selects the interface theme, persists it, and returns to the title screen.
  *
  * Writes @c _currentTheme, mirrors it into @c NSUserDefaults under the key "PrefTheme" as an
  * @c NSNumber, synchronises, and then sends @c -changeThemeAndGoTitle to @c rootViewCtrl.
@@ -517,13 +517,13 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (void)changeTheme:(JubeatTheme)theme;
 /**
- * @brief Hands a colour array to the knit-colour manager.
+ * Hands a colour array to the knit-colour manager.
  * @param knitColor The colours to install.
  * @ghidraAddress 0x8f38
  */
 - (void)setKnitColor:(NSArray *)knitColor;
 /**
- * @brief Switches the title screen to the current event's presentation.
+ * Switches the title screen to the current event's presentation.
  *
  * When @c isHinabitaMode is set it first tells the knit-colour manager to use colour type 4; the
  * type is a bare immediate in the binary, not a named constant. It then sends
@@ -533,7 +533,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (void)switchTitleEvent;
 /**
- * @brief Unlocks the copious marker set and reloads the markers.
+ * Unlocks the copious marker set and reloads the markers.
  *
  * Writes @c YES to @c NSUserDefaults under "PrefCopiousUnlocked", synchronises, and then sends
  * @c -reloadMarkers to @c rootViewCtrl. Unconditional: there is no check of the current value, so
@@ -543,7 +543,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 - (void)enableCopiousMarkers;
 
 /**
- * @brief The per-install identifier, persisted in the keychain.
+ * The per-install identifier, persisted in the keychain.
  *
  * The selector name is misleading and is the binary's own: this has nothing to do with any music
  * list. It looks up a generic-password item keyed on the account "ApplicationUniqueID" and the
@@ -562,7 +562,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Validation
 
 /**
- * @brief Whether a string is non-empty and consists only of decimal digits.
+ * Whether a string is non-empty and consists only of decimal digits.
  *
  * Scans with an explicit character set built from the literal "0123456789" rather than using
  * @c NSCharacterSet.decimalDigitCharacterSet, so the non-ASCII digits that predefined set would
@@ -578,7 +578,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (BOOL)digitStringCheck:(nullable NSString *)string;
 /**
- * @brief Latches @c bEnableReward on.
+ * Latches @c bEnableReward on.
  *
  * As with @c -markerDownloadComplete, this only ever sets the flag; nothing clears it.
  * @ghidraAddress 0x8f24
@@ -588,7 +588,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Licence
 
 /**
- * @brief The build's licence date.
+ * The build's licence date.
  *
  * Surprising but faithful: this is a hardcoded string literal, not a computed or stored date. The
  * CFString at 0x2d4300 points at 19 bytes reading "2015-04-14 17:00:02", and the method returns it
@@ -598,7 +598,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (NSString *)getCurrentLicenseDate;
 /**
- * @brief The localized use-policy message, or nil when the bundle has no translation for it.
+ * The localized use-policy message, or nil when the bundle has no translation for it.
  *
  * Looks up the key "Use policy Message" with @c -localizedStringForKey:value:table:, passing an
  * empty default and a nil table. When the lookup comes back equal to that empty default the method
@@ -610,10 +610,10 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 
 #pragma mark - Challenge mutators
 
-/** @brief Clears @c bChallengeOpen. @ghidraAddress 0x8ea0 */
+/** Clears @c bChallengeOpen. @ghidraAddress 0x8ea0 */
 - (void)dropChallengeOpenFlag;
 /**
- * @brief Promotes a pending challenge into challenge mode.
+ * Promotes a pending challenge into challenge mode.
  *
  * When @c bChallengeOpen is set this sets @c bChallengeMode; either way it then clears
  * @c bChallengeOpen, so the flag is consumed whether or not it fired.
@@ -621,13 +621,13 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (void)moveChallengeOpenFlag;
 /**
- * @brief Sets @c bChallengeMode.
+ * Sets @c bChallengeMode.
  * @param challengeMode Whether challenge mode is engaged.
  * @ghidraAddress 0x8ed8
  */
 - (void)setChallengeMode:(BOOL)challengeMode;
 /**
- * @brief Selects the challenge's music and difficulty, and engages challenge mode.
+ * Selects the challenge's music and difficulty, and engages challenge mode.
  *
  * Note that it also sets @c bChallengeMode to YES as a side effect, which the selector name does
  * not suggest.
@@ -637,7 +637,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (void)setChallengeMusic:(unsigned int)musicID diff:(int)difficulty;
 /**
- * @brief Sets @c totalPurchaseAmount.
+ * Sets @c totalPurchaseAmount.
  * @param amount The running total the player has spent.
  * @ghidraAddress 0x8f14
  */
@@ -646,7 +646,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Notification persistence
 
 /**
- * @brief The on-disk path of the persisted notification queue, creating its directory if needed.
+ * The on-disk path of the persisted notification queue, creating its directory if needed.
  *
  * Builds @c \<caches\>/notification, creates that directory with intermediate directories when it
  * does not already exist, and returns @c \<caches\>/notification/noti.txt.
@@ -655,14 +655,14 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (NSString *)getNotificationFilePath;
 /**
- * @brief Reads the persisted notification queue back into @c pushNotificationList.
+ * Reads the persisted notification queue back into @c pushNotificationList.
  *
  * A missing or unreadable file leaves the property untouched rather than clearing it.
  * @ghidraAddress 0xa7a4
  */
 - (void)loadNotification;
 /**
- * @brief Writes @c pushNotificationList to disk, or deletes the file when the queue is empty.
+ * Writes @c pushNotificationList to disk, or deletes the file when the queue is empty.
  *
  * The archive is built before the emptiness test, so an empty queue archives an empty array and
  * then throws the result away.
@@ -670,7 +670,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (void)saveNotification;
 /**
- * @brief Whether a scheduled fire time is still in the future.
+ * Whether a scheduled fire time is still in the future.
  *
  * Compares the current Unix time, truncated toward zero from
  * @c -[NSDate timeIntervalSince1970], against @c fireTime and answers YES when the current time is
@@ -682,7 +682,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (BOOL)pushActiveCheck:(NSInteger)fireTime;
 /**
- * @brief Removes queued notifications from the front until one has not expired, and returns it.
+ * Removes queued notifications from the front until one has not expired, and returns it.
  *
  * Every entry it inspects is removed from the queue whether or not it is returned, so expired
  * entries are discarded as a side effect of looking for a live one. Each entry's fire time is read
@@ -698,7 +698,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Launch
 
 /**
- * @brief Classifies the device, restores preferences, builds the window, and starts every manager.
+ * Classifies the device, restores preferences, builds the window, and starts every manager.
  *
  * The largest method in the class at 0xF24 bytes, and the one that reaches most of the application.
  * It runs, in order: a discarded @c arc4random; the launch-options remote-notification route, which
@@ -722,7 +722,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - URL scheme
 
 /**
- * @brief Handles a @c jubeatplus:// URL, routing it to the store or to a content download.
+ * Handles a @c jubeatplus:// URL, routing it to the store or to a content download.
  *
  * Always returns YES, on every path including the one where the scheme does not match, so the
  * application never reports a URL as unhandled.
@@ -739,7 +739,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Push payload
 
 /**
- * @brief Flattens an APNs payload into the shape the notification queue stores.
+ * Flattens an APNs payload into the shape the notification queue stores.
  *
  * Returns nil when the payload has no "aps" entry. Otherwise it copies, each only when present:
  * "alert" from inside "aps" — stored under the different key "body" — plus "sound" from inside
@@ -755,7 +755,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Notification registration
 
 /**
- * @brief Proceeds to remote-notification registration once the user has answered the prompt.
+ * Proceeds to remote-notification registration once the user has answered the prompt.
  *
  * The settings argument is ignored: the binary does not inspect which types were granted, so this
  * registers even when the user allowed nothing.
@@ -766,7 +766,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 - (void)application:(UIApplication *)application
     didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings;
 /**
- * @brief Stores the APNs device token as a bare hexadecimal string.
+ * Stores the APNs device token as a bare hexadecimal string.
  *
  * Takes @c -description of the @c NSData and strips the three literals "<", ">", and " " from it in
  * that order. This is the pre-iOS-13 idiom for turning a token into hex; it depends on
@@ -778,7 +778,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 - (void)application:(UIApplication *)application
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 /**
- * @brief Does nothing.
+ * Does nothing.
  *
  * Surprising but faithful: the compiled method at 0xa98c is a single @c ret. A failed registration
  * is neither recorded nor reported, so @c deviceToken simply stays nil.
@@ -792,7 +792,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Notification delivery
 
 /**
- * @brief Queues a local notification for in-app display, or routes it if the user tapped it.
+ * Queues a local notification for in-app display, or routes it if the user tapped it.
  *
  * A notification with no @c userInfo is dropped. Otherwise the payload is flattened through
  * @c -apsDictionary: and the application state decides which of two unrelated things happens.
@@ -812,7 +812,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 - (void)application:(UIApplication *)application
     didReceiveLocalNotification:(UILocalNotification *)notification;
 /**
- * @brief The remote twin of @c -application:didReceiveLocalNotification:, plus a report back.
+ * The remote twin of @c -application:didReceiveLocalNotification:, plus a report back.
  *
  * Clears the badge, then runs the same two arms on the same @c applicationState test and with the
  * same scheme routing. Three differences from the local variant, all verified rather than assumed:
@@ -837,7 +837,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Application lifecycle
 
 /**
- * @brief Schedules the coin-refill notification as the application leaves the foreground.
+ * Schedules the coin-refill notification as the application leaves the foreground.
  *
  * The whole body is @c [[ChallengeStatus sharedStatus] createCoinNotification]; the
  * @c UIApplication argument is ignored.
@@ -846,7 +846,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (void)applicationDidEnterBackground:(UIApplication *)application;
 /**
- * @brief Does nothing.
+ * Does nothing.
  *
  * Surprising but faithful: the compiled method is a single @c ret. It is present only to satisfy
  * the delegate protocol.
@@ -855,7 +855,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (void)applicationWillResignActive:(UIApplication *)application;
 /**
- * @brief Clears the icon badge and cancels every pending local notification.
+ * Clears the icon badge and cancels every pending local notification.
  *
  * Note that it messages @c UIApplication.sharedApplication twice rather than reusing the argument
  * it was handed, which is ignored.
@@ -864,13 +864,13 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  */
 - (void)applicationDidBecomeActive:(UIApplication *)application;
 /**
- * @brief Shuts the purchase manager down and flushes the score records.
+ * Shuts the purchase manager down and flushes the score records.
  * @param application The application terminating.
  * @ghidraAddress 0xb7c8
  */
 - (void)applicationWillTerminate:(UIApplication *)application;
 /**
- * @brief Does nothing.
+ * Does nothing.
  *
  * As with @c -applicationWillResignActive:, the compiled method is a single @c ret. The binary
  * takes no action on a memory warning.
@@ -881,28 +881,28 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 
 #pragma mark - Download selection mutators
 
-/** @brief Clears @c jcfDownloadID. @ghidraAddress 0x8c38 */
+/** Clears @c jcfDownloadID. @ghidraAddress 0x8c38 */
 - (void)resetDownLoadIndex;
-/** @brief Clears @c storeGenreID. @ghidraAddress 0x8c50 */
+/** Clears @c storeGenreID. @ghidraAddress 0x8c50 */
 - (void)resetDownloadGenreID;
 /**
- * @brief Sets @c storeGenreID.
+ * Sets @c storeGenreID.
  * @param genreID The store genre to open on the next store visit.
  * @ghidraAddress 0x8c68
  */
 - (void)setDownloadGenreID:(nullable id)genreID;
-/** @brief Clears @c storePackID. @ghidraAddress 0x8c7c */
+/** Clears @c storePackID. @ghidraAddress 0x8c7c */
 - (void)resetDownloadPackID;
 /**
- * @brief Sets @c storePackID.
+ * Sets @c storePackID.
  * @param packID The store pack to open on the next store visit.
  * @ghidraAddress 0x8c94
  */
 - (void)setDownloadPackID:(nullable id)packID;
-/** @brief Clears @c storeCampaignID. @ghidraAddress 0x8ca8 */
+/** Clears @c storeCampaignID. @ghidraAddress 0x8ca8 */
 - (void)resetCampaignID;
 /**
- * @brief Sets @c storeCampaignID.
+ * Sets @c storeCampaignID.
  * @param campaignID The campaign to open on the next store visit.
  * @ghidraAddress 0x8cc0
  */
@@ -911,7 +911,7 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Notification page mutators
 
 /**
- * @brief Records the notification page endpoint and the timestamp that goes with it.
+ * Records the notification page endpoint and the timestamp that goes with it.
  *
  * A nil @c pageURL clears @c notificationURL rather than storing a URL built from nil.
  * @param pageURL The notification page's address, or nil to clear it.
@@ -923,30 +923,30 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
 #pragma mark - Option flag mutators
 
 /**
- * @brief Sets @c isRandom.
+ * Sets @c isRandom.
  * @param flag Whether random select is on.
  * @ghidraAddress 0x8d7c
  */
 - (void)setRandomFlag:(BOOL)flag;
 /**
- * @brief Sets @c isExtend.
+ * Sets @c isExtend.
  * @param flag Whether the extend filter is on.
  * @ghidraAddress 0x8d8c
  */
 - (void)setExtendFlag:(BOOL)flag;
 /**
- * @brief Sets @c isHold.
+ * Sets @c isHold.
  * @param flag Whether the hold filter is on.
  * @ghidraAddress 0x8d9c
  */
 - (void)setHoldFlag:(BOOL)flag;
 /**
- * @brief Sets @c searchString.
+ * Sets @c searchString.
  * @param searchString The music-list search text.
  * @ghidraAddress 0x8dac
  */
 - (void)setSearchString:(nullable id)searchString;
-/** @brief Latches @c isMarkerLegal to YES. @ghidraAddress 0x8dc0 */
+/** Latches @c isMarkerLegal to YES. @ghidraAddress 0x8dc0 */
 - (void)markerDownloadComplete;
 
 @end

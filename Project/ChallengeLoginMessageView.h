@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The daily-login sheet that tells the player how many free scratches remain.
+ * The daily-login sheet that tells the player how many free scratches remain.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeLoginMessageView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -14,14 +14,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A modal sheet shown once per day, carrying the remaining free-scratch count.
+ * A modal sheet shown once per day, carrying the remaining free-scratch count.
  *
  * The whole view is built in the initialiser; there is no separate layout pass and no nib.
  */
 @interface ChallengeLoginMessageView : UIView
 
 /**
- * @brief The object told when the player dismisses the sheet.
+ * The object told when the player dismisses the sheet.
  *
  * Weak, per the @c W attribute in the runtime metadata. Genuinely untyped: the metadata encodes it
  * as a bare @c \@ with no protocol, and @c -closeMessage: dispatches through
@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak) id aDelegate;
 
 /**
- * @brief Builds the whole sheet, sized from the background art and the device idiom.
+ * Builds the whole sheet, sized from the background art and the device idiom.
  *
  * The phone enlarges the artwork by 1.3 while the pad uses it at its native size, and the two
  * labels take larger point sizes on the pad.
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame scratchNum:(int)scratchNum;
 
 /**
- * @brief Dismisses the sheet: plays the menu sound, then notifies @c aDelegate.
+ * Dismisses the sheet: plays the menu sound, then notifies @c aDelegate.
  *
  * Note that it does not remove itself from its superview — closing is entirely the delegate's job,
  * and a delegate that does not answer @c closeLoginMessage leaves the sheet on screen.

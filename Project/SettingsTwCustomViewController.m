@@ -22,20 +22,20 @@
 }
 
 /**
- * @brief The frame row whose identifier matches the stored selected frame.
+ * The frame row whose identifier matches the stored selected frame.
  * @return The matching row, or @c nil when none matches.
  * @ghidraAddress 0x1c511c
  */
 - (NSArray *)getSelectedFrame;
 
 /**
- * @brief Reloads the frame image from the stored selected-frame default.
+ * Reloads the frame image from the stored selected-frame default.
  * @ghidraAddress 0x1c52f4
  */
 - (void)refreshFrame;
 
 /**
- * @brief Scales a rect's every component by the device scale @c fScale .
+ * Scales a rect's every component by the device scale @c fScale .
  * @param rect The unscaled rect.
  * @return The scaled rect.
  * @ghidraAddress 0x1c4784

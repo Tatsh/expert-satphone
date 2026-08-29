@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The challenge-mode present-list modal.
+ * The challenge-mode present-list modal.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengePresentView, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at
@@ -16,30 +16,30 @@ NS_ASSUME_NONNULL_BEGIN
 @class ChallengePresentView;
 
 /**
- * @brief Told when the present modal closes or changes the player's status.
+ * Told when the present modal closes or changes the player's status.
  */
 @protocol ChallengePresentViewDelegate <NSObject>
 @optional
-/** @brief Close the modal. */
+/** Close the modal. */
 - (void)closeMenu;
-/** @brief The player's status changed and should be refreshed. */
+/** The player's status changed and should be refreshed. */
 - (void)refreshStatus;
 @end
 
 /**
- * @brief A modal that downloads the player's present list, shows it in a table, and lets each
+ * A modal that downloads the player's present list, shows it in a table, and lets each
  * present be accepted or declined through the server.
  */
 @interface ChallengePresentView : UIView <ChallengePresentListViewDelegate>
 
 /**
- * @brief The delegate told about close and status-refresh events. Held weakly.
+ * The delegate told about close and status-refresh events. Held weakly.
  * @ghidraAddress 0x96620 (getter), 0x96640 (setter)
  */
 @property(nonatomic, weak, nullable) id<ChallengePresentViewDelegate> aDelegate;
 
 /**
- * @brief Builds the modal and kicks off the present-list download.
+ * Builds the modal and kicks off the present-list download.
  * @param frame The modal's frame.
  * @return The initialised view.
  * @ghidraAddress 0x9516c

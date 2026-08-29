@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The audio-file decoder that feeds raw PCM samples to OpenAL.
+ * The audio-file decoder that feeds raw PCM samples to OpenAL.
  */
 
 #ifndef OPENALSUPPORT_H
@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Decodes an audio file into raw 16-bit linear PCM samples for OpenAL.
+ * Decodes an audio file into raw 16-bit linear PCM samples for OpenAL.
  *
  * Opens @p inFileURL with the ExtAudioFile API, converts the file to an
  * interleaved signed 16-bit linear-PCM client format, allocates the sample

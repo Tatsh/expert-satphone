@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A popover listing the player's saved edit charts.
+ * A popover listing the player's saved edit charts.
  *
  * Reconstructed from Ghidra program Jubeat (class EditFileListViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -18,7 +18,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What an @c EditFileListViewController tells its owner.
+ * What an @c EditFileListViewController tells its owner.
  *
  * The protocol's name is the binary's own, taken from the delegate ivar's encoding
  * @c \@"<EditFileListViewDelegate>" .
@@ -26,29 +26,29 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol EditFileListViewDelegate <NSObject>
 @optional
 /**
- * @brief Sent when a chart is chosen.
+ * Sent when a chart is chosen.
  * @param index The chosen row.
  */
 - (void)editFileListViewSelectItem:(NSInteger)index;
 @end
 
 /**
- * @brief A table of saved edit charts, each showing its name and note count.
+ * A table of saved edit charts, each showing its name and note count.
  */
 @interface EditFileListViewController : UITableViewController
 
 /**
- * @brief The object told which chart was chosen.
+ * The object told which chart was chosen.
  */
 @property(nonatomic, weak, nullable) id<EditFileListViewDelegate> delegate;
 
 /**
- * @brief The charts to list. Each element is a dictionary.
+ * The charts to list. Each element is a dictionary.
  */
 @property(nonatomic, strong, nullable) NSMutableArray *fileList;
 
 /**
- * @brief Returns @c CAGradientLayer .
+ * Returns @c CAGradientLayer .
  *
  * **Never consulted.** @c +layerClass is a @c UIView class method; UIKit does not ask a view
  * controller for one, and this class is a @c UITableViewController . See TYPES_PENDING.md.
@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (Class)layerClass;
 
 /**
- * @brief Builds the controller at a given popover size.
+ * Builds the controller at a given popover size.
  * @param size The preferred content size.
  * @return The initialised controller.
  * @ghidraAddress 0x20832c

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A title-screen ornament: a background plate that tilts, a car image that bobs on a loop,
+ * A title-screen ornament: a background plate that tilts, a car image that bobs on a loop,
  * and a puff of smog that fades in from nothing as the title appears.
  *
  * Reconstructed from Ghidra program Jubeat (class NteTitleOptionView, image base 0x100000000).
@@ -17,12 +17,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A title-screen ornament made of a tiltable background, a looping car, and a smog puff.
+ * A title-screen ornament made of a tiltable background, a looping car, and a smog puff.
  */
 @interface NteTitleOptionView : UIView
 
 /**
- * @brief Builds the three layered subviews at the given size and starts the reveal animation.
+ * Builds the three layered subviews at the given size and starts the reveal animation.
  *
  * Only the frame's size is used; its origin is ignored. The background plate and the car
  * container both fill the frame, the smog fills the loaded smog artwork's own size, and the car
@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Tilts and optionally mirrors the background plate.
+ * Tilts and optionally mirrors the background plate.
  *
  * @param direction A bit-mask: bit 0 mirrors horizontally and negates the tilt, bit 1 tilts one
  * way, and bit 2 tilts the other way (overriding bit 1).
@@ -43,20 +43,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setOptDirection:(int)direction;
 
 /**
- * @brief Fades the smog in from a collapsed, offset start to its resting scale, then starts the
+ * Fades the smog in from a collapsed, offset start to its resting scale, then starts the
  * car loop.
  * @ghidraAddress 0x207cb0
  */
 - (void)startAnimation;
 
 /**
- * @brief Bobs the car up by a few points and reschedules itself while the loop is enabled.
+ * Bobs the car up by a few points and reschedules itself while the loop is enabled.
  * @ghidraAddress 0x207fd4
  */
 - (void)startCarAnimation;
 
 /**
- * @brief Disables the car loop and clears every pending animation on the car and the smog.
+ * Disables the car loop and clears every pending animation on the car and the smog.
  * @ghidraAddress 0x208214
  */
 - (void)stopAnimation;

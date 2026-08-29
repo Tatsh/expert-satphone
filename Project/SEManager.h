@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Keeps track of which sound effects are playing.
+ * Keeps track of which sound effects are playing.
  *
  * Reconstructed from Ghidra program Jubeat (class SEManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -20,19 +20,19 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Starts sound effects and stops them together.
+ * Starts sound effects and stops them together.
  */
 @interface SEManager : NSObject <AVAudioPlayerDelegate>
 
 /**
- * @brief Builds the manager with room for thirty-two players.
+ * Builds the manager with room for thirty-two players.
  * @return The initialised manager.
  * @ghidraAddress 0x79064
  */
 - (instancetype)init;
 
 /**
- * @brief Starts a player and takes ownership of its delegate callbacks.
+ * Starts a player and takes ownership of its delegate callbacks.
  *
  * A player that refuses to start is neither tracked nor made to report back.
  *
@@ -42,13 +42,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)play:(nullable AVAudioPlayer *)player;
 
 /**
- * @brief Stops everything currently playing and forgets it.
+ * Stops everything currently playing and forgets it.
  * @ghidraAddress 0x79158
  */
 - (void)stopAll;
 
 /**
- * @brief Forgets a player that has finished.
+ * Forgets a player that has finished.
  *
  * The success flag is not consulted, so a player that failed is forgotten just the same.
  *
@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag;
 
 /**
- * @brief Inert. The body is a single @c ret .
+ * Inert. The body is a single @c ret .
  * @param player Ignored.
  * @param error Ignored.
  * @ghidraAddress 0x79380
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(nullable NSError *)error;
 
 /**
- * @brief Forgets a player the system has interrupted.
+ * Forgets a player the system has interrupted.
  *
  * The player is dropped from the set but not stopped — the interruption has already silenced it,
  * and nothing here can resume it afterwards.

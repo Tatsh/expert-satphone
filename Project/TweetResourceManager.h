@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The tweet/result-frame resource manager.
+ * The tweet/result-frame resource manager.
  *
  * Reconstructed from Ghidra program Jubeat (class TweetResourceManager, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at
@@ -19,19 +19,19 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Owns the frame-background catalogue and the enciphered archives that back each frame.
+ * Owns the frame-background catalogue and the enciphered archives that back each frame.
  */
 @interface TweetResourceManager : NSObject
 
 /**
- * @brief The shared instance, built once.
+ * The shared instance, built once.
  * @return The shared manager.
  * @ghidraAddress 0x79434
  */
 + (instancetype)sharedManager;
 
 /**
- * @brief The path of the append-data directory, creating it and its parents on demand.
+ * The path of the append-data directory, creating it and its parents on demand.
  *
  * The directory is @c \<Library\>/Private Documents/appendData ; the method creates the library
  * directory, the @c Private Documents directory, and the @c appendData directory in turn when any
@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)getAppendResourcePath;
 
 /**
- * @brief The directory that holds one frame's archive, creating it on demand.
+ * The directory that holds one frame's archive, creating it on demand.
  * @param frameName The frame's directory name (its @c fileName catalogue value).
  * @return The frame's directory path under the append-data directory.
  * @ghidraAddress 0x79e1c
@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)getFrameDirectoryPath:(NSString *)frameName;
 
 /**
- * @brief The path of one frame's @c twitterResources.zip archive when it exists on disk.
+ * The path of one frame's @c twitterResources.zip archive when it exists on disk.
  * @param frameName The frame's directory name.
  * @return The archive path, or nil when either the frame directory or the archive is absent.
  * @ghidraAddress 0x79f10
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSString *)getFrameFilePath:(NSString *)frameName;
 
 /**
- * @brief Verifies that a frame archive names the expected directory.
+ * Verifies that a frame archive names the expected directory.
  *
  * Opens @p data as an archive (stripping its trailing sixteen-byte digest), reads the
  * @c twitterResources/filename.txt entry, and compares its UTF-8 contents to @p dirName.
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)checkResourceName:(NSData *)data dirName:(NSString *)dirName;
 
 /**
- * @brief Verifies a frame archive against its trailing MD5 digest.
+ * Verifies a frame archive against its trailing MD5 digest.
  *
  * The last sixteen bytes are the expected digest; the MD5 is taken over everything before them.
  * @param data The archive bytes, digest included.
@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)checkMD5:(nullable NSData *)data;
 
 /**
- * @brief Opens a frame's archive, falling back to the default frame when it is missing or corrupt.
+ * Opens a frame's archive, falling back to the default frame when it is missing or corrupt.
  *
  * Loads @p frameName 's archive, verifies its digest, and returns it as an archive reader with the
  * trailing digest stripped. When that fails it retries with the default frame. The bytes still need
@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable KUnzip *)getResourceData:(NSString *)frameName;
 
 /**
- * @brief Verifies every catalogued background frame's archive, deleting any that fails.
+ * Verifies every catalogued background frame's archive, deleting any that fails.
  *
  * Walks the frames whose @c itemType is zero, and for each confirms the archive is present, its
  * MD5 digest matches, and its stored directory name is correct; a failing archive is removed.
@@ -102,14 +102,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)checkResourceData;
 
 /**
- * @brief Deletes a frame's stored archive.
+ * Deletes a frame's stored archive.
  * @param frameName The frame's directory name.
  * @ghidraAddress 0x7a7fc
  */
 + (void)removeResourceData:(NSString *)frameName;
 
 /**
- * @brief Copies each bundled background-frame archive into the append-data layout.
+ * Copies each bundled background-frame archive into the append-data layout.
  *
  * For every frame whose @c itemType is zero, copies @c twitterResources.zip out of the app bundle's
  * @c appendData/\<frameName\> directory into the frame's on-disk directory, replacing any existing
@@ -120,7 +120,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)moveResourceDataInDoc;
 
 /**
- * @brief Reports whether a persisted frame selection is currently unlocked.
+ * Reports whether a persisted frame selection is currently unlocked.
  *
  * Finds the background frame whose @c fileName equals @p frameName and reports it enabled when it
  * is unconditionally free (@c termType zero) or unlocked by the install count reaching the frame's
@@ -132,21 +132,21 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)checkEnableSelecteFrame:(nullable NSString *)frameName;
 
 /**
- * @brief The frame-background catalogue, each entry a descriptor dictionary.
+ * The frame-background catalogue, each entry a descriptor dictionary.
  * @return The catalogue array.
  * @ghidraAddress 0x79550
  */
 - (nullable NSArray<NSDictionary *> *)getResourceList;
 
 /**
- * @brief The cached install-application count, seeded from the reward store at init.
+ * The cached install-application count, seeded from the reward store at init.
  * @return The install count.
  * @ghidraAddress 0x79570
  */
 - (int)getInstallApplicationNum;
 
 /**
- * @brief Sets the cached install-application count.
+ * Sets the cached install-application count.
  * @param installApplicationNum The new count.
  * @ghidraAddress 0x79560
  */

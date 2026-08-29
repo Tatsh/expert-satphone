@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief TouchJSON's @c NSDictionary @c JSONExtensions category.
+ * TouchJSON's @c NSDictionary @c JSONExtensions category.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. This is TouchJSON's convenience category, so the names are
@@ -15,12 +15,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief One-call JSON deserialisation vending a Foundation object.
+ * One-call JSON deserialisation vending a Foundation object.
  */
 @interface NSDictionary (JSONExtensions)
 
 /**
- * @brief Deserialises JSON data via a fresh @c CJSONDeserializer.
+ * Deserialises JSON data via a fresh @c CJSONDeserializer.
  * @param data The JSON text.
  * @param error Out-parameter for a parse failure; may be @c NULL.
  * @return The parsed object, autoreleased, or @c nil on failure.
@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable id)dictionaryWithJSONData:(nullable NSData *)data error:(NSError **)error;
 
 /**
- * @brief Deserialises a JSON string by encoding it as UTF-8 and deferring to
+ * Deserialises a JSON string by encoding it as UTF-8 and deferring to
  *        @c dictionaryWithJSONData:error:.
  * @param string The JSON text.
  * @param error Out-parameter for a parse failure; may be @c NULL.

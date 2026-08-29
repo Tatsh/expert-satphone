@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The applilink recommendation web view controller.
+ * The applilink recommendation web view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class RecommendWebViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. The class object
@@ -15,12 +15,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A reward web view controller specialised for applilink recommendation content.
+ * A reward web view controller specialised for applilink recommendation content.
  */
 @interface RecommendWebViewController : RewardWebViewController
 
 /**
- * @brief Routes a request to a recommendation action code via @c RecommendCore.
+ * Routes a request to a recommendation action code via @c RecommendCore.
  * @param request The request.
  * @return The action code.
  * @ghidraAddress 0x22b8c4
@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (int)redirectWithRequest:(nullable NSURLRequest *)request;
 
 /**
- * @brief Shows the recommendation video view for a query via @c RecommendCore.
+ * Shows the recommendation video view for a query via @c RecommendCore.
  * @param query The video query.
  * @ghidraAddress 0x22b948
  */

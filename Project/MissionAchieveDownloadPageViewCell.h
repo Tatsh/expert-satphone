@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One row of the mission-achievement download list.
+ * One row of the mission-achievement download list.
  *
  * Reconstructed from Ghidra program Jubeat (class MissionAchieveDownloadPageViewCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -14,24 +14,24 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What a @c MissionAchieveDownloadPageViewCell tells its owner.
+ * What a @c MissionAchieveDownloadPageViewCell tells its owner.
  */
 @protocol MissionAchieveDownloadPageViewCellDelegate <NSObject>
 @optional
 /**
- * @brief Sent when the row's download button is tapped.
+ * Sent when the row's download button is tapped.
  * @param cell The row that was tapped — not the button.
  */
 - (void)tapDownloadBtn:(id)cell;
 @end
 
 /**
- * @brief A three-line description with a fixed-size download button at its trailing edge.
+ * A three-line description with a fixed-size download button at its trailing edge.
  */
 @interface MissionAchieveDownloadPageViewCell : UITableViewCell
 
 /**
- * @brief The object told when the download button is tapped.
+ * The object told when the download button is tapped.
  *
  * Weak, per the @c W attribute in the metadata, and encoded as a bare @c \@ with no protocol, so
  * the dispatch goes through @c -respondsToSelector: rather than a declared conformance.
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak) id aDelegate;
 
 /**
- * @brief Builds the plate, the label and the button at the metrics for the current idiom.
+ * Builds the plate, the label and the button at the metrics for the current idiom.
  * @param style The cell style.
  * @param reuseIdentifier The reuse identifier, or nil for a non-reusable cell.
  * @return The initialised cell.
@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
               reuseIdentifier:(nullable NSString *)reuseIdentifier;
 
 /**
- * @brief Fills the row in and sets the button's enabled appearance.
+ * Fills the row in and sets the button's enabled appearance.
  *
  * Note the button's @c enabled state is never touched — only its background colour changes, so a
  * "disabled" button still reports taps.
@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
          btnEnable:(BOOL)btnEnable;
 
 /**
- * @brief The download button's action.
+ * The download button's action.
  * @param sender The button. Unused — the delegate is handed the cell instead.
  * @ghidraAddress 0x1ed208
  */

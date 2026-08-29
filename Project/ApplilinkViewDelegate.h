@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The applilink advert-view delegate protocol.
+ * The applilink advert-view delegate protocol.
  *
  * The applilink SDK dispatches every advert lifecycle callback through
  * @c +[ApplilinkCore toDelegate...:delegate:], each guarded by a @c -respondsToSelector: test, so
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The advert-view lifecycle callbacks the applilink SDK reports to a host.
+ * The advert-view lifecycle callbacks the applilink SDK reports to a host.
  *
  * Every method is optional; the SDK guards each dispatch with @c -respondsToSelector: .
  */
@@ -25,82 +25,82 @@ NS_ASSUME_NONNULL_BEGIN
 
 @optional
 
-/** @brief The advert flow started. */
+/** The advert flow started. */
 - (void)appListDidStart;
 /**
- * @brief The advert flow started, with the originating parameters.
+ * The advert flow started, with the originating parameters.
  * @param appParam The parameters the advert was opened with.
  */
 - (void)appListDidStart:(nullable ApplilinkParameters *)appParam;
-/** @brief The advert became visible. */
+/** The advert became visible. */
 - (void)appListDidAppear;
 /**
- * @brief The advert became visible, with the originating parameters.
+ * The advert became visible, with the originating parameters.
  * @param appParam The parameters the advert was opened with.
  */
 - (void)appListDidAppear:(nullable ApplilinkParameters *)appParam;
-/** @brief The advert was dismissed. */
+/** The advert was dismissed. */
 - (void)appListDidDisappear;
 /**
- * @brief The advert was dismissed, with the originating parameters.
+ * The advert was dismissed, with the originating parameters.
  * @param appParam The parameters the advert was opened with.
  */
 - (void)appListDidDisappear:(nullable ApplilinkParameters *)appParam;
 
 /**
- * @brief The advert failed to open.
+ * The advert failed to open.
  * @param error The failure.
  */
 - (void)appListFailOpenWithError:(nullable NSError *)error;
 /**
- * @brief The advert failed to open, with the originating parameters.
+ * The advert failed to open, with the originating parameters.
  * @param error The failure.
  * @param appParam The parameters the advert was opened with.
  */
 - (void)appListFailOpenWithError:(nullable NSError *)error
          withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
 /**
- * @brief The advert failed to load.
+ * The advert failed to load.
  * @param error The failure.
  */
 - (void)appListFailLoadWithError:(nullable NSError *)error;
 /**
- * @brief The advert failed to load, with the originating parameters.
+ * The advert failed to load, with the originating parameters.
  * @param error The failure.
  * @param appParam The parameters the advert was opened with.
  */
 - (void)appListFailLoadWithError:(nullable NSError *)error
          withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
 /**
- * @brief The advert failed.
+ * The advert failed.
  * @param error The failure.
  */
 - (void)appListFailWithError:(nullable NSError *)error;
 /**
- * @brief The advert failed, with the originating parameters.
+ * The advert failed, with the originating parameters.
  * @param error The failure.
  * @param appParam The parameters the advert was opened with.
  */
 - (void)appListFailWithError:(nullable NSError *)error
      withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
 /**
- * @brief The advert link failed.
+ * The advert link failed.
  * @param error The failure.
  */
 - (void)appListFailLinkWithError:(nullable NSError *)error;
 /**
- * @brief The advert link failed, with the originating parameters.
+ * The advert link failed, with the originating parameters.
  * @param error The failure.
  * @param appParam The parameters the advert was opened with.
  */
 - (void)appListFailLinkWithError:(nullable NSError *)error
          withApplilinkParameters:(nullable ApplilinkParameters *)appParam;
 
-/** @brief The advert's sound playback started. */
+/** The advert's sound playback started. */
 - (void)appListSoundUseStart;
-/** @brief The advert's sound playback finished. */
+/** The advert's sound playback finished. */
 - (void)appListSoundUseFinish;
-/** @brief The advert's movie finished. */
+/** The advert's movie finished. */
 - (void)appListMovieFinish;
 
 @end

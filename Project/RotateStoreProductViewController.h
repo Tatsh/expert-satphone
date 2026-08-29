@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The App Store product sheet, unlocked from portrait.
+ * The App Store product sheet, unlocked from portrait.
  *
  * Reconstructed from Ghidra program Jubeat (class RotateStoreProductViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -18,7 +18,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A store product sheet that rotates to every orientation.
+ * A store product sheet that rotates to every orientation.
  */
 @interface RotateStoreProductViewController : SKStoreProductViewController
 @end

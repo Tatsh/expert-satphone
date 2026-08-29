@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The splash screen shown at launch: the Konami and BEMANI logos, then the age-rating
+ * The splash screen shown at launch: the Konami and BEMANI logos, then the age-rating
  * notice.
  *
  * Reconstructed from Ghidra program Jubeat (class LogoViewController, image base 0x100000000). All
@@ -22,12 +22,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The launch splash screen and its logo animation.
+ * The launch splash screen and its logo animation.
  */
 @interface LogoViewController : UIViewController <DownloaderDelegate>
 
 /**
- * @brief Builds the controller.
+ * Builds the controller.
  *
  * Does nothing but call @c super . The ivars are set up in @c -loadView instead.
  *
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 
 /**
- * @brief Builds the view hierarchy by hand rather than from a nib.
+ * Builds the view hierarchy by hand rather than from a nib.
  *
  * Creates the three logo images centred on the view and starting invisible, then starts the two
  * downloads that run behind the animation.
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadView;
 
 /**
- * @brief Runs one step of the logo animation and schedules the next.
+ * Runs one step of the logo animation and schedules the next.
  *
  * Each step animates one fade and passes itself as that animation's completion, so the sequence
  * advances one step per finished animation rather than on a timer. Once the sequence is over this
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)fireAnimation;
 
 /**
- * @brief Resets the splash to its opening frame and starts the animation.
+ * Resets the splash to its opening frame and starts the animation.
  *
  * Blacks out the view, hides both logos, and returns @c state to zero.
  *
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)start;
 
 /**
- * @brief Tears the splash down and hands control back to the root controller.
+ * Tears the splash down and hands control back to the root controller.
  *
  * @param sender The timer or control that ended the splash. Unused.
  * @ghidraAddress 0x830bc
@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)end:(nullable id)sender;
 
 /**
- * @brief Skips ahead when the screen is tapped.
+ * Skips ahead when the screen is tapped.
  *
  * A tap during either BEMANI logo step cuts that step short and jumps to the age-rating notice; a
  * tap while the notice is up ends the splash immediately instead of waiting out its hold. Taps at
@@ -88,13 +88,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleTap:(nullable id)sender;
 
 /**
- * @brief Drops the views and cancels the downloads that are still in flight.
+ * Drops the views and cancels the downloads that are still in flight.
  * @ghidraAddress 0x8335c
  */
 - (void)viewDidUnload;
 
 /**
- * @brief Reports that only the two portrait orientations are supported.
+ * Reports that only the two portrait orientations are supported.
  * @param interfaceOrientation The orientation being asked about.
  * @return @c YES for either portrait orientation.
  * @ghidraAddress 0x8350c
@@ -102,21 +102,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * @brief The orientations the splash allows.
+ * The orientations the splash allows.
  * @return Both portrait orientations.
  * @ghidraAddress 0x8351c
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
- * @brief Whether the splash rotates at all.
+ * Whether the splash rotates at all.
  * @return Always @c YES .
  * @ghidraAddress 0x83524
  */
 - (BOOL)shouldAutorotate;
 
 /**
- * @brief Called when a download finishes.
+ * Called when a download finishes.
  *
  * Handles all three downloaders. The knit-colour response also names the campaign banner, which is
  * either already cached or fetched by a fourth request; the banner is written to disk enciphered.
@@ -128,7 +128,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloaderFinished:(nullable Downloader *)downloader;
 
 /**
- * @brief Called when a download fails.
+ * Called when a download fails.
  *
  * Forgets the downloader, but only for two of the three; a failed event request is left in place.
  *
@@ -138,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloaderError:(nullable Downloader *)downloader;
 
 /**
- * @brief Empties the campaign image cache.
+ * Empties the campaign image cache.
  *
  * Removes every file in the cache directory, not just one, and leaves the directory itself.
  *
@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeCampaignImage;
 
 /**
- * @brief The directory the campaign image is cached in, creating it if absent.
+ * The directory the campaign image is cached in, creating it if absent.
  *
  * @return The directory path.
  * @ghidraAddress 0x83eb4
@@ -155,7 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSString *)getCampaignImageDirPath;
 
 /**
- * @brief The on-disk path for one campaign image.
+ * The on-disk path for one campaign image.
  *
  * @param name The image's name.
  * @return The full path.
@@ -164,7 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSString *)getCampaignImagePath:(nullable NSString *)name;
 
 /**
- * @brief Whether a campaign image is already cached.
+ * Whether a campaign image is already cached.
  *
  * A miss empties the whole cache directory as a side effect, so the cache is all-or-nothing.
  *

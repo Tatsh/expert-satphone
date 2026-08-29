@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One promoted item in the store.
+ * One promoted item in the store.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePromotion, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -18,36 +18,36 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A promoted pack or genre, with its banner artwork and, for a pack, its sample list.
+ * A promoted pack or genre, with its banner artwork and, for a pack, its sample list.
  */
 @interface StorePromotion : NSObject
 
 /**
- * @brief The promoted genre's index. Zero for a pack promotion.
+ * The promoted genre's index. Zero for a pack promotion.
  * @ghidraAddress 0x1bda50 (getter)
  */
 @property(nonatomic, readonly) NSUInteger genreIndex;
 
 /**
- * @brief The promoted pack. Nil for a genre promotion.
+ * The promoted pack. Nil for a genre promotion.
  * @ghidraAddress 0x1bda60 (getter)
  */
 @property(nonatomic, readonly, nullable) StorePackInfo *packInfo;
 
 /**
- * @brief The banner artwork's address, as text.
+ * The banner artwork's address, as text.
  * @ghidraAddress 0x1bda70 (getter)
  */
 @property(nonatomic, readonly, nullable) NSString *imageURL;
 
 /**
- * @brief The pack's sample tracks, one dictionary each. Nil for a genre promotion.
+ * The pack's sample tracks, one dictionary each. Nil for a genre promotion.
  * @ghidraAddress 0x1bda80 (getter)
  */
 @property(nonatomic, readonly, nullable) NSArray *sampleList;
 
 /**
- * @brief Builds a pack promotion and picks which of its samples to play.
+ * Builds a pack promotion and picks which of its samples to play.
  *
  * The sample slot is chosen once here, with @c rand() , and never changes for the promotion's
  * lifetime — so the same track plays every time until the promotion is rebuilt.
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
                        sampleURL:(nullable NSArray *)sampleURL;
 
 /**
- * @brief Builds a genre promotion.
+ * Builds a genre promotion.
  *
  * A genre promotion has no samples: both @c _packInfo and @c _sampleList are cleared and the slot
  * is set to zero.
@@ -77,14 +77,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithGenreIndex:(NSUInteger)genreIndex imageURL:(nullable NSString *)imageURL;
 
 /**
- * @brief The chosen sample's audio address.
+ * The chosen sample's audio address.
  * @return The address, or nil when there is no sample list.
  * @ghidraAddress 0x1bd954
  */
 - (nullable NSString *)getSampleURL;
 
 /**
- * @brief The chosen sample's track name.
+ * The chosen sample's track name.
  *
  * Unlike @c -getSampleURL this one has no nil guard on the sample list; see TYPES_PENDING.md.
  *

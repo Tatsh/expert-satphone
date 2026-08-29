@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The Applilink reward-network advert facade: a thin public wrapper over the private
+ * The Applilink reward-network advert facade: a thin public wrapper over the private
  * @c RewardCore singleton and the @c ApplilinkConsts / @c ApplilinkNetworkError helpers.
  *
  * It opens and closes the advert screen and forwards the ad-status, all-install-flag, and
@@ -16,7 +16,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The companion-application reward-advert facade over the Applilink SDK.
+ * The companion-application reward-advert facade over the Applilink SDK.
  *
  * Every method forwards to @c [RewardCore sharedInstance] once @c ApplilinkConsts reports the SDK
  * is usable on this device.
@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RewardNetwork : NSObject
 
 /**
- * @brief Opens the reward-advert screen at the given ad location without a parent view.
+ * Opens the reward-advert screen at the given ad location without a parent view.
  * @param adLocation The ad-location identifier, such as @c "ADL_TOP".
  * @param requestCode The request code forwarded to the SDK.
  * @param delegate The advert-screen delegate.
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
                           delegate:(nullable id)delegate;
 
 /**
- * @brief Opens the reward-advert screen inside @p parentView at the given ad location.
+ * Opens the reward-advert screen inside @p parentView at the given ad location.
  * @param parentView The view that hosts the advert screen.
  * @param adLocation The ad-location identifier.
  * @param delegate The advert-screen delegate.
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
                           delegate:(nullable id)delegate;
 
 /**
- * @brief Opens the reward-advert screen inside @p parentView with a request code.
+ * Opens the reward-advert screen inside @p parentView with a request code.
  * @param parentView The view that hosts the advert screen.
  * @param adLocation The ad-location identifier.
  * @param requestCode The request code forwarded to the SDK.
@@ -59,13 +59,13 @@ NS_ASSUME_NONNULL_BEGIN
                           delegate:(nullable id)delegate;
 
 /**
- * @brief Closes the reward-advert screen.
+ * Closes the reward-advert screen.
  * @ghidraAddress 0x24f874
  */
 + (void)closeAdScreen;
 
 /**
- * @brief Queries the all-install flag asynchronously.
+ * Queries the all-install flag asynchronously.
  * @param callback The completion block, called with the all-install flag and an optional error.
  * @ghidraAddress 0x24f8ec
  */
@@ -73,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                      NSError *_Nullable error))callback;
 
 /**
- * @brief Queries the ad-display status asynchronously.
+ * Queries the ad-display status asynchronously.
  * @param callback The completion block, called with a status dictionary (keyed @c "allInstallFlg"
  *        and @c "bannerDisplayStatus") and an optional error.
  * @ghidraAddress 0x24fa4c
@@ -82,21 +82,21 @@ NS_ASSUME_NONNULL_BEGIN
                                                           NSError *_Nullable error))callback;
 
 /**
- * @brief Queries the reward-advert status asynchronously.
+ * Queries the reward-advert status asynchronously.
  * @param block The completion block, called with the ad-status code and an optional error.
  * @ghidraAddress 0x24fc80
  */
 + (void)getAdStatusWithBlock:(nullable void (^)(NSInteger status, NSError *_Nullable error))block;
 
 /**
- * @brief Hides or shows the reward-advert navigation bar.
+ * Hides or shows the reward-advert navigation bar.
  * @param navigationBarHidden Whether the navigation bar should be hidden.
  * @ghidraAddress 0x24fde0
  */
 + (void)setNavigationBarHidden:(BOOL)navigationBarHidden;
 
 /**
- * @brief The localised reward app-list navigation-bar title.
+ * The localised reward app-list navigation-bar title.
  * @return The localised title from the reward message bundle.
  * @ghidraAddress 0x24fe38
  */

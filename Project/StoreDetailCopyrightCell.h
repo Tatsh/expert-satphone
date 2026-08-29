@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The copyright row of the store detail table.
+ * The copyright row of the store detail table.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreDetailCopyrightCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -17,12 +17,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A non-selectable cell holding wrapped copyright text.
+ * A non-selectable cell holding wrapped copyright text.
  */
 @interface StoreDetailCopyrightCell : UITableViewCell
 
 /**
- * @brief The label the copyright text is set on.
+ * The label the copyright text is set on.
  *
  * Read-only per the property metadata (@c T@"UILabel",R,N,V_labelCopyright); the initialiser
  * assigns the backing ivar directly.

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The applilink SDK's blocking activity overlay.
+ * The applilink SDK's blocking activity overlay.
  *
  * Reconstructed from Ghidra program Jubeat (class ApplilinkIndicator, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,18 +17,18 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A dimming sheet with a centred activity indicator.
+ * A dimming sheet with a centred activity indicator.
  */
 @interface ApplilinkIndicator : UIView
 
 /**
- * @brief The spinner. Cleared by @c -close , which does not remove it from the hierarchy.
+ * The spinner. Cleared by @c -close , which does not remove it from the hierarchy.
  * @ghidraAddress 0x250398 (getter)
  */
 @property(nonatomic, strong, nullable) UIActivityIndicatorView *indicator;
 
 /**
- * @brief Builds the sheet and its spinner.
+ * Builds the sheet and its spinner.
  *
  * The spinner's own frame is a fixed square; it is only positioned in @c -layoutSubviews .
  *
@@ -39,19 +39,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Centres the spinner in the sheet.
+ * Centres the spinner in the sheet.
  * @ghidraAddress 0x25017c
  */
 - (void)layoutSubviews;
 
 /**
- * @brief Shows the sheet and starts the spinner.
+ * Shows the sheet and starts the spinner.
  * @ghidraAddress 0x25022c
  */
 - (void)show;
 
 /**
- * @brief Hides the sheet, stops the spinner, and forgets it.
+ * Hides the sheet, stops the spinner, and forgets it.
  *
  * The spinner stays a subview; only the reference goes. The sheet cannot be shown again in any
  * meaningful way afterwards — see TYPES_PENDING.md.
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)close;
 
 /**
- * @brief Stops the sheet blocking: clears the dimming and lets touches through.
+ * Stops the sheet blocking: clears the dimming and lets touches through.
  *
  * Despite the name it *disables* this view's own touch handling, which is what allows the views
  * behind it to receive events again.

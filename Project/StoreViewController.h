@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The store's top-level tab container, the V1 (original) variant.
+ * The store's top-level tab container, the V1 (original) variant.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreViewController, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at
@@ -41,7 +41,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The store's root tab container and shared purchase, download, and agreement coordinator.
+ * The store's root tab container and shared purchase, download, and agreement coordinator.
  */
 @interface StoreViewController : UITabBarController <PurchaseManagerDelegate,
                                                      AlertViewManagerDelegate,
@@ -52,20 +52,20 @@ NS_ASSUME_NONNULL_BEGIN
                                                      StoreParentViewController>
 
 /**
- * @brief The deep-link parameters used to pre-open a genre, pack, or campaign. Held strongly.
+ * The deep-link parameters used to pre-open a genre, pack, or campaign. Held strongly.
  * @ghidraAddress 0x907a4 (getter)
  * @ghidraAddress 0x907b4 (setter)
  */
 @property(nonatomic, strong, nullable) NSDictionary *startupParameters;
 
 /**
- * @brief The shared modal progress panel behind the dimming cover.
+ * The shared modal progress panel behind the dimming cover.
  * @ghidraAddress 0x907c8 (getter)
  */
 @property(nonatomic, readonly, strong, nullable) StoreDialogView *modalDialog;
 
 /**
- * @brief Builds the four child controllers, wraps each in a navigation controller, and installs
+ * Builds the four child controllers, wraps each in a navigation controller, and installs
  * them as the tab bar's view controllers.
  * @return The initialised container.
  * @ghidraAddress 0x89460
@@ -73,35 +73,35 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 
 /**
- * @brief Reads the startup parameters and opens the deep-linked genre or pack (and, when present, a
+ * Reads the startup parameters and opens the deep-linked genre or pack (and, when present, a
  * campaign) in the appropriate child tab.
  * @ghidraAddress 0x89848
  */
 - (void)firstStoreItemLoad;
 
 /**
- * @brief Re-enables interaction and either provisions a missing editor id or builds the
+ * Re-enables interaction and either provisions a missing editor id or builds the
  * licence-agreement gate over the store.
  * @ghidraAddress 0x899ec
  */
 - (void)loadInitialStoreInfo;
 
 /**
- * @brief Builds the tab container's view, the dimming cover, and the modal dialog sized for the
+ * Builds the tab container's view, the dimming cover, and the modal dialog sized for the
  * device idiom.
  * @ghidraAddress 0x8a188
  */
 - (void)loadView;
 
 /**
- * @brief Closes the pack browser and asks the root controller to end the store.
+ * Closes the pack browser and asks the root controller to end the store.
  * @param sender The sender; unused.
  * @ghidraAddress 0x8a584
  */
 - (void)storeEnd:(nullable id)sender;
 
 /**
- * @brief Fades the dimming cover and modal dialog in, starting the spinner and enabling the abort
+ * Fades the dimming cover and modal dialog in, starting the spinner and enabling the abort
  * button on completion.
  * @param delegate The object told when the panel's abort button is pressed.
  * @ghidraAddress 0x8a604
@@ -109,14 +109,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)showModalDialog:(nullable id<StoreDialogViewDelegate>)delegate;
 
 /**
- * @brief Fades the dimming cover and modal dialog out, stopping the spinner and unmounting the
+ * Fades the dimming cover and modal dialog out, stopping the spinner and unmounting the
  * dialog on completion.
  * @ghidraAddress 0x8a958
  */
 - (void)hideModalDialog;
 
 /**
- * @brief Registers a purchased pack's tunes with the music-list manager and downloads any tune
+ * Registers a purchased pack's tunes with the music-list manager and downloads any tune
  * files not already present, driving the modal dialog's progress.
  * @param packID The purchased pack identifier.
  * @ghidraAddress 0x8ac90
@@ -124,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startDownloadMusics:(int)packID;
 
 /**
- * @brief Registers a pack's extend tunes and downloads any extend files not already present,
+ * Registers a pack's extend tunes and downloads any extend files not already present,
  * driving the modal dialog's progress.
  * @param packID The pack identifier being extended.
  * @ghidraAddress 0x8b5cc
@@ -132,14 +132,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startDownloadExtendMusics:(int)packID;
 
 /**
- * @brief Raises the "restore purchases?" confirmation alert.
+ * Raises the "restore purchases?" confirmation alert.
  * @param sender The sender; unused.
  * @ghidraAddress 0x8bd3c
  */
 - (void)performRestore:(nullable id)sender;
 
 /**
- * @brief Child redownload callback: records the pack and raises the "already purchased, download?"
+ * Child redownload callback: records the pack and raises the "already purchased, download?"
  * confirmation alert.
  * @param packInfo The detail controller reporting the redownload.
  * @ghidraAddress 0x8bf88
@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)detailViewStartRedownload:(nullable StoreDetailViewControllerV2 *)packInfo;
 
 /**
- * @brief Whether buying a product would exceed the player's purchase limit, raising the appropriate
+ * Whether buying a product would exceed the player's purchase limit, raising the appropriate
  * age-registration or limit-reached alert when it does.
  * @param product The StoreKit product about to be purchased.
  * @return @c YES when the limit alert was raised, @c NO when the purchase may proceed.
@@ -156,7 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)checkAttainLimitPurchase:(nullable SKProduct *)product;
 
 /**
- * @brief Child purchase callback: records the pack and, unless it is unpurchasable or over the
+ * Child purchase callback: records the pack and, unless it is unpurchasable or over the
  * limit, shows the modal dialog and begins the purchase.
  * @param packInfo The detail controller reporting the purchase.
  * @ghidraAddress 0x8c594
@@ -164,7 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)detailViewStartPurchase:(nullable StoreDetailViewControllerV2 *)packInfo;
 
 /**
- * @brief Child extend-download callback: shows the modal dialog and downloads the pack's extend
+ * Child extend-download callback: shows the modal dialog and downloads the pack's extend
  * files.
  * @param packInfo The pack being extended.
  * @ghidraAddress 0x8c974
@@ -174,7 +174,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - PurchaseManagerDelegate
 
 /**
- * @brief A purchase completed: starts the pack's download and refreshes the purchased and
+ * A purchase completed: starts the pack's download and refreshes the purchased and
  * campaign-unlock lists.
  * @param productID The purchased product's identifier, mapped to a pack ID to download.
  * @ghidraAddress 0x8c9fc
@@ -182,7 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)purchaseSucceeded:(nullable NSString *)productID;
 
 /**
- * @brief A purchase failed: hides the modal dialog and shows the failure or cancellation message.
+ * A purchase failed: hides the modal dialog and shows the failure or cancellation message.
  * @param productID The product that failed.
  * @param error The failure, distinguishing a cancellation from a genuine error by its domain.
  * @ghidraAddress 0x8cb0c
@@ -190,27 +190,27 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)purchaseFailed:(nullable NSString *)productID error:(nullable NSError *)error;
 
 /**
- * @brief A restore completed: clears the purchase delegate, hides the dialog, and shows the
+ * A restore completed: clears the purchase delegate, hides the dialog, and shows the
  * restore-complete alert. The lists refresh when that alert is dismissed.
  * @ghidraAddress 0x8d08c
  */
 - (void)restoreSucceeded;
 
 /**
- * @brief A restore failed: clears the purchase delegate, hides the dialog, and shows the message.
+ * A restore failed: clears the purchase delegate, hides the dialog, and shows the message.
  * @param error The failure, distinguishing a cancellation from a genuine error.
  * @ghidraAddress 0x8d288
  */
 - (void)restoreFailed:(nullable NSError *)error;
 
 /**
- * @brief A restore found nothing to restore: hides the dialog and tells the player.
+ * A restore found nothing to restore: hides the dialog and tells the player.
  * @ghidraAddress 0x8d4e4
  */
 - (void)restoreNothing;
 
 /**
- * @brief Shows the modal dialog and begins a purchase restore.
+ * Shows the modal dialog and begins a purchase restore.
  * @ghidraAddress 0x8d6c8
  */
 - (void)firstRestore;
@@ -218,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - AlertViewManagerDelegate
 
 /**
- * @brief An alert button was tapped: acts on the alert identified by the info dictionary's tag.
+ * An alert button was tapped: acts on the alert identified by the info dictionary's tag.
  * @param info The alert's result, carrying the tapped button and the alert's tag.
  * @ghidraAddress 0x8d850
  */
@@ -227,7 +227,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - StoreDialogViewDelegate
 
 /**
- * @brief The modal dialog's abort button was pressed: cancels the download and updates the pack's
+ * The modal dialog's abort button was pressed: cancels the download and updates the pack's
  * purchase state.
  * @param dialogView The dialog whose abort button was pressed.
  * @ghidraAddress 0x8dfa8
@@ -237,28 +237,28 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - StoreDownloadManagerDelegate
 
 /**
- * @brief A download task started: shows the downloading tune's name in the modal dialog.
+ * A download task started: shows the downloading tune's name in the modal dialog.
  * @param manager The download manager reporting the task.
  * @ghidraAddress 0x8e0c4
  */
 - (void)downloadManagerStartTask:(nonnull StoreDownloadManager *)manager;
 
 /**
- * @brief The download queue completed: drops the manager and hides the modal dialog.
+ * The download queue completed: drops the manager and hides the modal dialog.
  * @param manager The download manager reporting completion.
  * @ghidraAddress 0x8e350
  */
 - (void)downloadManagerCompleted:(nonnull StoreDownloadManager *)manager;
 
 /**
- * @brief The download queue failed: drops the manager and updates the pack's purchase state.
+ * The download queue failed: drops the manager and updates the pack's purchase state.
  * @param manager The download manager reporting the failure.
  * @ghidraAddress 0x8e38c
  */
 - (void)downloadManagerFailed:(nonnull StoreDownloadManager *)manager;
 
 /**
- * @brief A download task made progress: drives the modal dialog's progress bar.
+ * A download task made progress: drives the modal dialog's progress bar.
  * @param manager The download manager reporting progress.
  * @ghidraAddress 0x8e5f8
  */
@@ -267,7 +267,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Deep-link detail opening
 
 /**
- * @brief Closes any open alert, opens the pack browser's detail for a pack, and switches to the
+ * Closes any open alert, opens the pack browser's detail for a pack, and switches to the
  * store tab.
  * @param packID The pack identifier, boxed.
  * @ghidraAddress 0x8e680
@@ -275,7 +275,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)openDetail:(nullable NSNumber *)packID;
 
 /**
- * @brief Closes any open alert, opens the campaign page's detail for a campaign, and switches to
+ * Closes any open alert, opens the campaign page's detail for a campaign, and switches to
  * the campaign tab.
  * @param campaignID The campaign identifier, boxed.
  * @ghidraAddress 0x8e7cc
@@ -283,7 +283,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)openCampaignDetail:(nullable NSNumber *)campaignID;
 
 /**
- * @brief Closes every child's store view and any open alert.
+ * Closes every child's store view and any open alert.
  * @ghidraAddress 0x8e918
  */
 - (void)storeClose;
@@ -291,26 +291,26 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Cover view and agreement gate
 
 /**
- * @brief Fades the licence-agreement cover in.
+ * Fades the licence-agreement cover in.
  * @ghidraAddress 0x8e9bc
  */
 - (void)becomeCoverView;
 
 /**
- * @brief Fades the licence-agreement cover out.
+ * Fades the licence-agreement cover out.
  * @ghidraAddress 0x8eb08
  */
 - (void)resignCoverView;
 
 /**
- * @brief Adds a centred error label to the licence-agreement cover and fades the cover in.
+ * Adds a centred error label to the licence-agreement cover and fades the cover in.
  * @param msg The message; a localised network-error message is substituted when @c nil .
  * @ghidraAddress 0x8ec24
  */
 - (void)dispErrorLabel:(nullable NSString *)msg;
 
 /**
- * @brief Licence-agreement success: registers the player's total purchase or age limit through a
+ * Licence-agreement success: registers the player's total purchase or age limit through a
  * signed session request.
  * @param sender The agreement view; unused.
  * @ghidraAddress 0x8ee9c
@@ -318,21 +318,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)agreementSuccess:(nullable id)sender;
 
 /**
- * @brief Licence-agreement fade-out failure: fades the agreement view out and ends the store.
+ * Licence-agreement fade-out failure: fades the agreement view out and ends the store.
  * @param sender The agreement view.
  * @ghidraAddress 0x8fda4
  */
 - (void)agreementFailed:(nullable id)sender;
 
 /**
- * @brief Licence-agreement gate raised: fades the cover in.
+ * Licence-agreement gate raised: fades the cover in.
  * @param sender The agreement view; unused.
  * @ghidraAddress 0x8ff5c
  */
 - (void)becomePolicyAgreement:(nullable id)sender;
 
 /**
- * @brief Licence-agreement error: adds a centred error label to the cover and fades it in.
+ * Licence-agreement error: adds a centred error label to the cover and fades it in.
  * @param sender The agreement view; unused.
  * @param msg The error message; a localised network-error message is substituted when @c nil .
  * @ghidraAddress 0x8ff68
@@ -342,14 +342,14 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - DownloaderDelegate
 
 /**
- * @brief A request finished: dispatches on the downloader's tag to handle its JSON response.
+ * A request finished: dispatches on the downloader's tag to handle its JSON response.
  * @param downloader The downloader reporting the result.
  * @ghidraAddress 0x8f170
  */
 - (void)downloaderFinished:(nullable id)downloader;
 
 /**
- * @brief A request failed: alerts the player when it was the mission-achievement check.
+ * A request failed: alerts the player when it was the mission-achievement check.
  * @param downloader The downloader reporting the failure.
  * @ghidraAddress 0x8f8b8
  */
@@ -358,14 +358,14 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - EditorIDManagerDelegate
 
 /**
- * @brief The editor identity downloaded: drops the manager and builds the store's child screens.
+ * The editor identity downloaded: drops the manager and builds the store's child screens.
  * @param manager The editor-ID manager reporting the result.
  * @ghidraAddress 0x89f10
  */
 - (void)successIDDownload:(nullable id)manager;
 
 /**
- * @brief The editor-identity download failed: shows the message to the player.
+ * The editor-identity download failed: shows the message to the player.
  * @param manager The editor-ID manager reporting the failure.
  * @param msg The message to show; the default network-error text when nil or empty.
  * @ghidraAddress 0x89cd4
@@ -375,7 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Mission achievement
 
 /**
- * @brief Builds the mission-achievement-check session downloader for the challenge missions that
+ * Builds the mission-achievement-check session downloader for the challenge missions that
  * are unlocked-by-purchase and not yet cleared, when challenge mode is on.
  * @ghidraAddress 0x901e0
  */
@@ -384,41 +384,41 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - View lifecycle
 
 /**
- * @brief Handles a low-memory warning.
+ * Handles a low-memory warning.
  * @ghidraAddress 0x90634
  */
 - (void)didReceiveMemoryWarning;
 
 /**
- * @brief The view is about to appear.
+ * The view is about to appear.
  * @param animated Whether the appearance is animated.
  * @ghidraAddress 0x9066c
  */
 - (void)viewWillAppear:(BOOL)animated;
 
 /**
- * @brief The view has appeared.
+ * The view has appeared.
  * @param animated Whether the appearance was animated.
  * @ghidraAddress 0x906a4
  */
 - (void)viewDidAppear:(BOOL)animated;
 
 /**
- * @brief The view is about to disappear.
+ * The view is about to disappear.
  * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x906dc
  */
 - (void)viewWillDisappear:(BOOL)animated;
 
 /**
- * @brief The view has disappeared.
+ * The view has disappeared.
  * @param animated Whether the disappearance was animated.
  * @ghidraAddress 0x90714
  */
 - (void)viewDidDisappear:(BOOL)animated;
 
 /**
- * @brief Whether the screen may rotate to an orientation.
+ * Whether the screen may rotate to an orientation.
  * @param interfaceOrientation The orientation asked about.
  * @return YES for the two portrait orientations, NO otherwise. This contradicts
  *         @c -supportedInterfaceOrientations , which reports landscape; the binary does both.
@@ -427,14 +427,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * @brief The orientations the screen supports.
+ * The orientations the screen supports.
  * @return @c UIInterfaceOrientationMaskLandscape .
  * @ghidraAddress 0x9075c
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
- * @brief Whether the screen rotates.
+ * Whether the screen rotates.
  * @return Always YES.
  * @ghidraAddress 0x90764
  */

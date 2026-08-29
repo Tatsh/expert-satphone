@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The settings-screen credits view controller.
+ * The settings-screen credits view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class SettingsCreditsViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base. It lays out the
@@ -14,12 +14,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A view controller presenting the staff credits in the settings screen.
+ * A view controller presenting the staff credits in the settings screen.
  */
 @interface SettingsCreditsViewController : UIViewController
 
 /**
- * @brief Sets the navigation title to "CREDITS" and, on iOS 7 and later, opts the layout into
+ * Sets the navigation title to "CREDITS" and, on iOS 7 and later, opts the layout into
  *        extending under opaque bars.
  * @return The initialised controller.
  * @ghidraAddress 0xe90b4
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 
 /**
- * @brief Builds the credits column: a black background and a stack of white role and name labels,
+ * Builds the credits column: a black background and a stack of white role and name labels,
  *        laid out per device idiom.
  * @ghidraAddress 0xe9968
  */

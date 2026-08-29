@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The combo-number display maths helpers used by @c MainGameRenderer(Pad)::renderCombo_.
+ * The combo-number display maths helpers used by @c MainGameRenderer(Pad)::renderCombo_.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000); all @ghidraAddress values are
  * offsets relative to that image base. These are free functions: none takes an object receiver,
@@ -20,7 +20,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Looks up the combo-number scale factor for an animation step and digit count.
+ * Looks up the combo-number scale factor for an animation step and digit count.
  *
  * Both inputs saturate rather than wrap: a step above 10 reuses column 10, and a count above 4
  * reuses row 3. A count of 0 short-circuits to 0.0f.
@@ -32,7 +32,7 @@ extern "C" {
 float GetComboScaleByCount(unsigned int dwStep, unsigned int dwDigitCount);
 
 /**
- * @brief Looks up the combo-number scale factor for one digit position.
+ * Looks up the combo-number scale factor for one digit position.
  *
  * The row counts digits from the right: row = count - index - 1, so index 0 maps to the highest
  * row. The step saturates to 0..10, but an out-of-range count or index is rejected with 0.0f
@@ -46,7 +46,7 @@ float GetComboScaleByCount(unsigned int dwStep, unsigned int dwDigitCount);
 float GetComboScaleByDigit(unsigned int dwStep, unsigned int dwDigitCount, int nDigitIndex);
 
 /**
- * @brief Returns the pixel offset applied to one combo digit, or 0 when it does not apply.
+ * Returns the pixel offset applied to one combo digit, or 0 when it does not apply.
  *
  * The two non-zero results are -40 (when @p nValue matches the slot one past the digit) and -20
  * (when it matches the digit's own slot); every other case, and any out-of-range count or index,
@@ -60,7 +60,7 @@ float GetComboScaleByDigit(unsigned int dwStep, unsigned int dwDigitCount, int n
 int GetComboDigitOffset(int nValue, unsigned int dwDigitCount, int nDigitIndex);
 
 /**
- * @brief Computes the combo fade factor for an animation step: a linear ramp from 0.3 to 0.0.
+ * Computes the combo fade factor for an animation step: a linear ramp from 0.3 to 0.0.
  *
  * Steps 0..2 hold at 0.3; steps 3..8 ramp down by 0.05 each to 0.0; steps above 8 return 0.0.
  * @param dwStep The animation step.
@@ -70,7 +70,7 @@ int GetComboDigitOffset(int nValue, unsigned int dwDigitCount, int nDigitIndex);
 float GetComboFadeFactor(unsigned int dwStep);
 
 /**
- * @brief Computes the combo scale factor for an animation step: a linear ramp from 1.0 to 1.16.
+ * Computes the combo scale factor for an animation step: a linear ramp from 1.0 to 1.16.
  *
  * The step saturates at 8, so any step at or above 8 returns 1.16.
  * @param dwStep The animation step, saturated to 0..8.
@@ -80,7 +80,7 @@ float GetComboFadeFactor(unsigned int dwStep);
 float GetComboScaleFactor(unsigned int dwStep);
 
 /**
- * @brief Returns the number of animation frames defined for a combo animation group.
+ * Returns the number of animation frames defined for a combo animation group.
  * @param dwAnimGroup The animation group index; valid 0..4.
  * @return The frame count, or 0 when the group index is out of range.
  * @ghidraAddress 0x1dcbc
@@ -88,7 +88,7 @@ float GetComboScaleFactor(unsigned int dwStep);
 int GetComboAnimFrameCount(unsigned int dwAnimGroup);
 
 /**
- * @brief Returns the per-frame combo burst scale for one of the five animation groups.
+ * Returns the per-frame combo burst scale for one of the five animation groups.
  * @param dwAnimGroup The animation group selector; valid 0..4.
  * @param nFrameIndex The frame within the group; negative is rejected and the upper bound is the
  *   group's frame count.
@@ -98,7 +98,7 @@ int GetComboAnimFrameCount(unsigned int dwAnimGroup);
 float GetComboAnimScale(unsigned int dwAnimGroup, int nFrameIndex);
 
 /**
- * @brief Returns the screen position for one frame of a combo animation group.
+ * Returns the screen position for one frame of a combo animation group.
  *
  * The table stores packed signed 16-bit x/y pairs that are sign-extended and converted to the
  * @c CGPoint doubles, so a negative coordinate is meaningful.
@@ -111,7 +111,7 @@ float GetComboAnimScale(unsigned int dwAnimGroup, int nFrameIndex);
 CGPoint GetComboAnimPosition(unsigned int dwAnimGroup, int nFrameIndex);
 
 /**
- * @brief Evaluates a piecewise-linear combo animation curve at @p flTime.
+ * Evaluates a piecewise-linear combo animation curve at @p flTime.
  *
  * Each frame owns up to four keyframes; a keyframe with a negative x terminates the list, which is
  * how a curve uses fewer than four slots. The result is the keyframe y when x matches @p flTime
@@ -126,7 +126,7 @@ CGPoint GetComboAnimPosition(unsigned int dwAnimGroup, int nFrameIndex);
 float EvalComboAnimCurve(float flTime, unsigned int dwAnimGroup, int nFrameIndex);
 
 /**
- * @brief Evaluates a four-keyframe piecewise-linear scale curve at @p flTime.
+ * Evaluates a four-keyframe piecewise-linear scale curve at @p flTime.
  *
  * Unlike @c EvalComboAnimCurve there is no negative-x sentinel: all four keyframe slots are always
  * live, and the function is indexed by a single curve selector rather than a group and frame.

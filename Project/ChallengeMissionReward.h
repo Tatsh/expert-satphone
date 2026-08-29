@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One reward offered for completing a challenge mission.
+ * One reward offered for completing a challenge mission.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionReward, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -20,29 +20,29 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A challenge-mission reward, as sent by the server.
+ * A challenge-mission reward, as sent by the server.
  */
 @interface ChallengeMissionReward : NSObject
 
-/** @brief The reward's identifier. Wire key @c "reward_id". */
+/** The reward's identifier. Wire key @c "reward_id". */
 @property(nonatomic, readonly) int rewardID;
-/** @brief What kind of item the reward is. Wire key @c "item_type". */
+/** What kind of item the reward is. Wire key @c "item_type". */
 @property(nonatomic, readonly) int itemType;
-/** @brief The item's identifier. Wire key @c "item_id"; empty string when absent. */
+/** The item's identifier. Wire key @c "item_id"; empty string when absent. */
 @property(nonatomic, readonly, nullable) NSString *itemID;
-/** @brief The reward's display name. Wire key @c "name". */
+/** The reward's display name. Wire key @c "name". */
 @property(nonatomic, readonly, nullable) NSString *rewardName;
-/** @brief The reward's description. Wire key @c "description". */
+/** The reward's description. Wire key @c "description". */
 @property(nonatomic, readonly, nullable) NSString *rewardDescription;
-/** @brief Where to fetch the reward's image. Wire key @c "image_url". */
+/** Where to fetch the reward's image. Wire key @c "image_url". */
 @property(nonatomic, readonly, nullable) NSString *rewardImageURL;
-/** @brief When the reward stops being shown. Wire key @c "view_end". */
+/** When the reward stops being shown. Wire key @c "view_end". */
 @property(nonatomic, readonly, nullable) NSString *endTime;
-/** @brief The record's version. Wire key @c "version". */
+/** The record's version. Wire key @c "version". */
 @property(nonatomic, readonly, nullable) NSString *version;
 
 /**
- * @brief Fills the object in from a server dictionary.
+ * Fills the object in from a server dictionary.
  *
  * Named like an initialiser but it is not one: it returns @c BOOL rather than @c instancetype and
  * never calls @c -init. It answers NO and changes nothing when the dictionary has no @c "reward"
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)initWithDictionary:(NSDictionary *)dictionary;
 /**
- * @brief Writes the object back out in the server's format.
+ * Writes the object back out in the server's format.
  *
  * Note the asymmetry with @c -initWithDictionary:, which reads its fields from a nested @c "reward"
  * entry: this returns the eight fields at the top level, so the two are not inverses.

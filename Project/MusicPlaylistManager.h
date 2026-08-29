@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The model behind the music-select "playlists" feature: an ordered set of user playlists,
+ * The model behind the music-select "playlists" feature: an ordered set of user playlists,
  * each a dictionary of an identifier, a display name, and a list of music identifiers, persisted
  * to a property-list file on disk.
  *
@@ -15,7 +15,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Manages the user's music playlists, persisting them to a property-list file.
+ * Manages the user's music playlists, persisting them to a property-list file.
  *
  * Each playlist is a mutable dictionary with three keys: a stable string identifier, a display
  * name, and a mutable array of music identifiers (boxed @c NSUInteger values). The manager loads
@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, nullable) NSString *filePath;
 
 /**
- * @brief Initialises the manager and loads any playlists already stored at @p file.
+ * Initialises the manager and loads any playlists already stored at @p file.
  *
  * Seeds an empty mutable array, remembers a copy of the path, then reads the file as an array of
  * dictionaries. Each element that is a dictionary carrying all three keys is normalised into a
@@ -42,20 +42,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFile:(nonnull NSString *)file;
 
 /**
- * @brief Writes the current playlists back to the file, atomically.
+ * Writes the current playlists back to the file, atomically.
  * @ghidraAddress 0x164c00
  */
 - (void)synchronize;
 
 /**
- * @brief Returns the number of playlists.
+ * Returns the number of playlists.
  * @return The playlist count.
  * @ghidraAddress 0x164c74
  */
 - (NSUInteger)numberOfPlaylists;
 
 /**
- * @brief Returns the playlist dictionary at @p index, or @c nil if out of range or malformed.
+ * Returns the playlist dictionary at @p index, or @c nil if out of range or malformed.
  *
  * The element is returned only when it is a dictionary carrying all three keys.
  *
@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSMutableDictionary *)playlistAtIndex:(NSUInteger)index;
 
 /**
- * @brief Returns the index of @p playlist by identity, or @c NSNotFound .
+ * Returns the index of @p playlist by identity, or @c NSNotFound .
  * @param playlist The playlist dictionary to search for.
  * @return The playlist's index, or @c NSNotFound when it is not present.
  * @ghidraAddress 0x164e4c
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)indexOfPlaylist:(nonnull NSDictionary *)playlist;
 
 /**
- * @brief Returns the index of the playlist whose identifier equals @p identifier.
+ * Returns the index of the playlist whose identifier equals @p identifier.
  * @param identifier The playlist identifier to match.
  * @return The index, or @c NSNotFound if no playlist matches or @p identifier is @c nil .
  * @ghidraAddress 0x164ec4
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)indexOfPlaylistWithIdentifier:(nullable NSString *)identifier;
 
 /**
- * @brief Returns the display name of the playlist at @p index, or @c nil if out of range.
+ * Returns the display name of the playlist at @p index, or @c nil if out of range.
  * @param index The playlist index.
  * @return The playlist's display name, or nil when the index is out of range.
  * @ghidraAddress 0x165068
@@ -90,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSString *)nameOfPlaylistAtIndex:(NSUInteger)index;
 
 /**
- * @brief Returns the identifier of the playlist at @p index, or @c nil if out of range.
+ * Returns the identifier of the playlist at @p index, or @c nil if out of range.
  * @param index The playlist index.
  * @return The playlist's identifier, or nil when the index is out of range.
  * @ghidraAddress 0x165144
@@ -98,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSString *)identifierOfPlaylistAtIndex:(NSUInteger)index;
 
 /**
- * @brief Sets the display name of the playlist at @p index.
+ * Sets the display name of the playlist at @p index.
  * @param name The new name; an empty name is rejected.
  * @param index The playlist index.
  * @return @c YES if @p name is non-empty (whether or not the index was in range), @c NO otherwise.
@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)setNameOfPlaylist:(nonnull NSString *)name atIndex:(NSUInteger)index;
 
 /**
- * @brief Appends a new, empty playlist with the given display name.
+ * Appends a new, empty playlist with the given display name.
  *
  * Mints a stable identifier and stores a playlist with an empty music list.
  *
@@ -118,7 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)addPlaylistWithName:(nonnull NSString *)name;
 
 /**
- * @brief Removes the playlist at @p index.
+ * Removes the playlist at @p index.
  * @param index The playlist index.
  * @return @c YES if the index was in range, @c NO otherwise.
  * @ghidraAddress 0x165560
@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)removePlaylistAtIndex:(NSUInteger)index;
 
 /**
- * @brief Returns the number of music entries in the playlist at @p index.
+ * Returns the number of music entries in the playlist at @p index.
  * @param index The playlist index.
  * @return The count, or @c 0 if the index is out of range or the playlist has no music list.
  * @ghidraAddress 0x165608
@@ -134,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)numberOfMusicInPlaylistAtIndex:(NSUInteger)index;
 
 /**
- * @brief Tests whether the music identified by @p musicIdentifier is in the playlist at @p index.
+ * Tests whether the music identified by @p musicIdentifier is in the playlist at @p index.
  * @param musicIdentifier The music identifier; @c 0 is treated as absent.
  * @param index The playlist index.
  * @return @c YES if present, @c NO otherwise.
@@ -143,7 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)containsMusic:(NSUInteger)musicIdentifier inPlaylistAtIndex:(NSUInteger)index;
 
 /**
- * @brief Adds the music identified by @p musicIdentifier to the playlist at @p index.
+ * Adds the music identified by @p musicIdentifier to the playlist at @p index.
  *
  * Creates the music list if the playlist has none yet, and does nothing if the music is already
  * present or @p musicIdentifier is @c 0 .
@@ -155,7 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addMusic:(NSUInteger)musicIdentifier toPlaylistAtIndex:(NSUInteger)index;
 
 /**
- * @brief Removes the music identified by @p musicIdentifier from the playlist at @p index.
+ * Removes the music identified by @p musicIdentifier from the playlist at @p index.
  * @param musicIdentifier The music identifier; @c 0 is treated as absent.
  * @param index The playlist index.
  * @return @c YES if the index was in range, @c NO otherwise.

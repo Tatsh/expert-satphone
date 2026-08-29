@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A row of the store's pack grid, holding two pack tiles.
+ * A row of the store's pack grid, holding two pack tiles.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreTableCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -19,7 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A table row that lays two pack tiles side by side.
+ * A table row that lays two pack tiles side by side.
  *
  * The grid is a table rather than a collection view, so each row carries a fixed pair of tiles at
  * fixed positions. Both are built once in the initialiser and never resized.
@@ -27,13 +27,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface StoreTableCell : UITableViewCell
 
 /**
- * @brief The tile on the left.
+ * The tile on the left.
  *
  * Read-only per the property metadata (@c T@"StorePackView",R,N,V_leftPackView); the initialiser
  * assigns the backing ivar directly rather than going through a setter.
  */
 @property(nonatomic, readonly, nullable) StorePackView *leftPackView;
-/** @brief The tile on the right, read-only for the same reason. */
+/** The tile on the right, read-only for the same reason. */
 @property(nonatomic, readonly, nullable) StorePackView *rightPackView;
 
 @end

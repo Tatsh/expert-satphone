@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A store row holding two recommended-pack tiles side by side.
+ * A store row holding two recommended-pack tiles side by side.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreRecommendTableCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -16,20 +16,20 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Two pack tiles filling the row's width, each taking half of it.
+ * Two pack tiles filling the row's width, each taking half of it.
  *
  * Both tiles go on the cell's @c contentView rather than on the cell itself, which is the
  * difference between this and the other list rows in this tree.
  */
 @interface StoreRecommendTableCell : UITableViewCell
 
-/** @brief The tile occupying the leading half. */
+/** The tile occupying the leading half. */
 @property(nonatomic, readonly, nullable) StoreRecommendPackView *leftPackView;
-/** @brief The tile occupying the trailing half. */
+/** The tile occupying the trailing half. */
 @property(nonatomic, readonly, nullable) StoreRecommendPackView *rightPackView;
 
 /**
- * @brief Builds the row, splitting the supplied frame's width between the two tiles.
+ * Builds the row, splitting the supplied frame's width between the two tiles.
  *
  * Chains to @c UITableViewCell's own @c -initWithStyle:reuseIdentifier: with the default style,
  * so only the frame's width is used and its origin and height are discarded.
@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame reuseIdentifier:(nullable NSString *)reuseIdentifier;
 
 /**
- * @brief Builds the row at a fixed tile width instead of measuring one.
+ * Builds the row at a fixed tile width instead of measuring one.
  *
  * Otherwise identical to the frame-taking initialiser above.
  *

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One bouncing sprite in the upper background, with its reflection.
+ * One bouncing sprite in the upper background, with its reflection.
  *
  * Reconstructed from Ghidra program Jubeat (class UpperBGRipple, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -22,18 +22,18 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A sprite that drifts leftwards, bounces on a ground line, and casts a reflection.
+ * A sprite that drifts leftwards, bounces on a ground line, and casts a reflection.
  */
 @interface UpperBGRipple : NSObject
 
 /**
- * @brief The ground line this sprite bounces on, and the key it is depth-sorted by.
+ * The ground line this sprite bounces on, and the key it is depth-sorted by.
  * @ghidraAddress 0x144188 (getter)
  */
 @property(nonatomic, readonly) float y_gnd;
 
 /**
- * @brief Builds one sprite with its motion parameters.
+ * Builds one sprite with its motion parameters.
  *
  * The mass is not a parameter: it is chosen here at random, between 4 and 6.875.
  *
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
                            mag:(float)aMag;
 
 /**
- * @brief Launches the sprite upwards, but only from rest.
+ * Launches the sprite upwards, but only from rest.
  *
  * The guard is a window around zero rather than a test for exactly zero, so a sprite that is
  * airborne ignores the call entirely.
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)triggerJump:(float)force;
 
 /**
- * @brief Advances the sprite one step: left by its speed, and up or down under gravity.
+ * Advances the sprite one step: left by its speed, and up or down under gravity.
  *
  * @param resetX Where to put the sprite when it has drifted off the left edge. Despite being the
  * selector's first keyword this is a position, not a step.
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)stepFall:(float)resetX gravity:(float)gravity bounce:(float)bounce;
 
 /**
- * @brief Draws the sprite and, when it is still in view, its reflection.
+ * Draws the sprite and, when it is still in view, its reflection.
  *
  * @param texture The texture to draw from.
  * @param yLimit How far down the reflection may be drawn before it is dropped.
@@ -91,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderWithTexture:(nullable Texture2D *)texture yLimit:(float)yLimit;
 
 /**
- * @brief Orders two sprites back to front by their ground lines.
+ * Orders two sprites back to front by their ground lines.
  * @param other The sprite to compare against.
  * @return @c NSOrderedAscending , @c NSOrderedSame or @c NSOrderedDescending .
  * @ghidraAddress 0x144100

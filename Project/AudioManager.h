@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The single owner of all sound: one background music player, plus a delegated sound-effect
+ * The single owner of all sound: one background music player, plus a delegated sound-effect
  * pool.
  *
  * Reconstructed from Ghidra program Jubeat (class AudioManager, image base 0x100000000). All
@@ -22,31 +22,31 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The application's one audio manager.
+ * The application's one audio manager.
  */
 @interface AudioManager : NSObject <AVAudioPlayerDelegate>
 
 /**
- * @brief The shared instance.
+ * The shared instance.
  * @return The manager.
  * @ghidraAddress 0x77d28
  */
 @property(class, nonatomic, readonly) AudioManager *sharedManager;
 
 /**
- * @brief The player the background music is running on.
+ * The player the background music is running on.
  * @ghidraAddress 0x349f24 (ivar offset global)
  */
 @property(nonatomic, readonly, nullable) AVAudioPlayer *bgmPlayer;
 
 /**
- * @brief Whether an audio-session interruption is currently in effect.
+ * Whether an audio-session interruption is currently in effect.
  * @ghidraAddress 0x349f28 (ivar offset global)
  */
 @property(nonatomic, readonly) BOOL interrupted;
 
 /**
- * @brief How far into the background music playback has reached, in seconds.
+ * How far into the background music playback has reached, in seconds.
  *
  * Read-only as a property, but a setter exists as a plain method — see @c -setBgmPos: .
  *
@@ -55,19 +55,19 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) double bgmPos;
 
 /**
- * @brief The background music's length in seconds.
+ * The background music's length in seconds.
  * @ghidraAddress 0x78880
  */
 @property(nonatomic, readonly) double bgmDuration;
 
 /**
- * @brief Whether the background music is playing.
+ * Whether the background music is playing.
  * @ghidraAddress 0x78898
  */
 @property(nonatomic, readonly) BOOL bgmPlaying;
 
 /**
- * @brief Builds the manager and its sound-effect pool.
+ * Builds the manager and its sound-effect pool.
  *
  * Sets both volumes to full, subscribes to @c UIApplicationDidBecomeActiveNotification , and
  * creates the @c SEManager .
@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 
 /**
- * @brief Seeks the background music back to its start.
+ * Seeks the background music back to its start.
  *
  * Does nothing when no player is loaded.
  *
@@ -87,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)seekBgmToTop;
 
 /**
- * @brief Moves the background music's playback position.
+ * Moves the background music's playback position.
  *
  * @param bgmPos The new position in seconds.
  * @ghidraAddress 0x78868
@@ -95,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setBgmPos:(double)bgmPos;
 
 /**
- * @brief Plays an already-prepared sound-effect player.
+ * Plays an already-prepared sound-effect player.
  *
  * Ignores a nil player rather than forwarding it.
  *
@@ -105,25 +105,25 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)playSePlayer:(nullable AVAudioPlayer *)player;
 
 /**
- * @brief Stops every sound effect in flight.
+ * Stops every sound effect in flight.
  * @ghidraAddress 0x78104
  */
 - (void)stopAllSe;
 
 /**
- * @brief Marks the start of an audio-session interruption.
+ * Marks the start of an audio-session interruption.
  * @ghidraAddress 0x78ebc
  */
 - (void)beginInterruption;
 
 /**
- * @brief Marks the end of an audio-session interruption.
+ * Marks the end of an audio-session interruption.
  * @ghidraAddress 0x78ed0
  */
 - (void)endInterruption;
 
 /**
- * @brief Plays a sound effect from a file path.
+ * Plays a sound effect from a file path.
  *
  * Nothing happens when the path is nil or the player fails to initialise.
  *
@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)playSeFile:(nullable NSString *)path;
 
 /**
- * @brief Plays a sound effect from a bundle resource.
+ * Plays a sound effect from a bundle resource.
  *
  * Resolves the resource as a @c caf file, so this only ever plays that container.
  *
@@ -144,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)playSeResFile:(nullable NSString *)name inDirectory:(nullable NSString *)directory;
 
 /**
- * @brief Plays a sound effect from data already in memory.
+ * Plays a sound effect from data already in memory.
  *
  * @param data The encoded audio.
  * @ghidraAddress 0x78040
@@ -152,7 +152,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)playSeData:(nullable NSData *)data;
 
 /**
- * @brief Loads background music from a file path.
+ * Loads background music from a file path.
  *
  * Drops any previous player first, so a failed load leaves nothing loaded.
  *
@@ -163,7 +163,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)loadBgmFile:(nullable NSString *)path;
 
 /**
- * @brief Loads background music from a bundled AAC resource.
+ * Loads background music from a bundled AAC resource.
  *
  * The extension is fixed at @c m4a , so this only ever finds AAC.
  *
@@ -175,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)loadBgmResAAC:(nullable NSString *)name inDirectory:(nullable NSString *)directory;
 
 /**
- * @brief Loads background music from data already in memory.
+ * Loads background music from data already in memory.
  *
  * @param data The encoded audio.
  * @return @c YES when the music loaded.
@@ -184,7 +184,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)loadBgmData:(nullable NSData *)data;
 
 /**
- * @brief Starts the background music, optionally fading it in.
+ * Starts the background music, optionally fading it in.
  *
  * Does nothing when no player is loaded or one is already playing. During an interruption the
  * request is remembered rather than played.
@@ -196,7 +196,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startBgm:(BOOL)loop fadeTime:(double)fadeTime;
 
 /**
- * @brief Advances a fade in by one tick.
+ * Advances a fade in by one tick.
  *
  * Ignores a timer that is not the current one, which is how a superseded fade is discarded.
  *
@@ -206,14 +206,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)onFadeinTimer:(nullable NSTimer *)timer;
 
 /**
- * @brief Stops the background music and any fade in progress.
+ * Stops the background music and any fade in progress.
  *
  * @ghidraAddress 0x787a4
  */
 - (void)stopBgm;
 
 /**
- * @brief Saves the current background music so another track can play over it.
+ * Saves the current background music so another track can play over it.
  *
  * Stops the current track, moves it and its volume to the pushed slot, and clears the active one.
  *
@@ -222,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)pushBgm;
 
 /**
- * @brief Restores the background music saved by @c -pushBgm .
+ * Restores the background music saved by @c -pushBgm .
  *
  * Drops any current player first, then moves the pushed one back and reattaches the delegate.
  *
@@ -232,7 +232,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)popBgm;
 
 /**
- * @brief Fades the background music out over a time.
+ * Fades the background music out over a time.
  *
  * Does nothing when nothing is playing or the fade is at or below the tick interval.
  *
@@ -242,7 +242,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)fadeoutBgm:(double)fadeTime;
 
 /**
- * @brief Changes the background music's playback rate.
+ * Changes the background music's playback rate.
  *
  * Enables rate adjustment and sets the rate to the same value.
  *
@@ -252,7 +252,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setBgmSpeed:(float)speed;
 
 /**
- * @brief Advances a fade out by one tick.
+ * Advances a fade out by one tick.
  *
  * Ignores a timer that is not the current one. On completion, stops the music rather than just
  * restoring the volume.
@@ -263,7 +263,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)onFadeoutTimer:(nullable NSTimer *)timer;
 
 /**
- * @brief Drops the active background music player, optionally also the pushed one.
+ * Drops the active background music player, optionally also the pushed one.
  *
  * Always stops the active player before clearing it.
  *
@@ -273,7 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)releaseBgm:(BOOL)stopFirst;
 
 /**
- * @brief Called back when the application returns to the foreground.
+ * Called back when the application returns to the foreground.
  *
  * Resumes the BGM if it was suspended and clears the interruption flag.
  *

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The edit-mode note renderer.
+ * The edit-mode note renderer.
  *
  * Reconstructed from Ghidra program Jubeat (class EditNoteRenderer, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @brief The editor grid's panel count. */
+/** The editor grid's panel count. */
 enum {
     kEditNoteGridPanelCount = 16 /*!< The number of panels in the game's 4x4 grid, sizing the
                                       per-panel marker-state array. */
@@ -36,7 +36,7 @@ enum {
 @class EAGLView;
 
 /**
- * @brief The edit-mode note renderer. Its direct superclass is @c NSObject (see the file comment).
+ * The edit-mode note renderer. Its direct superclass is @c NSObject (see the file comment).
  */
 @interface EditNoteRenderer : NSObject {
 @protected
@@ -50,7 +50,7 @@ enum {
 }
 
 /**
- * @brief Initialises the renderer with edit-mode defaults: the button area enabled, display mode 0,
+ * Initialises the renderer with edit-mode defaults: the button area enabled, display mode 0,
  *        and both the start and end selection sectors cleared to -1.
  * @return The initialised renderer, or @c nil.
  * @ghidraAddress 0x20add0
@@ -60,7 +60,7 @@ enum {
 #pragma mark - Textures
 
 /**
- * @brief Loads the textures for the edit session. This override does nothing; the concrete idiom
+ * Loads the textures for the edit session. This override does nothing; the concrete idiom
  *        subclasses load the appropriate textures. The selector spelling @c loadTexure: is the
  *        binary's own (a missing "t"), kept verbatim.
  * @param conf The edit renderer configuration.
@@ -73,7 +73,7 @@ enum {
              index:(nullable UIImage *)index;
 
 /**
- * @brief Releases the session textures. This override does nothing.
+ * Releases the session textures. This override does nothing.
  * @ghidraAddress 0x20ae70
  */
 - (void)releaseTexture;
@@ -81,25 +81,25 @@ enum {
 #pragma mark - Play lifecycle override points
 
 /**
- * @brief Notifies the renderer that play has started. This override does nothing.
+ * Notifies the renderer that play has started. This override does nothing.
  * @ghidraAddress 0x20aedc
  */
 - (void)startPlay;
 
 /**
- * @brief Notifies the renderer that the result screen should begin. This override does nothing.
+ * Notifies the renderer that the result screen should begin. This override does nothing.
  * @ghidraAddress 0x20aee0
  */
 - (void)endResult;
 
 /**
- * @brief Resets the edit playback to the current time. This override does nothing.
+ * Resets the edit playback to the current time. This override does nothing.
  * @ghidraAddress 0x20af48
  */
 - (void)resetCurrentTime;
 
 /**
- * @brief Saves the base scale for the edit view. This override does nothing.
+ * Saves the base scale for the edit view. This override does nothing.
  * @ghidraAddress 0x20af50
  */
 - (void)saveBaseScale;
@@ -107,28 +107,28 @@ enum {
 #pragma mark - Layout override points
 
 /**
- * @brief The vertical offset of the button area, in points. This override returns 0.
+ * The vertical offset of the button area, in points. This override returns 0.
  * @return The button-area offset.
  * @ghidraAddress 0x20aee4
  */
 - (double)buttonAreaOffset;
 
 /**
- * @brief The rectangle of the edit timeline. This override returns @c CGRectZero .
+ * The rectangle of the edit timeline. This override returns @c CGRectZero .
  * @return The timeline rectangle.
  * @ghidraAddress 0x20aef4
  */
 - (CGRect)getTimeLineRect;
 
 /**
- * @brief The rectangle of the area-selection start handle. This override returns @c CGRectZero .
+ * The rectangle of the area-selection start handle. This override returns @c CGRectZero .
  * @return The selection-start rectangle.
  * @ghidraAddress 0x20af20
  */
 - (CGRect)getAreaSelectStart;
 
 /**
- * @brief The rectangle of the area-selection end handle. This override returns @c CGRectZero .
+ * The rectangle of the area-selection end handle. This override returns @c CGRectZero .
  * @return The selection-end rectangle.
  * @ghidraAddress 0x20af34
  */
@@ -137,13 +137,13 @@ enum {
 #pragma mark - Drawing override points
 
 /**
- * @brief Draws one frame. This override does nothing; subclasses render the edit field.
+ * Draws one frame. This override does nothing; subclasses render the edit field.
  * @ghidraAddress 0x20aeec
  */
 - (void)draw;
 
 /**
- * @brief Draws debug text at a point. This override does nothing.
+ * Draws debug text at a point. This override does nothing.
  * @param text The C string to draw.
  * @param pos The position to draw it at.
  * @param alpha The opacity.
@@ -154,7 +154,7 @@ enum {
 #pragma mark - Coordinate conversion override points
 
 /**
- * @brief Converts a horizontal position to a sector index. This override returns 0.
+ * Converts a horizontal position to a sector index. This override returns 0.
  * @param pos The position, in points.
  * @return The sector index.
  * @ghidraAddress 0x20af08
@@ -162,7 +162,7 @@ enum {
 - (int)pos2sector:(int)pos;
 
 /**
- * @brief Converts a sector index to a horizontal position. This override returns 0.
+ * Converts a sector index to a horizontal position. This override returns 0.
  * @param sector The sector index.
  * @return The position, in points.
  * @ghidraAddress 0x20af10
@@ -170,7 +170,7 @@ enum {
 - (int)sector2pos:(int)sector;
 
 /**
- * @brief Converts a dot index to a sector index. This override returns 0.
+ * Converts a dot index to a sector index. This override returns 0.
  * @param dot The dot index.
  * @return The sector index.
  * @ghidraAddress 0x20af18
@@ -180,7 +180,7 @@ enum {
 #pragma mark - Edit configuration
 
 /**
- * @brief Sets the decibel scale for the edit waveform display. This override does nothing.
+ * Sets the decibel scale for the edit waveform display. This override does nothing.
  * @param dbs The decibel scale.
  * @ghidraAddress 0x20af4c
  */
@@ -189,25 +189,25 @@ enum {
 #pragma mark - Read-only accessors
 
 /**
- * @brief Whether the session has reached its end sub-state.
+ * Whether the session has reached its end sub-state.
  * @ghidraAddress 0x20aea0
  */
 @property(nonatomic, readonly) BOOL isEndState;
 
 /**
- * @brief The button identifier for the end action. This override returns 0.
+ * The button identifier for the end action. This override returns 0.
  * @ghidraAddress 0x20aec4
  */
 @property(nonatomic, readonly) unsigned int endButtonID;
 
 /**
- * @brief The button identifier for the good-job action. This override returns 0.
+ * The button identifier for the good-job action. This override returns 0.
  * @ghidraAddress 0x20aecc
  */
 @property(nonatomic, readonly) unsigned int goodJobButtonID;
 
 /**
- * @brief The button identifier for the level action. This override returns 0.
+ * The button identifier for the level action. This override returns 0.
  * @ghidraAddress 0x20aed4
  */
 @property(nonatomic, readonly) unsigned int levelButtonID;
@@ -215,61 +215,61 @@ enum {
 #pragma mark - Session state
 
 /**
- * @brief The high-level render state. Setting it also resets @c subState to 0.
+ * The high-level render state. Setting it also resets @c subState to 0.
  * @ghidraAddress 0x20ae74 (getter), 0x20ae84 (setter)
  */
 @property(nonatomic) unsigned int state;
 
 /**
- * @brief The render sub-state within the current @c state .
+ * The render sub-state within the current @c state .
  * @ghidraAddress 0x20af78 (getter), 0x20af88 (setter)
  */
 @property(nonatomic) unsigned int subState;
 
 /**
- * @brief Whether the combo counter is shown.
+ * Whether the combo counter is shown.
  * @ghidraAddress 0x20af98 (getter), 0x20afa8 (setter)
  */
 @property(nonatomic) BOOL showCombo;
 
 /**
- * @brief Whether the session set a new record.
+ * Whether the session set a new record.
  * @ghidraAddress 0x20afb8 (getter), 0x20afc8 (setter)
  */
 @property(nonatomic) BOOL isNewRecord;
 
 /**
- * @brief The currently pressed button bitmask.
+ * The currently pressed button bitmask.
  * @ghidraAddress 0x20afd8 (getter), 0x20afe8 (setter)
  */
 @property(nonatomic) int btnPress;
 
 /**
- * @brief The currently held-down button bitmask.
+ * The currently held-down button bitmask.
  * @ghidraAddress 0x20aff8 (getter), 0x20b008 (setter)
  */
 @property(nonatomic) int btnDown;
 
 /**
- * @brief Whether the session partner has finished.
+ * Whether the session partner has finished.
  * @ghidraAddress 0x20b018 (getter), 0x20b028 (setter)
  */
 @property(nonatomic) BOOL partnerFinished;
 
 /**
- * @brief The partner's current score.
+ * The partner's current score.
  * @ghidraAddress 0x20b038 (getter), 0x20b048 (setter)
  */
 @property(nonatomic) unsigned int partnerScore;
 
 /**
- * @brief The partner's final bonus.
+ * The partner's final bonus.
  * @ghidraAddress 0x20b058 (getter), 0x20b068 (setter)
  */
 @property(nonatomic) unsigned int partnerFinalBonus;
 
 /**
- * @brief Whether the partner achieved a full combo.
+ * Whether the partner achieved a full combo.
  * @ghidraAddress 0x20b078 (getter), 0x20b088 (setter)
  */
 @property(nonatomic) BOOL partnerFullcombo;
@@ -277,19 +277,19 @@ enum {
 #pragma mark - Collaborators
 
 /**
- * @brief The edit renderer configuration for the current session.
+ * The edit renderer configuration for the current session.
  * @ghidraAddress 0x20af54 (getter), 0x20af64 (setter)
  */
 @property(nonatomic, strong, nullable) EditRendererConf *rendererConf;
 
 /**
- * @brief The edit note sequence being played.
+ * The edit note sequence being played.
  * @ghidraAddress 0x20b098 (getter), 0x20b0a8 (setter)
  */
 @property(nonatomic, strong, nullable) EditSequence *sequence;
 
 /**
- * @brief The GL view this renderer draws into.
+ * The GL view this renderer draws into.
  * @ghidraAddress 0x20b0bc (getter), 0x20b0cc (setter)
  */
 @property(nonatomic, strong, nullable) EAGLView *eaglView;
@@ -297,43 +297,43 @@ enum {
 #pragma mark - Edit-specific state
 
 /**
- * @brief Whether the on-screen edit buttons are enabled.
+ * Whether the on-screen edit buttons are enabled.
  * @ghidraAddress 0x20b0e0 (getter), 0x20b0f0 (setter)
  */
 @property(nonatomic) BOOL enableBtn;
 
 /**
- * @brief The edit display mode.
+ * The edit display mode.
  * @ghidraAddress 0x20b100 (getter), 0x20b110 (setter)
  */
 @property(nonatomic) int displayMode;
 
 /**
- * @brief The sector currently under the edit cursor.
+ * The sector currently under the edit cursor.
  * @ghidraAddress 0x20b120 (getter), 0x20b130 (setter)
  */
 @property(nonatomic) int currentSector;
 
 /**
- * @brief The number of divisions per measure in the edit grid.
+ * The number of divisions per measure in the edit grid.
  * @ghidraAddress 0x20b140 (getter), 0x20b150 (setter)
  */
 @property(nonatomic) int divMeasure;
 
 /**
- * @brief The first sector of the current area selection, or -1 when none is selected.
+ * The first sector of the current area selection, or -1 when none is selected.
  * @ghidraAddress 0x20b160 (getter), 0x20b170 (setter)
  */
 @property(nonatomic) int areaStartSector;
 
 /**
- * @brief The last sector of the current area selection, or -1 when none is selected.
+ * The last sector of the current area selection, or -1 when none is selected.
  * @ghidraAddress 0x20b180 (getter), 0x20b190 (setter)
  */
 @property(nonatomic) int areaEndSector;
 
 /**
- * @brief Whether the metronome clap is enabled.
+ * Whether the metronome clap is enabled.
  * @ghidraAddress 0x20b1a0 (getter), 0x20b1b0 (setter)
  */
 @property(nonatomic) BOOL enableClap;

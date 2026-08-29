@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The Core Data migration that rebuilds the score store.
+ * The Core Data migration that rebuilds the score store.
  *
  * Reconstructed from Ghidra program Jubeat (class ScoreMigrationPolicy, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Carries score records across a store version, recovering scores the old schema truncated.
+ * Carries score records across a store version, recovering scores the old schema truncated.
  *
  * The old store kept each score in a 16-bit field alongside a 16-byte tamper digest computed over
  * the *untruncated* values. On iOS 5 and later the truncation is visible, so the migration cannot
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ScoreMigrationPolicy : NSEntityMigrationPolicy
 
 /**
- * @brief Recovers the three original scores by searching for the ones the digest was taken over.
+ * Recovers the three original scores by searching for the ones the digest was taken over.
  *
  * Each stored score is the low 16 bits of the original. The method tries every high half from 0 to
  * 16 for each of the three charts, rejects any candidate above one million, recomputes the digest
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
                  adv:(int *)adv
                  ext:(int *)ext;
 /**
- * @brief Creates the migrated record, verifying or recovering its scores first.
+ * Creates the migrated record, verifying or recovering its scores first.
  *
  * Ignores every entity but @c "ScoreRecord". Below iOS 5.0 it takes the stored scores at face value
  * and only checks the digest; from 5.0 upwards it goes through @c -salvageScore:tid:bas:adv:ext:.

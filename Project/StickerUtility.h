@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The iMessage sticker store, shared with the app extension through an app group.
+ * The iMessage sticker store, shared with the app extension through an app group.
  *
  * Reconstructed from Ghidra program Jubeat (class StickerUtility, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -18,14 +18,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Reads and writes the shared sticker set.
+ * Reads and writes the shared sticker set.
  *
  * The class has no ivars and no instance methods.
  */
 @interface StickerUtility : NSObject
 
 /**
- * @brief Forgets every sticker's display name.
+ * Forgets every sticker's display name.
  *
  * Removes the whole name dictionary from the group's defaults. Note it does **not** call
  * @c -synchronize, where @c +saveSticker:displayName:data: does, and it does not delete the
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)cleanStickerList;
 
 /**
- * @brief Reports whether a sticker is present.
+ * Reports whether a sticker is present.
  *
  * **This does not do what its name says.** The body never reads @c name: it checks only that the
  * app group's container directory itself exists, so it answers the same value for every argument
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)checkExistSticker:(nullable NSString *)name;
 
 /**
- * @brief Writes a sticker's image into the app group and records its display name.
+ * Writes a sticker's image into the app group and records its display name.
  *
  * The name is only recorded when the file write succeeds, so a failed write leaves the defaults
  * untouched rather than half-updated.

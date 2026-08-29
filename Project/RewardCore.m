@@ -141,7 +141,7 @@ static dispatch_queue_t gRewardCoreQueue;
 
 /**
  * @ghidraAddress 0x231374
- * @brief Routes every allocation through a single super-allocation so the class is a true
+ * Routes every allocation through a single super-allocation so the class is a true
  * singleton, and creates the serial queue used to serialise its work.
  */
 + (instancetype)allocWithZone:(NSZone *)zone {

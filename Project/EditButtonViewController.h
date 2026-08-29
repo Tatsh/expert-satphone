@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The popover of editor buttons.
+ * The popover of editor buttons.
  *
  * Reconstructed from Ghidra program Jubeat (class EditButtonViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -16,22 +16,22 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The keys of the dictionary handed to the delegate on a tap.
+ * The keys of the dictionary handed to the delegate on a tap.
  */
 typedef NSString *EditButtonSelectionKey NS_TYPED_ENUM;
-/** @brief The controller's own name, as passed to @c -initWithButtonArray:selNum:delegate:ctrlName:
+/** The controller's own name, as passed to @c -initWithButtonArray:selNum:delegate:ctrlName:
  */
 extern EditButtonSelectionKey const EditButtonSelectionKeyName;
-/** @brief The tapped button's index, boxed as an @c NSNumber. */
+/** The tapped button's index, boxed as an @c NSNumber. */
 extern EditButtonSelectionKey const EditButtonSelectionKeySelect;
 
 /**
- * @brief What an @c EditButtonViewController tells its owner.
+ * What an @c EditButtonViewController tells its owner.
  */
 @protocol EditButtonViewControllerDelegate <NSObject>
 @optional
 /**
- * @brief Sent when one of the buttons is tapped.
+ * Sent when one of the buttons is tapped.
  *
  * Note the argument names are the binary's and do not describe what arrives: the first argument is
  * the controller itself, and the second is a dictionary keyed by
@@ -44,7 +44,7 @@ extern EditButtonSelectionKey const EditButtonSelectionKeySelect;
 @end
 
 /**
- * @brief A row of image buttons built from a list of artwork names.
+ * A row of image buttons built from a list of artwork names.
  *
  * One button per name, laid out left to right with a two-point gap, each sized to its own artwork.
  * The selected entry loads a differently-named variant of its artwork.
@@ -52,7 +52,7 @@ extern EditButtonSelectionKey const EditButtonSelectionKeySelect;
 @interface EditButtonViewController : UIViewController
 
 /**
- * @brief Builds the row and sizes the popover to it.
+ * Builds the row and sizes the popover to it.
  *
  * @param buttonArray The artwork base names, one per button, in display order.
  * @param selNum The index whose artwork is loaded from its selected variant instead.
@@ -67,7 +67,7 @@ extern EditButtonSelectionKey const EditButtonSelectionKeySelect;
                            ctrlName:(nullable NSString *)ctrlName;
 
 /**
- * @brief The action every button targets.
+ * The action every button targets.
  * @param sender The tapped button, whose tag is its index in the array.
  * @ghidraAddress 0x20773c
  */

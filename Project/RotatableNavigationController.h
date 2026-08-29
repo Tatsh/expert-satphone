@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A navigation controller that delegates its rotation policy to the top view controller.
+ * A navigation controller that delegates its rotation policy to the top view controller.
  *
  * Reconstructed from Ghidra program Jubeat (class RotatableNavigationController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -18,7 +18,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Forwards every rotation decision to @c topViewController.
+ * Forwards every rotation decision to @c topViewController.
  *
  * The class declares no ivars and no properties; all four members are overrides.
  */
@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #ifdef ENABLE_PATCHES
 /**
- * @brief Restates the stock opaque navigation bar in the modern appearance API.
+ * Restates the stock opaque navigation bar in the modern appearance API.
  *
  * Not present in the binary. The store's bars are configured with nothing but
  * @c -setTranslucent:NO , which since iOS 15 leaves @c scrollEdgeAppearance nil and so makes the

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief TouchJSON's scanner, which does the actual parsing.
+ * TouchJSON's scanner, which does the actual parsing.
  *
  * Reconstructed from Ghidra program Jubeat (class CJSONScanner, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -16,7 +16,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The byte-oriented scanner superclass; not reconstructed as its own file yet, so it is
+ * The byte-oriented scanner superclass; not reconstructed as its own file yet, so it is
  * forward-declared here as an @c NSObject subclass exposing only what @c CJSONScanner uses. See
  * TYPES_PENDING.md.
  *
@@ -30,53 +30,53 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * @brief Points the scanner at some bytes.
+ * Points the scanner at some bytes.
  * @param data The bytes to scan.
  */
 - (void)setData:(nullable NSData *)data;
-/** @brief Advances past any whitespace at the cursor. */
+/** Advances past any whitespace at the cursor. */
 - (void)skipWhitespace;
 /**
- * @brief The character at the cursor without consuming it.
+ * The character at the cursor without consuming it.
  * @return The character at the cursor.
  */
 - (unichar)currentCharacter;
 /**
- * @brief Consumes and returns the character at the cursor.
+ * Consumes and returns the character at the cursor.
  * @return The consumed character.
  */
 - (unichar)scanCharacter;
 /**
- * @brief Consumes the cursor character when it matches.
+ * Consumes the cursor character when it matches.
  * @param character The character to match.
  * @return YES when the character matched and was consumed, NO otherwise.
  */
 - (BOOL)scanCharacter:(unichar)character;
 /**
- * @brief Consumes a fixed UTF-8 run, optionally returning it.
+ * Consumes a fixed UTF-8 run, optionally returning it.
  * @param string The UTF-8 run to match.
  * @param outString On a match, the matched run; may be @c nullptr .
  * @return YES when the run matched and was consumed, NO otherwise.
  */
 - (BOOL)scanUTF8String:(const char *)string intoString:(NSString *_Nullable *_Nullable)outString;
 /**
- * @brief Consumes a JSON number literal.
+ * Consumes a JSON number literal.
  * @param outNumber On success, the scanned number; may be @c nullptr .
  * @return YES when a number was scanned, NO otherwise.
  */
 - (BOOL)scanNumber:(NSNumber *_Nullable *_Nullable)outNumber;
 /**
- * @brief The current byte offset.
+ * The current byte offset.
  * @return The cursor's byte offset.
  */
 - (NSUInteger)scanLocation;
 /**
- * @brief Rewinds or advances the cursor to a byte offset.
+ * Rewinds or advances the cursor to a byte offset.
  * @param location The byte offset to move the cursor to.
  */
 - (void)setScanLocation:(NSUInteger)location;
 /**
- * @brief Diagnostic user-info describing where the cursor is.
+ * Diagnostic user-info describing where the cursor is.
  * @return An error user-info dictionary naming the cursor's position.
  */
 - (NSDictionary *)userInfoForScanLocation;
@@ -84,46 +84,46 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * @brief Scans JSON text into Foundation objects.
+ * Scans JSON text into Foundation objects.
  */
 @interface CJSONScanner : CDataScanner
 
 /**
- * @brief What a JSON @c null becomes.
+ * What a JSON @c null becomes.
  */
 @property(nonatomic, strong, nullable) id nullObject;
 
 /**
- * @brief Which text encoding the input is allowed to be in, tried after the BOM sniff fails.
+ * Which text encoding the input is allowed to be in, tried after the BOM sniff fails.
  */
 @property(nonatomic) NSUInteger allowedEncoding;
 
 /**
- * @brief Scanning options. Bit 0 keeps scanned containers mutable; bit 1 keeps scanned strings
+ * Scanning options. Bit 0 keeps scanned containers mutable; bit 1 keeps scanned strings
  * mutable. Both are otherwise copied to immutable.
  */
 @property(nonatomic) NSUInteger options;
 
 /**
- * @brief Whether an unrecognised backslash escape is an error rather than a literal character.
+ * Whether an unrecognised backslash escape is an error rather than a literal character.
  */
 @property(nonatomic) BOOL strictEscapeCodes;
 
 /**
- * @brief Primes the shared boxed @c YES and @c NO the scanner returns for @c true and @c false .
+ * Primes the shared boxed @c YES and @c NO the scanner returns for @c true and @c false .
  * @ghidraAddress 0x650c8
  */
 + (void)initialize;
 
 /**
- * @brief Builds a scanner with no null object substitution and non-strict escapes.
+ * Builds a scanner with no null object substitution and non-strict escapes.
  * @return The initialised scanner.
  * @ghidraAddress 0x65168
  */
 - (instancetype)init;
 
 /**
- * @brief Points the scanner at some JSON text, sniffing its encoding and re-encoding it to UTF-8.
+ * Points the scanner at some JSON text, sniffing its encoding and re-encoding it to UTF-8.
  * @param data The text.
  * @param outError Where to report a failure.
  * @return Whether the data was accepted.
@@ -132,14 +132,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)setData:(nullable NSData *)data error:(NSError *_Nullable *_Nullable)outError;
 
 /**
- * @brief Points the scanner at some JSON text, discarding any encoding failure.
+ * Points the scanner at some JSON text, discarding any encoding failure.
  * @param data The text.
  * @ghidraAddress 0x65438
  */
 - (void)setData:(nullable NSData *)data;
 
 /**
- * @brief Scans whatever the text describes, dispatching on the first non-space character.
+ * Scans whatever the text describes, dispatching on the first non-space character.
  * @param outObject Where to put the result.
  * @param outError Where to report a failure.
  * @return Whether the scan succeeded.
@@ -149,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
                  error:(NSError *_Nullable *_Nullable)outError;
 
 /**
- * @brief Scans, requiring a dictionary.
+ * Scans, requiring a dictionary.
  * @param outDictionary Where to put the result.
  * @param outError Where to report a failure.
  * @return Whether the scan succeeded.
@@ -159,7 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
                      error:(NSError *_Nullable *_Nullable)outError;
 
 /**
- * @brief Scans, requiring an array.
+ * Scans, requiring an array.
  * @param outArray Where to put the result.
  * @param outError Where to report a failure.
  * @return Whether the scan succeeded.
@@ -169,7 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
                 error:(NSError *_Nullable *_Nullable)outError;
 
 /**
- * @brief Scans a quoted JSON string, decoding its backslash escapes.
+ * Scans a quoted JSON string, decoding its backslash escapes.
  * @param outString Where to put the result.
  * @param outError Where to report a failure.
  * @return Whether the scan succeeded.
@@ -179,7 +179,7 @@ NS_ASSUME_NONNULL_BEGIN
                          error:(NSError *_Nullable *_Nullable)outError;
 
 /**
- * @brief Scans a JSON number literal.
+ * Scans a JSON number literal.
  * @param outNumber Where to put the result.
  * @param outError Where to report a failure.
  * @return Whether the scan succeeded.
@@ -189,7 +189,7 @@ NS_ASSUME_NONNULL_BEGIN
                          error:(NSError *_Nullable *_Nullable)outError;
 
 /**
- * @brief Consumes the run of characters up to the next quote or backslash.
+ * Consumes the run of characters up to the next quote or backslash.
  * @param outString Where to put the run, when the caller wants it.
  * @return Whether any characters were consumed.
  * @ghidraAddress 0x66790
@@ -197,7 +197,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)scanNotQuoteCharactersIntoString:(NSString *_Nullable *_Nullable)outString;
 
 /**
- * @brief Builds an @c NSError in the scanner's domain, with a description and the cursor's user
+ * Builds an @c NSError in the scanner's domain, with a description and the cursor's user
  * info.
  * @param code The error code.
  * @param description The localised description.

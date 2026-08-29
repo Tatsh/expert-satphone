@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The note hit-timing classifier used by the gameplay renderer.
+ * The note hit-timing classifier used by the gameplay renderer.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000); all @ghidraAddress values are
  * offsets relative to that image base. This is a genuine free function: it takes no object
@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Classifies a note's hit timing into a judgement grade from its frame delta.
+ * Classifies a note's hit timing into a judgement grade from its frame delta.
  *
  * Each grade is an unsigned in-range test of @p nDeltaFrames plus a bias, the standard
  * "is x within [-bias, limit-bias)" idiom, applied tightest window first so the best matching

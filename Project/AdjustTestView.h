@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The timing-adjust test view.
+ * The timing-adjust test view.
  *
  * Reconstructed from Ghidra program Jubeat (class AdjustTestView, image base 0x100000000); all
  * @ghidraAddress values are offsets relative to that image base. This class has no embedded
@@ -22,20 +22,20 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A self-contained OpenGL ES view that previews the marker animation for a timing-adjust
+ * A self-contained OpenGL ES view that previews the marker animation for a timing-adjust
  *        test.
  */
 @interface AdjustTestView : UIView
 
 /**
- * @brief Returns @c CAEAGLLayer so the view is backed by a Core Animation EAGL layer.
+ * Returns @c CAEAGLLayer so the view is backed by a Core Animation EAGL layer.
  * @return The @c CAEAGLLayer class.
  * @ghidraAddress 0x9db78
  */
 + (Class)layerClass;
 
 /**
- * @brief Initialises the view, its EAGL context and framebuffer, and the four panel buttons.
+ * Initialises the view, its EAGL context and framebuffer, and the four panel buttons.
  * @param frame The view's frame.
  * @return The initialised view, or @c nil if the GL context could not be created.
  * @ghidraAddress 0x9db8c
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Creates the framebuffer, colour renderbuffer, and shared quad index buffer, and configures
+ * Creates the framebuffer, colour renderbuffer, and shared quad index buffer, and configures
  *        the fixed-function GL state.
  * @return @c YES if the framebuffer is complete, otherwise @c NO.
  * @ghidraAddress 0x9e014
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)createFramebuffer;
 
 /**
- * @brief Loads a marker's animation frames and panel buttons into the ten sprite-sheet textures,
+ * Loads a marker's animation frames and panel buttons into the ten sprite-sheet textures,
  *        and loads the test sequence and its background music.
  *
  * Opens the marker's data archive, decrypts each named entry into an image, and packs the marker
@@ -64,52 +64,52 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadMarkerTex:(nullable NSString *)markerID;
 
 /**
- * @brief Releases the ten sprite-sheet textures, stops the background music, and drops the
+ * Releases the ten sprite-sheet textures, stops the background music, and drops the
  * sequence.
  * @ghidraAddress 0x9e904
  */
 - (void)releaseTex;
 
 /**
- * @brief Starts the preview: resets state, pushes and reloads the background music, and plays it.
+ * Starts the preview: resets state, pushes and reloads the background music, and plays it.
  * @ghidraAddress 0x9ea70
  */
 - (void)startPreview;
 
 /**
- * @brief Pauses the preview if it is running: stops the music and restores the pushed track.
+ * Pauses the preview if it is running: stops the music and restores the pushed track.
  * @ghidraAddress 0x9eb10
  */
 - (void)pausePreview;
 
 /**
- * @brief Suspends the preview: marks it paused, resets state, and stops the music.
+ * Suspends the preview: marks it paused, resets state, and stops the music.
  * @ghidraAddress 0x9ebcc
  */
 - (void)suspendPreview;
 
 /**
- * @brief Resumes the preview: restores the pushed track and fades the music back in.
+ * Resumes the preview: restores the pushed track and fades the music back in.
  * @ghidraAddress 0x9ec3c
  */
 - (void)resumePreview;
 
 /**
- * @brief Sets the audio-timing offset from a sector value, scaling it by the frame rate.
+ * Sets the audio-timing offset from a sector value, scaling it by the frame rate.
  * @param adjust The offset in frame sectors.
  * @ghidraAddress 0x9eca0
  */
 - (void)setAdjust:(int)adjust;
 
 /**
- * @brief Resets the press flags, timing state, base time, and audio offset, and rewinds the
+ * Resets the press flags, timing state, base time, and audio offset, and rewinds the
  *        sequence.
  * @ghidraAddress 0x9ecc0
  */
 - (void)reset;
 
 /**
- * @brief Draws one packed button sprite for a given animation state into the fixed test rectangle.
+ * Draws one packed button sprite for a given animation state into the fixed test rectangle.
  *
  * The @p point is not used; the sprite is always drawn at a fixed inset. The @p btnState selects
  * the atlas texture and cell.
@@ -121,40 +121,40 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)drawBtn:(CGPoint)point btnState:(int)btnState;
 
 /**
- * @brief Advances the sequence to the current music position, judges the panels, and renders one
+ * Advances the sequence to the current music position, judges the panels, and renders one
  *        frame per panel plus its button.
  * @ghidraAddress 0x9eec8
  */
 - (void)draw;
 
 /**
- * @brief Deletes the framebuffer, colour renderbuffer, and index buffer.
+ * Deletes the framebuffer, colour renderbuffer, and index buffer.
  * @ghidraAddress 0x9f308
  */
 - (void)destroyFramebuffer;
 
 /**
- * @brief Marks a panel as pressed from a button's down event, by its tag.
+ * Marks a panel as pressed from a button's down event, by its tag.
  * @param sender The button that was pressed.
  * @ghidraAddress 0x9f40c
  */
 - (void)btnTouchesBegan:(UIButton *)sender;
 
 /**
- * @brief Clears a panel's pressed flag from a button's up event, by its tag.
+ * Clears a panel's pressed flag from a button's up event, by its tag.
  * @param sender The button that was released.
  * @ghidraAddress 0x9f458
  */
 - (void)btnTouchesEnd:(UIButton *)sender;
 
 /**
- * @brief The playback sequence, built from the bundled test archive.
+ * The playback sequence, built from the bundled test archive.
  * @ghidraAddress 0x9f51c (getter), 0x9f52c (setter)
  */
 @property(nonatomic, strong, nullable) Sequence *sequence;
 
 /**
- * @brief The current marker identifier, set when marker textures are loaded.
+ * The current marker identifier, set when marker textures are loaded.
  * @ghidraAddress 0x9f50c (getter)
  */
 @property(readonly, strong, nullable) NSString *currentMarker;

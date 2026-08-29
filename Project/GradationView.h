@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A view that fills itself with a vertical two-stop gradient.
+ * A view that fills itself with a vertical two-stop gradient.
  *
  * Reconstructed from Ghidra program Jubeat (class GradationView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -14,26 +14,26 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A vertical gradient between two colours, drawn top to bottom.
+ * A vertical gradient between two colours, drawn top to bottom.
  *
  * Both colours default to clear, so a freshly built instance draws nothing visible.
  */
 @interface GradationView : UIView
 
 /**
- * @brief The colour at the top edge. Defaults to clear.
+ * The colour at the top edge. Defaults to clear.
  *
  * Declared @c copy in the metadata. Note that the initialiser assigns the ivar directly and so
  * retains rather than copies; only a caller going through this property gets a copy.
  */
 @property(nonatomic, copy, nullable) UIColor *topColor;
 /**
- * @brief The colour at the bottom edge. Defaults to clear. Same copy caveat as @c topColor.
+ * The colour at the bottom edge. Defaults to clear. Same copy caveat as @c topColor.
  */
 @property(nonatomic, copy, nullable) UIColor *bottomColor;
 
 /**
- * @brief Sets both colours to clear.
+ * Sets both colours to clear.
  * @param frame The view's initial frame.
  * @return The initialised view.
  * @ghidraAddress 0x253cbc

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A leaflet row in the store — unfinished scaffolding rather than a working cell.
+ * A leaflet row in the store — unfinished scaffolding rather than a working cell.
  *
  * Reconstructed from Ghidra program Jubeat (class StoreLeafletCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -19,24 +19,24 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief What a @c StoreLeafletCell asks its owner to do.
+ * What a @c StoreLeafletCell asks its owner to do.
  */
 @protocol StoreLeafletCellDelegate <NSObject>
 @optional
 /**
- * @brief Asks the owner to open a pack's detail screen.
+ * Asks the owner to open a pack's detail screen.
  * @param packID The pack to open.
  */
 - (void)pushOpenDetail:(NSString *)packID;
 @end
 
 /**
- * @brief A view holding one button that opens a pack's detail screen.
+ * A view holding one button that opens a pack's detail screen.
  */
 @interface StoreLeafletCell : UIView <NSCacheDelegate>
 
 /**
- * @brief The object asked to perform the push.
+ * The object asked to perform the push.
  *
  * Weak and untyped in the metadata, so the dispatch goes through @c -respondsToSelector: rather
  * than a declared conformance.
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak) id aDelegate;
 
 /**
- * @brief Builds the row's single button.
+ * Builds the row's single button.
  * @param frame The row's frame. It is not used — the button's frame is a constant.
  * @return The initialised row.
  * @ghidraAddress 0x1c56ec
@@ -53,13 +53,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief The button's action. Asks the delegate to open pack @c 10001 .
+ * The button's action. Asks the delegate to open pack @c 10001 .
  * @ghidraAddress 0x1c5870
  */
 - (void)opendetail;
 
 /**
- * @brief Inert. The body is a single @c ret .
+ * Inert. The body is a single @c ret .
  * @param cache Ignored.
  * @param obj Ignored.
  * @ghidraAddress 0x1c5928

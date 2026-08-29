@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The score-to-rank-image helper.
+ * The score-to-rank-image helper.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. This is a genuine free function: it takes no object
@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Maps a score to its themed rank-letter image from the shared image cache.
+ * Maps a score to its themed rank-letter image from the shared image cache.
  *
  * The score is classified with @c +[Sequence rankOfPoint:], which returns a rank in 0..8 ordered
  * ascending by quality (E is 0, EXC is 8). The rank selects a base resource name

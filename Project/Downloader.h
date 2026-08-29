@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The HTTP client.
+ * The HTTP client.
  *
  * Reconstructed from Ghidra program Jubeat (class Downloader, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -25,34 +25,34 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Performs a single HTTP request.
+ * Performs a single HTTP request.
  */
 @protocol DownloaderDelegate <NSObject>
 @optional
 /**
- * @brief Sent periodically as data arrives, and once more on completion.
+ * Sent periodically as data arrives, and once more on completion.
  * @param downloader The request.
  */
 - (void)downloaderProceed:(id)downloader;
 /**
- * @brief Sent when the request completes. The body is read back with @c -getData .
+ * Sent when the request completes. The body is read back with @c -getData .
  * @param downloader The finished request.
  */
 - (void)downloaderFinished:(id)downloader;
 /**
- * @brief Sent when the request fails.
+ * Sent when the request fails.
  * @param downloader The failed request.
  */
 - (void)downloaderError:(id)downloader;
 @end
 
 /**
- * @brief A one-shot HTTP request that reports its result to a delegate.
+ * A one-shot HTTP request that reports its result to a delegate.
  */
 @interface Downloader : NSObject <NSURLSessionDataDelegate>
 
 /**
- * @brief Builds a plain GET.
+ * Builds a plain GET.
  *
  * @param url The endpoint.
  * @param delegate The object to report completion to, or nil. Stored weakly.
@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithURL:(NSURL *)url delegate:(nullable id<DownloaderDelegate>)delegate;
 
 /**
- * @brief Builds a JSON POST.
+ * Builds a JSON POST.
  *
  * @param url The endpoint.
  * @param jsonData The serialised request body.
@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
                    delegate:(nullable id<DownloaderDelegate>)delegate;
 
 /**
- * @brief Builds a POST with an arbitrary body.
+ * Builds a POST with an arbitrary body.
  *
  * @param url The endpoint.
  * @param postData The request body.
@@ -88,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
                    delegate:(nullable id<DownloaderDelegate>)delegate;
 
 /**
- * @brief Starts the request.
+ * Starts the request.
  *
  * Cancels any previous session task first, then creates a new @c NSURLSession on the main queue
  * and resumes its data task.
@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startDownloading;
 
 /**
- * @brief Abandons the request.
+ * Abandons the request.
  *
  * Clears the weak delegate, cancels the session task, and drops the accumulated data.
  * @ghidraAddress 0xa83a4
@@ -105,34 +105,34 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)cancel;
 
 /**
- * @brief Cancels the current session task and clears it.
+ * Cancels the current session task and clears it.
  * @ghidraAddress 0xa88e0
  */
 - (void)connectionCancel;
 
 /**
- * @brief The total bytes downloaded so far.
+ * The total bytes downloaded so far.
  * @return The length of the accumulated data, or 0 when none.
  * @ghidraAddress 0xa8710
  */
 - (unsigned long long)currentSize;
 
 /**
- * @brief The fraction of the expected total that has arrived.
+ * The fraction of the expected total that has arrived.
  * @return Progress in [0,1], or 0 when the expected length is unknown or already exceeded.
  * @ghidraAddress 0xa8728
  */
 - (float)currentProgress;
 
 /**
- * @brief The body the request returned.
+ * The body the request returned.
  * @return The downloaded bytes, or nil before completion.
  * @ghidraAddress 0xa8794
  */
 - (nullable NSData *)getData;
 
 /**
- * @brief The body the request returned, parsed as JSON.
+ * The body the request returned, parsed as JSON.
  *
  * Returns nil rather than raising when the body is missing or will not parse, which is what
  * @c -[LogoViewController downloaderFinished:] tests before reading any key out of it.
@@ -143,7 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSDictionary *)getDataInJSON;
 
 /**
- * @brief An integer tag the caller may attach to the request.
+ * An integer tag the caller may attach to the request.
  * @ghidraAddress 0xa891c
  */
 @property(nonatomic) int tag;

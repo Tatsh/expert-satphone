@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The banner showing how many free scratches remain and when they reset.
+ * The banner showing how many free scratches remain and when they reset.
  *
  * Reconstructed from Ghidra program Jubeat (class ScratchMessageView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,12 +17,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A remaining-scratches digit and a countdown to the next reset.
+ * A remaining-scratches digit and a countdown to the next reset.
  */
 @interface ScratchMessageView : UIView
 
 /**
- * @brief Builds the digit and the countdown label, scaled for the current idiom.
+ * Builds the digit and the countdown label, scaled for the current idiom.
  * @param frame The view's initial frame.
  * @return The initialised view.
  * @ghidraAddress 0x73c20
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Shows a remaining-scratch count.
+ * Shows a remaining-scratch count.
  *
  * Counts above nine are clamped to nine rather than rejected, since the artwork is a single digit.
  *
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setScratchCnt:(int)scratchCnt;
 
 /**
- * @brief Refreshes the countdown text from the shared challenge state.
+ * Refreshes the countdown text from the shared challenge state.
  *
  * Under one second remaining shows a fixed expiry message instead of a countdown.
  * @ghidraAddress 0x74054

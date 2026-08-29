@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One purchasable cube pack.
+ * One purchasable cube pack.
  *
  * Reconstructed from Ghidra program Jubeat (class CubePurchaseInfo, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -12,7 +12,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A cube pack's identity, price and store product.
+ * A cube pack's identity, price and store product.
  *
  * Backed by four ivars: @c purchaseID, @c productInfo (an @c SKProduct), @c itemName and
  * @c description.
@@ -20,42 +20,42 @@ NS_ASSUME_NONNULL_BEGIN
 @interface CubePurchaseInfo : NSObject
 
 /**
- * @brief Fills the pack from a store dictionary.
+ * Fills the pack from a store dictionary.
  * @param dictionary The store dictionary (carries @c item_id , @c name , and @c description ).
  * @ghidraAddress 0x63b68
  */
 - (void)initWithDictionary:(nullable NSDictionary *)dictionary;
 
 /**
- * @brief Attaches the resolved StoreKit product.
+ * Attaches the resolved StoreKit product.
  * @param product The product.
  * @ghidraAddress 0x63c48
  */
 - (void)updateProduct:(nullable SKProduct *)product;
 
 /**
- * @brief The pack's product identifier.
+ * The pack's product identifier.
  * @return The product identifier.
  * @ghidraAddress 0x63c5c
  */
 - (nullable NSString *)getProductID;
 
 /**
- * @brief The pack's price, already formatted for display. DECLARED ONLY.
+ * The pack's price, already formatted for display. DECLARED ONLY.
  * @return The formatted price.
  * @ghidraAddress 0x63c6c
  */
 - (nullable NSString *)getPriceString;
 
 /**
- * @brief The attached StoreKit product.
+ * The attached StoreKit product.
  * @return The attached StoreKit product, or nil when none has been resolved.
  * @ghidraAddress 0x63d10
  */
 - (nullable SKProduct *)getProduct;
 
 /**
- * @brief How many cubes the pack contains.
+ * How many cubes the pack contains.
  *
  * @c -[itemName intValue], so the count is carried as text and parsed on every call.
  * @ghidraAddress 0x63d20
@@ -63,14 +63,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (int)getCubeNum;
 
 /**
- * @brief The pack's name (also the cube count as a string).
+ * The pack's name (also the cube count as a string).
  * @return The pack's name.
  * @ghidraAddress 0x63d38
  */
 - (nullable NSString *)getName;
 
 /**
- * @brief The pack's description line.
+ * The pack's description line.
  * @return The pack's description line.
  * @ghidraAddress 0x63d48
  */

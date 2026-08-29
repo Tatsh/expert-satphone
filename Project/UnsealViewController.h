@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A page-turning viewer over a set of unsealed-artwork files.
+ * A page-turning viewer over a set of unsealed-artwork files.
  *
  * Reconstructed from Ghidra program Jubeat (class UnsealViewController, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class UnsealViewController;
 
 /**
- * @brief Receives the viewer's page-change notifications.
+ * Receives the viewer's page-change notifications.
  *
  * The delegate is stored in a bare @c id slot in the binary; it is only ever messaged through this
  * one selector.
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol UnsealViewControllerDelegate <NSObject>
 
 /**
- * @brief Reports the page the viewer has settled on after a turn.
+ * Reports the page the viewer has settled on after a turn.
  *
  * @param index The index of the newly shown artwork within the name array.
  * @param completed Whether the page-turn animation ran to completion.
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * @brief A flip-book over an array of artwork file names.
+ * A flip-book over an array of artwork file names.
  *
  * Construction records the names and the rectangle each page fills; @c -loadView then builds one
  * @c UnsealDrawController page per name and installs a page-curl @c UIPageViewController as a
@@ -47,14 +47,14 @@ NS_ASSUME_NONNULL_BEGIN
                                                     UIGestureRecognizerDelegate>
 
 /**
- * @brief The object told which artwork the viewer settled on.
+ * The object told which artwork the viewer settled on.
  *
  * Weak and non-atomic in the metadata; stored in the @c _aDelegate ivar.
  */
 @property(weak, nonatomic, nullable) id<UnsealViewControllerDelegate> aDelegate;
 
 /**
- * @brief Records the artwork names to page through and the rectangle each page fills.
+ * Records the artwork names to page through and the rectangle each page fills.
  *
  * Chains to @c UIViewController's plain @c -init (no nib). The names are copied; neither the names
  * nor the rectangle are used until @c -loadView.

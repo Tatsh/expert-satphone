@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The Applilink recommend SDK's debug-override store.
+ * The Applilink recommend SDK's debug-override store.
  *
  * @c RecommendDebug is a stateless utility class: every member is a class method and the class
  * holds no instance state. When debug mode is active it supplies canned advert-model setting,
@@ -20,47 +20,47 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The recommend network's debug-override store.
+ * The recommend network's debug-override store.
  */
 @interface RecommendDebug : NSObject
 
 /**
- * @brief The canned advert-model setting list.
+ * The canned advert-model setting list.
  * @return The debug advert-model setting records.
  * @ghidraAddress 0x248764
  */
 + (NSArray<NSDictionary *> *)adModelSettingList;
 
 /**
- * @brief The canned banner-display-status list.
+ * The canned banner-display-status list.
  * @return The debug banner-display-status records.
  * @ghidraAddress 0x2489d4
  */
 + (NSArray<NSDictionary *> *)bannerDisplayStatusList;
 
 /**
- * @brief The canned banner advert list.
+ * The canned banner advert list.
  * @return The debug banner advert records.
  * @ghidraAddress 0x248bdc
  */
 + (NSArray<NSDictionary *> *)bannerList;
 
 /**
- * @brief The canned icon advert list.
+ * The canned icon advert list.
  * @return The debug icon advert records.
  * @ghidraAddress 0x24a284
  */
 + (NSArray<NSDictionary *> *)iconList;
 
 /**
- * @brief The canned movie advert list.
+ * The canned movie advert list.
  * @return The single debug movie advert record.
  * @ghidraAddress 0x24b9e8
  */
 + (NSArray<NSDictionary *> *)movieList;
 
 /**
- * @brief Persists the debug-mode override flag.
+ * Persists the debug-mode override flag.
  *
  * Stores @p debugMode in @c NSUserDefaults under the @c applilink.debug.mode key, or removes the
  * key when @p debugMode is @c nil.
@@ -70,14 +70,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)debugMode:(nullable id)debugMode;
 
 /**
- * @brief The persisted debug-mode override flag.
+ * The persisted debug-mode override flag.
  * @return The stored @c applilink.debug.mode object, or @c nil when debug mode is not active.
  * @ghidraAddress 0x24bfa0
  */
 + (nullable id)getDebugMode;
 
 /**
- * @brief The recorded interstitial-frequency state.
+ * The recorded interstitial-frequency state.
  *
  * Merges the unarchived @c ApplilinkRecommend.frequency counters with the current interstitial
  * location display specification for inspection.
@@ -87,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSMutableDictionary *)getFrequencyStatus;
 
 /**
- * @brief The recorded interstitial display-specification state.
+ * The recorded interstitial display-specification state.
  *
  * Merges the unarchived daily and total advert-display counts with the current interstitial
  * display specification for inspection.

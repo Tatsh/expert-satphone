@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One row of the cube-pack purchase list.
+ * One row of the cube-pack purchase list.
  *
  * Reconstructed from Ghidra program Jubeat (class CubePurchaseListViewCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -16,7 +16,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A purchase row: a tappable plate carrying the cube count, a label plate, and two labels.
+ * A purchase row: a tappable plate carrying the cube count, a label plate, and two labels.
  *
  * The cube count is drawn digit by digit from per-digit artwork rather than as text, which is why
  * the row owns a fixed five-element array of image views.
@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface CubePurchaseListViewCell : UITableViewCell
 
 /**
- * @brief The object the row's button targets.
+ * The object the row's button targets.
  *
  * Weak, per the @c W attribute in the runtime metadata, and genuinely untyped — the metadata
  * encodes it as a bare @c \@ with no protocol. It expects @c tapPurchaseBtn: .
@@ -36,13 +36,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak) id aDelegate;
 
 /**
- * @brief Declared readonly and never assigned by any method this class defines, so always nil.
+ * Declared readonly and never assigned by any method this class defines, so always nil.
  * @ghidraAddress 0x64728 (getter)
  */
 @property(nonatomic, readonly, nullable) UIButton *addBtn;
 
 /**
- * @brief Builds the row's subviews at the metrics for the current device idiom.
+ * Builds the row's subviews at the metrics for the current device idiom.
  *
  * @param style Passed straight through to @c UITableViewCell.
  * @param reuseIdentifier Passed straight through to @c UITableViewCell.
@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
                           tag:(int)tag;
 
 /**
- * @brief Fills the row in, loading digit artwork through a caller-owned cache.
+ * Fills the row in, loading digit artwork through a caller-owned cache.
  *
  * @param bgImg The plate drawn behind the whole row, set as the button's normal background.
  * @param info The pack whose count, price and description the row shows.

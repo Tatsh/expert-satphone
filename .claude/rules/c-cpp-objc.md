@@ -59,9 +59,14 @@
 - Use `clang-format` to format source files. Shortcut: `yarn format`.
 - This project uses Doxygen to document members. Always document public members in headers.
 - Use plain `//` comments for internal and file-private commentary (implementation notes, file-scope
-  constants, and other non-public code). Reserve Doxygen — a `/** ... */` block with `@brief`,
-  `@param`, `@return`, `@ghidraAddress`, etc. — for public members declared in headers. Do not use
+  constants, and other non-public code). Reserve Doxygen — a `/** ... */` block with `@param`,
+  `@return`, `@ghidraAddress`, etc. — for public members declared in headers. Do not use
   the `///` Doxygen single-line form for internal comments.
+- Do not write `@brief`. The docs build sets `JAVADOC_AUTOBRIEF` and `QT_AUTOBRIEF`, so the first
+  sentence of a `/** ... */` block or a trailing `/*!< ... */` comment is already the brief and the
+  rest becomes the detailed description. Write the summary as the opening sentence instead, and keep
+  it to one sentence so the split lands where you intend. Avoid an abbreviation such as "i.e." or
+  "e.g." in that opening sentence: the brief ends at the first `". "`, which would truncate it.
 - Document a public enumeration's members with a trailing Doxygen member comment (`/*!< ... */`) on
   the same line as the member, not a leading comment before it:
 

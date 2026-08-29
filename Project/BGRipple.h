@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One expanding ripple on the background.
+ * One expanding ripple on the background.
  *
  * Reconstructed from Ghidra program Jubeat (class BGRipple, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A single ripple sprite that drifts sideways, swells and fades.
+ * A single ripple sprite that drifts sideways, swells and fades.
  *
  * The owner steps every ripple once a frame and drops the ones that report themselves finished,
  * then renders the survivors.
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BGRipple : NSObject
 
 /**
- * @brief Sets the ripple up. Nothing here is animated yet.
+ * Sets the ripple up. Nothing here is animated yet.
  *
  * @param aSprite The sprite index within the background texture.
  * @param aPoint Where the ripple is centred.
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
                          alpha:(float)alpha;
 
 /**
- * @brief Advances the ripple by one frame.
+ * Advances the ripple by one frame.
  *
  * @return YES once the frame counter has passed the lifetime, at which point nothing further
  * happens and the owner should drop it.
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)step;
 
 /**
- * @brief Draws the ripple at its current scale and opacity.
+ * Draws the ripple at its current scale and opacity.
  *
  * Silently does nothing once the ripple is past its lifetime, so a caller that ignores @c -step
  * simply stops seeing it.

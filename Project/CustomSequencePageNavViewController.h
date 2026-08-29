@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The navigation controller for the custom-sequence page.
+ * The navigation controller for the custom-sequence page.
  *
  * Reconstructed from Ghidra program Jubeat (class CustomSequencePageNavViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -17,12 +17,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A table view controller that holds a weak delegate.
+ * A table view controller that holds a weak delegate.
  */
 @interface CustomSequencePageNavViewController : UITableViewController
 
 /**
- * @brief Forwards to @c -[UITableViewController initWithStyle:] and stores a weak delegate.
+ * Forwards to @c -[UITableViewController initWithStyle:] and stores a weak delegate.
  *
  * The delegate is stored with @c objc_storeWeak, so the reference does not keep it alive. The
  * protocol it is expected to conform to is not established — nothing reconstructed sends it

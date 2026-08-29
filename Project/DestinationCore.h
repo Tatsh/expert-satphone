@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Registers a destination URL with the applilink advertising back end.
+ * Registers a destination URL with the applilink advertising back end.
  *
  * Reconstructed from Ghidra program Jubeat (class DestinationCore, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Posts one registration to @c /destination/regist.php and drops the answer.
+ * Posts one registration to @c /destination/regist.php and drops the answer.
  *
  * All three connection callbacks are implemented and all three are inert, so nothing this class
  * starts is ever acted on.
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface DestinationCore : NSObject <ApplilinkURLConnectionDelegate>
 
 /**
- * @brief Registers a return URL for a country.
+ * Registers a return URL for a country.
  *
  * **The @c delegate argument is never read.** The connection is given @c self instead, so the
  * caller's object is silently ignored — see TYPES_PENDING.md.
@@ -40,21 +40,21 @@ NS_ASSUME_NONNULL_BEGIN
                                 delegate:(nullable id)delegate;
 
 /**
- * @brief Inert. The body is a single @c ret .
+ * Inert. The body is a single @c ret .
  * @param error Ignored.
  * @ghidraAddress 0x250f50
  */
 - (void)failLoadWithError:(nullable NSError *)error;
 
 /**
- * @brief Inert. The body is a single @c ret .
+ * Inert. The body is a single @c ret .
  * @param response Ignored.
  * @ghidraAddress 0x250f54
  */
 - (void)finishLoadWithResponse:(nullable NSString *)response;
 
 /**
- * @brief Refuses every redirect.
+ * Refuses every redirect.
  * @param request Ignored.
  * @return Always NO.
  * @ghidraAddress 0x250f58

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A row of the editor's user list.
+ * A row of the editor's user list.
  *
  * Reconstructed from Ghidra program Jubeat (class EditorInfoCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,12 +17,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A user row carrying a badge for the user's kind and a lock overlay.
+ * A user row carrying a badge for the user's kind and a lock overlay.
  */
 @interface EditorInfoCell : UITableViewCell
 
 /**
- * @brief The lock overlay, pinned near the row's right edge.
+ * The lock overlay, pinned near the row's right edge.
  *
  * Positioned from the cell's own frame at construction, so it depends on the cell already having
  * its final width by then.
@@ -30,13 +30,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, nullable) UIImageView *lockView;
 
 /**
- * @brief Builds the row, its lock overlay, and a blank badge.
+ * Builds the row, its lock overlay, and a blank badge.
  * @return The initialised cell.
  * @ghidraAddress 0x1f89f0
  */
 - (instancetype)init;
 /**
- * @brief Swaps the badge for the one matching a user kind.
+ * Swaps the badge for the one matching a user kind.
  *
  * Selects from a three-entry table: blank, staff, artist. Any tag above 2 falls back to the blank
  * badge — but the fallback is one-sided, so a negative tag indexes off the front of the table.

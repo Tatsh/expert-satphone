@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A text view that cannot take focus.
+ * A text view that cannot take focus.
  *
  * Reconstructed from Ghidra program Jubeat (class DetailTextView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A @c UITextView that refuses first-responder status.
+ * A @c UITextView that refuses first-responder status.
  *
  * Overriding this one method is the standard way to show selectable, scrollable rich text without
  * ever presenting a caret, a selection, or the edit menu. @c UnselectableTextView and

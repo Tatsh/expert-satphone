@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Optional runtime diagnostics, emitting os_log lines tagged "JBPDBG".
+ * Optional runtime diagnostics, emitting os_log lines tagged "JBPDBG".
  *
  * Capture them on device with @c idevicesyslog | @c grep @c JBPDBG.
  */
@@ -27,7 +27,7 @@
 #pragma once
 
 #ifndef JBDBG
-/** @brief Set to 1 to compile the diagnostics in; 0 collapses every helper below to a no-op. */
+/** Set to 1 to compile the diagnostics in; 0 collapses every helper below to a no-op. */
 #define JBDBG 0
 #endif
 
@@ -51,7 +51,7 @@ static inline void neDebugLog(const char *fmt, ...) {
 }
 
 /**
- * @brief True for the first @p limit invocations at a given site.
+ * True for the first @p limit invocations at a given site.
  *
  * A per-frame draw call can log a bounded burst instead of flooding the log at 60 fps. This is a
  * statement expression rather than a lambda so that it compiles in the project's pure Objective-C
@@ -66,7 +66,7 @@ static inline void neDebugLog(const char *fmt, ...) {
     })
 
 /**
- * @brief The uncapped counterpart of @c NE_DBG_FIRST.
+ * The uncapped counterpart of @c NE_DBG_FIRST.
  *
  * For a diagnostic block on a rarely-taken path where the repetition itself is the evidence: a
  * settings screen presented twice in a row logs both times, where @c NE_DBG_FIRST would silently
@@ -75,7 +75,7 @@ static inline void neDebugLog(const char *fmt, ...) {
 #define NE_DBG_EVERY (1)
 
 /**
- * @brief Wraps debug-only statements that have real side effects.
+ * Wraps debug-only statements that have real side effects.
  *
  * Internal @c ; separates multiple statements; the macro supplies the trailing one. Use it for
  * work that must not run in the faithful build, such as @c glGetError(), which clears GL error
@@ -105,7 +105,7 @@ static inline void neDebugLog(const char *fmt, ...) {
 
 #ifndef JBDBG_BUILD_SHA
 /**
- * @brief The build's git SHA, set by CMake at configure time.
+ * The build's git SHA, set by CMake at configure time.
  *
  * Logged once at startup under @c JBDBG so a captured @c os_log identifies exactly which build
  * produced it.

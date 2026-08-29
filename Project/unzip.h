@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief IO for reading .zip files, the subset of minizip's @c unz* API that @c KUnzip drives.
+ * IO for reading .zip files, the subset of minizip's @c unz* API that @c KUnzip drives.
  *
  * This is upstream third-party library code, not a routine reconstructed from the binary: it is
  * Gilles Vollant's minizip @c unzip.c/unzip.h (the version bundled with zlib's
@@ -23,30 +23,30 @@
 extern "C" {
 #endif
 
-/** @brief minizip's opaque unzip archive handle. */
+/** minizip's opaque unzip archive handle. */
 typedef void *unzFile;
 
-/** @brief minizip's 64-bit file-position type (zlib's @c ZPOS64_T). */
+/** minizip's 64-bit file-position type (zlib's @c ZPOS64_T). */
 typedef unsigned long long ZPOS64_T;
 
-/** @brief The operation succeeded. */
+/** The operation succeeded. */
 #define UNZ_OK (0)
-/** @brief The directory walk passed the last entry. */
+/** The directory walk passed the last entry. */
 #define UNZ_END_OF_LIST_OF_FILE (-100)
-/** @brief An I/O callback failed. */
+/** An I/O callback failed. */
 #define UNZ_ERRNO (Z_ERRNO)
-/** @brief The end of the current entry's data was reached. */
+/** The end of the current entry's data was reached. */
 #define UNZ_EOF (0)
-/** @brief An argument was invalid. */
+/** An argument was invalid. */
 #define UNZ_PARAMERROR (-102)
-/** @brief The archive is not a valid .zip. */
+/** The archive is not a valid .zip. */
 #define UNZ_BADZIPFILE (-103)
-/** @brief An internal allocation or state error occurred. */
+/** An internal allocation or state error occurred. */
 #define UNZ_INTERNALERROR (-104)
-/** @brief The decompressed data failed its CRC check. */
+/** The decompressed data failed its CRC check. */
 #define UNZ_CRCERROR (-105)
 
-/** @brief An entry's last-modified date and time, decoded from the DOS date field. */
+/** An entry's last-modified date and time, decoded from the DOS date field. */
 typedef struct tm_unz_s {
     unsigned int tm_sec;  /*!< Seconds after the minute, [0, 59]. */
     unsigned int tm_min;  /*!< Minutes after the hour, [0, 59]. */
@@ -56,13 +56,13 @@ typedef struct tm_unz_s {
     unsigned int tm_year; /*!< Year, [1980, 2044]. */
 } tm_unz;
 
-/** @brief Archive-wide information taken from the end-of-central-directory record. */
+/** Archive-wide information taken from the end-of-central-directory record. */
 typedef struct unz_global_info64_s {
     ZPOS64_T number_entry; /*!< The total number of entries in the central directory. */
     uLong size_comment;    /*!< The size of the archive's global comment. */
 } unz_global_info64;
 
-/** @brief Per-entry information taken from the entry's central-directory header. */
+/** Per-entry information taken from the entry's central-directory header. */
 typedef struct unz_file_info64_s {
     uLong version;              /*!< The version that made the entry. */
     uLong version_needed;       /*!< The minimum version needed to extract the entry. */
@@ -82,7 +82,7 @@ typedef struct unz_file_info64_s {
 } unz_file_info64;
 
 /**
- * @brief Opens a .zip archive at a path using the default stdio I/O callbacks.
+ * Opens a .zip archive at a path using the default stdio I/O callbacks.
  *
  * @param path The archive's path.
  * @return The opened archive handle, or @c nullptr when the file does not exist or is not a valid
@@ -92,7 +92,7 @@ typedef struct unz_file_info64_s {
 unzFile unzOpen(const char *path);
 
 /**
- * @brief Opens a .zip archive using a caller-supplied I/O callback table.
+ * Opens a .zip archive using a caller-supplied I/O callback table.
  *
  * @param file The value passed through to the table's @c zopen_file callback as its @c filename.
  * @param pzlib_filefunc_def The I/O callback table, or @c nullptr to use the default stdio table.
@@ -102,7 +102,7 @@ unzFile unzOpen(const char *path);
 unzFile unzOpenInternal(voidpf file, zlib_filefunc_def *pzlib_filefunc_def);
 
 /**
- * @brief Closes an archive opened with @c unzOpen or @c unzOpenInternal.
+ * Closes an archive opened with @c unzOpen or @c unzOpenInternal.
  *
  * @param file The archive handle.
  * @return @c UNZ_OK on success, or @c UNZ_PARAMERROR when @p file is @c nullptr.
@@ -111,7 +111,7 @@ unzFile unzOpenInternal(voidpf file, zlib_filefunc_def *pzlib_filefunc_def);
 int unzClose(unzFile file);
 
 /**
- * @brief Writes the archive-wide information into @p pglobal_info.
+ * Writes the archive-wide information into @p pglobal_info.
  *
  * @param file The archive handle.
  * @param pglobal_info The structure to fill; needs no preparation.
@@ -121,7 +121,7 @@ int unzClose(unzFile file);
 int unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_info);
 
 /**
- * @brief Makes the first entry the current entry.
+ * Makes the first entry the current entry.
  *
  * @param file The archive handle.
  * @return @c UNZ_OK on success.
@@ -130,7 +130,7 @@ int unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_info);
 int unzGoToFirstFile(unzFile file);
 
 /**
- * @brief Makes the next entry the current entry.
+ * Makes the next entry the current entry.
  *
  * @param file The archive handle.
  * @return @c UNZ_OK on success, or @c UNZ_END_OF_LIST_OF_FILE past the last entry.
@@ -139,7 +139,7 @@ int unzGoToFirstFile(unzFile file);
 int unzGoToNextFile(unzFile file);
 
 /**
- * @brief Locates an entry by name and makes it the current entry.
+ * Locates an entry by name and makes it the current entry.
  *
  * @param file The archive handle.
  * @param szFileName The entry name to find.
@@ -151,7 +151,7 @@ int unzGoToNextFile(unzFile file);
 int unzLocateFile(unzFile file, const char *szFileName, int iCaseSensitivity);
 
 /**
- * @brief Reads the current entry's information and, optionally, its name, extra field, and comment.
+ * Reads the current entry's information and, optionally, its name, extra field, and comment.
  *
  * @param file The archive handle.
  * @param pfile_info The structure to fill, or @c nullptr.
@@ -174,7 +174,7 @@ int unzGetCurrentFileInfo64(unzFile file,
                             uLong commentBufferSize);
 
 /**
- * @brief Opens the current entry for reading its decompressed data.
+ * Opens the current entry for reading its decompressed data.
  *
  * @param file The archive handle.
  * @return @c UNZ_OK on success.
@@ -183,7 +183,7 @@ int unzGetCurrentFileInfo64(unzFile file,
 int unzOpenCurrentFile(unzFile file);
 
 /**
- * @brief Reads decompressed bytes from the current entry.
+ * Reads decompressed bytes from the current entry.
  *
  * @param file The archive handle.
  * @param buf The destination buffer.
@@ -194,7 +194,7 @@ int unzOpenCurrentFile(unzFile file);
 int unzReadCurrentFile(unzFile file, void *buf, unsigned len);
 
 /**
- * @brief Closes the current entry opened with @c unzOpenCurrentFile.
+ * Closes the current entry opened with @c unzOpenCurrentFile.
  *
  * @param file The archive handle.
  * @return @c UNZ_OK on success, or @c UNZ_CRCERROR when the whole entry was read and its CRC did

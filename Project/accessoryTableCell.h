@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A row of the editor's accessory list.
+ * A row of the editor's accessory list.
  *
  * Reconstructed from Ghidra program Jubeat (class accessoryTableCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -21,14 +21,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A cell showing an accessory's icon, name, unlock cost, and a lock overlay.
+ * A cell showing an accessory's icon, name, unlock cost, and a lock overlay.
  *
  * It has no properties: the four subviews are plain ivars, declared in the implementation.
  */
 @interface accessoryTableCell : UITableViewCell
 
 /**
- * @brief Builds the row's subviews, laid out against the table's width.
+ * Builds the row's subviews, laid out against the table's width.
  *
  * The width is not stored; it is only used to place the three right-hand subviews, so the layout is
  * fixed at construction and does not follow a later resize.
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithWidth:(int)width;
 /**
- * @brief Fills the row in from a four-element array.
+ * Fills the row in from a four-element array.
  *
  * The array is positional, and only three of its four elements are read: element 1 is the name,
  * element 2 the icon's base file name, and element 3 the cost. Element 0 is never touched.

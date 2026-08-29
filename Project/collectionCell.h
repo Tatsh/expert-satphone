@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A collection-view cell wrapping a music view.
+ * A collection-view cell wrapping a music view.
  *
  * Reconstructed from Ghidra program Jubeat (class collectionCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class name is the binary's
@@ -14,12 +14,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A cell that hosts one @c MusicView, sized for the device idiom.
+ * A cell that hosts one @c MusicView, sized for the device idiom.
  */
 @interface collectionCell : UICollectionViewCell
 
 /**
- * @brief Builds the hosted music view and installs it.
+ * Builds the hosted music view and installs it.
  * @param info The tune the hosted music view shows.
  * @param parentDelegate The delegate messaged to load artwork; also the music view's delegate.
  * @param viewType The music view's column type.
@@ -32,14 +32,14 @@ NS_ASSUME_NONNULL_BEGIN
          labelDisp:(BOOL)labelDisp;
 
 /**
- * @brief Refreshes the cell's text for the device idiom.
+ * Refreshes the cell's text for the device idiom.
  * @param animated Whether the refresh animates.
  * @ghidraAddress 0x3ae74
  */
 - (void)refleshText:(BOOL)animated;
 
 /**
- * @brief Sets the music info and the cell's index, then requests its artwork.
+ * Sets the music info and the cell's index, then requests its artwork.
  * @param info The music info.
  * @param index The cell's index.
  * @ghidraAddress 0x3aebc
@@ -47,28 +47,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setInfo:(nullable id)info index:(int)index;
 
 /**
- * @brief Sets the music info and requests its artwork.
+ * Sets the music info and requests its artwork.
  * @param info The music info.
  * @ghidraAddress 0x3afbc
  */
 - (void)setInfo:(nullable id)info;
 
 /**
- * @brief The hosted music view.
+ * The hosted music view.
  * @return The hosted music view, or nil when the cell hosts none.
  * @ghidraAddress 0x3b084
  */
 - (nullable MusicView *)getMusicView;
 
 /**
- * @brief The hosted view's current tune identifier.
+ * The hosted view's current tune identifier.
  * @return The hosted view's tune identifier.
  * @ghidraAddress 0x3b094
  */
 - (int)getTuneID;
 
 /**
- * @brief Whether the cell currently hosts a music view.
+ * Whether the cell currently hosts a music view.
  * @return YES when the cell hosts a music view, NO otherwise.
  * @ghidraAddress 0x3b0ec
  */

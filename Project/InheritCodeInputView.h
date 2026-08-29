@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The inherit-code input view — the screen that enters an inherit code to migrate an
+ * The inherit-code input view — the screen that enters an inherit code to migrate an
  * account.
  *
  * Reconstructed from Ghidra program Jubeat (class InheritCodeInputView, image base 0x100000000).
@@ -15,18 +15,18 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The view that submits an inherit code and, on success, replaces the local account.
+ * The view that submits an inherit code and, on success, replaces the local account.
  */
 @interface InheritCodeInputView : UIView <AlertViewManagerDelegate>
 
 /**
- * @brief The controller the alerts are presented from.
+ * The controller the alerts are presented from.
  * @ghidraAddress 0xd191c (getter)
  */
 @property(nonatomic, weak, nullable) UIViewController *parentCtrl;
 
 /**
- * @brief Builds the view: a background image, a caution label, the code field, and the send button.
+ * Builds the view: a background image, a caution label, the code field, and the send button.
  * @param frame The frame.
  * @return The initialised view.
  * @ghidraAddress 0xd0140
@@ -34,35 +34,35 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame;
 
 /**
- * @brief Validates the entered code and submits it through a @c SessionDownloader.
+ * Validates the entered code and submits it through a @c SessionDownloader.
  * @param sender The send button.
  * @ghidraAddress 0xd06e0
  */
 - (void)tapCodeInput:(nullable id)sender;
 
 /**
- * @brief Called when the confirmation alert closes; does nothing.
+ * Called when the confirmation alert closes; does nothing.
  * @param info The alert info.
  * @ghidraAddress 0xd0964
  */
 - (void)alertClose:(nonnull NSDictionary *)info;
 
 /**
- * @brief Called when the confirmation alert is answered; on OK it submits the replace request.
+ * Called when the confirmation alert is answered; on OK it submits the replace request.
  * @param info The alert info.
  * @ghidraAddress 0xd0968
  */
 - (void)alertSelect:(nonnull NSDictionary *)info;
 
 /**
- * @brief Called when a request finishes; drives the confirm/replace/success/error flow.
+ * Called when a request finishes; drives the confirm/replace/success/error flow.
  * @param downloader The finished downloader.
  * @ghidraAddress 0xd0b90
  */
 - (void)downloaderFinished:(nonnull id)downloader;
 
 /**
- * @brief Called when a request fails; shows the server-error alert.
+ * Called when a request fails; shows the server-error alert.
  * @param downloader The failed downloader.
  * @ghidraAddress 0xd1778
  */

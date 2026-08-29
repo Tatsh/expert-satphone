@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The store's "restore / manage purchased packs" screen.
+ * The store's "restore / manage purchased packs" screen.
  *
  * Reconstructed from Ghidra program Jubeat (class StorePurchasedViewController, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -36,7 +36,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Lists the user's purchased packs with a restore-purchases action and a pack detail view.
+ * Lists the user's purchased packs with a restore-purchases action and a pack detail view.
  */
 // clang-format off
 // One protocol per line: a continuation line that begins with ": Base <" is read by Doxygen as
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 // clang-format on
 
 /**
- * @brief Builds the controller for a parent store view.
+ * Builds the controller for a parent store view.
  *
  * Sets the navigation and tab-bar titles, loads the tab image, installs a back button targeting
  * the parent, builds the restore button in the right bar-button slot, and caches the device idiom.
@@ -57,40 +57,40 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithParent:(nullable id<StoreParentViewController>)parent;
 
 /**
- * @brief Clears the resolved and unresolved pack lists and the table's current genre.
+ * Clears the resolved and unresolved pack lists and the table's current genre.
  * @ghidraAddress 0x1b4948
  */
 - (void)resetPurchasedList;
 
 /**
- * @brief Gathers the owned and pending pack identifiers, then either shows the empty-list message
+ * Gathers the owned and pending pack identifiers, then either shows the empty-list message
  * or starts the catalogue fetch.
  * @ghidraAddress 0x1b49b4
  */
 - (void)startLoadPurchasedList;
 
 /**
- * @brief Resets and reloads the purchased-pack list from scratch.
+ * Resets and reloads the purchased-pack list from scratch.
  * @ghidraAddress 0x1b4d8c
  */
 - (void)reloadPurchasedList;
 
 /**
- * @brief Builds the view: a vertical grey gradient behind the pack table, plus the iPad detail
+ * Builds the view: a vertical grey gradient behind the pack table, plus the iPad detail
  * overlay and the loading view.
  * @ghidraAddress 0x1b4dc0
  */
 - (void)loadView;
 
 /**
- * @brief Refreshes the row for a pack whose purchase state changed.
+ * Refreshes the row for a pack whose purchase state changed.
  * @param packID The pack identifier that was (re)purchased.
  * @ghidraAddress 0x1b546c
  */
 - (void)updatePurchaseStateForPackID:(int)packID;
 
 /**
- * @brief Dismisses the iPad detail overlay: fades both overlay views out and detaches them.
+ * Dismisses the iPad detail overlay: fades both overlay views out and detaches them.
  * @param recognizer The tap gesture recogniser on the dimming cover (may be @c nil when invoked
  * from @c -storePackDetailViewClose ).
  * @ghidraAddress 0x1b5738
@@ -98,32 +98,32 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleTapCoverView:(nullable UITapGestureRecognizer *)recognizer;
 
 /**
- * @brief Fetches the next page of purchased-pack catalogue entries.
+ * Fetches the next page of purchased-pack catalogue entries.
  * @ghidraAddress 0x1b5b40
  */
 - (void)startFetch;
 
 /**
- * @brief Cancels the in-flight catalogue downloader and product request.
+ * Cancels the in-flight catalogue downloader and product request.
  * @ghidraAddress 0x1b5c84
  */
 - (void)cancelFetching;
 
 /**
- * @brief Reports an error, either in the loading view (before the table is shown) or as an alert.
+ * Reports an error, either in the loading view (before the table is shown) or as an alert.
  * @param message The message to show; a network-error message is substituted when @c nil .
  * @ghidraAddress 0x1b5cf8
  */
 - (void)showError:(nullable NSString *)message;
 
 /**
- * @brief @c StorePackTableView load-more callback: fetches the next page.
+ * @c StorePackTableView load-more callback: fetches the next page.
  * @ghidraAddress 0x1b5f44
  */
 - (void)storePackTableViewLoadMore;
 
 /**
- * @brief @c StorePackTableView detail callback: opens a pack's detail (iPad overlay or iPhone
+ * @c StorePackTableView detail callback: opens a pack's detail (iPad overlay or iPhone
  * push).
  * @param packInfo The tapped pack.
  * @ghidraAddress 0x1b5f50
@@ -131,34 +131,34 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)storePackTableViewShowDetail:(nullable StorePackInfo *)packInfo;
 
 /**
- * @brief @c StorePackDetailView close callback: dismisses the iPad overlay.
+ * @c StorePackDetailView close callback: dismisses the iPad overlay.
  * @ghidraAddress 0x1b6404
  */
 - (void)storePackDetailViewClose;
 
 /**
- * @brief The catalogue fetch finished: resolve product identifiers and fire the product request.
+ * The catalogue fetch finished: resolve product identifiers and fire the product request.
  * @param downloader The downloader reporting the result.
  * @ghidraAddress 0x1b6414
  */
 - (void)downloaderFinished:(id)downloader;
 
 /**
- * @brief The catalogue fetch failed: show a network error.
+ * The catalogue fetch failed: show a network error.
  * @param downloader The downloader reporting the failure.
  * @ghidraAddress 0x1b69c8
  */
 - (void)downloaderError:(id)downloader;
 
 /**
- * @brief Progress callback; the shipped body is empty.
+ * Progress callback; the shipped body is empty.
  * @param downloader The downloader reporting progress. The binary ignores it.
  * @ghidraAddress 0x1b6a88
  */
 - (void)downloaderProceed:(id)downloader;
 
 /**
- * @brief The product request resolved: build the pack list and reload the table.
+ * The product request resolved: build the pack list and reload the table.
  * @param request The product request that resolved.
  * @param response The resolved products.
  * @ghidraAddress 0x1b6a8c
@@ -167,14 +167,14 @@ NS_ASSUME_NONNULL_BEGIN
      didReceiveResponse:(SKProductsResponse *)response;
 
 /**
- * @brief The product request finished: clears the request.
+ * The product request finished: clears the request.
  * @param request The request that finished.
  * @ghidraAddress 0x1b6f80
  */
 - (void)requestDidFinish:(SKRequest *)request;
 
 /**
- * @brief The product request failed: re-enable restore and clear the request state.
+ * The product request failed: re-enable restore and clear the request state.
  * @param request The request that failed.
  * @param error The failure.
  * @ghidraAddress 0x1b6f98
@@ -182,47 +182,47 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error;
 
 /**
- * @brief Chains to super; the override adds nothing of its own.
+ * Chains to super; the override adds nothing of its own.
  * @ghidraAddress 0x1b6ff4
  */
 - (void)viewDidUnload;
 
 /**
- * @brief The view is about to appear.
+ * The view is about to appear.
  * @param animated Whether the appearance is animated.
  * @ghidraAddress 0x1b702c
  */
 - (void)viewWillAppear:(BOOL)animated;
 
 /**
- * @brief The view has appeared.
+ * The view has appeared.
  * @param animated Whether the appearance was animated.
  * @ghidraAddress 0x1b71a8
  */
 - (void)viewDidAppear:(BOOL)animated;
 
 /**
- * @brief The view is about to disappear.
+ * The view is about to disappear.
  * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x1b720c
  */
 - (void)viewWillDisappear:(BOOL)animated;
 
 /**
- * @brief The view has disappeared.
+ * The view has disappeared.
  * @param animated Whether the disappearance was animated.
  * @ghidraAddress 0x1b72d4
  */
 - (void)viewDidDisappear:(BOOL)animated;
 
 /**
- * @brief Closes any open alert.
+ * Closes any open alert.
  * @ghidraAddress 0x1b730c
  */
 - (void)storeClose;
 
 /**
- * @brief Whether the screen may rotate to an orientation.
+ * Whether the screen may rotate to an orientation.
  * @param interfaceOrientation The orientation asked about.
  * @return YES for the two portrait orientations, NO otherwise.
  * @ghidraAddress 0x1b7354
@@ -230,21 +230,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * @brief The orientations the screen supports.
+ * The orientations the screen supports.
  * @return Both portrait orientations.
  * @ghidraAddress 0x1b7364
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
- * @brief Whether the screen rotates.
+ * Whether the screen rotates.
  * @return Always YES.
  * @ghidraAddress 0x1b736c
  */
 - (BOOL)shouldAutorotate;
 
 /**
- * @brief Cancels nothing and removes no observers; the ivars are torn down by the generated
+ * Cancels nothing and removes no observers; the ivars are torn down by the generated
  * destructor.
  * @ghidraAddress 0x1b7374
  */

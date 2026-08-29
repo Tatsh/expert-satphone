@@ -1,6 +1,6 @@
 /**
  * @file SettingsMapItem.h
- * @brief A map annotation for a shop location in the settings map view.
+ * A map annotation for a shop location in the settings map view.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base.
@@ -16,20 +16,20 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief One pin on the settings map, carrying its coordinate and callout text.
+ * One pin on the settings map, carrying its coordinate and callout text.
  */
 @interface SettingsMapItem : NSObject <MKAnnotation>
 
-/** @brief The annotation's map coordinate. */
+/** The annotation's map coordinate. */
 @property(nonatomic, assign) CLLocationCoordinate2D coordinate;
 
-/** @brief The callout title. */
+/** The callout title. */
 @property(nonatomic, copy, nullable) NSString *title;
 
-/** @brief The callout subtitle. */
+/** The callout subtitle. */
 @property(nonatomic, copy, nullable) NSString *subtitle;
 
-/** @brief The device model tag. Encodes as @c Q . */
+/** The device model tag. Encodes as @c Q . */
 @property(nonatomic, assign) NSUInteger model;
 
 @end

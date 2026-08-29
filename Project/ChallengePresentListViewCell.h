@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One row of the challenge present list.
+ * One row of the challenge present list.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengePresentListViewCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -18,12 +18,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A three-line present row: a background plate and a wrapping label.
+ * A three-line present row: a background plate and a wrapping label.
  */
 @interface ChallengePresentListViewCell : UITableViewCell
 
 /**
- * @brief Weak and untyped, per the @c W attribute and bare @c \@ encoding in the metadata.
+ * Weak and untyped, per the @c W attribute and bare @c \@ encoding in the metadata.
  *
  * Neither method this class defines reads or writes it.
  * @ghidraAddress 0x1fc4a0 (getter)
@@ -31,13 +31,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak) id aDelegate;
 
 /**
- * @brief Declared readonly and never assigned by any method this class defines, so always nil.
+ * Declared readonly and never assigned by any method this class defines, so always nil.
  * @ghidraAddress 0x1fc4d4 (getter)
  */
 @property(nonatomic, readonly, nullable) UIButton *addBtn;
 
 /**
- * @brief Builds the plate and the three-line label at the metrics for the current idiom.
+ * Builds the plate and the three-line label at the metrics for the current idiom.
  * @param style The cell style.
  * @param reuseIdentifier The reuse identifier, or nil for a non-reusable cell.
  * @return The initialised cell.
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
               reuseIdentifier:(nullable NSString *)reuseIdentifier;
 
 /**
- * @brief Fills the row in.
+ * Fills the row in.
  * @param bgImg The plate drawn behind the row.
  * @param text The row's text, wrapped over up to three lines.
  * @ghidraAddress 0x1fc40c

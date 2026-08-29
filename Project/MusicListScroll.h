@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A scroll view that shares its touches with the responder chain.
+ * A scroll view that shares its touches with the responder chain.
  *
  * Reconstructed from Ghidra program Jubeat (class MusicListScroll, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A @c UIScrollView that forwards touches to its next responder while it is not scrolling.
+ * A @c UIScrollView that forwards touches to its next responder while it is not scrolling.
  *
  * This is what lets the song list respond to taps: a plain @c UIScrollView swallows touches, so
  * both overrides pass them up the responder chain first and only stop doing so once @c dragging is

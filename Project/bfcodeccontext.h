@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The C++ Blowfish key schedule and block cipher that @c BFCodec wraps.
+ * The C++ Blowfish key schedule and block cipher that @c BFCodec wraps.
  *
  * Reconstructed from Ghidra program Jubeat (class BFCodecContext, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -18,12 +18,12 @@
 #include <cstdint>
 
 /**
- * @brief A Blowfish key schedule and the block cipher over it.
+ * A Blowfish key schedule and the block cipher over it.
  */
 class BFCodecContext {
 public:
     /**
-     * @brief Constructs a zeroed key schedule.
+     * Constructs a zeroed key schedule.
      *
      * The binary's @c AllocContext is @c operator @c new plus a @c bzero of the whole 0x2090-byte
      * context, which is the compiler's lowering of this zero-initialising constructor.
@@ -32,7 +32,7 @@ public:
     BFCodecContext();
 
     /**
-     * @brief Destroys the schedule.
+     * Destroys the schedule.
      *
      * The binary's @c FreeContext is a null-guarded @c operator @c delete with no field cleanup, so
      * the destructor is trivial; the expanded key is left in freed memory exactly as shipped.
@@ -41,13 +41,13 @@ public:
     ~BFCodecContext() = default;
 
     /**
-     * @brief Returns the whole schedule to its zero state, so it must be re-keyed before reuse.
+     * Returns the whole schedule to its zero state, so it must be re-keyed before reuse.
      * @ghidraAddress 0x93b70
      */
     void clear();
 
     /**
-     * @brief Expands a key into the schedule.
+     * Expands a key into the schedule.
      * @param pbKey The key material.
      * @param nKeyLength The key's length in bytes; used as a modulus, so zero divides by zero.
      * @ghidraAddress 0x93b88
@@ -55,7 +55,7 @@ public:
     void setKey(const uint8_t *pbKey, int nKeyLength);
 
     /**
-     * @brief Encrypts one 64-bit block in place, as two 32-bit halves.
+     * Encrypts one 64-bit block in place, as two 32-bit halves.
      * @param pqwLeft The block's left half.
      * @param pqwRight The block's right half.
      * @ghidraAddress 0x93db0
@@ -63,7 +63,7 @@ public:
     void encipherBlock(uint64_t *pqwLeft, uint64_t *pqwRight) const;
 
     /**
-     * @brief Decrypts one 64-bit block in place, as two 32-bit halves.
+     * Decrypts one 64-bit block in place, as two 32-bit halves.
      * @param pqwLeft The block's left half.
      * @param pqwRight The block's right half.
      * @ghidraAddress 0x93e28

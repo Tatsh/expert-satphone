@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The Applilink reward network's web-API client.
+ * The Applilink reward network's web-API client.
  *
  * A stateless class-method facade over @c ApplilinkWebAPI that builds, signs, and posts the reward
  * server's install, login, application-list, status-flag, install-report, and banner requests, and
@@ -15,12 +15,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The reward network's web-API client.
+ * The reward network's web-API client.
  */
 @interface RewardWebAPI : NSObject
 
 /**
- * @brief Posts the application-install registration for a UDID priority.
+ * Posts the application-install registration for a UDID priority.
  * @param priority The UDID priority (0 normal, 1 three-kind retry, 2 pasteboard).
  * @param callback Invoked with an error, or nil on success.
  * @ghidraAddress 0x253fd4
@@ -29,14 +29,14 @@ NS_ASSUME_NONNULL_BEGIN
                                   callback:(nullable void (^)(NSError *_Nullable error))callback;
 
 /**
- * @brief Checks the reward login status.
+ * Checks the reward login status.
  * @param block Invoked with whether the login is valid and an optional error.
  * @ghidraAddress 0x2547c8
  */
 + (void)checkLoginWithBlock:(nullable void (^)(BOOL valid, NSError *_Nullable error))block;
 
 /**
- * @brief Starts a reward login for a user id at a UDID priority.
+ * Starts a reward login for a user id at a UDID priority.
  * @param userId The user identifier.
  * @param priority The UDID priority.
  * @param callback Invoked with an error, or nil on success.
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
                     callback:(nullable void (^)(NSError *_Nullable error))callback;
 
 /**
- * @brief Fetches the reward application list.
+ * Fetches the reward application list.
  * @param campaignId The campaign identifier.
  * @param company The company filter.
  * @param offset The result offset.
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  NSError *_Nullable error))callback;
 
 /**
- * @brief Fetches the reward application-id list of a type.
+ * Fetches the reward application-id list of a type.
  * @param type The list type.
  * @param callback Invoked with the result dictionary and an optional error.
  * @ghidraAddress 0x255704
@@ -73,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                NSError *_Nullable error))callback;
 
 /**
- * @brief Fetches the all-install flag, caching it.
+ * Fetches the all-install flag, caching it.
  * @param callback Invoked with the flag and an optional error.
  * @ghidraAddress 0x255ad0
  */
@@ -81,14 +81,14 @@ NS_ASSUME_NONNULL_BEGIN
                                                      NSError *_Nullable error))callback;
 
 /**
- * @brief Fetches the pre-info display flag, caching it.
+ * Fetches the pre-info display flag, caching it.
  * @param callback Invoked with the flag and an optional error.
  * @ghidraAddress 0x256044
  */
 + (void)getPreInfoWithCallback:(nullable void (^)(NSInteger flg, NSError *_Nullable error))callback;
 
 /**
- * @brief Posts an install report, paging the application list in chunks of ten.
+ * Posts an install report, paging the application list in chunks of ten.
  * @param appliList The installed application identifiers.
  * @param callback Invoked with an error, or nil on success.
  * @ghidraAddress 0x256588
@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    callback:(nullable void (^)(NSError *_Nullable error))callback;
 
 /**
- * @brief Fetches the reward banner detail.
+ * Fetches the reward banner detail.
  * @param block Invoked with the result dictionary and an optional error.
  * @ghidraAddress 0x256adc
  */
@@ -105,14 +105,14 @@ NS_ASSUME_NONNULL_BEGIN
                                                NSError *_Nullable error))block;
 
 /**
- * @brief Adds a SHA-256 signature over the sorted, joined parameters to a request dictionary.
+ * Adds a SHA-256 signature over the sorted, joined parameters to a request dictionary.
  * @param parameters The request parameters to sign in place.
  * @ghidraAddress 0x256e64
  */
 + (void)setSignatureWithParameters:(nullable NSMutableDictionary *)parameters;
 
 /**
- * @brief Archives a value with an expiry into @c NSUserDefaults under a key.
+ * Archives a value with an expiry into @c NSUserDefaults under a key.
  * @param key The defaults key.
  * @param value The value to cache.
  * @param expiration The lifetime in seconds, or 0 for one second.

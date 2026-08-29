@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A shared alert presenter that hides the UIAlertController/UIAlertView split behind one
+ * A shared alert presenter that hides the UIAlertController/UIAlertView split behind one
  * API.
  */
 
@@ -10,7 +10,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The optional delegate of @c AlertViewManager.
+ * The optional delegate of @c AlertViewManager.
  *
  * Both methods are dispatched with @c performSelector:withObject: after a @c respondsToSelector:
  * guard, so neither is required.
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * @brief The process-wide alert manager.
+ * The process-wide alert manager.
  *
  * It presents either a @c UIAlertController (when the class is available at runtime) or a
  * @c UIAlertView, exposing a single construction API for both.

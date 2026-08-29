@@ -96,7 +96,7 @@ static NSString *const kFieldTitles[] = {@"譜面名", @"作成者名", @"コメ
 @interface EditModalTableViewController ()
 
 /**
- * @brief Returns the persisted string for a field index.
+ * Returns the persisted string for a field index.
  * @param index The field index.
  * @return The stored chart name, editor name, or comment, or @c nil for an unknown index.
  * @ghidraAddress 0x1e2f9c
@@ -104,13 +104,13 @@ static NSString *const kFieldTitles[] = {@"譜面名", @"作成者名", @"コメ
 - (NSString *)getStringPointer:(int)index;
 
 /**
- * @brief Copies the active field's text back into @c editText , clamped to the field limit.
+ * Copies the active field's text back into @c editText , clamped to the field limit.
  * @ghidraAddress 0x1e4230
  */
 - (void)backUpFieldText;
 
 /**
- * @brief Updates a field's character-count label and colours it red when the count is negative.
+ * Updates a field's character-count label and colours it red when the count is negative.
  * @param field The field index.
  * @param remaining The remaining character count.
  * @ghidraAddress 0x1e47b0
@@ -118,7 +118,7 @@ static NSString *const kFieldTitles[] = {@"譜面名", @"作成者名", @"コメ
 - (void)labelChange:(int)field num:(int)remaining;
 
 /**
- * @brief Detects pictographic (emoji) input that cannot be represented in Shift-JIS.
+ * Detects pictographic (emoji) input that cannot be represented in Shift-JIS.
  * @param text The candidate text.
  * @return @c YES when the text does not survive a Shift-JIS round-trip.
  * @ghidraAddress 0x1e470c
@@ -126,14 +126,14 @@ static NSString *const kFieldTitles[] = {@"譜面名", @"作成者名", @"コメ
 - (BOOL)isPictText:(NSString *)text;
 
 /**
- * @brief The copy-permission switch's action.
+ * The copy-permission switch's action.
  * @param sender The switch.
  * @ghidraAddress 0x1e4020
  */
 - (void)changeSwitch:(UISwitch *)sender;
 
 /**
- * @brief The level slider's action; snaps the value to the nearest integer.
+ * The level slider's action; snaps the value to the nearest integer.
  * @param slider The slider.
  * @ghidraAddress 0x1e4c1c
  */

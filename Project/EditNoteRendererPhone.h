@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The iPhone edit-mode note renderer.
+ * The iPhone edit-mode note renderer.
  *
  * Reconstructed from Ghidra program Jubeat (class EditNoteRendererPhone, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -26,7 +26,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The phone-idiom concrete edit-mode note renderer.
+ * The phone-idiom concrete edit-mode note renderer.
  */
 @interface EditNoteRendererPhone : EditNoteRenderer {
 @protected
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * @brief Initialises the renderer, building an empty background-effect array and caching the
+ * Initialises the renderer, building an empty background-effect array and caching the
  *        phone-retina flag.
  * @return The initialised renderer, or @c nil.
  * @ghidraAddress 0x20ea28
@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Textures
 
 /**
- * @brief Loads every edit-session texture and sound: the debug font, the knit beat background and
+ * Loads every edit-session texture and sound: the debug font, the knit beat background and
  *        its two colour variants, the ready and go textures, the front atlas (with the level,
  *        start, and end marks and the note markers unzipped from the marker archive), the jacket
  *        artwork, and the index image. The selector spelling @c loadTexure: is the binary's own.
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
              index:(nullable UIImage *)index;
 
 /**
- * @brief Releases the debug-font, ready, front, and beat-background textures. It does not release
+ * Releases the debug-font, ready, front, and beat-background textures. It does not release
  *        the note-marker texture, matching the binary.
  * @ghidraAddress 0x20fdf4
  */
@@ -73,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Play lifecycle
 
 /**
- * @brief Sets the high-level render state, resetting the per-frame counters and preparing the
+ * Sets the high-level render state, resetting the per-frame counters and preparing the
  *        state's audio (loading the go sound for the ready state and the result BGM for the
  *        result state).
  * @param state The state to enter.
@@ -82,13 +82,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setState:(unsigned int)state;
 
 /**
- * @brief Enters the ready state and clears the go-sound player.
+ * Enters the ready state and clears the go-sound player.
  * @ghidraAddress 0x2101ac
  */
 - (void)startPlay;
 
 /**
- * @brief Marks the session finished when it is in the result state.
+ * Marks the session finished when it is in the result state.
  * @ghidraAddress 0x2101e8
  */
 - (void)endResult;
@@ -96,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Drawing
 
 /**
- * @brief Draws one clipped note chip from the front atlas, clamping the chip to the draw area.
+ * Draws one clipped note chip from the front atlas, clamping the chip to the draw area.
  * @param drawIndex The sprite index in the front atlas.
  * @param drawPosition The chip's origin.
  * @param drawArea The clip rectangle the chip is confined to.
@@ -109,21 +109,21 @@ NS_ASSUME_NONNULL_BEGIN
            alpha:(float)alpha;
 
 /**
- * @brief Draws the five beat-background shutter columns, top and bottom halves, sliding by the
+ * Draws the five beat-background shutter columns, top and bottom halves, sliding by the
  *        shutter-open animation.
  * @ghidraAddress 0x210438
  */
 - (void)renderMarker;
 
 /**
- * @brief Advances and draws the shutter animation across the five beat-background columns.
+ * Advances and draws the shutter animation across the five beat-background columns.
  * @param animate Whether to advance the shutter-open value this frame.
  * @ghidraAddress 0x210594
  */
 - (void)renderShutter:(BOOL)animate;
 
 /**
- * @brief Records the combo count for the next frame. This phone override draws nothing else.
+ * Records the combo count for the next frame. This phone override draws nothing else.
  * @param combo The current combo count.
  * @param alpha The opacity.
  * @ghidraAddress 0x210788
@@ -131,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderCombo:(unsigned int)combo alpha:(float)alpha;
 
 /**
- * @brief Draws the difficulty music bar: the leading difficulty chip, one chip per bar cell, and
+ * Draws the difficulty music bar: the leading difficulty chip, one chip per bar cell, and
  *        the optional timeline cursor.
  * @param position The bar's origin.
  * @param timeline Whether to draw the timeline cursor.
@@ -141,7 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderMusicBar:(CGPoint)position timeline:(BOOL)timeline alpha:(double)alpha;
 
 /**
- * @brief Draws the tune information block: jacket, title, difficulty word, and level.
+ * Draws the tune information block: jacket, title, difficulty word, and level.
  * @param position The block's origin.
  * @param artworkSize The jacket's square size.
  * @param alpha The opacity.
@@ -150,40 +150,40 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderTuneInfo:(CGPoint)position artworkSize:(double)artworkSize alpha:(double)alpha;
 
 /**
- * @brief Draws the upper background. This phone override does nothing.
+ * Draws the upper background. This phone override does nothing.
  * @param arg Unused.
  * @ghidraAddress 0x210ddc
  */
 - (void)renderUpperBG:(BOOL)arg;
 
 /**
- * @brief Draws the upper region: the tune information and the (optionally live) music bar.
+ * Draws the upper region: the tune information and the (optionally live) music bar.
  * @ghidraAddress 0x210de0
  */
 - (void)renderUpper;
 
 /**
- * @brief Draws the 4x4 button grid, highlighting pressed panels.
+ * Draws the 4x4 button grid, highlighting pressed panels.
  * @ghidraAddress 0x210e5c
  */
 - (void)renderButtons;
 
 /**
- * @brief Draws the pre-start intro: shutter, sliding tune information, fading music bar, and
+ * Draws the pre-start intro: shutter, sliding tune information, fading music bar, and
  *        buttons, playing the start sound and advancing the sub-state at the end of the intro.
  * @ghidraAddress 0x210fe8
  */
 - (void)renderPreStart;
 
 /**
- * @brief Draws the ready/go countdown, playing the ready and go sounds on their frames and
+ * Draws the ready/go countdown, playing the ready and go sounds on their frames and
  *        finishing the sub-state when the countdown ends.
  * @ghidraAddress 0x21114c
  */
 - (void)renderReadyGo;
 
 /**
- * @brief Draws the full-combo banner, sliding and squashing over the animation and playing the
+ * Draws the full-combo banner, sliding and squashing over the animation and playing the
  *        full-combo sounds on the result variant.
  * @param frameArg The animation frame.
  * @param isResult Whether the result variant (offset by the intro length) is drawn.
@@ -192,27 +192,27 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)renderFullcombo:(int)frameArg isResult:(BOOL)isResult;
 
 /**
- * @brief Draws the finish region. This phone override does nothing.
+ * Draws the finish region. This phone override does nothing.
  * @ghidraAddress 0x211ea0
  */
 - (void)renderFinish;
 
 /**
- * @brief The vertical offset of the button area, in points. Returns 0 for the phone.
+ * The vertical offset of the button area, in points. Returns 0 for the phone.
  * @return The button-area offset.
  * @ghidraAddress 0x211ea4
  */
 - (double)buttonAreaOffset;
 
 /**
- * @brief Draws the whole edit frame, dispatching on the state to the render methods and flushing
+ * Draws the whole edit frame, dispatching on the state to the render methods and flushing
  *        every texture atlas.
  * @ghidraAddress 0x211eb4
  */
 - (void)draw;
 
 /**
- * @brief Draws a run of debug text from the debug-font atlas, advancing per glyph and wrapping on
+ * Draws a run of debug text from the debug-font atlas, advancing per glyph and wrapping on
  *        newlines.
  * @param text The C string to draw.
  * @param pos The starting position.
@@ -222,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)drawDebugText:(nullable const char *)text pos:(CGPoint)pos alpha:(float)alpha;
 
 /**
- * @brief The rectangle of the edit timeline, in phone points.
+ * The rectangle of the edit timeline, in phone points.
  * @return The timeline rectangle.
  * @ghidraAddress 0x212310
  */
@@ -231,7 +231,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Read-only accessors
 
 /**
- * @brief The button identifier for the end action. Returns 15 for the phone.
+ * The button identifier for the end action. Returns 15 for the phone.
  * @ghidraAddress 0x211eac
  */
 @property(nonatomic, readonly) unsigned int endButtonID;
@@ -239,55 +239,55 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Textures and effects
 
 /**
- * @brief The ready-countdown texture.
+ * The ready-countdown texture.
  * @ghidraAddress 0x212330 (getter), 0x212340 (setter)
  */
 @property(nonatomic, strong, nullable) Texture2D *texReady0;
 
 /**
- * @brief The go-countdown texture.
+ * The go-countdown texture.
  * @ghidraAddress 0x212360 (getter), 0x212370 (setter)
  */
 @property(nonatomic, strong, nullable) Texture2D *texReady1;
 
 /**
- * @brief The front atlas: chips, buttons, level, marks, and tune information.
+ * The front atlas: chips, buttons, level, marks, and tune information.
  * @ghidraAddress 0x212380 (getter), 0x212390 (setter)
  */
 @property(nonatomic, strong, nullable) Texture2D *texFront;
 
 /**
- * @brief The note-marker atlas, unzipped from the marker archive.
+ * The note-marker atlas, unzipped from the marker archive.
  * @ghidraAddress 0x2123a0 (getter), 0x2123b0 (setter)
  */
 @property(nonatomic, strong, nullable) Texture2D *texMarker;
 
 /**
- * @brief The knit beat-background atlas.
+ * The knit beat-background atlas.
  * @ghidraAddress 0x2123c0 (getter), 0x2123d0 (setter)
  */
 @property(nonatomic, strong, nullable) Texture2D *texBeatBg;
 
 /**
- * @brief The debug-font atlas.
+ * The debug-font atlas.
  * @ghidraAddress 0x2123f0 (getter), 0x212400 (setter)
  */
 @property(nonatomic, strong, nullable) Texture2D *texDebugFont;
 
 /**
- * @brief The go-sound player, prepared lazily when the ready state is entered.
+ * The go-sound player, prepared lazily when the ready state is entered.
  * @ghidraAddress 0x212410 (getter), 0x212420 (setter)
  */
 @property(nonatomic, strong, nullable) AVAudioPlayer *sePlayerGo;
 
 /**
- * @brief The current knit background effect.
+ * The current knit background effect.
  * @ghidraAddress 0x212430 (getter), 0x212440 (setter)
  */
 @property(nonatomic, strong, nullable) EffectBgKnit *effectBgKnt;
 
 /**
- * @brief The array of active knit background effects.
+ * The array of active knit background effects.
  * @ghidraAddress 0x212450 (getter), 0x212460 (setter)
  */
 @property(nonatomic, strong, nullable) NSMutableArray *arrayBgEff;

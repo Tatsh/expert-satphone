@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Fallback definition of @c nullptr for pre-C23 C compilers.
+ * Fallback definition of @c nullptr for pre-C23 C compilers.
  *
  * The reconstructed sources use @c nullptr for every C and C++ null pointer. @c nullptr is a
  * keyword in C++11 and later and in C23, so no definition is needed there. This header supplies a
@@ -17,7 +17,7 @@
 
 #if !defined(__cplusplus) && (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 202311L)
 #ifndef nullptr
-/** @brief The C23 null pointer constant, for the pre-C23 C compilers that lack it. */
+/** The C23 null pointer constant, for the pre-C23 C compilers that lack it. */
 #define nullptr ((void *)0)
 #endif
 #endif

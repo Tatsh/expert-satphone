@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief TouchJSON's deserialiser.
+ * TouchJSON's deserialiser.
  *
  * Reconstructed from Ghidra program Jubeat (class CJSONDeserializer, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -20,18 +20,18 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Turns JSON data into Foundation objects.
+ * Turns JSON data into Foundation objects.
  */
 @interface CJSONDeserializer : NSObject
 
 /**
- * @brief The scanner that does the work, built on first use.
+ * The scanner that does the work, built on first use.
  * @ghidraAddress 0x63564 (getter)
  */
 @property(nonatomic, strong, nullable) CJSONScanner *scanner;
 
 /**
- * @brief What a JSON @c null becomes.
+ * What a JSON @c null becomes.
  *
  * Stored on the scanner, not here — the property has no backing ivar in the metadata.
  * @ghidraAddress 0x635c4 (getter)
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, nullable) id nullObject;
 
 /**
- * @brief Which text encoding the input is allowed to be in.
+ * Which text encoding the input is allowed to be in.
  *
  * Also stored on the scanner rather than here.
  * @ghidraAddress 0x63684 (getter)
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic) NSUInteger allowedEncoding;
 
 /**
- * @brief Deserialisation options.
+ * Deserialisation options.
  *
  * Unlike the two above, this one does have its own ivar — and nothing in the class reads it.
  * @ghidraAddress 0x63b34 (getter)
@@ -55,21 +55,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic) NSUInteger options;
 
 /**
- * @brief A new autoreleased deserialiser.
+ * A new autoreleased deserialiser.
  * @return The deserialiser.
  * @ghidraAddress 0x63504
  */
 + (instancetype)deserializer;
 
 /**
- * @brief Builds a deserialiser. The scanner is not created here.
+ * Builds a deserialiser. The scanner is not created here.
  * @return The initialised deserialiser.
  * @ghidraAddress 0x6352c
  */
 - (instancetype)init;
 
 /**
- * @brief Deserialises to whatever the JSON describes.
+ * Deserialises to whatever the JSON describes.
  *
  * Nil and empty input are the same case, and both are reported as error -11 rather than as an
  * empty result.
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable id)deserialize:(nullable NSData *)data error:(NSError *__autoreleasing *)outError;
 
 /**
- * @brief Deserialises, requiring a dictionary at the top level.
+ * Deserialises, requiring a dictionary at the top level.
  *
  * @param data The JSON text.
  * @param outError Where to report a parse failure.
@@ -93,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              error:(NSError *__autoreleasing *)outError;
 
 /**
- * @brief Deserialises, requiring an array at the top level.
+ * Deserialises, requiring an array at the top level.
  *
  * @param data The JSON text.
  * @param outError Where to report a parse failure.

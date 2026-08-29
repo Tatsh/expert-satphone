@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A view that draws an inner shadow along its own edge.
+ * A view that draws an inner shadow along its own edge.
  *
  * Reconstructed from Ghidra program Jubeat (class ShadowView, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A transparent, non-interactive overlay that casts a shadow inwards.
+ * A transparent, non-interactive overlay that casts a shadow inwards.
  *
  * The usual way to get an inner shadow out of Core Graphics, which only casts outwards: build a
  * path for the shape, build a second much larger path around it, append the first to the second,
@@ -25,9 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface ShadowView : UIView
 
-/** @brief The corner radius of the shadowed shape. Zero draws a plain rectangle. */
+/** The corner radius of the shadowed shape. Zero draws a plain rectangle. */
 @property(nonatomic) double cornerRadius;
-/** @brief How far the shadow spreads. Defaults to 4. */
+/** How far the shadow spreads. Defaults to 4. */
 @property(nonatomic) double shadowBlurRadius;
 
 @end

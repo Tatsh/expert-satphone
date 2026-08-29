@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Base title controller.
+ * Base title controller.
  *
  * Reconstructed from Ghidra program Jubeat (class TitleViewController, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class jubeatLabAccess;
 
 /**
- * @brief Base class for the four themed title screens.
+ * Base class for the four themed title screens.
  *
  * Acts as the delegate for the message overlay and the news-list downloader, and as the callback
  * target for the top-page licence check.
@@ -52,20 +52,20 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * @brief Initialises the controller and enables tapping.
+ * Initialises the controller and enables tapping.
  * @return The initialised controller.
  * @ghidraAddress 0x1e0f0
  */
 - (instancetype)init;
 
 /**
- * @brief Builds the base view hierarchy: adds the corporate button.
+ * Builds the base view hierarchy: adds the corporate button.
  * @ghidraAddress 0x1e13c
  */
 - (void)loadView;
 
 /**
- * @brief Opens the payment-services message overlay.
+ * Opens the payment-services message overlay.
  *
  * Disables tapping, fades in a dimming backdrop and a @c MessageTextView that downloads the
  * challenge-mode policy text, both centred on the view.
@@ -75,21 +75,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)tapExplain:(nullable id)sender;
 
 /**
- * @brief Opens the Konami corporate site in a Safari view controller.
+ * Opens the Konami corporate site in a Safari view controller.
  * @param sender The button that was tapped.
  * @ghidraAddress 0x1e6dc
  */
 - (void)tapCorporateButton:(nullable id)sender;
 
 /**
- * @brief Dismisses the message overlay and re-enables tapping.
+ * Dismisses the message overlay and re-enables tapping.
  * @param sender The message overlay reporting its close.
  * @ghidraAddress 0x1e7c4
  */
 - (void)closeMessage:(nullable id)sender;
 
 /**
- * @brief Shows a download-failure alert, then dismisses the message overlay and re-enables tapping.
+ * Shows a download-failure alert, then dismisses the message overlay and re-enables tapping.
  * @param sender The message overlay reporting the failure.
  * @param msgStr The server-supplied error text shown in the alert.
  * @ghidraAddress 0x1e840
@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)messageDownloadError:(nullable id)sender msgStr:(nullable NSString *)msgStr;
 
 /**
- * @brief Begins the title-screen network work.
+ * Begins the title-screen network work.
  *
  * Kicks off the top-page licence check and the news-list download.
  * @ghidraAddress 0x1e9a8
@@ -105,26 +105,26 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)start;
 
 /**
- * @brief Shows the logo. Empty in the base class; overridden by the themed subclasses.
+ * Shows the logo. Empty in the base class; overridden by the themed subclasses.
  * @ghidraAddress 0x1ea8c
  */
 - (void)showLogo;
 
 /**
- * @brief Cancels the licence check and the news-list download.
+ * Cancels the licence check and the news-list download.
  * @ghidraAddress 0x1ea90
  */
 - (void)stopAnimation;
 
 /**
- * @brief Callback: the top-page licence check failed. Drops the request.
+ * Callback: the top-page licence check failed. Drops the request.
  * @param access The finished request.
  * @ghidraAddress 0x1eb04
  */
 - (void)jubeatLabAccessError:(nullable id)access;
 
 /**
- * @brief Callback: the top-page licence check finished.
+ * Callback: the top-page licence check finished.
  *
  * On status 0, stores the encrypted lab URL in @c NSUserDefaults .
  * @param access The finished request.
@@ -133,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)jubeatLabAccessFinished:(nullable id)access;
 
 /**
- * @brief Callback: the news-list download finished.
+ * Callback: the news-list download finished.
  *
  * Parses the server time (an April-1 date turns on the hidden April-Fools flags), the encrypted
  * info-list URL, and the notification-page URL and its update time.
@@ -143,13 +143,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloaderFinished:(nullable id)downloader;
 
 /**
- * @brief Switches to the next controller. Empty in the base class; overridden by subclasses.
+ * Switches to the next controller. Empty in the base class; overridden by subclasses.
  * @ghidraAddress 0x1f0f4
  */
 - (void)switchController;
 
 /**
- * @brief Builds the corporate ("co_info") button, themed and anchored to the top-right corner.
+ * Builds the corporate ("co_info") button, themed and anchored to the top-right corner.
  * @ghidraAddress 0x1f0f8
  */
 - (void)setCorporateButton;

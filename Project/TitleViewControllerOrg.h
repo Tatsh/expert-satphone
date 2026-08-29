@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The title screen, original theme.
+ * The title screen, original theme.
  *
  * Reconstructed from Ghidra program Jubeat (class TitleViewControllerOrg, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base.
@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The title screen in the game's own livery.
+ * The title screen in the game's own livery.
  */
 // clang-format off
 // One protocol per line: a continuation line that begins with ": Base <" is read by Doxygen as
@@ -31,20 +31,20 @@ NS_ASSUME_NONNULL_BEGIN
 // clang-format on
 
 /**
- * @brief Builds the controller and subscribes to background/foreground notifications.
+ * Builds the controller and subscribes to background/foreground notifications.
  * @return The initialised controller.
  * @ghidraAddress 0x13abb8
  */
 - (instancetype)init;
 
 /**
- * @brief Tears down the controller and unsubscribes from notifications.
+ * Tears down the controller and unsubscribes from notifications.
  * @ghidraAddress 0x13c580
  */
 - (void)dealloc;
 
 /**
- * @brief Builds the view hierarchy.
+ * Builds the view hierarchy.
  *
  * Creates the title background with its 5-frame animation and two gradient layers, then the
  * jubeat logo, touch prompt, copyright, coBtn, and marker view.
@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadView;
 
 /**
- * @brief Begins the title sequence.
+ * Begins the title sequence.
  *
  * Hides the logo views and starts the title BGM and welcome voice.
  * @ghidraAddress 0x13b65c
@@ -61,13 +61,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)start;
 
 /**
- * @brief Fades the touch prompt between a tenth and full opacity, forever.
+ * Fades the touch prompt between a tenth and full opacity, forever.
  * @ghidraAddress 0x13b7a8
  */
 - (void)blinkPrompt;
 
 /**
- * @brief Starts the prompt blink and arms the hidden-code input.
+ * Starts the prompt blink and arms the hidden-code input.
  *
  * Resets @c kcState , installs the four swipe recognisers in the order up, down, right, left and
  * keeps them in that order, installs the tap recogniser, and lifts the corporate button back above
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startBlinkPrompt;
 
 /**
- * @brief Shows the marker download view and starts the marker check.
+ * Shows the marker download view and starts the marker check.
  *
  * The check's completion is what calls @c -markerCheckEnd and so arms the title screen.
  * @ghidraAddress 0x13b960
@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startMarkerCheck;
 
 /**
- * @brief Fades the logo and copyright in over 0.5 s, then starts the marker check.
+ * Fades the logo and copyright in over 0.5 s, then starts the marker check.
  *
  * The curve is linear and the completion ignores its finished flag, so the marker check always
  * runs.
@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)showLogo;
 
 /**
- * @brief Handles a tap on the title screen.
+ * Handles a tap on the title screen.
  *
  * Two hidden square hot-spots on the logo finish the sequence that @c -handleSwipe: starts;
  * completing it plays a sound and speeds the cube background up, and does not leave the title.
@@ -106,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleTap:(UITapGestureRecognizer *)sender;
 
 /**
- * @brief Handles a swipe on the title screen.
+ * Handles a swipe on the title screen.
  *
  * Advances the hidden up, up, down, down, left, right, left, right code held in @c kcState . A
  * swipe out of sequence restarts the code.
@@ -116,33 +116,33 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleSwipe:(UISwipeGestureRecognizer *)sender;
 
 /**
- * @brief Pauses the title animation when the app backgrounds.
+ * Pauses the title animation when the app backgrounds.
  * @param sender The notification.
  * @ghidraAddress 0x13c418
  */
 - (void)suspend:(id)sender;
 
 /**
- * @brief Resumes the title animation when the app foregrounds.
+ * Resumes the title animation when the app foregrounds.
  * @param sender The notification.
  * @ghidraAddress 0x13c478
  */
 - (void)resume:(id)sender;
 
 /**
- * @brief Drops the views created in @c -loadView.
+ * Drops the views created in @c -loadView.
  * @ghidraAddress 0x13c498
  */
 - (void)viewDidUnload;
 
 /**
- * @brief Called when the marker check finishes.
+ * Called when the marker check finishes.
  * @ghidraAddress 0x13c554
  */
 - (void)markerCheckEnd;
 
 /**
- * @brief Leaves the title screen for the music-select screen.
+ * Leaves the title screen for the music-select screen.
  *
  * Removes the swipe and tap recognisers, plays the confirm sound, fades the BGM out over 1.5 s,
  * replaces the prompt's slow blink with ten fast cycles, and sends @c -endTitle to the root
@@ -152,13 +152,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)nextScene;
 
 /**
- * @brief Creates the licence agreement view centred on the screen.
+ * Creates the licence agreement view centred on the screen.
  * @ghidraAddress 0x13ca38
  */
 - (void)createPolicyView;
 
 /**
- * @brief Reports that only portrait orientations are supported.
+ * Reports that only portrait orientations are supported.
  * @param interfaceOrientation The orientation being asked about.
  * @return @c YES for portrait and portrait-upside-down.
  * @ghidraAddress 0x13c560
@@ -166,21 +166,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * @brief The orientations the title screen allows.
+ * The orientations the title screen allows.
  * @return Portrait and portrait-upside-down (6).
  * @ghidraAddress 0x13c570
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
- * @brief Whether the title screen rotates at all.
+ * Whether the title screen rotates at all.
  * @return Always @c YES .
  * @ghidraAddress 0x13c578
  */
 - (BOOL)shouldAutorotate;
 
 /**
- * @brief Handles a licence agreement error.
+ * Handles a licence agreement error.
  * @param agreement The agreement.
  * @param msgStr The error message.
  * @ghidraAddress 0x13cb84
@@ -188,21 +188,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)agreementError:(id)agreement msgStr:(NSString *)msgStr;
 
 /**
- * @brief Handles a licence agreement success.
+ * Handles a licence agreement success.
  * @param agreement The agreement.
  * @ghidraAddress 0x13cd24
  */
 - (void)agreementSuccess:(id)agreement;
 
 /**
- * @brief Handles a licence agreement failure.
+ * Handles a licence agreement failure.
  * @param agreement The agreement.
  * @ghidraAddress 0x13cd9c
  */
 - (void)agreementFailed:(id)agreement;
 
 /**
- * @brief @c EditorIDManagerDelegate : the editor-ID download failed; shows the network-error alert.
+ * @c EditorIDManagerDelegate : the editor-ID download failed; shows the network-error alert.
  *
  * Both parameters are @c nullable to match the protocol's own declaration, which the surrounding
  * @c NS_ASSUME_NONNULL_BEGIN would otherwise contradict.
@@ -213,7 +213,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)errorIDDownload:(nullable id)download msgStr:(nullable NSString *)msgStr;
 
 /**
- * @brief @c EditorIDManagerDelegate : the editor-ID download succeeded; registers the user id and
+ * @c EditorIDManagerDelegate : the editor-ID download succeeded; registers the user id and
  * shows the challenge policy.
  * @param download The download.
  * @ghidraAddress 0x13cfac

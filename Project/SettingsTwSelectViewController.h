@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The Twitter share-frame selector settings screen: a paged, horizontally scrolling gallery
+ * The Twitter share-frame selector settings screen: a paged, horizontally scrolling gallery
  * of selectable frame designs.
  *
  * Each page shows one frame sample (with an accessory composited over it) plus a set of
@@ -24,7 +24,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A modal, paged frame-select gallery for the Twitter-share background frame.
+ * A modal, paged frame-select gallery for the Twitter-share background frame.
  */
 // clang-format off
 // One protocol per line: the packed form, which begins a continuation line with ": UIViewController
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 // clang-format on
 
 /**
- * @brief Scales a rect's every component by the device scale @c fScale .
+ * Scales a rect's every component by the device scale @c fScale .
  * @param rect The unscaled rect.
  * @return The scaled rect.
  * @ghidraAddress 0x7b86c
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (CGRect)makeRect:(CGRect)rect;
 
 /**
- * @brief Builds the navigation title and the working frame table, seeding the current page from the
+ * Builds the navigation title and the working frame table, seeding the current page from the
  * stored selected-frame default.
  * @return The initialised controller.
  * @ghidraAddress 0x7b890
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init;
 
 /**
- * @brief Builds the whole gallery: the background image, the header label, the reward-check button,
+ * Builds the whole gallery: the background image, the header label, the reward-check button,
  * the paged scroll view of frame samples, the page control, the two scroll arrows, and the
  * selection-cursor markers.
  * @ghidraAddress 0x7be5c
@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadView;
 
 /**
- * @brief Fades the two scroll arrows in and out with the scroll offset.
+ * Fades the two scroll arrows in and out with the scroll offset.
  *
  * The misspelling @c Controll is preserved from the binary.
  * @ghidraAddress 0x7d0c0
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)scrollBtnAlphaControll;
 
 /**
- * @brief Updates the selection-cursor markers: their alpha, their rotation, and (when settled on a
+ * Updates the selection-cursor markers: their alpha, their rotation, and (when settled on a
  * page) their per-slot lock visibility.
  *
  * The misspelling @c Controll is preserved from the binary.
@@ -76,34 +76,34 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)scrollCursorControll;
 
 /**
- * @brief The frame row whose identifier (element 1) matches the stored selected-frame default.
+ * The frame row whose identifier (element 1) matches the stored selected-frame default.
  * @return The matching row, or @c nil when none matches.
  * @ghidraAddress 0x7d668
  */
 - (nullable NSMutableArray *)getSelectedFrame;
 
 /**
- * @brief Refreshes the per-slot lock images. The shipped body is empty.
+ * Refreshes the per-slot lock images. The shipped body is empty.
  * @ghidraAddress 0x7d840
  */
 - (void)refreshLockImage;
 
 /**
- * @brief Pushes the reward view controller when a navigation controller is present.
+ * Pushes the reward view controller when a navigation controller is present.
  * @param sender The tapping control.
  * @ghidraAddress 0x7d844
  */
 - (void)pushBtnReward:(nullable id)sender;
 
 /**
- * @brief Reward-check button action. The shipped body is empty.
+ * Reward-check button action. The shipped body is empty.
  * @param sender The tapping control.
  * @ghidraAddress 0x7d8f8
  */
 - (void)pushBtnRewardCheck:(nullable id)sender;
 
 /**
- * @brief Scroll-arrow action: steps the current page one left or one right (by the arrow's tag) and
+ * Scroll-arrow action: steps the current page one left or one right (by the arrow's tag) and
  * animates the scroll view to that page.
  * @param sender The tapped arrow button.
  * @ghidraAddress 0x7d8fc
@@ -111,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)scrollChange:(nullable id)sender;
 
 /**
- * @brief Whether the frame with the given identifier is unlocked.
+ * Whether the frame with the given identifier is unlocked.
  * @param identifier The frame identifier to test against each row's element 1.
  * @return The slot's unlock state, or @c NO when no row matches.
  * @ghidraAddress 0x7da58
@@ -119,7 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isUnlockFrame:(nullable NSString *)identifier;
 
 /**
- * @brief Whether the frame in a given slot is unlocked. Always @c YES in the shipped build.
+ * Whether the frame in a given slot is unlocked. Always @c YES in the shipped build.
  * @param slot The frame slot index.
  * @return Always @c YES .
  * @ghidraAddress 0x7db74
@@ -127,21 +127,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isUnlockFrameWithSlot:(int)slot;
 
 /**
- * @brief @c RewardCheckDelegate callback. The shipped body is empty.
+ * @c RewardCheckDelegate callback. The shipped body is empty.
  * @param rewardCheck The reward checker that finished.
  * @ghidraAddress 0x7db7c
  */
 - (void)rewardCheckEnd:(nullable id)rewardCheck;
 
 /**
- * @brief @c EditorIDManagerDelegate success callback: releases the manager.
+ * @c EditorIDManagerDelegate success callback: releases the manager.
  * @param manager The manager that finished.
  * @ghidraAddress 0x7db80
  */
 - (void)successIDDownload:(nullable id)manager;
 
 /**
- * @brief @c EditorIDManagerDelegate error callback: releases the manager.
+ * @c EditorIDManagerDelegate error callback: releases the manager.
  * @param manager The manager that failed.
  * @param msgStr The server-supplied message, or nil.
  * @ghidraAddress 0x7db98
@@ -149,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)errorIDDownload:(nullable id)manager msgStr:(nullable NSString *)msgStr;
 
 /**
- * @brief Stops and removes the loading indicator, then fades the selection markers back to full
+ * Stops and removes the loading indicator, then fades the selection markers back to full
  * opacity.
  * @param animated Whether the indicator's stop is animated.
  * @ghidraAddress 0x7dbb0
@@ -157,21 +157,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)itemDisp:(BOOL)animated;
 
 /**
- * @brief Chains to the superclass.
+ * Chains to the superclass.
  * @param animated Whether the appearance is animated.
  * @ghidraAddress 0x7de48
  */
 - (void)viewWillAppear:(BOOL)animated;
 
 /**
- * @brief Chains to the superclass.
+ * Chains to the superclass.
  * @param animated Whether the appearance is animated.
  * @ghidraAddress 0x7de80
  */
 - (void)viewDidAppear:(BOOL)animated;
 
 /**
- * @brief Chains to the superclass, then persists the current frame if unlocked, closes any alert,
+ * Chains to the superclass, then persists the current frame if unlocked, closes any alert,
  * and flushes the user defaults.
  * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x7deb8
@@ -179,14 +179,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)viewWillDisappear:(BOOL)animated;
 
 /**
- * @brief Chains to the superclass.
+ * Chains to the superclass.
  * @param animated Whether the disappearance is animated.
  * @ghidraAddress 0x7e088
  */
 - (void)viewDidDisappear:(BOOL)animated;
 
 /**
- * @brief @c UIScrollViewDelegate scroll callback: recomputes the current page from the offset,
+ * @c UIScrollViewDelegate scroll callback: recomputes the current page from the offset,
  * updates the page control, and refreshes the arrow alpha and the selection cursor.
  * @param scrollView The scrolling view.
  * @ghidraAddress 0x7e0c0
@@ -194,7 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)scrollViewDidScroll:(nonnull UIScrollView *)scrollView;
 
 /**
- * @brief Whether the controller may rotate to an interface orientation (portrait orientations
+ * Whether the controller may rotate to an interface orientation (portrait orientations
  * only).
  * @param interfaceOrientation The candidate orientation.
  * @return @c YES for portrait and portrait-upside-down.
@@ -203,21 +203,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * @brief The supported interface orientations (portrait mask).
+ * The supported interface orientations (portrait mask).
  * @return @c UIInterfaceOrientationMaskPortrait | @c UIInterfaceOrientationMaskPortraitUpsideDown .
  * @ghidraAddress 0x7e1a4
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;
 
 /**
- * @brief Whether the controller should autorotate.
+ * Whether the controller should autorotate.
  * @return Always @c YES .
  * @ghidraAddress 0x7e1ac
  */
 - (BOOL)shouldAutorotate;
 
 /**
- * @brief Chains to the superclass.
+ * Chains to the superclass.
  * @ghidraAddress 0x7e1b4
  */
 - (void)dealloc;

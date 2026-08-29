@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The @c NSArray @c FromData category.
+ * The @c NSArray @c FromData category.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The runtime metadata records this as category @c FromData on
@@ -13,12 +13,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Property-list deserialisation vending an array.
+ * Property-list deserialisation vending an array.
  */
 @interface NSArray (FromData)
 
 /**
- * @brief Deserialises a property-list @c NSData into an array.
+ * Deserialises a property-list @c NSData into an array.
  * @param data The serialised property-list data.
  * @return The parsed array, or @c nil when the data is not a property list whose root is an array.
  * @ghidraAddress 0x171bf8

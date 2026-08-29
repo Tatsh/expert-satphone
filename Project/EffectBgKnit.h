@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One knit-background effect sprite.
+ * One knit-background effect sprite.
  *
  * Reconstructed from Ghidra program Jubeat (class EffectBgKnit, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
@@ -15,7 +15,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A single animated decoration on the knit background.
+ * A single animated decoration on the knit background.
  *
  * One instance runs one effect of one type for a fixed number of frames and then reports that it
  * is finished. The class declares no properties; its nine ivars carry the sprite's texture,
@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface EffectBgKnit : NSObject
 
 /**
- * @brief Sets the sprite up. **Returns void, not an object,** despite the name.
+ * Sets the sprite up. **Returns void, not an object,** despite the name.
  *
  * The metadata encodes it @c v56@0:8@16i24{CGPoint=dd}28i44i48i52 and it never chains to an
  * initialiser. The frame counter starts at zero and the duration is chosen from the effect type:
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
         move:(int)move;
 
 /**
- * @brief A triangle wave over the effect's own cycle.
+ * A triangle wave over the effect's own cycle.
  *
  * Ramps from zero to @c max across the first half of @c totalFrame and back down across the
  * second, so the value peaks at the midpoint. Single precision throughout — the metadata encodes
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (float)expand:(int)frame totalFrame:(int)totalFrame max:(float)max;
 
 /**
- * @brief Advances the animation by one frame and draws it.
+ * Advances the animation by one frame and draws it.
  *
  * Dispatches six ways on the effect type. Returns YES once the frame counter has reached the
  * effect's duration, so a caller can drop the sprite. A type outside the six draws nothing but

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The challenge-mode mission-sheet detail view.
+ * The challenge-mode mission-sheet detail view.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionSheetView, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -32,12 +32,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The challenge-mode mission sheet: a declared-but-unfilled mission-sheet detail page.
+ * The challenge-mode mission sheet: a declared-but-unfilled mission-sheet detail page.
  */
 @interface ChallengeMissionSheetView : UIView
 
 /**
- * @brief The object told about display and status events. Held weakly and untyped in the metadata
+ * The object told about display and status events. Held weakly and untyped in the metadata
  * (@c \@,W,N). Nothing this class defines reads it; @c ChallengeMissionPageView sets itself here so
  * the sheet could call it back.
  * @ghidraAddress 0x9f678 (getter), 0x9f698 (setter)
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak, nullable) id aDelegate;
 
 /**
- * @brief Whether the sheet's resources have finished downloading. The backing @c _bDownloadEnd ivar
+ * Whether the sheet's resources have finished downloading. The backing @c _bDownloadEnd ivar
  * is never written, so this always reports @c NO .
  * @ghidraAddress 0x9f668 (getter)
  */
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- * @brief Selectors @c ChallengeMissionPageView sends the sheet that the shipped class never
+ * Selectors @c ChallengeMissionPageView sends the sheet that the shipped class never
  * implements.
  *
  * These are declared so the caller compiles and are deliberately left without a body: no method
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ChallengeMissionSheetView (Unimplemented)
 
 /**
- * @brief The sheet's designated initialiser as its caller spells it. Not implemented in the binary.
+ * The sheet's designated initialiser as its caller spells it. Not implemented in the binary.
  * @param frame The view's frame.
  * @param sheetID The mission sheet's identifier.
  * @return The initialised view.
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFrame:(CGRect)frame sheetID:(int)sheetID;
 
 /**
- * @brief Re-reads the stored sheet's info and refreshes the display. Not implemented in the binary.
+ * Re-reads the stored sheet's info and refreshes the display. Not implemented in the binary.
  */
 - (void)refreshSheetInfo;
 

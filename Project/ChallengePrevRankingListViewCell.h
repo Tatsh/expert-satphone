@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One row of the previous challenge's ranking list.
+ * One row of the previous challenge's ranking list.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengePrevRankingListViewCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -14,7 +14,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A ranking row: a background plate carrying a square artwork and the player's name.
+ * A ranking row: a background plate carrying a square artwork and the player's name.
  *
  * The whole row is built in the initialiser and filled in afterwards by
  * @c -setLineupCell:name:bgImg:. It declares no properties; the three subviews are private ivars.
@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ChallengePrevRankingListViewCell : UITableViewCell
 
 /**
- * @brief Builds the row's three subviews at the metrics for the current device idiom.
+ * Builds the row's three subviews at the metrics for the current device idiom.
  *
  * The pad's metrics are exactly double the phone's except for the label's height, which is 20
  * points on both.
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
               reuseIdentifier:(nullable NSString *)reuseIdentifier;
 
 /**
- * @brief Fills the row in.
+ * Fills the row in.
  *
  * @param lineupCell The square artwork shown at the row's leading edge.
  * @param name The player's name.

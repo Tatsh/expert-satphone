@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief One mission sheet's row in the challenge mission list.
+ * One mission sheet's row in the challenge mission list.
  *
  * Reconstructed from Ghidra program Jubeat (class ChallengeMissionListCell, image base
  * 0x100000000). All @ghidraAddress values are offsets relative to that image base.
@@ -20,12 +20,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief A row showing a mission sheet's icon, title and period over a background image.
+ * A row showing a mission sheet's icon, title and period over a background image.
  */
 @interface ChallengeMissionListCell : UITableViewCell
 
 /**
- * @brief Makes the row transparent and unhighlightable.
+ * Makes the row transparent and unhighlightable.
  *
  * No subview is created here.
  *
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
               reuseIdentifier:(nullable NSString *)reuseIdentifier;
 
 /**
- * @brief Sets the row's background, creating the background view at the image's own size.
+ * Sets the row's background, creating the background view at the image's own size.
  *
  * Must be called before the other two setters; both return early without it.
  *
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setBgImage:(nullable UIImage *)bgImg;
 
 /**
- * @brief Sets the row's two lines of text, creating the labels on the first call.
+ * Sets the row's two lines of text, creating the labels on the first call.
  *
  * With a period the two labels straddle the background's vertical centre; without one the title
  * sits on it. Does nothing if the background view does not exist yet.
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setTitle:(nullable NSString *)title period:(nullable NSString *)period;
 
 /**
- * @brief Sets the row's icon and whether the row is marked as chosen.
+ * Sets the row's icon and whether the row is marked as chosen.
  *
  * The chosen state is a border on the background, not on the icon. Does nothing if the background
  * view does not exist yet.

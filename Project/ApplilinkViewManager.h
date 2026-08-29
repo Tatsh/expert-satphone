@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The Applilink SDK's in-app video-player and notice host.
+ * The Applilink SDK's in-app video-player and notice host.
  *
  * A queue-guarded singleton that owns the on-screen @c ApplilinkVideoController: it presents the
  * player inside a caller-supplied view on the main queue, tears it back down, and relays the
@@ -21,27 +21,27 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The SDK-delegate callbacks the manager relays. The receiver is dispatched dynamically
+ * The SDK-delegate callbacks the manager relays. The receiver is dispatched dynamically
  * after a @c -respondsToSelector: guard, so the protocol only documents the selectors.
  */
 @protocol ApplilinkViewManagerSdkDelegate <NSObject>
 @optional
-/** @brief The managed view opened. */
+/** The managed view opened. */
 - (void)openedNotice;
 /**
- * @brief The managed view was closed.
+ * The managed view was closed.
  * @param view The view that closed.
  */
 - (void)closeNotice:(nullable id)view;
 /**
- * @brief The managed view finished loading and is ready.
+ * The managed view finished loading and is ready.
  * @param view The view that became ready.
  */
 - (void)viewReady:(nullable id)view;
 @end
 
 /**
- * @brief The Applilink in-app video-player host singleton.
+ * The Applilink in-app video-player host singleton.
  *
  * Acts as the hosted @c ApplilinkVideoController 's @c SdkViewDelegate, relaying the ready and
  * close callbacks on to its own @c sdkDelegate.
@@ -49,20 +49,20 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ApplilinkViewManager : NSObject <SdkViewDelegate>
 
 /**
- * @brief The SDK delegate that opened-notice and close-notice callbacks are relayed to.
+ * The SDK delegate that opened-notice and close-notice callbacks are relayed to.
  * @ghidraAddress 0x2486e4
  */
 @property(weak, nonatomic, nullable) id<ApplilinkViewManagerSdkDelegate> sdkDelegate;
 
 /**
- * @brief The shared instance, creating the private serial queue on first use.
+ * The shared instance, creating the private serial queue on first use.
  * @return The one and only manager.
  * @ghidraAddress 0x247e98
  */
 + (instancetype)sharedInstance;
 
 /**
- * @brief Presents the video player inside a view on the main queue.
+ * Presents the video player inside a view on the main queue.
  *
  * Does nothing when a player is already on screen. Otherwise builds an
  * @c ApplilinkVideoController sized to the screen, installs it in @p view, makes the manager its
@@ -83,20 +83,20 @@ NS_ASSUME_NONNULL_BEGIN
                        delegate:(nullable id)delegate;
 
 /**
- * @brief Tears the video player down and drops the player and delegate references, on the main
+ * Tears the video player down and drops the player and delegate references, on the main
  * queue.
  * @ghidraAddress 0x2482b8
  */
 - (void)closeVideoView;
 
 /**
- * @brief Relays an opened-notice callback to the SDK delegate when it responds to it.
+ * Relays an opened-notice callback to the SDK delegate when it responds to it.
  * @ghidraAddress 0x2483d0
  */
 - (void)openNotice;
 
 /**
- * @brief Relays a close-notice callback to the SDK delegate, then tears down the player when the
+ * Relays a close-notice callback to the SDK delegate, then tears down the player when the
  * closing view is the current one.
  * @param view The view that reported the close.
  * @ghidraAddress 0x24847c
@@ -104,14 +104,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)closeNotice:(nullable id)view;
 
 /**
- * @brief Relays a view-ready callback to the SDK delegate when it responds to it.
+ * Relays a view-ready callback to the SDK delegate when it responds to it.
  * @param view The view that became ready.
  * @ghidraAddress 0x24855c
  */
 - (void)viewReady:(nullable id)view;
 
 /**
- * @brief Forwards a rotation to the current player, if any.
+ * Forwards a rotation to the current player, if any.
  * @param orientation The new interface orientation.
  * @param duration The rotation animation duration.
  * @ghidraAddress 0x248618

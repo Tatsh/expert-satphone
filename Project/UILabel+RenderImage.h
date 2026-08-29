@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The @c UILabel @c renderImage category.
+ * The @c UILabel @c renderImage category.
  *
  * Reconstructed from Ghidra program Jubeat (image base 0x100000000). All @ghidraAddress values are
  * offsets relative to that image base. The runtime metadata attributes @c renderImage to
@@ -14,12 +14,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief Renders the receiver's current contents into a bitmap image.
+ * Renders the receiver's current contents into a bitmap image.
  */
 @interface UILabel (RenderImage)
 
 /**
- * @brief Rasterises the view's layer into a @c UIImage sized to its frame, at 1.0 scale.
+ * Rasterises the view's layer into a @c UIImage sized to its frame, at 1.0 scale.
  * @return The rendered image.
  * @ghidraAddress 0x1255c4
  */

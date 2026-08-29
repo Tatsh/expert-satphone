@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief The applilink SDK's analytics and advert-tracking transport.
+ * The applilink SDK's analytics and advert-tracking transport.
  *
  * Reconstructed from Ghidra program Jubeat (class AnalysisNetworkCore, image base 0x100000000).
  * All @ghidraAddress values are offsets relative to that image base. The class object is at
@@ -27,7 +27,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * @brief The callback every analytics call answers with, carrying an error or nil.
+ * The callback every analytics call answers with, carrying an error or nil.
  *
  * The browser methods reuse this type although they answer with a URL string rather than an error;
  * the block ABI is identical and the shipped facade passes the same block type.
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 
 /**
- * @brief The applilink advert SDK's advert-analytics core.
+ * The applilink advert SDK's advert-analytics core.
  *
  * All members are class methods; the class holds no state of its own and persists its markers to
  * @c NSUserDefaults.
@@ -45,7 +45,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 #pragma mark Analysis posting
 
 /**
- * @brief Post the install/initialisation registration if it has not yet succeeded.
+ * Post the install/initialisation registration if it has not yet succeeded.
  *
  * When @c getInitalizeFlg is already set, the callback is invoked immediately with @c nil.
  * Otherwise an initialisation action (type @c 1) is posted, capturing the current date; on success
@@ -57,7 +57,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 + (void)postInitalizeWithCallback:(nullable ApplilinkAnalysisCallback)callback;
 
 /**
- * @brief Post the daily-active-user measurement if it has not yet been sent today.
+ * Post the daily-active-user measurement if it has not yet been sent today.
  *
  * When @c getSendDauFlg is already set, the callback is invoked immediately with @c nil. Otherwise
  * a DAU action (type @c 2) is posted for the current @c ApplilinkConsts userId, capturing the
@@ -68,7 +68,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 + (void)postDAUWithCallback:(nullable ApplilinkAnalysisCallback)callback;
 
 /**
- * @brief Post a result registration for the given result identifier.
+ * Post a result registration for the given result identifier.
  *
  * When @p resultId is @c nil, the callback is invoked with error code @c 1001. Otherwise a result
  * action (type @c 3) is posted for the current @c ApplilinkConsts userId.
@@ -80,7 +80,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
                             callback:(nullable ApplilinkAnalysisCallback)callback;
 
 /**
- * @brief Post the user-identifier registration.
+ * Post the user-identifier registration.
  *
  * When @c ApplilinkConsts userId is @c nil, the callback is invoked with error code @c 1001.
  * Otherwise a user-identifier action (type @c 14) is posted.
@@ -90,7 +90,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 + (void)postSetUserIDWithCallback:(nullable ApplilinkAnalysisCallback)callback;
 
 /**
- * @brief Post a generic analytics action to the server.
+ * Post a generic analytics action to the server.
  *
  * Builds the request parameters (action type, optional result and user identifiers, and the UDID
  * source), merges the user-agent parameters, and posts them to @c /analysis/regist.php. The
@@ -112,7 +112,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
                               callback:(nullable ApplilinkAnalysisCallback)callback;
 
 /**
- * @brief Post a device-data registration (a user-identifier action, type @c 14).
+ * Post a device-data registration (a user-identifier action, type @c 14).
  *
  * Despite the @c ActionType: selector keyword, the sole argument is the completion callback: the
  * binary posts a fixed action type of @c 14 and forwards the block as the success/failure callback.
@@ -122,7 +122,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 + (void)postAnalysisDeviceDataWithActionType:(nullable ApplilinkAnalysisCallback)callback;
 
 /**
- * @brief Post the queued advert-analysis data to the analytics server.
+ * Post the queued advert-analysis data to the analytics server.
  *
  * Runs the install/initialisation registration and then the daily-active-user measurement in
  * sequence. The callback receives the initialisation error when one occurred, otherwise the DAU
@@ -135,7 +135,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 #pragma mark Web browser
 
 /**
- * @brief Query the advert sync status and, when instructed, open the sync URL in the browser.
+ * Query the advert sync status and, when instructed, open the sync URL in the browser.
  *
  * Posts a @c GET to @c /analysis/app/getSyncStatus.php carrying the appli identifier and stores the
  * @p env under @c ApplilinkNetwork.env. On a successful response whose @c browser flag is set, the
@@ -151,7 +151,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
                           callback:(nullable ApplilinkAnalysisCallback)callback;
 
 /**
- * @brief Request the sync URL and open it in the external browser.
+ * Request the sync URL and open it in the external browser.
  *
  * Posts a @c GET to @c /analysis/app/getSyncUrl.php carrying the UDID and advertising identifier;
  * the empty global response blocks open the returned URL with @c UIApplication. Takes no arguments.
@@ -160,7 +160,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 + (void)openWebBrowserWithSyncUrl;
 
 /**
- * @brief Request the browser URL for one application identifier and hand it to the callback.
+ * Request the browser URL for one application identifier and hand it to the callback.
  *
  * Posts a @c GET to @c /analysis/app/getSyncUrl.php carrying the appli identifier and stores the
  * @p env under @c ApplilinkNetwork.env. The callback receives the server's @c url string on
@@ -177,7 +177,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 #pragma mark Advert impression, click, and movie registration
 
 /**
- * @brief Register an impression list for the displayed adverts.
+ * Register an impression list for the displayed adverts.
  *
  * Posts to @c /analysis/list/regist.php. When @p adLocation or @p impressionId is @c nil the
  * callback is invoked with error code @c 1001. The four list parameters are only sent when all of
@@ -204,7 +204,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
                                 callback:(nullable ApplilinkAnalysisCallback)callback;
 
 /**
- * @brief Register a click for a displayed advert.
+ * Register a click for a displayed advert.
  *
  * Posts to @c /analysis/click/regist.php. When any of @p adLocation, @p impressionId,
  * @p appliIdTo, @p creativeId, @p displayNumber, @p incentiveType, or @p installFlg is @c nil the
@@ -233,7 +233,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
                                  callback:(nullable ApplilinkAnalysisCallback)callback;
 
 /**
- * @brief Register a click for an advert movie.
+ * Register a click for an advert movie.
  *
  * Posts to @c /analysis/movie/regist.php. Behaves like the click registration with the same
  * missing-parameter guards, and additionally sends @p movieStatus under the @c status key,
@@ -266,7 +266,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 #pragma mark Persistence flags
 
 /**
- * @brief Whether the analytics-initialisation marker has been persisted.
+ * Whether the analytics-initialisation marker has been persisted.
  *
  * The selector preserves the binary's @c Initalize misspelling.
  * @return @c YES when the @c ApplilinkAnalysis.initialize key exists in @c NSUserDefaults.
@@ -275,7 +275,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 + (BOOL)getInitalizeFlg;
 
 /**
- * @brief Whether daily-active-user measurement has already been sent today.
+ * Whether daily-active-user measurement has already been sent today.
  * @return @c YES when the persisted @c ApplilinkAnalysis.dauMeasurementDate is the same calendar
  * day as now, or later.
  * @ghidraAddress 0x23c990
@@ -283,7 +283,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 + (BOOL)getSendDauFlg;
 
 /**
- * @brief Clear the persisted analytics-initialisation marker.
+ * Clear the persisted analytics-initialisation marker.
  *
  * Removes the @c ApplilinkAnalysis.initialize key from @c NSUserDefaults and synchronises. The
  * selector preserves the binary's @c Initalize misspelling.
@@ -292,7 +292,7 @@ typedef void (^ApplilinkAnalysisCallback)(NSError *_Nullable error);
 + (void)clearInitalize;
 
 /**
- * @brief Clear the persisted daily-active-user measurement date.
+ * Clear the persisted daily-active-user measurement date.
  *
  * Removes the @c ApplilinkAnalysis.dauMeasurementDate key from @c NSUserDefaults and synchronises.
  * @ghidraAddress 0x23cdd4
