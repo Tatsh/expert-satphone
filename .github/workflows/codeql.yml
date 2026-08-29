@@ -1,0 +1,65 @@
+concurrency:
+  cancel-in-progress: true
+  group: codeql-${{ github.ref }}
+env:
+  BUILD_CONFIG: 'Release'
+  IOS_CMAKE_REF: '21598aa550701d20654c032328f7e8710a14099b'
+jobs:
+  analyze:
+    env:
+      DEPLOYMENT_TARGET: '12.0'
+      IOS_ARCHS: 'arm64'
+    permissions:
+      actions: 'read'
+      contents: 'read'
+      security-events: 'write'
+    runs-on: 'macos-14'
+    steps:
+      - uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
+        with:
+          persist-credentials: false
+      - name: 'Initialize CodeQL'
+        uses: 'github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd'
+        with:
+          build-mode: 'manual'
+          languages: 'c-cpp'
+      - name: 'Fetch ios-cmake toolchain'
+        run: |
+          git clone --revision="$IOS_CMAKE_REF" https://github.com/leetal/ios-cmake.git .ios-cmake
+      - name: 'Configure'
+        run: |
+          CMAKE_ARGS=(
+            -B build
+            -G Xcode
+            -DCMAKE_TOOLCHAIN_FILE="${GITHUB_WORKSPACE}/.ios-cmake/ios.toolchain.cmake"
+            -DDEPLOYMENT_TARGET="$DEPLOYMENT_TARGET"
+            -DENABLE_BITCODE=NO
+            -DIOS_ARCHS="$IOS_ARCHS"
+            -DPLATFORM=OS64
+            -DENABLE_PATCHES=ON
+            -DJBDBG=ON
+          )
+          cmake "${CMAKE_ARGS[@]}"
+      # The tracer follows the same build as build.yml, but the C/C++ extractor cannot parse the
+      # Objective-C translation units, so only the .c and .cpp ones are analysed.
+      - name: 'Build'
+        run: |
+          cmake --build build --config "$BUILD_CONFIG" -- \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGNING_REQUIRED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            DEVELOPMENT_TEAM="" \
+            PROVISIONING_PROFILE_SPECIFIER=""
+      - name: 'Perform CodeQL analysis'
+        uses: 'github/codeql-action/analyze@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd'
+        with:
+          category: '/language:c-cpp'
+name: 'codeql'
+'on':
+  pull_request:
+    branches: ['master']
+  push:
+    branches: ['master']
+  schedule:
+    - cron: '30 5 * * 1'
