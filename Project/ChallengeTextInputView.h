@@ -56,7 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setDefaultText:(nullable NSString *)text;
 
 /**
- * @brief Whether a string round-trips to empty through Shift-JIS (i.e. is purely pictographic).
+ * @brief Whether a string round-trips to empty through Shift-JIS, meaning it is purely
+ * pictographic.
  * @param text The string to test.
  * @return @c YES when the Shift-JIS round-trip is empty.
  * @ghidraAddress 0x94514

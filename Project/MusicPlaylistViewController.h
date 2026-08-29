@@ -77,9 +77,13 @@ typedef NS_ENUM(NSUInteger, MusicPlaylistListMode) {
 /**
  * @brief A table view controller managing the user's music playlists.
  */
-@interface MusicPlaylistViewController
-    : UITableViewController <MusicPlaylistLevelSelectorDelegate,
-                             MusicPlaylistCreateViewControllerDelegate>
+// clang-format off
+// One protocol per line: a continuation line that begins with ": Base <" is read by Doxygen as
+// undocumented ivars named after the trailing protocols. The second protocol is indented rather
+// than aligned because aligning it would pass the column limit.
+@interface MusicPlaylistViewController : UITableViewController <MusicPlaylistLevelSelectorDelegate,
+    MusicPlaylistCreateViewControllerDelegate>
+// clang-format on
 
 /**
  * @brief Which list layout the table shows.

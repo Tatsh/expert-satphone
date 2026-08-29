@@ -274,6 +274,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setBadgeCnt:(int)count;
 
 /**
+ * @brief Chains to super; the override adds nothing of its own.
  * @ghidraAddress 0xc388c
  */
 - (void)didReceiveMemoryWarning;
@@ -285,6 +286,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)viewDidLoad;
 
 /**
+ * @brief Drops the table view reference when the view is unloaded.
  * @ghidraAddress 0xc3aa4
  */
 - (void)viewDidUnload;
@@ -373,6 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)itemDeselect;
 
 /**
+ * @brief Empties the artwork cache and detaches its delegate.
  * @ghidraAddress 0xc49b0
  */
 - (void)dealloc;

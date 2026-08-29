@@ -346,6 +346,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)createStoreMissionDownloader;
 
 /**
+ * @brief Chains to super; the override adds nothing of its own.
  * @ghidraAddress 0xf8d3c
  */
 - (void)didReceiveMemoryWarning;

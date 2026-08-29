@@ -37,8 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The edit-metadata form: text fields, a level slider, a copy switch, and an upload row.
  */
-@interface EditModalTableViewController
-    : UITableViewController <UITextViewDelegate, UITextFieldDelegate>
+// clang-format off
+// One protocol per line: a continuation line that begins with ": Base <" is read by Doxygen as
+// undocumented ivars named after the trailing protocols.
+@interface EditModalTableViewController : UITableViewController <UITextViewDelegate,
+                                                                 UITextFieldDelegate>
+// clang-format on
 
 /**
  * @brief The object told about the upload-row tap.

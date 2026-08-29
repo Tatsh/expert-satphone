@@ -50,8 +50,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief A view controller presenting the notification page in a @c UIWebView.
  */
-@interface NotificationPageViewController
-    : UIViewController <UIWebViewDelegate, EditorIDManagerDelegate>
+// clang-format off
+// One protocol per line: a continuation line that begins with ": Base <" is read by Doxygen as
+// undocumented ivars named after the trailing protocols.
+@interface NotificationPageViewController : UIViewController <UIWebViewDelegate,
+                                                              EditorIDManagerDelegate>
+// clang-format on
 
 /**
  * @brief Builds the web view and loading indicator and stores the delegate; does not load a

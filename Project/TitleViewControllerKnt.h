@@ -47,8 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
  * Acts as the delegate for its @c EditorIDManager , its @c MarkerDownloadView , and (untyped) its
  * @c LicenseAgreementView .
  */
-@interface TitleViewControllerKnt
-    : TitleViewController <EditorIDManagerDelegate, MarkerDownloadViewDelegate>
+// clang-format off
+// One protocol per line: a continuation line that begins with ": Base <" is read by Doxygen as
+// undocumented ivars named after the trailing protocols.
+@interface TitleViewControllerKnt : TitleViewController <EditorIDManagerDelegate,
+                                                         MarkerDownloadViewDelegate>
+// clang-format on
 
 /**
  * @brief Initialises the controller: caches the device idiom, builds the @c EAGLView and the

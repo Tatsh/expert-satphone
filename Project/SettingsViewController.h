@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
          cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath;
 
 /**
- * @brief Returns the number of sections, i.e. @c menuTable.count.
+ * @brief Returns the number of sections, which is @c menuTable.count.
  * @param tableView The table view.
  * @return The section count.
  * @ghidraAddress 0xe6618
@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSInteger)numberOfSectionsInTableView:(nonnull UITableView *)tableView;
 
 /**
- * @brief Returns the number of rows in a section, i.e. @c menuTable[section].count.
+ * @brief Returns the number of rows in a section, which is @c menuTable[section].count.
  * @param tableView The table view.
  * @param section The section index.
  * @return The row count.

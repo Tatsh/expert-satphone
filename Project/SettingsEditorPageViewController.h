@@ -22,8 +22,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief A view controller presenting the jubeatLab editor page in a @c UIWebView.
  */
-@interface SettingsEditorPageViewController
-    : UIViewController <UIWebViewDelegate, EditorIDManagerDelegate>
+// clang-format off
+// One protocol per line: a continuation line that begins with ": Base <" is read by Doxygen as
+// undocumented ivars named after the trailing protocols.
+@interface SettingsEditorPageViewController : UIViewController <UIWebViewDelegate,
+                                                                EditorIDManagerDelegate>
+// clang-format on
 
 /**
  * @brief Builds the request for the editor page: an @c NSURLRequest wrapping

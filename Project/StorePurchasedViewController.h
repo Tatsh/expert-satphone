@@ -38,8 +38,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief Lists the user's purchased packs with a restore-purchases action and a pack detail view.
  */
-@interface StorePurchasedViewController
-    : UIViewController <DownloaderDelegate, SKProductsRequestDelegate>
+// clang-format off
+// One protocol per line: a continuation line that begins with ": Base <" is read by Doxygen as
+// undocumented ivars named after the trailing protocols.
+@interface StorePurchasedViewController : UIViewController <DownloaderDelegate,
+                                                            SKProductsRequestDelegate>
+// clang-format on
 
 /**
  * @brief Builds the controller for a parent store view.
@@ -178,6 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error;
 
 /**
+ * @brief Chains to super; the override adds nothing of its own.
  * @ghidraAddress 0x1b6ff4
  */
 - (void)viewDidUnload;
@@ -239,6 +244,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldAutorotate;
 
 /**
+ * @brief Cancels nothing and removes no observers; the ivars are torn down by the generated
+ * destructor.
  * @ghidraAddress 0x1b7374
  */
 - (void)dealloc;

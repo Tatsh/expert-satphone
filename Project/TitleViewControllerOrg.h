@@ -23,8 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @brief The title screen in the game's own livery.
  */
-@interface TitleViewControllerOrg
-    : TitleViewController <EditorIDManagerDelegate, MarkerDownloadViewDelegate>
+// clang-format off
+// One protocol per line: a continuation line that begins with ": Base <" is read by Doxygen as
+// undocumented ivars named after the trailing protocols.
+@interface TitleViewControllerOrg : TitleViewController <EditorIDManagerDelegate,
+                                                         MarkerDownloadViewDelegate>
+// clang-format on
 
 /**
  * @brief Builds the controller and subscribes to background/foreground notifications.
