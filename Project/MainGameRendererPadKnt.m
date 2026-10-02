@@ -1131,8 +1131,6 @@ static inline void MainGameRendererPadKntCompositeFront(MainGameRendererPadKnt *
                                         [self.texFront spriteAtIndex:kFrontSpriteStartMark].origin);
         self.isTextureChange = NO;
 
-        /** @ghidraAddress 0x28f260 */
-        static const NSTimeInterval kGoodJobFadeDuration = 0.3;
         __weak UIImageView *goodJob = self.goodJobImage;
         [UIView animateWithDuration:kGoodJobFadeDuration
                          animations:^{
