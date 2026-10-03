@@ -82,6 +82,58 @@ jobs:
           name: 'Jubeat-adhoc-ipa'
           path: 'Jubeat-adhoc.ipa'
           if-no-files-found: 'error'
+  release:
+    if: "github.ref_type == 'tag'"
+    permissions:
+      contents: write
+    runs-on: macos-15
+    env:
+      IOS_ARCHS: 'arm64'
+      DEPLOYMENT_TARGET: '12.0'
+    steps:
+      - uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
+        with:
+          persist-credentials: false
+      - name: 'Fetch ios-cmake toolchain'
+        run: |
+          git clone --revision="$IOS_CMAKE_REF" https://github.com/leetal/ios-cmake.git .ios-cmake
+      - name: 'Configure'
+        run: |
+          cmake -B build -G Xcode \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE="${GITHUB_WORKSPACE}/.ios-cmake/ios.toolchain.cmake" \
+            -DDEPLOYMENT_TARGET="$DEPLOYMENT_TARGET" \
+            -DENABLE_BITCODE=NO \
+            -DIOS_ARCHS="$IOS_ARCHS" \
+            -DPLATFORM=OS64 \
+            -DENABLE_PATCHES=ON
+      - name: 'Build'
+        run: |
+          cmake --build build --config Release -- \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGNING_REQUIRED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            DEVELOPMENT_TEAM="" \
+            PROVISIONING_PROFILE_SPECIFIER=""
+      - name: 'Ad-hoc sign + package .ipa'
+        run: |
+          APP="$(find build -type d -name 'Jubeat.app' -print -quit)"
+          test -n "$APP" || { echo "Jubeat.app not found under build/"; exit 1; }
+          codesign --force --sign - --timestamp=none "$APP"
+          codesign --verify --verbose=2 "$APP"
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          /usr/bin/zip -qry "Jubeat-${GITHUB_REF_NAME}.ipa" Payload
+      - name: 'Upload to draft release'
+        env:
+          GH_REPO: '${{ github.repository }}'
+          GH_TOKEN: '${{ github.token }}'
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 ||
+            gh release create "$GITHUB_REF_NAME" --draft --notes '' --title "$GITHUB_REF_NAME" \
+              --verify-tag
+          gh release upload "$GITHUB_REF_NAME" "Jubeat-${GITHUB_REF_NAME}.ipa" --clobber
 name: 'build'
 'on':
   push:
