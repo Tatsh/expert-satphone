@@ -136,6 +136,7 @@ endforeach
 envi
 erina
 errusr
+esac
 esbenp
 extern
 fabsf
@@ -513,6 +514,7 @@ titlelogo
 tokusho
 topcover
 toprank
+tostring
 totalscore
 totalscorephone
 tweened
