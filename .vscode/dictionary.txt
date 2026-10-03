@@ -9,7 +9,6 @@ allranking
 analyzer
 analyzer's
 angjp
-Ångström
 anim
 apiurl
 appl
@@ -136,7 +135,6 @@ eefmn
 endforeach
 envi
 erina
-errno
 errusr
 esbenp
 extern
@@ -248,9 +246,9 @@ jinja
 jsonnet
 jsonschema
 jubeat
+jubeat's
 jubeatmissiondata
 jubeatplus
-jubeat's
 jubeatskmpledata
 kabasawa
 katsuyoshi
@@ -268,7 +266,6 @@ lastplay
 ldrb
 ldrsw
 leetal
-lenum
 libc
 libcpp
 libera
@@ -279,8 +276,6 @@ lpcsz
 lproj
 lsizei
 lubyte
-luint
-lushort
 maeda
 mainbd
 mainpage
@@ -337,6 +332,7 @@ nishino
 nonatomic
 nonlocalized
 nonnull
+noone
 noti
 notifacation
 notificate
@@ -355,6 +351,7 @@ nsuuid
 nullability
 nullptr
 numer
+numpydoc
 objc
 objcpp
 objcxx
@@ -583,7 +580,6 @@ wmin
 wnewline
 wnon
 wobjc
-worktree
 woverloaded
 wpointer
 wrange
@@ -607,3 +603,4 @@ zread
 zseek
 ztell
 zwrite
+Ångström

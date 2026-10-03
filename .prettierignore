@@ -18,6 +18,7 @@
 *.min.js
 *.mm
 *.strings
+*.tsbuildinfo
 *~
 .*.swp
 .*_cache/
