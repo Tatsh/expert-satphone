@@ -253,7 +253,7 @@ static BOOL g_bApplilinkWebAPISessionStatus;
         dispatch_source_set_event_handler(timerSource, ^{
           /** @ghidraAddress 0x2520c8 */
           if (![self canUseNetworkRetry] || !g_fApplilinkNetworkRetryEnabled) {
-              self->retryCount = kApplilinkWebAPIRetryCap;
+              retryCount = kApplilinkWebAPIRetryCap;
           }
           if (timerSource) {
               dispatch_source_cancel(timerSource);
@@ -261,8 +261,8 @@ static BOOL g_bApplilinkWebAPISessionStatus;
           if (finished) {
               return;
           }
-          if (self->retryCount > 1) {
-              ++self->retryCount;
+          if (retryCount > 1) {
+              ++retryCount;
               NSError *timeoutError = [NSError
                   errorWithDomain:NSURLErrorDomain
                              code:NSURLErrorTimedOut
@@ -286,7 +286,7 @@ static BOOL g_bApplilinkWebAPISessionStatus;
                                      retry:retry
                              finishedBlock:finishedBlock
                                failedBlock:failedBlock];
-          ++self->retryCount;
+          ++retryCount;
         });
         dispatch_source_set_cancel_handler(timerSource, ^{
           /** @ghidraAddress 0x2523b0 */
@@ -302,7 +302,7 @@ static BOOL g_bApplilinkWebAPISessionStatus;
                           queue:[NSOperationQueue mainQueue]
               completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
                 /** @ghidraAddress 0x252478 */
-                if (self->retryCount > kApplilinkWebAPIRetryCap &&
+                if (retryCount > kApplilinkWebAPIRetryCap &&
                     [UIDevice currentDevice].systemVersion.floatValue <
                         kApplilinkWebAPIRetryMinimumOSVersion) {
                     return;
