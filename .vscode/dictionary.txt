@@ -86,6 +86,7 @@ contoller
 contrib
 controll
 copysign
+copytree
 corabo
 cosf
 coveragerc
@@ -229,7 +230,6 @@ ioapi
 iphoneos
 isono
 isspace
-iterdir
 ivar
 ivar's
 ivars
@@ -429,6 +429,7 @@ revoinf
 rgba
 ripgreprc
 rivalrank
+rmtree
 rodata
 rollup
 rollup's
@@ -463,6 +464,7 @@ shimizu
 shinsaku
 shogo
 shohei
+shutil
 signedness
 sincosf
 sinf
@@ -593,7 +595,6 @@ wpointer
 wrange
 writable
 wshadow
-wundeclared
 wunreachable
 wunused
 xcrun
