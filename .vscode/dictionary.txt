@@ -382,6 +382,7 @@ pendlist
 persional
 persision
 physmem
+pipefail
 pipx
 plid
 pnlres
@@ -595,6 +596,7 @@ wshadow
 wundeclared
 wunreachable
 wunused
+xcrun
 xffu
 xform
 yarnrc

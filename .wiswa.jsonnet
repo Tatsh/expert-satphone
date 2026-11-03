@@ -188,7 +188,22 @@
   github+: { workflows+: {
     scan_build+: {
       build_command: 'cmake --build build --clean-first --parallel 2',
-      configure_command: 'cmake -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE="${GITHUB_WORKSPACE}/.ios-cmake/ios.toolchain.cmake" -DDEPLOYMENT_TARGET="$DEPLOYMENT_TARGET" -DENABLE_BITCODE=NO -DIOS_ARCHS="$IOS_ARCHS" -DPLATFORM=OS64 -DENABLE_PATCHES=ON -DJBDBG=ON',
+      configure_command: |||-
+        cmake \
+        -B build \
+        -G Ninja \
+        -DCMAKE_TOOLCHAIN_FILE="${GITHUB_WORKSPACE}/.ios-cmake/ios.toolchain.cmake" \
+        -DDEPLOYMENT_TARGET="$DEPLOYMENT_TARGET" \
+        -DENABLE_BITCODE=NO \
+        -DIOS_ARCHS="$IOS_ARCHS" \
+        -DPLATFORM=OS64 \
+        -DENABLE_PATCHES=ON \
+        -DJBDBG=ON \
+        -DCMAKE_C_COMPILER="$CC" \
+        -DCMAKE_CXX_COMPILER="$CXX" \
+        -DCMAKE_OBJC_COMPILER="$CC" \
+        -DCMAKE_OBJCXX_COMPILER="$CXX"
+      |||,
       documentation_steps: [
         {
           name: 'Install dependencies',
