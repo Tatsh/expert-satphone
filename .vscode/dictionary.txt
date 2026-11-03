@@ -37,7 +37,6 @@ autoreverses
 badresponse
 badzipfile
 bagde
-basenames
 basesize
 beatbg
 behavior
@@ -132,6 +131,7 @@ dsym
 eagl
 edithelp
 eefmn
+elif
 endforeach
 envi
 erina
@@ -229,6 +229,7 @@ ioapi
 iphoneos
 isono
 isspace
+iterdir
 ivar
 ivar's
 ivars
@@ -330,6 +331,7 @@ neenginebridge
 ngid
 nilled
 nishino
+nojekyll
 nonatomic
 nonlocalized
 nonnull
@@ -372,6 +374,7 @@ packlist
 paramdoc
 parameteri
 parameteriv
+pathlib
 pbase
 pbxproj
 pendconlist
