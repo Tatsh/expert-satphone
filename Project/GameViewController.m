@@ -1335,6 +1335,12 @@ static inline void GameViewControllerHandleEndedState(GameViewController *self,
     } else if (deviceType == kDeviceTypeLargestPhone) {
         self->displayScale = kDisplayScaleLargestPhone;
     }
+#ifdef ENABLE_PATCHES
+    // Match UIKit overlays to the GL view, including a legacy-sized viewport on a newer phone.
+    if (!self->isPad && self.glView.bounds.size.width > 0.0) {
+        self->displayScale = (float)(self.glView.bounds.size.width / k2dSpacePhoneWidth);
+    }
+#endif
 
     self->nowReplaying = NO;
 }

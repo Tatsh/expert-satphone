@@ -89,7 +89,9 @@ rendered band, and map the paste button's renderer position back into UIKit coor
 _Modern iOS._ The game draws into a 320×480 or 320×568 phone GL space. Patched builds map live
 touches into that space on each axis. Result button images use renderer positions from the same
 space, so their UIKit centres use the inverse mapping. The original single display scale can put
-the image away from its rendered panel on a taller phone.
+the image away from its rendered panel on a taller phone. Patched builds size the UIKit overlays
+from the GL view width, so a newer phone using a legacy-sized viewport does not enlarge the images
+beyond the playfield.
 
 ### Marker install detection
 
