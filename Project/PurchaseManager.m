@@ -5,14 +5,19 @@
 
 #import "AlertViewManager.h"
 #import "BFCodec.h"
+#import "ChallengeStatus.h"
 #import "Downloader.h"
 #import "EditorIDManager.h"
 #import "JubeatAppDelegate.h"
+#import "NSDictionary+TypedLookupExtension.h"
 #import "SessionDownloader.h"
 #import "StoreUtil.h"
 
 NSData *CreateMd5DataFromCString(const char *lpcszInput);
 NSString *CreateRandomString(int length);
+
+static const NSInteger kPurchaseUpdateRequiredStatus = 205103;
+static const int kMissingCubeCount = -1;
 
 @implementation PurchaseManager {
     NSMutableArray *purchasedProducts;
@@ -430,34 +435,141 @@ NSString *CreateRandomString(int length);
 
 /** @ghidraAddress 0xb70d8 */
 - (void)downloaderFinished:(Downloader *)downloader {
-    // Verified at 0xb70d8: getDataInJSON at 0xb711c, then status integerValue check
-    // at 0xb7168 -> cmp x19,#0x212f30000? Actually 0xb7178 cmp x19,x8 where w8 is 0x212f...,
-    // then verified array handling at 0xb71a0 and purchaseFailed:error: dispatch.
     NSDictionary *json = [downloader getDataInJSON];
+    NSNumber *status = [json numberForKey:@"status"];
+    if (status && status.integerValue == kPurchaseUpdateRequiredStatus) {
+        [[AlertViewManager sharedManager] showUpdateAlert];
+        return;
+    }
+
+    NSString *failure = nil;
+    NSInteger errorCode = 2;
     if (!json) {
-        [self downloaderError:downloader];
-        return;
-    }
-    NSNumber *status = json[@"status"];
-    if (!status || status.integerValue != 0x212f30000) {
-        // Non-zero status — purchaseFailed with badresponse
-        if ([self.delegate respondsToSelector:@selector(purchaseFailed:error:)]) {
-            NSError *err = [NSError errorWithDomain:@"jp.konami.PurchaseManagerErrorDomain"
-                                               code:2
-                                           userInfo:@{NSLocalizedDescriptionKey : @"badresponse"}];
-            [self.delegate purchaseFailed:verifingID error:err];
+        failure = @"bad response";
+    } else if (!status) {
+        failure = @"unknown status";
+    } else if (status.longLongValue != 0) {
+        failure = [NSString stringWithFormat:@"status = %d", status.intValue];
+        if (status.longLongValue >= 20000 && status.longLongValue <= 29999) {
+            errorCode = 3;
         }
-        return;
+    } else {
+        NSArray *verified = [json arrayForKey:@"verified"];
+        NSMutableArray *matched = [[NSMutableArray alloc] init];
+        for (NSString *productID in verifingIDs) {
+            if ([verified containsObject:productID]) {
+                [matched addObject:productID];
+            }
+        }
+        int cubeCount = json[@"jCube"] ? [json[@"jCube"] intValue] : kMissingCubeCount;
+        NSString *userID = [json stringForKey:@"UserID"];
+        NSString *password = [json stringForKey:@"Passwd"];
+        if (userID && password && ![EditorIDManager isExistEditorID]) {
+            [EditorIDManager setKeyChain:userID passwd:password];
+        }
+        if (matched.count != 0 || cubeCount != kMissingCubeCount) {
+            NSNumber *totalAmount = json[@"sum"];
+#ifdef ENABLE_PATCHES
+            if (totalAmount.intValue >= 1) {
+                [JubeatAppDelegate.appDelegate setTotalAmount:totalAmount.intValue];
+            }
+#else
+            // The original passes the NSNumber pointer as the int argument to setTotalAmount:.
+            int originalAmount = (int)(uintptr_t)totalAmount;
+            if (originalAmount >= 1) {
+                [JubeatAppDelegate.appDelegate setTotalAmount:originalAmount];
+            }
+#endif
+            switch (downloader.tag) {
+            case 0:
+                if ([verifingID isEqualToString:matched.firstObject]) {
+                    [self addProduct:verifingID];
+                    if ([self.delegate respondsToSelector:@selector(purchaseSucceeded:)]) {
+                        [self.delegate purchaseSucceeded:verifingID];
+                    }
+                    break;
+                }
+                failure = @"code mismatch";
+                errorCode = 3;
+                break;
+            case 1: {
+                BOOL restored = NO;
+                for (NSString *productID in matched) {
+                    if (pendingReceipts[productID]) {
+                        [self addProduct:productID];
+                        restored = YES;
+                    }
+                }
+                if (restored) {
+                    if ([self.delegate respondsToSelector:@selector(restoreSucceeded)]) {
+                        [self.delegate restoreSucceeded];
+                    }
+                    break;
+                }
+                failure = @"code mismatch";
+                errorCode = 3;
+                break;
+            }
+            case 2: {
+                BOOL purchased = NO;
+                for (NSString *productID in matched) {
+                    if (pendingReceipts[productID]) {
+                        purchased |= [verifingID isEqualToString:productID];
+                        [self addProduct:productID];
+                    }
+                }
+                if (purchased) {
+                    if ([self.delegate respondsToSelector:@selector(purchaseSucceeded:)]) {
+                        [self.delegate purchaseSucceeded:verifingID];
+                    }
+                    break;
+                }
+                failure = @"code mismatch";
+                errorCode = 3;
+                break;
+            }
+            case 3:
+                if ([verifingID isEqualToString:matched.firstObject]) {
+                    [[ChallengeStatus sharedStatus] cubePurchaseSuccess:json];
+                    [[SKPaymentQueue defaultQueue] finishTransaction:consumeTransaction];
+                    if ([self.delegate respondsToSelector:@selector(purchaseSucceeded:)]) {
+                        [self.delegate purchaseSucceeded:verifingID];
+                    }
+                    break;
+                }
+                failure = @"code mismatch";
+                errorCode = 3;
+                break;
+            default:
+                break;
+            }
+        } else {
+            failure = @"code mismatch";
+            errorCode = 3;
+        }
     }
-    // Success path continues with verified array handling — truncated for this tranche.
+    if (errorCode == 3) {
+        [pendingReceipts removeObjectForKey:verifingID];
+    }
+    if (failure && [self.delegate respondsToSelector:@selector(purchaseFailed:error:)]) {
+        NSError *error = [NSError errorWithDomain:@"jp.konami.PurchaseManagerErrorDomain"
+                                             code:errorCode
+                                         userInfo:@{NSLocalizedDescriptionKey : failure}];
+        [self.delegate purchaseFailed:verifingID error:error];
+    }
+    verifingID = nil;
+    verifingIDs = nil;
 }
 
 /** @ghidraAddress 0xb7da8 */
 - (void)downloaderError:(Downloader *)downloader {
     if ([self.delegate respondsToSelector:@selector(purchaseFailed:error:)]) {
+        NSString *message = [NSBundle.mainBundle localizedStringForKey:@"NetworkErrorMsg"
+                                                                 value:@""
+                                                                 table:nil];
         NSError *err = [NSError errorWithDomain:@"jp.konami.PurchaseManagerErrorDomain"
                                            code:1
-                                       userInfo:@{NSLocalizedDescriptionKey : @"NetworkErrorMsg"}];
+                                       userInfo:@{NSLocalizedDescriptionKey : message}];
         [self.delegate purchaseFailed:verifingID error:err];
     }
     verifingID = nil;

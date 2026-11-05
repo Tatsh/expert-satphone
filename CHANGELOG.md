@@ -18,6 +18,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Restored purchase and restore callbacks after successful receipt verification responses.
 - In patched builds, iPhone panel hit testing scales touch coordinates on both axes to match the
   gameplay grid.
 - The app no longer crashes when reading URLs for scratch card artwork or song downloads.

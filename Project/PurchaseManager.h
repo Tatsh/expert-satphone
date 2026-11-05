@@ -29,6 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @param error The failure, distinguishing a cancellation from a genuine error by its domain.
  */
 - (void)purchaseFailed:(NSString *)productID error:(NSError *)error;
+/** A purchase was verified. */
+- (void)purchaseSucceeded:(NSString *)productID;
+/** At least one restored product was verified. */
+- (void)restoreSucceeded;
 /** A restore finished with nothing to restore. */
 - (void)restoreNothing;
 @end
