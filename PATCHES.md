@@ -26,6 +26,15 @@ Patches are labelled by why they exist:
 
 ## `ENABLE_PATCHES`
 
+### Optional SDK error outputs
+
+**Files:** `Project/ApplilinkUdid.m` (0x25e37c, 0x25e6d0, 0x25e804) and
+`Project/RecommendAdCache.m` (0x278524).
+
+_Dead service._ These methods accept an optional `NSError **`, but their binary implementations
+write through it without checking for a null pointer on failure. The patched methods use a local
+error sink when the caller omits the output. Callers that supply a pointer receive the same error.
+
 ### Tutorial overlays
 
 **File:** `Project/JubeatAppDelegate.m` — `+initialize` (0x7b60)

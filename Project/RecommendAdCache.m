@@ -714,6 +714,13 @@ static NSData *g_pAllAdDataExpiryArchive = nil;
                   verticalAlign:(int)verticalAlign
                    impressionId:(NSString *)impressionId
                        errorObj:(NSError **)errorObj {
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. An omitted NSError output needs a writable sink.
+    NSError *ignoredError = nil;
+    if (errorObj == nullptr) {
+        errorObj = &ignoredError;
+    }
+#endif
     // verticalAlign and impressionId are accepted but never read.
     int adType = [RecommendAdData getAdTypeWithAdModel:adModel adLocation:adLocation];
     if (adType != RecommendAdCacheAdTypeInterstitial) {

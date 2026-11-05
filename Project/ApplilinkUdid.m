@@ -241,6 +241,13 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
 + (BOOL)deleteUDIDWithServiceName:(NSString *)serviceName
                      storageIndex:(int)storageIndex
                             error:(NSError **)error {
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. An omitted NSError output needs a writable sink.
+    NSError *ignoredError = nil;
+    if (error == nullptr) {
+        error = &ignoredError;
+    }
+#endif
     NSString *env = [[NSUserDefaults standardUserDefaults] objectForKey:kEnvKey];
     if (env != nil && ![env isEqualToString:kEnvProduction]) {
         NSError *deleteError = nil;
@@ -289,6 +296,13 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
 
 /** @ghidraAddress 0x25e6d0 */
 + (NSString *)getAdvertisingRewardUdidWithError:(NSError **)error {
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. An omitted NSError output needs a writable sink.
+    NSError *ignoredError = nil;
+    if (error == nullptr) {
+        error = &ignoredError;
+    }
+#endif
     if (![ApplilinkUdid isAdvertisingTrackingOSVersion]) {
         return nil;
     }
@@ -308,6 +322,13 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
 
 /** @ghidraAddress 0x25e804 */
 + (NSString *)createAdvertisingRewardUdidWithError:(NSError **)error {
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary. An omitted NSError output needs a writable sink.
+    NSError *ignoredError = nil;
+    if (error == nullptr) {
+        error = &ignoredError;
+    }
+#endif
     if (![ApplilinkUdid isAdvertisingTrackingOSVersion]) {
         return nil;
     }
