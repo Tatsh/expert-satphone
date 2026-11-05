@@ -116,21 +116,21 @@ static const CGFloat kButtonYPad = 473.0;   // @ghidraAddress 0x293cb0
 static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
 
 @implementation CubePurchaseView {
-    UIView *_rootView;                       // +0x8
-    UIImageView *_bgView;                    // +0x10
-    UIImageView *_titleView;                 // +0x18
-    NSMutableArray *_cubeList;               // +0x20
-    CubePurchaseListView *_purchaseListView; // +0x28
-    SKProductsRequest *_productsRequest;     // +0x30
-    UIButton *_closeBtn;                     // +0x38
-    UILabel *_errorLabel;                    // +0x40
-    SessionDownloader *_infoDownloader;      // +0x48
-    UIButton *_sptlBtn;                      // +0x50
-    UIButton *_cubePolicyBtn;                // +0x58
-    SKProduct *_selectedProduct;             // +0x60
-    int _selectedIndex;                      // +0x68
-    int _selectedPurchaseAge;                // +0x6c
-    MessageTextView *_textView;              // +0x70
+    UIView *rootView;                       // +0x8
+    UIImageView *bgView;                    // +0x10
+    UIImageView *titleView;                 // +0x18
+    NSMutableArray *cubeList;               // +0x20
+    CubePurchaseListView *purchaseListView; // +0x28
+    SKProductsRequest *productsRequest;     // +0x30
+    UIButton *closeBtn;                     // +0x38
+    UILabel *errorLabel;                    // +0x40
+    SessionDownloader *infoDownloader;      // +0x48
+    UIButton *sptlBtn;                      // +0x50
+    UIButton *cubePolicyBtn;                // +0x58
+    SKProduct *selectedProduct;             // +0x60
+    int selectedIndex;                      // +0x68
+    int selectedPurchaseAge;                // +0x6c
+    MessageTextView *textView;              // +0x70
     // _aDelegate is the synthesized backing for the weak aDelegate property, at +0x78.
 }
 
@@ -144,89 +144,89 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
         // The background plate. Its image size sets the root view's frame, and the same image backs
         // the visible plate.
         UIImage *bgImage = LoadScaledPngImage(kBackgroundImageName);
-        _rootView = [[UIView alloc]
+        rootView = [[UIView alloc]
             initWithFrame:CGRectMake(0, 0, bgImage.size.width, bgImage.size.height)];
-        _rootView.center = CGPointMake(frame.size.width * 0.5, frame.size.height * 0.5);
-        [self addSubview:_rootView];
-        _bgView = [[UIImageView alloc] initWithImage:bgImage];
-        [_rootView addSubview:_bgView];
+        rootView.center = CGPointMake(frame.size.width * 0.5, frame.size.height * 0.5);
+        [self addSubview:rootView];
+        bgView = [[UIImageView alloc] initWithImage:bgImage];
+        [rootView addSubview:bgView];
 
         // The close button, vertically centred on its own image height near the top corner.
         UIImage *closeImage = LoadScaledPngImage(kCloseButtonImageName);
-        _closeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        closeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         // fmov immediates at 0x1c0710 (8), 0x1c0714 (16); 0x1c071c (14), 0x1c0720 (28); 0.5 fmov
         // immediate at 0x1c0600.
         CGFloat closeX = isPad ? 16.0 : 8.0;
         CGFloat closeTop = isPad ? 28.0 : 14.0;
-        _closeBtn.frame = CGRectMake(closeX,
-                                     closeTop - closeImage.size.height * 0.5,
-                                     closeImage.size.width,
-                                     closeImage.size.height);
-        [_closeBtn setBackgroundImage:closeImage forState:UIControlStateNormal];
-        [_closeBtn addTarget:self
+        closeBtn.frame = CGRectMake(closeX,
+                                    closeTop - closeImage.size.height * 0.5,
+                                    closeImage.size.width,
+                                    closeImage.size.height);
+        [closeBtn setBackgroundImage:closeImage forState:UIControlStateNormal];
+        [closeBtn addTarget:self
                       action:@selector(closePurchaseMenu:)
             forControlEvents:UIControlEventTouchUpInside];
-        _closeBtn.exclusiveTouch = YES;
-        [_rootView addSubview:_closeBtn];
+        closeBtn.exclusiveTouch = YES;
+        [rootView addSubview:closeBtn];
 
         // The product list, laid out inside the plate and initially transparent. Its per-idiom
         // frame reads from __const.
-        _purchaseListView = [[CubePurchaseListView alloc]
+        purchaseListView = [[CubePurchaseListView alloc]
             initWithFrame:CGRectMake(isPad ? kListXPad : kListXPhone,
                                      isPad ? kListYPad : kListYPhone,
                                      isPad ? kListWidthPad : kListWidthPhone,
                                      isPad ? kListHeightPad : kListHeightPhone)];
-        _purchaseListView.alpha = 0.0;
-        _purchaseListView.aDelegate = self;
-        [_rootView addSubview:_purchaseListView];
+        purchaseListView.alpha = 0.0;
+        purchaseListView.aDelegate = self;
+        [rootView addSubview:purchaseListView];
 
         // The SPTL button, its integer x centred at a quarter of the root width.
         UIImage *sptlImage = LoadScaledPngImage(kSptlButtonImageName);
         // fmov immediates at 0x1c0784 (2), 0x1c0788 (4); 0.25 at 0x1c08c4; 3.0 at 0x1c09e4.
         CGFloat buttonBase = isPad ? 4.0 : 2.0;
-        _sptlBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        sptlBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         int sptlX =
-            (int)(buttonBase + (_rootView.frame.size.width * 0.25 - sptlImage.size.width * 0.5));
-        _sptlBtn.frame = CGRectMake(sptlX,
-                                    isPad ? kButtonYPad : kButtonYPhone,
-                                    sptlImage.size.width,
-                                    sptlImage.size.height);
-        [_sptlBtn setBackgroundImage:sptlImage forState:UIControlStateNormal];
-        [_sptlBtn addTarget:self
+            (int)(buttonBase + (rootView.frame.size.width * 0.25 - sptlImage.size.width * 0.5));
+        sptlBtn.frame = CGRectMake(sptlX,
+                                   isPad ? kButtonYPad : kButtonYPhone,
+                                   sptlImage.size.width,
+                                   sptlImage.size.height);
+        [sptlBtn setBackgroundImage:sptlImage forState:UIControlStateNormal];
+        [sptlBtn addTarget:self
                       action:@selector(tapSptl:)
             forControlEvents:UIControlEventTouchUpInside];
-        _sptlBtn.exclusiveTouch = YES;
-        [_rootView addSubview:_sptlBtn];
+        sptlBtn.exclusiveTouch = YES;
+        [rootView addSubview:sptlBtn];
 
         // The cube-policy button, its integer x centred at three quarters of the root width.
         UIImage *policyImage = LoadScaledPngImage(kCubePolicyButtonImageName);
-        _cubePolicyBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        int policyX = (int)(buttonBase + (_rootView.frame.size.width * 3.0 * 0.25 -
+        cubePolicyBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        int policyX = (int)(buttonBase + (rootView.frame.size.width * 3.0 * 0.25 -
                                           policyImage.size.width * 0.5));
-        _cubePolicyBtn.frame = CGRectMake(policyX,
-                                          isPad ? kButtonYPad : kButtonYPhone,
-                                          policyImage.size.width,
-                                          policyImage.size.height);
-        [_cubePolicyBtn setBackgroundImage:policyImage forState:UIControlStateNormal];
-        [_cubePolicyBtn addTarget:self
-                           action:@selector(tapCubePolicy:)
-                 forControlEvents:UIControlEventTouchUpInside];
-        _cubePolicyBtn.exclusiveTouch = YES;
-        [_rootView addSubview:_cubePolicyBtn];
+        cubePolicyBtn.frame = CGRectMake(policyX,
+                                         isPad ? kButtonYPad : kButtonYPhone,
+                                         policyImage.size.width,
+                                         policyImage.size.height);
+        [cubePolicyBtn setBackgroundImage:policyImage forState:UIControlStateNormal];
+        [cubePolicyBtn addTarget:self
+                          action:@selector(tapCubePolicy:)
+                forControlEvents:UIControlEventTouchUpInside];
+        cubePolicyBtn.exclusiveTouch = YES;
+        [rootView addSubview:cubePolicyBtn];
 
         // Kick off the signed fetch of the cube product list.
         NSString *editorID = [EditorIDManager getKeyString:[EditorIDManager getEditorIDKey]];
         NSArray *objects = @[ editorID, kRequestValueTargetJP ];
         NSArray *keys = @[ kRequestKeyUserID, kRequestKeyTarget ];
         NSDictionary *post = [NSMutableDictionary dictionaryWithObjects:objects forKeys:keys];
-        _infoDownloader = [[SessionDownloader alloc] initWithURL:ScratchUtil.cubePurchaseListURL
-                                                  postDictionary:post
-                                                        delegate:self];
-        _infoDownloader.tag = kDownloaderTagCubeList;
-        _infoDownloader.apiTag = kCubeListApiTag;
-        [_infoDownloader startDownloading];
+        infoDownloader = [[SessionDownloader alloc] initWithURL:ScratchUtil.cubePurchaseListURL
+                                                 postDictionary:post
+                                                       delegate:self];
+        infoDownloader.tag = kDownloaderTagCubeList;
+        infoDownloader.apiTag = kCubeListApiTag;
+        [infoDownloader startDownloading];
 
-        _cubeList = [[NSMutableArray alloc] init];
+        cubeList = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -235,9 +235,9 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
 
 - (void)closePurchaseMenu:(id)sender {
     [[AudioManager sharedManager] playSeResFile:kCloseSoundName inDirectory:nil];
-    if (_productsRequest) {
-        [_productsRequest cancel];
-        _productsRequest = nil;
+    if (productsRequest) {
+        [productsRequest cancel];
+        productsRequest = nil;
     }
     [self.aDelegate closeCubePurchase];
 }
@@ -250,19 +250,19 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
     NSArray *objects = @[ kRequestValueTargetJP, @2, @(-1) ];
     NSArray *keys = @[ kRequestKeyTarget, kPolicyKeyType, kPolicyKeyRevision ];
     NSDictionary *send = [NSDictionary dictionaryWithObjects:objects forKeys:keys];
-    _textView = [[MessageTextView alloc] init:self
-                                        title:kCubePolicyTitle
-                                          url:ScratchUtil.challengeModePolicyURL
-                                         send:send];
-    _textView.center = CGPointMake(self.frame.size.width * 0.5, self.frame.size.height * 0.5);
-    [self addSubview:_textView];
-    _rootView.userInteractionEnabled = NO;
+    textView = [[MessageTextView alloc] init:self
+                                       title:kCubePolicyTitle
+                                         url:ScratchUtil.challengeModePolicyURL
+                                        send:send];
+    textView.center = CGPointMake(self.frame.size.width * 0.5, self.frame.size.height * 0.5);
+    [self addSubview:textView];
+    rootView.userInteractionEnabled = NO;
 }
 
 - (void)closeMessage:(id)sender {
-    [_textView removeFromSuperview];
-    _textView = nil;
-    _rootView.userInteractionEnabled = YES;
+    [textView removeFromSuperview];
+    textView = nil;
+    rootView.userInteractionEnabled = YES;
 }
 
 #pragma mark - Purchase gate
@@ -325,9 +325,9 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
 }
 
 - (void)selectListCell:(NSIndexPath *)indexPath {
-    if (indexPath.row < (NSInteger)_cubeList.count) {
-        _selectedIndex = (int)indexPath.row;
-        SKProduct *product = [_cubeList[_selectedIndex] getProduct];
+    if (indexPath.row < (NSInteger)cubeList.count) {
+        selectedIndex = (int)indexPath.row;
+        SKProduct *product = [cubeList[selectedIndex] getProduct];
         if (![self checkAttainLimitPurchase:product]) {
             [self purchaseStart:product];
         }
@@ -367,15 +367,15 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
                                                              value:kEmptyString
                                                              table:nil];
         if (status == 0) {
-            [NSUserDefaults.standardUserDefaults setInteger:_selectedPurchaseAge
+            [NSUserDefaults.standardUserDefaults setInteger:selectedPurchaseAge
                                                      forKey:kPrefPurchaseLimitType];
         } else {
             if (data[kResponseKeyErrorMessage]) {
                 msg = data[kResponseKeyErrorMessage];
             }
-            _errorLabel.text = msg;
+            errorLabel.text = msg;
         }
-        _infoDownloader = nil;
+        infoDownloader = nil;
         return;
     }
     if (tag != kDownloaderTagCubeList) {
@@ -387,25 +387,25 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
             [JubeatAppDelegate.appDelegate setTotalAmount:(int)[data[kResponseKeySum] intValue]];
         }
         if ([data[kResponseKeyItem] count] == 0) {
-            _errorLabel.text = data[kResponseKeyErrorMessage] ? data[kResponseKeyErrorMessage] :
-                                                                kFallbackErrorText;
+            errorLabel.text = data[kResponseKeyErrorMessage] ? data[kResponseKeyErrorMessage] :
+                                                               kFallbackErrorText;
         } else {
             NSMutableSet *productIDs = [[NSMutableSet alloc] init];
             for (NSDictionary *itemDict in data[kResponseKeyItem]) {
                 CubePurchaseInfo *info = [[CubePurchaseInfo alloc] init];
                 [info initWithDictionary:itemDict];
-                [_cubeList addObject:info];
+                [cubeList addObject:info];
                 [productIDs addObject:[info getProductID]];
             }
-            _productsRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:productIDs];
-            _productsRequest.delegate = self;
-            [_productsRequest start];
+            productsRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:productIDs];
+            productsRequest.delegate = self;
+            [productsRequest start];
         }
     } else {
-        _errorLabel.text =
+        errorLabel.text =
             data[kResponseKeyErrorMessage] ? data[kResponseKeyErrorMessage] : kFallbackErrorText;
     }
-    _infoDownloader = nil;
+    infoDownloader = nil;
 }
 
 - (void)downloaderError:(id)downloader {
@@ -428,7 +428,7 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
         return;
     }
     if (tag == kDownloaderTagCubeList) {
-        _errorLabel.text = kFallbackErrorText;
+        errorLabel.text = kFallbackErrorText;
     }
 }
 
@@ -449,20 +449,20 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
                 [UIApplication.sharedApplication openURL:[NSURL URLWithString:kKonamiURLString]];
                 return;
             }
-            _selectedPurchaseAge = button;
+            selectedPurchaseAge = button;
             NSDictionary *post = [NSDictionary dictionaryWithObjects:@[ @(button - 1) ]
                                                              forKeys:@[ kAgeKey ]];
-            _infoDownloader = [[SessionDownloader alloc] initWithURL:ScratchUtil.registUserAgeURL
-                                                      postDictionary:post
-                                                            delegate:self];
-            _infoDownloader.tag = kDownloaderTagRegisterAge;
-            [_infoDownloader startDownloading];
+            infoDownloader = [[SessionDownloader alloc] initWithURL:ScratchUtil.registUserAgeURL
+                                                     postDictionary:post
+                                                           delegate:self];
+            infoDownloader.tag = kDownloaderTagRegisterAge;
+            [infoDownloader startDownloading];
         }
     } else if (tag == kAlertTagSessionError) {
         // ChallengeStatus vends the challenge-mode root view (ChallengeModeRootView, not yet
         // reconstructed); both messages are dispatched dynamically through id.
-        id rootView = [[ChallengeStatus sharedStatus] performSelector:@selector(rootView)];
-        [rootView performSelector:@selector(closeChallengeModeSessionError)];
+        id challengeRootView = [[ChallengeStatus sharedStatus] performSelector:@selector(rootView)];
+        [challengeRootView performSelector:@selector(closeChallengeModeSessionError)];
     }
 }
 
@@ -510,7 +510,7 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
 - (void)productsRequest:(SKProductsRequest *)request
      didReceiveResponse:(SKProductsResponse *)response {
     if (response.products.count == 0) {
-        _errorLabel.text = kNoItemsMessage;
+        errorLabel.text = kNoItemsMessage;
         return;
     }
 
@@ -518,7 +518,7 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
     (void)[response.products.lastObject.priceLocale objectForKey:NSLocaleCountryCode];
 
     for (SKProduct *product in response.products) {
-        for (CubePurchaseInfo *info in _cubeList) {
+        for (CubePurchaseInfo *info in cubeList) {
             if ([product.productIdentifier isEqual:[info getProductID]]) {
                 [info updateProduct:product];
                 break;
@@ -526,9 +526,9 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
         }
     }
 
-    [_purchaseListView setListArray:_cubeList];
+    [purchaseListView setListArray:cubeList];
 
-    __weak CubePurchaseListView *weakList = _purchaseListView;
+    __weak CubePurchaseListView *weakList = purchaseListView;
     // Animation durations from __const at 0x28f240 (0.2) and 0x28f2b8 (0.1).
     [UIView animateWithDuration:0.2
                           delay:0.1
@@ -544,12 +544,12 @@ static const CGFloat kButtonYPhone = 236.0; // @ghidraAddress 0x293320
 }
 
 - (void)requestDidFinish:(SKRequest *)request {
-    _productsRequest = nil;
+    productsRequest = nil;
 }
 
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error {
-    _productsRequest = nil;
-    _errorLabel.text = kNoItemsMessage;
+    productsRequest = nil;
+    errorLabel.text = kNoItemsMessage;
 }
 
 @end
