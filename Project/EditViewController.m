@@ -178,6 +178,10 @@ static const int kAutoSaveCounterLimit = 8;
 static const float kPhoneButtonPitch = 80.0f;
 static const float kPhoneButtonOffsetY = 160.0f;
 static const float kPhoneButtonSizeBase = 80.0f;
+static const CGFloat kPhoneSpaceWidth = 320.0;
+static const CGFloat kPhoneSpaceHeight = 480.0;
+static const CGFloat kPadSpaceWidth = 768.0;
+static const CGFloat kPadSpaceHeight = 1024.0;
 
 // The timeline seek band: touches with y at or below 80pt or at or above 176pt end the seek.
 static const double kTimelineBandTop = 80.0;
@@ -378,6 +382,30 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
     } while (refine != -kSeekRefinementPasses);
 }
 
+static inline CGPoint EditViewControllerGLPoint(EditViewController *self, UITouch *touch) {
+    CGPoint point = [touch locationInView:self.glView];
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary: the GL projection stretches each axis independently.
+    CGSize viewSize = self.glView.bounds.size;
+    if (viewSize.width > 0.0 && viewSize.height > 0.0) {
+        point.x *= (self->isPad ? kPadSpaceWidth : kPhoneSpaceWidth) / viewSize.width;
+        point.y *= (self->isPad ? kPadSpaceHeight : kPhoneSpaceHeight) / viewSize.height;
+    }
+#endif
+    return point;
+}
+
+static inline CGFloat EditViewControllerViewX(EditViewController *self, CGFloat x) {
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary: UIKit positions use the stretched view width.
+    CGFloat viewWidth = self.glView.bounds.size.width;
+    if (viewWidth > 0.0) {
+        return x * viewWidth / (self->isPad ? kPadSpaceWidth : kPhoneSpaceWidth);
+    }
+#endif
+    return x;
+}
+
 @implementation EditViewController
 
 #pragma mark - Frame loop
@@ -391,7 +419,7 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
     // Collect the pressed-panel bitmask from every active touch.
     NSSet *touches = [self.glView touches];
     for (UITouch *touch in touches) {
-        CGPoint location = [touch locationInView:self.glView];
+        CGPoint location = EditViewControllerGLPoint(self, touch);
         for (unsigned int panel = 0; panel < kPanelCount; ++panel) {
             int col = (int)panel % 4;
             int row = (int)panel / 4;
@@ -490,7 +518,7 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
             [self controllMusic];
             if ([touches count] == 1) {
                 for (UITouch *touch in touches) {
-                    CGPoint location = [touch locationInView:self.glView];
+                    CGPoint location = EditViewControllerGLPoint(self, touch);
                     touchPointBack = location;
                     if ((startIndex == -1) && (endIndex == -1) && bLongPress) {
                         unsigned int sector =
@@ -592,11 +620,12 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
         }
         if (![self.btnAreaPst isHidden]) {
             int x = (int)[self.mainGameRenderer sector2pos:pasteSector];
+            CGFloat viewX = EditViewControllerViewX(self, x);
             CGRect glFrame = [self.glView frame];
-            if ((x > -kPasteVisibleMargin) &&
-                ((double)x < glFrame.size.width + kPasteButtonHiddenX)) {
+            if ((viewX > -kPasteVisibleMargin) &&
+                (viewX < glFrame.size.width + kPasteButtonHiddenX)) {
                 CGRect frame = [self.btnAreaPst frame];
-                frame.origin.x = (double)(x - kPasteButtonNudge);
+                frame.origin.x = viewX - kPasteButtonNudge;
                 [self.btnAreaPst setFrame:frame];
             }
         }
@@ -926,10 +955,10 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
     // The 2D space matches the device idiom: 768x1024 on pad, 320x480 on phone.
     if (isPad) {
         // @ghidraAddress 0x10028e090, 0x1002944a0
-        [self.glView set2dSpace:CGSizeMake(768.0, 1024.0)];
+        [self.glView set2dSpace:CGSizeMake(kPadSpaceWidth, kPadSpaceHeight)];
     } else {
         // @ghidraAddress 0x10028e098, 0x1002944a8
-        [self.glView set2dSpace:CGSizeMake(320.0, 480.0)];
+        [self.glView set2dSpace:CGSizeMake(kPhoneSpaceWidth, kPhoneSpaceHeight)];
     }
 
     self.mainGameRenderer =
@@ -1636,10 +1665,17 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
 /** @ghidraAddress 0x221840 */
 - (void)createTimeLineView {
     CGRect glFrame = [self.glView frame];
-    // The timeline view is 80pt tall, 96pt down the GL view.
     // @ghidraAddress 0x10028f3f8, 0x10028f908
+    CGFloat top = kTimelineBandTop;
+    CGFloat height = kTimelineBandBottom - kTimelineBandTop;
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary: the gesture region tracks the stretched GL band.
+    CGFloat spaceHeight = isPad ? kPadSpaceHeight : kPhoneSpaceHeight;
+    top *= glFrame.size.height / spaceHeight;
+    height *= glFrame.size.height / spaceHeight;
+#endif
     self.timeLineView =
-        [[UIView alloc] initWithFrame:CGRectMake(0.0, 80.0, glFrame.size.width, 96.0)];
+        [[UIView alloc] initWithFrame:CGRectMake(0.0, top, glFrame.size.width, height)];
     UILongPressGestureRecognizer *longPress =
         [[UILongPressGestureRecognizer alloc] initWithTarget:self
                                                       action:@selector(longPressGesture:)];
@@ -1728,7 +1764,7 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
             [self.mainGameRenderer setAreaStartSector:pasteSector];
             int x = [self.mainGameRenderer sector2pos:pasteSector];
             CGRect frame = [self.btnAreaPst frame];
-            frame.origin.x = (double)(x - kPasteButtonNudge);
+            frame.origin.x = EditViewControllerViewX(self, x) - kPasteButtonNudge;
             [self.btnAreaPst setFrame:frame];
             bEnablePaste = YES;
             [self.btnAreaPst setHidden:NO];

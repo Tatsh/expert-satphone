@@ -72,6 +72,16 @@ The two handlers and the two registrations are one change in two places: without
 the handlers would be unreferenced, and without the handlers the registrations would name missing
 selectors.
 
+### Editor input coordinates
+
+**File:** `Project/EditViewController.m` — `-loop:` (0x21dba8), `-createTimeLineView` (0x221840),
+and `-dpGesture:` (0x221ffc).
+
+_Modern iOS._ The editor renders into a 320×480 phone or 768×1024 iPad GL space while its view can
+have different bounds. The binary compares unscaled touch points with renderer rectangles. Patched
+builds map touch points into GL space on each axis, stretch the timeline gesture region with the
+rendered band, and map the paste button's renderer position back into UIKit coordinates.
+
 ### Marker install detection
 
 **File:** `Project/MarkerManager.m` — `+checkRegularMarkerData` (0x1b8fe0)

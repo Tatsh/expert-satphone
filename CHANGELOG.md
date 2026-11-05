@@ -18,6 +18,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- In patched builds, the iPhone chart editor maps touches to the game grid and aligns timeline
+  gestures and paste controls with the displayed view.
 - Corrected chart editor rendering scale on iPad and iPhone.
 - Restored purchase and restore callbacks after successful receipt verification responses.
 - In patched builds, iPhone panel hit testing scales touch coordinates on both axes to match the
