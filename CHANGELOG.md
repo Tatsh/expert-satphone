@@ -18,6 +18,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- In patched builds, marker lists that decode to `nil` now use the existing default-list recovery
+  path instead of raising an exception.
+- In patched builds, rating-chip settings no longer raise an exception when a pattern image is
+  missing.
 - Decryption of the bundled encrypted assets. Four of the eight bytes of `kFixedChainVector`, the
   fixed chaining vector `BFCodec` uses for every Blowfish payload, were transposed: the middle four
   are written by one little-endian word store, which the reconstruction had transcribed in

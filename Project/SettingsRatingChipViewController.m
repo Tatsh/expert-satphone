@@ -160,6 +160,11 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
                                     scale:kPhoneImageScale
                               orientation:UIImageOrientationUp];
     }
+#ifdef ENABLE_PATCHES
+    if (image == nil) {
+        return;
+    }
+#endif
     UIColor *patternColor = [[UIColor alloc] initWithPatternImage:image];
     if (patternColor) {
         cell.backgroundColor = patternColor;

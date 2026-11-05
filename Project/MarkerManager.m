@@ -125,6 +125,11 @@ static const NSUInteger kMarkerNumberRangeLength = 4;
                    list ? object_getClassName(list) : "nil",
                    [list respondsToSelector:@selector(count)] ? (unsigned long)[list count] : 0UL);
     }
+#ifdef ENABLE_PATCHES
+    if (list == nil) {
+        return nil;
+    }
+#endif
     return [NSMutableArray arrayWithArray:list];
 }
 
