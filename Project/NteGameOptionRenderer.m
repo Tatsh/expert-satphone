@@ -22,10 +22,10 @@ static const NSTimeInterval kFirstStepDelay = 1.0;
 static const NSTimeInterval kBetweenStepsDelay = 0.2; // @ghidraAddress 0x28f240
 
 @implementation NteGameOptionRenderer {
-    float phoneRate;
     UIImageView *rightImage;
     int divCnt;
     float divValue;
+    float phoneRate;
 }
 
 /** @ghidraAddress 0x153404 */
