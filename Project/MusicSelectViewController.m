@@ -2793,7 +2793,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     if (((TuneInfo *)tune).extendID != 0 && editPage != 1 &&
         JubeatAppDelegate.appDelegate.isExtend) {
         TuneInfo *extend = dictAllExtendTune[@(((TuneInfo *)tune).extendID)];
-        if (extend != nil && (extend.extendFlag & (1 << difficulty)) != 0) {
+        if (extend != nil && (extend.extendFlag & (1u << ((unsigned int)difficulty & 0x1f))) != 0) {
             playTune = extend;
         }
     }

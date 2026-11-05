@@ -1457,7 +1457,8 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
     if (self.info.extendID != 0) {
         int difficulty =
             (int)[NSUserDefaults.standardUserDefaults integerForKey:kPrefDifficultyKey];
-        if (self.extendInfo != nil && (self.extendInfo.extendFlag & (1 << difficulty)) != 0) {
+        if (self.extendInfo != nil &&
+            (self.extendInfo.extendFlag & (1u << ((unsigned int)difficulty & 0x1f))) != 0) {
             // Flip the app-wide extend toggle, re-lay the extend info, and reposition the score
             // board for the new mode.
             [JubeatAppDelegate.appDelegate setExtendFlag:!JubeatAppDelegate.appDelegate.isExtend];
@@ -1965,7 +1966,7 @@ static inline void MusicDetailViewKntBuildDifficultyButton(MusicDetailViewKnt *s
 - (void)infoChange:(int)difficulty {
     // Whether the shown difficulty is displaying its extend chart.
     BOOL showExtend = JubeatAppDelegate.appDelegate.isExtend && self.extendInfo != nil &&
-                      (self.extendInfo.extendFlag & (1 << difficulty)) != 0;
+                      (self.extendInfo.extendFlag & (1u << ((unsigned int)difficulty & 0x1f))) != 0;
 
     char resource[kMbarMinimumLength] = {0};
     if (self.editPage == 0) {
