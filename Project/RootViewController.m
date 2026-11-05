@@ -16,30 +16,31 @@
 #import "MusicSelectViewController.h"
 #import "ScratchUtil.h"
 #import "StoreViewController.h"
+#import "TitleViewController.h"
 #import "TitleViewControllerKnt.h"
 #import "TitleViewControllerNte.h"
 #import "TitleViewControllerOrg.h"
 #import "TitleViewControllerRpl.h"
 
-// The ivars reached so far. None has an accessor pair anywhere in the binary, so none is a
-// property. Offset globals in declaration order: 0x34b770, 0x34b778, 0x34b77c, 0x34b780, 0x34b784,
-// 0x34b788, 0x34b78c, 0x34b794.
+@class SessionDownloader;
+
+// None of these ivars has an accessor pair in the binary, so none is a property.
 @interface RootViewController () {
 @public
-    UIViewController *titleViewCtrl;
-    UIViewController *gameViewCtrl;
-    UIViewController *editViewCtrl;
-    UIViewController *storeViewCtrl;
-    NSString *suspendedAnimID;
     double durationIn;
     double durationOut;
     UIView *fadeView;
     LogoViewController *logoViewCtrl;
-    NSString *currentSceneID;
+    TitleViewController *titleViewCtrl;
+    GameViewController *gameViewCtrl;
     MusicSelectViewController *musicSelectViewCtrl;
-    BOOL _isActive;
-    // The achievement-message overlay, at offset global 0x34b774.
+    StoreViewController *storeViewCtrl;
+    NSString *currentSceneID;
+    NSString *suspendedAnimID;
+    EditViewController *editViewCtrl;
     MissionAchievementMessage *achieveMessage;
+    SessionDownloader *startNoticeDownloader;
+    BOOL _isActive;
 }
 @end
 
