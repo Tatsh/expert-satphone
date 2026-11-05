@@ -6,13 +6,16 @@
 #import "AudioManager.h"
 #import "CJSONSerializer.h"
 #import "Downloader.h"
+#import "EditViewController.h"
 #import "EditorIDManager.h"
+#import "GameViewController.h"
 #import "ImageCache.h"
 #import "JubeatAppDelegate.h"
 #import "LogoViewController.h"
 #import "MissionAchievementMessage.h"
 #import "MusicSelectViewController.h"
 #import "ScratchUtil.h"
+#import "StoreViewController.h"
 #import "TitleViewControllerKnt.h"
 #import "TitleViewControllerNte.h"
 #import "TitleViewControllerOrg.h"
@@ -39,14 +42,6 @@
     MissionAchievementMessage *achieveMessage;
 }
 @end
-
-// The screens -init builds. GameViewController and EditViewController are not reconstructed yet, so
-// they are reached by name; see TYPES_PENDING.md. gameViewCtrl and editViewCtrl are typed
-// UIViewController for the same reason.
-static NSString *const kGameViewControllerClassName = @"GameViewController";
-static NSString *const kEditViewControllerClassName = @"EditViewController";
-// The store screen -openStore: builds and -endStore tears down; not reconstructed yet.
-static NSString *const kStoreViewControllerClassName = @"StoreViewController";
 
 // The store transition's 3-D geometry. The perspective term is written into CATransform3DIdentity's
 // m34 slot from an immediate built inline with movk (0x1a7cd8-0x1a7ce4), whose bit pattern
@@ -109,9 +104,7 @@ static const double kChangeThemeFadeOutDuration = 1.0;
 // Both title-switch durations are the same immediate, an fmov of 0x3FF8000000000000.
 static const double kTitleSwitchFadeDuration = 1.5;
 
-// The selectors the dispatcher sends to controllers whose concrete class is not established. The
-// title screens have two implementations, and the game and edit screens have not been located at
-// all, so these are declared on UIViewController; see TYPES_PENDING.md.
+// The title screens have two implementations, so shared scene selectors are declared here.
 @interface UIViewController (JubeatScene)
 - (void)start;
 - (void)stopAnimation;
@@ -212,11 +205,11 @@ static inline void RootViewControllerBeginFadeInForAnimation(RootViewController 
     if (self) {
         // The game and edit screens are built once, up front, and kept as children for the whole
         // lifetime — every transition swaps their views in and out rather than rebuilding them.
-        gameViewCtrl = [[NSClassFromString(kGameViewControllerClassName) alloc] init];
+        gameViewCtrl = [[GameViewController alloc] init];
         [self addChildViewController:gameViewCtrl];
         [gameViewCtrl didMoveToParentViewController:self];
 
-        editViewCtrl = [[NSClassFromString(kEditViewControllerClassName) alloc] init];
+        editViewCtrl = [[EditViewController alloc] init];
         [self addChildViewController:editViewCtrl];
         [editViewCtrl didMoveToParentViewController:self];
 
@@ -488,7 +481,7 @@ static inline void RootViewControllerBeginFadeInForAnimation(RootViewController 
     musicSelectViewCtrl.view.layer.anchorPointZ = depth;
 
     // The store is built, handed its startup parameters, and starts rotated a quarter-turn away.
-    storeViewCtrl = [[NSClassFromString(kStoreViewControllerClassName) alloc] init];
+    storeViewCtrl = [[StoreViewController alloc] init];
     [storeViewCtrl setStartupParameters:startupParameters];
     storeViewCtrl.view.layer.transform = CATransform3DMakeRotation(kStoreFlipAngle, 0, 1, 0);
     storeViewCtrl.view.layer.anchorPointZ = depth;
