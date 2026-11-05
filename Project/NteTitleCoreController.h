@@ -244,16 +244,16 @@ NS_ASSUME_NONNULL_BEGIN
        withTransitionCoordinator:(nullable id<UIViewControllerTransitionCoordinator>)coordinator;
 
 /**
- * Whether the given (legacy) interface orientation is supported: landscape only.
+ * Whether the given (legacy) interface orientation is supported.
  * @param interfaceOrientation The orientation to test.
- * @return @c YES for the two landscape orientations.
+ * @return @c YES for the two portrait orientations.
  * @ghidraAddress 0x1d167c
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
- * The supported interface orientations: landscape.
- * @return @c UIInterfaceOrientationMaskLandscape.
+ * The supported interface orientations.
+ * @return Both portrait orientations.
  * @ghidraAddress 0x1d168c
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;

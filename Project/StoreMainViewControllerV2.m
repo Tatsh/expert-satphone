@@ -390,7 +390,7 @@ static const double kNeighbourDriftQuarter = 0.25;
 
 /** @ghidraAddress 0x1800c8 */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return UIInterfaceOrientationMaskLandscape;
+    return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
 }
 
 /** @ghidraAddress 0x1800d0 */

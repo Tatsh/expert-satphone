@@ -505,15 +505,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Whether the screen may rotate to an orientation.
  * @param interfaceOrientation The orientation asked about.
- * @return YES for the two portrait orientations, NO otherwise. This contradicts
- *         @c -supportedInterfaceOrientations , which reports landscape; the binary does both.
+ * @return YES for the two portrait orientations, NO otherwise.
  * @ghidraAddress 0xa6e64
  */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 /**
  * The orientations the screen supports.
- * @return @c UIInterfaceOrientationMaskLandscape .
+ * @return Both portrait orientations.
  * @ghidraAddress 0xa6e74
  */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations;

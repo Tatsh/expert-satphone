@@ -55,9 +55,8 @@
 
 static const double g_dAnimDuration020 = 0.2; // @ghidraAddress 0x28f240
 
-// Landscape-left and landscape-right make up the supported orientation mask.
 static const UIInterfaceOrientationMask kSupportedOrientations =
-    UIInterfaceOrientationMaskLandscapeLeft | UIInterfaceOrientationMaskLandscapeRight;
+    UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
 
 // The custom-BGM selection preferences: the chosen tune's id and whether the custom BGM is on.
 static NSString *const kPrefCustomBgmIDKey = @"PrefCustomBgmID";
@@ -1440,7 +1439,7 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
 
 /** @ghidraAddress 0x32be0 */
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation {
-    // The two landscape orientations are UIInterfaceOrientationLandscapeLeft (1) and Right (2).
+    // Portrait and portrait upside down have interface orientation values 1 and 2.
     return (orientation - 1) < 2;
 }
 

@@ -837,7 +837,7 @@ static const float kNextSceneBlinkRepeatCount = 10.0f;
 
 /** @ghidraAddress 0x1d168c */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return UIInterfaceOrientationMaskLandscape;
+    return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
 }
 
 /** @ghidraAddress 0x1d1694 */

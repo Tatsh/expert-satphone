@@ -1376,7 +1376,7 @@ static NSString *const kKonamiURL = @"http://www.konami.jp/";
 
 /** @ghidraAddress 0x9075c */
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return UIInterfaceOrientationMaskLandscape;
+    return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
 }
 
 /** @ghidraAddress 0x90764 */
