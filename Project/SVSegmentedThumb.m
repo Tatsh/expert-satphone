@@ -32,6 +32,7 @@ static const CGFloat kThumbSelectedAlpha = 0.8; // @ghidraAddress 0x28e060
 
 @implementation SVSegmentedThumb
 
+// The original retains these ivars even where a custom setter only updates labels or the layer.
 @synthesize segmentedControl = segmentedControl;
 @synthesize backgroundImage = backgroundImage;
 @synthesize highlightedBackgroundImage = highlightedBackgroundImage;
@@ -95,11 +96,13 @@ static const CGFloat kThumbSelectedAlpha = 0.8; // @ghidraAddress 0x28e060
 
 /** @ghidraAddress 0x16f8c8 */
 - (UIFont *)font {
+    (void)font;
     return self.label.font;
 }
 
 /** @ghidraAddress 0x16fe84 */
 - (void)setFont:(UIFont *)aFont {
+    (void)font;
     [self.secondLabel setFont:aFont];
     [self.label setFont:aFont];
 }
@@ -119,6 +122,7 @@ static const CGFloat kThumbSelectedAlpha = 0.8; // @ghidraAddress 0x28e060
 
 /** @ghidraAddress 0x16ff28 */
 - (void)setTextColor:(UIColor *)color {
+    (void)textColor;
     // The library pushes the colour onto the labels and never stores the textColor ivar, so the
     // getter always reports the value seeded at init.
     [self.secondLabel setTextColor:color];
@@ -127,6 +131,7 @@ static const CGFloat kThumbSelectedAlpha = 0.8; // @ghidraAddress 0x28e060
 
 /** @ghidraAddress 0x16ffcc */
 - (void)setTextShadowColor:(UIColor *)color {
+    (void)textShadowColor;
     // Pushed onto both labels' shadowColor; the textShadowColor ivar itself is not stored.
     [self.secondLabel setShadowColor:color];
     [self.label setShadowColor:color];
@@ -134,6 +139,7 @@ static const CGFloat kThumbSelectedAlpha = 0.8; // @ghidraAddress 0x28e060
 
 /** @ghidraAddress 0x170070 */
 - (void)setTextShadowOffset:(CGSize)offset {
+    (void)textShadowOffset;
     // Pushed onto both labels' shadowOffset; the textShadowOffset ivar itself is not stored.
     [self.secondLabel setShadowOffset:offset];
     [self.label setShadowOffset:offset];
@@ -141,6 +147,7 @@ static const CGFloat kThumbSelectedAlpha = 0.8; // @ghidraAddress 0x28e060
 
 /** @ghidraAddress 0x170110 */
 - (void)setShouldCastShadow:(BOOL)cast {
+    (void)shouldCastShadow;
     // Drives the layer's shadow opacity directly; the shouldCastShadow ivar itself is not stored.
     self.layer.shadowOpacity = (float)cast;
 }
@@ -149,16 +156,19 @@ static const CGFloat kThumbSelectedAlpha = 0.8; // @ghidraAddress 0x28e060
 
 /** @ghidraAddress 0x170818 */
 - (void)setShadowColor:(UIColor *)color {
+    (void)shadowColor;
     [self setTextShadowColor:color];
 }
 
 /** @ghidraAddress 0x17080c */
 - (void)setShadowOffset:(CGSize)offset {
+    (void)shadowOffset;
     [self setTextShadowOffset:offset];
 }
 
 /** @ghidraAddress 0x170824 */
 - (void)setCastsShadow:(BOOL)cast {
+    (void)castsShadow;
     [self setShouldCastShadow:cast];
 }
 

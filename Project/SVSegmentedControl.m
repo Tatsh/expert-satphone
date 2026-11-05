@@ -64,6 +64,7 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
 @synthesize textColor = textColor;
 @synthesize textShadowColor = textShadowColor;
 @synthesize textShadowOffset = textShadowOffset;
+// The deprecated alias setters leave their original backing ivars untouched.
 @synthesize shadowColor = shadowColor;
 @synthesize shadowOffset = shadowOffset;
 @synthesize segmentPadding = segmentPadding;
@@ -571,16 +572,19 @@ static const double kSVSegmentedControlStrokeAlpha = 0.9;
 
 /** @ghidraAddress 0x16d870 */
 - (void)setSegmentPadding:(double)newPadding {
+    (void)segmentPadding;
     self.titleEdgeInsets = UIEdgeInsetsMake(0, newPadding, 0, newPadding);
 }
 
 /** @ghidraAddress 0x16d88c */
 - (void)setShadowOffset:(CGSize)newOffset {
+    (void)shadowOffset;
     self.textShadowOffset = newOffset;
 }
 
 /** @ghidraAddress 0x16d898 */
 - (void)setShadowColor:(UIColor *)newColor {
+    (void)shadowColor;
     self.textShadowColor = newColor;
 }
 
