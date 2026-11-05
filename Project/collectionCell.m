@@ -18,9 +18,11 @@ static const CGFloat kCellHeightPhoneOther = 101.0; // @ghidraAddress 0x28f328
 static const NSInteger kCellDeviceTypeTall = 2;
 
 @implementation collectionCell {
+    UIImageView *artwork;
     MusicView *view;  // ivar-offset global 0x349aa4
     id aDelegate;     // the artwork-loading delegate
     BOOL bDispArtist; // whether the music view shows the artist name (isPad)
+    BOOL bDispTitle;
 }
 
 /** @ghidraAddress 0x3ac18 */
@@ -28,6 +30,8 @@ static const NSInteger kCellDeviceTypeTall = 2;
     parentDelegate:(id)parentDelegate
           viewType:(int)viewType
          labelDisp:(BOOL)labelDisp {
+    (void)artwork;
+    (void)bDispTitle;
     aDelegate = parentDelegate;
     BOOL isPad = JubeatAppDelegate.appDelegate.isPad;
     NSInteger deviceType = JubeatAppDelegate.appDelegate.deviceType;

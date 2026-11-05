@@ -4,7 +4,8 @@
  *
  * Reconstructed from Ghidra program Jubeat (class collectionCell, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base. The class name is the binary's
- * own lowercase @c collectionCell . @c MusicView is not reconstructed yet; see TYPES_PENDING.md.
+ * own lowercase @c collectionCell . The original also retains unused artwork and title-display
+ * ivars alongside its hosted @c MusicView .
  */
 
 #import <UIKit/UIKit.h>
