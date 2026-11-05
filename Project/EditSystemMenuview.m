@@ -33,7 +33,12 @@ static const CGFloat kLoadHeaderHeight = 20.0;
 static const CGFloat kOtherHeaderHeight = 4.0;
 static const CGFloat kLoadFooterHeight = 1.0;
 
-@implementation EditSystemMenuview
+@implementation EditSystemMenuview {
+    // The original subclass declares these again, independently of its parent's ivars.
+    UILabel *labelMessage;
+    UITableView *tableFiles;
+    UIView *shadowView;
+}
 
 #pragma mark - Layer
 
@@ -46,6 +51,9 @@ static const CGFloat kLoadFooterHeight = 1.0;
 
 /** @ghidraAddress 0x21876c */
 - (instancetype)initWithSize:(CGSize)size {
+    (void)labelMessage;
+    (void)tableFiles;
+    (void)shadowView;
     return [super initWithSize:size];
 }
 

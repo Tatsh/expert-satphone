@@ -10,6 +10,7 @@
  * present section 0 (a single EXIT row) and section 1 (a "LOAD" header over the saved-chart slots
  * from @c EditDataManager ). Selections are relayed to the inherited delegate through the
  * @c selectExit and @c selectLoadSlot: selectors, sent only when the delegate responds.
+ * The original subclass repeats the base class's three unused view ivars in its own metadata.
  */
 
 #import "EditFileListViewController.h"
