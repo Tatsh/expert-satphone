@@ -243,7 +243,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
                             error:(NSError **)error {
 #ifdef ENABLE_PATCHES
     // Preservation patch, not in the binary. An omitted NSError output needs a writable sink.
-    NSError *ignoredError = nil;
+    NSError *__autoreleasing ignoredError = nil;
     if (error == nullptr) {
         error = &ignoredError;
     }
@@ -298,7 +298,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
 + (NSString *)getAdvertisingRewardUdidWithError:(NSError **)error {
 #ifdef ENABLE_PATCHES
     // Preservation patch, not in the binary. An omitted NSError output needs a writable sink.
-    NSError *ignoredError = nil;
+    NSError *__autoreleasing ignoredError = nil;
     if (error == nullptr) {
         error = &ignoredError;
     }
@@ -324,7 +324,7 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
 + (NSString *)createAdvertisingRewardUdidWithError:(NSError **)error {
 #ifdef ENABLE_PATCHES
     // Preservation patch, not in the binary. An omitted NSError output needs a writable sink.
-    NSError *ignoredError = nil;
+    NSError *__autoreleasing ignoredError = nil;
     if (error == nullptr) {
         error = &ignoredError;
     }

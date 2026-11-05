@@ -716,7 +716,7 @@ static NSData *g_pAllAdDataExpiryArchive = nil;
                        errorObj:(NSError **)errorObj {
 #ifdef ENABLE_PATCHES
     // Preservation patch, not in the binary. An omitted NSError output needs a writable sink.
-    NSError *ignoredError = nil;
+    NSError *__autoreleasing ignoredError = nil;
     if (errorObj == nullptr) {
         errorObj = &ignoredError;
     }
