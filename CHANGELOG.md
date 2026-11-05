@@ -18,6 +18,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- The app no longer crashes when reading URLs for scratch card artwork or song downloads.
 - Corrected title, music selection, and store screens to support both portrait orientations.
 - Cube purchase taps and confirmations now invoke the purchase handler.
 - Restored the editor event-limit alert title and the chart upload success message.

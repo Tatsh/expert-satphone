@@ -46,6 +46,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, strong, nullable) NSString *artistName;
 
+/** The jacket image URL from the challenge line-up. */
+@property(nonatomic, strong, nullable) NSString *imgURL;
+
+/** The downloadable song data URL from the challenge line-up. */
+@property(nonatomic, strong, nullable) NSString *itemURL;
+
 /**
  * Builds the track from a store dictionary, looking its details up in the challenge line-up.
  * @param dictionary The store dictionary (carries @c music_id ).
