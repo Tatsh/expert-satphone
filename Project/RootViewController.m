@@ -733,7 +733,7 @@ static inline void RootViewControllerBeginFadeInForAnimation(RootViewController 
     NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
     [defaults synchronize];
     [gameViewCtrl setCurrentTune:tune];
-    [gameViewCtrl setCurrentDiff:[defaults integerForKey:kPrefDifficultyKey]];
+    [gameViewCtrl setCurrentDiff:(unsigned int)[defaults integerForKey:kPrefDifficultyKey]];
     [gameViewCtrl setCurrentMarker:[defaults objectForKey:kPrefCurrentMarkerIDKey]];
     if (shareManager) {
         // The share manager reports back to the game screen, and the game screen holds it in turn.
@@ -754,7 +754,7 @@ static inline void RootViewControllerBeginFadeInForAnimation(RootViewController 
     NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
     [defaults synchronize];
     [editViewCtrl setCurrentTune:tune];
-    [editViewCtrl setCurrentDiff:[defaults integerForKey:kPrefDifficultyKey]];
+    [editViewCtrl setCurrentDiff:(unsigned int)[defaults integerForKey:kPrefDifficultyKey]];
     [editViewCtrl setCurrentMarker:[defaults objectForKey:kPrefCurrentMarkerIDKey]];
     if (musicData) {
         [editViewCtrl setMusicData:musicData];
