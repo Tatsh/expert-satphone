@@ -19,11 +19,14 @@ static const char *const kQueueLabel = "ApplilinkViewManager";
 
 @implementation ApplilinkViewManager {
     ApplilinkVideoController *_videoController; // strong; the on-screen player, nil if none
-    __weak id<ApplilinkViewManagerSdkDelegate> _sdkDelegate; // weak; callbacks are relayed to it
-    ApplilinkParameters *_applilinkParams; // strong; the last request's parameters
+    __weak id<ApplilinkViewDelegate> _applilinkDelegate;
+    ApplilinkParameters *_applilinkParams;   // strong; the last request's parameters
+    __weak id<SdkViewDelegate> _sdkDelegate; // weak; callbacks are relayed to it
 }
 
-// The weak sdkDelegate property is backed by the binary's _sdkDelegate ivar.
+@synthesize videoController = _videoController;
+@synthesize applilinkDelegate = _applilinkDelegate;
+@synthesize applilinkParams = _applilinkParams;
 @synthesize sdkDelegate = _sdkDelegate;
 
 #pragma mark - Lifecycle

@@ -15,30 +15,12 @@
 #import <UIKit/UIKit.h>
 
 #import "ApplilinkStore.h"
+#import "ApplilinkViewDelegate.h"
 
 @class ApplilinkParameters;
+@class ApplilinkVideoController;
 
 NS_ASSUME_NONNULL_BEGIN
-
-/**
- * The SDK-delegate callbacks the manager relays. The receiver is dispatched dynamically
- * after a @c -respondsToSelector: guard, so the protocol only documents the selectors.
- */
-@protocol ApplilinkViewManagerSdkDelegate <NSObject>
-@optional
-/** The managed view opened. */
-- (void)openedNotice;
-/**
- * The managed view was closed.
- * @param view The view that closed.
- */
-- (void)closeNotice:(nullable id)view;
-/**
- * The managed view finished loading and is ready.
- * @param view The view that became ready.
- */
-- (void)viewReady:(nullable id)view;
-@end
 
 /**
  * The Applilink in-app video-player host singleton.
@@ -48,11 +30,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface ApplilinkViewManager : NSObject <SdkViewDelegate>
 
+@property(strong, nonatomic, nullable) ApplilinkVideoController *videoController;
+@property(weak, nonatomic, nullable) id<ApplilinkViewDelegate> applilinkDelegate;
+@property(copy, nonatomic, nullable) ApplilinkParameters *applilinkParams;
+
 /**
  * The SDK delegate that opened-notice and close-notice callbacks are relayed to.
  * @ghidraAddress 0x2486e4
  */
-@property(weak, nonatomic, nullable) id<ApplilinkViewManagerSdkDelegate> sdkDelegate;
+@property(weak, nonatomic, nullable) id<SdkViewDelegate> sdkDelegate;
 
 /**
  * The shared instance, creating the private serial queue on first use.
