@@ -81,6 +81,7 @@ typedef struct {
     int markerState[kMainGameGridPanelCount]; /*!< Per-panel marker animation state. */
     MainGameHoldState holdState[kMainGameGridPanelCount]; /*!< Per-panel hold-marker state. */
     HoldMarkerRender *holdMarkerRender;                   /*!< The hold-marker sub-renderer. */
+    unsigned int _state;                                  /*!< The high-level render state. */
 }
 
 /**
