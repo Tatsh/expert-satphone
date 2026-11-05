@@ -308,22 +308,22 @@ typedef NS_ENUM(NSUInteger, JubeatDeviceType) {
  * Cleared to nil by @c -resetDownLoadIndex.
  * @ghidraAddress 0xb898 (getter)
  */
-@property(nonatomic, readonly) id jcfDownloadID;
+@property(nonatomic, readonly, nullable) id jcfDownloadID;
 /**
  * The genre selected in the store. Backed by @c _storeGenreID (0x349618).
  * @ghidraAddress 0xb968 (getter)
  */
-@property(nonatomic, readonly) id storeGenreID;
+@property(nonatomic, readonly, nullable) id storeGenreID;
 /**
  * The pack selected in the store. Backed by @c _storePackID (0x34961c).
  * @ghidraAddress 0xb978 (getter)
  */
-@property(nonatomic, readonly) id storePackID;
+@property(nonatomic, readonly, nullable) id storePackID;
 /**
  * The campaign selected in the store. Backed by @c _storeCampaignID (0x349620).
  * @ghidraAddress 0xb988 (getter)
  */
-@property(nonatomic, readonly) id storeCampaignID;
+@property(nonatomic, readonly, nullable) id storeCampaignID;
 /**
  * The banner image file name for the current campaign.
  * @ghidraAddress 0xb9b8 (getter)
