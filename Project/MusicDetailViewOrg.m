@@ -351,10 +351,10 @@ static inline char MusicDetailViewOrgLevelIndex(int level) {
 // height (pad 100 / phone 50), and it holds two full-width pages. The binary computes the top
 // entirely in integer registers and converts once with scvtf, so those four are `mov` immediates
 // rather than pool loads.
-static const int kScrollViewTopBasePad = 400;              // @ghidraAddress 0x50364 (mov w8,#0x190)
-static const int kScrollViewTopBasePhone = 200;            // @ghidraAddress 0x50360 (mov w23,#0xc8)
-static const int kScrollViewTopInsetPad = 100;             // @ghidraAddress 0x50380 (mov w9,#0x64)
-static const int kScrollViewTopInsetPhone = 50;            // @ghidraAddress 0x5037c (mov w8,#0x32)
+static const int kScrollViewTopBasePad = 400;
+static const int kScrollViewTopBasePhone = 200;
+static const int kScrollViewTopInsetPad = 100;
+static const int kScrollViewTopInsetPhone = 50;
 static const double kScrollViewContentHeightPad = 200.0;   // @ghidraAddress 0x28f400
 static const double kScrollViewContentHeightPhone = 100.0; // @ghidraAddress 0x28f3f0
 static const NSInteger kScrollViewAutoresizingMask = 18;
@@ -370,7 +370,7 @@ static const CGFloat kGradientAlpha = 0.9f; // @ghidraAddress 0x28f448
 // The artwork and its reflection. The square artwork is (pad 200 / retina 110 / non-retina 95) on a
 // side, inset (pad 10 / phone 8) from the corner; the reflection sits directly below it (nudged by
 // retina 0.5 / non-retina 1.0) and is a fraction (pad 0.3 / phone 0.2) as tall.
-static const double kArtworkSizePad = 200.0;      // @ghidraAddress 0x50360 (mov w23,#0xc8), reused
+static const double kArtworkSizePad = 200.0;
 static const double kArtworkSizeRetina = 110.0;   // 0x6e
 static const double kArtworkSizeNonRetina = 95.0; // 0x5f
 static const double kArtworkInsetPad = 10.0;      // fmov, 10.0

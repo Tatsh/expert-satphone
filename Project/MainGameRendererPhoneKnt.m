@@ -135,7 +135,7 @@ enum {
 static const int kRatingRankCount = 8;
 
 // The result-background atlas slot the rank rating overlay is blitted into.
-static const unsigned int kResultRatingSprite = 12; // @ghidraAddress 0x18bbcc
+static const unsigned int kResultRatingSprite = 12;
 
 // The debug-font glyph advance and newline drop, in points.
 static const double kDebugGlyphAdvance = 12.0;
