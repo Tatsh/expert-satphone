@@ -121,9 +121,13 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 /** @ghidraAddress 0x1527d8 */
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Only the single section carries rows; any other section returns nil.
+    // Only the single section carries rows.
     if (indexPath.section != 0) {
+#ifdef ENABLE_PATCHES
+        return [UITableViewCell new];
+#else
         return nil;
+#endif
     }
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kCellIdentifier];
     if (!cell) {

@@ -722,7 +722,11 @@ static dispatch_queue_t g_pApplilinkUdidQueue = nil;
         } else {
             secondaryUdid = nil;
         }
+#ifdef ENABLE_PATCHES
+        if (secondaryUdid != nil && ![adUdid isEqualToString:secondaryUdid]) {
+#else
         if (![adUdid isEqualToString:secondaryUdid]) {
+#endif
             [udidParameters setValue:secondaryUdid forKey:kParamKeyOldUdid];
         }
         return YES;

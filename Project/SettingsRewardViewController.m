@@ -159,6 +159,9 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 
 /** @ghidraAddress 0x20abe0 */
 - (void)viewWillDisappear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewWillDisappear:animated];
+#endif
     if (idManager != nil) {
         [idManager cancel];
     }

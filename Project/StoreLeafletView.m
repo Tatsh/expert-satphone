@@ -77,7 +77,11 @@ static const CGFloat kRowHeightValidPhone = 80.0;
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     // Unreachable as shipped: numPackRows is 0, so no row is ever requested.
+#ifdef ENABLE_PATCHES
+    return [UITableViewCell new];
+#else
     return nil;
+#endif
 }
 
 /** @ghidraAddress 0x124ae4 */

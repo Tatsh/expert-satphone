@@ -876,7 +876,13 @@ int unzOpenCurrentFile(unzFile file) {
 
     if ((s->cur_file_info.compression_method != 0) &&
         (s->cur_file_info.compression_method != Z_DEFLATED)) {
+#ifdef ENABLE_PATCHES
+        TRYFREE(pfile_in_zip_read_info->read_buffer);
+        TRYFREE(pfile_in_zip_read_info);
+        return UNZ_BADZIPFILE;
+#else
         err = UNZ_BADZIPFILE;
+#endif
     }
 
     pfile_in_zip_read_info->crc32_wait = s->cur_file_info.crc;

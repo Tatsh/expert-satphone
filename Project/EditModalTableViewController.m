@@ -420,7 +420,11 @@ static NSString *const kFieldTitles[] = {@"譜面名", @"作成者名", @"コメ
         return cell;
     }
 
+#ifdef ENABLE_PATCHES
+    return [UITableViewCell new];
+#else
     return nil;
+#endif
 }
 
 #pragma mark - UITableViewDelegate

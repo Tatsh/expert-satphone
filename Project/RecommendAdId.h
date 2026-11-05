@@ -13,6 +13,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#ifdef ENABLE_PATCHES
+typedef BOOL RecommendAdMutationResult;
+#else
+typedef void RecommendAdMutationResult;
+#endif
+
 /**
  * The recommend network's advertising-identifier record.
  */
@@ -47,13 +53,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @param categoryId The advert category identifier.
  * @param adType The advert-type string.
  * @param error On failure, the localised error; may be @c nullptr.
+ * @return In patched builds, @c YES on success and @c NO on failure.
  * @ghidraAddress 0x22be90
  */
-- (void)setWithAdIdFrom:(nullable NSString *)adIdFrom
-            countryCode:(nullable NSString *)countryCode
-             categoryId:(nullable NSString *)categoryId
-                 adType:(nullable NSString *)adType
-                  error:(NSError *_Nullable *_Nullable)error;
+- (RecommendAdMutationResult)setWithAdIdFrom:(nullable NSString *)adIdFrom
+                                 countryCode:(nullable NSString *)countryCode
+                                  categoryId:(nullable NSString *)categoryId
+                                      adType:(nullable NSString *)adType
+                                       error:(NSError *_Nullable *_Nullable)error;
 
 /**
  * Deletes the stored advertising identifier for a country code and category id.

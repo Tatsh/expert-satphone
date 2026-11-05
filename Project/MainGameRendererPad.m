@@ -2169,7 +2169,9 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
                      alpha:(float)curtainAlpha];
         }
         f = self->frame;
+#ifndef ENABLE_PATCHES
         curtainAlpha = (double)((float)(10 - f) * kCurtainFadeRatePerFrame + 1.0f);
+#endif
     }
 
     // The score: the running total until frame 40, then the final total plus any bonus.

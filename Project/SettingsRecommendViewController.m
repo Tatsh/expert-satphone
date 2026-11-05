@@ -118,6 +118,9 @@ static const UIInterfaceOrientationMask kSupportedOrientations =
 
 /** @ghidraAddress 0xcffcc */
 - (void)viewWillDisappear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewWillDisappear:animated];
+#endif
     [JubeatAppDelegate appDelegate].hasNewRecommendNum = 0;
     [RecommendNetwork closeAdAreaWithParentView:recommendView];
     [[AlertViewManager sharedManager] closeAlert];

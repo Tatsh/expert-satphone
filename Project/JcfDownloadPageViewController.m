@@ -473,11 +473,17 @@ static const NSUInteger kMaxCustomDownloadIDLength = 14;
 
 /** @ghidraAddress 0x1e86f0 */
 - (void)viewWillDisappear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewWillDisappear:animated];
+#endif
     [[AlertViewManager sharedManager] closeAlert];
 }
 
 /** @ghidraAddress 0x1e8954 */
 - (void)viewDidAppear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewDidAppear:animated];
+#endif
     [self initPageView];
     if (!bURLStart) {
         return;

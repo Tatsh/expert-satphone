@@ -196,11 +196,17 @@ static NSString *const kOKKey = @"OK";
 
 /** @ghidraAddress 0xd930c */
 - (void)viewWillDisappear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewWillDisappear:animated];
+#endif
     [AlertViewManager.sharedManager closeAlert];
 }
 
 /** @ghidraAddress 0xd9354 */
 - (void)viewDidAppear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewDidAppear:animated];
+#endif
     // The binary's implementation is empty (it does not chain up to super).
 }
 

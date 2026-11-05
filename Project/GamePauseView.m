@@ -165,7 +165,11 @@ static const NSTimeInterval kPauseInteractionDelay = 0.4; // @ghidraAddress 0x28
     btnEnd = [UIButton buttonWithType:UIButtonTypeCustom];
     btnEnd.frame = CGRectMake(0, 0, endImage.size.width, endImage.size.height);
     [btnEnd setBackgroundImage:endImage forState:UIControlStateNormal];
+#ifdef ENABLE_PATCHES
+    CGFloat endY;
+#else
     CGFloat endY = step;
+#endif
     if (!challengeMode) {
         endY = step + kPauseButtonStep + kPauseEndYOffset;
     } else {

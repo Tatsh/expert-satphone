@@ -137,6 +137,9 @@ static const CGFloat kTextFieldBorderWidth = 1.0;
 
 /** @ghidraAddress 0x1e5710 */
 - (void)viewDidLoad {
+#ifdef ENABLE_PATCHES
+    [super viewDidLoad];
+#endif
 }
 
 /** @ghidraAddress 0x1e5714 */
@@ -146,6 +149,9 @@ static const CGFloat kTextFieldBorderWidth = 1.0;
 
 /** @ghidraAddress 0x1e574c */
 - (void)viewDidUnload {
+#ifdef ENABLE_PATCHES
+    [super viewDidUnload];
+#endif
 }
 
 // The binary's -dealloc (0x1e5750) only forwards to [super dealloc]; under ARC that is implicit, so

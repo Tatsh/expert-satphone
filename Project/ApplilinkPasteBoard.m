@@ -184,10 +184,13 @@ enum {
     NSDictionary *record = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
     NSError *validateError = nil;
     if (![ApplilinkPasteBoard validate:record error:&validateError]) {
-        // The stored record is invalid: clear the slot and report the failure. The binary passes a
-        // nil data to clear the slot; a typed nil sidesteps the framework's nonnull annotation.
+        // The stored record is invalid: clear the slot and report the failure.
+#ifdef ENABLE_PATCHES
+        [UIPasteboard removePasteboardWithName:name];
+#else
         NSData *emptyData = nil;
         [pasteboard setData:emptyData forPasteboardType:kPasteboardType];
+#endif
         if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorValidateError];
         }
@@ -292,10 +295,10 @@ enum {
         }
         return NO;
     }
-    // The binary passes a nil data to clear the slot; a typed nil sidesteps the framework's
-    // nonnull.
+#ifndef ENABLE_PATCHES
     NSData *emptyData = nil;
     [pasteboard setData:emptyData forPasteboardType:kPasteboardType];
+#endif
     [UIPasteboard removePasteboardWithName:name];
     return YES;
 }

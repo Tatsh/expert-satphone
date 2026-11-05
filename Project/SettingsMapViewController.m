@@ -198,6 +198,9 @@ static const int kMapConfirmAlertTag = 1;
 
 /** @ghidraAddress 0x118ec0 */
 - (void)viewDidAppear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewDidAppear:animated];
+#endif
     if ([self currentLocationEnabled] && !_firstLocationObserved && !_isObservingLocation) {
         [self.mapView.userLocation addObserver:self
                                     forKeyPath:kUserLocationKeyPath
@@ -213,6 +216,9 @@ static const int kMapConfirmAlertTag = 1;
 
 /** @ghidraAddress 0x118ff0 */
 - (void)viewWillDisappear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewWillDisappear:animated];
+#endif
     if (_isObservingLocation) {
         [self.mapView.userLocation removeObserver:self forKeyPath:kUserLocationKeyPath];
         _isObservingLocation = NO;

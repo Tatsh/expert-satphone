@@ -134,7 +134,11 @@ static const CGFloat kLoadFooterHeight = 1.0;
         cell.detailTextLabel.text = @"";
         return cell;
     }
+#ifdef ENABLE_PATCHES
+    return [UITableViewCell new];
+#else
     return nil;
+#endif
 }
 
 #pragma mark - Selection

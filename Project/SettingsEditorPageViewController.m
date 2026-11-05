@@ -271,6 +271,9 @@ static const int kAlertTagSessionFailed = 2;
 
 /** @ghidraAddress 0x1f8774 */
 - (void)viewWillDisappear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewWillDisappear:animated];
+#endif
     [AlertViewManager.sharedManager closeAlert];
 }
 

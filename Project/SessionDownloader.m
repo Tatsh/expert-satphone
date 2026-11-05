@@ -44,6 +44,12 @@ static NSData *sSessionResponse = nil;
 - (NSString *)dataHash:(NSData *)bodyData;
 - (NSURLRequest *)createPostRequest:(NSURL *)url postData:(NSData *)bodyData;
 - (NSURLRequest *)getSessionRequest;
+#ifdef ENABLE_PATCHES
+- (instancetype)initWithURL:(NSURL *)url
+                   postData:(NSData *)postData
+                   delegate:(id)aDelegate
+                     cnonce:(NSString *)cnonce;
+#endif
 @end
 
 // De-inlined from the two 0x18b5x arms: re-open the session against getSessionRequest and resume a
@@ -84,41 +90,78 @@ static inline void SessionDownloaderRetryOriginalRequest(SessionDownloader *self
 - (instancetype)initWithURL:(NSURL *)url
              postDictionary:(NSDictionary *)postDictionary
                    delegate:(id)aDelegate {
+#ifndef ENABLE_PATCHES
     _apiTag = 0;
+#endif
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:postDictionary];
     // Reuse a caller-supplied cnonce; otherwise mint a random one and record it in the body.
+#ifdef ENABLE_PATCHES
+    NSString *cnonce = params[@"cnonce"];
+    if (!cnonce) {
+        cnonce = [NSString stringWithFormat:@"%d", rand()];
+        params[@"cnonce"] = cnonce;
+    }
+#else
     sendCnonce = params[@"cnonce"];
     if (!sendCnonce) {
         sendCnonce = [NSString stringWithFormat:@"%d", rand()];
         params[@"cnonce"] = sendCnonce;
     }
+#endif
     // Every client-info entry is folded into the request parameters.
     NSDictionary *clientInfo = JubeatAppDelegate.clientInfo;
     for (id key in clientInfo.allKeys) {
         params[key] = clientInfo[key];
     }
     NSData *json = [CJSONSerializer.serializer serializeDictionary:params error:nil];
+#ifdef ENABLE_PATCHES
+    return [self initWithURL:url postData:json delegate:aDelegate cnonce:cnonce];
+#else
     return [self initWithURL:url postData:json delegate:aDelegate];
+#endif
 }
 
 /** @ghidraAddress 0xffb48 */
 - (instancetype)initWithURL:(NSURL *)url delegate:(id)aDelegate {
+#ifndef ENABLE_PATCHES
     _apiTag = 0;
+#endif
     NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
+#ifdef ENABLE_PATCHES
+    NSString *cnonce = [NSString stringWithFormat:@"%d", rand()];
+    params[@"cnonce"] = cnonce;
+#else
     sendCnonce = [NSString stringWithFormat:@"%d", rand()];
     params[@"cnonce"] = sendCnonce;
+#endif
     NSDictionary *clientInfo = JubeatAppDelegate.clientInfo;
     for (id key in clientInfo.allKeys) {
         params[key] = clientInfo[key];
     }
     NSData *json = [CJSONSerializer.serializer serializeDictionary:params error:nil];
+#ifdef ENABLE_PATCHES
+    return [self initWithURL:url postData:json delegate:aDelegate cnonce:cnonce];
+#else
     return [self initWithURL:url postData:json delegate:aDelegate];
+#endif
 }
 
 /** @ghidraAddress 0xffe1c */
 - (instancetype)initWithURL:(NSURL *)url postData:(NSData *)postData delegate:(id)aDelegate {
+#ifdef ENABLE_PATCHES
+    return [self initWithURL:url postData:postData delegate:aDelegate cnonce:nil];
+}
+
+- (instancetype)initWithURL:(NSURL *)url
+                   postData:(NSData *)postData
+                   delegate:(id)aDelegate
+                     cnonce:(NSString *)cnonce {
+#endif
     self = [super init];
     if (self) {
+#ifdef ENABLE_PATCHES
+        sendCnonce = cnonce;
+#endif
         retryCnt = 0;
         requestURL = url;
         requestData = postData;

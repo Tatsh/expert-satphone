@@ -108,7 +108,12 @@ static NSMutableDictionary *gApplilinkErrorMessages = nil;
         }
     }
 
+#ifdef ENABLE_PATCHES
+    NSMutableDictionary *mergedUserInfo =
+        [NSMutableDictionary dictionaryWithDictionary:userInfo ?: @{}];
+#else
     NSMutableDictionary *mergedUserInfo = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+#endif
     if (gApplilinkErrorMessages != nil) {
         // The table is keyed with numberWithInteger: when built but read with numberWithInt:, so
         // the lookup narrows the code to 32 bits. The two agree numerically for every code in the

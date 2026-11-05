@@ -204,6 +204,11 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
         return YES;
     }
     NSDate *agreed = [formatter dateFromString:agreedDate];
+#ifdef ENABLE_PATCHES
+    if (!current || !agreed) {
+        return YES;
+    }
+#endif
     return [agreed compare:current] == NSOrderedAscending;
 }
 

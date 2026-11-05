@@ -18,6 +18,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- In patched builds, challenge session requests preserve the nonce needed to open a session.
+- In patched builds, reward setup accepts a missing environment and removes invalid stored IDs.
+- In patched builds, ZIP entries with unsupported compression fail with a file error.
+- In patched builds, missing or invalid licence dates trigger another policy review.
 - In patched builds, marker lists that decode to `nil` now use the existing default-list recovery
   path instead of raising an exception.
 - In patched builds, rating-chip settings no longer raise an exception when a pattern image is

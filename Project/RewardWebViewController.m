@@ -193,6 +193,9 @@ enum {
 
 /** @ghidraAddress 0x24cc40 */
 - (void)viewDidDisappear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewDidDisappear:animated];
+#endif
     self.viewCloseFlg = YES;
 }
 
@@ -355,7 +358,11 @@ enum {
     }
     self.view.frame = CGRectMake(originX, originY, viewWidth, viewHeight);
 
+#ifdef ENABLE_PATCHES
+    CGRect baseFrame;
+#else
     CGRect baseFrame = self.baseView.frame;
+#endif
     if (self.isNavigationBarHidden) {
         [self.navigationBar removeFromSuperview];
         baseFrame = self.baseView.frame;

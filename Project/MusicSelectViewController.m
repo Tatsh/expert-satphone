@@ -716,10 +716,12 @@ static CABasicAnimation *MusicSelectMakeNewBadgeBlinkAnimation(void) {
     [musicListView setDelegate:self];
 
     // The marker-select panel slides down from off-screen; it is off by default.
+#ifndef ENABLE_PATCHES
     UIImage *markerBg = LoadScaledPngImage(@"playlist_btn");
     if (isPad) {
         markerBg = [markerBg resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 45.0)];
     }
+#endif
     double markerSize = isPad ? 500.0 : 250.0;
     double markerY = isPad ? kMarkerSelectYPad : kMarkerSelectYPhone;
     markerSelectView =

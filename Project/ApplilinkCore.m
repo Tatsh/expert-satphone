@@ -146,17 +146,24 @@ static NSString *sPasteBoardUdidCache;      // 0x3542d8
         return;
     }
     sInitializingFlg = YES;
+#ifdef ENABLE_PATCHES
+    if (!env) {
+        env = kApplilinkDefaultEnv;
+    }
+#endif
     if (!resume) {
         [[NSUserDefaults standardUserDefaults] setObject:appliId forKey:kApplilinkAppliIdKey];
         [[NSUserDefaults standardUserDefaults] setObject:env forKey:kApplilinkEnvKey];
         [[NSUserDefaults standardUserDefaults] synchronize];
         sInitializeStatusFlg = YES;
     }
+#ifndef ENABLE_PATCHES
     if (!env) {
         // The default environment is materialised but not captured; the block below captures only
         // the callback.
         env = [NSString stringWithString:kApplilinkDefaultEnv];
     }
+#endif
     [self appAuthSessionRegenerateWithBlock:^(NSError *__attribute__((unused)) authError) {
       /** @ghidraAddress 0x2422c8 */
       // The auth error is intentionally ignored: initialisation proceeds to the reward core

@@ -91,16 +91,16 @@ enum {
                             countryCode:(NSString *)countryCode
                              categoryId:(NSString *)categoryId
                                   error:(NSError **)error;
-- (void)setPasteboardWithUdid:(NSString *)udid
-                  countryCode:(NSString *)countryCode
-                   categoryId:(NSString *)categoryId
-                     adIdFrom:(NSString *)adIdFrom
-                       adType:(NSString *)adType
-                        error:(NSError **)error;
-- (void)deletePasteboardWithUdid:(NSString *)udid
-                     countryCode:(NSString *)countryCode
-                      categoryId:(NSString *)categoryId
-                           error:(NSError **)error;
+- (RecommendAdMutationResult)setPasteboardWithUdid:(NSString *)udid
+                                       countryCode:(NSString *)countryCode
+                                        categoryId:(NSString *)categoryId
+                                          adIdFrom:(NSString *)adIdFrom
+                                            adType:(NSString *)adType
+                                             error:(NSError **)error;
+- (RecommendAdMutationResult)deletePasteboardWithUdid:(NSString *)udid
+                                          countryCode:(NSString *)countryCode
+                                           categoryId:(NSString *)categoryId
+                                                error:(NSError **)error;
 @end
 
 @implementation RecommendAdId
@@ -166,11 +166,11 @@ enum {
 }
 
 /** @ghidraAddress 0x22be90 */
-- (void)setWithAdIdFrom:(NSString *)adIdFrom
-            countryCode:(NSString *)countryCode
-             categoryId:(NSString *)categoryId
-                 adType:(NSString *)adType
-                  error:(NSError **)error {
+- (RecommendAdMutationResult)setWithAdIdFrom:(NSString *)adIdFrom
+                                 countryCode:(NSString *)countryCode
+                                  categoryId:(NSString *)categoryId
+                                      adType:(NSString *)adType
+                                       error:(NSError **)error {
     if ([UIDevice currentDevice].systemVersion.floatValue >= kServerStorageMinimumSystemVersion) {
         NSString *udid = [ApplilinkUdid getAdUdid];
         if (udid == nil) {
@@ -178,7 +178,11 @@ enum {
                 *error =
                     [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorUdidUnavailable];
             }
+#ifdef ENABLE_PATCHES
+            return NO;
+#else
             return;
+#endif
         }
         NSString *hashedUdid = [Crypto sha1:udid];
         NSError *requestError = nil;
@@ -192,7 +196,11 @@ enum {
             if (error != nullptr) {
                 *error = requestError;
             }
+#ifdef ENABLE_PATCHES
+            return NO;
+#else
             return;
+#endif
         }
         NSMutableDictionary *record = [NSMutableDictionary dictionaryWithCapacity:4];
         if (countryCode != nil) {
@@ -207,7 +215,11 @@ enum {
         if (adType != nil) {
             [record setValue:adType forKey:kKeyAdType];
         }
+#ifdef ENABLE_PATCHES
+        return YES;
+#else
         return;
+#endif
     }
     // Pre-iOS 7: build the record locally, encrypt each field with the service-name-derived key,
     // and archive it into a persistent device pasteboard.
@@ -254,7 +266,11 @@ enum {
             *error =
                 [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorPasteboardUnavailable];
         }
+#ifdef ENABLE_PATCHES
+        return NO;
+#else
         return;
+#endif
     }
     pasteboard.persistent = YES;
     NSData *archived = [NSKeyedArchiver archivedDataWithRootObject:record];
@@ -262,6 +278,9 @@ enum {
     // Yes, the binary discards this decrypted round-trip; it is evaluated only for its side
     // effects.
     [self convertToData:record];
+#ifdef ENABLE_PATCHES
+    return YES;
+#endif
 }
 
 /** @ghidraAddress 0x22c5a4 */
@@ -299,10 +318,10 @@ enum {
         }
         return NO;
     }
-    // The binary passes a nil data to clear the slot; a typed nil sidesteps the framework's
-    // nonnull.
+#ifndef ENABLE_PATCHES
     NSData *emptyData = nil;
     [pasteboard setData:emptyData forPasteboardType:kPasteboardType];
+#endif
     [UIPasteboard removePasteboardWithName:_serviceName];
     return YES;
 }
@@ -458,12 +477,12 @@ static NSInteger ErrorCodeForResponse(NSDictionary *response) {
 }
 
 /** @ghidraAddress 0x22d228 */
-- (void)setPasteboardWithUdid:(NSString *)udid
-                  countryCode:(NSString *)countryCode
-                   categoryId:(NSString *)categoryId
-                     adIdFrom:(NSString *)adIdFrom
-                       adType:(NSString *)adType
-                        error:(NSError **)error {
+- (RecommendAdMutationResult)setPasteboardWithUdid:(NSString *)udid
+                                       countryCode:(NSString *)countryCode
+                                        categoryId:(NSString *)categoryId
+                                          adIdFrom:(NSString *)adIdFrom
+                                            adType:(NSString *)adType
+                                             error:(NSError **)error {
     NSMutableDictionary *body = [NSMutableDictionary dictionaryWithCapacity:5];
     if (udid != nil) {
         [body setValue:udid forKey:kRequestKeyUdid];
@@ -491,27 +510,38 @@ static NSInteger ErrorCodeForResponse(NSDictionary *response) {
         if (error != nullptr) {
             *error = requestError;
         }
+#ifdef ENABLE_PATCHES
+        return NO;
+#else
         return;
+#endif
     }
     if (response == nil) {
         if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorRequestFailed
                                                                    userInfo:nil];
         }
+#ifdef ENABLE_PATCHES
+        return NO;
+#else
         return;
+#endif
     }
     NSInteger errorCode = ErrorCodeForResponse(response);
     if (errorCode != 0 && error != nullptr) {
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:errorCode
                                                                userInfo:response];
     }
+#ifdef ENABLE_PATCHES
+    return errorCode == 0;
+#endif
 }
 
 /** @ghidraAddress 0x22d764 */
-- (void)deletePasteboardWithUdid:(NSString *)udid
-                     countryCode:(NSString *)countryCode
-                      categoryId:(NSString *)categoryId
-                           error:(NSError **)error {
+- (RecommendAdMutationResult)deletePasteboardWithUdid:(NSString *)udid
+                                          countryCode:(NSString *)countryCode
+                                           categoryId:(NSString *)categoryId
+                                                error:(NSError **)error {
     NSMutableDictionary *body = [NSMutableDictionary dictionaryWithCapacity:3];
     if (udid != nil) {
         [body setValue:udid forKey:kRequestKeyUdid];
@@ -533,20 +563,31 @@ static NSInteger ErrorCodeForResponse(NSDictionary *response) {
         if (error != nullptr) {
             *error = requestError;
         }
+#ifdef ENABLE_PATCHES
+        return NO;
+#else
         return;
+#endif
     }
     if (response == nil) {
         if (error != nullptr) {
             *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:kErrorRequestFailed
                                                                    userInfo:nil];
         }
+#ifdef ENABLE_PATCHES
+        return NO;
+#else
         return;
+#endif
     }
     NSInteger errorCode = ErrorCodeForResponse(response);
     if (errorCode != 0 && error != nullptr) {
         *error = [ApplilinkNetworkError localizedApplilinkErrorWithCode:errorCode
                                                                userInfo:response];
     }
+#ifdef ENABLE_PATCHES
+    return errorCode == 0;
+#endif
 }
 
 @end

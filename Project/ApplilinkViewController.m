@@ -39,6 +39,9 @@
 
 /** @ghidraAddress 0x241324 */
 - (void)viewDidDisappear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewDidDisappear:animated];
+#endif
     // The binary's body is empty here: it does not chain to super.
 }
 

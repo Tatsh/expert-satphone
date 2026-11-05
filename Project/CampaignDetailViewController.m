@@ -316,7 +316,11 @@ typedef enum : NSInteger {
         [cell addSubview:labelItemTerms];
         return cell;
     }
+#ifdef ENABLE_PATCHES
+    return [UITableViewCell new];
+#else
     return nil;
+#endif
 }
 
 #pragma mark - Table delegate

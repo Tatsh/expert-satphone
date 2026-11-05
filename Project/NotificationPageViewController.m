@@ -281,6 +281,9 @@ static NSString *const kOKKey = @"OK";
 
 /** @ghidraAddress 0x1eb3bc */
 - (void)viewWillDisappear:(BOOL)animated {
+#ifdef ENABLE_PATCHES
+    [super viewWillDisappear:animated];
+#endif
     [AlertViewManager.sharedManager closeAlert];
 }
 
