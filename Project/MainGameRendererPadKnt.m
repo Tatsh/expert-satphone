@@ -171,40 +171,44 @@ static const int kDebugMaxGlyphs = 0x200;
 // twenty sparkle particles from four parallel tables: the sprite index, the base x and y, and the
 // per-particle scale (drawn at a shared -0.4746 rotation). Each of the first fifteen particles is
 // also drawn four times as an offset shadow trail.
-static const int kExcParticleSprite[] = { // @ghidraAddress 0x2942ac
-    18, 18, 18, 19, 20, 20, 20, 21, 21, 18, 20, 18, 18, 20, 21, 4, 4, 4, 4, 4};
-static const float kExcParticleX[] = { // @ghidraAddress 0x2942fc
-    -33.0f, -35.0f, -15.0f, -25.0f, -4.0f,  -20.0f, 7.0f,   153.0f, 153.0f, 364.0f,
-    115.0f, 352.0f, 370.0f, 364.0f, 329.0f, 207.0f, 399.0f, 591.0f, 208.0f, 16.0f};
-static const float kExcParticleY[] = { // @ghidraAddress 0x29434c
-    360.0f,  467.0f,  316.0f,  436.0f,  301.0f,  512.0f, 1019.0f, 1025.0f, 1033.0f, 1017.0f,
-    1064.0f, 1067.0f, 1150.0f, 1135.0f, 1028.0f, 955.0f, 955.0f,  965.0f,  357.0f,  360.0f};
-static const float kExcParticleScale[] = { // @ghidraAddress 0x29439c
-    2.18f, 1.53f, 0.98f, 1.0f, 0.66f, 1.25f, 1.9f,  1.59f, 1.59f, 1.14f,
-    1.59f, 2.0f,  1.23f, 1.0f, 1.07f, 0.18f, 0.18f, 0.18f, 0.18f, 0.18f};
+static const int kExcParticleSprite[] = {// @ghidraAddress 0x2942ac
+                                         18, 18, 18, 19, 20, 20, 20, 21, 21, 18,
+                                         20, 18, 18, 20, 21, 4,  4,  4,  4,  4};
+static const float kExcParticleX[] = {// @ghidraAddress 0x2942fc
+                                      -33.0f, -35.0f, -15.0f, -25.0f, -4.0f,  -20.0f, 7.0f,
+                                      153.0f, 153.0f, 364.0f, 115.0f, 352.0f, 370.0f, 364.0f,
+                                      329.0f, 207.0f, 399.0f, 591.0f, 208.0f, 16.0f};
+static const float kExcParticleY[] = {// @ghidraAddress 0x29434c
+                                      360.0f,  467.0f,  316.0f,  436.0f,  301.0f,  512.0f,  1019.0f,
+                                      1025.0f, 1033.0f, 1017.0f, 1064.0f, 1067.0f, 1150.0f, 1135.0f,
+                                      1028.0f, 955.0f,  955.0f,  965.0f,  357.0f,  360.0f};
+static const float kExcParticleScale[] = {// @ghidraAddress 0x29439c
+                                          2.17999f, 1.53f, 0.98f, 1.0f,  0.66f, 1.25f, 1.9f,
+                                          1.59f,    1.59f, 1.14f, 1.59f, 2.0f,  1.23f, 1.0f,
+                                          1.07f,    0.18f, 0.18f, 0.18f, 0.18f, 0.18f};
 static const int kExcParticleCount = 20;
 static const int kExcSweepParticleFirst = 15; // particles 15..19 sweep out; 0..14 are static+trail
 static const float kExcParticleRotate = -0.47456083f; // @ghidraAddress 0x2934c4
 // The sixteen excellent panels fill the 4x4 grid in this reflow order, one panel lighting every
 // other frame, drawn inset 16 into a 192-point grid pitch, dropped 256 points, minus a 16-point
 // half.
-static const int kExcPanelOrder[] = { // @ghidraAddress 0x29426c
-    0,
-    4,
-    8,
-    12,
-    13,
-    14,
-    15,
-    11,
-    7,
-    3,
-    2,
-    1,
-    5,
-    9,
-    10,
-    6};
+static const int kExcPanelOrder[] = {// @ghidraAddress 0x29426c
+                                     0,
+                                     4,
+                                     8,
+                                     12,
+                                     13,
+                                     14,
+                                     15,
+                                     11,
+                                     7,
+                                     3,
+                                     2,
+                                     1,
+                                     5,
+                                     9,
+                                     10,
+                                     6};
 static const int kExcPanelPitch = 0xc0;     // 192
 static const int kExcPanelInset = 0x10;     // 16
 static const int kExcPanelGridTopY = 0x100; // 256

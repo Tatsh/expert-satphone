@@ -506,17 +506,21 @@ static inline void MainGameRendererPhoneKntBuildComboTexture(MainGameRendererPho
 // rotation. Particles 0..14 rise or fall relative to the 320-point centre line (offset by the
 // four-inch button margin); the last five sweep outward and, from frame 0x8d, ripple on a 20-frame
 // cycle, each drawn as an eight-step offset trail plus itself.
-static const int kExcParticleSprite[] = { // @ghidraAddress 0x293938
-    14, 14, 14, 15, 16, 16, 16, 17, 17, 14, 16, 15, 14, 16, 17, 0, 0, 0, 0, 0};
-static const float kExcParticleX[] = { // @ghidraAddress 0x293988
-    -19.7f, -20.6f, -12.2f, -11.4f, -7.7f,  -14.3f, -4.9f,  46.6f,  57.6f, 100.4f,
-    41.8f,  140.4f, 147.9f, 145.4f, 108.6f, 76.1f,  158.0f, 235.9f, 74.5f, -4.7f};
-static const float kExcParticleY[] = { // @ghidraAddress 0x2939d8
-    40.1f,  78.6f,  18.8f,  66.7f,  11.6f,  104.4f, 308.3f, 315.1f, 313.8f, 352.4f,
-    326.0f, 312.2f, 361.8f, 354.5f, 326.0f, 284.6f, 282.6f, 288.8f, 38.9f,  42.1f};
-static const float kExcParticleScale[] = { // @ghidraAddress 0x293a28
-    1.58f, 1.53f, 0.84f, 0.68f, 0.66f, 1.25f, 1.9f, 1.59f, 1.59f, 1.2f,
-    1.59f, 1.84f, 1.23f, 1.0f,  1.07f, 1.0f,  1.0f, 1.0f,  1.0f,  1.0f};
+static const int kExcParticleSprite[] = {// @ghidraAddress 0x293938
+                                         14, 14, 14, 15, 16, 16, 16, 17, 17, 14,
+                                         16, 15, 14, 16, 17, 0,  0,  0,  0,  0};
+static const float kExcParticleX[] = {// @ghidraAddress 0x293988
+                                      -19.7f, -20.6f, -12.2f, -11.4f, -7.7f,  -14.3f, -4.9f,
+                                      46.6f,  57.6f,  100.4f, 41.8f,  140.4f, 147.9f, 145.4f,
+                                      108.6f, 76.1f,  158.0f, 235.9f, 74.5f,  -4.7f};
+static const float kExcParticleY[] = {// @ghidraAddress 0x2939d8
+                                      40.1f,  78.6f,  18.8f,  66.7f,  11.6f,  104.4f, 308.3f,
+                                      315.1f, 313.8f, 352.4f, 326.0f, 312.2f, 361.8f, 354.5f,
+                                      326.0f, 284.6f, 282.6f, 288.8f, 38.9f,  42.1f};
+static const float kExcParticleScale[] = {// @ghidraAddress 0x293a28
+                                          1.57999f, 1.53f, 0.84f, 0.68f, 0.66f, 1.25f, 1.9f,
+                                          1.59f,    1.59f, 1.2f,  1.59f, 1.84f, 1.23f, 1.0f,
+                                          1.07f,    1.0f,  1.0f,  1.0f,  1.0f,  1.0f};
 static const int kExcParticleCount = 20;
 static const int kExcSweepParticleFirst = 15;
 static const float kExcParticleRotate = -0.47456083f; // @ghidraAddress 0x2934c4
@@ -527,23 +531,23 @@ static const float kExcParticleTrailYScale = 1.02f;   // @ghidraAddress 0x2934f4
 // The Excellent panels fill the grid rows in this reflow order (a 16-entry table read every other
 // frame), on the phone's 80-point grid pitch inset 6, dropped 160 (plus the four-inch margin),
 // minus a 6-point half.
-static const int kExcPanelOrder[] = { // @ghidraAddress 0x2938f8
-    0,
-    4,
-    8,
-    12,
-    13,
-    14,
-    15,
-    11,
-    7,
-    3,
-    2,
-    1,
-    5,
-    9,
-    10,
-    6};
+static const int kExcPanelOrder[] = {// @ghidraAddress 0x2938f8
+                                     0,
+                                     4,
+                                     8,
+                                     12,
+                                     13,
+                                     14,
+                                     15,
+                                     11,
+                                     7,
+                                     3,
+                                     2,
+                                     1,
+                                     5,
+                                     9,
+                                     10,
+                                     6};
 static const int kExcPanelCount = 16;
 static const int kExcPanelFrameStep = 2; // One panel lights every other frame.
 static const int kExcPanelPitch = 0x50;  // 80
@@ -568,23 +572,23 @@ static const NSUInteger kExcPanelSprite = 0xb;
 static const NSUInteger kExcWordSprite = 0x1a;
 static const float kExcWordScale = 1.04f; // @ghidraAddress 0x292b38
 // The Excellent word (texFront sprite 0x1a) flies in as four glyph pairs over frames 0x60..0x74.
-static const double kExcWordScatterY = -160.0; // @ghidraAddress 0x2926d8
-static const float kExcWord1Target = 40.0f;    // @ghidraAddress 0x292568
-static const float kExcWord1From = 360.0f;     // @ghidraAddress 0x292418
-static const float kExcWord1XOffset = -62.4f;  // @ghidraAddress 0x2934bc
-static const float kExcWord1YOffset = 25.7f;   // @ghidraAddress 0x2934c0
-static const float kExcWord2From = 200.0f;     // @ghidraAddress 0x292b24
-static const double kExcWord2YFrom = -80.0;    // @ghidraAddress 0x28f468
-static const double kExcWord3YFrom = 160.0;    // @ghidraAddress 0x28f438
-static const float kExcWord3XOffset = -38.7f;  // @ghidraAddress 0x2934cc
-static const float kExcWord3YOffset = 2.4f;    // @ghidraAddress 0x2934d0
-static const float kExcWord3Scale = 0.507f;    // @ghidraAddress 0x2934d4
-static const float kExcWord4From = -120.0f;    // @ghidraAddress 0x2934d8
-static const double kExcWord4YFrom = 80.0;     // @ghidraAddress 0x28f3f8
-static const float kExcWord5XOffset = -16.2f;  // @ghidraAddress 0x2934dc
-static const float kExcWord5YOffset = 26.6f;   // @ghidraAddress 0x2934e0
-static const float kExcWord5Scale = 0.78f;     // @ghidraAddress 0x2934e4
-static const float kExcWord3XFrom = -280.0f;   // @ghidraAddress 0x2934c8
+static const double kExcWordScatterY = -160.0;   // @ghidraAddress 0x2926d8
+static const float kExcWord1Target = 40.0f;      // @ghidraAddress 0x292568
+static const float kExcWord1From = 360.0f;       // @ghidraAddress 0x292418
+static const float kExcWord1XOffset = -62.4f;    // @ghidraAddress 0x2934bc
+static const float kExcWord1YOffset = 25.7f;     // @ghidraAddress 0x2934c0
+static const float kExcWord2From = 200.0f;       // @ghidraAddress 0x292b24
+static const double kExcWord2YFrom = -80.0;      // @ghidraAddress 0x28f468
+static const double kExcWord3YFrom = 160.0;      // @ghidraAddress 0x28f438
+static const float kExcWord3XOffset = -38.7f;    // @ghidraAddress 0x2934cc
+static const float kExcWord3YOffset = 2.4f;      // @ghidraAddress 0x2934d0
+static const float kExcWord3Scale = 0.50699997f; // @ghidraAddress 0x2934d4
+static const float kExcWord4From = -120.0f;      // @ghidraAddress 0x2934d8
+static const double kExcWord4YFrom = 80.0;       // @ghidraAddress 0x28f3f8
+static const float kExcWord5XOffset = -16.2f;    // @ghidraAddress 0x2934dc
+static const float kExcWord5YOffset = 26.6f;     // @ghidraAddress 0x2934e0
+static const float kExcWord5Scale = 0.78f;       // @ghidraAddress 0x2934e4
+static const float kExcWord3XFrom = -280.0f;     // @ghidraAddress 0x2934c8
 // The spacing arrives as ldr s at 0x190fbc, so the pool slot is a float, not a double.
 static const float kExcTitleGlyphSpacing = 166.0f;  // @ghidraAddress 0x29275c
 static const int kExcTitleGlyphSpacing4Inch = 0xa6; // 166
