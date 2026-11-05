@@ -29,10 +29,10 @@ static const KnitColorPalette kKnitColorPalettes[] = {
 };
 
 @implementation KnitColorManager {
-    BOOL isKnitColorDiffer;
     UIColor *baseColor;
     UIColor *lineColor;
     UIColor *waveColor;
+    BOOL isKnitColorDiffer;
 }
 
 /** @ghidraAddress 0x165fe0 */
