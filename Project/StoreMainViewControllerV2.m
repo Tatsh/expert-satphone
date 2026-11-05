@@ -107,7 +107,7 @@ static const CGFloat kGenrePopoverWidth = 320.0;
 static const CGFloat kGenrePopoverRowHeight = 50.0;
 static const CGFloat kGenrePopoverMaxHeight = 600.0;
 
-// The pad pack-list container's left inset and width reduction. @ghidraAddress 0x4034... / 0x28e078
+// The pad pack-list container's left inset and width reduction.
 static const CGFloat kPadListLeftInset = 20.0;
 static const CGFloat kPadPromotionInset = -40.0;
 
@@ -136,7 +136,6 @@ static const NSTimeInterval kDetailAnimationDuration = 0.3;
 static const NSTimeInterval kInteractionUnlockDelay = 0.4;
 
 // The horizontal drift factors of the neighbouring windows during a push/pop slide.
-// @ghidraAddress 0x3fe0000000000000 / 0x3fd0000000000000
 static const double kNeighbourDriftHalf = 0.5;
 static const double kNeighbourDriftQuarter = 0.25;
 

@@ -275,7 +275,7 @@ MainGameRendererPadDrawResultFlashBeam(Texture2D *tex, unsigned int frame, doubl
     static const unsigned int kFrontSpritePartner = 0x24;
 
     // The partner-name label's bold system font size.
-    static const CGFloat kPartnerNameFontSize = 14.0; // @ghidraAddress fmov 0x402c000000000000
+    static const CGFloat kPartnerNameFontSize = 14.0;
 
     NSData *cipherKey = CreateTextureCipherKey();
     BFCodec *cipher = [[BFCodec alloc] init];

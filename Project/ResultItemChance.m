@@ -34,18 +34,18 @@ static const int kSkipFrame = 50;           // 0x32
 static const int kFinishFrame = 49; // 0x31; draw reports done once the frame counter passes it.
 
 // Per-frame fade rates and the peaks they clamp to.
-static const float kEighthPerFrame = 0.125f;   // @ghidraAddress 0x28f... (fmov 1/8)
+static const float kEighthPerFrame = 0.125f;
 static const float kQuarterPerFrame = 0.25f;   // fmov immediate.
 static const float kBackgroundAlphaMax = 0.6f; // @ghidraAddress 0x28f3b8 (g_flKeyTime060)
-static const float kFullAlpha = 1.0f;          // @ghidraAddress fmov immediate.
+static const float kFullAlpha = 1.0f;
 
 // Particle envelope shaping.
-static const float kParticleSpread = 200.0f;     // @ghidraAddress 0x292b24
-static const float kHalfTurnDegrees = 180.0f;    // @ghidraAddress 0x28f538
-static const float kEnvelopeGain = 5.0f;         // @ghidraAddress fmov immediate 5.0.
-static const float kEnvelopeFadeInKnee = 0.2f;   // @ghidraAddress 0x28f3c8 (s12)
-static const float kEnvelopeFadeOutKnee = 0.8f;  // @ghidraAddress 0x28f3c0 (g_flKeyTime080, s13)
-static const float kOddFrameFadeScale = 0.5f;    // @ghidraAddress fmov immediate 0.5.
+static const float kParticleSpread = 200.0f;  // @ghidraAddress 0x292b24
+static const float kHalfTurnDegrees = 180.0f; // @ghidraAddress 0x28f538
+static const float kEnvelopeGain = 5.0f;
+static const float kEnvelopeFadeInKnee = 0.2f;  // @ghidraAddress 0x28f3c8 (s12)
+static const float kEnvelopeFadeOutKnee = 0.8f; // @ghidraAddress 0x28f3c0 (g_flKeyTime080, s13)
+static const float kOddFrameFadeScale = 0.5f;
 static const float kEffectCenterOffset = -32.0f; // @ghidraAddress 0x292e98
 
 // Particle seeding ranges.
@@ -60,15 +60,15 @@ static const int kSeedJitterBias = 25; // 0x19
 static const int kEffectTimeWrap = 7;  // effectTime cycles 0..8.
 
 // Particle colour seeding: red and green are full, blue is a stepped random.
-static const float kSeedColorFull = 255.0f; // @ghidraAddress 0x... (0x437f000000000000)
-static const int kSeedBlueBase = 205;       // 0xcd
+static const float kSeedColorFull = 255.0f;
+static const int kSeedBlueBase = 205; // 0xcd
 static const int kSeedBlueStep = 10;
 static const int kSeedBlueModulo = 6;
 
 // Layout nudges used while staging the icon, board, and flourish.
-static const double kHalf = 0.5;            // @ghidraAddress fmov 0x3fe0000000000000.
-static const double kBoardGap = 10.0;       // @ghidraAddress fmov 0x4024000000000000.
-static const float kFlourishSwing = 10.0f;  // @ghidraAddress fmov immediates ±10.0.
+static const double kHalf = 0.5;
+static const double kBoardGap = 10.0;
+static const float kFlourishSwing = 10.0f;
 static const CGFloat kColorRectSize = 64.0; // @ghidraAddress 0x28f1f0
 
 // The sound effect played once as the item board lands.

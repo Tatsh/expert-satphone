@@ -180,7 +180,7 @@ MainGameRendererPadRplMarkerSprite(unsigned int phase, unsigned int slot, int *s
     static const unsigned int kFrontSpritePartner = 0x27;
 
     // The partner-name label's bold system font size.
-    static const CGFloat kPartnerNameFontSize = 16.0; // @ghidraAddress fmov 0x4030000000000000
+    static const CGFloat kPartnerNameFontSize = 16.0;
 
     // The upper-background ripple pool: 60 bouncing sprites, seeded from arc4random.
     static const int kUpperBgRippleCount = 0x3c;
