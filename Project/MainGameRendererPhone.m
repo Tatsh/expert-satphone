@@ -1808,7 +1808,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     // letter sprite indices come from the shipped tables.
     static const double kClearedLetterX[] = {28.0, 72.0, 116.0, 160.0, 205.0, 250.0, 293.0};
     // @ghidraAddress 0x2927d0
-    static const long kClearedLetterSprite[] = {0, 1, 2, 3, 0, 2, 1}; // @ghidraAddress 0x292808
+    static const double kClearedLetterSprite[] = {0, 1, 2, 3, 0, 2, 1}; // @ghidraAddress 0x292808
     // The seven letters are drawn from the two cleared atlases: letters 0-3 and letter 5 from
     // texClear0, letters 4 and 6 from texClear1.
     Texture2D *atlases[] = {
@@ -1870,7 +1870,7 @@ static inline void MainGameRendererPhoneRenderResultCurtain(
     // The six "FAILED" letters, drawn from the second and third cleared atlases.
     static const double kFailedLetterDrop[] = {28.0, 40.0, 25.0, 37.0, 34.0, 18.0};   // @0x292840
     static const double kFailedLetterX[] = {62.0, 107.0, 140.0, 174.0, 219.0, 264.0}; // @0x292870
-    static const long kFailedLetterSprite[] = {2, 3, 0, 1, 2, 3}; // @ghidraAddress 0x2928a0
+    static const double kFailedLetterSprite[] = {2, 3, 0, 1, 2, 3}; // @ghidraAddress 0x2928a0
     Texture2D *atlases[] = {texClear1, texClear1, texClear2, texClear2, texClear2, texClear2};
     CGRect letter = [texClear1 spriteAtIndex:4];
     double letterW = letter.size.width;
