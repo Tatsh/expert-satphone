@@ -166,6 +166,9 @@ static inline void SessionDownloaderRetryOriginalRequest(SessionDownloader *self
     self = [super init];
     if (self) {
 #ifdef ENABLE_PATCHES
+        if (url == nil || postData == nil) {
+            return nil;
+        }
         sendCnonce = cnonce;
 #endif
         retryCnt = 0;

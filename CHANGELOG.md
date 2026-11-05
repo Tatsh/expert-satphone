@@ -18,6 +18,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- In patched builds, session requests with a missing URL or body fail during setup instead of
+  crashing the app.
 - In patched builds, challenge session requests preserve the nonce needed to open a session.
 - In patched builds, reward setup accepts a missing environment and removes invalid stored IDs.
 - In patched builds, ZIP entries with unsupported compression fail with a file error.
