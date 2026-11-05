@@ -117,7 +117,6 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * The lazily-created shared singleton.
  * @return The shared @c ApplilinkStore .
- * @ghidraAddress 0x2505b8
  */
 + (instancetype)sharedInstance;
 
