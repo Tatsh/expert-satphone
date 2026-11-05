@@ -18,6 +18,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Cube purchase taps and confirmations now invoke the purchase handler.
+- Restored the editor event-limit alert title and the chart upload success message.
 - In patched builds, session requests with a missing URL or body fail during setup instead of
   crashing the app.
 - In patched builds, challenge session requests preserve the nonce needed to open a session.

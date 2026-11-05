@@ -113,7 +113,7 @@ static NSString *const kNGWordsFormat = @"不適切な単語が含まれてい�
                                         @"事ができませんでした。変更してください。\n\n%@"
                                         @"\n\n%@\n\n%@\n\n\n"; // 0x2c1a38
 // The success message, whose placeholder takes the resolved sequence id.
-static NSString *const kUploadSuccessFormat = @"アップロード成功\n譜面IDは%@"; // 0x2c1ab8
+static NSString *const kUploadSuccessFormat = @"アップロード成功\n譜面IDは%@です"; // 0x2c1ab8
 // The default failure message when the agreement step supplies none.
 static NSString *const kDefaultAgreementFailureText = @"アップロードに失敗しました。"; // 0x2c1ade
 

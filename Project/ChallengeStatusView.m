@@ -244,16 +244,16 @@ static const int kStatusConfirmOKButton = 1;
 
 /** @ghidraAddress 0x86d30 */
 - (void)tapBuyCube:(id)sender {
-    if ([self.aDelegate respondsToSelector:@selector(cubePurchaseStart:)]) {
-        [self.aDelegate performSelector:@selector(cubePurchaseStart:) withObject:self];
+    if ([self.aDelegate respondsToSelector:@selector(cubePurchaseStart)]) {
+        [self.aDelegate performSelector:@selector(cubePurchaseStart) withObject:self];
     }
 }
 
 /** @ghidraAddress 0x86de4 */
 - (void)alertSelect:(NSDictionary *)info {
     if ([info[@"btnMessage"] intValue] == kStatusConfirmOKButton) {
-        if ([self.aDelegate respondsToSelector:@selector(cubePurchaseStart:)]) {
-            [self.aDelegate performSelector:@selector(cubePurchaseStart:) withObject:self];
+        if ([self.aDelegate respondsToSelector:@selector(cubePurchaseStart)]) {
+            [self.aDelegate performSelector:@selector(cubePurchaseStart) withObject:self];
         }
     }
 }

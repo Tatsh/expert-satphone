@@ -238,9 +238,7 @@ static NSString *const kDefaultArtworkImageName = @"scratch_btn_scratch_00";
         }
         completion:^(BOOL __attribute__((unused)) finished) {
           /** @ghidraAddress 0x16f3cc */
-          if ([weakSelf.aDelegate respondsToSelector:@selector(scratchCompleteViewDidClose:)]) {
-              [weakSelf.aDelegate scratchCompleteViewDidClose:weakSelf];
-          }
+          [weakSelf.aDelegate closeScratchComplete];
         }];
 }
 

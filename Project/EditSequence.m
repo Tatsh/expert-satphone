@@ -95,7 +95,7 @@ static NSString *const kEditSequenceDifficultyAdvanced = @"seq_adv";
 static NSString *const kEditSequenceDifficultyExtreme = @"seq_ext";
 
 // The over-limit alert strings, resolved from the CFString constants at 0x2e21a0 and 0x2e21c0.
-static NSString *const kEditSequenceOverLimitTitle = @"イベント";
+static NSString *const kEditSequenceOverLimitTitle = @"イベント多すぎ";
 static NSString *const kEditSequenceOverLimitMessage =
     @"イベント数が2000を越えるため、小節、拍を該当譜面から削除します。";
 static NSString *const kEditSequenceOKKey = @"OK";
