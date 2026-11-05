@@ -104,15 +104,7 @@ static NSString *const kNotificationExpireKey = @"expire";
     BOOL scratchRefresh;              // +0x40, set when the persisted scratch id changed
 }
 
-// Redeclared readwrite for internal mutation.
-@property(nonatomic, strong, readwrite) NSNumber *scratchID;
-@property(nonatomic, strong, readwrite) NSString *personalInfoURL;
-@property(nonatomic, strong, readwrite) NSArray *enableMissionSheets;
-@property(nonatomic, assign, readwrite) BOOL bInitialized;
 @property(nonatomic, assign, readwrite) int presentNum;
-@property(nonatomic, assign, readwrite) BOOL bItemDownload;
-@property(nonatomic, assign, readwrite) float phoneScreenRate;
-@property(nonatomic, weak, readwrite) ChallengeModeRootView *rootView;
 
 @end
 
@@ -138,14 +130,14 @@ static NSString *const kNotificationExpireKey = @"expire";
     self = [super init];
     if (self) {
         CGRect bounds = GetMainScreenBounds();
-        self.phoneScreenRate = (float)(bounds.size.width / 320.0);
+        _phoneScreenRate = (float)(bounds.size.width / 320.0);
         if (JubeatAppDelegate.appDelegate.isPad) {
-            self.phoneScreenRate = 1.0f;
+            _phoneScreenRate = 1.0f;
         }
         self.howtoURL = nil;
         self.mySearchID = nil;
-        self.bInitialized = NO;
-        self.bItemDownload = NO;
+        _bInitialized = NO;
+        _bItemDownload = NO;
         lineupImage = [[NSMutableDictionary alloc] init];
         self.consumePlayCoin = kDefaultConsumePlayCoin;
         self.consumeScratchCube = kDefaultConsumeScratchCube;
@@ -158,15 +150,15 @@ static NSString *const kNotificationExpireKey = @"expire";
 /** @ghidraAddress 0x1cae84 */
 - (void)resetStatus {
     self.howtoURL = nil;
-    self.bInitialized = NO;
-    self.bItemDownload = NO;
+    _bInitialized = NO;
+    _bItemDownload = NO;
     self.mySearchID = nil;
     lineupImage = nil;
     lineupImage = [[NSMutableDictionary alloc] init];
     self.consumePlayCoin = kDefaultConsumePlayCoin;
     self.consumeScratchCube = kDefaultConsumeScratchCube;
     self.consumeRestCube = kDefaultConsumeRestCube;
-    self.personalInfoURL = nil;
+    _personalInfoURL = nil;
     self.informationURL = nil;
     selectedMissionSheetID = kDefaultSelectedMissionSheetID;
 }
@@ -189,7 +181,7 @@ static NSString *const kNotificationExpireKey = @"expire";
     [self updatePresentNum:dictionary];
     [self updateConsume:dictionary];
     [self updateChallengeMission:dictionary];
-    self.bInitialized = YES;
+    _bInitialized = YES;
 }
 
 #pragma mark - State updates
@@ -273,7 +265,7 @@ static NSString *const kNotificationExpireKey = @"expire";
             return;
         }
     }
-    self.scratchID = scratchID;
+    _scratchID = scratchID;
 }
 
 /** @ghidraAddress 0x1cb668 */
@@ -312,7 +304,7 @@ static NSString *const kNotificationExpireKey = @"expire";
         NSString *saved =
             [NSUserDefaults.standardUserDefaults objectForKey:kPrefChallengePersonalInformationURL];
         if (!saved || ![saved isEqualToString:url]) {
-            self.personalInfoURL = url;
+            _personalInfoURL = url;
         }
     }
 }
@@ -322,7 +314,7 @@ static NSString *const kNotificationExpireKey = @"expire";
     if (self.personalInfoURL) {
         [NSUserDefaults.standardUserDefaults setObject:self.personalInfoURL
                                                 forKey:kPrefChallengePersonalInformationURL];
-        self.personalInfoURL = nil;
+        _personalInfoURL = nil;
     }
 }
 
@@ -472,7 +464,7 @@ static NSString *const kNotificationExpireKey = @"expire";
 
 /** @ghidraAddress 0x1cc9d0 */
 - (void)updateChallengeMission:(NSDictionary *)dictionary {
-    self.enableMissionSheets = nil;
+    _enableMissionSheets = nil;
     NSDictionary *sheetList = dictionary[kKeySheetList];
     if (sheetList && sheetList.count != 0) {
         NSMutableArray<ChallengeMissionSheet *> *sheets = [[NSMutableArray alloc] init];
@@ -497,7 +489,7 @@ static NSString *const kNotificationExpireKey = @"expire";
             (void)sheet.updateTime;
             (void)sheet.isEvent;
         }
-        self.enableMissionSheets = [sheets copy];
+        _enableMissionSheets = [sheets copy];
     }
 }
 
@@ -733,7 +725,7 @@ static NSString *const kNotificationExpireKey = @"expire";
     if (insertBefore != -1) {
         [rebuilt addObject:sheet];
     }
-    self.enableMissionSheets = [rebuilt copy];
+    _enableMissionSheets = [rebuilt copy];
 }
 
 /** @ghidraAddress 0x1cdf68 */
@@ -743,12 +735,12 @@ static NSString *const kNotificationExpireKey = @"expire";
 
 /** @ghidraAddress 0x1cdf78 */
 - (void)missionRewardDownload {
-    self.bItemDownload = YES;
+    _bItemDownload = YES;
 }
 
 /** @ghidraAddress 0x1cdf8c */
 - (void)setChallengeRootView:(ChallengeModeRootView *)rootView {
-    self.rootView = rootView;
+    _rootView = rootView;
 }
 
 @end
