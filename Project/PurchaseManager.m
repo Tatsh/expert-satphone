@@ -465,12 +465,53 @@ NSString *CreateRandomString(int length);
 
 /** @ghidraAddress 0xb7f90 */
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions {
-    // Fast enumeration at 0xb7f90: countByEnumeratingWithState:objects:count: at 0xb7ff8,
-    // then inner loop with transactionState etc. Verified via stp x28,x27 and bl.
     for (SKPaymentTransaction *transaction in transactions) {
-        // Full state machine is deferred; this tranche documents the enumeration structure
-        // verified in disassembly at 0xb7f90–0xb7ffc.
-        (void)transaction;
+        NSString *productID = transaction.payment.productIdentifier;
+        switch (transaction.transactionState) {
+        case SKPaymentTransactionStatePurchased:
+            if (!purchasingID && [self checkConsumeItemID:productID]) {
+                purchasingID = productID;
+                purchasingPrice = nil;
+                bConsume = YES;
+            }
+            if ([purchasingID isEqualToString:productID]) {
+                verifingID = purchasingID;
+                verifingPrice = purchasingPrice;
+                purchasingID = nil;
+                purchasingPrice = nil;
+                if (bConsume) {
+                    [self verifyConsumeReceipt];
+                    consumeTransaction = transaction;
+                } else {
+                    pendingReceipts[productID] = @"dummy";
+                    [self savePendingList];
+                    [self verifyReceipt];
+                }
+            }
+            if (!bConsume) {
+                [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+            }
+            break;
+        case SKPaymentTransactionStateFailed:
+            if ([purchasingID isEqualToString:productID]) {
+                id<PurchaseManagerDelegate> delegate = self.delegate;
+                if ([delegate respondsToSelector:@selector(purchaseFailed:error:)]) {
+                    [delegate purchaseFailed:productID error:transaction.error];
+                }
+                purchasingID = nil;
+                purchasingPrice = nil;
+            }
+            [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+            break;
+        case SKPaymentTransactionStateRestored:
+            if (restoringReceipts) {
+                restoringReceipts[productID] = [@"dummy" dataUsingEncoding:NSUTF8StringEncoding];
+            }
+            [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+            break;
+        default:
+            break;
+        }
     }
 }
 

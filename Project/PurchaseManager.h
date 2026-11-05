@@ -5,9 +5,8 @@
  * Reconstructed from Ghidra program Jubeat (class PurchaseManager, image base 0x100000000). All
  * @ghidraAddress values are offsets relative to that image base.
  *
- * RECONSTRUCTION STATE: complete — thirty-five of thirty-five members written. The class object at
- * 0x348100 has 81 cross-references; all hand-written members are recovered — verified against the
- * disassembly via curl on port 8089.
+ * RECONSTRUCTION STATE: partial. Method presence and some field layouts are verified against the
+ * original binary; receipt response handling still needs reconstruction.
  */
 
 #import <Foundation/Foundation.h>
