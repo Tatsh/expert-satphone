@@ -396,7 +396,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The first ready/go atlas texture.
- * @ghidraAddress 0x10a140-style accessor
  */
 @property(nonatomic, strong, nullable) Texture2D *texReady0;
 

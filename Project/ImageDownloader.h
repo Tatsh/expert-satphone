@@ -32,14 +32,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface ImageDownloader : NSObject <NSURLSessionDataDelegate>
 
-/** The image's URL. @ghidraAddress 0xff180 (getter) */
+/** The image's URL. */
 @property(nonatomic, readonly, nullable) NSURL *imageURL;
-/** The cache key the download is associated with. @ghidraAddress 0xff1a0 (getter) */
+/** The cache key the download is associated with. */
 @property(nonatomic, readonly, nullable) id key;
-/** The delegate told when the image loads. Held weakly. @ghidraAddress 0xff158 (getter) */
+/** The delegate told when the image loads. Held weakly. */
 @property(nonatomic, weak, nullable) id<ImageDownloaderDelegate> delegate;
-/** Whether a download is in progress. @ghidraAddress 0xff1b4 (getter) */
-@property(nonatomic, readonly, getter=isDownloading) BOOL downloading;
+/** Whether a download is in progress. */
+@property(nonatomic, readonly) BOOL downloading;
 
 /**
  * Builds a downloader for an image URL and cache key.

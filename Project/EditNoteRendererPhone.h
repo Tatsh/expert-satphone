@@ -246,19 +246,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The go-countdown texture.
- * @ghidraAddress 0x212360 (getter), 0x212370 (setter)
  */
 @property(nonatomic, strong, nullable) Texture2D *texReady1;
 
 /**
  * The front atlas: chips, buttons, level, marks, and tune information.
- * @ghidraAddress 0x212380 (getter), 0x212390 (setter)
  */
 @property(nonatomic, strong, nullable) Texture2D *texFront;
 
 /**
  * The note-marker atlas, unzipped from the marker archive.
- * @ghidraAddress 0x2123a0 (getter), 0x2123b0 (setter)
  */
 @property(nonatomic, strong, nullable) Texture2D *texMarker;
 
@@ -270,19 +267,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The debug-font atlas.
- * @ghidraAddress 0x2123f0 (getter), 0x212400 (setter)
  */
 @property(nonatomic, strong, nullable) Texture2D *texDebugFont;
 
 /**
  * The go-sound player, prepared lazily when the ready state is entered.
- * @ghidraAddress 0x212410 (getter), 0x212420 (setter)
  */
 @property(nonatomic, strong, nullable) AVAudioPlayer *sePlayerGo;
 
 /**
  * The current knit background effect.
- * @ghidraAddress 0x212430 (getter), 0x212440 (setter)
  */
 @property(nonatomic, strong, nullable) EffectBgKnit *effectBgKnt;
 

@@ -23,13 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The SDK delegate told about ready/close/repeat/store/error events. Held weakly.
- * @ghidraAddress 0x22e660 (getter)
  */
 @property(nonatomic, weak, nullable) id<SdkViewDelegate> sdkDelegate;
 
 /**
  * The load state: 0 before loading, 1 loading, 2 loaded.
- * @ghidraAddress 0x22e678 (getter)
  */
 @property(nonatomic) int webViewStatus;
 

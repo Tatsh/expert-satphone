@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface MarkerDownloadManager : NSObject <DownloaderDelegate>
 
-/** The index of the task currently downloading. @ghidraAddress 0x87c04 (getter) */
+/** The index of the task currently downloading. */
 @property(nonatomic) unsigned int currentIndex;
 /** The number of tasks. @ghidraAddress 0x87240 (getter) */
 @property(nonatomic, readonly) unsigned int numTasks;
