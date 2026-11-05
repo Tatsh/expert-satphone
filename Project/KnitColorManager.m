@@ -28,7 +28,12 @@ static const KnitColorPalette kKnitColorPalettes[] = {
     {{250, 183, 177, 1}, {255, 255, 255, 1}, {130, 67, 32, 1}},
 };
 
-@implementation KnitColorManager
+@implementation KnitColorManager {
+    BOOL isKnitColorDiffer;
+    UIColor *baseColor;
+    UIColor *lineColor;
+    UIColor *waveColor;
+}
 
 /** @ghidraAddress 0x165fe0 */
 + (KnitColorManager *)sharedManager {
@@ -60,19 +65,19 @@ static const KnitColorPalette kKnitColorPalettes[] = {
 - (void)setColorWithType:(unsigned int)type {
     // Computed with two csel pairs rather than a branch: the flag is set for every type except
     // 0 and 5.
-    _isKnitColorDiffer = (type != kKnitColorTypeDefault && type != kKnitColorTypeAlsoDefault);
+    isKnitColorDiffer = (type != kKnitColorTypeDefault && type != kKnitColorTypeAlsoDefault);
 
     // No range check on type. The table has five rows, so type 5 — which the flag above singles
     // out — indexes one past the end and reads __DATA pointers as floats.
     const KnitColorPalette *palette = &kKnitColorPalettes[type];
-    _baseColor = [self makeColor:&palette->base];
-    _lineColor = [self makeColor:&palette->line];
-    _waveColor = [self makeColor:&palette->wave];
+    baseColor = [self makeColor:&palette->base];
+    lineColor = [self makeColor:&palette->line];
+    waveColor = [self makeColor:&palette->wave];
 }
 
 /** @ghidraAddress 0x1661c0 */
 - (void)setColorWithArray:(NSArray *)colors {
-    _isKnitColorDiffer = NO;
+    isKnitColorDiffer = NO;
     if (!colors || colors.count != 9) {
         return;
     }
@@ -80,24 +85,24 @@ static const KnitColorPalette kKnitColorPalettes[] = {
     // Verified in disassembly: the nine objectAtIndex: calls at 0x166238, 0x166278, 0x1662a8,
     // then intValue, scvtf, fdiv against g_flByteScale255 at 0x28dff4, then colorWithRed: at
     // 0x1662ec.
-    _baseColor = [UIColor colorWithRed:[colors[0] intValue] / kKnitColorComponentScale
-                                 green:[colors[1] intValue] / kKnitColorComponentScale
-                                  blue:[colors[2] intValue] / kKnitColorComponentScale
-                                 alpha:1.0];
-    _lineColor = [UIColor colorWithRed:[colors[3] intValue] / kKnitColorComponentScale
-                                 green:[colors[4] intValue] / kKnitColorComponentScale
-                                  blue:[colors[5] intValue] / kKnitColorComponentScale
-                                 alpha:1.0];
-    _waveColor = [UIColor colorWithRed:[colors[6] intValue] / kKnitColorComponentScale
-                                 green:[colors[7] intValue] / kKnitColorComponentScale
-                                  blue:[colors[8] intValue] / kKnitColorComponentScale
-                                 alpha:1.0];
-    _isKnitColorDiffer = YES;
+    baseColor = [UIColor colorWithRed:[colors[0] intValue] / kKnitColorComponentScale
+                                green:[colors[1] intValue] / kKnitColorComponentScale
+                                 blue:[colors[2] intValue] / kKnitColorComponentScale
+                                alpha:1.0];
+    lineColor = [UIColor colorWithRed:[colors[3] intValue] / kKnitColorComponentScale
+                                green:[colors[4] intValue] / kKnitColorComponentScale
+                                 blue:[colors[5] intValue] / kKnitColorComponentScale
+                                alpha:1.0];
+    waveColor = [UIColor colorWithRed:[colors[6] intValue] / kKnitColorComponentScale
+                                green:[colors[7] intValue] / kKnitColorComponentScale
+                                 blue:[colors[8] intValue] / kKnitColorComponentScale
+                                alpha:1.0];
+    isKnitColorDiffer = YES;
 }
 
 /** @ghidraAddress 0x166528 */
 - (int)getColorType {
-    if (!_isKnitColorDiffer) {
+    if (!isKnitColorDiffer) {
         return 0;
     }
     // Compare against palette 1 (amber) at 0x353da8 and palette 4 (pink) at 0x353e38.
@@ -105,13 +110,13 @@ static const KnitColorPalette kKnitColorPalettes[] = {
     UIColor *base1 = [self makeColor:&kKnitColorPalettes[1].base];
     UIColor *line1 = [self makeColor:&kKnitColorPalettes[1].line];
     UIColor *wave1 = [self makeColor:&kKnitColorPalettes[1].wave];
-    if ([base1 isEqual:_baseColor] && [line1 isEqual:_lineColor] && [wave1 isEqual:_waveColor]) {
+    if ([base1 isEqual:baseColor] && [line1 isEqual:lineColor] && [wave1 isEqual:waveColor]) {
         return 1;
     }
     UIColor *base4 = [self makeColor:&kKnitColorPalettes[4].base];
     UIColor *line4 = [self makeColor:&kKnitColorPalettes[4].line];
     UIColor *wave4 = [self makeColor:&kKnitColorPalettes[4].wave];
-    if ([base4 isEqual:_baseColor] && [line4 isEqual:_lineColor] && [wave4 isEqual:_waveColor]) {
+    if ([base4 isEqual:baseColor] && [line4 isEqual:lineColor] && [wave4 isEqual:waveColor]) {
         return 4;
     }
     return 5;
@@ -119,17 +124,17 @@ static const KnitColorPalette kKnitColorPalettes[] = {
 
 /** @ghidraAddress 0x166744 */
 - (UIColor *)getBaseColor {
-    return _baseColor;
+    return baseColor;
 }
 
 /** @ghidraAddress 0x166754 */
 - (UIColor *)getLineColor {
-    return _lineColor;
+    return lineColor;
 }
 
 /** @ghidraAddress 0x166764 */
 - (UIColor *)getWaveColor {
-    return _waveColor;
+    return waveColor;
 }
 
 @end

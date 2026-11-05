@@ -56,26 +56,6 @@ typedef struct {
 - (instancetype)init;
 
 /**
- * Whether the current palette differs from the default.
- *
- * Backed by @c isKnitColorDiffer (offset global 0x34b254). Set by @c -setColorWithType: to
- * @c (type != 0 && type != 5), so types 0 and 5 are the two that count as "not differing".
- */
-@property(nonatomic, readonly) BOOL isKnitColorDiffer;
-/**
- * The knit background's base colour. Backed by @c baseColor (0x34b258).
- */
-@property(nonatomic, readonly, nullable) UIColor *baseColor;
-/**
- * The knit background's line colour. Backed by @c lineColor (0x34b25c).
- */
-@property(nonatomic, readonly, nullable) UIColor *lineColor;
-/**
- * The knit background's wave colour. Backed by @c waveColor (0x34b260).
- */
-@property(nonatomic, readonly, nullable) UIColor *waveColor;
-
-/**
  * Selects a built-in palette by type.
  *
  * Indexes a table of 0x30-byte entries at 0x353d78 by @c type and builds the three colours from the
