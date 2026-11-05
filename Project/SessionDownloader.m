@@ -149,7 +149,13 @@ static inline void SessionDownloaderRetryOriginalRequest(SessionDownloader *self
 /** @ghidraAddress 0xffe1c */
 - (instancetype)initWithURL:(NSURL *)url postData:(NSData *)postData delegate:(id)aDelegate {
 #ifdef ENABLE_PATCHES
-    return [self initWithURL:url postData:postData delegate:aDelegate cnonce:nil];
+    id body = [NSJSONSerialization JSONObjectWithData:postData ?: [NSData data]
+                                              options:0
+                                                error:nil];
+    id value = [body isKindOfClass:[NSDictionary class]] ? body[@"cnonce"] : nil;
+    NSString *cnonce =
+        [value isKindOfClass:[NSString class]] ? value : [NSString stringWithFormat:@"%d", rand()];
+    return [self initWithURL:url postData:postData delegate:aDelegate cnonce:cnonce];
 }
 
 - (instancetype)initWithURL:(NSURL *)url

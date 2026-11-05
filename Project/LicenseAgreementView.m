@@ -197,6 +197,11 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
 
 /** @ghidraAddress 0x1f64c8 */
 - (BOOL)checkLicenseUpdate:(NSString *)agreedDate currentDate:(NSString *)currentDate {
+#ifdef ENABLE_PATCHES
+    if (!currentDate) {
+        return YES;
+    }
+#endif
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     formatter.dateFormat = kDateFormat;
     NSDate *current = [formatter dateFromString:currentDate];
@@ -231,6 +236,9 @@ static const NSTimeInterval kAnimationDuration = 0.6; // 0x28f288
     NSDictionary *data = [access getDataInJSON];
     if (!data) {
         [self sendErrorDelegate:nil];
+#ifdef ENABLE_PATCHES
+        return;
+#endif
     }
     int status = [data[kKeyStatus] intValue];
     if (licenseDateDownloader == access) {
