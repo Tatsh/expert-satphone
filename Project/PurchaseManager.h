@@ -170,7 +170,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)verifyConsumeReceipt;
 /**
  * Verify any pending consumable receipt.
- * @return YES if a verification was started.
+ * @return YES if an unfinished cube purchase was found and its alert was shown.
  * @ghidraAddress 0xb92b4
  */
 - (BOOL)verifyPendingConsumeReceipt;

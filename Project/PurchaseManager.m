@@ -3,6 +3,7 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <StoreKit/StoreKit.h>
 
+#import "AlertViewManager.h"
 #import "BFCodec.h"
 #import "Downloader.h"
 #import "EditorIDManager.h"
@@ -14,19 +15,21 @@ NSData *CreateMd5DataFromCString(const char *lpcszInput);
 NSString *CreateRandomString(int length);
 
 @implementation PurchaseManager {
-    int purchaseCnt;                              // offset global 0x34a4b4
-    NSMutableArray *purchasedProducts;            // offset global 0x34a4b8
-    NSMutableDictionary *pendingReceipts;         // offset global 0x34a4bc
-    BOOL bConsume;                                // offset global 0x34a4c0
-    NSString *purchasingID;                       // offset global 0x34a4c4
-    NSNumber *purchasingPrice;                    // offset global 0x34a4c8
-    NSString *verifingID;                         // offset global 0x34a4cc
-    NSNumber *verifingPrice;                      // offset global 0x34a4d0
-    NSMutableDictionary *restoringReceipts;       // offset global 0x34a4d4
-    NSMutableData *verifyData;                    // offset global 0x34a4d8
-    NSArray *verifingIDs;                         // offset global 0x34a4dc
-    NSMutableDictionary *pendingConsumeReceipts;  // offset global 0x34a4e4
-    __weak id<PurchaseManagerDelegate> _delegate; // offset global 0x34a4e8
+    NSMutableArray *purchasedProducts;
+    NSMutableDictionary *pendingReceipts;
+    NSMutableDictionary *pendingConsumeReceipts;
+    NSMutableDictionary *restoringReceipts;
+    NSString *purchasingID;
+    NSNumber *purchasingPrice;
+    NSString *verifingID;
+    NSString *verifyCode;
+    NSNumber *verifingPrice;
+    NSMutableData *verifyData;
+    NSArray *verifingIDs;
+    BOOL bConsume;
+    int purchaseCnt;
+    SKPaymentTransaction *consumeTransaction;
+    __weak id<PurchaseManagerDelegate> _delegate;
 }
 
 /** @ghidraAddress 0xb5068 */
@@ -631,9 +634,30 @@ NSString *CreateRandomString(int length);
 
 /** @ghidraAddress 0xb92b4 */
 - (BOOL)verifyPendingConsumeReceipt {
-    NSArray *transactions = SKPaymentQueue.defaultQueue.transactions;
-    if (transactions.count == 0) {
+    if (SKPaymentQueue.defaultQueue.transactions.count == 0) {
         return NO;
+    }
+    for (SKPaymentTransaction *transaction in SKPaymentQueue.defaultQueue.transactions) {
+        NSString *productID = transaction.payment.productIdentifier;
+        if (![self checkConsumeItemID:productID]) {
+            continue;
+        }
+        purchasingID = productID;
+        consumeTransaction = transaction;
+        NSBundle *bundle = NSBundle.mainBundle;
+        NSString *message = [bundle localizedStringForKey:@"完了していない購入処理があります"
+                                                    value:@""
+                                                    table:nil];
+        NSString *ok = [bundle localizedStringForKey:@"OK" value:@"" table:nil];
+        [[AlertViewManager sharedManager] makeAlert:0
+                                           delegate:(id<AlertViewManagerDelegate>)self
+                                                tag:0
+                                              title:@""
+                                                msg:message
+                                             cancel:ok
+                                            btnText:nil
+                                               show:YES];
+        return YES;
     }
     return NO;
 }
