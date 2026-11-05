@@ -499,17 +499,34 @@ static inline int GameViewControllerNowSector(GameViewController *self) {
 // panel index's hit rectangle, and if so marks that panel in buttonPress. The rectangle differs per
 // idiom: the pad uses a fixed 0xc0 grid with an 8pt inset, the phone a 0x50 grid widened by
 // buttonTouchWidth (and a 4-inch top margin from the renderer). Only the live-touch arm of -loop:
-// divides the point by the display scale; the auto-play and ghost-replay arm passes it through
-// unscaled, so the caller selects that with scaleByDisplay.
+// converts the point to the GL projection; the auto-play and ghost-replay arm already uses that
+// space, so the caller selects the conversion with scaleByDisplay.
 static inline void GameViewControllerHitTestPanels(GameViewController *self,
                                                    CGPoint pointInView,
                                                    BOOL scaleByDisplay) {
     CGFloat px = pointInView.x;
     CGFloat py = pointInView.y;
     if (scaleByDisplay) {
+#ifdef ENABLE_PATCHES
+        // The historical uniform scale misses the stretched Y axis on newer phone screens.
+        CGSize viewSize = self.glView.bounds.size;
+        if (viewSize.width > 0.0 && viewSize.height > 0.0) {
+            CGFloat designWidth = self->isPad ? k2dSpacePadWidth : k2dSpacePhoneWidth;
+            CGFloat designHeight = self->isPad ? k2dSpacePadHeight :
+                                                 ([[JubeatAppDelegate appDelegate] is4inchAspect] ?
+                                                      k2dSpacePhoneHeightWide :
+                                                      k2dSpacePhoneHeight);
+            px *= designWidth / viewSize.width;
+            py *= designHeight / viewSize.height;
+        } else {
+            px /= self->displayScale;
+            py /= self->displayScale;
+        }
+#else
         float scale = self->displayScale;
         px /= scale;
         py /= scale;
+#endif
     }
     for (unsigned int panel = 0; panel < kGamePanelCount; ++panel) {
         int adjusted = ((int)panel < 0) ? ((int)panel + 3) : (int)panel;
