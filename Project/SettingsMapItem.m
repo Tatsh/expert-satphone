@@ -1,6 +1,15 @@
 #import "SettingsMapItem.h"
 
-// A plain MKAnnotation value object with no methods of its own; the coordinate, title, subtitle,
-// and model accessors are all compiler-synthesised, matching the binary's @c SettingsMapItem.
-@implementation SettingsMapItem
+@implementation SettingsMapItem {
+    CLLocationCoordinate2D _coordinate;
+}
+
+- (CLLocationCoordinate2D)coordinate {
+    return _coordinate;
+}
+
+- (void)setCoordinate:(CLLocationCoordinate2D)coordinate {
+    _coordinate = coordinate;
+}
+
 @end

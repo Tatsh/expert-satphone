@@ -373,7 +373,7 @@ static const int kMapConfirmAlertTag = 1;
                         item.model = [model isEqualToString:kSpotModelSau] ?
                                          SettingsMapSpotModelSau :
                                          SettingsMapSpotModelDefault;
-                        item.coordinate = coordinate;
+                        [item setCoordinate:coordinate];
                         self.dictSpot[spotID] = item;
                         if (MKMapRectContainsPoint(visibleRect,
                                                    MKMapPointForCoordinate(coordinate))) {
@@ -408,7 +408,7 @@ static const int kMapConfirmAlertTag = 1;
                 _optAnnotation.title = [campList[0] objectForKey:kCampKeyName];
                 _optAnnotation.subtitle = [campList[0] objectForKey:kCampKeyDescription];
                 _optAnnotation.model = kSettingsMapItemModelCorabo;
-                _optAnnotation.coordinate = _carPos;
+                [_optAnnotation setCoordinate:_carPos];
                 [_optPosBtn setEnabled:YES];
                 _optPosBtn.tintColor = _btnColor;
                 if (MKMapRectContainsPoint(visibleRect, MKMapPointForCoordinate(_carPos))) {
