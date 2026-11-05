@@ -596,9 +596,26 @@ GameViewControllerThemeImage(unsigned int theme, NSString *rpl, NSString *knt, N
     return LoadScaledPngImage(dflt);
 }
 
-// The screen centre for a renderer button position, scaled by the display scale and nudged by the
-// per-idiom offsets. Shared by the good-job, Twitter, and search button builders.
+// The screen centre for a renderer button position, with per-idiom offsets. Shared by the
+// good-job, Twitter, and search button builders.
 static inline CGPoint GameViewControllerButtonCenter(GameViewController *self, CGPoint position) {
+#ifdef ENABLE_PATCHES
+    // Preservation patch, not in the binary: UIKit centres must follow the GL projection.
+    CGSize viewSize = self.glView.bounds.size;
+    if (viewSize.width > 0.0 && viewSize.height > 0.0) {
+        CGFloat designWidth = self->isPad ? k2dSpacePadWidth : k2dSpacePhoneWidth;
+        CGFloat designHeight = self->isPad ? k2dSpacePadHeight :
+                                             ([[JubeatAppDelegate appDelegate] is4inchAspect] ?
+                                                  k2dSpacePhoneHeightWide :
+                                                  k2dSpacePhoneHeight);
+        CGPoint point = CGPointMake(position.x * viewSize.width / designWidth,
+                                    position.y * viewSize.height / designHeight);
+        point = [self.glView convertPoint:point toView:self.view];
+        point.x += self->isPad ? kButtonCenterXOffsetPad : kButtonCenterXOffsetPhone;
+        point.y += self->isPad ? kButtonCenterYOffsetPad : kButtonCenterYOffsetPhone;
+        return point;
+    }
+#endif
     float scale = self->displayScale;
     CGFloat x =
         position.x * scale + (self->isPad ? kButtonCenterXOffsetPad : kButtonCenterXOffsetPhone);

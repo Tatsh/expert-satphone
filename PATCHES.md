@@ -82,6 +82,15 @@ have different bounds. The binary compares unscaled touch points with renderer r
 builds map touch points into GL space on each axis, stretch the timeline gesture region with the
 rendered band, and map the paste button's renderer position back into UIKit coordinates.
 
+### Gameplay and result button coordinates
+
+**File:** `Project/GameViewController.m` — `-loop:` (0x13088) and the result button builders.
+
+_Modern iOS._ The game draws into a 320×480 or 320×568 phone GL space. Patched builds map live
+touches into that space on each axis. Result button images use renderer positions from the same
+space, so their UIKit centres use the inverse mapping. The original single display scale can put
+the image away from its rendered panel on a taller phone.
+
 ### Marker install detection
 
 **File:** `Project/MarkerManager.m` — `+checkRegularMarkerData` (0x1b8fe0)

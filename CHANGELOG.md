@@ -18,6 +18,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- In patched builds, result-screen Good Job, share, and store-search buttons align with their
+  displayed positions on iPhone.
 - In patched builds, the iPhone chart editor maps touches to the game grid and aligns timeline
   gestures and paste controls with the displayed view.
 - Corrected chart editor rendering scale on iPad and iPhone.
