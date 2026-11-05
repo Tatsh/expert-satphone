@@ -923,13 +923,13 @@ RunMusicBarSeek(EditViewController *self, CGPoint location, AudioManager *audio)
     }
 
     [self.glView createFramebuffer];
-    // The 2D space matches the device idiom: 768x1024 on phone, 320x480 on pad.
+    // The 2D space matches the device idiom: 768x1024 on pad, 320x480 on phone.
     if (isPad) {
-        // @ghidraAddress 0x10028e098, 0x1002944a8
-        [self.glView set2dSpace:CGSizeMake(320.0, 480.0)];
-    } else {
         // @ghidraAddress 0x10028e090, 0x1002944a0
         [self.glView set2dSpace:CGSizeMake(768.0, 1024.0)];
+    } else {
+        // @ghidraAddress 0x10028e098, 0x1002944a8
+        [self.glView set2dSpace:CGSizeMake(320.0, 480.0)];
     }
 
     self.mainGameRenderer =

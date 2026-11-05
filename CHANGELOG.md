@@ -18,6 +18,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Corrected chart editor rendering scale on iPad and iPhone.
 - Restored purchase and restore callbacks after successful receipt verification responses.
 - In patched builds, iPhone panel hit testing scales touch coordinates on both axes to match the
   gameplay grid.
