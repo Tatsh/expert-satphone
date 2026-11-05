@@ -27,15 +27,15 @@ static NSString *const kScratchDifficultyExtreme = @"EXT";
 static NSString *const kScratchDifficultyTotal = @"TOTAL";
 
 @implementation ScratchInfo {
-    int myScore[4];              // +0x8
-    int myRank[4];               // +0x18
-    int myIndex[4];              // +0x28
-    unsigned char bFullCombo[4]; // +0x38
-    NSString *_musicName;        // strong
-    NSString *_artistName;       // strong
-    NSString *_imgURL;           // strong
-    NSString *_itemURL;          // strong
-    NSInteger _packID;           // longValue
+    int myScore[4];        // +0x8
+    int myRank[4];         // +0x18
+    int myIndex[4];        // +0x28
+    BOOL bFullCombo[4];    // +0x38
+    NSString *_musicName;  // strong
+    NSString *_artistName; // strong
+    NSString *_imgURL;     // strong
+    NSString *_itemURL;    // strong
+    NSInteger _packID;     // longValue
 }
 
 #pragma mark - Construction
@@ -97,7 +97,7 @@ static NSString *const kScratchDifficultyTotal = @"TOTAL";
         if (entry) {
             myScore[i] = [entry[kScratchKeyScore] intValue];
             myRank[i] = [entry[kScratchKeyRank] intValue];
-            bFullCombo[i] = (unsigned char)[entry[kScratchKeyIsFullCombo] boolValue];
+            bFullCombo[i] = [entry[kScratchKeyIsFullCombo] boolValue];
         }
     }
 }
