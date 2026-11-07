@@ -23,17 +23,15 @@ A source-level reconstruction of the iOS game _jubeat plus_ (`jp.konami.jubeatpl
 No copyrighted material is in this repository. You must provide your own IPA with the game assets.
 Building this source alone will not result in a playable game.
 
-A number of patches are applied for modern iOS. See [Build-time patches](PATCHES.md) for more
-information.
+Patches for modern iOS are documented in [Build-time patches](PATCHES.md).
 
-The server API the app speaks is described in [openapi.yaml](openapi.yaml). A response schema there
-is a lower bound: the client ignores any field it does not need. It is browsable at
-[tatsh.github.io/expert-satphone/api/](https://tatsh.github.io/expert-satphone/api/), which shows
-each endpoint as a cURL, fetch, or other client call and can send the request.
+The client API is documented in [openapi.yaml](openapi.yaml). Response schemas list only fields the
+client reads. Browse the specification at
+[tatsh.github.io/expert-satphone/api/](https://tatsh.github.io/expert-satphone/api/) to view and
+send example requests.
 
 ## Status
 
-- Features that require online services are obviously non-functional.
-- Editor is not well-tested.
-- Phone support is not well-tested.
-- Tutorial is not tested (skipped when `ENABLE_PATCHES` is enabled).
+- Some features require unavailable online services.
+- The editor has not been thoroughly tested.
+- The tutorial has not been tested. Patched builds skip it.
