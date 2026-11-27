@@ -34,7 +34,6 @@ autoreleasing
 autoresizes
 autoresizing
 autoreverses
-badresponse
 badzipfile
 bagde
 basesize
@@ -86,7 +85,6 @@ contoller
 contrib
 controll
 copysign
-copytree
 corabo
 cosf
 coveragerc
@@ -132,7 +130,6 @@ dsym
 eagl
 edithelp
 eefmn
-elif
 endforeach
 envi
 erina
@@ -374,7 +371,6 @@ packlist
 paramdoc
 parameteri
 parameteriv
-pathlib
 pbase
 pbxproj
 pendconlist
@@ -382,7 +378,6 @@ pendlist
 persional
 persision
 physmem
-pipefail
 pipx
 plid
 pnlres
@@ -429,7 +424,6 @@ revoinf
 rgba
 ripgreprc
 rivalrank
-rmtree
 rodata
 rollup
 rollup's
@@ -465,7 +459,6 @@ shimizu
 shinsaku
 shogo
 shohei
-shutil
 signedness
 sincosf
 sinf
@@ -598,7 +591,6 @@ writable
 wshadow
 wunreachable
 wunused
-xcrun
 xffu
 xform
 yarnrc
